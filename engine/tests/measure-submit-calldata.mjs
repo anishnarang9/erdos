@@ -11,9 +11,9 @@ function bytes(value, name, size) {
   return result
 }
 
-export function encodeSubmit(proof) {
+export function encodeSubmit(proof, verdict = 1) {
   assert.equal(proof.version, 1)
-  assert.equal(proof.verdict, 1, 'Submit calldata requires a passing journal')
+  assert.equal(proof.verdict, verdict, 'Unexpected proof verdict')
   bytes(proof.imageId, 'imageId', 32)
   const context = bytes(proof.context, 'context', 169)
   assert.equal(context[0], 1, 'Invalid funded context version')
@@ -28,7 +28,7 @@ export function encodeSubmit(proof) {
   const seal = bytes(proof.seal, 'seal', 260)
   assert.equal(seal.subarray(0, 4).toString('hex'), 'e71e6620')
   assert.deepEqual(bytes(proof.journal, 'journal', 234), Buffer.concat([
-    context, Buffer.from([1]), envelopeHash, keyCommitment,
+    context, Buffer.from([verdict]), envelopeHash, keyCommitment,
   ]), 'Journal differs from the public proof fields')
 
   const submit = new Interface(['function submit(uint256,bytes32,bytes)'])

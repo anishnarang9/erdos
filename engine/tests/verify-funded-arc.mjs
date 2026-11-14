@@ -1,16 +1,28 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { parseArgs } from 'node:util'
 import { getAddress, sha256 } from 'ethers'
 import { encodeSubmit } from './measure-submit-calldata.mjs'
 
 async function run() {
-  const [proofPath, requestedBlock, ...extra] = process.argv.slice(2)
+  const { positionals, values } = parseArgs({
+    allowPositionals: true,
+    options: { 'fail-proof': { type: 'string' } },
+  })
+  const [proofPath, requestedBlock, ...extra] = positionals
   assert.ok(proofPath && !extra.length,
-    'Usage: node verify-funded-arc.mjs PROOF_JSON [BLOCK_HEX]')
+    'Usage: node verify-funded-arc.mjs PROOF_JSON [BLOCK_HEX] [--fail-proof FAIL_PROOF_JSON]')
   const quantity = /^0x(?:0|[1-9a-f][0-9a-f]*)$/
   assert.ok(requestedBlock === undefined || quantity.test(requestedBlock), 'Invalid block number')
   const proof = JSON.parse(readFileSync(proofPath, 'utf8'))
   const { context, jobId, envelopeHash, envelopeBytes, data } = encodeSubmit(proof)
+  let failingSubmission
+  if (values['fail-proof'] !== undefined) {
+    const failing = JSON.parse(readFileSync(values['fail-proof'], 'utf8'))
+    assert.ok(failing.context === proof.context && failing.imageId === proof.imageId,
+      'Expected a failing proof for the same job context and image')
+    failingSubmission = encodeSubmit(failing, 0)
+  }
   const chainId = BigInt('0x' + context.subarray(1, 33).toString('hex'))
   assert.equal(chainId, 5042002n, 'Expected an Arc Testnet proof context')
   const escrow = getAddress('0x' + context.subarray(33, 53).toString('hex'))
@@ -47,12 +59,17 @@ async function run() {
 
   const call = { from: provider, to: escrow, data }
   assert.equal(await result('eth_call', [call, block]), '0x', 'Unexpected submit return data')
+  async function requireRevert(data, message) {
+    const response = await request('eth_call', [{ ...call, data }, block])
+    assert.ok(response.error?.code === 3 || /execution reverted/i.test(response.error?.message ?? ''), message)
+  }
   const lastSealByte = Number.parseInt(proof.seal.slice(-2), 16) ^ 1
   const changedSeal = proof.seal.slice(0, -2) + lastSealByte.toString(16).padStart(2, '0')
   const changed = encodeSubmit({ ...proof, seal: changedSeal })
-  const rejected = await request('eth_call', [{ ...call, data: changed.data }, block])
-  assert.ok(rejected.error?.code === 3 || /execution reverted/i.test(rejected.error?.message ?? ''),
-    'Expected the deployed submit call to revert after changing the seal')
+  await requireRevert(changed.data, 'Expected the deployed submit call to revert after changing the seal')
+  if (failingSubmission) {
+    await requireRevert(failingSubmission.data, 'Expected the deployed submit call to revert for the failing proof')
+  }
 
   async function estimateGas() {
     try {
@@ -82,6 +99,7 @@ async function run() {
     calldataBytes: (data.length - 2) / 2,
     acceptedBySimulation: true,
     changedSealReverted: true,
+    ...(failingSubmission && { failingProofReverted: true }),
     estimateGas: await estimateGas(),
   }, null, 2))
 }

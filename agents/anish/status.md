@@ -2,6 +2,11 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 18:58 -05:00 — Anish
+
+- Branch codex/anish-engine. The Arc submit preflight can test a verdict-0 receipt for the same funded job and image. A mock RPC confirmed that an endpoint accepting that receipt fails the preflight.
+- The current proof measurements use Apple Silicon with an amd64 compression container. Native Linux x86-64 timing remains unmeasured. The full-cap and signed proofs are still queued locally.
+
 ## 2026-11-14 18:56 -05:00 — Anish
 
 - Branch codex/anish-engine. Added the funded submit preflight. It tests the original and changed seal in read-only calls at one Arc block. The mock RPC test checked both outcomes. Arc rejected the synthetic fixture address because it has no deployed core code.
