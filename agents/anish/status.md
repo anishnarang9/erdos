@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 15:47 -05:00 — Anish
+
+- Branch `codex/anish-engine`. Published a fresh [Groth16 smoke receipt](../../engine/fixtures/groth16-smoke-v1.json) for the digest-pinned Docker guest.
+- Proving took 106.922 seconds on an arm64 Mac with the amd64 CPU prover in Docker. The guest ran for 2,792 user cycles. Rust and the released Solidity verifier accepted the receipt. The local EVM rejected changes to the image ID, journal, and seal. It estimated 257,760 gas for the direct verifier call.
+- The next engine step is to evaluate validated rules in the guest and commit the full job journal. The settlement owner can use the smoke receipt for Arc verifier checks.
+
 ## 2026-11-14 15:46 -05:00 — Anish
 
 - Branch `codex/anish-engine`. Added the [RISC Zero proof smoke check](../../engine/proof-smoke/README.md) with locked dependencies and pinned Docker images.

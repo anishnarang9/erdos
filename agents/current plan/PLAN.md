@@ -2,6 +2,11 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 15:47 -05:00 — Anish — First real proof
+
+- The digest-pinned Docker guest produced a [real Groth16 smoke receipt](../../engine/fixtures/groth16-smoke-v1.json). The released v3.1.0 Solidity verifier accepted it and rejected altered inputs on a local EVM.
+- The receipt uses the fixed smoke journal. Settlement can use it to check the verifier on Arc. A funded payout requires an engine-generated receipt with the 234-byte job journal.
+
 ## 2026-11-14 15:42 -05:00 — Anish — Engine interface checkpoint
 
 - Engine branch `codex/anish-engine` publishes the [wire fixture](../../engine/fixtures/wire-v1.json) and the [first plan validator](../../engine/README.md). Solidity and TypeScript can use the fixture to check the context, journal, and encryption bytes.
