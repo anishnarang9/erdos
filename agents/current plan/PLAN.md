@@ -2,6 +2,13 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 — Anish workstream — RISC Zero plan and team handoff
+
+- The [RISC Zero implementation plan](ZKVM-IMPLEMENTATION.md) specifies a domain-independent compiler, local solver CLI, named file bundles, signed evidence, and byte fixtures.
+- The [three-way work split](WORK-SPLIT.md) assigns the engine to Anish and defines separate Arc settlement and agent commerce roles. The other owner assignments are pending.
+- Use released `risc0-ethereum` v3.1.0 for selector `0xe71e6620`. This corrects the verifier source pin in the earlier entry. The prior scheduling example is one possible workload. The new acceptance plan exercises two unrelated domains.
+- The detailed documents mark proposed defaults and define build gates. Real proof generation, Arc deployment, and the full commerce flow remain pending.
+
 ## 2026-11-14 — Architecture and five-day delivery plan
 
 This entry consolidates the current architecture and build sequence. Implementation owners are pending team assignment. Wednesday, November 18 is the internal demo target. The [official submission deadline](https://ubc-hackathon-2026.devpost.com/rules) is Friday, November 20 at noon Central.
