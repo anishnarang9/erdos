@@ -1,12 +1,10 @@
-mod strict_json;
-
 use std::collections::BTreeSet;
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use ubc26_protocol::{check_filename, rules_hash, structure_hash, MAX_FILES};
 
-use crate::strict_json::StrictJson;
+use ubc26_protocol::strict_json;
 
 pub const MAX_PLAN_BYTES: usize = 256 * 1024;
 const MAX_FIELDS: usize = 256;
@@ -352,9 +350,9 @@ pub fn validate_plan(bytes: &[u8]) -> Result<ValidatedPlan, PlanError> {
     if bytes.len() > MAX_PLAN_BYTES {
         return Err(PlanError::invalid("", "The plan exceeds 256 KiB"));
     }
-    let input: StrictJson =
-        serde_json::from_slice(bytes).map_err(|error| PlanError::invalid("", error.to_string()))?;
-    let mut plan: Plan = decode(input.0, "")?;
+    let input = strict_json::from_slice(bytes)
+        .map_err(|error| PlanError::invalid("", error.to_string()))?;
+    let mut plan: Plan = decode(input, "")?;
     if plan.version != 1 {
         return Err(PlanError::invalid("/version", "Expected version 1"));
     }

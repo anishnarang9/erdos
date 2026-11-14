@@ -6,6 +6,7 @@
 extern crate alloc;
 
 mod bundle;
+pub mod strict_json;
 
 pub use bundle::{
     check_filename, decode_bundle, encode_bundle, BundleKind, NamedFile, MAX_FILES, MAX_NAME_BYTES,

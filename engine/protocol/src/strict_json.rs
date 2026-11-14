@@ -1,11 +1,16 @@
-use std::fmt;
+use alloc::{format, string::String, vec::Vec};
+use core::fmt;
 
 use serde::de::{self, MapAccess, SeqAccess, Visitor};
 use serde::{Deserialize, Deserializer};
 use serde_json::{Map, Value};
 
-/// Deserialize into a JSON value without discarding duplicate object members.
-pub(crate) struct StrictJson(pub Value);
+/// Parse a JSON value without discarding duplicate object members.
+pub fn from_slice(bytes: &[u8]) -> Result<Value, serde_json::Error> {
+    serde_json::from_slice::<StrictJson>(bytes).map(|value| value.0)
+}
+
+struct StrictJson(Value);
 
 impl<'de> Deserialize<'de> for StrictJson {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {

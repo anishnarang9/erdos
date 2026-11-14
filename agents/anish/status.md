@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 16:03 -05:00 — Anish
+
+- Branch `codex/anish-engine`. Added a scalar checker guest and the compile, prove, and decrypt commands. Published the authoring schema and CLI input and output formats for Neil.
+- All 26 workspace tests passed. Clippy and schema validation passed. Two compiled packages with different thresholds produced the same image ID and guest digest, with distinct rules hashes.
+- The funded-job test reached Groth16 compression. Docker reported an out-of-memory kill at its current RAM limit. A retry with fewer prover threads is running. Arc, collection rules, and signed evidence remain pending.
+
 ## 2026-11-14 15:47 -05:00 — Anish
 
 - Branch `codex/anish-engine`. Published a fresh [Groth16 smoke receipt](../../engine/fixtures/groth16-smoke-v1.json) for the digest-pinned Docker guest.

@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UBC26 scalar plan v1",
+  "type": "object",
+  "required": ["version", "deliverables", "references", "rules"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"const": 1},
+    "deliverables": {"type": "array", "minItems": 1, "maxItems": 16, "items": {"$ref": "#/$defs/file"}},
+    "references": {"type": "array", "maxItems": 16, "items": {"$ref": "#/$defs/file"}},
+    "evidence": {"type": "array", "maxItems": 0},
+    "rules": {"type": "array", "minItems": 1, "maxItems": 256, "items": {"$ref": "#/$defs/expression"}}
+  },
+  "$defs": {
+    "name": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]{1,128}$",
+      "not": {"enum": [".", ".."]}
+    },
+    "kind": {"enum": ["bool", "i64", "string"]},
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "parser"],
+      "properties": {
+        "name": {"$ref": "#/$defs/name"},
+        "parser": {"enum": ["json/v1", "text/v1", "opaque/v1"]},
+        "fields": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "type"],
+            "properties": {
+              "name": {"type": "string", "minLength": 1},
+              "type": {"$ref": "#/$defs/kind"}
+            }
+          }
+        }
+      },
+      "if": {"properties": {"parser": {"enum": ["text/v1", "opaque/v1"]}}},
+      "then": {"properties": {"fields": {"maxItems": 0}}}
+    },
+    "expression": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "source", "file"],
+          "properties": {
+            "op": {"const": "field"},
+            "source": {"enum": ["deliverable", "reference"]},
+            "file": {"$ref": "#/$defs/name"},
+            "field": {"type": "string", "minLength": 1}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "type", "value"],
+          "properties": {"op": {"const": "literal"}, "type": {"$ref": "#/$defs/kind"}, "value": {}},
+          "oneOf": [
+            {"properties": {"type": {"const": "bool"}, "value": {"type": "boolean"}}},
+            {"properties": {"type": {"const": "i64"}, "value": {"type": "string", "pattern": "^-?[0-9]+$"}}},
+            {"properties": {"type": {"const": "string"}, "value": {"type": "string"}}}
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "value"],
+          "properties": {"op": {"const": "not"}, "value": {"$ref": "#/$defs/expression"}}
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "left", "right"],
+          "properties": {
+            "op": {"enum": ["add", "sub", "mul", "lt", "lte", "gt", "gte", "eq", "ne", "and", "or"]},
+            "left": {"$ref": "#/$defs/expression"},
+            "right": {"$ref": "#/$defs/expression"}
+          }
+        }
+      ]
+    }
+  }
+}

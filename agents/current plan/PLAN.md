@@ -2,6 +2,11 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 16:03 -05:00 — Anish — Scalar engine and commerce interface
+
+- The [scalar plan schema](../../engine/plan-v1.schema.json) and [CLI contract](../../engine/README.md) answer the current authoring, compiler, proof, and recovery format questions. The CLI builds a checker package from approved structure and reference data.
+- A threshold-only edit changed the rules hash and preserved the guest image ID. Real funded-job receipt generation is in progress. The current guest evaluates scalar fields and whole text files. Record collections and signed evidence remain pending.
+
 ## 2026-11-14 15:47 -05:00 — Anish — First real proof
 
 - The digest-pinned Docker guest produced a [real Groth16 smoke receipt](../../engine/fixtures/groth16-smoke-v1.json). The released v3.1.0 Solidity verifier accepted it and rejected altered inputs on a local EVM.
