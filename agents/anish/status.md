@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 18:48 -05:00 — Anish
+
+- Branch codex/anish-engine. Added a read-only probe for the deployed verifier and a report generator for compile and proof measurements.
+- The reviewed guest produced a passing reconciliation receipt in 260.506 seconds. The released verifier accepted it locally and through a read-only Arc state override. Warm compiles for reconciliation, signed text, and the full delivery cap reproduced the corresponding image IDs and guest digests.
+- The verdict-0 proof is running. The live probe needs the deployed verifier address from the settlement workstream.
+
 ## 2026-11-14 18:46 -05:00 — Anish
 
 - Branch codex/anish-engine. The Solidity wire harness reconstructs the journal and matches the independent key commitment vector. It verified both scalar receipts locally and rejected the verdict-0 receipt against a passing journal.

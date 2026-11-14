@@ -168,3 +168,9 @@ node engine/tests/measure-submit-calldata.mjs PASS_PROOF_JSON
 ```
 
 The calldata tool encodes the documented submit ABI and counts zero and nonzero bytes. It reports the calldata gas component under the stated per-byte assumptions. Actual settlement gas includes verification, storage, and contract calls and requires the deployed evaluator.
+
+To check a deployed verifier directly, supply its confirmed Arc Testnet address and a proof JSON file. The probe reads the chain ID, code, selector, and proof result at a single block. The estimate covers the verifier call.
+
+```sh
+node engine/tests/verify-deployed-arc.mjs VERIFIER_ADDRESS PASS_PROOF_JSON
+```
