@@ -1,5 +1,12 @@
 # Marketplace integration options
 
+> **Update (Neil, 2026-11-14 15:45 -05:00).** Main uses an **isolated** ERC-8183 core with our own hook and evaluator, not Circle's shared ACP. As a result:
+> - Option #1 becomes a reference and comparison point, not the escrow we settle on.
+> - Issue #4 (Circle can upgrade the ACP) no longer applies.
+> - Issue #3 still applies, because adopting us still requires the SDK helper.
+>
+> Issues #1, #2, #5 and #6, and options #1b (x402 and the Circle Agent Marketplace) and #4 (ERC-8004), carry into [COMMERCE-IMPLEMENTATION.md §7](COMMERCE-IMPLEMENTATION.md#7-marketplace-and-sponsor-integration).
+
 Status: **proposed** by Neil, 2026-11-14. These are candidates for demonstrating that the proof-gated evaluator works with an existing agent marketplace. Only the first entry was checked on-chain; the rest come from web search and their READMEs. Check the code before depending on any of them.
 
 ## Ranked shortlist

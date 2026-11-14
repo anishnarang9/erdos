@@ -2,7 +2,46 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 15:45 -05:00 — Neil — Proposed: workstream 3 commerce plan, aligned with main
+
+- **Owner:** Neil owns workstream 3, agent-to-agent commerce, as [WORK-SPLIT.md](WORK-SPLIT.md) proposes. The full plan is in [COMMERCE-IMPLEMENTATION.md](COMMERCE-IMPLEMENTATION.md). It covers the scope, the interfaces taken from the engine and settlement docs, the API (11 `/v1` endpoints), the data and state model, Grok authoring, the solver agent with its signer policy, delivery, the demo script, security, tests, tasks T1–T16 with checkpoints, risks, handoffs and the open questions for Anish (Q-A) and Nick (Q-N).
+- **Neil's earlier proposals that are now superseded** (decisions 1–4, 7, 10, 11, 15 in the entry below). Commerce now follows main:
+  - an isolated ERC-8183 core with one hook/evaluator contract, instead of Circle's shared ACP;
+  - proof verified inside `submit`, where a bad proof reverts and the job stays Funded, instead of `attest` and `ProofRejected`;
+  - the 234-byte `UBC26/*` journal, instead of the 114-byte `PG/*` journal;
+  - off-chain quotes, instead of the on-chain sealed-bid RFQ;
+  - two unrelated job types (record reconciliation and signed text), instead of scheduling plus procurement;
+  - the `engine/` layout, instead of `crates/pg-*`.
+  [ARCHITECTURE.md](ARCHITECTURE.md) and [MARKETPLACES.md](MARKETPLACES.md) now open with banners that say which parts still apply.
+- **Still in force from Neil's entry:**
+  - the verifier pin correction, which main now agrees with;
+  - the Arc and RPC facts (gas paid in USDC, `-32005` rate limits, the 10k-block `getLogs` cap, no fork tests);
+  - the Grok safeguards;
+  - the signer policy;
+  - the marketplace research;
+  - **the Grok Bot bounty, kept**.
+- **Proposed gate dates** for the WORK-SPLIT gates:
+  - Interface: Nov 15 12:00
+  - First proof: Nov 15, end of day
+  - First funded job: Nov 16, end of day
+  - Demo: feature freeze Nov 17, rehearsal Nov 18
+- **Pending:** Anish and Nick review this. The Q-A and Q-N questions are unanswered. No commerce code exists yet. Next is T1–T3: workspace, SDK codec against the engine fixture, and a chain adapter on Nick's ABI stub.
+
+## 2026-11-14 — Anish workstream — RISC Zero plan and team handoff
+
+- The [RISC Zero implementation plan](ZKVM-IMPLEMENTATION.md) specifies a domain-independent compiler, local solver CLI, named file bundles, signed evidence, and byte fixtures.
+- The [three-way work split](WORK-SPLIT.md) assigns the engine to Anish and defines separate Arc settlement and agent commerce roles. The other owner assignments are pending.
+- Use released `risc0-ethereum` v3.1.0 for selector `0xe71e6620`. This corrects the verifier source pin in the earlier entry. The prior scheduling example is one possible workload. The new acceptance plan exercises two unrelated domains.
+- The detailed documents mark proposed defaults and define build gates. Real proof generation, Arc deployment, and the full commerce flow remain pending.
+
 ## 2026-11-14 — Neil — Proposed: repo layout, settlement on Circle ACP, two job types, work breakdown
+
+> **Superseded in part (Neil, 2026-11-14 15:45 -05:00).** Main's [WORK-SPLIT.md](WORK-SPLIT.md) and [ZKVM-IMPLEMENTATION.md](ZKVM-IMPLEMENTATION.md) replace the following parts of this entry:
+> - decisions 1–4, 7, 10, 11, 15
+> - the lane table
+> - the gate table
+>
+> See the newest entry above. The rest is kept as history and research.
 
 Status: **proposed**. It needs team agreement. Details are in [ARCHITECTURE.md](ARCHITECTURE.md) and the marketplace options are in [MARKETPLACES.md](MARKETPLACES.md). This entry keeps Anish's proof design (RISC Zero 3.1.0 Groth16, ChaCha20-Poly1305 bound to the job context, key released in the payout transaction) and proposes the changes below.
 

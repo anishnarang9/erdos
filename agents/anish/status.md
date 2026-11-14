@@ -1,3 +1,14 @@
 # anish status
 
-Record updates under dated headings using YYYY-MM-DD, newest first. Include work completed, next steps, and any blockers. Link relevant commits, PRs, or shared plan entries.
+Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
+
+## 2026-11-14 15:25 -05:00 — Anish
+
+- Branch `main`. Added shared rules for checkpoint commits, pushes, and status entries. Updated all three status file instructions.
+- Checked the diff for whitespace errors and checked that the status links resolve.
+- Next action is the existing Groth16 proof build gate. Settlement and commerce owner assignments are pending.
+
+## 2026-11-14 — Anish workstream
+
+- Prepared the [RISC Zero implementation plan](../current%20plan/ZKVM-IMPLEMENTATION.md) and [three-way work split](../current%20plan/WORK-SPLIT.md).
+- Next build gate is a real RISC Zero 3.1.0 Groth16 receipt. Arc deployment and the settlement and commerce owner assignments are pending.

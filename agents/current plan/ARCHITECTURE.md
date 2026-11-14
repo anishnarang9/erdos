@@ -1,5 +1,24 @@
 # Architecture and repository layout
 
+> **Superseded in part (Neil, 2026-11-14 15:45 -05:00).** Main's [WORK-SPLIT.md](WORK-SPLIT.md) and [ZKVM-IMPLEMENTATION.md](ZKVM-IMPLEMENTATION.md) are the agreed design. Commerce work follows [COMMERCE-IMPLEMENTATION.md](COMMERCE-IMPLEMENTATION.md).
+>
+> **Superseded:**
+> - Settling on Circle's shared ACP with an evaluator only (`hook = 0`), `registerTerms`, `attest`/`ProofRejected`, the sealed-bid RFQ and the `scoreFloor` (main uses an isolated core, one hook/evaluator contract, verify inside `submit`, and off-chain quotes)
+> - Encoding v1 (`PG/*` tags, 114-byte journal; main uses a 234-byte journal with `UBC26/*` tags)
+> - The generic `LinearPlan` guest and the scheduling and procurement job types (main uses a typed rule compiler and two unrelated domains)
+> - The `crates/pg-*` layout (main uses `engine/`; commerce uses `commerce/`)
+>
+> **Still valid:**
+> - The verified Arc facts in §2
+> - The verifier pin
+> - The Circle ACP source behaviour, for comparison
+> - The RPC and `getLogs` limits
+> - No fork tests on Arc
+> - The image-ID determinism notes
+> - The Grok safeguards (§7)
+> - The signer policy and decision-loop discipline (§8)
+> - The WSL2 prover setup (§10)
+
 Status: **proposed** by Neil, 2026-11-14. This builds on Anish's [context](../anish/AGENTS.md) and the 2026-11-14 plan entry. Sections marked **[changed]** differ from that entry, and the reason is given next to each change. Reviewer findings and their resolutions are in [PLAN.md](PLAN.md).
 
 ## 1. What we are building
