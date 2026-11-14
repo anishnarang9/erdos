@@ -1,15 +1,15 @@
 # UBC26 engine
 
-The engine turns buyer-approved rules into commitments for a funded job. The final guest will check the deliverable and encrypt its exact bundle bytes. The Arc evaluator will verify the job journal and the matching key commitment. See the [engine plan](../agents/current%20plan/ZKVM-IMPLEMENTATION.md) for the full flow.
+The engine turns buyer-approved rules into commitments for a funded job. The scalar guest checks the deliverable and encrypts its exact bundle bytes. The Arc evaluator will verify the job journal and the matching key commitment. See the [engine plan](../agents/current%20plan/ZKVM-IMPLEMENTATION.md) for the full flow.
 
 ## Validate a plan
 
 Run these commands from the repository root.
 
 ```sh
-cargo +stable run --locked --manifest-path engine/Cargo.toml --bin engine -- \
+cargo +1.98.1 run --locked --manifest-path engine/Cargo.toml --bin engine -- \
   validate --plan engine/fixtures/expense-report-plan.json
-cargo +stable test --locked --manifest-path engine/Cargo.toml --workspace
+cargo +1.98.1 test --locked --manifest-path engine/Cargo.toml --workspace
 node engine/fixtures/check-wire-v1.mjs
 ```
 
@@ -50,6 +50,17 @@ engine/target/debug/engine decrypt --submission ATTEMPT_DIR/proof.json \
 The CLI writes JSON errors to stderr. Exit code 2 reports an argument, input, or output error. Exit code 3 reports a Docker build, prover, or randomness failure. Each output directory must be new. The CLI publishes it after all files are ready.
 
 The scalar guest embeds the canonical rule structure in a fixed Rust entry point. Parameters remain runtime inputs. Record collections, signed evidence, and specialized Rust generation remain pending. Run [the funded-job test](tests/funded-job.sh) against the built CLI with `bash engine/tests/funded-job.sh engine/target/debug/engine`. Set `CHECK_FAILING_VERDICT=1` to also produce a verdict-0 receipt.
+
+### Retry Groth16 compression after a memory limit
+
+If Docker records an OOM and exits with code 137, run with the low-memory wrapper. It sets four Go threads and a lower GC target in the CPU prover container. It does not change the guest image, witness, or verifier.
+
+```sh
+export ENGINE_DOCKER="$(command -v docker)"
+wrapper_dir="$(mktemp -d)"
+install -m 700 engine/tests/low-memory-docker.sh "$wrapper_dir/docker"
+PATH="$wrapper_dir:$PATH" bash engine/tests/funded-job.sh engine/target/debug/engine
+```
 
 ## Use the wire fixture
 

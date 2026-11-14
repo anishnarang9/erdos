@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 16:05 -05:00 — Anish
+
+- Branch `codex/anish-engine`. The expense report checker produced a real [passing Groth16 receipt](../../engine/fixtures/scalar-proof-pass-v1.json) with a 234-byte journal for a synthetic job context.
+- The proof took 138.264 seconds and 252,709 user cycles. The low-memory Docker retry succeeded. The released verifier accepted the receipt on a local EVM and rejected changes to the image ID, journal, seal, and verdict. The direct call estimated 257,760 gas. Decryption recovered the original file byte for byte.
+- Nick can test the full journal layout with this receipt. Its synthetic context cannot match an independently funded Arc job. The verdict-0 receipt is in progress.
+
 ## 2026-11-14 16:04 -05:00 — Anish
 
 - Branch `codex/anish-engine`. Added `engine eval` for Neil's buyer preview. It uses the same scalar evaluator as the guest and returns a numeric verdict without a receipt.
