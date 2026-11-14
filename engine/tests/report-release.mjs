@@ -36,17 +36,15 @@ function readBuild(directory, file, cacheHit) {
   };
 }
 
-function readProof(directory, build, name, verdict) {
+function readProof(directory, job, name, verdict) {
   const { value: run } = readJson(join(directory, `${name}.run.json`));
   const { value: proof, size: proofBytes } = readJson(join(directory, name, 'proof.json'));
   assert.equal(run.proofFile, 'proof.json', 'Unexpected proof filename');
   assert.equal(run.verdict, verdict, 'Run verdict differs from expected verdict');
   assert.equal(proof.verdict, verdict, 'Proof verdict differs from expected verdict');
   assert.equal(proof.version, 1, 'Unsupported proof version');
-  assert.equal(proof.imageId, build.imageId, 'Proof image differs from compile report');
-  assert.ok(isHex(proof.context, 169) && proof.context.startsWith('0x01'), 'Invalid context');
-  assert.equal(proof.context.slice(212, 276), build.rulesHash.slice(2), 'Rules commitment mismatch');
-  assert.equal(proof.context.slice(276), build.referenceHash.slice(2), 'Reference commitment mismatch');
+  assert.equal(proof.imageId, job.imageId, 'Proof image differs from job');
+  assert.equal(proof.context, job.context, 'Proof context differs from job');
   assert.ok(isHex(proof.seal, 260) && proof.seal.startsWith('0xe71e6620'), 'Invalid seal format');
   const envelopeBytes = typeof proof.envelope === 'string' ? (proof.envelope.length - 2) / 2 : 0;
   assert.ok(Number.isInteger(envelopeBytes) && envelopeBytes >= 31
@@ -56,30 +54,32 @@ function readProof(directory, build, name, verdict) {
   const expectedJournal = proof.context + `0${verdict}` + envelopeHash + proof.keyCommitment.slice(2);
   assert.ok(proof.journal === expectedJournal, 'Journal does not match proof fields');
   return {
-    context: proof.context,
-    metrics: {
-      verdict,
-      proveMillis: nonnegativeInteger(run.proveMillis, 'proof time'),
-      userCycles: nonnegativeInteger(run.userCycles, 'user cycles'),
-      proofBytes,
-      envelopeBytes,
-      sealBytes: (proof.seal.length - 2) / 2,
-    },
+    verdict,
+    proveMillis: nonnegativeInteger(run.proveMillis, 'proof time'),
+    userCycles: nonnegativeInteger(run.userCycles, 'user cycles'),
+    proofBytes,
+    envelopeBytes,
+    sealBytes: (proof.seal.length - 2) / 2,
   };
 }
 
-function reportFixture(directory, hasFail) {
+function reportFixture(directory, name) {
   const cold = readBuild(directory, 'manifest.json', false);
   const warm = readBuild(directory, 'warm.json', true);
   for (const field of ['imageId', 'buildFingerprint', 'rulesHash', 'referenceHash']) {
     assert.equal(cold.value[field], warm.value[field], `Cold and warm ${field} differ`);
   }
-  const pass = readProof(directory, cold.value, 'pass', 1);
-  const proofs = { pass: pass.metrics };
-  if (hasFail) {
-    const fail = readProof(directory, cold.value, 'fail', 0);
-    assert.ok(pass.context === fail.context, 'Pass and fail proofs use different job contexts');
-    proofs.fail = fail.metrics;
+  const { value: job } = readJson(join(directory, 'job.json'));
+  assert.equal(job.imageId, cold.value.imageId, 'Job image differs from compile report');
+  assert.ok(isHex(job.context, 169) && job.context.startsWith('0x01'), 'Invalid job context');
+  assert.equal(job.context.slice(212, 276), cold.value.rulesHash.slice(2), 'Rules commitment mismatch');
+  assert.equal(job.context.slice(276), cold.value.referenceHash.slice(2), 'Reference commitment mismatch');
+  const proofs = { pass: readProof(directory, job, 'pass', 1) };
+  if (name === 'records') {
+    proofs.fail = readProof(directory, job, 'fail', 0);
+  }
+  if (name === 'limits') {
+    assert.equal(proofs.pass.envelopeBytes, 16_384 + 28, 'Delivery does not fill the encoded limit');
   }
   return {
     imageId: cold.value.imageId,
@@ -96,7 +96,7 @@ try {
   const fixtures = {};
   for (const name of ['records', 'signed', 'limits']) {
     try {
-      fixtures[name] = reportFixture(join(root, name), name === 'records');
+      fixtures[name] = reportFixture(join(root, name), name);
     } catch (error) {
       // Assertion errors can hold raw values. Print only our fixed error messages.
       throw new Error(`${name}: ${error instanceof assert.AssertionError ? error.message : 'could not read a JSON report'}`);

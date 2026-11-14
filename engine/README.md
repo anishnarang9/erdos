@@ -135,12 +135,12 @@ git clone --depth 1 --branch v3.1.0 https://github.com/risc0/risc0-ethereum.git 
 node engine/tests/solidity/verify.cjs /tmp/risc0-ethereum-v3.1.0 \
   engine/fixtures/signed-text/proof-pass-v1.json /tmp/ubc26-verifier.hex
 node engine/tests/verify-arc-rpc.mjs /tmp/ubc26-verifier.hex \
-  engine/fixtures/signed-text/proof-pass-v1.json 0x4502fed
+  engine/fixtures/signed-text/proof-pass-v1.json
 ```
 
 The Solidity test checks the released source revision before compiling it. The Arc script supplies its runtime code to a read-only RPC call through a state override. The stored [RPC reports](fixtures/arc-rpc) record simulated execution against Arc Testnet state. Deployed settlement requires the actual evaluator and funded job terms.
 
-The [signed text fixture](fixtures/signed-text) includes the synthetic job, plan, signature, input file and a real receipt. The [reconciliation fixture](fixtures/reconciliation) includes a synthetic funded context, the ledger, two delivery cases and a passing receipt. These receipts use earlier builds of the checker. Compile and prove again when the job pins a different image.
+The [signed text fixture](fixtures/signed-text) includes the synthetic job, plan, signature, input file and a real receipt. The [reconciliation fixture](fixtures/reconciliation) includes a synthetic funded context, the ledger, two delivery cases and real receipts for both verdicts. Compile and prove again when the job pins a different image.
 
 ## Prepare job JSON from funded terms
 
@@ -153,18 +153,20 @@ node engine/tests/prepare-job.mjs PACKAGE_DIR/manifest.json \
 
 Provide the chain ID and job ID as unsigned decimal integers. The helper encodes the context and writes the JSON input for prove. It uses the package hashes and the supplied addresses. The settlement client must confirm those values on chain.
 
-To compile and prove the demo cases with synthetic job contexts, run the reproduction script. It writes its outputs to a new scratch directory and checks the recovered files.
+To compile and prove the demo cases with synthetic job contexts, run the reproduction script. It checks the cold and warm engine cache results, verifies that both builds produced the same guest digest, and compares the recovered files byte for byte. Keep the scratch directory private. It contains release keys and synthetic signer keys.
 
 ```sh
 bash engine/tests/reproduce-release.sh engine/target/debug/engine NEW_SCRATCH_DIR
+node engine/tests/report-release.mjs NEW_SCRATCH_DIR
 ```
 
 Run the Solidity wire harness with the passing and failing receipts from the same checker and job. It rebuilds each journal from context, verdict, envelope, and key commitment. It checks that a passing-only verifier rejects a verdict-0 receipt and changed inputs.
 
 ```sh
 node engine/tests/solidity/check-job-wire.cjs /tmp/risc0-ethereum-v3.1.0 \
-  PASS_PROOF_JSON FAIL_PROOF_JSON
-node engine/tests/measure-submit-calldata.mjs PASS_PROOF_JSON
+  engine/fixtures/reconciliation/proof-pass-v1.json \
+  engine/fixtures/reconciliation/proof-fail-v1.json
+node engine/tests/measure-submit-calldata.mjs engine/fixtures/reconciliation/proof-pass-v1.json
 ```
 
 The calldata tool encodes the documented submit ABI and counts zero and nonzero bytes. It reports the calldata gas component under the stated per-byte assumptions. Actual settlement gas includes verification, storage, and contract calls and requires the deployed evaluator.

@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 18:53 -05:00 — Anish
+
+- Branch codex/anish-engine. Published reviewed reconciliation receipts for both verdicts. Passing proof took 260.506 seconds and failing proof took 276.134 seconds. Each used 812,703 guest cycles. The passing delivery recovered both original files byte for byte.
+- The local Solidity wire harness accepted both originals and rejected the failing receipt against a passing journal. Arc state override calls accepted both originals and rejected changes to the proof inputs.
+- The reproduction driver checks both builds for each fixture selection. The metrics report checks exact job context and delivery limit. The maximum-size and signed fixture proofs are in the active queue.
+
 ## 2026-11-14 18:48 -05:00 — Anish
 
 - Branch codex/anish-engine. Added a read-only probe for the deployed verifier and a report generator for compile and proof measurements.
