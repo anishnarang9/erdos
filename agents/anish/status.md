@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 18:15 -05:00 — Anish
+
+- Branch codex/anish-engine. Added a machine-readable capability catalog and normalized approval preview. Revalidating the preview reproduces both plan commitments.
+- Added exact file hash and byte size rules for opaque, text, JSON, and authenticated evidence payloads. All 40 workspace tests and Clippy passed. The CLI catalog matches the published JSON.
+- The signed-text proof and independent clean build continue. Actual funded Arc terms become necessary for the November 16 integration gate. The user can provide them on November 15.
+
 ## 2026-11-14 18:11 -05:00 — Anish
 
 - Branch codex/anish-engine. The compiler now emits allowlisted Rust nodes from normalized operations and indices. The guest checks emitted nodes against the approved structure. The package exports its source tree and lockfile.

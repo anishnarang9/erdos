@@ -42,6 +42,10 @@ fn run(raw: &[OsString]) -> Result<Value, Value> {
         return Err(usage());
     };
     match command.as_os_str().to_str() {
+        Some("capabilities") if flags.is_empty() => Ok(serde_json::from_slice(include_bytes!(
+            "../../capabilities-v1.json"
+        ))
+        .expect("bundled capability catalog")),
         Some("validate") => {
             let paths = args(flags, &["--plan"], &[])?;
             let bytes = files::read_input(paths["--plan"], MAX_PLAN_BYTES, "input_io")?;
@@ -169,7 +173,7 @@ fn evaluate(
 }
 
 fn usage() -> Value {
-    json!({"code":"usage", "message":"Use engine validate, eval, compile, execute, prove, or decrypt. See engine/README.md for arguments."})
+    json!({"code":"usage", "message":"Use engine capabilities, validate, eval, compile, execute, prove, or decrypt. See engine/README.md for arguments."})
 }
 
 fn main() -> ExitCode {

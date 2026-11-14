@@ -13,7 +13,7 @@ cargo +1.98.1 test --locked --manifest-path engine/Cargo.toml --workspace
 node engine/fixtures/check-wire-v1.mjs
 ```
 
-The validator writes one JSON object to stdout. It includes the normalized structure, ordered parameter slots, canonical JSON, and both hashes. The structure uses zero-based file and field indices in declaration order. Literal values enter parameter slots in rule traversal order. Edit the budget in the sample plan to see the rules hash change while the structure hash stays the same.
+The validator writes one JSON object to stdout. Its preview preserves file and field names and normalizes decimal values. Revalidating that preview produces the same commitments. It includes the normalized structure, ordered parameter slots, canonical JSON, and both hashes. The structure uses zero-based file and field indices in declaration order. Literal values enter parameter slots in rule traversal order. Edit the budget in the sample plan to see the rules hash change while the structure hash stays the same.
 
 The current syntax supports scalar `bool`, `i64`, and `string` values. Write `i64` literals as decimal strings. Rules can read declared fields from `json/v1` files or compare all the text in a `text/v1` file. Use `opaque/v1` for a file declaration with no projected fields. The rule operations are `field`, `literal`, `add`, `sub`, `mul`, `lt`, `lte`, `gt`, `gte`, `eq`, `ne`, `and`, `or`, and `not`. Every rule in the top-level list must evaluate to a Boolean.
 
@@ -118,3 +118,9 @@ Compilation caches by the exact staged sources, generated Rust, structure, lockf
 Set UBC26_ENGINE_CACHE to choose the cache directory. Otherwise the engine uses the user's cache directory. The package includes its exact source tree and lockfile in source/. The compile report adds cacheHit and compileMillis. The package manifest contains buildFingerprint. Parameters and reference contents stay outside the build fingerprint so changes to them can reuse the same guest when its structure is identical.
 
 Keep Docker guest builds and Groth16 compression sequential on an 8 GiB Docker VM. The low-memory prover uses about 5.8 GiB during compression.
+
+## Read the capability catalog
+
+Run engine capabilities to read the machine-readable [catalog](capabilities-v1.json). It lists supported parsers, operations, evidence profiles, byte limits, and proof fields. The validate command returns the normalized approval preview alongside canonical structure and parameter encodings.
+
+Use file_hash and file_size to compare opaque, text, or JSON files by their exact original bytes. Each operation takes source and file. File hashes use 0x-prefixed SHA-256 strings. File sizes use i64 byte counts. For evidence sources, these operations inspect the authenticated payload. JSON files and record objects can contain unprojected fields, which remain part of the encrypted file bytes.

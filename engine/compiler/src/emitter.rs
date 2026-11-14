@@ -64,6 +64,16 @@ fn emit(input: &Value, depth: usize, nodes: &mut usize) -> Result<String, PlanEr
                 Some(value) => format!("Some({})", index(value)?),
             }
         ),
+        "file_hash" | "file_size" => format!(
+            "E::{}{{source:{},file:{}}}",
+            if op == "file_hash" {
+                "FileHash"
+            } else {
+                "FileSize"
+            },
+            source(&input["source"])?,
+            index(&input["file"])?
+        ),
         "record_field" => format!(
             "E::RecordField{{field:{},level:{}}}",
             index(&input["field"])?,

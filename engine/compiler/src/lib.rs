@@ -243,6 +243,32 @@ impl<'a> Lowerer<'a> {
         match op.as_str() {
             "field" => self.field(decode(operands, path)?, path),
             "literal" => self.literal(decode(operands, path)?, path),
+            "file_hash" | "file_size" => {
+                let input: FileAccess = decode(operands, path)?;
+                if input.field.is_some() {
+                    return Err(PlanError::invalid(
+                        path,
+                        "File metadata has no field selector",
+                    ));
+                }
+                let (source, files): (&str, &[File]) = match input.source {
+                    Source::Deliverable => ("deliverable", &self.plan.deliverables),
+                    Source::Reference => ("reference", &self.plan.references),
+                    Source::Evidence => ("evidence", self.evidence_files),
+                };
+                let index = files
+                    .iter()
+                    .position(|file| file.name == input.file)
+                    .ok_or_else(|| PlanError::invalid(path, "Undeclared file"))?;
+                Ok((
+                    if op == "file_hash" {
+                        Kind::String
+                    } else {
+                        Kind::I64
+                    },
+                    json!({"op":op,"source":source,"file":index}),
+                ))
+            }
             "record_field" | "count" | "sum" | "all" | "any" | "unique" | "lookup" => {
                 self.record_expression(&op, operands, path, depth)
             }
@@ -360,6 +386,7 @@ impl<'a> Lowerer<'a> {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ValidatedPlan {
+    preview: Value,
     structure: Value,
     parameters: Vec<Value>,
     structure_jcs: String,
@@ -374,6 +401,7 @@ pub fn validate_plan(bytes: &[u8]) -> Result<ValidatedPlan, PlanError> {
     }
     let input = strict_json::from_slice(bytes)
         .map_err(|error| PlanError::invalid("", error.to_string()))?;
+    let mut preview = input.clone();
     let mut plan: Plan = decode(input, "")?;
     if plan.version != 1 {
         return Err(PlanError::invalid("/version", "Expected version 1"));
@@ -434,7 +462,9 @@ pub fn validate_plan(bytes: &[u8]) -> Result<ValidatedPlan, PlanError> {
     let structure_hash = structure_hash(structure_jcs.as_bytes());
     let rules_hash = rules_hash(&structure_hash, parameters_jcs.as_bytes());
 
+    normalize_preview(&mut preview);
     Ok(ValidatedPlan {
+        preview,
         structure,
         parameters,
         structure_jcs,
@@ -442,4 +472,38 @@ pub fn validate_plan(bytes: &[u8]) -> Result<ValidatedPlan, PlanError> {
         structure_hash: format!("0x{}", hex::encode(structure_hash)),
         rules_hash: format!("0x{}", hex::encode(rules_hash)),
     })
+}
+
+fn normalize_preview(value: &mut Value) {
+    match value {
+        Value::Object(fields) => {
+            if fields.get("op").and_then(Value::as_str) == Some("literal")
+                && fields.get("type").and_then(Value::as_str) == Some("i64")
+            {
+                if let Some(number) = fields
+                    .get("value")
+                    .and_then(Value::as_str)
+                    .and_then(|value| value.parse::<i64>().ok())
+                {
+                    fields.insert("value".into(), Value::String(number.to_string()));
+                }
+            }
+            if fields.contains_key("profile") {
+                if let Some(signer) = fields.get_mut("signer") {
+                    if let Some(text) = signer.as_str() {
+                        *signer = Value::String(text.to_ascii_lowercase());
+                    }
+                }
+            }
+            for value in fields.values_mut() {
+                normalize_preview(value);
+            }
+        }
+        Value::Array(values) => {
+            for value in values {
+                normalize_preview(value);
+            }
+        }
+        _ => (),
+    }
 }

@@ -393,6 +393,33 @@
               "minLength": 1
             }
           }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "source",
+            "file"
+          ],
+          "properties": {
+            "op": {
+              "enum": [
+                "file_hash",
+                "file_size"
+              ]
+            },
+            "source": {
+              "enum": [
+                "deliverable",
+                "reference",
+                "evidence"
+              ]
+            },
+            "file": {
+              "$ref": "#/$defs/name"
+            }
+          }
         }
       ]
     },

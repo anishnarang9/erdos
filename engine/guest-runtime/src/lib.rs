@@ -164,6 +164,16 @@ pub enum Expression {
         #[serde(default, deserialize_with = "field_index")]
         field: Option<usize>,
     },
+    #[serde(rename = "file_hash")]
+    FileHash {
+        source: Source,
+        file: usize,
+    },
+    #[serde(rename = "file_size")]
+    FileSize {
+        source: Source,
+        file: usize,
+    },
     #[serde(rename = "record_field")]
     RecordField {
         field: usize,
@@ -232,7 +242,21 @@ pub struct Binary {
     pub right: Box<Expression>,
 }
 
-enum ParsedFile {
+struct ParsedFile {
+    value: ParsedValue,
+    hash: Scalar,
+    size: Scalar,
+}
+
+fn parsed_file(value: ParsedValue, contents: &[u8]) -> ParsedFile {
+    ParsedFile {
+        value,
+        hash: Scalar::String(format!("0x{}", hex::encode(sha256(contents)))),
+        size: Scalar::I64(contents.len() as i64),
+    }
+}
+
+enum ParsedValue {
     Json(Vec<Scalar>, Vec<Vec<Vec<Scalar>>>),
     Text(Scalar),
     Opaque,
@@ -458,6 +482,10 @@ fn parse_files(
 }
 
 fn parse_file(file: &File, contents: &[u8]) -> Result<ParsedFile, CheckError> {
+    Ok(parsed_file(parse_value(file, contents)?, contents))
+}
+
+fn parse_value(file: &File, contents: &[u8]) -> Result<ParsedValue, CheckError> {
     match file.parser {
         Parser::Json => {
             records::validate_schema(file)?;
@@ -484,7 +512,7 @@ fn parse_file(file: &File, contents: &[u8]) -> Result<ParsedFile, CheckError> {
                 })
                 .collect::<Result<_, _>>()?;
             let collections = records::parse_collections(&file.collections, &mut object)?;
-            Ok(ParsedFile::Json(fields, collections))
+            Ok(ParsedValue::Json(fields, collections))
         }
         Parser::Text | Parser::Opaque
             if !file.fields.is_empty() || !file.collections.is_empty() =>
@@ -493,9 +521,9 @@ fn parse_file(file: &File, contents: &[u8]) -> Result<ParsedFile, CheckError> {
         }
         Parser::Text => {
             let text = std::str::from_utf8(contents).map_err(|_| CheckError::FileContents)?;
-            Ok(ParsedFile::Text(Scalar::String(text.to_owned())))
+            Ok(ParsedValue::Text(Scalar::String(text.to_owned())))
         }
-        Parser::Opaque => Ok(ParsedFile::Opaque),
+        Parser::Opaque => Ok(ParsedValue::Opaque),
     }
 }
 
@@ -560,12 +588,27 @@ impl<'a> Evaluator<'a> {
                     Source::Reference => self.references,
                     Source::Evidence => self.evidence,
                 };
-                let value = match (files.get(*file), field) {
-                    (Some(ParsedFile::Json(fields, _)), Some(index)) => fields.get(*index),
-                    (Some(ParsedFile::Text(text)), None) => Some(text),
+                let value = match (files.get(*file).map(|file| &file.value), field) {
+                    (Some(ParsedValue::Json(fields, _)), Some(index)) => fields.get(*index),
+                    (Some(ParsedValue::Text(text)), None) => Some(text),
                     _ => None,
                 };
                 return value.map(Evaluated::Borrowed).ok_or(CheckError::Rule);
+            }
+            FileHash { source, file } | FileSize { source, file } => {
+                let files = match source {
+                    Source::Deliverable => self.deliverables,
+                    Source::Reference => self.references,
+                    Source::Evidence => self.evidence,
+                };
+                let file = files.get(*file).ok_or(CheckError::Rule)?;
+                return Ok(Evaluated::Borrowed(
+                    if matches!(expression, FileHash { .. }) {
+                        &file.hash
+                    } else {
+                        &file.size
+                    },
+                ));
             }
             Parameter { slot, kind } => {
                 let value = self.parameters.get(*slot).ok_or(CheckError::Parameters)?;

@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "planSchema": "plan-v1.schema.json",
+  "parsers": [
+    "json/v1",
+    "text/v1",
+    "opaque/v1"
+  ],
+  "valueTypes": [
+    "bool",
+    "i64",
+    "string",
+    "record",
+    "bounded record collection"
+  ],
+  "integerEncoding": "normalized signed i64 decimal strings",
+  "operations": [
+    "field",
+    "literal",
+    "record_field",
+    "add",
+    "sub",
+    "mul",
+    "lt",
+    "lte",
+    "gt",
+    "gte",
+    "eq",
+    "ne",
+    "and",
+    "or",
+    "not",
+    "sum",
+    "count",
+    "all",
+    "any",
+    "unique",
+    "lookup",
+    "file_hash",
+    "file_size"
+  ],
+  "evidenceProfiles": [
+    "ed25519/v1",
+    "eip712/v1",
+    "jws/Ed25519/v1",
+    "jws/EdDSA/v1",
+    "jws/ES256/v1",
+    "jws/RS256/v1"
+  ],
+  "limits": {
+    "planBytes": 262144,
+    "filesPerBundle": 16,
+    "filenameBytes": 128,
+    "deliveryBundleBytes": 16384,
+    "referenceBundleBytes": 32768,
+    "evidenceBundleBytes": 32768,
+    "recordsPerCollection": 256,
+    "ruleNodes": 256,
+    "parameterSlots": 256,
+    "nestingDepth": 32,
+    "expressionVisits": 1000000
+  },
+  "proof": {
+    "system": "RISC Zero",
+    "version": "3.1.0",
+    "receipt": "Groth16",
+    "selector": "0xe71e6620",
+    "contextBytes": 169,
+    "journalBytes": 234
+  },
+  "errorExitCodes": {
+    "input": 2,
+    "output": 2,
+    "build": 3,
+    "prover": 3
+  }
+}

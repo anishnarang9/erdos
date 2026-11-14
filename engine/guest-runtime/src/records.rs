@@ -127,8 +127,8 @@ impl<'a> Evaluator<'a> {
             Source::Reference => self.references,
             Source::Evidence => self.evidence,
         };
-        match files.get(access.file) {
-            Some(ParsedFile::Json(_, collections)) => collections
+        match files.get(access.file).map(|file| &file.value) {
+            Some(ParsedValue::Json(_, collections)) => collections
                 .get(access.field)
                 .map(Vec::as_slice)
                 .ok_or(CheckError::Rule),

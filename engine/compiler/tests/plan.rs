@@ -142,3 +142,16 @@ fn reports_a_complete_evidence_request_as_unsupported() {
         json!({"kind": "evidence", "name": "missing/v1"})
     );
 }
+
+#[test]
+fn approval_preview_preserves_names_and_reproduces_the_committed_plan() {
+    let first = validate(&plan()).unwrap();
+    assert_eq!(first["preview"]["rules"][0]["right"]["value"], "1000");
+    assert_eq!(
+        first["preview"]["rules"][0]["left"]["file"],
+        "reconciliation.json"
+    );
+    let approved = validate(&first["preview"]).unwrap();
+    assert_eq!(first["structureHash"], approved["structureHash"]);
+    assert_eq!(first["rulesHash"], approved["rulesHash"]);
+}

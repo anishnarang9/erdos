@@ -109,12 +109,12 @@ pub(super) fn parse(
             }
         }
         // Parse only after the signature and the approved bindings pass.
-        result.push(parse_payload(policy, &payload)?);
+        result.push(parsed_file(parse_payload(policy, &payload)?, &payload));
     }
     Ok(result)
 }
 
-fn parse_payload(policy: &Policy, payload: &[u8]) -> Result<ParsedFile, CheckError> {
+fn parse_payload(policy: &Policy, payload: &[u8]) -> Result<ParsedValue, CheckError> {
     match policy.parser {
         Parser::Json => {
             let value = strict_json::from_slice(payload).map_err(|_| CheckError::FileContents)?;
@@ -157,17 +157,17 @@ fn parse_payload(policy: &Policy, payload: &[u8]) -> Result<ParsedFile, CheckErr
                 }
             }
             let collections = records::parse_collections(&policy.collections, &mut object)?;
-            Ok(ParsedFile::Json(fields, collections))
+            Ok(ParsedValue::Json(fields, collections))
         }
         Parser::Text if policy.fields.is_empty() && policy.collections.is_empty() => {
-            Ok(ParsedFile::Text(Scalar::String(
+            Ok(ParsedValue::Text(Scalar::String(
                 std::str::from_utf8(payload)
                     .map_err(|_| CheckError::FileContents)?
                     .into(),
             )))
         }
         Parser::Opaque if policy.fields.is_empty() && policy.collections.is_empty() => {
-            Ok(ParsedFile::Opaque)
+            Ok(ParsedValue::Opaque)
         }
         _ => Err(CheckError::Structure),
     }
