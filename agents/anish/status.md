@@ -2,6 +2,11 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 16:04 -05:00 — Anish
+
+- Branch `codex/anish-engine`. Added `engine eval` for Neil's buyer preview. It uses the same scalar evaluator as the guest and returns a numeric verdict without a receipt.
+- All 27 workspace tests and Clippy passed. The low-memory proof retry reached Groth16 compression.
+
 ## 2026-11-14 16:03 -05:00 — Anish
 
 - Branch `codex/anish-engine`. Added a scalar checker guest and the compile, prove, and decrypt commands. Published the authoring schema and CLI input and output formats for Neil.

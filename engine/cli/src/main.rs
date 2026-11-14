@@ -6,8 +6,7 @@ mod prove;
 use std::collections::BTreeMap;
 use std::env;
 use std::ffi::OsString;
-use std::fs::File;
-use std::io::{self, Read, Write};
+use std::io::{self, Write};
 use std::path::Path;
 use std::process::ExitCode;
 
@@ -44,16 +43,18 @@ fn run(raw: &[OsString]) -> Result<Value, Value> {
     match command.as_os_str().to_str() {
         Some("validate") => {
             let paths = args(flags, &["--plan"], &[])?;
-            let mut bytes = Vec::new();
-            File::open(paths["--plan"])
-                .and_then(|file| {
-                    file.take((MAX_PLAN_BYTES + 1) as u64)
-                        .read_to_end(&mut bytes)
-                })
-                .map_err(|error| json!({"code":"input_io", "message":error.to_string()}))?;
+            let bytes = files::read_input(paths["--plan"], MAX_PLAN_BYTES, "input_io")?;
             validate_plan(&bytes)
                 .map(|plan| json!(plan))
                 .map_err(|err| json!(err))
+        }
+        Some("eval") => {
+            let paths = args(flags, &["--plan", "--deliverables"], &["--reference"])?;
+            evaluate(
+                paths["--plan"],
+                paths["--deliverables"],
+                paths.get("--reference").copied(),
+            )
         }
         Some("compile") => {
             let paths = args(flags, &["--plan", "--reference", "--out"], &[])?;
@@ -88,8 +89,44 @@ fn run(raw: &[OsString]) -> Result<Value, Value> {
     }
 }
 
+fn evaluate(plan: &Path, deliverables: &Path, reference: Option<&Path>) -> Result<Value, Value> {
+    use ubc26_protocol::{
+        encode_bundle, reference_hash, rules_hash, structure_hash, BundleKind, FundedContext,
+    };
+
+    let bytes = files::read_input(plan, MAX_PLAN_BYTES, "input_io")?;
+    let plan = json!(validate_plan(&bytes).map_err(|err| json!(err))?);
+    let structure = plan["structureJcs"]
+        .as_str()
+        .expect("validated structure")
+        .as_bytes();
+    let parameters = plan["parametersJcs"]
+        .as_str()
+        .expect("validated parameters")
+        .as_bytes();
+    let reference = match reference {
+        Some(path) => files::import_bundle(path, BundleKind::Reference)?,
+        None => encode_bundle(BundleKind::Reference, &[]).expect("valid empty bundle"),
+    };
+    let delivery = files::import_bundle(deliverables, BundleKind::Delivery)?;
+    let context = FundedContext {
+        chain_id: [0; 32],
+        escrow: [0; 20],
+        job_id: [0; 32],
+        provider: [0; 20],
+        rules_hash: rules_hash(&structure_hash(structure), parameters),
+        reference_hash: reference_hash(&reference),
+    };
+    // Preview discards both the private ciphertext and the local test context.
+    let (journal, _) = ubc26_guest_runtime::check(
+        structure, parameters, &reference, &delivery, &context, &[0; 32], &[0; 12],
+    )
+    .map_err(|err| files::error("invalid_deliverable", err))?;
+    Ok(json!({"verdict": journal.verdict as u8}))
+}
+
 fn usage() -> Value {
-    json!({"code":"usage", "message":"Use engine validate, compile, prove, or decrypt. See engine/README.md for arguments."})
+    json!({"code":"usage", "message":"Use engine validate, eval, compile, prove, or decrypt. See engine/README.md for arguments."})
 }
 
 fn main() -> ExitCode {

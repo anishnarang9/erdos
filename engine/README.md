@@ -23,6 +23,10 @@ A validation failure exits with code 2 and writes JSON to stderr. Unsupported op
 {"code":"unsupported_capability","path":"/rules/0/op","message":"Unsupported operation \"sum\"","request":{"kind":"operation","name":"sum"}}
 ```
 
+## Evaluate an example
+
+Run `engine eval --plan PLAN --deliverables DELIVERY_DIR` to check the example with the same rule evaluator used in the guest. Add `--reference REFERENCE_DIR` when the plan requires reference files. The command returns `{"verdict":1}` or `{"verdict":0}`. It uses the host and does not create an onchain submission.
+
 ## Compile, prove, and decrypt
 
 Use Rust 1.98.1, Docker, and a local `r0vm` 3.1.0. Follow the [proof toolchain setup](proof-smoke/README.md) to load the pinned Groth16 image before proving. Set `DOCKER_DEFAULT_PLATFORM=linux/amd64` on Apple Silicon.
