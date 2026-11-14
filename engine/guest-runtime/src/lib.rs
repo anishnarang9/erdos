@@ -1,6 +1,7 @@
 mod evidence;
 pub mod evidence_crypto;
 mod records;
+mod typecheck;
 
 use std::collections::BTreeSet;
 
@@ -370,7 +371,7 @@ fn check_internal(
         .map(|parameter| Scalar::from_json(parameter.kind, parameter.value))
         .collect::<Option<Vec<_>>>()
         .ok_or(CheckError::Parameters)?;
-    records::inspect_rules(&structure.rules, &parameters, structure.evidence.len())?;
+    typecheck::validate(&structure, &parameters)?;
     let deliverables = parse_files(&structure.deliverables, BundleKind::Delivery, delivery)?;
     let references = parse_files(&structure.references, BundleKind::Reference, reference)?;
     let evidence = evidence::parse(
@@ -421,7 +422,7 @@ pub fn validate_package(
         .map(|param| Scalar::from_json(param.kind, param.value))
         .collect::<Option<Vec<_>>>()
         .ok_or(CheckError::Parameters)?;
-    records::inspect_rules(&structure.rules, &parameters, structure.evidence.len())?;
+    typecheck::validate(&structure, &parameters)?;
     evidence::validate(&structure.evidence, &parameters)?;
     parse_files(&structure.references, BundleKind::Reference, reference)?;
     Ok(())

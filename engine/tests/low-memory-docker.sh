@@ -6,6 +6,6 @@ set -eu
 : "${ENGINE_DOCKER:?Set ENGINE_DOCKER to the real Docker executable}"
 if [ "$#" -gt 0 ] && [ "$1" = run ]; then
   shift
-  exec "$ENGINE_DOCKER" run -e GOMAXPROCS=4 -e GOGC=65 "$@"
+  exec "$ENGINE_DOCKER" run -e GOMAXPROCS=2 -e GOGC=25 -e GOMEMLIMIT=4GiB "$@"
 fi
 exec "$ENGINE_DOCKER" "$@"

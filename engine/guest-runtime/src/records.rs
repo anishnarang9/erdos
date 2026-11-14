@@ -66,60 +66,6 @@ pub(super) fn parse_collections(
         .collect()
 }
 
-pub(super) fn inspect_rules(
-    rules: &[Expression],
-    parameters: &[Scalar],
-    evidence_slots: usize,
-) -> Result<(), CheckError> {
-    let mut nodes = 0;
-    let mut slot = evidence_slots;
-    for rule in rules {
-        inspect(rule, 1, &mut nodes, &mut slot, parameters)?;
-    }
-    if slot != parameters.len() {
-        return Err(CheckError::Parameters);
-    }
-    Ok(())
-}
-
-fn inspect(
-    expr: &Expression,
-    depth: usize,
-    nodes: &mut usize,
-    slot: &mut usize,
-    params: &[Scalar],
-) -> Result<(), CheckError> {
-    *nodes += 1;
-    if *nodes > MAX_ITEMS || depth > MAX_DEPTH {
-        return Err(CheckError::Rule);
-    }
-    use Expression::*;
-    match expr {
-        Parameter { slot: index, kind } => {
-            if *index != *slot || params.get(*index).is_none_or(|value| value.kind() != *kind) {
-                return Err(CheckError::Parameters);
-            }
-            *slot += 1;
-        }
-        Not { value } | Sum { value, .. } => inspect(value, depth + 1, nodes, slot, params)?,
-        All { predicate, .. } | Any { predicate, .. } => {
-            inspect(predicate, depth + 1, nodes, slot, params)?
-        }
-        Count {
-            predicate: Some(predicate),
-            ..
-        } => inspect(predicate, depth + 1, nodes, slot, params)?,
-        Lookup { key, .. } => inspect(key, depth + 1, nodes, slot, params)?,
-        Add(b) | Sub(b) | Mul(b) | Lt(b) | Lte(b) | Gt(b) | Gte(b) | Eq(b) | Ne(b) | And(b)
-        | Or(b) => {
-            inspect(&b.left, depth + 1, nodes, slot, params)?;
-            inspect(&b.right, depth + 1, nodes, slot, params)?;
-        }
-        _ => (),
-    }
-    Ok(())
-}
-
 impl<'a> Evaluator<'a> {
     fn collection(&self, access: &Access) -> Result<&'a [Vec<Scalar>], CheckError> {
         let files = match access.source {

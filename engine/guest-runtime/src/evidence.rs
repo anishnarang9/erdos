@@ -3,13 +3,13 @@ use super::*;
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(super) struct Policy {
-    name: String,
+    pub(super) name: String,
     profile: String,
     signer_slot: usize,
-    parser: Parser,
-    fields: Vec<Field>,
+    pub(super) parser: Parser,
+    pub(super) fields: Vec<Field>,
     #[serde(default)]
-    collections: Vec<Collection>,
+    pub(super) collections: Vec<Collection>,
     bindings: Vec<Binding>,
     context_field: Option<String>,
 }

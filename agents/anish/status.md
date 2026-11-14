@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 18:38 -05:00 — Anish
+
+- Branch codex/anish-engine. Subagent review added schema-aware guest type checking for empty collections and fixed concurrent repair of damaged cache entries. Cache writes now reject different binaries under the same fingerprint.
+- The workspace tests and Clippy passed. New tests cover invalid selectors and types under empty quantifiers, exact 256-node and 256-row boundaries, nested scopes, concurrent cache repair, and interprocess locking.
+- The receipt retry hit Docker OOM at four threads. Direct Groth16 compression succeeded with two threads, GOGC 25, and a 4 GiB Go memory target. The wrapper now uses those settings.
+
 ## 2026-11-14 18:15 -05:00 — Anish
 
 - Branch codex/anish-engine. Added a machine-readable capability catalog and normalized approval preview. Revalidating the preview reproduces both plan commitments.

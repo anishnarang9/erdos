@@ -53,7 +53,7 @@ The scalar guest embeds the canonical rule structure in a fixed Rust entry point
 
 ### Retry Groth16 compression after a memory limit
 
-If Docker records an OOM and exits with code 137, run with the low-memory wrapper. It sets four Go threads and a lower GC target in the CPU prover container. It does not change the guest image, witness, or verifier.
+If Docker records an OOM and exits with code 137, run with the low-memory wrapper. It sets two Go threads, a lower GC target, and a 4 GiB Go memory target in the CPU prover container. It does not change the guest image, witness, or verifier.
 
 ```sh
 export ENGINE_DOCKER="$(command -v docker)"
