@@ -28,3 +28,7 @@ Successful validation produces commitments only. Rule evaluation, generated chec
 ## Use the wire fixture
 
 [wire-v1.json](fixtures/wire-v1.json) contains the complete bytes for a synthetic funded context, file bundle, encrypted envelope, and journal. The fixture includes a public test key and nonce. The Rust tests and Node script check the same fixture independently. The Node script also checks exact bundle recovery and rejection after the job ID changes.
+
+## Verify the proof toolchain
+
+The [proof smoke check](proof-smoke/README.md) runs a standalone RISC Zero guest and exports a Groth16 seal for the released Solidity verifier. The smoke receipt has a fixed test journal. A funded job requires the full context, rule verdict, envelope hash, and key commitment in its journal.
