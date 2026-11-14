@@ -158,3 +158,13 @@ To compile and prove the demo cases with synthetic job contexts, run the reprodu
 ```sh
 bash engine/tests/reproduce-release.sh engine/target/debug/engine NEW_SCRATCH_DIR
 ```
+
+Run the Solidity wire harness with the passing and failing receipts from the same checker and job. It rebuilds each journal from context, verdict, envelope, and key commitment. It checks that a passing-only verifier rejects a verdict-0 receipt and changed inputs.
+
+```sh
+node engine/tests/solidity/check-job-wire.cjs /tmp/risc0-ethereum-v3.1.0 \
+  PASS_PROOF_JSON FAIL_PROOF_JSON
+node engine/tests/measure-submit-calldata.mjs PASS_PROOF_JSON
+```
+
+The calldata tool encodes the documented submit ABI and counts zero and nonzero bytes. It reports the calldata gas component under the stated per-byte assumptions. Actual settlement gas includes verification, storage, and contract calls and requires the deployed evaluator.

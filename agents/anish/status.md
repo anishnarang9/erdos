@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 18:46 -05:00 — Anish
+
+- Branch codex/anish-engine. The Solidity wire harness reconstructs the journal and matches the independent key commitment vector. It verified both scalar receipts locally and rejected the verdict-0 receipt against a passing journal.
+- The current guest accepted a full 16 KiB encoded delivery and rejected oversized delivery, reference, evidence, and parameter frames. Real proofs for the reviewed build are running sequentially.
+- The Arc replay script verified the recorded signed-text result at its original block using temporary verifier code. Deployed settlement is still pending.
+
 ## 2026-11-14 18:45 -05:00 — Anish
 
 - Branch codex/anish-engine. Added a job JSON encoder for confirmed terms, a demo reproduction driver, and an offline submit calldata measurement tool.
