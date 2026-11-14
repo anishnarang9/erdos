@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 18:43 -05:00 — Anish
+
+- Branch codex/anish-engine. Checked in real signed-text and multi-file reconciliation receipts, public inputs, and verifier replay scripts. The released verifier accepted both receipts. Both deliveries decrypted to the original bytes.
+- A clean independent build reproduced the signed-text program byte for byte. Arc Testnet state override calls accepted the upstream, tiny guest, scalar, reconciliation, and signed-text receipts. The calls rejected changed proof inputs. Deployed settlement remains pending.
+- A newer receipt run is in progress with the post-review guest and lower-memory prover. The catalog and unsupported-operation example now match the CLI.
+
 ## 2026-11-14 18:38 -05:00 — Anish
 
 - Branch codex/anish-engine. Subagent review added schema-aware guest type checking for empty collections and fixed concurrent repair of damaged cache entries. Cache writes now reject different binaries under the same fingerprint.

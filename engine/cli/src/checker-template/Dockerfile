@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb AS build
+ENV CARGO_BUILD_JOBS=2
 WORKDIR /src
 COPY . .
 ENV CC_riscv32im_risc0_zkvm_elf=/root/.risc0/cpp/bin/riscv32-unknown-elf-gcc

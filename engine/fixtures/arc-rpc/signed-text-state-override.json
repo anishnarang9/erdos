@@ -1,0 +1,58 @@
+{
+  "mode": "eth_call_with_state_override",
+  "rpc": "https://rpc.testnet.arc.io",
+  "chainId": "5042002",
+  "block": "0x4502fed",
+  "temporaryAddress": "0x00000000000000000000000000000000deadbeef",
+  "runtimeSha256": "0x7f1b6a45a42a631289863f5573354d2f047a8d90e0638b1fab221b0f2843a0ae",
+  "imageId": "0x2ed19bc87b8570108b791d85b10a74a24de75df4d468460c67ae9bb1e9d99c32",
+  "journalDigest": "0x51168e6a1e3b15b502a51de14240da1b0621e8073bbc7a4b3066657b6893cef0",
+  "results": [
+    {
+      "name": "valid",
+      "jsonrpc": "2.0",
+      "id": 4,
+      "result": "0x"
+    },
+    {
+      "name": "changedImage",
+      "jsonrpc": "2.0",
+      "id": 5,
+      "error": {
+        "code": 3,
+        "message": "execution reverted",
+        "data": "0x439cc0cd"
+      }
+    },
+    {
+      "name": "changedJournal",
+      "jsonrpc": "2.0",
+      "id": 6,
+      "error": {
+        "message": "execution reverted",
+        "data": "0x439cc0cd",
+        "code": 3
+      }
+    },
+    {
+      "name": "changedSeal",
+      "jsonrpc": "2.0",
+      "id": 7,
+      "error": {
+        "code": 3,
+        "message": "execution reverted",
+        "data": "0x439cc0cd"
+      }
+    },
+    {
+      "name": "changedVerdict",
+      "jsonrpc": "2.0",
+      "id": 8,
+      "error": {
+        "code": 3,
+        "message": "execution reverted",
+        "data": "0x439cc0cd"
+      }
+    }
+  ]
+}

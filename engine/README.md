@@ -13,14 +13,14 @@ cargo +1.98.1 test --locked --manifest-path engine/Cargo.toml --workspace
 node engine/fixtures/check-wire-v1.mjs
 ```
 
-The validator writes one JSON object to stdout. Its preview preserves file and field names and normalizes decimal values. Revalidating that preview produces the same commitments. It includes the normalized structure, ordered parameter slots, canonical JSON, and both hashes. The structure uses zero-based file and field indices in declaration order. Literal values enter parameter slots in rule traversal order. Edit the budget in the sample plan to see the rules hash change while the structure hash stays the same.
+The validator writes one JSON object to stdout. Its preview preserves file and field names and normalizes decimal values. Revalidating that preview produces the same commitments. It includes the normalized structure, ordered parameter slots, canonical JSON, and both hashes. The structure uses zero-based file and field indices in declaration order. Evidence signers occupy the first parameter slots in declaration order. Literal values follow in rule traversal order. Edit the budget in the sample plan to see the rules hash change while the structure hash stays the same.
 
-The current syntax supports scalar `bool`, `i64`, and `string` values. Write `i64` literals as decimal strings. Rules can read declared fields from `json/v1` files or compare all the text in a `text/v1` file. Use `opaque/v1` for a file declaration with no projected fields. The rule operations are `field`, `literal`, `add`, `sub`, `mul`, `lt`, `lte`, `gt`, `gte`, `eq`, `ne`, `and`, `or`, and `not`. Every rule in the top-level list must evaluate to a Boolean.
+The current syntax supports scalar `bool`, `i64`, and `string` values. Write `i64` literals as decimal strings. Rules can read declared fields from `json/v1` files or compare all the text in a `text/v1` file. Use `opaque/v1` for a file declaration with no projected fields. Run `engine capabilities` for the full list of operations. Every rule in the top-level list must evaluate to a Boolean.
 
-A validation failure exits with code 2 and writes JSON to stderr. Unsupported operations, parsers, and evidence profiles include a request with the capability kind and name. For example, an unsupported `sum` rule reports:
+A validation failure exits with code 2 and writes JSON to stderr. Unsupported operations, parsers, and evidence profiles include a request with the capability kind and name. A `regex_match` rule at index 0 produces this error.
 
 ```json
-{"code":"unsupported_capability","path":"/rules/0/op","message":"Unsupported operation \"sum\"","request":{"kind":"operation","name":"sum"}}
+{"code":"unsupported_capability","message":"Unsupported operation \"regex_match\"","path":"/rules/0/op","request":{"kind":"operation","name":"regex_match"}}
 ```
 
 ## Evaluate an example
@@ -31,7 +31,7 @@ Run `engine eval --plan PLAN --deliverables DELIVERY_DIR` to check the example w
 
 Use Rust 1.98.1, Docker, and a local `r0vm` 3.1.0. Follow the [proof toolchain setup](proof-smoke/README.md) to load the pinned Groth16 image before proving. Set `DOCKER_DEFAULT_PLATFORM=linux/amd64` on Apple Silicon.
 
-The [JSON Schema](plan-v1.schema.json) describes the scalar authoring format. The validator also checks types, unique names, declared fields, integer range, and aggregate limits. Use normalized decimal strings for `i64` fields in delivery and reference JSON, such as `"9400"`. Reference and delivery directories must contain the exact declared file sets.
+The [JSON Schema](plan-v1.schema.json) describes the typed authoring format. The validator also checks types, unique names, declared fields, integer range, and aggregate limits. Use normalized decimal strings for `i64` fields in delivery and reference JSON, such as `"9400"`. Reference and delivery directories must contain the exact declared file sets.
 
 ```sh
 cargo +1.98.1 build --locked --manifest-path engine/Cargo.toml --bin engine
@@ -121,6 +121,23 @@ Keep Docker guest builds and Groth16 compression sequential on an 8 GiB Docker V
 
 ## Read the capability catalog
 
-Run engine capabilities to read the machine-readable [catalog](capabilities-v1.json). It lists supported parsers, operations, evidence profiles, byte limits, and proof fields. The validate command returns the normalized approval preview alongside canonical structure and parameter encodings.
+Run engine capabilities to read the machine-readable [catalog](capabilities-v1.json). It lists supported parsers, scalar value types, collection declarations, operations, evidence profiles, limits, and proof fields. Declare record lists with `collections` on a JSON file or evidence policy. The validate command returns the normalized approval preview alongside canonical structure and parameter encodings.
 
 Use file_hash and file_size to compare opaque, text, or JSON files by their exact original bytes. Each operation takes source and file. File hashes use 0x-prefixed SHA-256 strings. File sizes use i64 byte counts. For evidence sources, these operations inspect the authenticated payload. JSON files and record objects can contain unprojected fields, which remain part of the encrypted file bytes.
+
+## Replay verifier checks
+
+Install the pinned test dependencies and check out the released verifier.
+
+```sh
+npm ci --prefix engine/tests --ignore-scripts
+git clone --depth 1 --branch v3.1.0 https://github.com/risc0/risc0-ethereum.git /tmp/risc0-ethereum-v3.1.0
+node engine/tests/solidity/verify.cjs /tmp/risc0-ethereum-v3.1.0 \
+  engine/fixtures/signed-text/proof-pass-v1.json /tmp/ubc26-verifier.hex
+node engine/tests/verify-arc-rpc.mjs /tmp/ubc26-verifier.hex \
+  engine/fixtures/signed-text/proof-pass-v1.json 0x4502fed
+```
+
+The Solidity test checks the released source revision before compiling it. The Arc script supplies its runtime code to a read-only RPC call through a state override. The stored [RPC reports](fixtures/arc-rpc) record simulated execution against Arc Testnet state. Deployed settlement requires the actual evaluator and funded job terms.
+
+The [signed text fixture](fixtures/signed-text) includes the synthetic job, plan, signature, input file and a real receipt. The [reconciliation fixture](fixtures/reconciliation) includes a synthetic funded context, the ledger, two delivery cases and a passing receipt. These receipts use earlier builds of the checker. Compile and prove again when the job pins a different image.

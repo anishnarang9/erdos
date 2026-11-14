@@ -9,10 +9,13 @@
   "valueTypes": [
     "bool",
     "i64",
-    "string",
-    "record",
-    "bounded record collection"
+    "string"
   ],
+  "collectionSupport": {
+    "declaration": "collections",
+    "parser": "json/v1",
+    "sources": ["deliverable", "reference", "evidence"]
+  },
   "integerEncoding": "normalized signed i64 decimal strings",
   "operations": [
     "field",

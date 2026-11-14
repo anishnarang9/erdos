@@ -1,2 +1,4 @@
 target/
 /proof-smoke/out/
+
+/tests/node_modules/
