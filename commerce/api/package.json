@@ -1,0 +1,29 @@
+{
+  "name": "@ubc26/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json",
+    "dev": "tsx src/server.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "2.1.8",
+    "@ubc26/sdk": "workspace:*",
+    "canonicalize": "5.1.0",
+    "hono": "4.13.18",
+    "ulid": "3.0.2",
+    "viem": "2.57.19",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3",
+    "vitest": "5.1.0"
+  }
+}
