@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 16:07 -05:00 — Anish
+
+- Branch `codex/anish-engine`. Published the real [verdict-0 receipt](../../engine/fixtures/scalar-proof-fail-v1.json). It shares the passing receipt's context and image ID.
+- The verdict-0 proof took 134.142 seconds and 252,816 user cycles. The released Solidity verifier accepted its original journal on a local EVM and rejected the journal after the verdict changed to 1. The Node checker reconstructed both journal byte strings from the submission fields.
+- Nick can use the fixture pair for local settlement tests. The next engine work extends the checker to record collections and signed evidence. Arc verification still needs a deployed evaluator and a receipt for the actual funded job context.
+
 ## 2026-11-14 16:05 -05:00 — Anish
 
 - Branch `codex/anish-engine`. The expense report checker produced a real [passing Groth16 receipt](../../engine/fixtures/scalar-proof-pass-v1.json) with a 234-byte journal for a synthetic job context.

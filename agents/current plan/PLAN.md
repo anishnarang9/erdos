@@ -2,6 +2,11 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 16:07 -05:00 — Anish — Scalar proof fixtures for settlement
+
+- The engine produced real [passing](../../engine/fixtures/scalar-proof-pass-v1.json) and [failing](../../engine/fixtures/scalar-proof-fail-v1.json) Groth16 receipts with the full 234-byte journal. Both use the same checker image and synthetic funded context. The local Solidity verifier accepted each original journal. It rejected the failing receipt when tested against a passing journal.
+- The local script proved both cases and recovered the passing delivery byte for byte. Neil can use the [host preview command](../../engine/README.md#evaluate-an-example) to label authoring examples. Nick can use the pair for local Solidity tests before supplying the live funded context.
+
 ## 2026-11-14 16:03 -05:00 — Anish — Scalar engine and commerce interface
 
 - The [scalar plan schema](../../engine/plan-v1.schema.json) and [CLI contract](../../engine/README.md) answer the current authoring, compiler, proof, and recovery format questions. The CLI builds a checker package from approved structure and reference data.

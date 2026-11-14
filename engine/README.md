@@ -66,6 +66,12 @@ PATH="$wrapper_dir:$PATH" bash engine/tests/funded-job.sh engine/target/debug/en
 
 [wire-v1.json](fixtures/wire-v1.json) contains the complete bytes for a synthetic funded context, file bundle, encrypted envelope, and journal. The fixture includes a public test key and nonce. The Rust tests and Node script check the same fixture independently. The Node script also checks exact bundle recovery and rejection after the job ID changes.
 
+## Use the scalar proof fixtures
+
+The [passing receipt](fixtures/scalar-proof-pass-v1.json) and [failing receipt](fixtures/scalar-proof-fail-v1.json) contain real Groth16 seals for the expense report example. They share a synthetic job context and the same image ID. Run `node engine/fixtures/check-scalar-proofs.mjs` to reconstruct both journals from their public submission fields. The released Solidity verifier checked both receipts on a local EVM. It rejected the failing receipt when the caller supplied a journal with verdict 1.
+
+The passing check used a total of 9,400 cents. The failing check used 10,400 cents. The cap was 10,000 cents. The proof files contain public submission fields only.
+
 ## Verify the proof toolchain
 
 The [proof smoke check](proof-smoke/README.md) runs a standalone RISC Zero guest and exports a Groth16 seal for the released Solidity verifier. The smoke receipt has a fixed test journal. A funded job requires the full context, rule verdict, envelope hash, and key commitment in its journal.
