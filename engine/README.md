@@ -141,3 +141,20 @@ node engine/tests/verify-arc-rpc.mjs /tmp/ubc26-verifier.hex \
 The Solidity test checks the released source revision before compiling it. The Arc script supplies its runtime code to a read-only RPC call through a state override. The stored [RPC reports](fixtures/arc-rpc) record simulated execution against Arc Testnet state. Deployed settlement requires the actual evaluator and funded job terms.
 
 The [signed text fixture](fixtures/signed-text) includes the synthetic job, plan, signature, input file and a real receipt. The [reconciliation fixture](fixtures/reconciliation) includes a synthetic funded context, the ledger, two delivery cases and a passing receipt. These receipts use earlier builds of the checker. Compile and prove again when the job pins a different image.
+
+## Prepare job JSON from funded terms
+
+Read the confirmed terms from the settlement contract. Check that its image ID, rules hash, and reference hash match the package manifest. Use the Escrow or ERC-8183 core address and the funded provider in the job context.
+
+```sh
+node engine/tests/prepare-job.mjs PACKAGE_DIR/manifest.json \
+  CHAIN_ID CORE_ADDRESS JOB_ID PROVIDER_ADDRESS > job.json
+```
+
+Provide the chain ID and job ID as unsigned decimal integers. The helper encodes the context and writes the JSON input for prove. It uses the package hashes and the supplied addresses. The settlement client must confirm those values on chain.
+
+To compile and prove the demo cases with synthetic job contexts, run the reproduction script. It writes its outputs to a new scratch directory and checks the recovered files.
+
+```sh
+bash engine/tests/reproduce-release.sh engine/target/debug/engine NEW_SCRATCH_DIR
+```

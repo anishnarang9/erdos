@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 18:45 -05:00 — Anish
+
+- Branch codex/anish-engine. Added a job JSON encoder for confirmed terms, a demo reproduction driver, and an offline submit calldata measurement tool.
+- The job encoder reproduced the fixture context. The scalar submit calldata is 708 bytes under the documented ABI. The maximum-size fixture will be measured after real proof generation.
+- Main and Nick's branch still contain the settlement plan only. A live proof needs the deployment manifest, funded job ID and provider, and matching image, rules, and reference commitments. The current guest proof queue is active.
+
 ## 2026-11-14 18:43 -05:00 — Anish
 
 - Branch codex/anish-engine. Checked in real signed-text and multi-file reconciliation receipts, public inputs, and verifier replay scripts. The released verifier accepted both receipts. Both deliveries decrypted to the original bytes.
