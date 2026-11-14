@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 17:55 -05:00 — Anish
+
+- Branch codex/anish-engine. Added bounded record collections, sum, count, all, any, uniqueness, and exact lookup. Published a multi-file reconciliation fixture.
+- Workspace tests and Clippy passed. Host evaluation returns 1 for the valid ledger reconciliation and 0 for the changed amount. Record tests cover duplicate and missing matches, 257-record rejection, empty quantifiers, repeated parameters, and checked overflow.
+- Two subagents stopped at the account usage limit before edits. Root continued implementation. Real collection guest proofs and signed evidence remain in progress.
+
 ## 2026-11-14 16:07 -05:00 — Anish
 
 - Branch `codex/anish-engine`. Published the real [verdict-0 receipt](../../engine/fixtures/scalar-proof-fail-v1.json). It shares the passing receipt's context and image ID.

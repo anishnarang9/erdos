@@ -49,7 +49,7 @@ engine/target/debug/engine decrypt --submission ATTEMPT_DIR/proof.json \
 
 The CLI writes JSON errors to stderr. Exit code 2 reports an argument, input, or output error. Exit code 3 reports a Docker build, prover, or randomness failure. Each output directory must be new. The CLI publishes it after all files are ready.
 
-The scalar guest embeds the canonical rule structure in a fixed Rust entry point. Parameters remain runtime inputs. Record collections, signed evidence, and specialized Rust generation remain pending. Run [the funded-job test](tests/funded-job.sh) against the built CLI with `bash engine/tests/funded-job.sh engine/target/debug/engine`. Set `CHECK_FAILING_VERDICT=1` to also produce a verdict-0 receipt.
+The scalar guest embeds the canonical rule structure in a fixed Rust entry point. Parameters remain runtime inputs. Signed evidence and specialized Rust generation remain pending. Run [the funded-job test](tests/funded-job.sh) against the built CLI with `bash engine/tests/funded-job.sh engine/target/debug/engine`. Set `CHECK_FAILING_VERDICT=1` to also produce a verdict-0 receipt.
 
 ### Retry Groth16 compression after a memory limit
 
@@ -75,3 +75,15 @@ The passing check used a total of 9,400 cents. The failing check used 10,400 cen
 ## Verify the proof toolchain
 
 The [proof smoke check](proof-smoke/README.md) runs a standalone RISC Zero guest and exports a Groth16 seal for the released Solidity verifier. The smoke receipt has a fixed test journal. A funded job requires the full context, rule verdict, envelope hash, and key commitment in its journal.
+
+## Reconcile bounded record collections
+
+A JSON file can declare collections alongside scalar fields. Each collection declares its name and record fields. The checker accepts up to 256 records per collection. The sample [reconciliation plan](fixtures/reconciliation/plan.json) checks exact matches against a committed ledger and includes a second text file in the encrypted delivery.
+
+Run the following command. Replace pass with fail to check a changed amount.
+
+    engine eval --plan engine/fixtures/reconciliation/plan.json --deliverables engine/fixtures/reconciliation/pass --reference engine/fixtures/reconciliation/reference
+
+Collection operations use a collection object with source, file, and field. The count operation can include a Boolean where expression. The sum operation uses an integer value expression. The all and any operations use a Boolean where expression. The unique operation names a record field. The lookup operation names keyField and valueField and takes a typed key expression. A lookup requires one matching row and rejects duplicate keys in its source collection.
+
+Use record_field inside a collection expression. Its field identifies the record field. An optional level selects an outer record scope, with 0 for the current record. An empty collection satisfies all and fails any. Empty sums and counts return 0. Arithmetic remains checked. The checker limits each evaluation to 1,000,000 expression visits.

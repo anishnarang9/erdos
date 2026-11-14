@@ -79,13 +79,13 @@ fn rejects_unknown_field_overflow_and_non_boolean_rule() {
 #[test]
 fn reports_unsupported_operations_with_a_fileable_request() {
     let mut input = plan();
-    input["rules"][0] = json!({"op": "sum", "list": "records"});
+    input["rules"][0] = json!({"op": "regex_match", "list": "records"});
     let error = validate(&input).unwrap_err();
     assert_eq!(error["code"], "unsupported_capability");
     assert_eq!(error["path"], "/rules/0/op");
     assert_eq!(
         error["request"],
-        json!({"kind": "operation", "name": "sum"})
+        json!({"kind": "operation", "name": "regex_match"})
     );
 }
 

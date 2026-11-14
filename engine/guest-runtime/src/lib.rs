@@ -1,3 +1,5 @@
+mod records;
+
 use std::collections::BTreeSet;
 
 use serde::{de::DeserializeOwned, Deserialize};
@@ -66,6 +68,8 @@ struct File {
     name: String,
     parser: Parser,
     fields: Vec<Field>,
+    #[serde(default)]
+    collections: Vec<Collection>,
 }
 
 #[derive(Deserialize)]
@@ -86,6 +90,13 @@ struct Field {
     kind: Kind,
 }
 
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Collection {
+    name: String,
+    fields: Vec<Field>,
+}
+
 #[derive(Clone, Copy, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 enum Kind {
@@ -94,7 +105,7 @@ enum Kind {
     String,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 enum Scalar {
     Bool(bool),
     I64(i64),
@@ -148,6 +159,42 @@ enum Expression {
         #[serde(default, deserialize_with = "field_index")]
         field: Option<usize>,
     },
+    #[serde(rename = "record_field")]
+    RecordField {
+        field: usize,
+        level: usize,
+    },
+    Count {
+        collection: records::Access,
+        #[serde(rename = "where", default)]
+        predicate: Option<Box<Expression>>,
+    },
+    Sum {
+        collection: records::Access,
+        value: Box<Expression>,
+    },
+    All {
+        collection: records::Access,
+        #[serde(rename = "where")]
+        predicate: Box<Expression>,
+    },
+    Any {
+        collection: records::Access,
+        #[serde(rename = "where")]
+        predicate: Box<Expression>,
+    },
+    Unique {
+        collection: records::Access,
+        field: usize,
+    },
+    Lookup {
+        collection: records::Access,
+        #[serde(rename = "keyField")]
+        key_field: usize,
+        key: Box<Expression>,
+        #[serde(rename = "valueField")]
+        value_field: usize,
+    },
     Parameter {
         slot: usize,
         #[serde(rename = "type")]
@@ -181,7 +228,7 @@ struct Binary {
 }
 
 enum ParsedFile {
-    Json(Vec<Scalar>),
+    Json(Vec<Scalar>, Vec<Vec<Vec<Scalar>>>),
     Text(Scalar),
     Opaque,
 }
@@ -213,13 +260,14 @@ pub fn check(
         .map(|parameter| Scalar::from_json(parameter.kind, parameter.value))
         .collect::<Option<Vec<_>>>()
         .ok_or(CheckError::Parameters)?;
+    records::inspect_rules(&structure.rules, &parameters)?;
     let deliverables = parse_files(&structure.deliverables, BundleKind::Delivery, delivery)?;
     let references = parse_files(&structure.references, BundleKind::Reference, reference)?;
     let mut evaluator = Evaluator {
         deliverables: &deliverables,
         references: &references,
         parameters: &parameters,
-        next_slot: 0,
+        scopes: Vec::new(),
         nodes: 0,
     };
     let mut passed = true;
@@ -229,9 +277,6 @@ pub fn check(
             return Err(CheckError::Rule);
         };
         passed &= *result;
-    }
-    if evaluator.next_slot != parameters.len() {
-        return Err(CheckError::Parameters);
     }
 
     let envelope = encrypt_delivery(context, key, nonce, delivery)?;
@@ -302,6 +347,7 @@ fn parse_files(
 fn parse_file(file: &File, contents: &[u8]) -> Result<ParsedFile, CheckError> {
     match file.parser {
         Parser::Json => {
+            records::validate_schema(file)?;
             if file.fields.len() > MAX_ITEMS {
                 return Err(CheckError::Structure);
             }
@@ -324,9 +370,14 @@ fn parse_file(file: &File, contents: &[u8]) -> Result<ParsedFile, CheckError> {
                         .ok_or(CheckError::FileContents)
                 })
                 .collect::<Result<_, _>>()?;
-            Ok(ParsedFile::Json(fields))
+            let collections = records::parse_collections(&file.collections, &mut object)?;
+            Ok(ParsedFile::Json(fields, collections))
         }
-        Parser::Text | Parser::Opaque if !file.fields.is_empty() => Err(CheckError::Structure),
+        Parser::Text | Parser::Opaque
+            if !file.fields.is_empty() || !file.collections.is_empty() =>
+        {
+            Err(CheckError::Structure)
+        }
         Parser::Text => {
             let text = std::str::from_utf8(contents).map_err(|_| CheckError::FileContents)?;
             Ok(ParsedFile::Text(Scalar::String(text.to_owned())))
@@ -355,7 +406,7 @@ struct Evaluator<'a> {
     deliverables: &'a [ParsedFile],
     references: &'a [ParsedFile],
     parameters: &'a [Scalar],
-    next_slot: usize,
+    scopes: Vec<&'a [Scalar]>,
     nodes: usize,
 }
 
@@ -380,7 +431,7 @@ impl<'a> Evaluator<'a> {
         depth: usize,
     ) -> Result<Evaluated<'a>, CheckError> {
         self.nodes += 1;
-        if self.nodes > MAX_ITEMS || depth > MAX_DEPTH {
+        if self.nodes > 1_000_000 || depth > MAX_DEPTH {
             return Err(CheckError::Rule);
         }
         use Expression::*;
@@ -395,22 +446,27 @@ impl<'a> Evaluator<'a> {
                     Source::Reference => self.references,
                 };
                 let value = match (files.get(*file), field) {
-                    (Some(ParsedFile::Json(fields)), Some(index)) => fields.get(*index),
+                    (Some(ParsedFile::Json(fields, _)), Some(index)) => fields.get(*index),
                     (Some(ParsedFile::Text(text)), None) => Some(text),
                     _ => None,
                 };
                 return value.map(Evaluated::Borrowed).ok_or(CheckError::Rule);
             }
             Parameter { slot, kind } => {
-                if *slot != self.next_slot {
-                    return Err(CheckError::Parameters);
-                }
                 let value = self.parameters.get(*slot).ok_or(CheckError::Parameters)?;
                 if value.kind() != *kind {
                     return Err(CheckError::Parameters);
                 }
-                self.next_slot += 1;
                 return Ok(Evaluated::Borrowed(value));
+            }
+            RecordField { .. }
+            | Count { .. }
+            | Sum { .. }
+            | All { .. }
+            | Any { .. }
+            | Unique { .. }
+            | Lookup { .. } => {
+                return self.evaluate_records(expression, depth);
             }
             Not { value } => {
                 let value = self.evaluate(value, depth + 1)?;

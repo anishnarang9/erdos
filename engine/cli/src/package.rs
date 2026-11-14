@@ -65,6 +65,11 @@ pub(crate) fn stage_output(out: &Path, prefix: &str) -> Result<tempfile::TempDir
 
 fn copy_crate(path: &Path, manifest: &[u8], source: &Dir<'_>) -> io::Result<()> {
     fs::create_dir(path)?;
+    let manifest = std::str::from_utf8(manifest).map_err(io::Error::other)?;
+    let manifest = manifest
+        .split("\n[dev-dependencies]")
+        .next()
+        .expect("manifest");
     fs::write(path.join("Cargo.toml"), manifest)?;
     let src = path.join("src");
     fs::create_dir(&src)?;

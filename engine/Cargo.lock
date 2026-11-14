@@ -4774,6 +4774,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_json_canonicalizer",
+ "ubc26-compiler",
  "ubc26-protocol",
 ]
 

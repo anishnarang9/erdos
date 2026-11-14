@@ -1,3 +1,5 @@
+mod records;
+
 use std::collections::BTreeSet;
 
 use serde::{Deserialize, Serialize};
@@ -67,6 +69,8 @@ struct File {
     parser: String,
     #[serde(default)]
     fields: Vec<Field>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    collections: Vec<Collection>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -75,6 +79,13 @@ struct Field {
     name: String,
     #[serde(rename = "type")]
     kind: Kind,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+struct Collection {
+    name: String,
+    fields: Vec<Field>,
 }
 
 #[derive(Clone, Copy, Deserialize, Eq, PartialEq, Serialize)]
@@ -156,7 +167,7 @@ fn validate_files(files: &[File], path: &str) -> Result<(), PlanError> {
         }
         match file.parser.as_str() {
             "json/v1" => (),
-            "text/v1" | "opaque/v1" if file.fields.is_empty() => (),
+            "text/v1" | "opaque/v1" if file.fields.is_empty() && file.collections.is_empty() => (),
             "text/v1" | "opaque/v1" => {
                 return Err(PlanError::invalid(
                     &format!("{path}/fields"),
@@ -172,6 +183,7 @@ fn validate_files(files: &[File], path: &str) -> Result<(), PlanError> {
             }
         }
 
+        records::validate_collections(file, &path)?;
         if file.fields.len() > MAX_FIELDS {
             return Err(PlanError::invalid(
                 &format!("{path}/fields"),
@@ -195,9 +207,10 @@ struct Lowerer<'a> {
     plan: &'a Plan,
     parameters: Vec<Value>,
     nodes: usize,
+    scopes: Vec<&'a [Field]>,
 }
 
-impl Lowerer<'_> {
+impl<'a> Lowerer<'a> {
     fn expression(
         &mut self,
         input: Value,
@@ -225,6 +238,9 @@ impl Lowerer<'_> {
         match op.as_str() {
             "field" => self.field(decode(operands, path)?, path),
             "literal" => self.literal(decode(operands, path)?, path),
+            "record_field" | "count" | "sum" | "all" | "any" | "unique" | "lookup" => {
+                self.record_expression(&op, operands, path, depth)
+            }
             "not" => {
                 let input: Unary = decode(operands, path)?;
                 let (kind, value) =
@@ -386,6 +402,7 @@ pub fn validate_plan(bytes: &[u8]) -> Result<ValidatedPlan, PlanError> {
         plan: &plan,
         parameters: Vec::new(),
         nodes: 0,
+        scopes: Vec::new(),
     };
     let mut rules = Vec::with_capacity(input_rules.len());
     for (index, rule) in input_rules.into_iter().enumerate() {
