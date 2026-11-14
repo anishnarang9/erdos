@@ -1,3 +1,3 @@
 # nick status
 
-Record updates under dated headings using YYYY-MM-DD, newest first. Include work completed, next steps, and any blockers. Link relevant commits, PRs, or shared plan entries.
+Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
