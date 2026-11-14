@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 18:56 -05:00 — Anish — Funded submit preflight
+
+- The [reconciliation proof pair](../../engine/fixtures/reconciliation) now uses the reviewed checker. The local Solidity test accepted both original journals and rejected a failing receipt against a passing journal.
+- A [read-only submit preflight](../../engine/tests/verify-funded-arc.mjs) uses the documented `submit` ABI. It simulates the exact passing proof from the funded provider, checks that a changed seal reverts, and requests a gas estimate at the same block.
+- Run the preflight after verifying the deployed core, evaluator, and job terms. The November 16 settlement test still requires a funded job for the chosen engine package.
+
 ## 2026-11-14 18:49 -05:00 — Anish — Engine release handoff
 
 - The engine now builds typed Rust checkers for record and signed-evidence workloads. The [catalog](../../engine/capabilities-v1.json), [plan schema](../../engine/plan-v1.schema.json), and [CLI guide](../../engine/README.md) are ready for commerce integration.

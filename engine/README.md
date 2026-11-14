@@ -176,3 +176,9 @@ To check a deployed verifier directly, supply its confirmed Arc Testnet address 
 ```sh
 node engine/tests/verify-deployed-arc.mjs VERIFIER_ADDRESS PASS_PROOF_JSON
 ```
+
+After confirming the deployed core and evaluator, run the funded submit preflight with a proof for that job. It reads the provider and escrow address from the committed context. At one Arc block it simulates `submit` with the original seal and checks that a changed seal reverts. The gas estimate, when available, covers the submit call. The preflight requires no signing key.
+
+```sh
+node engine/tests/verify-funded-arc.mjs PASS_PROOF_JSON
+```

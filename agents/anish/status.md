@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 18:56 -05:00 — Anish
+
+- Branch codex/anish-engine. Added the funded submit preflight. It tests the original and changed seal in read-only calls at one Arc block. The mock RPC test checked both outcomes. Arc rejected the synthetic fixture address because it has no deployed core code.
+- All 50 default workspace tests passed. Three guest integration tests require prepared packages. Clippy passed with an upstream future compatibility warning.
+- The maximum-delivery proof is running. The deployment manifest and actual funded terms remain pending for the Arc integration check.
+
 ## 2026-11-14 18:53 -05:00 — Anish
 
 - Branch codex/anish-engine. Published reviewed reconciliation receipts for both verdicts. Passing proof took 260.506 seconds and failing proof took 276.134 seconds. Each used 812,703 guest cycles. The passing delivery recovered both original files byte for byte.
