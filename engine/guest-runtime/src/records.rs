@@ -1,11 +1,11 @@
 use super::*;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
-pub(super) struct Access {
-    source: Source,
-    file: usize,
-    field: usize,
+pub struct Access {
+    pub source: Source,
+    pub file: usize,
+    pub field: usize,
 }
 
 pub(super) fn validate_schema(file: &File) -> Result<(), CheckError> {

@@ -49,7 +49,7 @@ engine/target/debug/engine decrypt --submission ATTEMPT_DIR/proof.json \
 
 The CLI writes JSON errors to stderr. Exit code 2 reports an argument, input, or output error. Exit code 3 reports a Docker build, prover, or randomness failure. Each output directory must be new. The CLI publishes it after all files are ready.
 
-The scalar guest embeds the canonical rule structure in a fixed Rust entry point. Parameters remain runtime inputs. Specialized Rust generation remains pending. Run [the funded-job test](tests/funded-job.sh) against the built CLI with `bash engine/tests/funded-job.sh engine/target/debug/engine`. Set `CHECK_FAILING_VERDICT=1` to also produce a verdict-0 receipt.
+The scalar guest embeds the canonical rule structure in a fixed Rust entry point. Parameters remain runtime inputs. The compiler emits typed Rust nodes for each supported rule. Run [the funded-job test](tests/funded-job.sh) against the built CLI with `bash engine/tests/funded-job.sh engine/target/debug/engine`. Set `CHECK_FAILING_VERDICT=1` to also produce a verdict-0 receipt.
 
 ### Retry Groth16 compression after a memory limit
 
@@ -108,3 +108,13 @@ Encode signer and raw envelope byte values as 0x-prefixed hex. Raw Ed25519 evide
 Pass the evidence directory to prove or execute with --evidence. For a host preview, use eval with --evidence and --job when the signatures bind a funded context. The execute command takes the same inputs as prove, with the output directory omitted. It runs the real guest and compares the entire journal with the host checker. It reports verdict and userCycles.
 
 The [public evidence vectors](fixtures/evidence-v1/vectors.json) came from Node crypto and ethers. Rust tests check all six profiles, wrong keys, malformed signatures, altered headers, artifact substitution, and changed contexts. The [test issuer](tests/evidence-fixture.cjs) prepares an isolated job and signs it after compilation. It stores synthetic issuer keys in its scratch directory.
+
+## Reuse checker builds
+
+The compiler emits Rust constructors for the normalized operations and indices. User strings stay in canonical data files. The guest compares the generated nodes with the embedded approved structure before evaluating them.
+
+Compilation caches by the exact staged sources, generated Rust, structure, lockfile, builder configuration, and kernel. Every cache hit recalculates the true image ID and checks the program digest. Successful writes publish atomically. A damaged entry moves to a retained quarantine file before rebuilding.
+
+Set UBC26_ENGINE_CACHE to choose the cache directory. Otherwise the engine uses the user's cache directory. The package includes its exact source tree and lockfile in source/. The compile report adds cacheHit and compileMillis. The package manifest contains buildFingerprint. Parameters and reference contents stay outside the build fingerprint so changes to them can reuse the same guest when its structure is identical.
+
+Keep Docker guest builds and Groth16 compression sequential on an 8 GiB Docker VM. The low-memory prover uses about 5.8 GiB during compression.

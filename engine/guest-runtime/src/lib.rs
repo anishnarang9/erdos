@@ -103,7 +103,7 @@ struct Collection {
 
 #[derive(Clone, Copy, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
-enum Kind {
+pub enum Kind {
     Bool,
     I64,
     String,
@@ -146,17 +146,17 @@ struct Parameter {
     value: Value,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
-enum Source {
+pub enum Source {
     Deliverable,
     Reference,
     Evidence,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, PartialEq, Eq)]
 #[serde(tag = "op", rename_all = "lowercase", deny_unknown_fields)]
-enum Expression {
+pub enum Expression {
     Field {
         source: Source,
         file: usize,
@@ -225,11 +225,11 @@ fn field_index<'de, D: serde::Deserializer<'de>>(input: D) -> Result<Option<usiz
     usize::deserialize(input).map(Some)
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
-struct Binary {
-    left: Box<Expression>,
-    right: Box<Expression>,
+pub struct Binary {
+    pub left: Box<Expression>,
+    pub right: Box<Expression>,
 }
 
 enum ParsedFile {
@@ -272,7 +272,64 @@ pub fn check_with_evidence(
     key: &Key,
     nonce: &[u8; 12],
 ) -> Result<(Journal, Vec<u8>), CheckError> {
-    let structure = decode_structure(structure_jcs)?;
+    check_internal(
+        structure_jcs,
+        parameters_jcs,
+        reference,
+        delivery,
+        evidence,
+        context,
+        key,
+        nonce,
+        None,
+    )
+}
+
+/// Evaluate the compiler-emitted nodes after checking them against the approved structure.
+#[allow(clippy::too_many_arguments)]
+pub fn check_generated(
+    structure_jcs: &[u8],
+    parameters_jcs: &[u8],
+    reference: &[u8],
+    delivery: &[u8],
+    evidence: &[u8],
+    context: &FundedContext,
+    key: &Key,
+    nonce: &[u8; 12],
+    rules: Vec<Expression>,
+) -> Result<(Journal, Vec<u8>), CheckError> {
+    check_internal(
+        structure_jcs,
+        parameters_jcs,
+        reference,
+        delivery,
+        evidence,
+        context,
+        key,
+        nonce,
+        Some(rules),
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn check_internal(
+    structure_jcs: &[u8],
+    parameters_jcs: &[u8],
+    reference: &[u8],
+    delivery: &[u8],
+    evidence: &[u8],
+    context: &FundedContext,
+    key: &Key,
+    nonce: &[u8; 12],
+    rules: Option<Vec<Expression>>,
+) -> Result<(Journal, Vec<u8>), CheckError> {
+    let mut structure = decode_structure(structure_jcs)?;
+    if let Some(rules) = rules {
+        if rules != structure.rules {
+            return Err(CheckError::Structure);
+        }
+        structure.rules = rules;
+    }
     let parameters: Vec<Parameter> =
         canonical_decode(parameters_jcs).ok_or(CheckError::Parameters)?;
     if rules_hash(&structure_hash(structure_jcs), parameters_jcs) != context.rules_hash {
@@ -572,4 +629,10 @@ fn apply_binary(
         _ => return Err(CheckError::Rule),
     };
     Ok(result)
+}
+
+/// Types used by the allowlisted Rust source emitter.
+pub mod generated {
+    pub use super::records::Access as CollectionAccess;
+    pub use super::{Binary, Expression, Kind, Source};
 }

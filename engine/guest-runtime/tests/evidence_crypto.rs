@@ -57,6 +57,15 @@ fn binds_eip712_to_the_job_and_rejects_high_s_and_bad_recovery() {
     assert!(verify("eip712/v1", &signer, &context, encoded.as_bytes()).is_err());
     context.job_id[31] ^= 1;
     let mut envelope: Value = serde_json::from_str(encoded).unwrap();
+    envelope["signature"] = input["eip712HighS"].clone();
+    assert!(verify(
+        "eip712/v1",
+        &signer,
+        &context,
+        &serde_json::to_vec(&envelope).unwrap()
+    )
+    .is_err());
+    envelope = serde_json::from_str(encoded).unwrap();
     let mut signature = bytes(&envelope["signature"]);
     signature[64] = 35;
     envelope["signature"] = serde_json::json!(format!("0x{}", hex::encode(&signature)));

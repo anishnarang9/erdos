@@ -357,3 +357,41 @@ fn validates_reference_and_accepts_both_i64_limits() {
         Err(CheckError::FileContents)
     );
 }
+
+#[test]
+fn generated_nodes_must_equal_the_approved_rules() {
+    use ubc26_guest_runtime::{check_generated, generated::Expression};
+    // Empty generated rules cannot replace the approved rules.
+    let report: serde_json::Value = serde_json::to_value(
+        ubc26_compiler::validate_plan(include_bytes!("../../fixtures/expense-report-plan.json"))
+            .unwrap(),
+    )
+    .unwrap();
+    let structure = report["structureJcs"].as_str().unwrap().as_bytes();
+    let parameters = report["parametersJcs"].as_str().unwrap().as_bytes();
+    let reference =
+        ubc26_protocol::encode_bundle(ubc26_protocol::BundleKind::Reference, &[]).unwrap();
+    let context = ubc26_protocol::FundedContext {
+        chain_id: [0; 32],
+        escrow: [0; 20],
+        job_id: [0; 32],
+        provider: [0; 20],
+        rules_hash: ubc26_protocol::rules_hash(
+            &ubc26_protocol::structure_hash(structure),
+            parameters,
+        ),
+        reference_hash: ubc26_protocol::reference_hash(&reference),
+    };
+    assert!(check_generated(
+        structure,
+        parameters,
+        &reference,
+        &[1, 0, 0],
+        &[1, 0, 0],
+        &context,
+        &[0; 32],
+        &[0; 12],
+        Vec::<Expression>::new()
+    )
+    .is_err());
+}

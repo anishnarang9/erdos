@@ -1,3 +1,4 @@
+mod cache;
 mod decrypt;
 mod files;
 mod package;

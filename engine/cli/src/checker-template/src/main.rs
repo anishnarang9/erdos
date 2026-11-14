@@ -2,6 +2,7 @@
 #![no_std]
 
 extern crate alloc;
+mod generated;
 
 use alloc::{vec, vec::Vec};
 use risc0_zkvm::guest::env;
@@ -33,8 +34,8 @@ fn main() {
     env::read_slice(&mut key);
     env::read_slice(&mut nonce);
     let context = FundedContext::decode(&context).expect("invalid funded context");
-    let (journal, _) = ubc26_guest_runtime::check_with_evidence(
-        STRUCTURE, &parameters, &reference, &delivery, &evidence, &context, &key, &nonce,
+    let (journal, _) = ubc26_guest_runtime::check_generated(
+        STRUCTURE, &parameters, &reference, &delivery, &evidence, &context, &key, &nonce, generated::generated_rules(),
     ).expect("invalid checker input");
     env::commit_slice(&journal.encode());
 }

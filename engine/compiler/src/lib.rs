@@ -1,4 +1,6 @@
+mod emitter;
 mod evidence;
+pub use emitter::emit_rules;
 mod records;
 
 use std::collections::BTreeSet;
@@ -409,6 +411,12 @@ pub fn validate_plan(bytes: &[u8]) -> Result<ValidatedPlan, PlanError> {
             ));
         }
         rules.push(rule);
+    }
+    if lowerer.parameters.len() > MAX_RULE_NODES {
+        return Err(PlanError::invalid(
+            "/rules",
+            "Rules and signers exceed 256 parameter slots",
+        ));
     }
     let structure = json!({
         "version": 1,

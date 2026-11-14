@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 18:11 -05:00 — Anish
+
+- Branch codex/anish-engine. The compiler now emits allowlisted Rust nodes from normalized operations and indices. The guest checks emitted nodes against the approved structure. The package exports its source tree and lockfile.
+- All six evidence profiles passed actual RISC Zero guest execution. A direct guest test rejected an invalid signature for each profile. The suite also checks valid recovery bytes with a high-S EIP-712 signature.
+- Cache checks showed source and threshold cache hits, stable image IDs, changed rules hashes, and recovery from a damaged cache entry. Default workspace tests and Clippy passed.
+- A clean isolated rebuild and the signed-text Groth16 proof are running. A concurrent Docker build exhausted memory during the earlier failing reconciliation proof. Its retry will run sequentially.
+
 ## 2026-11-14 18:02 -05:00 — Anish
 
 - Branch codex/anish-engine. Added signed evidence declarations, committed signer slots, artifact and context bindings, and evidence projection into rules. The CLI passes evidence to the guest and supports guest execution without proving.
