@@ -7,7 +7,9 @@ use std::process::Command;
 use std::time::Instant;
 
 use risc0_ethereum_contracts::encode_seal;
-use risc0_zkvm::{compute_image_id, ExecutorEnv, ExternalProver, InnerReceipt, Prover, ProverOpts};
+use risc0_zkvm::{
+    compute_image_id, Executor, ExecutorEnv, ExternalProver, InnerReceipt, Prover, ProverOpts,
+};
 use serde::Deserialize;
 use serde_json::{json, Value};
 use ubc26_protocol::{reference_hash, strict_json, BundleKind, FundedContext, CONTEXT_BYTES};
@@ -41,7 +43,7 @@ fn decode_context(job: &Job) -> Result<FundedContext, Value> {
     FundedContext::decode(&bytes).map_err(|err| error("invalid_job", err))
 }
 
-fn local_prover() -> Result<ExternalProver, Value> {
+fn local_prover(groth16: bool) -> Result<ExternalProver, Value> {
     let code = "prover_setup";
     if env::var_os("RISC0_DEV_MODE").is_some() || env::var_os("RUST_LOG").is_some() {
         return Err(error(
@@ -60,36 +62,39 @@ fn local_prover() -> Result<ExternalProver, Value> {
         return Err(error(code, "Expected r0vm 3.1.0"));
     }
 
-    let image = Command::new("docker")
-        .args([
-            "image",
-            "inspect",
-            "--format",
-            "{{join .RepoDigests \" \"}}",
-            PROVER_IMAGE,
-        ])
-        .output()
-        .map_err(|err| error(code, err))?;
-    if !image.status.success()
-        || !String::from_utf8_lossy(&image.stdout)
-            .split_whitespace()
-            .any(|digest| digest == PROVER_DIGEST)
-    {
-        return Err(error(
-            code,
-            "Load the pinned Groth16 image as described in the proof smoke README",
-        ));
+    if groth16 {
+        let image = Command::new("docker")
+            .args([
+                "image",
+                "inspect",
+                "--format",
+                "{{join .RepoDigests \" \"}}",
+                PROVER_IMAGE,
+            ])
+            .output()
+            .map_err(|err| error(code, err))?;
+        if !image.status.success()
+            || !String::from_utf8_lossy(&image.stdout)
+                .split_whitespace()
+                .any(|digest| digest == PROVER_DIGEST)
+        {
+            return Err(error(
+                code,
+                "Load the pinned Groth16 image as described in the proof smoke README",
+            ));
+        }
     }
     Ok(ExternalProver::new("ipc", r0vm))
 }
 
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn prove(
     package: &Path,
     job: &Path,
     deliverables: &Path,
     reference: &Path,
     evidence: Option<&Path>,
-    out: &Path,
+    out: Option<&Path>,
 ) -> Result<Value, Value> {
     let job = read_input(job, 4096, "invalid_job")?;
     let job: Job = serde_json::from_value(
@@ -100,14 +105,10 @@ pub(crate) fn prove(
     let package = load(package)?;
     let reference = import_bundle(reference, BundleKind::Reference)?;
     let delivery = import_bundle(deliverables, BundleKind::Delivery)?;
-    if let Some(path) = evidence {
-        if import_bundle(path, BundleKind::Evidence)? != [1, 0, 0] {
-            return Err(error(
-                "unsupported_evidence",
-                "This checker requires an empty evidence bundle",
-            ));
-        }
-    }
+    let evidence = match evidence {
+        Some(path) => import_bundle(path, BundleKind::Evidence)?,
+        None => vec![1, 0, 0],
+    };
     if job.image_id != package.manifest.image_id
         || as_hex(&context.rules_hash) != package.manifest.rules_hash
         || as_hex(&context.reference_hash) != package.manifest.reference_hash
@@ -122,28 +123,57 @@ pub(crate) fn prove(
     let mut nonce = [0; 12];
     getrandom::fill(&mut key).map_err(|err| error("randomness_failure", err))?;
     getrandom::fill(&mut nonce).map_err(|err| error("randomness_failure", err))?;
-    let (journal, envelope) = ubc26_guest_runtime::check(
+    let (journal, envelope) = ubc26_guest_runtime::check_with_evidence(
         &package.structure,
         &package.parameters,
         &reference,
         &delivery,
+        &evidence,
         &context,
         &key,
         &nonce,
     )
     .map_err(|err| error("invalid_deliverable", err))?;
 
-    let stage = stage_output(out, ".engine-prove-")?;
-    let prover = local_prover()?;
-    let env = ExecutorEnv::builder()
+    let stage = out
+        .map(|path| stage_output(path, ".engine-prove-"))
+        .transpose()?;
+    let prover = local_prover(out.is_some())?;
+    let mut builder = ExecutorEnv::builder();
+    builder
         .write_frame(&package.parameters)
         .write_frame(&reference)
-        .write_frame(&delivery)
+        .write_frame(&delivery);
+    if package.manifest.input_version >= 2 {
+        builder.write_frame(&evidence);
+    } else if evidence != [1, 0, 0] {
+        return Err(error(
+            "invalid_package",
+            "This package requires an empty evidence bundle",
+        ));
+    }
+    let env = builder
         .write_slice(&context.encode())
         .write_slice(&key)
         .write_slice(&nonce)
         .build()
         .map_err(|err| error("prover_failure", err))?;
+    if out.is_none() {
+        let session = prover
+            .execute(env, &package.guest)
+            .map_err(|err| error("prover_failure", err))?;
+        if session.journal.bytes != journal.encode()
+            || session.exit_code != risc0_zkvm::ExitCode::Halted(0)
+        {
+            return Err(error(
+                "prover_failure",
+                "Guest execution differs from the host checker",
+            ));
+        }
+        return Ok(json!({"verdict":journal.verdict as u8,"userCycles":session.cycles()}));
+    }
+    let stage = stage.expect("proof output stage");
+    let out = out.expect("proof output directory");
     let start = Instant::now();
     let proof = prover
         .prove_with_opts(env, &package.guest, &ProverOpts::groth16())

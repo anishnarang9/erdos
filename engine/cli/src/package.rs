@@ -25,6 +25,8 @@ const MAX_MANIFEST_BYTES: usize = 8 * 1024;
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(crate) struct Manifest {
     version: u8,
+    #[serde(default = "legacy_input_version")]
+    pub(crate) input_version: u8,
     pub(crate) image_id: String,
     pub(crate) structure_hash: String,
     pub(crate) rules_hash: String,
@@ -34,6 +36,10 @@ pub(crate) struct Manifest {
     structure_sha256: String,
     guest_builder: String,
     risc_zero: String,
+}
+
+fn legacy_input_version() -> u8 {
+    1
 }
 
 pub(crate) struct Package {
@@ -127,13 +133,14 @@ pub(crate) fn compile(plan: &Path, reference: &Path, out: &Path) -> Result<Value
         .expect("validated parameters")
         .as_bytes();
     let reference = import_bundle(reference, BundleKind::Reference)?;
-    ubc26_guest_runtime::validate_reference(structure, &reference)
+    ubc26_guest_runtime::validate_package(structure, parameters, &reference)
         .map_err(|err| error("invalid_reference", err))?;
     let stage = stage_output(out, ".engine-compile-")?;
     let guest = build_guest(structure)?;
     let image_id = compute_image_id(&guest).map_err(|err| error("build_failure", err))?;
     let manifest = Manifest {
         version: 1,
+        input_version: 2,
         image_id: format!("0x{image_id}"),
         structure_hash: report["structureHash"].as_str().expect("structure hash").into(),
         rules_hash: report["rulesHash"].as_str().expect("rules hash").into(),
@@ -172,7 +179,8 @@ pub(crate) fn load(dir: &Path) -> Result<Package, Value> {
     let parameters = read_input(&dir.join("parameters.jcs"), MAX_PLAN_BYTES, bad_package)?;
     let image = compute_image_id(&guest).map_err(|err| error(bad_package, err))?;
     let structure_hash = ubc26_protocol::structure_hash(&structure);
-    if manifest.version != 1
+    if !(1..=2).contains(&manifest.input_version)
+        || manifest.version != 1
         || manifest.guest_sha256 != as_hex(&sha256(&guest))
         || manifest.structure_sha256 != as_hex(&sha256(&structure))
         || manifest.parameters_sha256 != as_hex(&sha256(&parameters))

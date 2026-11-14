@@ -66,9 +66,13 @@ pub(super) fn parse_collections(
         .collect()
 }
 
-pub(super) fn inspect_rules(rules: &[Expression], parameters: &[Scalar]) -> Result<(), CheckError> {
+pub(super) fn inspect_rules(
+    rules: &[Expression],
+    parameters: &[Scalar],
+    evidence_slots: usize,
+) -> Result<(), CheckError> {
     let mut nodes = 0;
-    let mut slot = 0;
+    let mut slot = evidence_slots;
     for rule in rules {
         inspect(rule, 1, &mut nodes, &mut slot, parameters)?;
     }
@@ -121,6 +125,7 @@ impl<'a> Evaluator<'a> {
         let files = match access.source {
             Source::Deliverable => self.deliverables,
             Source::Reference => self.references,
+            Source::Evidence => self.evidence,
         };
         match files.get(access.file) {
             Some(ParsedFile::Json(_, collections)) => collections

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "UBC26 scalar plan v1",
+  "title": "UBC26 typed plan v1",
   "type": "object",
   "required": [
     "version",
@@ -30,7 +30,10 @@
     },
     "evidence": {
       "type": "array",
-      "maxItems": 0
+      "maxItems": 16,
+      "items": {
+        "$ref": "#/$defs/evidence"
+      }
     },
     "rules": {
       "type": "array",
@@ -144,7 +147,8 @@
             "source": {
               "enum": [
                 "deliverable",
-                "reference"
+                "reference",
+                "evidence"
               ]
             },
             "file": {
@@ -440,7 +444,8 @@
         "source": {
           "enum": [
             "deliverable",
-            "reference"
+            "reference",
+            "evidence"
           ]
         },
         "file": {
@@ -449,6 +454,115 @@
         "field": {
           "type": "string",
           "minLength": 1
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "parser",
+        "profile",
+        "signer"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/name"
+        },
+        "parser": {
+          "enum": [
+            "json/v1",
+            "text/v1",
+            "opaque/v1"
+          ]
+        },
+        "fields": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "type"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": {
+                "$ref": "#/$defs/kind"
+              }
+            }
+          }
+        },
+        "collections": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/collection"
+          }
+        },
+        "profile": {
+          "enum": [
+            "ed25519/v1",
+            "eip712/v1",
+            "jws/Ed25519/v1",
+            "jws/EdDSA/v1",
+            "jws/ES256/v1",
+            "jws/RS256/v1"
+          ]
+        },
+        "signer": {
+          "type": "string",
+          "pattern": "^0x(?:[0-9A-Fa-f]{2})+$"
+        },
+        "bindings": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "field",
+              "file"
+            ],
+            "properties": {
+              "field": {
+                "type": "string",
+                "minLength": 1
+              },
+              "file": {
+                "$ref": "#/$defs/name"
+              }
+            }
+          }
+        },
+        "contextField": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "if": {
+        "properties": {
+          "parser": {
+            "enum": [
+              "text/v1",
+              "opaque/v1"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "fields": {
+            "maxItems": 0
+          },
+          "collections": {
+            "maxItems": 0
+          }
         }
       }
     }

@@ -25,6 +25,7 @@ fn main() {
     let parameters = read_input(256 * 1024);
     let reference = read_input(BundleKind::Reference.max_bytes());
     let delivery = read_input(BundleKind::Delivery.max_bytes());
+    let evidence = read_input(BundleKind::Evidence.max_bytes());
     let mut context = [0; CONTEXT_BYTES];
     let mut key = [0; 32];
     let mut nonce = [0; NONCE_BYTES];
@@ -32,8 +33,8 @@ fn main() {
     env::read_slice(&mut key);
     env::read_slice(&mut nonce);
     let context = FundedContext::decode(&context).expect("invalid funded context");
-    let (journal, _) = ubc26_guest_runtime::check(
-        STRUCTURE, &parameters, &reference, &delivery, &context, &key, &nonce,
+    let (journal, _) = ubc26_guest_runtime::check_with_evidence(
+        STRUCTURE, &parameters, &reference, &delivery, &evidence, &context, &key, &nonce,
     ).expect("invalid checker input");
     env::commit_slice(&journal.encode());
 }

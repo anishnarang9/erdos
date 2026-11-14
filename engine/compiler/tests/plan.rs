@@ -130,7 +130,7 @@ fn preserves_strings_in_canonical_parameters() {
 fn reports_a_complete_evidence_request_as_unsupported() {
     let mut input = plan();
     input["evidence"] = json!([{
-        "profile": "ed25519/v1",
+        "profile": "missing/v1",
         "signer": "0x1234",
         "schema": {"amount": "i64"},
         "bindings": ["artifactHash"]
@@ -139,6 +139,6 @@ fn reports_a_complete_evidence_request_as_unsupported() {
     assert_eq!(error["path"], "/evidence/0/profile");
     assert_eq!(
         error["request"],
-        json!({"kind": "evidence", "name": "ed25519/v1"})
+        json!({"kind": "evidence", "name": "missing/v1"})
     );
 }

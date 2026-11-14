@@ -1,3 +1,4 @@
+mod evidence;
 mod records;
 
 use std::collections::BTreeSet;
@@ -101,6 +102,7 @@ enum Kind {
 enum Source {
     Deliverable,
     Reference,
+    Evidence,
 }
 
 #[derive(Deserialize)]
@@ -205,6 +207,7 @@ fn validate_files(files: &[File], path: &str) -> Result<(), PlanError> {
 
 struct Lowerer<'a> {
     plan: &'a Plan,
+    evidence_files: &'a [File],
     parameters: Vec<Value>,
     nodes: usize,
     scopes: Vec<&'a [Field]>,
@@ -282,9 +285,10 @@ impl<'a> Lowerer<'a> {
     }
 
     fn field(&self, access: FileAccess, path: &str) -> Result<(Kind, Value), PlanError> {
-        let (source, files) = match access.source {
+        let (source, files): (&str, &[File]) = match access.source {
             Source::Deliverable => ("deliverable", &self.plan.deliverables),
             Source::Reference => ("reference", &self.plan.references),
+            Source::Evidence => ("evidence", self.evidence_files),
         };
         let (file_index, file) = files
             .iter()
@@ -380,19 +384,8 @@ pub fn validate_plan(bytes: &[u8]) -> Result<ValidatedPlan, PlanError> {
     }
     validate_files(&plan.deliverables, "/deliverables")?;
     validate_files(&plan.references, "/references")?;
-    if let Some(evidence) = plan.evidence.first() {
-        let profile = evidence
-            .get("profile")
-            .and_then(Value::as_str)
-            .ok_or_else(|| {
-                PlanError::invalid("/evidence/0/profile", "Expected an evidence profile name")
-            })?;
-        return Err(PlanError::unsupported(
-            "/evidence/0/profile",
-            "evidence",
-            profile,
-        ));
-    }
+    let (evidence_files, evidence, evidence_parameters) =
+        evidence::prepare(&plan.evidence, &plan.deliverables)?;
     if plan.rules.is_empty() || plan.rules.len() > MAX_RULE_NODES {
         return Err(PlanError::invalid("/rules", "Expected 1 to 256 rules"));
     }
@@ -400,7 +393,8 @@ pub fn validate_plan(bytes: &[u8]) -> Result<ValidatedPlan, PlanError> {
     let input_rules = std::mem::take(&mut plan.rules);
     let mut lowerer = Lowerer {
         plan: &plan,
-        parameters: Vec::new(),
+        evidence_files: &evidence_files,
+        parameters: evidence_parameters,
         nodes: 0,
         scopes: Vec::new(),
     };
@@ -420,7 +414,7 @@ pub fn validate_plan(bytes: &[u8]) -> Result<ValidatedPlan, PlanError> {
         "version": 1,
         "deliverables": plan.deliverables,
         "references": plan.references,
-        "evidence": [],
+        "evidence": evidence,
         "rules": rules
     });
     let parameters = lowerer.parameters;

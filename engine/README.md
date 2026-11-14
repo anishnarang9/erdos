@@ -43,13 +43,13 @@ engine/target/debug/engine decrypt --submission ATTEMPT_DIR/proof.json \
 ```
 
 - `compile` writes `guest.elf`, `structure.jcs`, `parameters.jcs`, and `manifest.json`. The RISC Zero program binary bundles the guest ELF with the pinned kernel. The manifest reports the RISC Zero image ID in Solidity byte order, the rules and reference hashes, the guest builder, and per-file SHA-256 digests.
-- `prove` reads job JSON with two fields. `context` is the 169-byte context in 0x-prefixed hex. `imageId` is the 0x-prefixed image ID from the funded job. Use confirmed chain state for both fields. `--evidence` is optional for scalar plans and must identify an empty directory if supplied.
-- `prove` writes `proof.json` and the private `release-key.hex` file. The proof JSON uses numbers for `version` and `verdict`, and 0x-prefixed hex for all byte fields. A valid failing check produces a real proof with verdict 0. The stdout JSON reports `verdict`, `proofFile`, `keyFile`, `proveMillis`, and `userCycles`. Keep the key file private. It contains exactly 32 bytes encoded as lowercase 0x-prefixed hex.
+- `prove` reads job JSON with two fields. `context` is the 169-byte context in 0x-prefixed hex. `imageId` is the 0x-prefixed image ID from the funded job. Use confirmed chain state for both fields. `--evidence` is optional when the plan declares no evidence.
+- `prove` writes `proof.json` and the private `release-key.hex` file. The proof JSON uses numbers for `version` and `verdict`, and 0x-prefixed hex for all byte fields. A well-formed delivery that fails a rule produces a real proof with verdict 0. Invalid evidence aborts proving. The stdout JSON reports `verdict`, `proofFile`, `keyFile`, `proveMillis`, and `userCycles`. Keep the key file private. It contains exactly 32 bytes encoded as lowercase 0x-prefixed hex.
 - `decrypt` reads the context from `proof.json`, checks a passing journal and key commitment, then authenticates the envelope. It writes the recovered files to a new directory. The caller checks chain acceptance and retrieves the released key.
 
 The CLI writes JSON errors to stderr. Exit code 2 reports an argument, input, or output error. Exit code 3 reports a Docker build, prover, or randomness failure. Each output directory must be new. The CLI publishes it after all files are ready.
 
-The scalar guest embeds the canonical rule structure in a fixed Rust entry point. Parameters remain runtime inputs. Signed evidence and specialized Rust generation remain pending. Run [the funded-job test](tests/funded-job.sh) against the built CLI with `bash engine/tests/funded-job.sh engine/target/debug/engine`. Set `CHECK_FAILING_VERDICT=1` to also produce a verdict-0 receipt.
+The scalar guest embeds the canonical rule structure in a fixed Rust entry point. Parameters remain runtime inputs. Specialized Rust generation remains pending. Run [the funded-job test](tests/funded-job.sh) against the built CLI with `bash engine/tests/funded-job.sh engine/target/debug/engine`. Set `CHECK_FAILING_VERDICT=1` to also produce a verdict-0 receipt.
 
 ### Retry Groth16 compression after a memory limit
 
@@ -87,3 +87,24 @@ Run the following command. Replace pass with fail to check a changed amount.
 Collection operations use a collection object with source, file, and field. The count operation can include a Boolean where expression. The sum operation uses an integer value expression. The all and any operations use a Boolean where expression. The unique operation names a record field. The lookup operation names keyField and valueField and takes a typed key expression. A lookup requires one matching row and rejects duplicate keys in its source collection.
 
 Use record_field inside a collection expression. Its field identifies the record field. An optional level selects an outer record scope, with 0 for the current record. An empty collection satisfies all and fails any. Empty sums and counts return 0. Arithmetic remains checked. The checker limits each evaluation to 1,000,000 expression visits.
+
+## Verify signed evidence
+
+An evidence declaration names a file, profile, approved signer, payload parser, and projected fields. The compiler puts signer values in committed parameter slots. Rules use source "evidence" to read verified payload fields. A binding connects a signed string field to the SHA-256 hash of a named delivery file. The optional contextField connects another signed string field to SHA-256 of the 169-byte context.
+
+The profiles and signer encodings are as follows.
+
+| Profile | Approved signer bytes | Evidence file |
+| --- | --- | --- |
+| ed25519/v1 | Raw 32-byte public key | JSON with payload and signature hex |
+| eip712/v1 | Raw 20-byte EOA | JSON with payload and signature hex |
+| jws/Ed25519/v1 | Raw 32-byte public key | Compact JWS with Ed25519 alg |
+| jws/EdDSA/v1 | Raw 32-byte public key | Compact JWS with explicit legacy EdDSA alg |
+| jws/ES256/v1 | SEC1 P-256 public key | Compact JWS with ES256 alg |
+| jws/RS256/v1 | DER SubjectPublicKeyInfo, 2048–4096 bits | Compact JWS with RS256 alg |
+
+Encode signer and raw envelope byte values as 0x-prefixed hex. Raw Ed25519 evidence signs UBC26/evidence/v1 followed by JCS payload bytes. EIP-712 uses the domain and Evidence type from the shared plan. It requires a low-S signature and recovery byte 0, 1, 27, or 28. JWS signs its original encoded header and payload segments. The parser accepts protected alg and optional typ headers. It rejects key discovery headers and unsupported extensions.
+
+Pass the evidence directory to prove or execute with --evidence. For a host preview, use eval with --evidence and --job when the signatures bind a funded context. The execute command takes the same inputs as prove, with the output directory omitted. It runs the real guest and compares the entire journal with the host checker. It reports verdict and userCycles.
+
+The [public evidence vectors](fixtures/evidence-v1/vectors.json) came from Node crypto and ethers. Rust tests check all six profiles, wrong keys, malformed signatures, altered headers, artifact substitution, and changed contexts. The [test issuer](tests/evidence-fixture.cjs) prepares an isolated job and signs it after compilation. It stores synthetic issuer keys in its scratch directory.

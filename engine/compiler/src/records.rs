@@ -77,9 +77,10 @@ pub(super) fn validate_collections(file: &File, path: &str) -> Result<(), PlanEr
 
 impl<'a> Lowerer<'a> {
     fn collection(&self, access: Access, path: &str) -> Result<(&'a Collection, Value), PlanError> {
-        let (source, files) = match access.source {
+        let (source, files): (&str, &[File]) = match access.source {
             Source::Deliverable => ("deliverable", &self.plan.deliverables),
             Source::Reference => ("reference", &self.plan.references),
+            Source::Evidence => ("evidence", self.evidence_files),
         };
         let (file_index, file) = files
             .iter()

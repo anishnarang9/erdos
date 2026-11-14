@@ -49,16 +49,37 @@ fn run(raw: &[OsString]) -> Result<Value, Value> {
                 .map_err(|err| json!(err))
         }
         Some("eval") => {
-            let paths = args(flags, &["--plan", "--deliverables"], &["--reference"])?;
+            let paths = args(
+                flags,
+                &["--plan", "--deliverables"],
+                &["--reference", "--evidence", "--job"],
+            )?;
             evaluate(
                 paths["--plan"],
                 paths["--deliverables"],
                 paths.get("--reference").copied(),
+                paths.get("--evidence").copied(),
+                paths.get("--job").copied(),
             )
         }
         Some("compile") => {
             let paths = args(flags, &["--plan", "--reference", "--out"], &[])?;
             package::compile(paths["--plan"], paths["--reference"], paths["--out"])
+        }
+        Some("execute") => {
+            let paths = args(
+                flags,
+                &["--package", "--job", "--deliverables", "--reference"],
+                &["--evidence"],
+            )?;
+            prove::prove(
+                paths["--package"],
+                paths["--job"],
+                paths["--deliverables"],
+                paths["--reference"],
+                paths.get("--evidence").copied(),
+                None,
+            )
         }
         Some("prove") => {
             let paths = args(
@@ -78,7 +99,7 @@ fn run(raw: &[OsString]) -> Result<Value, Value> {
                 paths["--deliverables"],
                 paths["--reference"],
                 paths.get("--evidence").copied(),
-                paths["--out"],
+                Some(paths["--out"]),
             )
         }
         Some("decrypt") => {
@@ -89,7 +110,13 @@ fn run(raw: &[OsString]) -> Result<Value, Value> {
     }
 }
 
-fn evaluate(plan: &Path, deliverables: &Path, reference: Option<&Path>) -> Result<Value, Value> {
+fn evaluate(
+    plan: &Path,
+    deliverables: &Path,
+    reference: Option<&Path>,
+    evidence: Option<&Path>,
+    job: Option<&Path>,
+) -> Result<Value, Value> {
     use ubc26_protocol::{
         encode_bundle, reference_hash, rules_hash, structure_hash, BundleKind, FundedContext,
     };
@@ -109,7 +136,7 @@ fn evaluate(plan: &Path, deliverables: &Path, reference: Option<&Path>) -> Resul
         None => encode_bundle(BundleKind::Reference, &[]).expect("valid empty bundle"),
     };
     let delivery = files::import_bundle(deliverables, BundleKind::Delivery)?;
-    let context = FundedContext {
+    let mut context = FundedContext {
         chain_id: [0; 32],
         escrow: [0; 20],
         job_id: [0; 32],
@@ -117,16 +144,31 @@ fn evaluate(plan: &Path, deliverables: &Path, reference: Option<&Path>) -> Resul
         rules_hash: rules_hash(&structure_hash(structure), parameters),
         reference_hash: reference_hash(&reference),
     };
+    if let Some(job) = job {
+        let bytes = files::read_input(job, 4096, "invalid_job")?;
+        let job = ubc26_protocol::strict_json::from_slice(&bytes)
+            .map_err(|err| files::error("invalid_job", err))?;
+        let bytes = job["context"]
+            .as_str()
+            .and_then(|hex| hex.strip_prefix("0x"))
+            .and_then(|hex| hex::decode(hex).ok())
+            .ok_or_else(|| files::error("invalid_job", "Expected context hex"))?;
+        context = FundedContext::decode(&bytes).map_err(|err| files::error("invalid_job", err))?;
+    }
+    let evidence = match evidence {
+        Some(path) => files::import_bundle(path, BundleKind::Evidence)?,
+        None => vec![1, 0, 0],
+    };
     // Preview discards both the private ciphertext and the local test context.
-    let (journal, _) = ubc26_guest_runtime::check(
-        structure, parameters, &reference, &delivery, &context, &[0; 32], &[0; 12],
+    let (journal, _) = ubc26_guest_runtime::check_with_evidence(
+        structure, parameters, &reference, &delivery, &evidence, &context, &[0; 32], &[0; 12],
     )
     .map_err(|err| files::error("invalid_deliverable", err))?;
     Ok(json!({"verdict": journal.verdict as u8}))
 }
 
 fn usage() -> Value {
-    json!({"code":"usage", "message":"Use engine validate, eval, compile, prove, or decrypt. See engine/README.md for arguments."})
+    json!({"code":"usage", "message":"Use engine validate, eval, compile, execute, prove, or decrypt. See engine/README.md for arguments."})
 }
 
 fn main() -> ExitCode {

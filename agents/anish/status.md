@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 18:02 -05:00 — Anish
+
+- Branch codex/anish-engine. Added signed evidence declarations, committed signer slots, artifact and context bindings, and evidence projection into rules. The CLI passes evidence to the guest and supports guest execution without proving.
+- All 35 workspace tests and Clippy passed. Independent Node signatures check Ed25519, EIP-712, and compact JWS Ed25519, legacy EdDSA, ES256, and RS256. Host tests reject changed signers, artifacts, headers, and contexts.
+- Pinned guest validation for all six evidence profiles is running. The record guest produced a passing proof. Its failing receipt is still running. Input version metadata preserves proving compatibility for earlier checker packages.
+
 ## 2026-11-14 17:55 -05:00 — Anish
 
 - Branch codex/anish-engine. Added bounded record collections, sum, count, all, any, uniqueness, and exact lookup. Published a multi-file reconciliation fixture.

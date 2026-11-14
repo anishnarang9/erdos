@@ -1,3 +1,5 @@
+mod evidence;
+pub mod evidence_crypto;
 mod records;
 
 use std::collections::BTreeSet;
@@ -24,6 +26,7 @@ pub enum CheckError {
     FileContents,
     Rule,
     Overflow,
+    Evidence,
     Wire(WireError),
 }
 
@@ -37,6 +40,7 @@ impl std::fmt::Display for CheckError {
             Self::FileSet => "Bundle files differ from the declared files",
             Self::FileContents => "File contents do not match the declared schema",
             Self::Rule => "Invalid rule expression",
+            Self::Evidence => "Evidence signature or binding failed",
             Self::Overflow => "Rule arithmetic exceeds the i64 range",
             Self::Wire(error) => return error.fmt(formatter),
         };
@@ -58,7 +62,7 @@ struct Structure {
     version: u8,
     deliverables: Vec<File>,
     references: Vec<File>,
-    evidence: Vec<Value>,
+    evidence: Vec<evidence::Policy>,
     rules: Vec<Expression>,
 }
 
@@ -147,6 +151,7 @@ struct Parameter {
 enum Source {
     Deliverable,
     Reference,
+    Evidence,
 }
 
 #[derive(Deserialize)]
@@ -243,6 +248,30 @@ pub fn check(
     key: &Key,
     nonce: &[u8; 12],
 ) -> Result<(Journal, Vec<u8>), CheckError> {
+    check_with_evidence(
+        structure_jcs,
+        parameters_jcs,
+        reference,
+        delivery,
+        &[1, 0, 0],
+        context,
+        key,
+        nonce,
+    )
+}
+
+/// Check a delivery with an exact approved signed evidence bundle.
+#[allow(clippy::too_many_arguments)]
+pub fn check_with_evidence(
+    structure_jcs: &[u8],
+    parameters_jcs: &[u8],
+    reference: &[u8],
+    delivery: &[u8],
+    evidence: &[u8],
+    context: &FundedContext,
+    key: &Key,
+    nonce: &[u8; 12],
+) -> Result<(Journal, Vec<u8>), CheckError> {
     let structure = decode_structure(structure_jcs)?;
     let parameters: Vec<Parameter> =
         canonical_decode(parameters_jcs).ok_or(CheckError::Parameters)?;
@@ -260,12 +289,20 @@ pub fn check(
         .map(|parameter| Scalar::from_json(parameter.kind, parameter.value))
         .collect::<Option<Vec<_>>>()
         .ok_or(CheckError::Parameters)?;
-    records::inspect_rules(&structure.rules, &parameters)?;
+    records::inspect_rules(&structure.rules, &parameters, structure.evidence.len())?;
     let deliverables = parse_files(&structure.deliverables, BundleKind::Delivery, delivery)?;
     let references = parse_files(&structure.references, BundleKind::Reference, reference)?;
+    let evidence = evidence::parse(
+        &structure.evidence,
+        &parameters,
+        context,
+        evidence,
+        delivery,
+    )?;
     let mut evaluator = Evaluator {
         deliverables: &deliverables,
         references: &references,
+        evidence: &evidence,
         parameters: &parameters,
         scopes: Vec::new(),
         nodes: 0,
@@ -289,6 +326,26 @@ pub fn check(
     Ok((journal, envelope))
 }
 
+/// Check all compile-time inputs, including approved evidence keys.
+pub fn validate_package(
+    structure_jcs: &[u8],
+    parameters_jcs: &[u8],
+    reference: &[u8],
+) -> Result<(), CheckError> {
+    let structure = decode_structure(structure_jcs)?;
+    let parameters: Vec<Parameter> =
+        canonical_decode(parameters_jcs).ok_or(CheckError::Parameters)?;
+    let parameters = parameters
+        .into_iter()
+        .map(|param| Scalar::from_json(param.kind, param.value))
+        .collect::<Option<Vec<_>>>()
+        .ok_or(CheckError::Parameters)?;
+    records::inspect_rules(&structure.rules, &parameters, structure.evidence.len())?;
+    evidence::validate(&structure.evidence, &parameters)?;
+    parse_files(&structure.references, BundleKind::Reference, reference)?;
+    Ok(())
+}
+
 /// Checks that the reference bundle matches the declared files and schemas.
 pub fn validate_reference(structure_jcs: &[u8], reference: &[u8]) -> Result<(), CheckError> {
     let structure = decode_structure(structure_jcs)?;
@@ -300,7 +357,6 @@ fn decode_structure(bytes: &[u8]) -> Result<Structure, CheckError> {
     let structure: Structure = canonical_decode(bytes).ok_or(CheckError::Structure)?;
     if structure.version != 1
         || structure.deliverables.is_empty()
-        || !structure.evidence.is_empty()
         || !(1..=MAX_ITEMS).contains(&structure.rules.len())
     {
         return Err(CheckError::Structure);
@@ -405,6 +461,7 @@ fn check_json_limits(value: &Value, depth: usize) -> Result<(), CheckError> {
 struct Evaluator<'a> {
     deliverables: &'a [ParsedFile],
     references: &'a [ParsedFile],
+    evidence: &'a [ParsedFile],
     parameters: &'a [Scalar],
     scopes: Vec<&'a [Scalar]>,
     nodes: usize,
@@ -444,6 +501,7 @@ impl<'a> Evaluator<'a> {
                 let files = match source {
                     Source::Deliverable => self.deliverables,
                     Source::Reference => self.references,
+                    Source::Evidence => self.evidence,
                 };
                 let value = match (files.get(*file), field) {
                     (Some(ParsedFile::Json(fields, _)), Some(index)) => fields.get(*index),
