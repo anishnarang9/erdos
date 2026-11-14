@@ -2,6 +2,11 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 15:42 -05:00 — Anish — Engine interface checkpoint
+
+- Engine branch `codex/anish-engine` publishes the [wire fixture](../../engine/fixtures/wire-v1.json) and the [first plan validator](../../engine/README.md). Solidity and TypeScript can use the fixture to check the context, journal, and encryption bytes.
+- The validator accepts scalar rules and returns typed capability requests for operations and evidence beyond its current support. The generated checker, real funded-job proofs, and Arc verification remain pending.
+
 ## 2026-11-14 — Anish workstream — RISC Zero plan and team handoff
 
 - The [RISC Zero implementation plan](ZKVM-IMPLEMENTATION.md) specifies a domain-independent compiler, local solver CLI, named file bundles, signed evidence, and byte fixtures.
