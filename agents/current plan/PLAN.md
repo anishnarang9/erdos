@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 18:49 -05:00 — Anish — Engine release handoff
+
+- The engine now builds typed Rust checkers for record and signed-evidence workloads. The [catalog](../../engine/capabilities-v1.json), [plan schema](../../engine/plan-v1.schema.json), and [CLI guide](../../engine/README.md) are ready for commerce integration.
+- Published [reconciliation](../../engine/fixtures/reconciliation) and [signed-text](../../engine/fixtures/signed-text) fixtures. Verifier and journal tests run on a local EVM. [Arc RPC reports](../../engine/fixtures/arc-rpc) record temporary verifier simulations at specific testnet blocks.
+- Nick supplies the deployed core, evaluator, verifier, ABI, delivery cap, and confirmed funded terms. The engine consumes the exact funded provider and job ID with matching package commitments. Use the job JSON helper to prepare the input after confirming those terms.
+
 ## 2026-11-14 16:07 -05:00 — Anish — Scalar proof fixtures for settlement
 
 - The engine produced real [passing](../../engine/fixtures/scalar-proof-pass-v1.json) and [failing](../../engine/fixtures/scalar-proof-fail-v1.json) Groth16 receipts with the full 234-byte journal. Both use the same checker image and synthetic funded context. The local Solidity verifier accepted each original journal. It rejected the failing receipt when tested against a passing journal.
