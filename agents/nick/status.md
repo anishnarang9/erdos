@@ -2,6 +2,56 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 23:30 -05:00 — Nick
+
+Branch `nick-settlement`, PR #4. This is an audit against tonight's deliverables.
+
+### Deliverables
+
+| # | Deliverable | Status | Evidence |
+| --- | --- | --- | --- |
+| 1 | Settlement contracts: escrow core, hook and evaluator, key release | **Delivered** | `contracts/src/` (patched Circle core, `SettlementHook`, `SettlementCodec`) |
+| 2 | Passing local tests: valid and invalid proofs, wrong keys, replay, payout, expiry refunds | **Delivered** | `arc-forge test --network arc`: 120 passed, 0 failed, 1 skipped (the skip is the fork-only suite) |
+| 3 | Interface handoff: ABIs, events and read methods, expiry rules, 16,412-byte envelope cap | **Delivered in the repo** | [`contracts/HANDOFF.md`](../../contracts/HANDOFF.md), `contracts/abi/`, `contracts/examples/`. Not yet sent to Neil and Anish directly (see Next action) |
+| 4 | Arc verifier: deploy the pinned verifier, test a real receipt and altered inputs, share the address and evidence | **Partly delivered** | Fork evidence against live Arc state is in [`contracts/research/ARC-VERIFIER.md`](../../contracts/research/ARC-VERIFIER.md). **The live deployment and its address are still pending.** They need my keystore, which subagents never handle |
+
+### Changes since the last entry
+- **Envelope cap:** `MAX_ENVELOPE_BYTES` is now **16,412** (team value) in config, the manifest, tests and examples. 16,412 accepts, 16,413 reverts and the job stays Funded.
+  - A full `submit` at the cap is 16,996 bytes of calldata. The Arc calldata floor is about 700,840 gas (about 0.014 USDC at 20 gwei), which is higher than execution: 142,927 with the mock verifier plus about 242.5k for a real `verify`.
+- **Arc fork evidence:** `test/fork/ArcVerifierFork.t.sol` deploys the pinned verifier on a fork of Arc at block 72389800, so Arc's own precompiles execute. Results, 7 of 7 pass:
+  - `SELECTOR` is `0xe71e6620` and `VERSION` is `3.1.0`.
+  - The upstream receipt verifies, using 242,661 gas.
+  - Changing any journal byte, the image ID, any proof byte, or any selector byte reverts.
+- **New tooling:**
+  - `script/verifier-evidence.py` gathers post-deploy evidence read-only and writes `research/ARC-VERIFIER-LIVE.md`.
+  - `script/08_CreateTestJob.s.sol` creates and funds the next handoff's test job and writes `testJob` into the manifest. It is tested in-process.
+- **Handoff document:** `contracts/HANDOFF.md`.
+
+### Checks
+- `arc-forge test --network arc`: 120 passed, 0 failed, 1 skipped.
+- `arc-forge test --network arc --fork-url https://rpc.testnet.arc.io --fork-block-number 72389800 --match-path 'test/fork/*'`: 7 of 7 passed.
+- `npm test` in `contracts/examples`: 13 of 13 passed.
+
+### Next action (Nick)
+1. Deploy the verifier on Arc. In WSL from `contracts/`:
+   - deploy: `arc-forge script script/01_DeployVerifier.s.sol:DeployVerifier --network arc --rpc-url https://rpc.testnet.arc.io --account <keystore> --with-gas-price 25gwei --priority-gas-price 25gwei --slow --broadcast`;
+   - check: `arc-forge script script/06_Verify.s.sol:VerifyDeployment --network arc --rpc-url https://rpc.testnet.arc.io`;
+   - capture evidence: `python3 script/verifier-evidence.py --out research/ARC-VERIFIER-LIVE.md`.
+
+   Commit the manifest and the evidence.
+2. Send `contracts/HANDOFF.md` and the verifier address to Neil and Anish.
+3. Then run steps 02 to 05 and `08_CreateTestJob` for the next handoff. That needs the image ID, rules hash and reference hash from Anish.
+
+### Decisions made outside the spec in this checkpoint
+Each entry gives the choice, the alternative it beat, and the reason.
+
+21. **Cap set to 16,412.** The team fixed it at 16,412, replacing the spec default of 16,384. It plausibly equals a 16,384-byte bundle plus a 12-byte nonce and a 16-byte tag, but that derivation is UNVERIFIED. The hook takes the cap as a constructor argument, so no contract code changed.
+22. **Fork test instead of waiting for a deploy.** The verifier evidence comes from a fork test now, not only after the live deploy. It exercises Arc's real BN254 and SHA-256 precompiles without a key. The fork test skips off chain 5042002, so the local suite stays green.
+23. **Evidence script in Python.** It is a read-only Python script, not a Forge script. It uses the node's real `eth_call` and `eth_estimateGas`, which a Forge script would simulate locally instead.
+24. **Evidence in its own file.** The script writes `ARC-VERIFIER-LIVE.md` rather than editing `ARC-VERIFIER.md`, so the hand-written fork section is never overwritten.
+25. **Two overridable config functions.** `_isLocal` and `_manifestPath` in `00_Config.s.sol` are now `virtual`. Otherwise two script tests race on shared environment variables, because Forge runs suites in parallel.
+26. **Duplicate-job guard.** `08_CreateTestJob` refuses to create a second test job unless `SETTLEMENT_ALLOW_NEW_TEST_JOB=1` is set. This stops a re-run from double-funding.
+
 ## 2026-11-14 23:06 -05:00 — Nick
 
 ### Summary

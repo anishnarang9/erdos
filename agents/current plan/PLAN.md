@@ -2,6 +2,25 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 23:30 -05:00 — Nick workstream — Tonight's settlement deliverables
+
+### Status
+- **Delivered:**
+  - the settlement contracts;
+  - passing local tests (120 pass);
+  - the interface handoff in [contracts/HANDOFF.md](../../contracts/HANDOFF.md): ABIs, events and read methods, expiry rules, and the **16,412-byte** envelope cap.
+- **Arc verifier: fork evidence only.** On a fork of live Arc at block 72389800:
+  - the upstream receipt verifies, using 242,661 gas;
+  - changing any journal byte, the image ID, any proof byte, or any selector byte reverts.
+
+  **The live deployment and its address are pending Nick.** The commands are in `contracts/research/ARC-VERIFIER.md`.
+
+### Decisions
+- **Envelope cap:** 16,412 bytes, which replaces 16,384. A full `submit` at the cap is 16,996 bytes of calldata, about 700k gas on Arc. Affects Neil and Anish.
+
+### Next handoff
+The full manifest plus one funded test job, created by `contracts/script/08_CreateTestJob.s.sol`. Anish must supply its image ID, rules hash and reference hash.
+
 ## 2026-11-14 23:06 -05:00 — Nick workstream — Settlement contracts built and tested locally
 
 ### Status
