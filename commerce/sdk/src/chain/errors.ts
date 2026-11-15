@@ -1,4 +1,11 @@
-export type ChainErrorCode = "reverted" | "wrong_chain" | "not_submit" | "no_wallet";
+export type ChainErrorCode =
+  | "reverted"
+  | "wrong_chain"
+  | "not_submit"
+  | "no_wallet"
+  | "unsafe_signer"
+  | "release_unsafe"
+  | "not_accepted";
 
 export class ChainError extends Error {
   readonly code: ChainErrorCode;

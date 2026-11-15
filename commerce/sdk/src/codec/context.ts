@@ -14,9 +14,15 @@ function u256(value: unknown, what: string): Uint8Array {
   return uintToBytes(value, 32);
 }
 
+/** All-lowercase or all-uppercase hex is accepted as is; mixed case must be a valid EIP-55 checksum. */
 function address(value: unknown, what: string): Uint8Array {
   if (typeof value !== "string" || !isAddress(value, { strict: false })) {
     throw new CodecError("bad_field", `${what} is not a valid address`);
+  }
+  const body = value.slice(2);
+  const singleCase = body === body.toLowerCase() || body === body.toUpperCase();
+  if (!singleCase && getAddress(value) !== value) {
+    throw new CodecError("bad_field", `${what} has an invalid EIP-55 checksum`);
   }
   return fixedHex(value, 20, "bad_field", what);
 }

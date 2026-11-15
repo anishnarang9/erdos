@@ -8,6 +8,8 @@ import {
   encodeJournal,
   journalDigest,
   decryptEnvelope,
+  referenceHash,
+  decodeBundle,
   CONTEXT_LENGTH,
   JOURNAL_LENGTH,
   KEY_LENGTH,
@@ -19,7 +21,7 @@ import {
   TAG_KEY,
   TAG_REFERENCE,
 } from "../../src/index.ts";
-import { encryptEnvelope, ENGINE_FIXTURE } from "../../src/testing/index.ts";
+import { encryptEnvelope, ENGINE_FIXTURE, simulatedSeal } from "../../src/testing/index.ts";
 import {
   FIX,
   FIX_HEX,
@@ -33,6 +35,8 @@ import {
   refEncrypt,
   refJournal,
   refKeyCommitment,
+  refReferenceHash,
+  refSimulatedSeal,
   sha256,
   sha256Hex,
 } from "./helpers.ts";
@@ -113,6 +117,50 @@ describe("CONTRACT §1 Constants (L41-47)", () => {
     expect(SEAL_SELECTOR).toBe("0xe71e6620");
     expect(TAG_KEY).toBe("UBC26/key/v1");
     expect(TAG_REFERENCE).toBe("UBC26/reference/v1");
+  });
+});
+
+// Literals below were computed once with node:crypto (see helpers.ts reference functions) and pasted in.
+const V_REFHASH_EMPTY = "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95";
+const V_BUNDLE2 = "0x0100020005422e62696e0000000200ff0005612e747874000000026869";
+const V_SEAL_77 = "0xe71e662036589332b14a125732ef6772332fbdf74df60330eda04b19cfbb8799d5d5ae41";
+
+describe("Extra hard-coded vectors (round 2)", () => {
+  it("referenceHash(010000) literal; helper agrees", () => {
+    expect(refReferenceHash(bytesOf("0x010000"))).toBe(V_REFHASH_EMPTY);
+    expect(referenceHash(bytesOf("0x010000"))).toBe(V_REFHASH_EMPTY);
+  });
+  it("two-file bundle (a.txt='hi', B.bin=00ff) literal, 'B.bin' sorts before 'a.txt'", () => {
+    const files = [
+      { name: "a.txt", content: ascii("hi") },
+      { name: "B.bin", content: new Uint8Array([0, 255]) },
+    ];
+    expect(hexOf(refBundle(files))).toBe(V_BUNDLE2);
+    expect(hexOf(encodeBundle(files))).toBe(V_BUNDLE2);
+    expect(decodeBundle(bytesOf(V_BUNDLE2)).map((f) => f.name)).toEqual(["B.bin", "a.txt"]);
+  });
+  it("simulatedSeal(77*32, fixture journalDigest) literal", () => {
+    const img = `0x${"77".repeat(32)}` as const;
+    expect(refSimulatedSeal(bytesOf(img), bytesOf(FIX_HEX.journalDigest))).toBe(V_SEAL_77);
+    expect(simulatedSeal(img, FIX_HEX.journalDigest)).toBe(V_SEAL_77);
+  });
+});
+
+describe("Settled round 1: ENGINE_FIXTURE shape", () => {
+  it("flat hex values, chainId/jobId bigints, fundedContext and files", () => {
+    const fx = ENGINE_FIXTURE as unknown as Record<string, unknown>;
+    expect(fx.chainId).toBe(5042002n);
+    expect(fx.jobId).toBe(7n);
+    expect(fx.fundedContext).toEqual(FIX_CTX_OBJ);
+    const files = fx.files as { name: string; content: Uint8Array }[];
+    expect(files.map((f) => f.name)).toEqual(["a.txt"]);
+    expect(hexOf(files[0]!.content)).toBe(hexOf(ok));
+    expect(fx.verdict).toBe(1); // settled: verdict is the number 1, not hex
+    for (const [k, v] of Object.entries(fx)) {
+      if (["chainId", "jobId", "verdict", "fundedContext", "files"].includes(k)) continue;
+      expect(typeof v, k).toBe("string");
+      expect(v as string, k).toMatch(/^0x[0-9a-f]*$/);
+    }
   });
 });
 

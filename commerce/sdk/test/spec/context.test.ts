@@ -1,6 +1,6 @@
 // CONTRACT.md §1 encodeContext / decodeContext (L55-56).
 import { describe, it, expect } from "vitest";
-import { encodeContext, decodeContext, CodecError } from "../../src/index.ts";
+import { encodeContext, decodeContext, keyCommitment, CodecError } from "../../src/index.ts";
 import { FIX_CONTEXT_HEX, FIX_CTX_OBJ, bytesOf, cat, hexOf, rand, refContextBytes, rep } from "./helpers.ts";
 
 // EIP-55 spec test vector (mixed case checksum).
@@ -82,6 +82,38 @@ describe("CONTRACT §1 encodeContext (L55)", () => {
       expect((thrown as CodecError).code).toBe("bad_field");
     });
   }
+});
+
+describe("Settled round 2: encodeContext address rules", () => {
+  const codeOfEnc = (patch: Record<string, unknown>) => {
+    try {
+      encodeContext({ ...FIX_CTX_OBJ, ...patch } as typeof FIX_CTX_OBJ);
+    } catch (e) {
+      expect(e).toBeInstanceOf(CodecError);
+      return (e as CodecError).code;
+    }
+    return undefined;
+  };
+  it("all-lowercase and all-uppercase addresses are accepted", () => {
+    expect(codeOfEnc({ escrow: CHECKSUMMED.toLowerCase() })).toBeUndefined();
+    expect(codeOfEnc({ escrow: `0x${CHECKSUMMED.slice(2).toUpperCase()}` })).toBeUndefined();
+    expect(hexOf(encodeContext({ ...FIX_CTX_OBJ, escrow: `0x${CHECKSUMMED.slice(2).toUpperCase()}` }).slice(33, 53))).toBe(CHECKSUMMED.toLowerCase());
+  });
+  it("mixed-case address with a wrong EIP-55 checksum -> bad_field (strict)", () => {
+    const flipped = `${CHECKSUMMED.slice(0, -1)}D`; // last char 'd' -> 'D' breaks the checksum
+    expect(flipped).not.toBe(CHECKSUMMED);
+    expect(codeOfEnc({ escrow: flipped })).toBe("bad_field");
+    expect(codeOfEnc({ provider: flipped })).toBe("bad_field");
+  });
+  it("keyCommitment(FundedContext with an invalid field) -> bad_field", () => {
+    let code: string | undefined;
+    try {
+      keyCommitment({ ...FIX_CTX_OBJ, jobId: -1n }, rep(0x55, 32));
+    } catch (e) {
+      code = (e as CodecError).code;
+    }
+    expect(code).toBe("bad_field");
+  });
 });
 
 describe("CONTRACT §1 decodeContext (L56)", () => {

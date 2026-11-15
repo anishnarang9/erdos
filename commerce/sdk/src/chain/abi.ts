@@ -35,6 +35,11 @@ export const stubCoreAbi = [
   },
   {
     "inputs": [],
+    "name": "Reentrancy",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "TransferFailed",
     "type": "error"
   },

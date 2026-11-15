@@ -14,7 +14,8 @@ import {
   zeroHash,
 } from "viem";
 import type { Abi, Address, Hex, Log, PublicClient, TransactionReceipt, WalletClient } from "viem";
-import { envelopeHash } from "../codec/crypto.ts";
+import { envelopeHash, keyCommitment } from "../codec/crypto.ts";
+import { encodeContext } from "../codec/context.ts";
 import { mockRiscZeroVerifierAbi, mockUsdcAbi, stubCoreAbi, stubProofGateAbi } from "./abi.ts";
 import { ChainError } from "./errors.ts";
 import { withRetry } from "./retry.ts";
@@ -31,6 +32,13 @@ import type {
 } from "./types.ts";
 
 const ZERO_KEY = zeroHash;
+export const DEFAULT_RELEASE_MARGIN_SEC = 120;
+/**
+ * Gas limit for `release` when opts.gas is not given. The dummy-key call reverts (KeyMismatch), so the
+ * node cannot return a gas estimate for it. A stub release uses well under 150k (asserted in
+ * test/unit/chain.test.ts); 300k leaves headroom. Pass opts.gas to override.
+ */
+export const DEFAULT_RELEASE_GAS = 300_000n;
 
 /** Every custom error any stub contract can revert with, de-duplicated by name. */
 const errorsAbi: Abi = (() => {
@@ -110,14 +118,17 @@ export function createCommerceChain(
     core: getAddress(cfg.core),
     hook: getAddress(cfg.hook),
     usdc: getAddress(cfg.usdc),
+    releaseMarginSec: cfg.releaseMarginSec ?? DEFAULT_RELEASE_MARGIN_SEC,
   };
   let chainChecked = false;
 
+  /** Rule 5: both the wallet's and the public client's chain IDs must equal cfg.chainId (cached per instance). */
   async function checkChain(): Promise<void> {
     if (chainChecked) return;
-    const id = await withRetry(() => pub.getChainId());
-    if (id !== config.chainId || (wallet?.chain && wallet.chain.id !== config.chainId)) {
-      throw new ChainError("wrong_chain", `expected chain ${config.chainId}, got ${id}`);
+    const pubId = await withRetry(() => pub.getChainId());
+    const walletId = wallet ? await withRetry(() => wallet.getChainId()) : pubId;
+    if (pubId !== config.chainId || walletId !== config.chainId) {
+      throw new ChainError("wrong_chain", `expected chain ${config.chainId}, got public ${pubId} / wallet ${walletId}`);
     }
     chainChecked = true;
   }
@@ -221,6 +232,109 @@ export function createCommerceChain(
     return wallet?.account ? wallet.account.address : fallback();
   }
 
+  async function getAcceptance(jobId: bigint): Promise<{ envelopeHash: Hex; keyCommitment: Hex } | null> {
+    const [envHash, kc] = await withRetry(() =>
+      pub.readContract({ address: config.hook, abi: stubProofGateAbi, functionName: "getAcceptance", args: [jobId] }),
+    );
+    if (envHash === zeroHash) return null;
+    return { envelopeHash: envHash, keyCommitment: kc };
+  }
+
+  /** Rule 3: the proof gate must be both evaluator and hook, otherwise release can never complete. */
+  const evaluatorBound = (job: JobView): boolean =>
+    isAddressEqual(job.evaluator, config.hook) && isAddressEqual(job.hook, config.hook);
+
+  async function preflightReleaseWithDummyKey(jobId: bigint): Promise<PreflightResult> {
+    const job = await getJob(jobId);
+    if (!evaluatorBound(job)) return { ok: false, error: "WrongEvaluator" };
+    const from = await signerOr(async () => (await getTerms(jobId))?.provider ?? job.provider);
+    const res = await preflight(from, config.hook, releaseData(jobId, ZERO_KEY));
+    if (!res.ok && res.error === "KeyMismatch") return { ok: true };
+    // A successful call with the zero key is unexpected: treat it as not provably reachable.
+    return res.ok ? { ok: false, error: "unknown" } : res;
+  }
+
+  const unsafe = (reason: string, detail: string): ChainError =>
+    new ChainError("release_unsafe", `${reason}: ${detail}`, reason);
+
+  /**
+   * Rule 1/2: the real key leaves the process only inside the locally signed release transaction.
+   * No eth_call / eth_estimateGas / eth_fillTransaction / sendTransaction ever carries it, and a
+   * reverted release is never replayed.
+   */
+  async function safeRelease(jobId: bigint, key: Hex, opts: WriteOptions = {}): Promise<Hex> {
+    if (!wallet || !wallet.account) throw new ChainError("no_wallet", "a wallet client with an account is required");
+    const account = wallet.account;
+    if (account.type !== "local" || !account.signTransaction) {
+      throw new ChainError("unsafe_signer", "release needs a local account so the key is signed in-process");
+    }
+    if (opts.allowRevert) throw unsafe("AllowRevertRejected", "allowRevert is not allowed for release");
+    await checkChain();
+
+    // Local checks, in the settled order. Nothing is sent if any fails.
+    const job = await getJob(jobId);
+    if (!evaluatorBound(job)) throw unsafe("WrongEvaluator", "job evaluator/hook is not cfg.hook");
+    if (job.status !== JobStatus.Submitted) throw unsafe("WrongStatus", `status is ${JobStatus[job.status] ?? job.status}`);
+    const [terms, acceptance] = await Promise.all([getTerms(jobId), getAcceptance(jobId)]);
+    let keyBytes: Uint8Array | undefined;
+    try {
+      keyBytes = hexToBytes(key);
+    } catch {
+      keyBytes = undefined;
+    }
+    let localCommitment: Hex | undefined;
+    if (terms && keyBytes && keyBytes.length === 32) {
+      const context = encodeContext({
+        chainId: BigInt(config.chainId),
+        escrow: config.core,
+        jobId,
+        provider: terms.provider,
+        rulesHash: terms.rulesHash,
+        referenceHash: terms.referenceHash,
+      });
+      localCommitment = keyCommitment(context, keyBytes);
+    }
+    if (!acceptance || !localCommitment || localCommitment !== acceptance.keyCommitment.toLowerCase()) {
+      throw unsafe("KeyMismatch", "key does not match the accepted keyCommitment");
+    }
+    const latest = await withRetry(() => pub.getBlock({ blockTag: "latest" }));
+    const margin = BigInt(config.releaseMarginSec ?? DEFAULT_RELEASE_MARGIN_SEC);
+    if (latest.timestamp + margin >= job.expiredAt) {
+      throw unsafe("TooCloseToExpiry", `now ${latest.timestamp} + ${margin}s >= expiredAt ${job.expiredAt}`);
+    }
+    const pf = await preflightReleaseWithDummyKey(jobId);
+    if (!pf.ok) throw unsafe("PreflightFailed", `dummy-key preflight failed: ${pf.error}`);
+
+    // Nonce and fees without calldata; sign locally; send raw.
+    const gas = opts.gas ?? DEFAULT_RELEASE_GAS;
+    const nonce = await withRetry(() => pub.getTransactionCount({ address: account.address, blockTag: "pending" }));
+    const data = releaseData(jobId, key);
+    let serialized: Hex;
+    try {
+      const fees = await withRetry(() => pub.estimateFeesPerGas());
+      serialized = await account.signTransaction({
+        type: "eip1559",
+        chainId: config.chainId,
+        to: config.hook,
+        data,
+        gas,
+        nonce,
+        maxFeePerGas: fees.maxFeePerGas,
+        maxPriorityFeePerGas: fees.maxPriorityFeePerGas,
+      });
+    } catch (err) {
+      if (err instanceof ChainError) throw err;
+      const gasPrice = await withRetry(() => pub.getGasPrice());
+      serialized = await account.signTransaction({ type: "legacy", chainId: config.chainId, to: config.hook, data, gas, nonce, gasPrice });
+    }
+    const hash = await wallet.sendRawTransaction({ serializedTransaction: serialized });
+    const receipt = await withRetry(() => pub.waitForTransactionReceipt({ hash }));
+    if (receipt.status === "reverted") {
+      throw new ChainError("reverted", `release ${hash} reverted (not replayed)`, "unknown");
+    }
+    return hash;
+  }
+
   function decodeLogs(logs: readonly Log[]): DecodedEvent[] {
     const out: DecodedEvent[] = [];
     for (const log of logs) {
@@ -286,7 +400,9 @@ export function createCommerceChain(
     },
 
     async preflightSubmit(args) {
-      const from = await signerOr(async () => (await getJob(args.jobId)).provider);
+      const job = await getJob(args.jobId);
+      if (!evaluatorBound(job)) return { ok: false, error: "WrongEvaluator" };
+      const from = await signerOr(async () => job.provider);
       return preflight(from, config.core, submitData(args));
     },
 
@@ -294,17 +410,9 @@ export function createCommerceChain(
       return (await send(config.core, submitData(args), opts)).hash;
     },
 
-    async preflightReleaseWithDummyKey(jobId) {
-      const from = await signerOr(async () => (await getTerms(jobId))?.provider ?? (await getJob(jobId)).provider);
-      const res = await preflight(from, config.hook, releaseData(jobId, ZERO_KEY));
-      if (!res.ok && res.error === "KeyMismatch") return { ok: true };
-      // A successful call with the zero key is unexpected: treat it as not provably reachable.
-      return res.ok ? { ok: false, error: "unknown" } : res;
-    },
+    preflightReleaseWithDummyKey,
 
-    async release(jobId, key, opts) {
-      return (await send(config.hook, releaseData(jobId, key), opts)).hash;
-    },
+    release: safeRelease,
 
     async claimRefund(jobId, opts) {
       const data = encodeFunctionData({ abi: stubCoreAbi, functionName: "claimRefund", args: [jobId] });
@@ -314,13 +422,7 @@ export function createCommerceChain(
     getJob,
     getTerms,
 
-    async getAcceptance(jobId) {
-      const [envHash, keyCommitment] = await withRetry(() =>
-        pub.readContract({ address: config.hook, abi: stubProofGateAbi, functionName: "getAcceptance", args: [jobId] }),
-      );
-      if (envHash === zeroHash) return null;
-      return { envelopeHash: envHash, keyCommitment };
-    },
+    getAcceptance,
 
     decodeLogs,
 
@@ -339,7 +441,22 @@ export function createCommerceChain(
         [{ type: "bytes" }, { type: "bytes" }, { type: "bytes32" }],
         optParams,
       );
-      return { jobId, envelopeHash: deliverable, envelope: hexToBytes(envelope), seal, keyCommitment };
+      // Rule 4: only an accepted submission counts: success receipt + SubmissionAccepted(jobId, deliverable).
+      const envBytesOut = hexToBytes(envelope);
+      const receipt = await withRetry(() => pub.getTransactionReceipt({ hash: txHash }));
+      if (receipt.status !== "success") throw new ChainError("not_accepted", "submit transaction reverted");
+      const accepted = decodeLogs(receipt.logs).some(
+        (e) =>
+          e.contract === "hook" &&
+          e.name === "SubmissionAccepted" &&
+          e.args.jobId === jobId &&
+          String(e.args.envelopeHash).toLowerCase() === deliverable.toLowerCase(),
+      );
+      if (!accepted) throw new ChainError("not_accepted", "no SubmissionAccepted event for this job and deliverable");
+      if (envelopeHash(envBytesOut) !== deliverable.toLowerCase()) {
+        throw new ChainError("not_accepted", "sha256(envelope) does not match the deliverable");
+      }
+      return { jobId, envelopeHash: deliverable, envelope: envBytesOut, seal, keyCommitment };
     },
   };
 }

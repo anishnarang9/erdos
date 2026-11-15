@@ -45,7 +45,8 @@ export const ENGINE_FIXTURE = {
   key: `0x${rep("55", 32)}` as Hex,
   nonce: `0x${rep("66", 12)}` as Hex,
   fundedContext: { chainId: 5042002n, escrow, jobId: 7n, provider, rulesHash, referenceHash } satisfies FundedContext,
-  files: [{ name: "a.txt", content: "0x6f6b" as Hex }],
+  /** BundleFile[] ready for encodeBundle: a.txt = "ok" */
+  files: [{ name: "a.txt", content: Uint8Array.of(0x6f, 0x6b) }],
   context,
   bundle: "0x0100010005612e747874000000026f6b" as Hex,
   plaintext: "0x0100010005612e747874000000026f6b" as Hex,

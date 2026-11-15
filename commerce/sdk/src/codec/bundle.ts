@@ -46,8 +46,8 @@ export function decodeBundle(bytes: Uint8Array): BundleFile[] {
   const count = view.getUint16(off);
   off += 2;
   if (count > MAX_BUNDLE_FILES) throw new CodecError("too_many_files", `at most ${MAX_BUNDLE_FILES} files`);
-  const files: BundleFile[] = [];
-  let prev: Uint8Array | null = null;
+  // Pass 1: structure only (truncation is reported before any record content is validated).
+  const records: { nameBytes: Uint8Array; content: Uint8Array }[] = [];
   for (let i = 0; i < count; i++) {
     need(2);
     const nameLen = view.getUint16(off);
@@ -55,6 +55,17 @@ export function decodeBundle(bytes: Uint8Array): BundleFile[] {
     need(nameLen);
     const nameBytes = bytes.slice(off, off + nameLen);
     off += nameLen;
+    need(4);
+    const len = view.getUint32(off);
+    off += 4;
+    need(len);
+    records.push({ nameBytes, content: bytes.slice(off, off + len) });
+    off += len;
+  }
+  // Pass 2: names and order.
+  const files: BundleFile[] = [];
+  let prev: Uint8Array | null = null;
+  for (const { nameBytes, content } of records) {
     const name = String.fromCharCode(...nameBytes);
     checkName(name);
     if (prev) {
@@ -63,13 +74,9 @@ export function decodeBundle(bytes: Uint8Array): BundleFile[] {
       if (cmp > 0) throw new CodecError("unsorted", "file names are not in ascending order");
     }
     prev = nameBytes;
-    need(4);
-    const len = view.getUint32(off);
-    off += 4;
-    need(len);
-    files.push({ name, content: bytes.slice(off, off + len) });
-    off += len;
+    files.push({ name, content });
   }
+  // Pass 3: trailing bytes.
   if (off !== bytes.length) throw new CodecError("trailing_bytes", "bundle has trailing bytes");
   return files;
 }

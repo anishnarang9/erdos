@@ -78,6 +78,9 @@ contract StubProofGate {
         if (selector == IStubCore.fund.selector) {
             (bytes32 imageId, bytes32 rulesHash, bytes32 referenceHash) = abi.decode(data, (bytes32, bytes32, bytes32));
             if (imageId == bytes32(0) || rulesHash == bytes32(0) || referenceHash == bytes32(0)) revert InvalidTerms();
+            // Evaluator binding: only this gate can complete the job, so it must be both evaluator and hook.
+            IStubCore.Job memory job = core.getJob(jobId);
+            if (job.evaluator != address(this) || job.hook != address(this)) revert InvalidTerms();
             Terms storage t = terms[jobId];
             t.imageId = imageId;
             t.rulesHash = rulesHash;

@@ -227,3 +227,38 @@ describe("parseProofJson", () => {
     expectCode(() => parseProofJson({ ...good, seal: `0xdeadbeef${"00".repeat(32)}` }), "bad_selector");
   });
 });
+
+describe("round-2 codec rulings", () => {
+  it("encodeContext: lower/upper-case addresses ok, mixed case needs a valid EIP-55 checksum", () => {
+    const good = "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed";
+    expect(() => encodeContext({ ...F.fundedContext, escrow: good })).not.toThrow();
+    expect(() => encodeContext({ ...F.fundedContext, escrow: good.toLowerCase() as Hex })).not.toThrow();
+    expect(() => encodeContext({ ...F.fundedContext, escrow: `0x${good.slice(2).toUpperCase()}` as Hex })).not.toThrow();
+    expectCode(() => encodeContext({ ...F.fundedContext, escrow: "0x5AAeb6053F3E94C9b9A09f33669435E7Ef1BeAed" }), "bad_field");
+    expectCode(() => keyCommitment({ ...F.fundedContext, provider: "0x5AAeb6053F3E94C9b9A09f33669435E7Ef1BeAed" }, b(F.key)), "bad_field");
+  });
+
+  it("decodeBundle: truncation is reported before name validation; names before trailing bytes", () => {
+    // count 1, nameLen 2, name "a/" (invalid), then truncated before u32 len -> bad_length, not bad_name
+    expectCode(() => decodeBundle(b("0x0100010002612f")), "bad_length");
+    // count 17 and truncated -> too_many_files first
+    expectCode(() => decodeBundle(b("0x010011")), "too_many_files");
+    // invalid name + trailing byte -> bad_name first
+    expectCode(() => decodeBundle(b("0x0100010002612f0000000000")), "bad_name");
+  });
+
+  it("parseProofJson: settled order and new cases", () => {
+    const imageId = `0x${"ab".repeat(32)}` as Hex;
+    const good = { version: 1, context: F.context, imageId, verdict: 1, envelope: F.envelope, keyCommitment: F.keyCommitment, journal: F.journal, seal: simulatedSeal(imageId, F.journalDigest) };
+    expectCode(() => parseProofJson({ ...good, seal: 5, envelope: "0xzz" }), "bad_field"); // type before hex
+    expectCode(() => parseProofJson({ ...good, envelope: "0xzz", version: 2 }), "bad_hex"); // hex before version
+    expectCode(() => parseProofJson({ ...good, version: 2, context: "0x01" }), "bad_field"); // version before sizes
+    expectCode(() => parseProofJson({ ...good, context: "0x01", journal: "0x00" }), "bad_length"); // sizes before journal
+    expectCode(() => parseProofJson({ ...good, journal: "0x00", seal: "0xdeadbeef" }), "mismatch"); // journal before selector
+    expectCode(() => parseProofJson({ ...good, journal: F.journal.slice(0, -2) }), "mismatch");
+    expectCode(() => parseProofJson({ ...good, context: `0x02${F.context.slice(4)}` }), "bad_version");
+    expectCode(() => parseProofJson({ ...good, seal: null }), "bad_field");
+    expectCode(() => parseProofJson({ ...good, envelope: F.envelope.slice(2) }), "bad_hex");
+    expectCode(() => parseProofJson([]), "bad_field");
+  });
+});

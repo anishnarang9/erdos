@@ -14,6 +14,8 @@ export interface ChainConfig {
   core: Address;
   hook: Address;
   usdc: Address;
+  /** `release` refuses when latest.timestamp + releaseMarginSec >= expiredAt. Default 120. */
+  releaseMarginSec?: number;
 }
 
 export interface JobView {

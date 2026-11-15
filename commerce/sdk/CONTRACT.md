@@ -109,7 +109,7 @@ journalDigest = 9ae8cca7c5828cc27a19039df5593a21e37cc1f05fcf99f32e118d233f4d115e
 
 - In `parseProofJson`, a wrong-length `context`, `imageId` or `keyCommitment` gives `bad_length`. Invalid JSON text or a non-object input gives `bad_field`. Checks run in this order: presence and type, hex, version and verdict, sizes, journal (`mismatch`), selector. The function does not limit the envelope size; the delivery cap is checked on-chain.
 - `decryptEnvelope` and `keyCommitment` take the context as bytes. `keyCommitment` also accepts a `FundedContext`.
-- `ENGINE_FIXTURE` is a flat object of hex values, with `chainId` and `jobId` as bigints, plus `fundedContext` and `files`.
+- `ENGINE_FIXTURE` is a flat object of hex values, with these exceptions: `chainId` and `jobId` are bigints, `verdict` is the number `1`, `fundedContext` is a `FundedContext`, and `files` is a `BundleFile[]`.
 
 ## 2. Chain (`src/chain/`), SIMULATED
 
@@ -165,11 +165,54 @@ Errors: `Unauthorized()`, `WrongStatus(uint8 status)`, `InvalidExpiry()`, `ZeroB
 
 **`MockRiscZeroVerifier`** implements `verify(bytes seal, bytes32 imageId, bytes32 journalDigest) view`. It reverts with `VerificationFailed()` unless `seal == abi.encodePacked(bytes4(0xe71e6620), sha256(abi.encodePacked(imageId, journalDigest)))`.
 
+### Settled in cross-validation round 2 (2026-11-14)
+
+**Codec**
+- `parseProofJson`:
+  - A wrong-length journal gives `mismatch`.
+  - A context whose version byte is not `01` gives `bad_version`.
+  - A field set to `null`, or a non-object input, gives `bad_field`.
+  - A missing `0x` prefix gives `bad_hex`.
+  - With several violations, the first in the settled order wins.
+- `encodeContext`:
+  - A lowercase or uppercase address is accepted.
+  - A mixed-case address with a wrong EIP-55 checksum gives `bad_field` (strict check).
+  - `keyCommitment(FundedContext)` with an invalid field gives `bad_field`.
+- `decodeBundle` checks in this order: version, then `count > 16` (`too_many_files`), then truncation (`bad_length`) before any content validation of a record, then names and order, then trailing bytes.
+
+**Chain security rules.** These are mandatory and come from findings T1 and S1.
+1. **The real key never leaves the process except in the signed release transaction.**
+   - `release(jobId, key, opts?)` must not use `sendTransaction`, `eth_fillTransaction`, `eth_estimateGas`, `eth_call` or a revert-replay with the real key.
+   - Gas: it uses `opts.gas`, or the exported constant `DEFAULT_RELEASE_GAS = 300_000n`. A release measured on anvil uses under 150k gas. The dummy-key call only proves the path is reachable. It reverts, so it cannot provide an estimate.
+   - It gets the nonce and fees without calldata, signs locally with a **local account**, and sends with `sendRawTransaction`.
+   - A wallet with a non-local account gives `ChainError("unsafe_signer")`.
+   - `opts.allowRevert` is rejected for `release`, with `ChainError("release_unsafe")` and `errorName: "AllowRevertRejected"`.
+   - A reverted release receipt throws `ChainError("reverted", errorName "unknown")` and is never replayed.
+2. **Local checks before `release` sends anything.** Each failure throws `ChainError("release_unsafe")`, with `errorName` set to the reason in the table, and nothing is sent.
+
+   | Reason | Fails when |
+   | --- | --- |
+   | `WrongEvaluator` | the job's evaluator or hook is not `cfg.hook` |
+   | `WrongStatus` | status is not Submitted |
+   | `KeyMismatch` | `keyCommitment(context, key)` differs from `getAcceptance().keyCommitment`, where `context` is rebuilt from `cfg.chainId`, `cfg.core`, the job and the frozen terms |
+   | `TooCloseToExpiry` | `latestBlock.timestamp + releaseMarginSec >= expiredAt`. `releaseMarginSec` comes from `ChainConfig` and defaults to 120. |
+   | `PreflightFailed` | `preflightReleaseWithDummyKey` is not ok |
+3. **Evaluator binding.**
+   - The `StubProofGate` fund before-hook reverts `InvalidTerms()` unless `core.getJob(jobId)` has `evaluator == hook == address(this)`.
+   - `preflightSubmit` returns `{ok:false, error:"WrongEvaluator"}` locally when the job's evaluator or hook is not `cfg.hook`.
+   - Ask Nick for the same guard.
+4. **`getSubmittedEnvelope`** requires a successful receipt containing `SubmissionAccepted` for the job, and `sha256(envelope) == deliverable`. Otherwise it throws `ChainError("not_accepted")`.
+5. **Chain-ID checks.** Every write checks `await wallet.getChainId()` and the public client's chain ID against `cfg.chainId`, and throws `wrong_chain` on a mismatch. The result may be cached for each client instance.
+6. **`LogCursor` range errors.** When an error message matches a range or result-limit error (`/more than|range|too many|limit exceeded|block range/i`), the cursor halves its window, down to 1 block, and retries. Explicit `undefined` options fall back to the defaults.
+7. **Reentrancy.** `StubCore` has a `nonReentrant` guard on `fund`, `submit`, `complete` and `claimRefund`.
+
+`ChainErrorCode` adds `"unsafe_signer" | "release_unsafe" | "not_accepted"`.
+
 ### TypeScript adapter
 
 ```ts
 enum JobStatus { Open = 0, Funded = 1, Submitted = 2, Completed = 3, Rejected = 4, Expired = 5 }
-interface ChainConfig { chainId: number; core: Address; hook: Address; usdc: Address }
+interface ChainConfig { chainId: number; core: Address; hook: Address; usdc: Address; releaseMarginSec?: number }
 interface JobView { client: Address; provider: Address; evaluator: Address; hook: Address; budget: bigint; expiredAt: bigint; status: JobStatus; description: string }
 interface FrozenTerms { imageId: Hex; rulesHash: Hex; referenceHash: Hex; provider: Address; budget: bigint; expiredAt: bigint }
 type PreflightResult = { ok: true } | { ok: false; error: string };  // error = decoded custom error name, or "unknown"
@@ -201,7 +244,7 @@ Also exported:
   - `next(): Promise<DecodedEvent[]>` reads from `store.load() + 1` (or from `fromBlock`) up to `min(head - confirmations, from + maxRange - 1)`. It returns `[]` when there is nothing in the window. `cursor.caughtUp` is `true` once the cursor has reached `head - confirmations`. It saves the cursor only after the read succeeds.
   - All RPC calls go through `withRetry`.
 - `withRetry(fn, { retries = 5, baseMs = 250 })` retries on rate-limit errors (JSON-RPC code `-32005`, HTTP 429, or a message containing "rate limit") with exponential backoff. Any other error is rethrown immediately.
-- `ChainError extends Error { code: "reverted" | "wrong_chain" | "not_submit" | "no_wallet"; errorName?: string }`.
+- `ChainError extends Error { code: "reverted" | "wrong_chain" | "not_submit" | "no_wallet" | "unsafe_signer" | "release_unsafe" | "not_accepted"; errorName?: string }`.
 
 ### Test harness (`test/support/`)
 

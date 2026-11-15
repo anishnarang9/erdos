@@ -58,6 +58,16 @@ contract StubCore {
     error JobExpired();
     error NotExpired();
     error TransferFailed();
+    error Reentrancy();
+
+    uint256 private locked = 1;
+
+    modifier nonReentrant() {
+        if (locked != 1) revert Reentrancy();
+        locked = 2;
+        _;
+        locked = 1;
+    }
 
     constructor(address token_) {
         token = IERC20Min(token_);
@@ -84,7 +94,7 @@ contract StubCore {
         emit BudgetSet(jobId, amount);
     }
 
-    function fund(uint256 jobId, uint256 expectedBudget, bytes calldata optParams) external {
+    function fund(uint256 jobId, uint256 expectedBudget, bytes calldata optParams) external nonReentrant {
         Job storage job = jobs[jobId];
         if (msg.sender != job.client) revert Unauthorized();
         if (job.status != OPEN) revert WrongStatus(job.status);
@@ -97,7 +107,7 @@ contract StubCore {
         emit JobFunded(jobId, msg.sender, job.budget);
     }
 
-    function submit(uint256 jobId, bytes32 deliverable, bytes calldata optParams) external {
+    function submit(uint256 jobId, bytes32 deliverable, bytes calldata optParams) external nonReentrant {
         Job storage job = jobs[jobId];
         if (msg.sender != job.provider) revert Unauthorized();
         if (job.status != FUNDED) revert WrongStatus(job.status);
@@ -109,7 +119,7 @@ contract StubCore {
         emit JobSubmitted(jobId, msg.sender, deliverable);
     }
 
-    function complete(uint256 jobId, bytes32 reason, bytes calldata /* optParams */) external {
+    function complete(uint256 jobId, bytes32 reason, bytes calldata /* optParams */) external nonReentrant {
         Job storage job = jobs[jobId];
         if (msg.sender != job.evaluator) revert Unauthorized();
         if (job.status != SUBMITTED) revert WrongStatus(job.status);
@@ -120,7 +130,7 @@ contract StubCore {
         emit PaymentReleased(jobId, job.provider, amount);
     }
 
-    function claimRefund(uint256 jobId) external {
+    function claimRefund(uint256 jobId) external nonReentrant {
         Job storage job = jobs[jobId];
         if (job.status != FUNDED && job.status != SUBMITTED) revert WrongStatus(job.status);
         if (block.timestamp < job.expiredAt) revert NotExpired();

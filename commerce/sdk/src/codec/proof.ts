@@ -7,6 +7,7 @@ import { encodeJournal } from "./journal.ts";
 import type { ProofPackage } from "./types.ts";
 
 const REQUIRED = ["version", "context", "imageId", "verdict", "envelope", "keyCommitment", "journal", "seal"] as const;
+const BYTE_FIELDS = ["context", "imageId", "envelope", "keyCommitment", "journal", "seal"] as const;
 
 function smallInt(value: unknown, field: string): number {
   if (typeof value === "number") {
@@ -30,7 +31,8 @@ function sized(bytes: Uint8Array, size: number, field: string): Uint8Array {
 
 /**
  * Parses and checks an engine `proof.json` (object or JSON string).
- * Order of checks: presence/type → hex → version/verdict → sizes → context → journal → seal selector.
+ * Order of checks (CONTRACT.md settled): presence/type → hex → version/verdict → sizes
+ * (then the context version byte, bad_version) → journal (mismatch, incl. wrong length) → seal selector.
  */
 export function parseProofJson(json: unknown): ProofPackage {
   let raw: unknown = json;
@@ -51,8 +53,13 @@ export function parseProofJson(json: unknown): ProofPackage {
     }
   }
 
+  // Phase 1: presence and type of every field (bad_field) before any hex parsing (bad_hex).
   const version = smallInt(obj.version, "version");
   const verdict = smallInt(obj.verdict, "verdict");
+  for (const field of BYTE_FIELDS) {
+    if (typeof obj[field] !== "string") throw new CodecError("bad_field", `${field} must be a hex string`);
+  }
+  // Phase 2: hex.
   const contextBytes = hexField(obj, "context");
   const imageIdBytes = hexField(obj, "imageId");
   const envelope = hexField(obj, "envelope");

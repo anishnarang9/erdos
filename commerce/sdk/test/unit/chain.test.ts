@@ -6,6 +6,7 @@ import type { TestContext } from "vitest";
 import {
   ChainError,
   createCommerceChain,
+  DEFAULT_RELEASE_GAS,
   encodeBundle,
   encodeContext,
   encodeJournal,
@@ -56,6 +57,7 @@ function chainFor(st: StubDeployment, acct?: Account, chainId = 31337): Commerce
   return createCommerceChain(cfg, acct ? { public: st.publicClient, wallet: st.walletFor(acct) } : { public: st.publicClient });
 }
 
+const relReceiptGas = (r: { gasUsed: bigint }): bigint => r.gasUsed;
 const rand32 = (): Hex => bytesToHex(crypto.getRandomValues(new Uint8Array(32)));
 
 async function now(st: StubDeployment): Promise<bigint> {
@@ -71,15 +73,19 @@ async function events(st: StubDeployment, hash: Hex): Promise<DecodedEvent[]> {
   return chainFor(st).decodeLogs(r.logs);
 }
 
-async function expectRevert(p: Promise<unknown>, errorName: string): Promise<void> {
+async function expectChainError(p: Promise<unknown>, code: string, errorName?: string): Promise<ChainError> {
   const err = await p.then(
     () => undefined,
     (e: unknown) => e,
   );
   expect(err).toBeInstanceOf(ChainError);
-  expect((err as ChainError).code).toBe("reverted");
-  expect((err as ChainError).errorName).toBe(errorName);
+  expect((err as ChainError).code).toBe(code);
+  if (errorName !== undefined) expect((err as ChainError).errorName).toBe(errorName);
+  return err as ChainError;
 }
+
+const expectRevert = (p: Promise<unknown>, errorName: string): Promise<ChainError> => expectChainError(p, "reverted", errorName);
+const expectUnsafe = (p: Promise<unknown>, reason: string): Promise<ChainError> => expectChainError(p, "release_unsafe", reason);
 
 interface FundedJob {
   jobId: bigint;
@@ -162,8 +168,9 @@ describe("chain adapter on anvil (SIMULATED stub)", () => {
     await expect(buyer.getSubmittedEnvelope(fundHash)).rejects.toMatchObject({ code: "not_submit" });
 
     expect(await prov.preflightReleaseWithDummyKey(job.jobId)).toEqual({ ok: true });
-    await expectRevert(prov.release(job.jobId, rand32()), "KeyMismatch");
-    await expectRevert(chainFor(st, st.other).release(job.jobId, key), "Unauthorized");
+    await expectUnsafe(prov.release(job.jobId, rand32()), "KeyMismatch");
+    await expectUnsafe(chainFor(st, st.other).release(job.jobId, key), "PreflightFailed");
+    await expectUnsafe(prov.release(job.jobId, key, { allowRevert: true }), "AllowRevertRejected");
 
     const relHash = await prov.release(job.jobId, key);
     const rel = await events(st, relHash);
@@ -175,7 +182,8 @@ describe("chain adapter on anvil (SIMULATED stub)", () => {
     expect(await balance(st, st.provider)).toBe(prov0 + BUDGET);
     expect(await balance(st, st.buyer)).toBe(buyer0 - BUDGET);
 
-    await expectRevert(prov.release(job.jobId, key), "WrongStatus");
+    expect(relReceiptGas(await st.publicClient.getTransactionReceipt({ hash: relHash }))).toBeLessThan(DEFAULT_RELEASE_GAS / 2n);
+    await expectUnsafe(prov.release(job.jobId, key), "WrongStatus");
     expect(await prov.preflightReleaseWithDummyKey(job.jobId)).toEqual({ ok: false, error: "WrongStatus" });
   });
 
@@ -228,7 +236,7 @@ describe("chain adapter on anvil (SIMULATED stub)", () => {
     const { key, submission } = proofFor(st, job, 1);
     await prov.submit(submission);
     await increaseTime(anvil!.rpcUrl, 601);
-    await expectRevert(prov.release(job.jobId, key), "JobExpired");
+    await expectUnsafe(prov.release(job.jobId, key), "TooCloseToExpiry");
     const job2 = await fundedJob(st, 600n);
     await increaseTime(anvil!.rpcUrl, 601);
     await expectRevert(prov.submit(proofFor(st, job2, 1).submission), "JobExpired");

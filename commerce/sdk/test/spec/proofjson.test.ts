@@ -139,15 +139,50 @@ describe("CONTRACT §1 parseProofJson rejects (L68-74)", () => {
   it("L71 bad_field: verdict 2 / \"2\" / -1", () => {
     for (const v of [2, "2", -1]) expect(codeOf(() => parseProofJson({ ...build(), verdict: v })), String(v)).toBe("bad_field");
   });
-  it("L72 context of 168 bytes is rejected with a CodecError", () => {
+  it("L72/R1 context of 168 and 170 bytes -> bad_length", () => {
     const pj = build();
-    const code = codeOf(() => parseProofJson({ ...pj, context: (pj.context as string).slice(0, -2) }));
-    expect(["bad_length", "bad_field"]).toContain(code);
+    expect(codeOf(() => parseProofJson({ ...pj, context: (pj.context as string).slice(0, -2) }))).toBe("bad_length");
+    expect(codeOf(() => parseProofJson({ ...pj, context: `${pj.context as string}00` }))).toBe("bad_length");
   });
-  it("L72 imageId of 31 bytes and keyCommitment of 33 bytes are rejected with a CodecError", () => {
+  it("L72/R1 imageId of 31 bytes and keyCommitment of 33 bytes -> bad_length", () => {
     const pj = build();
-    expect(["bad_length", "bad_field"]).toContain(codeOf(() => parseProofJson({ ...pj, imageId: `0x${"11".repeat(31)}` })));
-    expect(["bad_length", "bad_field"]).toContain(codeOf(() => parseProofJson({ ...pj, keyCommitment: `${pj.keyCommitment as string}00` })));
+    expect(codeOf(() => parseProofJson({ ...pj, imageId: `0x${"11".repeat(31)}` }))).toBe("bad_length");
+    expect(codeOf(() => parseProofJson({ ...pj, keyCommitment: `${pj.keyCommitment as string}00` }))).toBe("bad_length");
+  });
+  it("R2 context version byte 02 -> bad_version", () => {
+    const pj = build();
+    const ctx = bytesOf(pj.context as string);
+    ctx[0] = 2;
+    expect(codeOf(() => parseProofJson({ ...pj, context: hexOf(ctx) }))).toBe("bad_version");
+  });
+  it("R2 missing 0x prefix -> bad_hex", () => {
+    const pj = build();
+    expect(codeOf(() => parseProofJson({ ...pj, envelope: (pj.envelope as string).slice(2) }))).toBe("bad_hex");
+    expect(codeOf(() => parseProofJson({ ...pj, seal: (pj.seal as string).slice(2) }))).toBe("bad_hex");
+  });
+  it("R2 a field set to null -> bad_field", () => {
+    expect(codeOf(() => parseProofJson({ ...build(), journal: null }))).toBe("bad_field");
+    expect(codeOf(() => parseProofJson({ ...build(), verdict: null }))).toBe("bad_field");
+  });
+  it("R1 no envelope size limit: a 20000-byte envelope with a matching journal is accepted", () => {
+    const img = rand(32);
+    const ctx = fixContextBytes();
+    const envelope = refEncrypt(rand(20000 - 28), FIX.key, rand(12), ctx);
+    const kc = bytesOf(refKeyCommitment(ctx, FIX.key));
+    const journal = refJournal(ctx, 1, sha256(envelope), kc);
+    const p = parseProofJson({
+      version: 1, context: hexOf(ctx), imageId: hexOf(img), verdict: 1, envelope: hexOf(envelope),
+      keyCommitment: hexOf(kc), journal: hexOf(journal), seal: refSimulatedSeal(img, sha256(journal)),
+    });
+    expect(p.envelope.length).toBe(20000);
+  });
+  it("R2 several violations: first in settled order wins (bad_hex before version; mismatch before selector)", () => {
+    expect(codeOf(() => parseProofJson({ ...build(), version: 2, envelope: "0xzz" }))).toBe("bad_hex");
+    const pj = build();
+    const j = bytesOf(pj.journal as string);
+    j[200]! ^= 1;
+    expect(codeOf(() => parseProofJson({ ...pj, journal: hexOf(j), seal: "0xdeadbeef" }))).toBe("mismatch");
+    expect(codeOf(() => parseProofJson({ ...build(), version: 2, imageId: "0x11" }))).toBe("bad_field");
   });
   it("L73 mismatch: journal byte tampered (envelopeHash region)", () => {
     const pj = build();
@@ -175,8 +210,8 @@ describe("CONTRACT §1 parseProofJson rejects (L68-74)", () => {
   });
   it("L73 mismatch: journal truncated to 233 bytes (length differs)", () => {
     const pj = build();
-    const code = codeOf(() => parseProofJson({ ...pj, journal: (pj.journal as string).slice(0, -2) }));
-    expect(["mismatch", "bad_length"]).toContain(code);
+    expect(codeOf(() => parseProofJson({ ...pj, journal: (pj.journal as string).slice(0, -2) }))).toBe("mismatch");
+    expect(codeOf(() => parseProofJson({ ...pj, journal: `${pj.journal as string}00` }))).toBe("mismatch");
   });
   it("L74 bad_selector: seal starts with 0xdeadbeef", () => {
     const pj = build();
@@ -187,7 +222,9 @@ describe("CONTRACT §1 parseProofJson rejects (L68-74)", () => {
     expect(codeOf(() => parseProofJson({ ...build(), seal: "0xe71e66" }))).toBe("bad_selector");
     expect(codeOf(() => parseProofJson({ ...build(), seal: "0x" }))).toBe("bad_selector");
   });
-  it("L68 non-object input (null, 42, array) throws CodecError", () => {
-    for (const v of [null, 42, []]) expect(codeOf(() => parseProofJson(v))).toBeDefined();
+  it("L68/R1 non-object input (null, 42, array, true) and invalid JSON text -> bad_field", () => {
+    for (const v of [null, 42, [], true, "not json", "{", "42", "null"]) {
+      expect(codeOf(() => parseProofJson(v)), JSON.stringify(v)).toBe("bad_field");
+    }
   });
 });

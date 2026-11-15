@@ -1,5 +1,5 @@
 // T3 chain adapter (SIMULATED ABI). Implements ../../CONTRACT.md §2.
-export { createCommerceChain, decodeRevertName, extractRevertData } from "./chain.ts";
+export { createCommerceChain, decodeRevertName, DEFAULT_RELEASE_GAS, DEFAULT_RELEASE_MARGIN_SEC, extractRevertData } from "./chain.ts";
 export type { CommerceChain } from "./chain.ts";
 export { ChainError } from "./errors.ts";
 export type { ChainErrorCode } from "./errors.ts";

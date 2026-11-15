@@ -197,6 +197,31 @@ describe("CONTRACT §1 decodeBundle (L58)", () => {
   it("L58 too_many_files when count is 0xffff (header only)", () => {
     expect(codeOf(() => decodeBundle(new Uint8Array([1, 0xff, 0xff])))).toBe("too_many_files");
   });
+  // Settled round 2: version -> count>16 -> truncation (whole bundle) -> names/order -> trailing bytes
+  it("R2 order: bad version wins over count 17", () => {
+    const recs = Array.from({ length: 17 }, (_, i) => f(`f${String(i).padStart(2, "0")}`));
+    expect(codeOf(() => decodeBundle(rawBundle(recs, 17, 2)))).toBe("bad_version");
+  });
+  it("R2 order: too_many_files wins over truncation", () => {
+    expect(codeOf(() => decodeBundle(rawBundle([f("a")], 17)))).toBe("too_many_files");
+  });
+  it("R2 order: truncation of a later record wins over a bad name in an earlier record", () => {
+    const b = rawBundle([f(".."), f("b", "abc")]);
+    expect(codeOf(() => decodeBundle(b.slice(0, b.length - 1)))).toBe("bad_length");
+  });
+  it("R2 order: truncation wins over unsorted names", () => {
+    const b = rawBundle([f("b"), f("a", "abc")]);
+    expect(codeOf(() => decodeBundle(b.slice(0, b.length - 1)))).toBe("bad_length");
+  });
+  it("R2 order: truncation wins over duplicate names", () => {
+    const b = rawBundle([f("a"), f("a", "abc")]);
+    expect(codeOf(() => decodeBundle(b.slice(0, b.length - 2)))).toBe("bad_length");
+  });
+  it("R2 order: names/order win over trailing bytes", () => {
+    expect(codeOf(() => decodeBundle(cat(rawBundle([f("b"), f("a")]), new Uint8Array([9]))))).toBe("unsorted");
+    expect(codeOf(() => decodeBundle(cat(rawBundle([f("a"), f("a")]), new Uint8Array([9]))))).toBe("duplicate_name");
+    expect(codeOf(() => decodeBundle(cat(rawBundle([f("a/b")]), new Uint8Array([9]))))).toBe("bad_name");
+  });
   it("L58 16 records decode fine", () => {
     const recs = Array.from({ length: 16 }, (_, i) => f(`f${String(i).padStart(2, "0")}`));
     expect(decodeBundle(rawBundle(recs))).toHaveLength(16);
