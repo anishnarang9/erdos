@@ -56,7 +56,7 @@ describe("§2 references hash must equal revision.referenceDigest", () => {
   });
   it("hash order-independent: names sorted by bytes (uppercase before lowercase)", async () => {
     s = makeApp56();
-    const files = [file("b", "1"), file("B", "2"), file("a", "3"), file("_", "4"), file("0", "5")];
+    const files = [file("b", "1"), file("C", "2"), file("a", "3"), file("_", "4"), file("0", "5")]; // names may not differ only in case
     const res = await createWith(files);
     expect(res.status, await res.clone().text()).toBe(201);
   });
@@ -139,5 +139,16 @@ describe("§2 references are accepted alongside the T4 response", () => {
     expect(res.status).toBe(201);
     expect(b.state).toBe("drafted");
     expect(b.revision.n).toBe(1);
+  });
+});
+
+describe("names that differ only in case", () => {
+  it("are rejected at upload, because the engine's file system cannot hold both", async () => {
+    const { validateReferences } = await import("../../src/index.ts");
+    const r = validateReferences([
+      { name: "a.txt", contentBase64: "eA==" },
+      { name: "A.txt", contentBase64: "eQ==" },
+    ]);
+    expect(r.ok).toBe(false);
   });
 });

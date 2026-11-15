@@ -33,12 +33,12 @@ export function apiClient(baseUrl: string, fetchImpl: typeof fetch = fetch) {
     return res;
   };
   return {
-    job: async (id: string) => (await (await get(`/v1/jobs/${id}`)).json()) as JobView,
-    packageListing: async (id: string) => (await (await get(`/v1/jobs/${id}/package`)).json()) as PackageListing,
+    job: async (id: string) => (await (await get(`/v1/jobs/${encodeURIComponent(id)}`)).json()) as JobView,
+    packageListing: async (id: string) => (await (await get(`/v1/jobs/${encodeURIComponent(id)}/package`)).json()) as PackageListing,
     packageFile: async (id: string, path: string) =>
-      new Uint8Array(await (await get(`/v1/jobs/${id}/package/file?path=${encodeURIComponent(path)}`)).arrayBuffer()),
+      new Uint8Array(await (await get(`/v1/jobs/${encodeURIComponent(id)}/package/file?path=${encodeURIComponent(path)}`)).arrayBuffer()),
     references: async (id: string): Promise<{ referenceDigest: string; files: BundleFile[] }> => {
-      const r = (await (await get(`/v1/jobs/${id}/references`)).json()) as { referenceDigest: string; files: { name: string; contentBase64: string }[] };
+      const r = (await (await get(`/v1/jobs/${encodeURIComponent(id)}/references`)).json()) as { referenceDigest: string; files: { name: string; contentBase64: string }[] };
       return { referenceDigest: r.referenceDigest, files: r.files.map((f) => ({ name: f.name, content: new Uint8Array(Buffer.from(f.contentBase64, "base64")) })) };
     },
   };

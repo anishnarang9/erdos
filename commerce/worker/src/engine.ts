@@ -34,7 +34,8 @@ export function engineRunner(bin: EngineBin, toEnginePath: (p: string) => string
           (err, stdout, stderr) => {
             if (!err) return resolve({ exit: 0, stdout, stderr });
             const e = err as NodeJS.ErrnoException & { killed?: boolean; signal?: unknown; code?: unknown };
-            if (e.killed || e.signal) reject(new WorkerEngineError("timeout", `engine ${args[0]} timed out`));
+            if (e.code === "ERR_CHILD_PROCESS_STDIO_MAXBUFFER") reject(new WorkerEngineError("output_too_large", `engine ${args[0]} output exceeded the buffer`));
+            else if (e.killed || e.signal) reject(new WorkerEngineError("timeout", `engine ${args[0]} timed out`));
             else if (typeof e.code === "number") resolve({ exit: e.code, stdout, stderr });
             else reject(new WorkerEngineError("spawn", `engine ${args[0]} could not be started`));
           },
@@ -56,6 +57,11 @@ function stdoutJson(stdout: string, what: string): Record<string, unknown> {
 function failure(what: string, r: { exit: number; stderr: string }): WorkerEngineError {
   const e = parseEngineError(r.stderr);
   return new WorkerEngineError(e?.code ?? `exit_${r.exit}`, `engine ${what} failed${e ? `: ${e.message}` : ` (exit ${r.exit})`}`, e);
+}
+
+function outputName(v: unknown, expected: string): string {
+  if (v === undefined || v === expected) return expected;
+  throw new WorkerEngineError("bad_output", `engine prove reported an unexpected file name ${JSON.stringify(v)}`);
 }
 
 export interface ProveOutput {
@@ -89,8 +95,9 @@ export async function prove(
   }
   return {
     verdict: o.verdict,
-    proofFile: String(o.proofFile ?? "proof.json"),
-    keyFile: String(o.keyFile ?? "release-key.hex"),
+    // The engine reports file names relative to --out; only its two documented names are accepted.
+    proofFile: outputName(o.proofFile, "proof.json"),
+    keyFile: outputName(o.keyFile, "release-key.hex"),
     proveMillis: o.proveMillis,
     userCycles: o.userCycles,
   };

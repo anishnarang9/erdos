@@ -359,6 +359,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       }
       manifest = parseManifest(result.manifest);
     } catch (err) {
+      await discard(); // the engine may have published the package before failing (e.g. a bad manifest)
       if (err instanceof ApiError) throw err;
       throw new ApiError("engine_failed", "The engine failed", {
         reason: err instanceof EngineError ? err.reason : "crash",

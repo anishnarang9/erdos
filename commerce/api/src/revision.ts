@@ -160,10 +160,10 @@ export function validateRevisionShape(
           path: pointer("outputs", i, "name"),
           message: "must match ^[A-Za-z0-9._-]{1,128}$ and not be '.' or '..'",
         });
-      } else if (seen.has(name)) {
-        errors.push({ path: pointer("outputs", i, "name"), message: "duplicate output name" });
+      } else if (seen.has(name.toLowerCase())) {
+        errors.push({ path: pointer("outputs", i, "name"), message: "duplicate output name (names are compared case-insensitively)" });
       } else {
-        seen.add(name);
+        seen.add(name.toLowerCase());
       }
       if (typeof o.format !== "string" || !FORMATS.includes(o.format)) {
         errors.push({ path: pointer("outputs", i, "format"), message: "must be one of json, text, binary" });
@@ -225,7 +225,10 @@ export function checkPlanFiles(
   const errors: FieldError[] = [];
   const want = new Map(outputs.map((o) => [o.name, FORMAT_PARSER[o.format]]));
   const got = new Set(deliverables.map((d) => d.name));
+  const counted = new Set<string>();
   deliverables.forEach((d, i) => {
+    if (counted.has(d.name)) errors.push({ path: `/plan/deliverables/${i}/name`, message: `deliverable ${d.name} is declared twice` });
+    counted.add(d.name);
     if (!want.has(d.name)) errors.push({ path: `/plan/deliverables/${i}/name`, message: `deliverable ${d.name} is not one of the declared outputs` });
     else if (d.parser !== want.get(d.name)) {
       errors.push({ path: `/plan/deliverables/${i}/parser`, message: `output ${d.name} needs parser ${want.get(d.name)}` });
@@ -295,10 +298,10 @@ export function validateReferences(
     let nameOk = false;
     if (typeof name !== "string" || !OUTPUT_NAME_RE.test(name) || name === "." || name === "..") {
       errors.push({ path: pointer("references", i, "name"), message: "must match ^[A-Za-z0-9._-]{1,128}$ and not be '.' or '..'" });
-    } else if (seen.has(name)) {
-      errors.push({ path: pointer("references", i, "name"), message: "duplicate reference name" });
+    } else if (seen.has(name.toLowerCase())) {
+      errors.push({ path: pointer("references", i, "name"), message: "duplicate reference name (names are compared case-insensitively)" });
     } else {
-      seen.add(name);
+      seen.add(name.toLowerCase());
       nameOk = true;
     }
     const b64 = f.contentBase64;

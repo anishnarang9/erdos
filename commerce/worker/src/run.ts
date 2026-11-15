@@ -2,7 +2,7 @@
 // compiled package, solve, `engine prove`, check the proof with the SDK, and recover the files with both
 // `engine decrypt` and the SDK. A verdict-0 proof is recorded and never decrypted or released.
 import { createHash, randomBytes } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type { Address, Hex } from "viem";
 import {
@@ -69,6 +69,12 @@ function sameFiles(a: BundleFile[], b: BundleFile[]): boolean {
 export async function downloadPackage(client: ApiClient, jobId: string, dir: string): Promise<PackageListing["manifest"]> {
   const listing = await client.packageListing(jobId);
   mkdirSync(dir);
+  // Paths that differ only in case would overwrite each other on Windows and macOS filesystems.
+  const folded = new Set<string>();
+  for (const f of listing.files) {
+    must(!folded.has(f.path.toLowerCase()), "package_path", `duplicate package path ${f.path} (case-insensitive)`);
+    folded.add(f.path.toLowerCase());
+  }
   for (const f of listing.files) {
     const parts = f.path.split("/");
     must(parts.every((p) => p !== "" && p !== "." && p !== ".." && !p.includes("\\") && !p.includes(":")), "package_path", `unsafe package path ${f.path}`);
@@ -80,7 +86,10 @@ export async function downloadPackage(client: ApiClient, jobId: string, dir: str
   }
   const onDisk = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8")) as Record<string, unknown>;
   for (const k of ["imageId", "rulesHash", "referenceHash", "structureHash", "guestSha256"]) {
-    must(String(onDisk[k]).toLowerCase() === String(listing.manifest[k]).toLowerCase(), "manifest", `manifest.json ${k} differs from the API manifest`);
+    const a = onDisk[k];
+    const b = listing.manifest[k];
+    must(typeof a === "string" && /^0x[0-9a-fA-F]{64}$/.test(a), "manifest", `manifest.json ${k} is missing or not 32-byte hex`);
+    must(typeof b === "string" && (a as string).toLowerCase() === b.toLowerCase(), "manifest", `manifest.json ${k} differs from the API manifest`);
   }
   must(sha256(readFileSync(join(dir, "guest.elf"))) === String(onDisk.guestSha256).toLowerCase(), "guest_digest", "guest.elf does not match guestSha256");
   return listing.manifest;
@@ -143,14 +152,15 @@ export interface RunReport {
 
 export async function runSynthetic(o: RunOptions): Promise<RunReport> {
   must(!existsSync(o.attemptDir), "attempt_dir", "the attempt directory must be new");
-  mkdirSync(o.attemptDir, { recursive: true });
+  mkdirSync(dirname(o.attemptDir), { recursive: true });
+  mkdirSync(o.attemptDir); // not recursive: fails if another run created it meanwhile
   const at = (p: string) => join(o.attemptDir, p);
 
   // 1. Package and references from the API, each checked against the commitments.
   const manifest = await downloadPackage(o.client, o.jobId, at("package"));
   const view = await o.client.job(o.jobId);
   must(view.manifest?.imageId?.toLowerCase() === manifest.imageId.toLowerCase(), "job_manifest", "job view manifest differs from the package");
-  if (view.approval?.rulesHash) must(view.approval.rulesHash === manifest.rulesHash.toLowerCase(), "approval", "package rulesHash differs from the approval");
+  if (view.approval?.rulesHash) must(view.approval.rulesHash.toLowerCase() === manifest.rulesHash.toLowerCase(), "approval", "package rulesHash differs from the approval");
   const refs = await o.client.references(o.jobId);
   must(referenceHash(encodeBundle(refs.files)).toLowerCase() === manifest.referenceHash.toLowerCase(), "reference_hash", "reference files do not hash to the manifest referenceHash");
   writeFilesInto(at("reference"), refs.files);
@@ -205,9 +215,14 @@ export async function runSynthetic(o: RunOptions): Promise<RunReport> {
     try {
       await decrypt(o.runner, { submission: join(at("attempt"), out.proofFile), keyFile: join(at("attempt"), out.keyFile), outDir: at("recovered-engine") });
     } catch (err) {
-      refused = err instanceof WorkerEngineError ? err.code : "error";
+      // Only a deliberate refusal counts (exit 2 with an engine error); a timeout or spawn failure is not one.
+      if (!(err instanceof WorkerEngineError) || !err.engineError) throw err;
+      refused = err.code;
     }
-    must(refused !== "", "verdict0_decrypt", "engine decrypt accepted a verdict-0 submission");
+    if (refused === "") {
+      rmSync(at("recovered-engine"), { recursive: true, force: true });
+      must(false, "verdict0_decrypt", "engine decrypt accepted a verdict-0 submission");
+    }
     const report = { ...base, withheld: { reason: "verdict 0: the deliverable failed the approved rules", engineDecryptRefused: refused } };
     writeFileSync(at("report.json"), JSON.stringify(report, null, 2) + "\n");
     return report;

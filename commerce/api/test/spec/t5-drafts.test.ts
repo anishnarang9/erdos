@@ -207,7 +207,7 @@ describe("§3 response kinds", () => {
   });
 
   it("draft: referenceDigest comes from the references (independent referenceHash(encodeBundle))", async () => {
-    const files = [file("z.csv", "1,2\n"), file("A.txt", "upper"), file("a.txt", "lower")];
+    const files = [file("z.csv", "1,2\n"), file("B.txt", "upper"), file("a.txt", "lower")];
     s = makeApp56({ draftModel: fakeModel(draftReply()) });
     const res = await drafts(s, { ...DRAFT_BODY, references: refsPayload(files) });
     const b = await json(res);
