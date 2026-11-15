@@ -28,7 +28,7 @@ function fixture() {
   };
   const getChainId = vi.fn(async () => cfg.chainId);
   const getBlockNumber = vi.fn(async (_opts: unknown) => 81n);
-  const getBlock = vi.fn(async ({ blockNumber }: { blockNumber: bigint }) => ({ number: blockNumber, timestamp: 1234n }));
+  const getBlock = vi.fn(async ({ blockNumber }: { blockNumber: bigint }) => ({ number: blockNumber, hash: referenceHash, timestamp: 1234n }));
   const readContract = vi.fn(async ({ functionName }: { functionName: string }) => values[functionName]);
   const client = { getChainId, getBlockNumber, getBlock, readContract } as unknown as PublicClient;
   const reader: ArcReader = createArcReader(cfg, client);
@@ -69,7 +69,7 @@ describe("Arc reader snapshots", () => {
     }
     const { id: _id, ...job } = f.job;
     expect(snapshot).toEqual({
-      blockNumber: 81n, timestamp: 1234n,
+      blockNumber: 81n, blockHash: referenceHash, timestamp: 1234n,
       job: { ...job, client: getAddress(core), provider: getAddress(provider), evaluator: getAddress(hook), hook: getAddress(hook) },
       terms: { imageId, rulesHash, referenceHash, provider: getAddress(provider), budget: job.budget, expiredAt: job.expiredAt },
       context: hexToBytes(context), submission: { envelopeHash: rulesHash, keyCommitment: referenceHash, accepted: true }, released: false,
@@ -91,6 +91,18 @@ describe("Arc reader snapshots", () => {
     expect(snapshot.submission.accepted).toBe(true);
     expect(snapshot.released).toBe(true);
     expect(snapshot.context).toEqual(hexToBytes(context));
+  });
+
+  it.each([undefined, null, "", "0x", "0x12", `0x${"gg".repeat(32)}`, 123])("rejects missing or malformed snapshot block hash %s", async hash => {
+    const f = fixture();
+    f.getBlock.mockResolvedValueOnce({ number: 81n, timestamp: 1234n, hash } as Awaited<ReturnType<typeof f.getBlock>>);
+    await expect(f.reader.getSnapshot(jobId)).rejects.toThrow("Invalid Arc blockHash");
+  });
+
+  it("preserves the exact snapshot block hash instead of deriving it from number or timestamp", async () => {
+    const f = fixture();
+    f.getBlock.mockResolvedValueOnce({ number: 81n, hash: imageId, timestamp: 1234n });
+    expect(await f.reader.getSnapshot(jobId)).toMatchObject({ blockNumber: 81n, blockHash: imageId, timestamp: 1234n });
   });
 
   it.each([
@@ -188,7 +200,7 @@ describe("Arc reader snapshots", () => {
     for (const id of [0n, -1n, 1n << 256n]) await expect(f.reader.getSnapshot(id)).rejects.toThrow("jobId");
     await expect(f.reader.getSnapshot(jobId, -1n)).rejects.toThrow("blockNumber");
     expect(f.getChainId).not.toHaveBeenCalled();
-    f.getBlock.mockResolvedValueOnce({ number: 80n, timestamp: 1n });
+    f.getBlock.mockResolvedValueOnce({ number: 80n, hash: referenceHash, timestamp: 1n });
     await expect(f.reader.getSnapshot(jobId)).rejects.toThrow("block number mismatch");
     f.readContract.mockRejectedValueOnce(new Error("RPC unavailable"));
     await expect(f.reader.getSnapshot(jobId)).rejects.toThrow("RPC unavailable");

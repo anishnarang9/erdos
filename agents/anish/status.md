@@ -2,6 +2,15 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 17:15 -05:00 — Anish
+
+- Added independent buyer recovery from confirmed submit/release transactions and matching contract events. It validates chain/job/provider/terms, canonical calldata, accepted envelope/key commitments, Completed state and exact 1,000,000-unit payment.
+- Recovery obtains the key only from the confirmed release event. It reconstructs the proof fields, decrypts with SDK and engine into private directories, and compares exact names/bytes. No worker attempt key file or signer is needed.
+- Review reproduced acceptance of wrong intermediate snapshot hashes with unchanged timestamps. Added a required validated `ArcSnapshot.blockHash` and compared each snapshot with its saved canonical anchor. Four recovery regressions and SDK regressions first failed, then passed.
+- Specification re-review and independent quality review approved. Parent verification passed all 60 recovery tests within the 331-test focused run. SDK's 13 fixtures and 323 tests, API's 755 tests and all typechecks also passed in the implementation checks.
+- Reads remain number-pinned, not atomic or EIP-1898 hash-pinned. Trusted consistent archive RPC remains required. Chain acceptance establishes proof validity; recovery does not separately claim cryptographic seal verification.
+- Next: bound actual proving, publish the proposed workload/evidence, and finish the operator runner.
+
 ## 2026-11-15 17:14 -05:00 — Anish
 
 - Added the resumable real-ABI Poster controller with a separate buyer-only local signing boundary. It preserves exact API terms and decodes the actual creation receipt ID. Calls are restricted to create, Poster budget, exact ERC-20 approval and exact-commitment funding.

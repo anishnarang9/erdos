@@ -7,6 +7,8 @@ import { arcCoreAbi, arcErc20Abi, arcHookAbi } from "./abi.ts";
 
 export interface ArcSnapshot {
   blockNumber: bigint;
+  /** Hash returned by this snapshot's block read. Callers must compare it with their canonical anchor. */
+  blockHash: Hex;
   timestamp: bigint;
   job: JobView;
   terms: FrozenTerms | null;
@@ -17,7 +19,9 @@ export interface ArcSnapshot {
 
 export interface ArcReader {
   readonly config: Readonly<ChainConfig>;
-  /** All state and the timestamp are read at the same block number. */
+  /** All reads use one block number. They are not atomic or EIP-1898 hash-pinned.
+   * The RPC must serve consistent state. Security-sensitive callers must compare blockHash
+   * with their saved anchor and check that the anchor remains canonical after the reads. */
   getSnapshot(jobId: bigint, blockNumber?: bigint): Promise<ArcSnapshot>;
   getJob(jobId: bigint, blockNumber?: bigint): Promise<JobView>;
   getTerms(jobId: bigint, blockNumber?: bigint): Promise<FrozenTerms | null>;
@@ -120,6 +124,7 @@ export function createArcReader(config: ChainConfig, publicClient: PublicClient)
       if (block.number !== blockNumber) throw new Error("Arc block number mismatch");
       return {
         blockNumber,
+        blockHash: hex(block.hash, "blockHash", 32),
         timestamp: uint(block.timestamp, "timestamp"),
         job: normalizeJob(job, jobId),
         terms: normalizeTerms(terms),

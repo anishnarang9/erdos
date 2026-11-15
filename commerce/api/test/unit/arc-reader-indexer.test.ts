@@ -27,7 +27,7 @@ describe("API real Arc reader and indexer wiring", () => {
         default: throw new Error(`unexpected ${functionName}`);
       }
     });
-    const getBlock = vi.fn(async () => ({ number: 42n, timestamp: 800n }));
+    const getBlock = vi.fn(async () => ({ number: 42n, hash: hash("cd"), timestamp: 800n }));
     const client = { getChainId: vi.fn(async () => 31337), readContract, getBlock } as unknown as PublicClient;
     const chain = createApiArcChain(config, client);
     expect(chain.mode).toBe("arc");
