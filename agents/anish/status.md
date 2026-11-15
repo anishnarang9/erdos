@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 00:44 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `62f7739`. The full replay stopped at a permissions-test fixture after Rust tests and all 38 Node tests passed. Ten TypeScript tests passed and one failed. Preserved the complete [failure record](../../engine/evaluation/reports/replay-first-attempt.json).
+- Root cause: the replay uses `umask 077`, so `mkdir(mode0755)` created a private0700 directory. The fixture reached its deliberately missing engine instead of testing readable-directory rejection. Added explicit `chmod0755` and a fixture-mode assertion. The exact test now passes under both077and022. The production adapter and all proof artifacts remain unchanged.
+- The [public artifact audit](../../engine/evaluation/reports/public-artifact-audit.json) passed for all six packages:120 exported files, including96 source files, match private originals byte for byte. Receipt hashes and all recorded negative results match. Its first ad hoc check used guessed code names, which the report records as a corrected audit assumption. No source or engine result changed.
+- Next: rerun the complete command in fresh private scratch, then publish the actual final results and complete the requirement audit. All12receipts and6exact recoveries remain complete.
+
 ## 2026-11-15 00:41 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, preceding pushed commit `3a82ca8`. The sequential real proof queue exited 0. All 12 new receipts across six families passed local Solidity verification and mutations. All six passing deliveries recovered byte for byte, including all nine files. Every pair passed wire checks and all four decryption negatives. No historical or unresolved proof failure is recorded.

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-import {chmod, mkdtemp, mkdir, readFile, readdir, rm, writeFile} from 'node:fs/promises';
+import {chmod, mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join, resolve} from 'node:path';
 import {EngineAdapterError, LocalEngineAdapter} from './engine-adapter.ts';
@@ -149,6 +149,9 @@ test('rejects a package directory that other users can read', async()=>{
   try {
     const packages=join(root,'public-packages');
     await mkdir(packages,{mode:0o755});
+    // mkdir applies the caller's umask. Force the readable-directory fixture explicitly.
+    await chmod(packages,0o755);
+    assert.equal((await stat(packages)).mode&0o777,0o755);
     const adapter=new LocalEngineAdapter({binary:'/missing/engine',packagesDirectory:packages});
     await assert.rejects(()=>adapter.compile({plan:{version:1},reference:[]}),
       (error:unknown)=>error instanceof Error&&error.message.includes('private'));
