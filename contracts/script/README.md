@@ -25,8 +25,8 @@ Use `arc-forge` with `--network arc` for acceptance runs (plain `arc-forge test`
 | `02_DeployCoreImpl.s.sol` | Deploy patched `AgenticCommerce` implementation |
 | `03_DeployCoreProxy.s.sol` | ERC1967 proxy, `initialize(usdc, treasury, admin)`; checks slot, zero fees, `paymentToken`, roles |
 | `04_DeployHook.s.sol` | `SettlementHook(core, verifier, usdc, maxEnvelopeBytes, minExpiryMargin)`; checks `supportsInterface(0x7ff6bc9e)` |
-| `05_Freeze.s.sol` | Default: `setHookWhitelist(hook, true)`, then renounce `ADMIN_ROLE` and `DEFAULT_ADMIN_ROLE` (irreversible). With `SETTLEMENT_WHITELIST_ONLY=1`: whitelist only, nothing renounced, status `whitelisted` |
-| `06_Verify.s.sol` | Read-only check of the live deployment against the manifest |
+| `05_Freeze.s.sol` | Default: `setHookWhitelist(hook, true)`, then renounce `ADMIN_ROLE` and `DEFAULT_ADMIN_ROLE` (irreversible). Refuses before sending anything if another address holds either role (replay of the core's `RoleGranted`/`RoleRevoked` logs via `eth_getLogs`, so `--rpc-url` is required). With `SETTLEMENT_WHITELIST_ONLY=1`: whitelist only, nothing renounced, status `whitelisted` |
+| `06_Verify.s.sol` | Read-only check of the live deployment against the manifest. Replays the core's `RoleGranted`/`RoleRevoked`, `HookWhitelistUpdated` and `Upgraded` logs from `contracts.core.deployBlock` (needs `--rpc-url`): reports admin-role history and current holders; fails if a hook other than ours is whitelisted, if the proxy was ever upgraded after its constructor, or if a `runtimeCodeHash` pin differs from the live code. `SETTLEMENT_WRITE_EVIDENCE=1` writes the results into the manifest's `evidence` block (the only manifest write 06 makes; no broadcast) |
 | `DeployLocal.s.sol` | Whole sequence in one run. Local broadcast on anvil, or a full simulation on Arc (it refuses `--broadcast` on Arc) |
 | `export-abi.sh` | Regenerates `../abi/*.json` |
 
@@ -83,7 +83,7 @@ Expected after each step (06 prints `ok <name>` lines and reverts with a message
 | 03 | proxy implementation slot equals the manifest implementation; both fees 0; `paymentToken()` is Arc USDC; signer holds both admin roles |
 | 04 | hook has code; `supportsInterface(0x7ff6bc9e)`; immutables equal manifest and config (`MAX_ENVELOPE_BYTES` 16412, `MIN_EXPIRY_MARGIN` from config) |
 | 05 (whitelist-only) | hook whitelisted; zero hook still whitelisted; fees 0; signer STILL holds both roles |
-| 05 (full freeze) | hook whitelisted; signer holds neither role; `setHookWhitelist`, `setPlatformFee`, `setEvaluatorFee`, `upgradeToAndCall` revert `AccessControlUnauthorizedAccount` |
+| 05 (full freeze) | hook whitelisted; NO address holds either role (every account in the role-event replay from `contracts.core.deployBlock`, re-checked with `hasRole`); `getRoleAdmin(ADMIN_ROLE) == DEFAULT_ADMIN_ROLE`; for the signer and every former holder `setHookWhitelist`, `setPlatformFee`, `setEvaluatorFee`, `upgradeToAndCall` revert `AccessControlUnauthorizedAccount`. 06 prints the replayed grant/revoke history |
 
 **A failed `--broadcast` can still leave a manifest entry.** Forge executes the script (and its manifest writes) during simulation, before any transaction is sent; if the send then fails, the manifest names an address that was never deployed. Handling: `_refuseRedeploy` ignores a manifest address with no code on the current chain, so rerunning the step works; `06_Verify` fails loudly on it (`<name>: manifest address has no code: reset the entry or rerun the step`); and later steps fail the same way via the code check. If the send did not happen, reset the entry (set the address back to `null`, restore `status`) or rerun the step, then commit only a manifest that `06_Verify` accepts. A forge script cannot write the manifest after the broadcast confirms, so this stays a manual check. Use `--resume` to resend stuck transactions.
 

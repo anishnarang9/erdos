@@ -40,6 +40,8 @@ contract DeployScriptsTest is Test {
         _verifyDetectsWrongImplementationBytecode();
         _arcModeStepByStepThroughManifest();
         _hookStepRejectsMockVerifierOnArc();
+        _freezeRequiresNoOtherAdmin();
+        _verifyChecksHistoryAndCodeHashes();
     }
 
     function _manifestPath() internal view returns (string memory) {
@@ -48,6 +50,21 @@ contract DeployScriptsTest is Test {
 
     function _template() internal view returns (string memory) {
         return vm.readFile(string.concat(vm.projectRoot(), "/deployments/arc-testnet.json"));
+    }
+
+    /// @dev The Arc manifest as a test manifest, minus what describes the LIVE contracts and would
+    ///      not match the ones this test deploys: the runtime code-hash pins and the evidence block.
+    function _writeTemplate() internal {
+        vm.writeFile(_manifestPath(), _template());
+        _clearPins();
+        vm.writeJson("null", _manifestPath(), ".evidence");
+    }
+
+    function _clearPins() internal {
+        vm.writeJson("null", _manifestPath(), ".contracts.verifier.runtimeCodeHash");
+        vm.writeJson("null", _manifestPath(), ".contracts.coreImplementation.runtimeCodeHash");
+        vm.writeJson("null", _manifestPath(), ".contracts.hook.runtimeCodeHash");
+        vm.writeJson("null", _manifestPath(), ".contracts.core.runtimeCodeHash");
     }
 
     // ───────────── Local mode: DeployLocal, then a full job on the deployed contracts ─────────────
@@ -150,7 +167,7 @@ contract DeployScriptsTest is Test {
         vm.setEnv("SETTLEMENT_MANIFEST", _manifestPath());
         vm.chainId(5042002);
         vm.etch(ARC_USDC, address(new MockUSDC()).code); // stands in for Arc USDC (6 decimals)
-        vm.writeFile(_manifestPath(), _template());
+        _writeTemplate();
 
         address verifier = new DeployVerifier().run();
         assertEq(RiscZeroGroth16Verifier(verifier).SELECTOR(), bytes4(0xe71e6620));
@@ -243,7 +260,7 @@ contract DeployScriptsTest is Test {
         vm.setEnv("SETTLEMENT_MANIFEST", _manifestPath());
         vm.chainId(5042002);
         vm.etch(ARC_USDC, address(new MockUSDC()).code);
-        vm.writeFile(_manifestPath(), _template());
+        _writeTemplate();
 
         // The template may carry live addresses that have no code in this EVM: deploy a real verifier.
         _put(".contracts.verifier.address", new DeployVerifier().run());
@@ -261,7 +278,7 @@ contract DeployScriptsTest is Test {
         vm.setEnv("SETTLEMENT_MANIFEST", _manifestPath());
         vm.chainId(5042002);
         vm.etch(ARC_USDC, address(new MockUSDC()).code);
-        vm.writeFile(_manifestPath(), _template());
+        _writeTemplate();
         _put(".contracts.verifier.address", address(new MockRiscZeroVerifier()));
         address impl = new DeployCoreImpl().run();
         _put(".contracts.coreImplementation.address", impl);
@@ -276,7 +293,376 @@ contract DeployScriptsTest is Test {
         vm.removeFile(_manifestPath());
     }
 
+    // ───────────── Freeze means NO admin, not only "the deployer renounced" ─────────────
+    //
+    // There is no RPC in this test, so the admin-role replay reads the session log buffer. Each
+    // scenario calls `vm.recordLogs()` right before deploying a fresh core (`_freshCore`). A script
+    // run drains the buffer, so each scenario runs at most one replaying script per buffer that must
+    // see the grants (a later run only sees later events, which is still sound: holders are
+    // re-confirmed with hasRole and the deployer is always a candidate).
+
+    function _freezeRequiresNoOtherAdmin() internal {
+        vm.setEnv("SETTLEMENT_LOCAL", "false");
+        vm.setEnv("SETTLEMENT_MANIFEST", _manifestPath());
+        vm.setEnv("SETTLEMENT_WHITELIST_ONLY", "false");
+        vm.setEnv("SETTLEMENT_EXPECT_FROZEN", "false");
+        vm.setEnv("SETTLEMENT_ALLOW_REDEPLOY", "true"); // one fresh core and hook per scenario
+        vm.chainId(5042002);
+        vm.etch(ARC_USDC, address(new MockUSDC()).code);
+        _writeTemplate();
+        _put(".contracts.verifier.address", new DeployVerifier().run());
+        _put(".contracts.coreImplementation.address", new DeployCoreImpl().run());
+
+        bytes32 adminRole = keccak256("ADMIN_ROLE");
+        bytes32 defaultAdmin = bytes32(0);
+        _secondAdminBlocksFreeze(adminRole, "ADMIN_ROLE");
+        _secondAdminBlocksFreeze(defaultAdmin, "DEFAULT_ADMIN_ROLE");
+        _replayReportsHistoryAndHolders();
+        _grantThenRevokeStillFreezes();
+        _plainFreezeStillPasses();
+
+        vm.setEnv("SETTLEMENT_EXPECT_FROZEN", "false");
+        vm.setEnv("SETTLEMENT_ALLOW_REDEPLOY", "false");
+        vm.removeFile(_manifestPath());
+    }
+
+    /// @dev The deployer grants `role` to a second address. (a) 05 refuses before renouncing.
+    ///      (b) If the deployer renounces by hand anyway, 06 with EXPECT_FROZEN fails, although the
+    ///      deployer itself holds no role (the old deployer-only check passed here).
+    function _secondAdminBlocksFreeze(bytes32 role, string memory name) internal {
+        address other = makeAddr(string.concat("second ", name));
+
+        // (a) 05 refuses; nothing is renounced.
+        (address core,, address admin) = _freshCore();
+        AgenticCommerce k = AgenticCommerce(core);
+        vm.prank(admin);
+        k.grantRole(role, other);
+        Freeze f = new Freeze();
+        vm.expectRevert(
+            bytes(
+                string.concat(
+                    "freeze refused: ",
+                    vm.toString(other),
+                    " also holds ",
+                    name,
+                    "; renouncing the signer's roles would not freeze the core. Revoke it first."
+                )
+            )
+        );
+        f.run();
+        assertTrue(k.hasRole(k.ADMIN_ROLE(), admin));
+        assertTrue(k.hasRole(k.DEFAULT_ADMIN_ROLE(), admin));
+
+        // (b) Manual "freeze" that leaves the second admin in place.
+        address hook;
+        (core, hook, admin) = _freshCore();
+        k = AgenticCommerce(core);
+        vm.startPrank(admin);
+        k.grantRole(role, other);
+        k.setHookWhitelist(hook, true);
+        k.renounceRole(k.ADMIN_ROLE(), admin);
+        k.renounceRole(k.DEFAULT_ADMIN_ROLE(), admin);
+        vm.stopPrank();
+        assertFalse(k.hasRole(k.ADMIN_ROLE(), admin));
+        assertFalse(k.hasRole(k.DEFAULT_ADMIN_ROLE(), admin));
+        vm.setEnv("SETTLEMENT_EXPECT_FROZEN", "true");
+        VerifyDeployment v = new VerifyDeployment();
+        vm.expectRevert(bytes(string.concat(name, " still held by ", vm.toString(other), ": core not frozen")));
+        v.run();
+        vm.setEnv("SETTLEMENT_EXPECT_FROZEN", "false");
+    }
+
+    /// @dev The helper itself: full grant/revoke history, current holders, former holders, JSON.
+    function _replayReportsHistoryAndHolders() internal {
+        address other = makeAddr("replay other");
+        (address core,, address admin) = _freshCore();
+        AgenticCommerce k = AgenticCommerce(core);
+        vm.startPrank(admin);
+        k.grantRole(k.ADMIN_ROLE(), other);
+        k.grantRole(k.DEFAULT_ADMIN_ROLE(), other);
+        k.revokeRole(k.ADMIN_ROLE(), other);
+        vm.stopPrank();
+
+        RoleReplayHarness h = new RoleReplayHarness();
+        SettlementScript.RoleEvent[] memory ev = h.history(core);
+        assertEq(ev.length, 5);
+        // initialize(): DEFAULT_ADMIN_ROLE then ADMIN_ROLE to the admin.
+        assertEq(ev[0].role, k.DEFAULT_ADMIN_ROLE());
+        assertEq(ev[0].account, admin);
+        assertTrue(ev[0].granted);
+        assertEq(ev[1].role, k.ADMIN_ROLE());
+        assertEq(ev[2].account, other);
+        assertEq(ev[2].sender, admin);
+        assertTrue(ev[2].granted);
+        assertEq(ev[4].role, k.ADMIN_ROLE());
+        assertEq(ev[4].account, other);
+        assertFalse(ev[4].granted);
+        assertFalse(ev[4].onChain); // session event: no block or tx hash yet
+        // Drained events are kept by the script instance: a second read sees the same history.
+        assertEq(h.history(core).length, 5);
+
+        SettlementScript.RoleHolder[] memory hs = h.holders(core, ev, address(0));
+        assertEq(hs.length, 3);
+        assertTrue(_holds(hs, k.DEFAULT_ADMIN_ROLE(), admin));
+        assertTrue(_holds(hs, k.ADMIN_ROLE(), admin));
+        assertTrue(_holds(hs, k.DEFAULT_ADMIN_ROLE(), other));
+        assertFalse(_holds(hs, k.ADMIN_ROLE(), other));
+
+        address[] memory former = h.everHeld(ev);
+        assertEq(former.length, 2);
+        assertEq(former[0], admin);
+        assertEq(former[1], other);
+
+        string memory json = h.json(ev);
+        assertEq(vm.parseJsonString(json, "$[4].event"), "RoleRevoked");
+        assertEq(vm.parseJsonAddress(json, "$[2].account"), other);
+    }
+
+    /// @dev A second admin that was revoked again does not block the freeze, and is probed.
+    function _grantThenRevokeStillFreezes() internal {
+        address other = makeAddr("revoked admin");
+        (address core,, address admin) = _freshCore();
+        AgenticCommerce k = AgenticCommerce(core);
+        vm.startPrank(admin);
+        k.grantRole(k.ADMIN_ROLE(), other);
+        k.grantRole(k.DEFAULT_ADMIN_ROLE(), other);
+        k.revokeRole(k.ADMIN_ROLE(), other);
+        k.revokeRole(k.DEFAULT_ADMIN_ROLE(), other);
+        vm.stopPrank();
+        new Freeze().run();
+        assertFalse(k.hasRole(k.ADMIN_ROLE(), admin));
+        assertFalse(k.hasRole(k.DEFAULT_ADMIN_ROLE(), admin));
+        vm.setEnv("SETTLEMENT_EXPECT_FROZEN", "true");
+        new VerifyDeployment().run();
+        vm.setEnv("SETTLEMENT_EXPECT_FROZEN", "false");
+    }
+
+    function _plainFreezeStillPasses() internal {
+        (address core, address hook, address admin) = _freshCore();
+        AgenticCommerce k = AgenticCommerce(core);
+        new Freeze().run();
+        assertTrue(k.whitelistedHooks(hook));
+        assertFalse(k.hasRole(k.ADMIN_ROLE(), admin));
+        vm.setEnv("SETTLEMENT_EXPECT_FROZEN", "true");
+        new VerifyDeployment().run();
+        vm.setEnv("SETTLEMENT_EXPECT_FROZEN", "false");
+    }
+
+    /// @dev Starts log recording, then deploys a fresh core proxy and hook through steps 03 and 04.
+    function _freshCore() internal returns (address core, address hook, address admin) {
+        vm.recordLogs();
+        core = new DeployCoreProxy().run();
+        _put(".contracts.core.address", core);
+        admin = _adminOf(core);
+        _put(".deployer", admin);
+        hook = new DeployHook().run();
+        _put(".contracts.hook.address", hook);
+    }
+
+    function _holds(SettlementScript.RoleHolder[] memory hs, bytes32 role, address a) internal pure returns (bool) {
+        for (uint256 i = 0; i < hs.length; i++) {
+            if (hs[i].role == role && hs[i].account == a) return true;
+        }
+        return false;
+    }
+
+    // ───────────── 06: whitelist history, upgrade history, code-hash pins, evidence ─────────────
+    //
+    // Same session-log setup as above (`_freshCore` starts recording). A script run drains the
+    // buffer even when it reverts (cheatcode state is not rolled back), so each scenario that must
+    // see the full history gets its own fresh core and runs 06 once.
+
+    function _verifyChecksHistoryAndCodeHashes() internal {
+        vm.setEnv("SETTLEMENT_LOCAL", "false");
+        vm.setEnv("SETTLEMENT_MANIFEST", _manifestPath());
+        vm.setEnv("SETTLEMENT_WHITELIST_ONLY", "false");
+        vm.setEnv("SETTLEMENT_EXPECT_FROZEN", "false");
+        vm.setEnv("SETTLEMENT_WRITE_EVIDENCE", "false");
+        vm.setEnv("SETTLEMENT_ALLOW_REDEPLOY", "true");
+        vm.chainId(5042002);
+        vm.etch(ARC_USDC, address(new MockUSDC()).code);
+        _writeTemplate();
+        _put(".contracts.verifier.address", new DeployVerifier().run());
+        _put(".contracts.coreImplementation.address", new DeployCoreImpl().run());
+
+        _extraWhitelistedHookFails();
+        _upgradeFails();
+        _codeHashPins();
+        _evidenceWrite();
+
+        vm.setEnv("SETTLEMENT_ALLOW_REDEPLOY", "false");
+        vm.removeFile(_manifestPath());
+    }
+
+    /// @dev A second hook still whitelisted fails 06; one that was whitelisted and removed again
+    ///      does not.
+    function _extraWhitelistedHookFails() internal {
+        address stray = makeAddr("stray hook");
+        (address core, address hook, address admin) = _freshCore();
+        AgenticCommerce k = AgenticCommerce(core);
+        vm.startPrank(admin);
+        k.setHookWhitelist(hook, true);
+        k.setHookWhitelist(stray, true);
+        vm.stopPrank();
+        VerifyDeployment v = new VerifyDeployment();
+        vm.expectRevert(
+            bytes(string.concat("hook whitelist: ", vm.toString(stray), " is whitelisted but is not the manifest hook"))
+        );
+        v.run();
+
+        (core, hook, admin) = _freshCore();
+        k = AgenticCommerce(core);
+        vm.startPrank(admin);
+        k.setHookWhitelist(hook, true);
+        k.setHookWhitelist(stray, true);
+        k.setHookWhitelist(stray, false);
+        vm.stopPrank();
+        new VerifyDeployment().run();
+    }
+
+    /// @dev Upgrading away and back leaves the slot equal to the manifest, but the extra Upgraded
+    ///      events still fail 06.
+    function _upgradeFails() internal {
+        (address core,, address admin) = _freshCore();
+        AgenticCommerce k = AgenticCommerce(core);
+        address impl = address(uint160(uint256(vm.load(core, bytes32(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc)))));
+        address impl2 = address(new AgenticCommerce());
+        vm.startPrank(admin);
+        k.upgradeToAndCall(impl2, "");
+        k.upgradeToAndCall(impl, "");
+        vm.stopPrank();
+        VerifyDeployment v = new VerifyDeployment();
+        vm.expectRevert(bytes("core proxy was upgraded after deployment: 3 Upgraded events"));
+        v.run();
+    }
+
+    /// @dev Correct pins pass; one wrong pin fails with both hashes in the message.
+    function _codeHashPins() internal {
+        (address core, address hook,) = _freshCore();
+        address verifier = _get(".contracts.verifier.address");
+        address impl = _get(".contracts.coreImplementation.address");
+        _pin(".contracts.verifier.runtimeCodeHash", keccak256(verifier.code));
+        _pin(".contracts.coreImplementation.runtimeCodeHash", keccak256(impl.code));
+        _pin(".contracts.hook.runtimeCodeHash", keccak256(hook.code));
+        _pin(".contracts.core.runtimeCodeHash", keccak256(core.code));
+        new VerifyDeployment().run();
+
+        bytes32 wrong = keccak256("not the verifier");
+        _pin(".contracts.verifier.runtimeCodeHash", wrong);
+        VerifyDeployment v = new VerifyDeployment();
+        vm.expectRevert(
+            bytes(
+                string.concat(
+                    "verifier: runtime code hash ",
+                    vm.toString(keccak256(verifier.code)),
+                    " != manifest runtimeCodeHash ",
+                    vm.toString(wrong)
+                )
+            )
+        );
+        v.run();
+
+        _pin(".contracts.verifier.runtimeCodeHash", keccak256(verifier.code));
+        _pin(".contracts.core.runtimeCodeHash", wrong);
+        v = new VerifyDeployment();
+        vm.expectRevert(
+            bytes(
+                string.concat(
+                    "core: runtime code hash ", vm.toString(keccak256(core.code)), " != manifest runtimeCodeHash ", vm.toString(wrong)
+                )
+            )
+        );
+        v.run();
+        _clearPins();
+    }
+
+    /// @dev Without the flag 06 leaves the manifest byte for byte; with it, `evidence` holds the
+    ///      replayed history, holders, fees and code hashes, and nothing else changes.
+    function _evidenceWrite() internal {
+        address other = makeAddr("evidence other");
+        (address core, address hook, address admin) = _freshCore();
+        AgenticCommerce k = AgenticCommerce(core);
+        address verifier = _get(".contracts.verifier.address");
+        address impl = _get(".contracts.coreImplementation.address");
+        vm.startPrank(admin);
+        k.setHookWhitelist(hook, true);
+        k.grantRole(k.ADMIN_ROLE(), other);
+        k.revokeRole(k.ADMIN_ROLE(), other);
+        vm.stopPrank();
+        _pin(".contracts.verifier.runtimeCodeHash", keccak256(verifier.code));
+
+        // Without the flag: no write (this run drains the session logs, so the core is fresh below).
+        string memory before = vm.readFile(_manifestPath());
+        new VerifyDeployment().run();
+        assertEq(vm.readFile(_manifestPath()), before);
+
+        (core, hook, admin) = _freshCore();
+        k = AgenticCommerce(core);
+        vm.startPrank(admin);
+        k.setHookWhitelist(hook, true);
+        k.grantRole(k.ADMIN_ROLE(), other);
+        k.revokeRole(k.ADMIN_ROLE(), other);
+        vm.stopPrank();
+
+        vm.setEnv("SETTLEMENT_WRITE_EVIDENCE", "true");
+        new VerifyDeployment().run();
+        vm.setEnv("SETTLEMENT_WRITE_EVIDENCE", "false");
+
+        string memory m = vm.readFile(_manifestPath());
+        assertEq(vm.parseJsonString(m, ".evidence.generatedBy"), "script/06_Verify.s.sol");
+        assertEq(vm.parseJsonUint(m, ".evidence.chainId"), 5042002);
+        assertEq(vm.parseJsonUint(m, ".evidence.block"), block.number);
+        assertEq(vm.parseJsonUint(m, ".evidence.blockTimestamp"), block.timestamp);
+        assertEq(vm.parseJsonUint(m, ".evidence.maxLogBlockRange"), 10000);
+        assertTrue(vm.keyExistsJson(m, ".evidence.replayFromBlock"));
+        // Roles: initialize's two grants, then grant and revoke of `other`.
+        assertEq(vm.parseJsonString(m, ".evidence.roles.history[0].event"), "RoleGranted");
+        assertEq(vm.parseJsonString(m, ".evidence.roles.history[0].role"), "DEFAULT_ADMIN_ROLE");
+        assertEq(vm.parseJsonAddress(m, ".evidence.roles.history[0].account"), admin);
+        assertEq(vm.parseJsonString(m, ".evidence.roles.history[1].role"), "ADMIN_ROLE");
+        assertEq(vm.parseJsonAddress(m, ".evidence.roles.history[2].account"), other);
+        assertEq(vm.parseJsonString(m, ".evidence.roles.history[3].event"), "RoleRevoked");
+        assertFalse(vm.parseJsonBool(m, ".evidence.roles.history[3].onChain"));
+        assertFalse(vm.keyExistsJson(m, ".evidence.roles.history[4]"));
+        assertEq(vm.parseJsonAddress(m, ".evidence.roles.currentHolders[0].account"), admin);
+        assertEq(vm.parseJsonAddress(m, ".evidence.roles.currentHolders[1].account"), admin);
+        assertFalse(vm.keyExistsJson(m, ".evidence.roles.currentHolders[2]"));
+        assertFalse(vm.parseJsonBool(m, ".evidence.roles.noAdminHolders"));
+        // Whitelist and upgrades.
+        assertEq(vm.parseJsonAddress(m, ".evidence.hookWhitelist.history[0].hook"), hook);
+        assertTrue(vm.parseJsonBool(m, ".evidence.hookWhitelist.history[0].status"));
+        assertFalse(vm.keyExistsJson(m, ".evidence.hookWhitelist.history[1]"));
+        assertEq(vm.parseJsonAddress(m, ".evidence.hookWhitelist.whitelistedNow[0]"), hook);
+        assertEq(vm.parseJsonAddress(m, ".evidence.upgrades.history[0].implementation"), impl);
+        assertFalse(vm.keyExistsJson(m, ".evidence.upgrades.history[1]"));
+        assertEq(vm.parseJsonAddress(m, ".evidence.upgrades.implementationSlot"), impl);
+        // Fees and code hashes.
+        assertEq(vm.parseJsonUint(m, ".evidence.fees.platformFeeBP"), 0);
+        assertEq(vm.parseJsonUint(m, ".evidence.fees.evaluatorFeeBP"), 0);
+        assertEq(vm.parseJsonAddress(m, ".evidence.runtimeCode.verifier.address"), verifier);
+        assertEq(vm.parseJsonBytes32(m, ".evidence.runtimeCode.verifier.runtimeCodeHash"), keccak256(verifier.code));
+        assertEq(vm.parseJsonUint(m, ".evidence.runtimeCode.verifier.runtimeCodeSize"), verifier.code.length);
+        assertTrue(vm.parseJsonBool(m, ".evidence.runtimeCode.verifier.matchesManifestPin"));
+        assertEq(vm.parseJsonBytes32(m, ".evidence.runtimeCode.coreImplementation.runtimeCodeHash"), keccak256(impl.code));
+        assertEq(vm.parseJsonBytes32(m, ".evidence.runtimeCode.hook.runtimeCodeHash"), keccak256(hook.code));
+        assertEq(vm.parseJsonBytes32(m, ".evidence.runtimeCode.core.runtimeCodeHash"), keccak256(core.code));
+        assertEq(vm.parseJsonUint(m, ".evidence.runtimeCode.core.runtimeCodeSize"), core.code.length);
+        // The rest of the manifest is untouched.
+        assertEq(vm.parseJsonAddress(m, ".contracts.hook.address"), hook);
+        assertEq(vm.parseJsonUint(m, ".schemaVersion"), 1);
+        assertEq(vm.parseJsonUint(m, ".chain.maxLogBlockRange"), 10000);
+        _clearPins();
+    }
+
     // ───────────── helpers ─────────────
+
+    function _get(string memory key) internal view returns (address) {
+        return vm.parseJsonAddress(vm.readFile(_manifestPath()), key);
+    }
+
+    function _pin(string memory key, bytes32 h) internal {
+        vm.writeJson(string.concat('"', vm.toString(h), '"'), _manifestPath(), key);
+    }
 
     function _put(string memory key, address a) internal {
         vm.writeJson(string.concat('"', vm.toString(a), '"'), _manifestPath(), key);
@@ -285,6 +671,25 @@ contract DeployScriptsTest is Test {
     function _adminOf(address core) internal view returns (address) {
         // The step-3 treasury defaults to the signer, so it identifies the admin.
         return AgenticCommerce(core).platformTreasury();
+    }
+}
+
+/// @dev Exposes the admin-role replay helpers of the shared script base.
+contract RoleReplayHarness is SettlementScript {
+    function history(address core) external returns (RoleEvent[] memory) {
+        return _roleHistory(core);
+    }
+
+    function holders(address core, RoleEvent[] memory ev, address extra) external view returns (RoleHolder[] memory) {
+        return _roleHolders(core, ev, extra);
+    }
+
+    function everHeld(RoleEvent[] memory ev) external pure returns (address[] memory) {
+        return _everHeld(ev);
+    }
+
+    function json(RoleEvent[] memory ev) external pure returns (string memory) {
+        return _roleHistoryJson(ev);
     }
 }
 

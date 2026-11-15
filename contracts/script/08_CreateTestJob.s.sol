@@ -25,7 +25,9 @@ interface IERC20Minimal {
 ///         signs the broadcast (`--account <keystore>`); it needs at least `bountyUsdc` plus gas in USDC.
 ///
 ///         Pre-checks (revert with a message before anything is sent): chain guard; hook whitelisted
-///         on the core and the manifest deployer holds neither admin role (frozen; waived by
+///         on the core and NO address holds ADMIN_ROLE or DEFAULT_ADMIN_ROLE (frozen: every account
+///         in the core's role-event replay from `contracts.core.deployBlock` plus the manifest
+///         deployer, re-checked with hasRole; needs `--rpc-url` on Arc. Waived by
 ///         `SETTLEMENT_ALLOW_UNFROZEN=1`, which prints a warning and records `testJob.coreFrozen`
 ///         as false; the hook must still be whitelisted); hook is wired to
 ///         this core and USDC; `expirySeconds >= hook.MIN_EXPIRY_MARGIN() + coreMinExpirySeconds`;
@@ -69,6 +71,7 @@ contract CreateTestJob is SettlementScript {
     string internal constant DESCRIPTION = "UBC-26 settlement test job";
 
     function run() external returns (TestJob memory t) {
+        _startRoleLogCapture();
         Config memory c = _loadConfig();
         _guardChain(c);
         Inputs memory i = _inputs();
@@ -78,8 +81,9 @@ contract CreateTestJob is SettlementScript {
         address poster = _broadcaster();
         vm.stopBroadcast();
 
-        _preChecks(c, i, poster);
-        bool frozen = _isFrozen(i.core);
+        RoleHolder[] memory holders = _adminHolders(i.core);
+        bool frozen = holders.length == 0;
+        _preChecks(c, i, poster, holders);
         if (!frozen) {
             console.log("WARNING: core is NOT frozen (SETTLEMENT_ALLOW_UNFROZEN=1). The deployer can still change fees, whitelist and upgrade.");
         }
@@ -94,11 +98,18 @@ contract CreateTestJob is SettlementScript {
         console.log("expiry", t.expiry);
     }
 
-    /// @dev True when the manifest deployer holds neither admin role.
-    function _isFrozen(address core) internal view returns (bool) {
+    /// @dev Every address that holds ADMIN_ROLE or DEFAULT_ADMIN_ROLE now: the core's role-event
+    ///      replay plus the manifest deployer, re-confirmed with hasRole. The core is frozen only
+    ///      when this is empty (not merely when the deployer renounced).
+    function _adminHolders(address core) internal returns (RoleHolder[] memory) {
         address deployer = _manifestAddress(".deployer");
-        return !AgenticCommerce(core).hasRole(ADMIN_ROLE, deployer)
-            && !AgenticCommerce(core).hasRole(DEFAULT_ADMIN_ROLE, deployer);
+        require(deployer != address(0), "manifest .deployer missing");
+        return _roleHolders(core, _roleHistory(core), deployer);
+    }
+
+    /// @notice True when no address holds either admin role. Public so tests can check it.
+    function isCoreFrozen(address core) public returns (bool) {
+        return _adminHolders(core).length == 0;
     }
 
     // ───────────────────────── Inputs ─────────────────────────
@@ -153,17 +164,22 @@ contract CreateTestJob is SettlementScript {
 
     // ───────────────────────── Pre-checks ─────────────────────────
 
-    function _preChecks(Config memory c, Inputs memory i, address poster) internal view {
+    function _preChecks(Config memory c, Inputs memory i, address poster, RoleHolder[] memory holders)
+        internal
+        view
+    {
         AgenticCommerce core = AgenticCommerce(i.core);
         SettlementHook hook = SettlementHook(i.hook);
 
         require(core.whitelistedHooks(i.hook), "hook is not whitelisted on the core");
-        address deployer = _manifestAddress(".deployer");
-        require(deployer != address(0), "manifest .deployer missing");
-        if (!vm.envOr("SETTLEMENT_ALLOW_UNFROZEN", false)) {
-            require(
-                !core.hasRole(ADMIN_ROLE, deployer) && !core.hasRole(DEFAULT_ADMIN_ROLE, deployer),
-                "core is not frozen: deployer still holds an admin role"
+        if (holders.length != 0 && !vm.envOr("SETTLEMENT_ALLOW_UNFROZEN", false)) {
+            revert(
+                string.concat(
+                    "core is not frozen: ",
+                    vm.toString(holders[0].account),
+                    " still holds ",
+                    _roleName(holders[0].role)
+                )
             );
         }
         require(address(hook.core()) == i.core, "hook.core != manifest core");

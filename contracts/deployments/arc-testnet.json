@@ -21,6 +21,7 @@
   "contracts": {
     "verifier": {
       "address": "0xCf8D70A203b40D3A17d023c0CDDF752870BC3992",
+      "runtimeCodeHash": "0x0b496507a375b268f944877d4057cb475d412ea3f9376d406ae40a13fea49012",
       "deployer": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
       "deployBlock": 72392474,
       "deployTx": "0xd0fb5fb5b4e921df0ee1b0220587f59259f7175cec841a49f3262ccbf2232b6f",
@@ -35,6 +36,7 @@
     },
     "coreImplementation": {
       "address": "0x55A3C9319EEe607579855880b5651766eBF103d7",
+      "runtimeCodeHash": "0x7bdd6ba79fb1560523b2228edf03bef923f33edf41de728044de5ccae4037d13",
       "deployer": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
       "deployBlock": 72392852,
       "contract": "src/core/src/AgenticCommercePatched.sol:AgenticCommerce",
@@ -43,6 +45,7 @@
     },
     "core": {
       "address": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
+      "runtimeCodeHash": "0xdac3085f81cca92bb363b27a29074c33a338ba3c89cc395dc097ba20fac576d7",
       "implementation": "0x55A3C9319EEe607579855880b5651766eBF103d7",
       "deployer": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
       "treasury": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
@@ -57,6 +60,7 @@
     },
     "hook": {
       "address": "0x699d0e4a067F31229Be67C534B37dE964b6eDbAb",
+      "runtimeCodeHash": "0x69d39f1e4b10380698a0f1ce227a6f8de6fa368ecc1aceab73c64b51ad571cd0",
       "deployer": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
       "deployBlock": 72394174,
       "contract": "src/SettlementHook.sol:SettlementHook",
@@ -78,7 +82,7 @@
       "platformFeeBP": 0,
       "evaluatorFeeBP": 0
     },
-    "adminRoles": "renounced (ADMIN_ROLE and DEFAULT_ADMIN_ROLE) in step 5; no whitelist changes, fee changes or upgrades afterwards",
+    "adminRoles": "ADMIN_ROLE and DEFAULT_ADMIN_ROLE are renounced in step 5 (full freeze); after that no whitelist changes, fee changes or upgrades are possible. This is the policy, not the current state: see contracts.core.frozen (and evidence.roles for the replayed on-chain holders)",
     "coreMinExpirySeconds": 300,
     "coreMinExpiryRule": "createJob requires expiredAt > block.timestamp + 300 (strictly greater)",
     "hookMinExpiryMarginSeconds": 600,
@@ -242,5 +246,105 @@
     "call": "claimRefund(jobId) on the core, permissionless",
     "when": "block.timestamp >= expiredAt and status Funded or Submitted",
     "events": "Refunded(jobId indexed, client indexed, amount), JobExpired(jobId indexed)"
+  },
+  "evidence": {
+    "generatedBy": "script/06_Verify.s.sol",
+    "chainId": 5042002,
+    "block": 72471253,
+    "blockTimestamp": 1794773375,
+    "replayFromBlock": 72393888,
+    "maxLogBlockRange": 10000,
+    "roles": {
+      "history": [
+        {
+          "event": "RoleGranted",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
+          "sender": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
+          "onChain": true,
+          "block": 72393888,
+          "tx": "0xa39e70bae70c5ec6fd6f3742d1d3b8142531ff45c56cf08cd8b129d7b53d8a89",
+          "logIndex": 10
+        },
+        {
+          "event": "RoleGranted",
+          "role": "ADMIN_ROLE",
+          "account": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
+          "sender": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
+          "onChain": true,
+          "block": 72393888,
+          "tx": "0xa39e70bae70c5ec6fd6f3742d1d3b8142531ff45c56cf08cd8b129d7b53d8a89",
+          "logIndex": 11
+        }
+      ],
+      "currentHolders": [
+        {
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a"
+        },
+        {
+          "role": "ADMIN_ROLE",
+          "account": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a"
+        }
+      ],
+      "noAdminHolders": false
+    },
+    "hookWhitelist": {
+      "history": [
+        {
+          "hook": "0x699d0e4a067F31229Be67C534B37dE964b6eDbAb",
+          "status": true,
+          "onChain": true,
+          "block": 72394225,
+          "tx": "0x5879f15659775285135a61ffad4b18110a21538fe2350449d5b6c99ec76577ef",
+          "logIndex": 7
+        }
+      ],
+      "whitelistedNow": [
+        "0x699d0e4a067F31229Be67C534B37dE964b6eDbAb"
+      ]
+    },
+    "upgrades": {
+      "history": [
+        {
+          "implementation": "0x55A3C9319EEe607579855880b5651766eBF103d7",
+          "onChain": true,
+          "block": 72393888,
+          "tx": "0xa39e70bae70c5ec6fd6f3742d1d3b8142531ff45c56cf08cd8b129d7b53d8a89",
+          "logIndex": 9
+        }
+      ],
+      "implementationSlot": "0x55A3C9319EEe607579855880b5651766eBF103d7"
+    },
+    "fees": {
+      "platformFeeBP": 0,
+      "evaluatorFeeBP": 0
+    },
+    "runtimeCode": {
+      "verifier": {
+        "address": "0xCf8D70A203b40D3A17d023c0CDDF752870BC3992",
+        "runtimeCodeHash": "0x0b496507a375b268f944877d4057cb475d412ea3f9376d406ae40a13fea49012",
+        "runtimeCodeSize": 7480,
+        "matchesManifestPin": true
+      },
+      "coreImplementation": {
+        "address": "0x55A3C9319EEe607579855880b5651766eBF103d7",
+        "runtimeCodeHash": "0x7bdd6ba79fb1560523b2228edf03bef923f33edf41de728044de5ccae4037d13",
+        "runtimeCodeSize": 21560,
+        "matchesManifestPin": true
+      },
+      "hook": {
+        "address": "0x699d0e4a067F31229Be67C534B37dE964b6eDbAb",
+        "runtimeCodeHash": "0x69d39f1e4b10380698a0f1ce227a6f8de6fa368ecc1aceab73c64b51ad571cd0",
+        "runtimeCodeSize": 10594,
+        "matchesManifestPin": true
+      },
+      "core": {
+        "address": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
+        "runtimeCodeHash": "0xdac3085f81cca92bb363b27a29074c33a338ba3c89cc395dc097ba20fac576d7",
+        "runtimeCodeSize": 212,
+        "matchesManifestPin": true
+      }
+    }
   }
 }
