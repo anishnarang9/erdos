@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 00:09 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `a2eaea0`. Published the [signed-evidence proof pair](../../engine/evaluation/proofs/signed-evidence-bindings), its model-authored plan, checker package, public synthetic inputs, and verification results. Release keys remain private.
+- Pass/fail proving took 744,814 / 744,260 ms and used 4,440,879 / 4,423,979 user cycles. Both passed the pinned Solidity verifier and changed-input checks. Same-job wire checks and passing-only rejection of verdict 0 passed.
+- Decryption recovered the exact 36-byte note.txt. Wrong key, changed ciphertext, changed context, and verdict-0 decryption all failed correctly. Current total: 4 of 12 verified new receipts and 2 of 6 completed recoveries.
+- Active process at this checkpoint: ledger-reconciliation pass under engine PID 17821. No terminal failure is recorded. The next proof families are reconciliation, allocation, expenses, and file integrity. The final complete replay and audit remain pending.
+
 ## 2026-11-15 00:03 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, preceding pushed commit `2af9fce`. Corrected the preceding entry's process description: the signed passing receipt was already verified. The signed failing-verdict proof is active under engine PID 16200. The prover's durable report always recorded the correct stage. No proof was restarted.

@@ -1,0 +1,91 @@
+{
+  "deliverables": [
+    {
+      "name": "note.txt",
+      "parser": "text/v1"
+    }
+  ],
+  "evidence": [
+    {
+      "bindings": [
+        {
+          "field": "artifactHash",
+          "file": "note.txt"
+        }
+      ],
+      "contextField": "contextHash",
+      "fields": [
+        {
+          "name": "artifactHash",
+          "type": "string"
+        },
+        {
+          "name": "contextHash",
+          "type": "string"
+        },
+        {
+          "name": "score",
+          "type": "i64"
+        },
+        {
+          "name": "issuer",
+          "type": "string"
+        },
+        {
+          "name": "approved",
+          "type": "bool"
+        }
+      ],
+      "name": "attestation.json",
+      "parser": "json/v1",
+      "profile": "ed25519/v1",
+      "signer": "0x48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd"
+    }
+  ],
+  "references": [],
+  "rules": [
+    {
+      "left": {
+        "field": "score",
+        "file": "attestation.json",
+        "op": "field",
+        "source": "evidence"
+      },
+      "op": "gte",
+      "right": {
+        "op": "literal",
+        "type": "i64",
+        "value": "70"
+      }
+    },
+    {
+      "left": {
+        "field": "issuer",
+        "file": "attestation.json",
+        "op": "field",
+        "source": "evidence"
+      },
+      "op": "eq",
+      "right": {
+        "op": "literal",
+        "type": "string",
+        "value": "synthetic-1"
+      }
+    },
+    {
+      "left": {
+        "field": "approved",
+        "file": "attestation.json",
+        "op": "field",
+        "source": "evidence"
+      },
+      "op": "eq",
+      "right": {
+        "op": "literal",
+        "type": "bool",
+        "value": true
+      }
+    }
+  ],
+  "version": 1
+}

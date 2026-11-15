@@ -1,16 +1,17 @@
 {
-  "updatedAt": "2026-11-15 00:03 -05:00",
-  "verifiedReceipts": 3,
+  "updatedAt": "2026-11-15 00:09 -05:00",
+  "verifiedReceipts": 4,
   "completedFamilies": [
-    "inventory"
+    "inventory",
+    "signed-evidence-bindings"
   ],
   "active": [
     {
-      "family": "signed-evidence-bindings",
+      "family": "ledger-reconciliation",
       "kind": "prove",
-      "candidate": "fail",
-      "startedAt": "2026-11-15T04:54:03.497Z",
-      "pid": 16200
+      "candidate": "pass",
+      "startedAt": "2026-11-15T05:06:46.310Z",
+      "pid": 17821
     }
   ],
   "proofs": [
@@ -61,10 +62,25 @@
         "journalSha256": "0xfd3573b6f79f521440dc8141aabcc0cd21ecbc438bdc237eeb409190395cc846",
         "envelopeSha256": "0xab26998cd8f1cbd1a1f56b16008e1df157b27e8649cdab0bb4b12ce1da579918"
       }
+    },
+    {
+      "family": "signed-evidence-bindings",
+      "verdict": "fail",
+      "proofSha256": "0x278152d392a47df0632de7309f644f38a909cf2d4473275080287a9c8d80b5a4",
+      "proveMillis": 744260,
+      "userCycles": 4423979,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x911f664a662489127ed6f99a703c4edae1f3969659084d19ea420f63fb3dbb4d",
+        "journalSha256": "0x9f0b97796132aca4533c6a112cb917a349f78efd40dde520899f3977fb7f2521",
+        "envelopeSha256": "0x87e0d2421150dc9405125c590361f56d30e38fa45bd8252568c09bdd1528e6d1"
+      }
     }
   ],
   "pendingFamilies": [
-    "signed-evidence-bindings",
     "ledger-reconciliation",
     "allocation-scheduling",
     "expenses-budgets",
