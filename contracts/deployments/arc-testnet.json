@@ -42,15 +42,16 @@
       "deployTx": "0xc734ab50615f884c364a7af4627a08b989891b88b83944865b18fa314e5695bf"
     },
     "core": {
-      "address": null,
-      "implementation": null,
-      "deployer": null,
-      "treasury": null,
-      "deployBlock": null,
+      "address": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
+      "implementation": "0x55A3C9319EEe607579855880b5651766eBF103d7",
+      "deployer": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
+      "treasury": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
+      "deployBlock": 72393888,
       "frozen": false,
       "hookWhitelisted": false,
       "proxy": "OpenZeppelin ERC1967Proxy (UUPS), initialize(usdc, treasury, admin)",
-      "abi": "abi/AgenticCommerce.json"
+      "abi": "abi/AgenticCommerce.json",
+      "deployTx": "0xa39e70bae70c5ec6fd6f3742d1d3b8142531ff45c56cf08cd8b129d7b53d8a89"
     },
     "hook": {
       "address": null,
