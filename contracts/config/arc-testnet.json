@@ -10,7 +10,7 @@
   "coreMinExpirySeconds": 300,
   "hook": {
     "maxEnvelopeBytes": 16384,
-    "minExpiryMarginSeconds": 120
+    "minExpiryMarginSeconds": 600
   },
   "demo": {
     "bountyUsdc": "1.00",

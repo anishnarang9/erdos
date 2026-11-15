@@ -13,7 +13,7 @@ import {IProofVerifier} from "../../src/interfaces/IProofVerifier.sol";
 
 /// @notice Implementer's smoke test: one happy path and the codec fixture against the hook's own
 ///         codec. The independent spec-driven matrix (S3 to S15) lives in test/settlement/.
-contract HookSmokeTest is Test {
+abstract contract HookFixture is Test {
     AgenticCommerce core;
     MockUSDC usdc;
     MockRiscZeroVerifier verifier;
@@ -50,6 +50,18 @@ contract HookSmokeTest is Test {
         usdc.mint(poster, 10e6);
     }
 
+    /// @dev Poster's four transactions: createJob, setBudget, approve, fund.
+    function _fundJob(uint256 budget, uint256 expiredAt) internal returns (uint256 jobId) {
+        vm.startPrank(poster);
+        jobId = core.createJob(solver, address(hook), expiredAt, "job", address(hook));
+        core.setBudget(jobId, budget, "");
+        usdc.approve(address(core), budget);
+        core.fund(jobId, abi.encode(IMAGE_ID, RULES, REF));
+        vm.stopPrank();
+    }
+}
+
+contract HookSmokeTest is HookFixture {
     function test_codecFixture() public pure {
         bytes memory ctx = SettlementCodec.context(
             5042002, address(bytes20(hex"1111111111111111111111111111111111111111")), 7,
@@ -69,12 +81,7 @@ contract HookSmokeTest is Test {
     }
 
     function test_happyPath() public {
-        vm.startPrank(poster);
-        uint256 jobId = core.createJob(solver, address(hook), block.timestamp + 1 hours, "job", address(hook));
-        core.setBudget(jobId, 1e6, "");
-        usdc.approve(address(core), 1e6);
-        core.fund(jobId, abi.encode(IMAGE_ID, RULES, REF));
-        vm.stopPrank();
+        uint256 jobId = _fundJob(1e6, block.timestamp + 1 hours);
 
         bytes memory envelope = hex"deadbeef";
         bytes32 envHash = sha256(envelope);
