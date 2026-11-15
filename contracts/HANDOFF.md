@@ -16,7 +16,7 @@ This is the contract-level interface for settlement on Arc Testnet (chain 504200
 Notes on the deployment:
 - **Hook settings:** the hook is whitelisted on the core in block 72394225. Its on-chain settings are `MAX_ENVELOPE_BYTES = 16412` and `MIN_EXPIRY_MARGIN = 600`, and it reports `supportsInterface(0x7ff6bc9e) == true`.
 - **Verifier evidence:** see [research/ARC-VERIFIER-LIVE.md](research/ARC-VERIFIER-LIVE.md).
-- **The core is NOT frozen yet.** The deployer `0x27f97754b165B68921c9dD0Ea88eDf617731A35a` still holds both admin roles, so it could upgrade the core, change fees or whitelist other hooks. Treat jobs on this deployment as integration testing until the manifest shows `frozen: true`. Nick runs the freeze before the Nov 16 demo.
+- **The core is frozen** (manifest `frozen: true`). The deployer renounced `ADMIN_ROLE` in tx `0xe9881b7e…0202` (block 72472531) and `DEFAULT_ADMIN_ROLE` in tx `0x01de71f7…0d1d` (block 72472534). A replay of every role event confirms nobody holds either role, so the core can no longer be upgraded, have fees changed or have its whitelist edited. Fees are 0 and only our hook (plus `0x0`) is whitelisted. Live evidence is in the manifest's `evidence` block (block 72472573).
 - **Start log scans** at the core's deploy block, 72393888.
 
 ## Limits and rules at a glance

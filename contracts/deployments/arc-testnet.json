@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "network": "arc-testnet",
-  "status": "whitelisted",
+  "status": "frozen",
   "deployer": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
   "chain": {
     "chainId": 5042002,
@@ -50,13 +50,18 @@
       "deployer": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
       "treasury": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
       "deployBlock": 72393888,
-      "frozen": false,
+      "frozen": true,
       "hookWhitelisted": true,
       "proxy": "OpenZeppelin ERC1967Proxy (UUPS), initialize(usdc, treasury, admin)",
       "abi": "abi/AgenticCommerce.json",
       "deployTx": "0xa39e70bae70c5ec6fd6f3742d1d3b8142531ff45c56cf08cd8b129d7b53d8a89",
       "whitelistTx": "0x5879f15659775285135a61ffad4b18110a21538fe2350449d5b6c99ec76577ef",
-      "whitelistBlock": 72394225
+      "whitelistBlock": 72394225,
+      "freezeTxs": {
+        "renounceAdminRole": "0xe9881b7eb459774311f565c53abd58fdc08c8939ea6c32bff0a039928a060202",
+        "renounceDefaultAdminRole": "0x01de71f7adc814a1c22f6531c65add4c1a8192ed86718630b4bd38ad64da0d1d"
+      },
+      "frozenBlock": 72472534
     },
     "hook": {
       "address": "0x699d0e4a067F31229Be67C534B37dE964b6eDbAb",
@@ -250,8 +255,8 @@
   "evidence": {
     "generatedBy": "script/06_Verify.s.sol",
     "chainId": 5042002,
-    "block": 72471253,
-    "blockTimestamp": 1794773375,
+    "block": 72472573,
+    "blockTimestamp": 1794774295,
     "replayFromBlock": 72393888,
     "maxLogBlockRange": 10000,
     "roles": {
@@ -275,19 +280,30 @@
           "block": 72393888,
           "tx": "0xa39e70bae70c5ec6fd6f3742d1d3b8142531ff45c56cf08cd8b129d7b53d8a89",
           "logIndex": 11
-        }
-      ],
-      "currentHolders": [
-        {
-          "role": "DEFAULT_ADMIN_ROLE",
-          "account": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a"
         },
         {
+          "event": "RoleRevoked",
           "role": "ADMIN_ROLE",
-          "account": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a"
+          "account": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
+          "sender": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
+          "onChain": true,
+          "block": 72472531,
+          "tx": "0xe9881b7eb459774311f565c53abd58fdc08c8939ea6c32bff0a039928a060202",
+          "logIndex": 6
+        },
+        {
+          "event": "RoleRevoked",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
+          "sender": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
+          "onChain": true,
+          "block": 72472534,
+          "tx": "0x01de71f7adc814a1c22f6531c65add4c1a8192ed86718630b4bd38ad64da0d1d",
+          "logIndex": 58
         }
       ],
-      "noAdminHolders": false
+      "currentHolders": [],
+      "noAdminHolders": true
     },
     "hookWhitelist": {
       "history": [

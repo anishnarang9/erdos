@@ -2,6 +2,26 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 15:40 -05:00 — Nick
+
+### Core frozen on Arc (decision 27 closed)
+Branch `nick-settlement`.
+
+| Step | Call | Block | Transaction | Cost |
+| --- | --- | --- | --- | --- |
+| 05 full | `renounceRole(ADMIN_ROLE, deployer)` | 72472531 | `0xe9881b7eb459774311f565c53abd58fdc08c8939ea6c32bff0a039928a060202` | 0.000766 USDC |
+| 05 full | `renounceRole(DEFAULT_ADMIN_ROLE, deployer)` | 72472534 | `0x01de71f7adc814a1c22f6531c65add4c1a8192ed86718630b4bd38ad64da0d1d` | 0.000756 USDC |
+
+The hook was already whitelisted (block 72394225), so step 05 only renounced. A dry run passed first.
+
+### Checks
+- `SETTLEMENT_EXPECT_FROZEN=1 SETTLEMENT_WRITE_EVIDENCE=1 06_Verify` on Arc printed `ok frozen`: 4 role events (2 grants, 2 revokes), 0 current holders, admin calls revert `AccessControlUnauthorizedAccount` for the deployer, only our hook whitelisted, one `Upgraded` (constructor), fees 0, all four code-hash pins match.
+- Manifest: `status: frozen`, `contracts.core.frozen: true`, `freezeTxs`, `frozenBlock`, and the `evidence` block refreshed at block 72472573. `HANDOFF.md` updated.
+
+### Next action
+- Workers may now treat the core as frozen and lift the broadcast block.
+- `08_CreateTestJob` (no `SETTLEMENT_ALLOW_UNFROZEN` needed now) once Anish supplies the image ID, rules hash, reference hash and provider; then the Nov 16 acceptance transactions (accepted proof, payout with key release, expiry refund, rejected submission).
+
 ## 2026-11-15 15:22 -05:00 — Nick
 
 ### Freeze checks cover every admin; live evidence recorded
