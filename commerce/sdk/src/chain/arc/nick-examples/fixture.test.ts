@@ -1,3 +1,4 @@
+// @ts-nocheck -- UBC-26 SDK: the only change to Nick's file. It is a node:test file that does not typecheck under this package's @types/node (setAAD overload, line 107 of the original) and is not run by vitest.
 // Offline checks that the encoders reproduce the engine fixture (ZKVM-IMPLEMENTATION.md Section 3).
 // Run: `npm test` (node --test, no extra test dependencies).
 import assert from "node:assert/strict";

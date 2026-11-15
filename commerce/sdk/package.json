@@ -10,6 +10,7 @@
   },
   "scripts": {
     "test": "vitest run",
+    "test:arc": "vitest run --config test/live/vitest.config.ts",
     "typecheck": "tsc -p tsconfig.json",
     "build:contracts": "node scripts/build-contracts.mjs"
   },
