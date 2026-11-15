@@ -25,6 +25,9 @@ export {
 export {
   recoverArcDelivery, recoverArcDeliveryDual, type ArcRecoveryRequest, type ArcRecoveryEvidence, type ArcRecoveredDelivery,
 } from "./buyer-recovery.ts";
+export { sprintCli, parseSprintArgs, type SprintArgs, type SprintAction } from "./sprint-cli.ts";
+export { executeSprint, createSprintEngineRunner, sprintEngineWrapperDigest, type SprintDependencies } from "./sprint-runner.ts";
+export { parseSprintAuthorization, assertSprintAuthorization, type SprintAuthorization } from "./sprint-authorization.ts";
 export { apiClient, ApiClientError, type ApiClient, type JobView, type PackageListing } from "./client.ts";
 export { decrypt, engineRunner, evaluate, prove, WorkerEngineError, type EngineRunner, type ProveOutput } from "./engine.ts";
 export {

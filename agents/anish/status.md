@@ -2,6 +2,16 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 17:47 -05:00 — Anish
+
+- Added the separate operator sprint CLI and real composition for inspect, prepare, deployment check, funding, proving/settlement, independent recovery and oracle verification. The existing funded CLI guard remains unchanged. Added a discoverable `sprint` package command.
+- Exact source/config/input/revision/selection/deployment/proof bindings and operator-owned approval files gate signing. Rules approval never grants funding. API drafts report unverified provenance, not live inference. Providers submit quotes externally.
+- Review found and fixed dirty-source authorization, late-bound engine identity, replay mislabelling and fixed-balance restart defects. Native POSIX executable/wrapper/environment pins now bind the input digest. Relevant source must be committed and clean. Existing hashes reconcile before remaining-obligation balance checks and new signing.
+- Parent reran 65 focused tests, including 14 composed funding/provider/restart cases, and worker typecheck. Independent medium-reasoning specification and security reviews approved. These composed tests use explicit local fixtures, not real live wallets.
+- The operator runner intentionally rejects WSL configuration. Existing WSL engine/API adapters are unchanged. An old run needs fresh configuration and approval when its source or engine identity changes.
+- Rechecked model access after the user's steering. Both the model tool and `opencode models` list no Grok/xAI models. Remaining dispatched reviews use explicit low/medium reasoning on the available model. No OAuth configuration or credentials changed.
+- Next: finish portable slow-test publication, full replay/CI, documentation and normal main integration. Live spending still needs exact external approval and protected accounts.
+
 ## 2026-11-15 17:30 -05:00 — Anish
 
 - Added separate fast engine/contract CI with Rust 1.98.1, Node 24, locked checks, wire/oracle tests, and checksum/commit-pinned Arc Foundry v0.8.0-4. Contract CI uses local Arc, not Ethereum substitutes or live broadcasts. It also checks locked examples.

@@ -14,7 +14,8 @@
     "funded": "tsx src/cli.ts funded",
     "inspect-funded": "tsx src/cli.ts funded inspect",
     "preflight-funded": "tsx src/cli.ts funded preflight",
-    "prepare-funded": "tsx src/cli.ts funded prepare"
+    "prepare-funded": "tsx src/cli.ts funded prepare",
+    "sprint": "tsx src/sprint-cli.ts"
   },
   "dependencies": {
     "@ubc26/api": "workspace:*",
