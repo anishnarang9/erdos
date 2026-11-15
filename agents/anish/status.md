@@ -2,6 +2,15 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 22:46 -05:00 — Anish
+
+- Integration branch `codex/engine-commerce` starts from engine `adda3a3` and commerce `3013d73624c3cf279015b25ec17497d7394ab70f`. The managed worktree is separate from the engine PR. The merge changed commerce files only and has no conflicts.
+- Recovered the three-phase specification from the preceding planning chat. [Execution plan](execution-plan.md) records the full targets and pending checks.
+- Initial remote review: Nick and main remain `9a1b444`. Neil remains `3013d736`. No new deployment manifest or funded terms arrived. No live transactions are authorized.
+- Challenge and seeded-test subagents are working in temporary copies. The seeded helper reports 10,000 cases with no mismatches. Root verification remains pending. Challenge coverage and model trials are not yet measured. No new proof exists.
+- Model access: the environment API credential returned HTTP 401 on a read-only model lookup. Native Luna subagent access remains available to test later. This does not block deterministic engine work.
+- Next: finish phase 1, record independent oracle coverage, then investigate confirmed failures before model trials.
+
 ## 2026-11-14 21:19 -05:00 — Anish
 
 - Branch codex/anish-engine. Opened [draft PR #3](https://github.com/anishnarang9/UBC-26/pull/3) with the engine, real proof fixtures, replay commands, and pending integration gates. GitHub reports the branch can merge cleanly.

@@ -2,6 +2,13 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 22:46 -05:00 — Anish — Isolated engine and commerce evaluation
+
+- `codex/engine-commerce` combines engine `adda3a3` with commerce `3013d736` for evaluation. Engine PR #3 remains separate. Engine fixes will use separate commits.
+- The [execution plan](../anish/execution-plan.md) covers 60 challenges, 10,000 independent generated cases, failure-driven hardening, Luna authoring trials, and 12 new local proof receipts. These are targets, not completed results.
+- Commerce's current `Engine` and `DraftModel` files are interface declarations. Their simulated output assumptions differ from the published CLI. The evaluation adapter will preserve normalized approvals, packages, typed errors, and model provenance. The production API and worker remain Neil's scope.
+- Nick's deployed manifest, final envelope cap, and funded terms remain external integration dependencies. This run performs no live transactions.
+
 ## 2026-11-14 21:18 -05:00 — Anish — Commerce codec replay
 
 - The [SDK replay check](../../engine/tests/check-commerce-sdk.mjs) passed against Neil's revision 3013d736. All six real engine receipts produced matching context, journal, digest, and submit calldata bytes. It covers the full 16 KiB encoded delivery and both verdicts.
