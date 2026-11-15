@@ -2,6 +2,14 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-15 16:08 -05:00 — Anish — Sprint execution authorized
+
+- Execute the approved core-engine and funded-settlement sprint on `codex/engine-commerce`. The user authorized delegation, tested checkpoint commits/pushes, and normal integration into main. Preserve engine, Neil and Nick ancestry through merge commits.
+- Current remote heads: main `9a1b444`, engine `adda3a3`, Neil `8584b04`, Nick `57c387f`. Integration starts at `04f15ff`.
+- Nick resolved the all-admin script defect and froze the existing Arc core. Earlier unfrozen observations below are historical. Import the manifest, preserve source/build pins, and independently verify live history before broadcasting.
+- Anish owns remaining critical-path integration. Continue independent engineering now and take ownership of unfinished critical-path code at T+60 minutes rather than waiting for teammates.
+- Final acceptance still needs the user's new problem/dataset/oracle, public buyer/provider identities, protected signing access, approved exact terms and live spending caps. Do not substitute a fixture or broadcast without authorization. The existing funded CLI remains read-only.
+
 ## 2026-11-15 14:00 -05:00 — Anish — Local Arc integration verified; live gates remain
 
 - Imported Neil `8584b045` and Nick `80c8a4af` source into `codex/engine-commerce` working tree, not committed/merged to main. [Verification evidence](../anish/reports/arc-integration-verification.json). No live transaction/deployment, new inference/proof, commit or push.
