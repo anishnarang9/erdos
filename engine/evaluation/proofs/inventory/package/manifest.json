@@ -1,0 +1,14 @@
+{
+  "buildFingerprint": "db2765f866cf850f5a704741476b8278305b47d4bb96ebf6520cca6abda037f1",
+  "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+  "guestSha256": "0x1479b783ff79ad42f3c90e320051f94338df9130c71f796721c2a0da0ceae844",
+  "imageId": "0xe42ebce1aecd6bc9b24c3172160fe7c3e30c35fa2bee7d8e7886f4f39b7a9800",
+  "inputVersion": 2,
+  "parametersSha256": "0xaa69d72f714c9a916a6ad6454690b9ab1ade76789dae4fe1a0b7b7e75c682766",
+  "referenceHash": "0xa963927ab4e6798f5e4e38f8a311511816fb163bfefe17e768bbc8bf4b79513c",
+  "riscZero": "3.1.0",
+  "rulesHash": "0xf71acd84a296603bc836d2f8ca2cd4c8d247435894f58941390751db938a8095",
+  "structureHash": "0x68a8def4e8d7dc7ac20b173c9d7a79f618ec2fc2ac4b45c8470dc5f8b7f5a41c",
+  "structureSha256": "0x108d179f91047a4ca9996798ce5e786b144c59b3fc8deb7d69553adcbfa030e6",
+  "version": 1
+}

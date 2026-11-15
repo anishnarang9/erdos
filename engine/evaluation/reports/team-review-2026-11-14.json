@@ -1,0 +1,42 @@
+{
+  "reviewedAt": "2026-11-14 23:40 -05:00",
+  "integrationBranch": "codex/engine-commerce",
+  "engineBaseline": "adda3a3c52fd8cebe594aba42d3e43f47a7baf0e",
+  "commerceDependency": "3013d73624c3cf279015b25ec17497d7394ab70f",
+  "remoteBranches": {
+    "nick": {
+      "previous": "9a1b4444ec30360210cdccc4d26fdfe4601e81d7",
+      "current": "9a1b4444ec30360210cdccc4d26fdfe4601e81d7"
+    },
+    "neil/plan-architecture": {
+      "previous": "3013d73624c3cf279015b25ec17497d7394ab70f",
+      "current": "3013d73624c3cf279015b25ec17497d7394ab70f"
+    },
+    "nick-settlement": {
+      "previous": null,
+      "current": "fe27c2003ac6b50264113fee4fa45b357c1a63e3",
+      "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/4"
+    }
+  },
+  "inspected": [
+    "PR #4 description and head revision",
+    "agents/nick/status.md",
+    "agents/current plan/PLAN.md",
+    "contracts/HANDOFF.md",
+    "contracts/config/arc-testnet.json",
+    "contracts/deployments/arc-testnet.json",
+    "contracts/src/SettlementHook.sol",
+    "contracts/src/SettlementCodec.sol",
+    "contracts/src/core/src/AgenticCommercePatched.sol"
+  ],
+  "findings": [
+    "New settlement branch exists. No automatic merge.",
+    "Source cap is 16412 encrypted bytes, matching the engine 16384-byte bundle plus 28-byte AEAD overhead.",
+    "Submit ABI and 169/234-byte context/journal match the existing engine. fund optParams must be exactly96bytes.",
+    "Source margin is600seconds, and exact expiry belongs to refund. Clients must budget actual proof time.",
+    "Clients must check job.hook, job.evaluator, and terms.funded. Source frozen core still permits hookless jobs.",
+    "Live manifest remains status template; deployed addresses are null. No funded job is available in this revision.",
+    "Nick reports120localtests and7forkchecks. This run inspected source and did not independently rerun those settlement tests."
+  ],
+  "integrationDecision": "Keep exact engine/commerce revisions and current engine/proof work. Settlement source integration and actual live validation remain tomorrow work. No owner status file changed."
+}

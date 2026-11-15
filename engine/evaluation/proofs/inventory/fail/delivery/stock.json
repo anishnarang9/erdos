@@ -1,0 +1,16 @@
+{
+  "rows": [
+    {
+      "sku": "sku-0",
+      "quantity": "9"
+    },
+    {
+      "sku": "sku-0",
+      "quantity": "9"
+    },
+    {
+      "sku": "sku-2",
+      "quantity": "9"
+    }
+  ]
+}

@@ -2,6 +2,16 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 23:40 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `701a546`. Published the first two new real receipts under [inventory evidence](../../engine/evaluation/proofs/inventory). The complete checker package, approved Luna plan, synthetic job, and public fixture inputs accompany them. Release keys stay private.
+- Passing/failing proofs took 231,052 / 234,174 ms and used 850,853 / 850,713 user cycles. Both passed the pinned real Solidity verifier. Changed image, journal, seal, and verdict failed. The pair's context and image match. Context-field replay, envelope substitution, key commitment changes, and passing-only verification against verdict 0 failed.
+- Decryption recovered the exact 190-byte stock.json. Wrong key, modified ciphertext, changed context, and verdict-0 decryption all failed with the expected codes. The exporter checked artifact hashes and its key-exclusion test passed. Current coverage: 2 of 12 new receipts, 1 of 6 passing recoveries. The proof worker waits at this safe boundary until this checkpoint completes, then continues immediately.
+- [First hourly review](../../engine/evaluation/reports/team-review-2026-11-14.json): `origin/nick` stays `9a1b4444`; Neil stays `3013d736`. Found the new `origin/nick-settlement` at `fe27c200` and inspected PR #4, status, plans, hook/core/codec, ABI handoff, config, and manifest template. No remote code was merged.
+- Source handoff now confirms a 16,412-byte envelope cap, exact 96-byte fund parameters, a 600-second funding margin, and strict submit/release expiry. The manifest still contains null deployment addresses. Nick's reported settlement tests were not rerun here. Actual deployment, funded terms, and live acceptance/payment/refund remain pending.
+- Model counts remain 180 first outcomes and 35 allowed validation repairs. All 16 accepted model structures and all 1,023 host candidate checks passed their defined coverage checks. Thirteen nonverbatim source annotations remain recorded. No new model calls are needed for scoring or replay.
+- Added the final replay command and public-proof verification code. Their full 12-receipt run remains pending until the proof queue completes. Next: signed evidence and the remaining four families, then independent replay and the final audit.
+
 ## 2026-11-14 23:31 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, preceding pushed commit `9c4dcff`. Phase 3 is active. The full deterministic reproduction command completed with zero failures. It reproduced all 40 packages, eight images, 262 actual guest executions, 79 pre-guest rejections, and all six commitment checks.

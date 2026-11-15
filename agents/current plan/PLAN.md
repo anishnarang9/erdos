@@ -2,6 +2,14 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 23:40 -05:00 — Anish — Settlement source review and first model-derived proof pair
+
+- Reviewed Nick's new branch `nick-settlement` at `fe27c2003ac6b50264113fee4fa45b357c1a63e3` and [PR #4](https://github.com/anishnarang9/UBC-26/pull/4). No code was merged. The [pinned handoff](https://github.com/anishnarang9/UBC-26/blob/fe27c2003ac6b50264113fee4fa45b357c1a63e3/contracts/HANDOFF.md) and source match the engine context, journal, seal selector, and submit ABI.
+- The source/config envelope cap is 16,412 bytes. This equals the engine's proven 16,384 encoded bytes plus its 12-byte nonce and 16-byte tag. Read the actual deployed immutable after Nick supplies an address. Deployment addresses remain null, and funded terms remain unavailable.
+- Clients must check `job.hook`, `job.evaluator`, and `terms.funded`. Funding parameters are exactly 96 bytes. The source funding margin is 600 seconds, which does not replace a measured proving and release budget. At exact expiry, refund is available and submit/release are closed.
+- The first new [model-authored inventory proof pair](../../engine/evaluation/proofs/inventory) passed real local verification and exact recovery. Ten new receipts remain in the active queue. These synthetic receipts cannot settle a separately funded Arc job.
+- Model source annotations require review: 13 final outputs contain nonverbatim quotes. Predicate checks passed their finite counterexamples, while annotations remain untrusted. Actual buyer approval remains required.
+
 ## 2026-11-14 23:31 -05:00 — Anish — Tested local adapters and authoring records
 
 - `codex/engine-commerce` now contains a [local engine adapter](../../engine/evaluation/engine-adapter.ts) implementing Neil's current `Engine` type. Successful validation retains `report.preview` and commitments. Compilation returns the commerce manifest plus `engineManifest`, `packagePath`, and `compileReport`. Packages persist after staging cleanup. The package directory must be private.

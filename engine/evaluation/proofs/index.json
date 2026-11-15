@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "synthetic": true,
+  "publicTestFixtures": true,
+  "sourceReportSha256": "0x324e4bedc7025caf6bee6b2e3cf936b5552a19074b1be1f1f36fd181e111efba",
+  "verifierRevision": "ff30da77ba4afdd496290ebebedb205348b15d83",
+  "engineSha256": "0x12d6acaf5c79698c92e3dfe272676d48d61155f86b88d82c59123c3d198eadbf",
+  "keyPolicy": "Release keys remain in the private run directory. No key file is exported.",
+  "families": [
+    {
+      "family": "inventory",
+      "challenge": "inventory-7",
+      "trial": 1,
+      "attempt": "first",
+      "imageId": "0xe42ebce1aecd6bc9b24c3172160fe7c3e30c35fa2bee7d8e7886f4f39b7a9800",
+      "rulesHash": "0xf71acd84a296603bc836d2f8ca2cd4c8d247435894f58941390751db938a8095",
+      "referenceHash": "0xa963927ab4e6798f5e4e38f8a311511816fb163bfefe17e768bbc8bf4b79513c",
+      "packageManifestSha256": "0xfbc9c645aaa0a7f40a51e829a247a113807f35c8b6cef65ef886e7c863358ab7",
+      "proofs": {
+        "pass": {
+          "proofSha256": "0x8a8fc940235fdcb96131462bc6c5d61fe3a22793ef10d0f133d6320b2bf4623e",
+          "proveMillis": 231052,
+          "userCycles": 850853,
+          "wire": {
+            "selector": "0xe71e6620",
+            "sealBytes": 260,
+            "journalBytes": 234,
+            "sealSha256": "0x321541d805b1dae5db1bc852ba9fec7f105cf091d9113ce8fda8579f69608c89",
+            "journalSha256": "0xfb788d1debd13766201d235f0e1aba42aac275f4c203b92d5ed081de1f865e73",
+            "envelopeSha256": "0x0b80dce6ffc16f3e723249bee12286251628c7f79bc2965cce725e3d9d0869ae"
+          },
+          "solidityVerified": true,
+          "mutationsRejected": [
+            "image",
+            "journal",
+            "seal",
+            "verdict"
+          ]
+        },
+        "fail": {
+          "proofSha256": "0xaa5ae415598349cac5c40a28efbc63f702578b09013a23393d0652c24fe148d6",
+          "proveMillis": 234174,
+          "userCycles": 850713,
+          "wire": {
+            "selector": "0xe71e6620",
+            "sealBytes": 260,
+            "journalBytes": 234,
+            "sealSha256": "0x8132f48a53cb9d870158806d2abe1af15061cc81a95f957d4ea69319d94010dd",
+            "journalSha256": "0xa60fad4af7230c0e44e7c55cacd21c43a8e58185ed6e86ef392f91ed63cf6a0b",
+            "envelopeSha256": "0x223474f12e744d3654127787d151cc7834cd42690a61560f0d0528aafbaea905"
+          },
+          "solidityVerified": true,
+          "mutationsRejected": [
+            "image",
+            "journal",
+            "seal",
+            "verdict"
+          ]
+        }
+      },
+      "sameJobWireChecks": true,
+      "recoveryFiles": [
+        {
+          "name": "stock.json",
+          "bytes": 190,
+          "sha256": "0x18cf1d0cfcb7bfe396d405815c3c85f45c88fbdbb1a8f17a0f19474f860f5f4f"
+        }
+      ],
+      "negativeDecryptionCodes": {
+        "wrongKey": "key_mismatch",
+        "ciphertext": "journal_mismatch",
+        "context": "journal_mismatch",
+        "verdictZero": "invalid_submission"
+      }
+    }
+  ],
+  "summary": {
+    "families": 1,
+    "receipts": 2,
+    "passingRecoveries": 1,
+    "pendingFamilies": [
+      "signed-evidence-bindings",
+      "ledger-reconciliation",
+      "allocation-scheduling",
+      "expenses-budgets",
+      "file-hash-size"
+    ],
+    "unresolvedFailures": 0
+  }
+}
