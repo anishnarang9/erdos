@@ -2,6 +2,50 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 15:38 -05:00 — Nick
+
+### Handoff after the freeze: what Anish and Neil still need to do
+Branch `nick-settlement`, [PR #4](https://github.com/anishnarang9/UBC-26/pull/4). The PR description is updated with the freeze and these items. This entry only documents work; no code changed.
+
+**Why there is work left:** the freeze lifts the reason Anish's reports gave for blocking broadcasts, but nothing on the worker side unblocks automatically. Broadcasts are still blocked by Anish's own code.
+
+#### Anish (engine and worker, branch `codex/engine-commerce`)
+
+1. **Supply the test-job inputs: image ID, rules hash, reference hash and provider address.**
+   - **Why:** `08_CreateTestJob` cannot create and fund the test job without them. All the Nov 16 acceptance transactions (accepted proof, payout with key release, expiry refund, rejected submission) start from that job.
+2. **Build the worker's `ArcDeploymentPolicy` from this branch's manifest.**
+   - **Why:** `verifyArcDeployment` (`commerce/worker/src/arc-deployment.ts`) reads no manifest. Without a policy, `arc-port.ts` throws `UntrustedDeployment` before any broadcast.
+   - **Mapping:**
+     - `deploymentBlock` = `contracts.core.deployBlock` (72393888);
+     - `verifier` = `contracts.verifier.address`;
+     - `implementation` = `contracts.core.implementation`;
+     - `runtimeHashes` = the four `runtimeCodeHash` pins;
+     - `verifierVersion` is `3.1.0` and `verifierSelector` is `0xe71e6620`.
+   - **Chain history:** the history the gate requires is on chain. In the proxy deploy tx, log 9 is `Upgraded`, logs 10–11 are the two `RoleGranted` and log 12 is `Initialized(1)`. I checked this over RPC; it is not in the manifest `evidence` block. The gate itself has not been run against live Arc.
+3. **Decide on the CLI broadcast switch.**
+   - **Why:** `commerce/worker/src/cli.ts:33` rejects `submit`, `release`, `run` and `--broadcast` unconditionally ("Funded broadcast disabled"), whatever the freeze state. It is separate from the freeze gate, so lifting it is Anish's call. The library path with an externally managed signer and `allowBroadcast` is the other route.
+4. **Refresh the stale manifest copies and reports.**
+   - **Why:** `contracts/deployments/arc-testnet.json` and `commerce/sdk/src/chain/arc/arc-testnet.json` still say `frozen: false` and `status: whitelisted`. The reports in `agents/anish/reports/` (`arc-integration-verification.json`, `integration-dependency-triage.json`, `arc-readiness-2026-11-15-midday.json`) predate the freeze and still list it as open. Anything that reads them will see the core as unfrozen.
+   - **Source:** copy the manifest from this branch.
+5. **Say whether "independent" zero-fee and pin evidence is still required.**
+   - **Why:** the evidence here comes from Nick's own `06_Verify`. If an independent check is wanted, the worker's own gate (item 2) would provide it once it runs live.
+
+#### Neil (commerce, branch `neil/plan-architecture`, PR #5)
+
+1. **Refresh `commerce/sdk/src/chain/arc/arc-testnet.json` and `contracts/deployments/arc-testnet.json` from this branch.**
+   - **Why:** both still say `frozen: false`. The SDK and API would describe the core as administrable.
+2. **Land the `setBudget` correction in `main`.**
+   - **Why:** `COMMERCE-IMPLEMENTATION.md` on `neil/plan-architecture` (lines 118, 123 and 311) now says `setBudget` is client-only (Poster), which matches our core. `main` still has the old lines 122 and 310 until PR #5 merges.
+3. **Keep the client-side job checks from `contracts/HANDOFF.md`:** `job.hook == hook`, `job.evaluator == hook` and `terms(jobId).funded`.
+   - **Why:** the frozen core still accepts hook-less jobs, and the hook cannot protect those jobs.
+
+#### Nick
+- Run `08_CreateTestJob` once Anish's inputs arrive, then the Nov 16 acceptance transactions.
+- Confirm that Neil and Anish received `contracts/HANDOFF.md` and the address table. Earlier entries list this as a to-do, and nothing records it as done.
+
+### Next action
+Send this entry, or the PR #4 description, to Anish and Neil.
+
 ## 2026-11-15 15:40 -05:00 — Nick
 
 ### Core frozen on Arc (decision 27 closed)
