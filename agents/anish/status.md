@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 16:41 -05:00 — Anish
+
+- Added strict sprint input/state schemas, private atomic storage, exclusive owned locks, phase and approval guards, and a model-input projection that excludes candidate/oracle paths.
+- Review found two missing approval guards and an integration mismatch that required a job ID before creation. Fixed all three with failing regression tests. Selected terms stay immutable. A separate positive chain job ID requires a persisted creation hash and becomes immutable once assigned.
+- Parent reran all 80 state tests and the worker typecheck successfully. Specification and separate quality reviews approved the corrected state module.
+- This is local state validation, not receipt verification. The funding controller must establish receipt authenticity before recording the actual ID. Stale locks and uncertain writes still require explicit reconciliation.
+- Next: finish provider/Poster signer and recovery reviews, publish their separate checkpoints, then compose the operator flow.
+
 ## 2026-11-15 16:35 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, preceding checkpoint `fff74ce`. Both owner heads and engine `adda3a3` are ancestors. Opened consolidated [PR #6](https://github.com/anishnarang9/UBC-26/pull/6) into main. Owner branches remain intact.
