@@ -18,6 +18,10 @@ export type { PolicyConfig, OutgoingTx, WriteAuthorization } from "./policy.ts";
 export {
   loadOperatorKeystore, type OperatorKeystoreConfig, type OperatorKeystoreResult, type OperatorPasswordSource,
 } from "./operator-keystore.ts";
+export {
+  createPosterFunding, PosterFundingError, type PosterFunding, type PosterFundingConfig,
+  type PosterFundingResult, type PosterFundingDisposition, type PosterFundingLink, type PosterFundingPublic,
+} from "./poster-funding.ts";
 export { apiClient, ApiClientError, type ApiClient, type JobView, type PackageListing } from "./client.ts";
 export { decrypt, engineRunner, evaluate, prove, WorkerEngineError, type EngineRunner, type ProveOutput } from "./engine.ts";
 export {

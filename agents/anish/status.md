@@ -2,6 +2,15 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 17:14 -05:00 — Anish
+
+- Added the resumable real-ABI Poster controller with a separate buyer-only local signing boundary. It preserves exact API terms and decodes the actual creation receipt ID. Calls are restricted to create, Poster budget, exact ERC-20 approval and exact-commitment funding.
+- Private journals persist nonce/gas reservations and signed hashes before raw dispatch. Pending or uncertain writes reconcile existing hashes without automatic resend. API linkage retries do not fund again.
+- Reviews found missing interrupted-allowance reporting, stale confirmation assumptions and post-open journal integrity gaps. Failing regressions drove fixes. Errors and signer-free inspection now require manual allowance review after recorded approval, even when the observed allowance is zero. Saves/signing/dispatch recheck owned locks and private file identity.
+- Specification and quality re-reviews approved. Parent focused verification passed 331 tests across signing/funding/recovery/proof orchestration, including all 67 Poster tests, and the worker typecheck.
+- These tests use synthetic accounts and RPC fixtures. Source review and unit tests do not establish live funding. No allowance cleanup, replacement or cancellation is automatic.
+- Next: publish independent recovery and bounded proof preparation, then validate complete runner/rehearsal composition.
+
 ## 2026-11-15 17:13 -05:00 — Anish
 
 - PR #6 CI exposed a Linux-only fixture error: `/tmp` is a writable `1777` ancestor. The protected-keystore loader correctly rejected the test paths before password input. No production check was weakened.
