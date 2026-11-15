@@ -1,0 +1,24 @@
+{
+  "rows": [
+    {
+      "id": "worker-0",
+      "costCents": "220"
+    },
+    {
+      "id": "worker-1",
+      "costCents": "220"
+    },
+    {
+      "id": "worker-2",
+      "costCents": "220"
+    },
+    {
+      "id": "worker-3",
+      "costCents": "220"
+    },
+    {
+      "id": "worker-4",
+      "costCents": "1100"
+    }
+  ]
+}

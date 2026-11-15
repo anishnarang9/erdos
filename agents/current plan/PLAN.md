@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-15 00:27 -05:00 — Anish — Authoring fidelity correction
+
+- Review found that non-draft coverage used response kind alone. The corrected request-specific rubric covers 21/60 non-draft responses. Twenty-nine clarifications omit details or add unrelated assumptions. Ten unsupported explanations are generic. Classification still matches 180/180. These measured model defects remain unresolved.
+- All 120 final draft plans retain their validated predicates and all 1,023 candidate outcomes. The correction changes no guest structures or proof inputs. [Correction and preserved source report](../../engine/evaluation/reports/fidelity-correction.json). The buyer still must review normalized rules and source annotations.
+- The replay gate now rejects new failures across every measured request, including cases outside the six proof selections. Known model defects are explicit expected measurements, not evidence of model correctness. Eight new receipts and four exact recoveries are complete. Four receipts and final replay remain pending.
+
 ## 2026-11-14 23:40 -05:00 — Anish — Settlement source review and first model-derived proof pair
 
 - Reviewed Nick's new branch `nick-settlement` at `fe27c2003ac6b50264113fee4fa45b357c1a63e3` and [PR #4](https://github.com/anishnarang9/UBC-26/pull/4). No code was merged. The [pinned handoff](https://github.com/anishnarang9/UBC-26/blob/fe27c2003ac6b50264113fee4fa45b357c1a63e3/contracts/HANDOFF.md) and source match the engine context, journal, seal selector, and submit ABI.

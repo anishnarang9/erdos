@@ -58,6 +58,8 @@ It runs the independent host checks and the typed adapters.
 It then executes the archived checker packages and verifies every published receipt with the real Solidity verifier.
 It also tests each passing/failing pair against reconstructed journals and changed public inputs.
 The command rejects an incomplete proof index.
+It also rejects missing candidate checks, changed outcomes, unexpected authoring failures, and inconsistent counts across all 180 results.
+The replay gate lists known model defects explicitly. Matching those measurements does not mean that all model responses are correct.
 
 For fresh decryption checks, supply the private proof directory as the third argument.
 The command reads release keys there and compares the recovered files byte for byte.
@@ -100,6 +102,14 @@ The provenance report records that limit and leaves unavailable token usage as `
 The engine accepted 85 of 120 initial draft plans.
 One validation-only repair corrected each of the other 35 plans.
 All 1,023 candidate outcomes then matched the independent checks.
+Response kinds matched all 180 expected classifications.
+Request-specific clarification and capability checks covered 21 of 60 non-draft responses.
+The other 39 omitted requested details, gave generic explanations, or introduced unrelated assumptions.
+The fixed lexical rubric is conservative. It does not establish complete language understanding.
+The [expected defect list](authoring-expectations.json) preserves these measured failures.
+Combined final coverage is 141 of 180 results, before the separate source-quote check.
+The [scoring correction](reports/fidelity-correction.json) replaces the earlier type-only non-draft score.
+Its archived source report retains the hash used by the completed model guest run.
 Four synthetic controls confirm detection of omitted requirements, weaker predicates, changed units, and invented thresholds.
 These controls call the real engine and do not count as model trials.
 Thirteen final source quotes were not verbatim. The report preserves this annotation defect.

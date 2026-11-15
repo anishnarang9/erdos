@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "startedAt": "2026-11-15T04:21:33.126Z",
+  "startedAt": "2026-11-15T05:25:06.786Z",
   "engineSha256": "0x12d6acaf5c79698c92e3dfe272676d48d61155f86b88d82c59123c3d198eadbf",
   "sourceSuiteSha256": "0x0a6ea55f038225c826d35312694e2486b898fae597085d3e1c1a4d9d315da548",
   "model": "gpt-6-luna",
@@ -12,7 +12,7 @@
   "isolation": "Prompts restricted reads to public schema and assigned batch input. Native tool access was not isolated by a separate filesystem sandbox.",
   "usage": null,
   "usageNote": "Native collaboration tools did not expose per-batch token usage. No usage value is invented.",
-  "criterion": "Independent positive and isolated negative examples, plus a conservative public-constant and trust-key screen. This does not prove full natural-language equivalence.",
+  "criterion": "Independent candidate examples, public constants and trust keys, plus fixed request-specific non-draft facets. Finite coverage does not prove natural-language equivalence.",
   "trials": [
     {
       "trial": 1,
@@ -435,8 +435,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-02a1fe5df5b95ab9/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-02a1fe5df5b95ab9/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-02a1fe5df5b95ab9/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-02a1fe5df5b95ab9/first"
             }
           ],
           "finalCoveragePassed": true
@@ -456,10 +456,19 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "named_missing_capability"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-05f78b726c592957",
@@ -476,10 +485,19 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "named_missing_capability"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-43a0b56ea0b9c69d",
@@ -899,8 +917,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-43a0b56ea0b9c69d/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-43a0b56ea0b9c69d/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-43a0b56ea0b9c69d/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-43a0b56ea0b9c69d/first"
             }
           ],
           "finalCoveragePassed": true
@@ -1215,8 +1233,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-80df0918945988b8/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-80df0918945988b8/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-80df0918945988b8/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-80df0918945988b8/first"
             }
           ],
           "finalCoveragePassed": true
@@ -1236,10 +1254,19 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "named_missing_capability"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-aef78db8a3590d88",
@@ -1665,8 +1692,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-aef78db8a3590d88/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-aef78db8a3590d88/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-aef78db8a3590d88/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-aef78db8a3590d88/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -2095,8 +2122,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-bd0cb74c613c108a/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-bd0cb74c613c108a/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-bd0cb74c613c108a/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-bd0cb74c613c108a/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -2643,8 +2670,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-056ed88ad41dcb42/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-056ed88ad41dcb42/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-056ed88ad41dcb42/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-056ed88ad41dcb42/first"
             }
           ],
           "finalCoveragePassed": true
@@ -3056,8 +3083,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-3f75a3b8a8de07fa/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-3f75a3b8a8de07fa/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-3f75a3b8a8de07fa/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-3f75a3b8a8de07fa/first"
             }
           ],
           "finalCoveragePassed": true
@@ -3469,8 +3496,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-5efb5becdda57481/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-5efb5becdda57481/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-5efb5becdda57481/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-5efb5becdda57481/first"
             }
           ],
           "finalCoveragePassed": true
@@ -4017,8 +4044,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-a75b8394b849dfcc/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-a75b8394b849dfcc/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-a75b8394b849dfcc/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-a75b8394b849dfcc/first"
             }
           ],
           "finalCoveragePassed": true
@@ -4441,8 +4468,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-fc190bdcd0ee41f6/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-fc190bdcd0ee41f6/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-fc190bdcd0ee41f6/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-fc190bdcd0ee41f6/first"
             }
           ],
           "finalCoveragePassed": true
@@ -4729,8 +4756,8 @@
                   "quote": "Set metadata.json label to \"release-5\".."
                 }
               ],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-4063db9817a279bf/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-4063db9817a279bf/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-4063db9817a279bf/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-4063db9817a279bf/first"
             }
           ],
           "finalCoveragePassed": true
@@ -5045,8 +5072,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-2f52e7516aa39798/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-2f52e7516aa39798/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-2f52e7516aa39798/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-2f52e7516aa39798/first"
             }
           ],
           "finalCoveragePassed": true
@@ -5066,10 +5093,22 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "tolerance",
+                  "tolerance_units"
+                ],
+                "missingFacets": [
+                  "matching_identity"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-3baeda9b21f638e6",
@@ -5495,8 +5534,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-3baeda9b21f638e6/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-3baeda9b21f638e6/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-3baeda9b21f638e6/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-3baeda9b21f638e6/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -5908,8 +5947,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-275128fc6c3a7482/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-275128fc6c3a7482/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-275128fc6c3a7482/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-275128fc6c3a7482/first"
             }
           ],
           "finalCoveragePassed": true
@@ -6224,8 +6263,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-038eb6aa61b0a441/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-038eb6aa61b0a441/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-038eb6aa61b0a441/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-038eb6aa61b0a441/first"
             }
           ],
           "finalCoveragePassed": true
@@ -6540,8 +6579,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-86948ea39d866310/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-86948ea39d866310/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-86948ea39d866310/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-86948ea39d866310/first"
             }
           ],
           "finalCoveragePassed": true
@@ -6856,8 +6895,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-e9b452d918f15106/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-e9b452d918f15106/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-e9b452d918f15106/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-e9b452d918f15106/first"
             }
           ],
           "finalCoveragePassed": true
@@ -7269,8 +7308,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-25f6b2e447bcdec2/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-25f6b2e447bcdec2/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-25f6b2e447bcdec2/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-25f6b2e447bcdec2/first"
             }
           ],
           "finalCoveragePassed": true
@@ -7682,8 +7721,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-91b567698225649b/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-91b567698225649b/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-91b567698225649b/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-91b567698225649b/first"
             }
           ],
           "finalCoveragePassed": true
@@ -7703,10 +7742,19 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "named_missing_capability"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-1cae758f4699b703",
@@ -7723,10 +7771,24 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "signature_profile",
+                  "trusted_signer",
+                  "artifact_and_job_binding"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [
+                  "unrequested_recency",
+                  "unrequested_score"
+                ],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-1825030cedae50d2",
@@ -7743,10 +7805,22 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "description_equality"
+                ],
+                "missingFacets": [
+                  "duplicate_keys",
+                  "date_encoding"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-5b0509493b287974",
@@ -8030,8 +8104,8 @@
                   "quote": "Set metadata.json label to \"release-1\".."
                 }
               ],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-5b0509493b287974/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-5b0509493b287974/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-5b0509493b287974/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-5b0509493b287974/first"
             }
           ],
           "finalCoveragePassed": true
@@ -8318,8 +8392,8 @@
                   "quote": "Set metadata.json label to \"release-3\".."
                 }
               ],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-5966e342170212ed/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-5966e342170212ed/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-5966e342170212ed/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-5966e342170212ed/first"
             }
           ],
           "finalCoveragePassed": true
@@ -8339,10 +8413,19 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "named_missing_capability"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-5f6a44847b56a5a7",
@@ -8762,8 +8845,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-5f6a44847b56a5a7/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-5f6a44847b56a5a7/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-5f6a44847b56a5a7/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-5f6a44847b56a5a7/first"
             }
           ],
           "finalCoveragePassed": true
@@ -9186,8 +9269,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-aa6a265dbfe7bf0e/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-aa6a265dbfe7bf0e/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-aa6a265dbfe7bf0e/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-aa6a265dbfe7bf0e/first"
             }
           ],
           "finalCoveragePassed": true
@@ -9734,8 +9817,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-77150aacb3ba035a/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-77150aacb3ba035a/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-77150aacb3ba035a/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-77150aacb3ba035a/first"
             }
           ],
           "finalCoveragePassed": true
@@ -9755,10 +9838,19 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "named_missing_capability"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-f4fe5596d8db7c90",
@@ -10302,8 +10394,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-f4fe5596d8db7c90/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-f4fe5596d8db7c90/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-f4fe5596d8db7c90/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-f4fe5596d8db7c90/first"
             }
           ],
           "finalCoveragePassed": true
@@ -10323,10 +10415,21 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "numeric_units"
+                ],
+                "missingFacets": [
+                  "strict_or_inclusive_boundary"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-ed1cedf2a89cd1b5",
@@ -10343,10 +10446,21 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "stock_bounds"
+                ],
+                "missingFacets": [
+                  "valid_sku_catalog"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-c003d5341742bc33",
@@ -10363,10 +10477,22 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "recent_interval",
+                  "trusted_signer"
+                ],
+                "missingFacets": [
+                  "score_threshold"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-4e5189cbe412d0b3",
@@ -10786,8 +10912,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-4e5189cbe412d0b3/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-4e5189cbe412d0b3/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-4e5189cbe412d0b3/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-4e5189cbe412d0b3/first"
             }
           ],
           "finalCoveragePassed": true
@@ -10807,10 +10933,19 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "named_missing_capability"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-97b86d8a7f1ebcdf",
@@ -10827,10 +10962,22 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "shift_identity",
+                  "minimum_coverage"
+                ],
+                "missingFacets": [
+                  "deadline_timestamp_timezone"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-85c2b1dd328e9529",
@@ -10847,10 +10994,21 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "measurable_fairness"
+                ],
+                "missingFacets": [
+                  "worker_shift_constraints"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-b266794bfeb9630f",
@@ -11259,8 +11417,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-b266794bfeb9630f/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-b266794bfeb9630f/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-b266794bfeb9630f/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-b266794bfeb9630f/first"
             }
           ],
           "finalCoveragePassed": true
@@ -11547,8 +11705,8 @@
                   "quote": "Set metadata.json label to \"release-4\".."
                 }
               ],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-7522a8c5c704e145/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-7522a8c5c704e145/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-7522a8c5c704e145/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-7522a8c5c704e145/first"
             }
           ],
           "finalCoveragePassed": true
@@ -12095,8 +12253,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-3beeacb42e70aa04/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-3beeacb42e70aa04/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-3beeacb42e70aa04/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-3beeacb42e70aa04/first"
             }
           ],
           "finalCoveragePassed": true
@@ -12525,8 +12683,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-4a2458b4899db605/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-4a2458b4899db605/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-4a2458b4899db605/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-4a2458b4899db605/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -13073,8 +13231,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-f8baa9190b9497c5/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-f8baa9190b9497c5/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-f8baa9190b9497c5/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-f8baa9190b9497c5/first"
             }
           ],
           "finalCoveragePassed": true
@@ -13503,8 +13661,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-6cace53c0a6dbc29/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-6cace53c0a6dbc29/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-6cace53c0a6dbc29/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-6cace53c0a6dbc29/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -13524,10 +13682,22 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "format"
+                ],
+                "missingFacets": [
+                  "byte_limit",
+                  "filename"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-294e0355002e080c",
@@ -14071,8 +14241,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-294e0355002e080c/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-294e0355002e080c/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-294e0355002e080c/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-294e0355002e080c/first"
             }
           ],
           "finalCoveragePassed": true
@@ -14501,8 +14671,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-8708d4af92b30015/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-8708d4af92b30015/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-8708d4af92b30015/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-8708d4af92b30015/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -14789,8 +14959,8 @@
                   "quote": "Set metadata.json label to \"release-2\".."
                 }
               ],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-915395b3a4b30051/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-915395b3a4b30051/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-915395b3a4b30051/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-915395b3a4b30051/first"
             }
           ],
           "finalCoveragePassed": true
@@ -14810,10 +14980,19 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "named_missing_capability"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-f45abef2e94bf432",
@@ -15222,8 +15401,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-f45abef2e94bf432/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-f45abef2e94bf432/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-f45abef2e94bf432/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-f45abef2e94bf432/first"
             }
           ],
           "finalCoveragePassed": true
@@ -15652,8 +15831,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-85d62683381be6be/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-85d62683381be6be/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-85d62683381be6be/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-85d62683381be6be/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -15673,10 +15852,19 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "named_missing_capability"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-cc386f3d8dfe941d",
@@ -15693,10 +15881,21 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "spending_limits",
+                  "currency",
+                  "rounding"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-16907adc3afc62db",
@@ -16116,8 +16315,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-16907adc3afc62db/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-16907adc3afc62db/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-16907adc3afc62db/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-16907adc3afc62db/first"
             }
           ],
           "finalCoveragePassed": true
@@ -16432,8 +16631,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-f780fb9d3954752c/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-f780fb9d3954752c/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-f780fb9d3954752c/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-f780fb9d3954752c/first"
             }
           ],
           "finalCoveragePassed": true
@@ -16720,8 +16919,8 @@
                   "quote": "Set metadata.json label to \"release-6\".."
                 }
               ],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-d91a7122e2b27103/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-d91a7122e2b27103/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-d91a7122e2b27103/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-d91a7122e2b27103/first"
             }
           ],
           "finalCoveragePassed": true
@@ -16741,10 +16940,19 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "named_missing_capability"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         }
       ],
       "firstOutputSha256": "0x2d5a57c8692344f09024f4f347cb4ebc8deaee8606f55b2ac723ac2a95332dd4",
@@ -16753,9 +16961,9 @@
         "requests": 60,
         "classificationMatched": 60,
         "firstDraftsValid": 33,
-        "firstCoveragePassed": 53,
+        "firstCoveragePassed": 33,
         "repairAttempts": 7,
-        "finalCoveragePassed": 60,
+        "finalCoveragePassed": 40,
         "candidateChecks": 341,
         "semanticMismatches": 0
       }
@@ -17179,8 +17387,8 @@
                   "quote": "Check the lab equipment claim in expenses.json Amounts use integer cents as decimal strings Include at least one expense Use each expense ID once Every amount must be zero or positive Keep the total at or below 1100 cents Keep each expense at or below 440 cents."
                 }
               ],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-91b567698225649b/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-91b567698225649b/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-91b567698225649b/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-91b567698225649b/first"
             }
           ],
           "finalCoveragePassed": true
@@ -17200,10 +17408,21 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "measurable_fairness"
+                ],
+                "missingFacets": [
+                  "worker_shift_constraints"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-6cace53c0a6dbc29",
@@ -17613,8 +17832,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-6cace53c0a6dbc29/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-6cace53c0a6dbc29/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-6cace53c0a6dbc29/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-6cace53c0a6dbc29/first"
             }
           ],
           "finalCoveragePassed": true
@@ -17634,7 +17853,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -17654,7 +17882,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -17949,8 +18186,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-f780fb9d3954752c/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-f780fb9d3954752c/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-f780fb9d3954752c/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-f780fb9d3954752c/first"
             }
           ],
           "finalCoveragePassed": true
@@ -18464,8 +18701,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-3beeacb42e70aa04/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-3beeacb42e70aa04/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-3beeacb42e70aa04/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-3beeacb42e70aa04/first"
             }
           ],
           "finalCoveragePassed": true
@@ -18747,8 +18984,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-915395b3a4b30051/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-915395b3a4b30051/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-915395b3a4b30051/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-915395b3a4b30051/first"
             }
           ],
           "finalCoveragePassed": true
@@ -18768,10 +19005,22 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "format",
+                  "filename"
+                ],
+                "missingFacets": [
+                  "byte_limit"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-b266794bfeb9630f",
@@ -19189,8 +19438,8 @@
                   "quote": "Check the volunteer meal claim in expenses.json Amounts use integer cents as decimal strings Include at least one expense Use each expense ID once Every amount must be zero or positive Keep the total at or below 1600 cents Keep each expense at or below 640 cents."
                 }
               ],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-b266794bfeb9630f/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-b266794bfeb9630f/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-b266794bfeb9630f/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-b266794bfeb9630f/first"
             }
           ],
           "finalCoveragePassed": true
@@ -19704,8 +19953,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-a75b8394b849dfcc/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-a75b8394b849dfcc/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-a75b8394b849dfcc/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-a75b8394b849dfcc/first"
             }
           ],
           "finalCoveragePassed": true
@@ -20133,8 +20382,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-16907adc3afc62db/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-16907adc3afc62db/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-16907adc3afc62db/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-16907adc3afc62db/first"
             }
           ],
           "finalCoveragePassed": true
@@ -20547,8 +20796,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-8708d4af92b30015/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-8708d4af92b30015/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-8708d4af92b30015/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-8708d4af92b30015/first"
             }
           ],
           "finalCoveragePassed": true
@@ -20568,7 +20817,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -20996,8 +21254,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-aa6a265dbfe7bf0e/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-aa6a265dbfe7bf0e/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-aa6a265dbfe7bf0e/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-aa6a265dbfe7bf0e/first"
             }
           ],
           "finalCoveragePassed": true
@@ -21017,7 +21275,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -21299,8 +21566,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-d91a7122e2b27103/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-d91a7122e2b27103/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-d91a7122e2b27103/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-d91a7122e2b27103/first"
             }
           ],
           "finalCoveragePassed": true
@@ -21582,8 +21849,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-7522a8c5c704e145/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-7522a8c5c704e145/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-7522a8c5c704e145/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-7522a8c5c704e145/first"
             }
           ],
           "finalCoveragePassed": true
@@ -21878,8 +22145,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-e9b452d918f15106/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-e9b452d918f15106/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-e9b452d918f15106/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-e9b452d918f15106/first"
             }
           ],
           "finalCoveragePassed": true
@@ -22307,8 +22574,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-02a1fe5df5b95ab9/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-02a1fe5df5b95ab9/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-02a1fe5df5b95ab9/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-02a1fe5df5b95ab9/first"
             }
           ],
           "finalCoveragePassed": true
@@ -22721,8 +22988,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-85d62683381be6be/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-85d62683381be6be/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-85d62683381be6be/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-85d62683381be6be/first"
             }
           ],
           "finalCoveragePassed": true
@@ -23004,8 +23271,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-4063db9817a279bf/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-4063db9817a279bf/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-4063db9817a279bf/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-4063db9817a279bf/first"
             }
           ],
           "finalCoveragePassed": true
@@ -23287,8 +23554,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-5966e342170212ed/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-5966e342170212ed/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-5966e342170212ed/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-5966e342170212ed/first"
             }
           ],
           "finalCoveragePassed": true
@@ -23802,8 +24069,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-f4fe5596d8db7c90/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-f4fe5596d8db7c90/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-f4fe5596d8db7c90/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-f4fe5596d8db7c90/first"
             }
           ],
           "finalCoveragePassed": true
@@ -23823,10 +24090,21 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "stock_bounds"
+                ],
+                "missingFacets": [
+                  "valid_sku_catalog"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-294e0355002e080c",
@@ -24337,8 +24615,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-294e0355002e080c/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-294e0355002e080c/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-294e0355002e080c/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-294e0355002e080c/first"
             }
           ],
           "finalCoveragePassed": true
@@ -24358,7 +24636,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -24779,8 +25066,8 @@
                   "quote": "Check the field research claim in expenses.json Amounts use integer cents as decimal strings Include at least one expense Use each expense ID once Every amount must be zero or positive Keep the total at or below 1300 cents Keep each expense at or below 520 cents."
                 }
               ],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-25f6b2e447bcdec2/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-25f6b2e447bcdec2/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-25f6b2e447bcdec2/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-25f6b2e447bcdec2/first"
             }
           ],
           "finalCoveragePassed": true
@@ -24800,10 +25087,22 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "tolerance"
+                ],
+                "missingFacets": [
+                  "tolerance_units",
+                  "matching_identity"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-83857f3e669114aa",
@@ -24820,7 +25119,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -25334,8 +25642,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-77150aacb3ba035a/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-77150aacb3ba035a/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-77150aacb3ba035a/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-77150aacb3ba035a/first"
             }
           ],
           "finalCoveragePassed": true
@@ -25763,8 +26071,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-43a0b56ea0b9c69d/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-43a0b56ea0b9c69d/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-43a0b56ea0b9c69d/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-43a0b56ea0b9c69d/first"
             }
           ],
           "finalCoveragePassed": true
@@ -26059,8 +26367,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-2f52e7516aa39798/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-2f52e7516aa39798/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-2f52e7516aa39798/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-2f52e7516aa39798/first"
             }
           ],
           "finalCoveragePassed": true
@@ -26473,8 +26781,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-3baeda9b21f638e6/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-3baeda9b21f638e6/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-3baeda9b21f638e6/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-3baeda9b21f638e6/first"
             }
           ],
           "finalCoveragePassed": true
@@ -26756,8 +27064,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-5b0509493b287974/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-5b0509493b287974/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-5b0509493b287974/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-5b0509493b287974/first"
             }
           ],
           "finalCoveragePassed": true
@@ -27178,8 +27486,8 @@
                   "quote": "Check the conference travel claim in expenses.json Amounts use integer cents as decimal strings Include at least one expense Use each expense ID once Every amount must be zero or positive Keep the total at or below 1000 cents Keep each expense at or below 400 cents."
                 }
               ],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-5efb5becdda57481/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-5efb5becdda57481/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-5efb5becdda57481/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-5efb5becdda57481/first"
             }
           ],
           "finalCoveragePassed": true
@@ -27474,8 +27782,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-86948ea39d866310/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-86948ea39d866310/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-86948ea39d866310/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-86948ea39d866310/first"
             }
           ],
           "finalCoveragePassed": true
@@ -27989,8 +28297,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-f8baa9190b9497c5/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-f8baa9190b9497c5/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-f8baa9190b9497c5/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-f8baa9190b9497c5/first"
             }
           ],
           "finalCoveragePassed": true
@@ -28010,7 +28318,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -28423,8 +28740,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-aef78db8a3590d88/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-aef78db8a3590d88/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-aef78db8a3590d88/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-aef78db8a3590d88/first"
             }
           ],
           "finalCoveragePassed": true
@@ -28719,8 +29036,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-038eb6aa61b0a441/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-038eb6aa61b0a441/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-038eb6aa61b0a441/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-038eb6aa61b0a441/first"
             }
           ],
           "finalCoveragePassed": true
@@ -29234,8 +29551,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-056ed88ad41dcb42/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-056ed88ad41dcb42/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-056ed88ad41dcb42/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-056ed88ad41dcb42/first"
             }
           ],
           "finalCoveragePassed": true
@@ -29663,8 +29980,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-fc190bdcd0ee41f6/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-fc190bdcd0ee41f6/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-fc190bdcd0ee41f6/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-fc190bdcd0ee41f6/first"
             }
           ],
           "finalCoveragePassed": true
@@ -30092,8 +30409,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-4e5189cbe412d0b3/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-4e5189cbe412d0b3/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-4e5189cbe412d0b3/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-4e5189cbe412d0b3/first"
             }
           ],
           "finalCoveragePassed": true
@@ -30113,10 +30430,22 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "spending_limits"
+                ],
+                "missingFacets": [
+                  "currency",
+                  "rounding"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-18e85029f501881b",
@@ -30133,7 +30462,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -30554,8 +30892,8 @@
                   "quote": "Check the club workshop claim in expenses.json Amounts use integer cents as decimal strings Include at least one expense Use each expense ID once Every amount must be zero or positive Keep the total at or below 1500 cents Keep each expense at or below 600 cents."
                 }
               ],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-f45abef2e94bf432/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-f45abef2e94bf432/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-f45abef2e94bf432/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-f45abef2e94bf432/first"
             }
           ],
           "finalCoveragePassed": true
@@ -30575,10 +30913,22 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "shift_identity",
+                  "minimum_coverage"
+                ],
+                "missingFacets": [
+                  "deadline_timestamp_timezone"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-bd0cb74c613c108a",
@@ -30988,8 +31338,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-bd0cb74c613c108a/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-bd0cb74c613c108a/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-bd0cb74c613c108a/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-bd0cb74c613c108a/first"
             }
           ],
           "finalCoveragePassed": true
@@ -31402,8 +31752,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-4a2458b4899db605/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-4a2458b4899db605/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-4a2458b4899db605/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-4a2458b4899db605/first"
             }
           ],
           "finalCoveragePassed": true
@@ -31423,7 +31773,18 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "score_threshold",
+                  "recent_interval",
+                  "trusted_signer"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -31443,10 +31804,22 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "signature_profile",
+                  "trusted_signer"
+                ],
+                "missingFacets": [
+                  "artifact_and_job_binding"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-10d4351413aefb3b",
@@ -31463,7 +31836,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -31884,8 +32266,8 @@
                   "quote": "Check the student event claim in expenses.json Amounts use integer cents as decimal strings Include at least one expense Use each expense ID once Every amount must be zero or positive Keep the total at or below 1200 cents Keep each expense at or below 480 cents."
                 }
               ],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-275128fc6c3a7482/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-275128fc6c3a7482/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-275128fc6c3a7482/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-275128fc6c3a7482/first"
             }
           ],
           "finalCoveragePassed": true
@@ -31905,7 +32287,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -31925,10 +32316,22 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "duplicate_keys",
+                  "date_encoding"
+                ],
+                "missingFacets": [
+                  "description_equality"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-5f6a44847b56a5a7",
@@ -32353,8 +32756,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-5f6a44847b56a5a7/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-5f6a44847b56a5a7/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-5f6a44847b56a5a7/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-5f6a44847b56a5a7/first"
             }
           ],
           "finalCoveragePassed": true
@@ -32374,10 +32777,21 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "numeric_units"
+                ],
+                "missingFacets": [
+                  "strict_or_inclusive_boundary"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-3f75a3b8a8de07fa",
@@ -32795,8 +33209,8 @@
                   "quote": "Check the software purchase claim in expenses.json Amounts use integer cents as decimal strings Include at least one expense Use each expense ID once Every amount must be zero or positive Keep the total at or below 1400 cents Keep each expense at or below 560 cents."
                 }
               ],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-3f75a3b8a8de07fa/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-3f75a3b8a8de07fa/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-3f75a3b8a8de07fa/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-3f75a3b8a8de07fa/first"
             }
           ],
           "finalCoveragePassed": true
@@ -33091,8 +33505,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-80df0918945988b8/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-2/q-80df0918945988b8/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-2/q-80df0918945988b8/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-2/q-80df0918945988b8/first"
             }
           ],
           "finalCoveragePassed": true
@@ -33104,9 +33518,9 @@
         "requests": 60,
         "classificationMatched": 60,
         "firstDraftsValid": 40,
-        "firstCoveragePassed": 60,
+        "firstCoveragePassed": 51,
         "repairAttempts": 0,
-        "finalCoveragePassed": 60,
+        "finalCoveragePassed": 51,
         "candidateChecks": 341,
         "semanticMismatches": 0
       }
@@ -33488,8 +33902,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-bd0cb74c613c108a/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-bd0cb74c613c108a/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-bd0cb74c613c108a/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-bd0cb74c613c108a/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -33509,10 +33923,21 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "spending_limits",
+                  "currency",
+                  "rounding"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-f45abef2e94bf432",
@@ -33941,8 +34366,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-f45abef2e94bf432/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-f45abef2e94bf432/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-f45abef2e94bf432/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-f45abef2e94bf432/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -34385,8 +34810,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-5f6a44847b56a5a7/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-5f6a44847b56a5a7/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-5f6a44847b56a5a7/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-5f6a44847b56a5a7/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -34765,8 +35190,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-6cace53c0a6dbc29/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-6cace53c0a6dbc29/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-6cace53c0a6dbc29/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-6cace53c0a6dbc29/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -35283,8 +35708,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-f8baa9190b9497c5/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-f8baa9190b9497c5/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-f8baa9190b9497c5/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-f8baa9190b9497c5/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -35663,8 +36088,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-3baeda9b21f638e6/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-3baeda9b21f638e6/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-3baeda9b21f638e6/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-3baeda9b21f638e6/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -36181,8 +36606,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-77150aacb3ba035a/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-77150aacb3ba035a/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-77150aacb3ba035a/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-77150aacb3ba035a/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -36625,8 +37050,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-16907adc3afc62db/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-16907adc3afc62db/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-16907adc3afc62db/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-16907adc3afc62db/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -36646,10 +37071,21 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "score_threshold",
+                  "recent_interval",
+                  "trusted_signer"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-97b86d8a7f1ebcdf",
@@ -36666,10 +37102,21 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "shift_identity",
+                  "minimum_coverage",
+                  "deadline_timestamp_timezone"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-262ea3d943f3d0a0",
@@ -36686,7 +37133,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -36706,10 +37162,20 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "measurable_fairness",
+                  "worker_shift_constraints"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-9394e2cb7bac9b38",
@@ -36726,10 +37192,21 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "tolerance",
+                  "tolerance_units",
+                  "matching_identity"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-85d62683381be6be",
@@ -37105,8 +37582,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-85d62683381be6be/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-85d62683381be6be/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-85d62683381be6be/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-85d62683381be6be/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -37623,8 +38100,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-294e0355002e080c/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-294e0355002e080c/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-294e0355002e080c/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-294e0355002e080c/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -37967,8 +38444,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-038eb6aa61b0a441/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-038eb6aa61b0a441/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-038eb6aa61b0a441/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-038eb6aa61b0a441/first"
             }
           ],
           "finalCoveragePassed": true
@@ -37988,7 +38465,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -38270,8 +38756,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-d91a7122e2b27103/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-d91a7122e2b27103/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-d91a7122e2b27103/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-d91a7122e2b27103/first"
             }
           ],
           "finalCoveragePassed": true
@@ -38650,8 +39136,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-8708d4af92b30015/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-8708d4af92b30015/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-8708d4af92b30015/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-8708d4af92b30015/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -39168,8 +39654,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-056ed88ad41dcb42/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-056ed88ad41dcb42/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-056ed88ad41dcb42/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-056ed88ad41dcb42/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -39601,8 +40087,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-91b567698225649b/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-91b567698225649b/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-91b567698225649b/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-91b567698225649b/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -39622,10 +40108,21 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "signature_profile",
+                  "trusted_signer",
+                  "artifact_and_job_binding"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-1825030cedae50d2",
@@ -39642,10 +40139,21 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "description_equality",
+                  "duplicate_keys",
+                  "date_encoding"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-3f75a3b8a8de07fa",
@@ -40074,8 +40582,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-3f75a3b8a8de07fa/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-3f75a3b8a8de07fa/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-3f75a3b8a8de07fa/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-3f75a3b8a8de07fa/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -40507,8 +41015,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-5efb5becdda57481/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-5efb5becdda57481/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-5efb5becdda57481/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-5efb5becdda57481/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -40851,8 +41359,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-f780fb9d3954752c/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-f780fb9d3954752c/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-f780fb9d3954752c/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-f780fb9d3954752c/first"
             }
           ],
           "finalCoveragePassed": true
@@ -41195,8 +41703,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-2f52e7516aa39798/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-2f52e7516aa39798/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-2f52e7516aa39798/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-2f52e7516aa39798/first"
             }
           ],
           "finalCoveragePassed": true
@@ -41639,8 +42147,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-aa6a265dbfe7bf0e/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-aa6a265dbfe7bf0e/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-aa6a265dbfe7bf0e/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-aa6a265dbfe7bf0e/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -42083,8 +42591,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-4e5189cbe412d0b3/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-4e5189cbe412d0b3/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-4e5189cbe412d0b3/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-4e5189cbe412d0b3/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -42463,8 +42971,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-aef78db8a3590d88/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-aef78db8a3590d88/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-aef78db8a3590d88/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-aef78db8a3590d88/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -42843,8 +43351,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-4a2458b4899db605/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-4a2458b4899db605/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-4a2458b4899db605/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-4a2458b4899db605/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -43276,8 +43784,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-b266794bfeb9630f/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-b266794bfeb9630f/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-b266794bfeb9630f/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-b266794bfeb9630f/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -43297,7 +43805,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -43640,8 +44157,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-e9b452d918f15106/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-e9b452d918f15106/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-e9b452d918f15106/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-e9b452d918f15106/first"
             }
           ],
           "finalCoveragePassed": true
@@ -43923,8 +44440,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-5b0509493b287974/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-5b0509493b287974/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-5b0509493b287974/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-5b0509493b287974/first"
             }
           ],
           "finalCoveragePassed": true
@@ -43944,10 +44461,20 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "stock_bounds",
+                  "valid_sku_catalog"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-18e85029f501881b",
@@ -43964,7 +44491,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -43984,7 +44520,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -44327,8 +44872,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-86948ea39d866310/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-86948ea39d866310/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-86948ea39d866310/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-86948ea39d866310/first"
             }
           ],
           "finalCoveragePassed": true
@@ -44845,8 +45390,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-3beeacb42e70aa04/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-3beeacb42e70aa04/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-3beeacb42e70aa04/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-3beeacb42e70aa04/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -44866,7 +45411,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -45298,8 +45852,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-25f6b2e447bcdec2/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-25f6b2e447bcdec2/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-25f6b2e447bcdec2/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-25f6b2e447bcdec2/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -45581,8 +46135,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-7522a8c5c704e145/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-7522a8c5c704e145/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-7522a8c5c704e145/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-7522a8c5c704e145/first"
             }
           ],
           "finalCoveragePassed": true
@@ -45602,7 +46156,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -46119,8 +46682,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-f4fe5596d8db7c90/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-f4fe5596d8db7c90/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-f4fe5596d8db7c90/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-f4fe5596d8db7c90/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -46552,8 +47115,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-275128fc6c3a7482/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-275128fc6c3a7482/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-275128fc6c3a7482/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-275128fc6c3a7482/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -46835,8 +47398,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-5966e342170212ed/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-5966e342170212ed/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-5966e342170212ed/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-5966e342170212ed/first"
             }
           ],
           "finalCoveragePassed": true
@@ -46856,10 +47419,20 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [],
+                "missingFacets": [
+                  "numeric_units",
+                  "strict_or_inclusive_boundary"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         },
         {
           "requestId": "q-05f78b726c592957",
@@ -46876,7 +47449,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -47158,8 +47740,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-915395b3a4b30051/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-915395b3a4b30051/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-915395b3a4b30051/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-915395b3a4b30051/first"
             }
           ],
           "finalCoveragePassed": true
@@ -47502,8 +48084,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-80df0918945988b8/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-80df0918945988b8/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-80df0918945988b8/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-80df0918945988b8/first"
             }
           ],
           "finalCoveragePassed": true
@@ -47523,7 +48105,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -47543,7 +48134,16 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": true,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "named_missing_capability"
+                ],
+                "missingFacets": [],
+                "extraneousAssumptions": [],
+                "covered": true
+              }
             }
           ],
           "finalCoveragePassed": true
@@ -47986,8 +48586,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-fc190bdcd0ee41f6/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-fc190bdcd0ee41f6/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-fc190bdcd0ee41f6/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-fc190bdcd0ee41f6/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -48504,8 +49104,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-a75b8394b849dfcc/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-a75b8394b849dfcc/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-a75b8394b849dfcc/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-a75b8394b849dfcc/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -48948,8 +49548,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-43a0b56ea0b9c69d/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-43a0b56ea0b9c69d/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-43a0b56ea0b9c69d/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-43a0b56ea0b9c69d/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -49392,8 +49992,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-02a1fe5df5b95ab9/repair/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-02a1fe5df5b95ab9/repair"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-02a1fe5df5b95ab9/repair/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-02a1fe5df5b95ab9/repair"
             }
           ],
           "finalCoveragePassed": true
@@ -49675,8 +50275,8 @@
                 "limits": "A transformed but equivalent constant can require manual review. Finite counterexamples do not prove full request equivalence."
               },
               "sourceQuoteIssues": [],
-              "planPath": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-4063db9817a279bf/first/approved-plan.json",
-              "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-3/q-4063db9817a279bf/first"
+              "planPath": "/tmp/ubc26-authoring-strict-gate/trial-3/q-4063db9817a279bf/first/approved-plan.json",
+              "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-3/q-4063db9817a279bf/first"
             }
           ],
           "finalCoveragePassed": true
@@ -49696,10 +50296,22 @@
               "validation": null,
               "candidates": [],
               "mismatches": [],
-              "coveragePassed": true
+              "coveragePassed": false,
+              "nonDraftFidelity": {
+                "rubric": "fixed-request-facets-v1",
+                "matchedFacets": [
+                  "filename"
+                ],
+                "missingFacets": [
+                  "byte_limit",
+                  "format"
+                ],
+                "extraneousAssumptions": [],
+                "covered": false
+              }
             }
           ],
-          "finalCoveragePassed": true
+          "finalCoveragePassed": false
         }
       ],
       "firstOutputSha256": "0x242f8076e5864a8a6709652777aabfc8e16db0e9d33f15f1acaf316316e326b3",
@@ -49708,9 +50320,9 @@
         "requests": 60,
         "classificationMatched": 60,
         "firstDraftsValid": 12,
-        "firstCoveragePassed": 32,
+        "firstCoveragePassed": 22,
         "repairAttempts": 28,
-        "finalCoveragePassed": 60,
+        "finalCoveragePassed": 50,
         "candidateChecks": 341,
         "semanticMismatches": 0
       }
@@ -49723,8 +50335,8 @@
       "trial": 1,
       "attempt": "first",
       "requestId": "q-02a1fe5df5b95ab9",
-      "approvedPlanPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-02a1fe5df5b95ab9/first/approved-plan.json",
-      "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-02a1fe5df5b95ab9/first",
+      "approvedPlanPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-02a1fe5df5b95ab9/first/approved-plan.json",
+      "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-02a1fe5df5b95ab9/first",
       "referenceDirectory": "/tmp/ubc26-integration-phase1-bound/suite/supported/inventory-7/reference",
       "passCandidate": "valid",
       "failCandidate": "duplicate-sku"
@@ -49735,8 +50347,8 @@
       "trial": 1,
       "attempt": "first",
       "requestId": "q-80df0918945988b8",
-      "approvedPlanPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-80df0918945988b8/first/approved-plan.json",
-      "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-80df0918945988b8/first",
+      "approvedPlanPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-80df0918945988b8/first/approved-plan.json",
+      "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-80df0918945988b8/first",
       "referenceDirectory": "/tmp/ubc26-integration-phase1-bound/suite/supported/signed-1/reference",
       "passCandidate": "valid",
       "failCandidate": "low-score"
@@ -49747,8 +50359,8 @@
       "trial": 1,
       "attempt": "repair",
       "requestId": "q-aef78db8a3590d88",
-      "approvedPlanPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-aef78db8a3590d88/repair/approved-plan.json",
-      "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-aef78db8a3590d88/repair",
+      "approvedPlanPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-aef78db8a3590d88/repair/approved-plan.json",
+      "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-aef78db8a3590d88/repair",
       "referenceDirectory": "/tmp/ubc26-integration-phase1-bound/suite/supported/ledger-3/reference",
       "passCandidate": "valid",
       "failCandidate": "duplicate-id"
@@ -49759,8 +50371,8 @@
       "trial": 1,
       "attempt": "first",
       "requestId": "q-056ed88ad41dcb42",
-      "approvedPlanPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-056ed88ad41dcb42/first/approved-plan.json",
-      "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-056ed88ad41dcb42/first",
+      "approvedPlanPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-056ed88ad41dcb42/first/approved-plan.json",
+      "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-056ed88ad41dcb42/first",
       "referenceDirectory": "/tmp/ubc26-integration-phase1-bound/suite/supported/schedule-7/reference",
       "passCandidate": "valid",
       "failCandidate": "duplicate-worker"
@@ -49771,8 +50383,8 @@
       "trial": 1,
       "attempt": "first",
       "requestId": "q-3f75a3b8a8de07fa",
-      "approvedPlanPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-3f75a3b8a8de07fa/first/approved-plan.json",
-      "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-3f75a3b8a8de07fa/first",
+      "approvedPlanPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-3f75a3b8a8de07fa/first/approved-plan.json",
+      "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-3f75a3b8a8de07fa/first",
       "referenceDirectory": "/tmp/ubc26-integration-phase1-bound/suite/supported/expense-5/reference",
       "passCandidate": "valid",
       "failCandidate": "empty"
@@ -49783,23 +50395,31 @@
       "trial": 1,
       "attempt": "first",
       "requestId": "q-4063db9817a279bf",
-      "approvedPlanPath": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-4063db9817a279bf/first/approved-plan.json",
-      "caseRoot": "/tmp/ubc26-integration-authoring-reviewed/trial-1/q-4063db9817a279bf/first",
+      "approvedPlanPath": "/tmp/ubc26-authoring-strict-gate/trial-1/q-4063db9817a279bf/first/approved-plan.json",
+      "caseRoot": "/tmp/ubc26-authoring-strict-gate/trial-1/q-4063db9817a279bf/first",
       "referenceDirectory": "/tmp/ubc26-integration-phase1-bound/suite/supported/file-5/reference",
       "passCandidate": "valid",
       "failCandidate": "hash-mismatch"
     }
   ],
   "failures": [],
-  "finishedAt": "2026-11-15T04:21:40.037Z",
+  "finishedAt": "2026-11-15T05:25:31.059Z",
   "summary": {
     "firstTrialResults": 180,
     "repairAttempts": 35,
     "firstDraftsValid": 85,
-    "firstCoveragePassed": 145,
-    "finalCoveragePassed": 180,
+    "classificationMatched": 180,
+    "finalDraftsValid": 120,
+    "nonDraftFidelityPassed": 21,
+    "nonDraftFidelityDefects": 39,
+    "firstCoveragePassed": 106,
+    "finalCoveragePassed": 141,
     "candidateChecks": 1023,
     "semanticMismatches": 0,
     "selectedFamilies": 6
+  },
+  "replayVerification": {
+    "matchedRecordedMeasurements": true,
+    "knownNonDraftFidelityDefects": 39
   }
 }

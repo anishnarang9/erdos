@@ -1,18 +1,19 @@
 {
-  "updatedAt": "2026-11-15 00:16 -05:00",
-  "verifiedReceipts": 6,
+  "updatedAt": "2026-11-15 00:25 -0500",
+  "verifiedReceipts": 8,
   "completedFamilies": [
     "inventory",
     "signed-evidence-bindings",
-    "ledger-reconciliation"
+    "ledger-reconciliation",
+    "allocation-scheduling"
   ],
   "active": [
     {
-      "family": "allocation-scheduling",
+      "family": "expenses-budgets",
       "kind": "prove",
       "candidate": "pass",
-      "startedAt": "2026-11-15T05:14:41.503Z",
-      "pid": 19029
+      "startedAt": "2026-11-15T05:24:53.168Z",
+      "pid": 22978
     }
   ],
   "proofs": [
@@ -111,12 +112,43 @@
         "journalSha256": "0x51b8fed4e8965ce6fd4204ab9d5dfb2cc2bd0d94e161d65ac41fc84d692de47c",
         "envelopeSha256": "0x00eba2318ecf1fe86ee193ec98e5c70ba1021af78368452b75512c1177774d8f"
       }
+    },
+    {
+      "family": "allocation-scheduling",
+      "verdict": "pass",
+      "proofSha256": "0xde6aabbea2fbc50010e1f88451135b787ced9c41d803e953055f5a10ce46709b",
+      "proveMillis": 283293,
+      "userCycles": 1210483,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x7ab3206e61908e12992c4aa6ebdcd2bf7e6c3c41c326c61a94b94c89240db6be",
+        "journalSha256": "0xa1d5e3df591b9ee44b3b1c7583760dd77812e4b7f1f664c1fff5a6cab390ff1c",
+        "envelopeSha256": "0x4a43782d5000f4be06874ee1d93b268d3c894c83d1136cc1e04e6c58cd4354b1"
+      }
+    },
+    {
+      "family": "allocation-scheduling",
+      "verdict": "fail",
+      "proofSha256": "0x512cd81d55e30c92478db1542feb7ce1096f265609ac60e8e2857abcf5604530",
+      "proveMillis": 300237,
+      "userCycles": 1210241,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x0d49e1f0286fe3a3428f17e56feb1ea3282d30fbd5ad7fcdc15ae94c5985c824",
+        "journalSha256": "0xd6bc63b3a86673275c7390cfd05fc75e1045756c1768807d5de250cd89f9c10b",
+        "envelopeSha256": "0x4bddc1b9f33c239bd2f1e06b30f76cbd24fd202b21d4d0898a0bbce3a0d6d1cc"
+      }
     }
   ],
   "pendingFamilies": [
-    "allocation-scheduling",
     "expenses-budgets",
     "file-hash-size"
   ],
-  "unresolvedFailures": 0
+  "unresolvedFailures": []
 }

@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 00:27 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `b39c807`. Published allocation's two new receipts and exact assignments.json recovery. Current total: 8 of 12 verified receipts and 4 of 6 completed recoveries. Pass/fail proving took 283,293 / 300,237 ms and used 1,210,483 / 1,210,241 user cycles. Both real Solidity checks, pair wire checks, and all four decryption negatives passed.
+- Fixed two review findings in the evaluation harness. Replay now checks every trial, candidate identity/outcome, count, and repair constraint before it can succeed. New negative tests cover an unselected draft regression, missing/duplicate candidates, count changes, missing fidelity, and inconsistent coverage.
+- Corrected non-draft scoring with explicit request-specific facets. Kinds matched 180/180, final draft validity remains 120/120, and all 1,023 candidate outcomes still match. Only 21/60 non-draft responses cover all checked facets: 1/30 clarifications and 20/30 capability explanations. The other 39 remain measured model defects. Combined final coverage is 141/180 before the separate 13 source-quote defects. Saved model outputs did not change.
+- Preserved the original report byte for byte because the completed guest report binds its hash. The [correction evidence](../../engine/evaluation/reports/fidelity-correction.json) confirms identical draft predicates, validations, and candidate results. All 37 Node tests passed with real CLI controls enabled. The strict authoring replay passed. No model calls were added.
+- Expenses pass is active under PID 22978 at this checkpoint. File integrity follows. Full twelve-receipt replay, final report, and completion audit remain pending. The next team review is due near 00:40 at a safe boundary.
+
 ## 2026-11-15 00:16 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, preceding pushed commit `ded8ba5`. Published the [reconciliation proof pair](../../engine/evaluation/proofs/ledger-reconciliation), its measured Luna plan, package, synthetic inputs, and results. Current total: 6 of 12 verified new receipts and 3 of 6 completed recoveries.

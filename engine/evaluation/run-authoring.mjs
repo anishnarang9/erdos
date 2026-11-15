@@ -7,6 +7,8 @@ import {makeAuthoringInputs} from './authoring-inputs.mjs';
 import {writeCandidateEvidence} from './generate-challenges.mjs';
 import {evaluateCandidate} from './reference-oracle.mjs';
 import {mismatchKind,policyDiagnostics} from './semantic-checks.mjs';
+import {scoreNonDraft} from './non-draft-oracle.mjs';
+import {assertAuthoringReplay} from './authoring-replay-gate.mjs';
 import {readJson,writeJson,sha256,encodeDirectory,syntheticJob} from './run-challenges.mjs';
 
 const [engineArg,hostArg,recordsArg,outArg]=process.argv.slice(2);
@@ -22,7 +24,7 @@ const report={version:1,startedAt:new Date().toISOString(),engineSha256:hostRepo
   sourceSuiteSha256:hostReport.suiteSha256,model:'gpt-6-luna',reasoningEffort:'low',syntheticJobs:true,simulatedApproval:true,
   samplingUnit:provenance.samplingUnit,independence:provenance.independence,isolation:provenance.isolation,
   usage:null,usageNote:provenance.usageNote,
-  criterion:'Independent positive and isolated negative examples, plus a conservative public-constant and trust-key screen. This does not prove full natural-language equivalence.',
+  criterion:'Independent candidate examples, public constants and trust keys, plus fixed request-specific non-draft facets. Finite coverage does not prove natural-language equivalence.',
   trials:[],selectedProofCases:[],failures:[]};
 const save=()=>writeJson(join(output,'authoring-report.json'),report);
 let jobId=2000;
@@ -57,7 +59,8 @@ for(let trial=1;trial<=3;trial++) {
       const scored={attempt,traceId:draftRecord.traceId,kind:result.kind,classificationMatched:result.kind===expectedKind,
         model:p.model,validation:null,candidates:[],mismatches:[],coveragePassed:false};
       if(result.kind!=='draft') {
-        scored.coveragePassed=scored.classificationMatched;
+        scored.nonDraftFidelity=scoreNonDraft(challenge.id,result);
+        scored.coveragePassed=scored.classificationMatched&&scored.nonDraftFidelity.covered;
         return scored;
       }
       const validation=await adapter.validate(result.plan);scored.validation=validation;
@@ -122,9 +125,17 @@ report.finishedAt=new Date().toISOString();
 const rows=report.trials.flatMap(t=>t.requests),attempts=rows.flatMap(r=>r.attempts);
 report.summary={firstTrialResults:rows.length,repairAttempts:attempts.filter(a=>a.attempt==='repair').length,
   firstDraftsValid:rows.filter(r=>r.attempts[0].validation?.ok).length,
+  classificationMatched:rows.filter(r=>r.attempts[0].classificationMatched).length,
+  finalDraftsValid:rows.filter(r=>r.attempts.at(-1).validation?.ok).length,
+  nonDraftFidelityPassed:rows.filter(r=>r.attempts.at(-1).nonDraftFidelity?.covered).length,
+  nonDraftFidelityDefects:rows.filter(r=>r.attempts.at(-1).nonDraftFidelity?.covered===false).length,
   firstCoveragePassed:rows.filter(r=>r.attempts[0].coveragePassed).length,
   finalCoveragePassed:rows.filter(r=>r.finalCoveragePassed).length,
   candidateChecks:attempts.reduce((n,a)=>n+a.candidates.length,0),semanticMismatches:attempts.reduce((n,a)=>n+a.mismatches.length,0),
   selectedFamilies:report.selectedProofCases.length};
+await save();
+const expectations=await readJson(new URL('./authoring-expectations.json',import.meta.url));
+assertAuthoringReplay(report,suite,expectations.nonDraftFidelityDefects);
+report.replayVerification={matchedRecordedMeasurements:true,knownNonDraftFidelityDefects:expectations.nonDraftFidelityDefects.length};
 await save();await writeJson(join(output,'proof-selection.json'),{suiteDirectory:join(host,'suite'),cases:report.selectedProofCases});
 console.log(JSON.stringify(report.summary));

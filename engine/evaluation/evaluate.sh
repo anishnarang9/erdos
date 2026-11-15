@@ -36,4 +36,4 @@ node --experimental-transform-types "$eval_dir/run-authoring.mjs" "$UBC26_ENGINE
 export UBC26_AUTHORING_REPORT="$run_dir/authoring/authoring-report.json"
 echo 'Executing archived checker packages and verifying all 12 real receipts.'
 node --experimental-transform-types "$eval_dir/verify-published-proofs.mjs" "$UBC26_ENGINE_BIN" "$eval_dir/proofs" "$verifier_dir" "$run_dir/proof-verification" "${private_args[@]}" >"$run_dir/logs/proofs.log" 2>&1
-echo "Evaluation replay passed. Reports: $run_dir"
+echo "Replay matched the recorded measurements, including known model fidelity defects. Reports: $run_dir"
