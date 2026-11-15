@@ -105,7 +105,7 @@ describe("POST /v1/jobs/:id/approve", () => {
     s.clock.t = T0 + 999_000;
     const second = await approve(jobId, { revisionHash, referenceDigest: DIGEST }, revisionHash);
     expect(second.status).toBe(200);
-    expect(second.headers.get("idempotent-replayed")).not.toBe("true");
+    expect(second.headers.get("idempotent-replayed")).toBeNull();
     expect(await second.json()).toEqual(firstBody);
     expect((await view(jobId)).approval).toEqual((firstBody as { approval: unknown }).approval);
   });
@@ -142,5 +142,66 @@ describe("POST /v1/jobs/:id/approve", () => {
     s = makeApp();
     const { jobId, revisionHash } = await createJob(s);
     await expectError(await approve(jobId, { revisionHash }, revisionHash), 400, "validation_failed");
+  });
+});
+
+describe("POST /v1/jobs/:id/approve: rules 2b and 2c", () => {
+  const paths = (b: { error: { details?: Record<string, unknown> } }): string[] =>
+    ((b.error.details?.errors ?? []) as { path: string }[]).map((e) => e.path);
+
+  it("missing If-Match uses path /headers/if-match", async () => {
+    s = makeApp();
+    const { jobId, revisionHash } = await createJob(s);
+    const b = await expectError(await approve(jobId, { revisionHash, referenceDigest: DIGEST }, null), 400, "validation_failed");
+    expect(paths(b)).toContain("/headers/if-match");
+  });
+  it("unknown key in the approve body returns 400 at /x and leaves the job drafted", async () => {
+    s = makeApp();
+    const { jobId, revisionHash } = await createJob(s);
+    const b = await expectError(await approve(jobId, { revisionHash, referenceDigest: DIGEST, x: 1 }, revisionHash), 400, "validation_failed");
+    expect(paths(b)).toContain("/x");
+    expect((await view(jobId)).state).toBe("drafted");
+  });
+  it('If-Match: * never matches (409)', async () => {
+    s = makeApp();
+    const { jobId, revisionHash } = await createJob(s);
+    await expectError(await approve(jobId, { revisionHash, referenceDigest: DIGEST }, "*"), 409, "revision_conflict");
+    expect((await view(jobId)).state).toBe("drafted");
+  });
+  it('weak If-Match W/"<hash>" never matches (409)', async () => {
+    s = makeApp();
+    const { jobId, revisionHash } = await createJob(s);
+    await expectError(await approve(jobId, { revisionHash, referenceDigest: DIGEST }, `W/"${revisionHash}"`), 409, "revision_conflict");
+    expect((await view(jobId)).state).toBe("drafted");
+  });
+  it("hex comparisons ignore case (upper-case If-Match, body hash and digest)", async () => {
+    s = makeApp();
+    const { jobId, revisionHash } = await createJob(s);
+    const up = "0x" + revisionHash.slice(2).toUpperCase();
+    const res = await approve(jobId, { revisionHash: up, referenceDigest: "0x" + DIGEST.slice(2).toUpperCase() }, `"${up}"`);
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as { approval: { revisionHash: string; referenceDigest: string } }).approval).toMatchObject({ revisionHash, referenceDigest: DIGEST });
+  });
+  it("re-approve with the same hash but a different digest returns 409 and changes nothing", async () => {
+    s = makeApp();
+    const { jobId, revisionHash } = await createJob(s);
+    const first = await approve(jobId, { revisionHash, referenceDigest: DIGEST }, revisionHash);
+    expect(first.status).toBe(200);
+    const before = await view(jobId);
+    s.clock.t += 10_000;
+    await expectError(await approve(jobId, { revisionHash, referenceDigest: "0x" + "cd".repeat(32) }, revisionHash), 409, "revision_conflict");
+    expect(await view(jobId)).toEqual(before);
+  });
+  it("check order: bad body shape on an unknown job is 400, not 404", async () => {
+    s = makeApp();
+    await expectError(await approve("01JZZZZZZZZZZZZZZZZZZZZZZZ", { nope: true }, OTHER_HASH), 400, "validation_failed");
+  });
+  it("check order: missing If-Match on an unknown job is 400, not 404", async () => {
+    s = makeApp();
+    await expectError(await approve("01JZZZZZZZZZZZZZZZZZZZZZZZ", { revisionHash: OTHER_HASH, referenceDigest: DIGEST }, null), 400, "validation_failed");
+  });
+  it("check order: mismatching hashes on an unknown job is 404, not 409", async () => {
+    s = makeApp();
+    await expectError(await approve("01JZZZZZZZZZZZZZZZZZZZZZZZ", { revisionHash: OTHER_HASH, referenceDigest: DIGEST }, OTHER_HASH), 404, "not_found");
   });
 });

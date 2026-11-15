@@ -62,6 +62,16 @@ type PlanValidator = (plan: unknown) => Promise<
 
    So a wrong token with invalid JSON returns 401. Requests that fail auth, have a bad key, or have invalid JSON are never stored for replay.
 2b. **`details.errors[].path`** values are JSON Pointers relative to the revision object, for example `/expirySeconds` or `/outputs/0/name`. Errors in the outer request body use `/revision`, `/source` or `/<unknownKey>`. Unknown keys are rejected in the outer body, in the revision, in each `outputs[]` entry, and in the approve body.
+2c. **Cross-validation round 2 rules** (2026-11-14):
+   - **Size before auth.** A body over 1 MiB returns 413 even without auth.
+   - **Invalid UTF-8.** A body that is not valid UTF-8 returns 400 `validation_failed`. Bodies are decoded with a fatal decoder.
+   - **Plan limits.** `plan` is required by the shape check. It must hash under JCS: nesting depth at most 64, where the plan object itself is depth 1 and each nested object or array adds 1, all numbers finite, all strings well-formed UTF-16 (no lone surrogates). Violations return 400 `validation_failed` with a path under `/plan`. A server error is never acceptable here.
+   - **Header errors.** These use `path: "/headers/<lowercase-name>"`, for example `/headers/if-match`.
+   - **Bearer scheme.** `Bearer` is case-sensitive and must be followed by exactly one space.
+   - **Hex comparisons.** Hash and digest comparisons (`If-Match`, the approve body) ignore case. `If-Match: *` and weak `W/"…"` tags never match and return 409.
+   - **Approve check order.** First 400 for a bad body shape or a missing `If-Match`, then 404 for an unknown job, then 409 for a mismatch.
+   - **Wrong method.** A known path with the wrong method returns 404 `not_found`.
+   - **Provider address.** The address is lowercased for the `(address, nonce)` pair. An address header in any case is accepted. Nonces must stay stored for at least as long as their timestamp could pass the window check, so the time limit must never let a nonce be reused.
 3. **Request bodies.** A body that is not valid JSON on a POST returns 400 `validation_failed`. A body over 1 MiB returns 413 `payload_too_large`.
 4. **Idempotency.** Every `POST /v1/...` requires an `Idempotency-Key` header of 1–128 characters from `[A-Za-z0-9_.:-]`. A missing or malformed key returns 400 `validation_failed`.
    - The scope is `(key, METHOD, path, caller)`, where the caller is `"buyer"` or the provider address in lowercase.

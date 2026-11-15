@@ -26,7 +26,6 @@ export interface IdempotencyScope {
 export interface AppEnv {
   Variables: {
     rawBody: Uint8Array;
-    rawText: string;
     /** Parsed JSON body; only set for POST. */
     json: unknown;
     /** "buyer" or the lowercase provider address. */
@@ -60,14 +59,22 @@ export const readBody: MiddlewareHandler<AppEnv> = async (c, next) => {
   }
   const bytes = await readCapped(c.req.raw);
   c.set("rawBody", bytes);
-  c.set("rawText", new TextDecoder().decode(bytes));
   await next();
 };
 
-/** Parses the raw body as JSON (400 on failure). Runs after auth, so unauthenticated callers get 401. */
+/**
+ * Decodes the raw body as strict UTF-8 and parses it as JSON (400 on either failure). Runs after auth,
+ * so unauthenticated callers get 401.
+ */
 export const parseJson: MiddlewareHandler<AppEnv> = async (c, next) => {
+  let text: string;
   try {
-    c.set("json", JSON.parse(c.get("rawText")) as unknown);
+    text = new TextDecoder("utf-8", { fatal: true }).decode(c.get("rawBody"));
+  } catch {
+    throw new ApiError("validation_failed", "Request body is not valid UTF-8");
+  }
+  try {
+    c.set("json", JSON.parse(text) as unknown);
   } catch {
     throw new ApiError("validation_failed", "Request body is not valid JSON");
   }
@@ -97,3 +104,15 @@ async function readCapped(req: Request): Promise<Uint8Array> {
   }
   return Buffer.concat(chunks);
 }
+
+export const ULID_RE = /^[0-9A-HJKMNP-TV-Z]{26}$/;
+
+/**
+ * 404 unless the raw (undecoded) `:id` path segment is exactly 26 upper-case Crockford ULID characters.
+ * Runs before idempotency, so percent-encoded or lower-case variants of one id cannot form separate scopes.
+ */
+export const requireJobId: MiddlewareHandler<AppEnv> = async (c, next) => {
+  const segment = new URL(c.req.url).pathname.split("/")[3] ?? "";
+  if (!ULID_RE.test(segment)) throw new ApiError("not_found", "Job not found");
+  await next();
+};

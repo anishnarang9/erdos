@@ -46,7 +46,7 @@ describe("501 stubs: buyer routes", () => {
     const h = buyer({ "idempotency-key": key });
     await expectError(await s.app.request("/v1/drafts", { method: "POST", headers: h, body }), 501, "not_implemented");
     const again = await s.app.request("/v1/drafts", { method: "POST", headers: h, body });
-    expect(again.headers.get("idempotent-replayed")).not.toBe("true");
+    expect(again.headers.get("idempotent-replayed")).toBeNull();
     await expectError(again, 501, "not_implemented");
   });
 });
@@ -85,5 +85,38 @@ describe("501 stubs: public routes need no auth", () => {
   });
   it("GET /v1/jobs/:id/submission returns 501 without auth", async () => {
     await expectError(await s.app.request(`/v1/jobs/${jobId}/submission`), 501, "not_implemented");
+  });
+});
+
+describe("501 stubs: idempotency key and JSON still checked (rule 2a order)", () => {
+  const buyerStubs = (id: string) => ["/v1/drafts", `/v1/jobs/${id}/compile`, `/v1/jobs/${id}/select-quote`, `/v1/jobs/${id}/funding-receipt`];
+  it("authenticated buyer stub with no Idempotency-Key returns 400", async () => {
+    for (const p of buyerStubs(jobId)) {
+      const h: Record<string, string> = buyer();
+      delete h["idempotency-key"];
+      await expectError(await s.app.request(p, { method: "POST", headers: h, body }), 400, "validation_failed");
+    }
+  });
+  it("authenticated buyer stub with invalid JSON returns 400", async () => {
+    for (const p of buyerStubs(jobId)) {
+      await expectError(await s.app.request(p, { method: "POST", headers: buyer(), body: "{x" }), 400, "validation_failed");
+    }
+  });
+  it("quotes signed over a different body returns 401", async () => {
+    const path = `/v1/jobs/${jobId}/quotes`;
+    const h = await providerHeaders({ method: "POST", pathWithQuery: path, body: JSON.stringify({ placeholder: false }) });
+    const res = await s.app.request(path, { method: "POST", headers: { ...h, "content-type": "application/json", "idempotency-key": freshKey() }, body });
+    await expectError(res, 401, "unauthorized");
+  });
+  it("quotes with valid signature but no Idempotency-Key returns 400", async () => {
+    const path = `/v1/jobs/${jobId}/quotes`;
+    const h = await providerHeaders({ method: "POST", pathWithQuery: path, body });
+    await expectError(await s.app.request(path, { method: "POST", headers: { ...h, "content-type": "application/json" }, body }), 400, "validation_failed");
+  });
+  it("quotes with valid signature and invalid JSON returns 400", async () => {
+    const path = `/v1/jobs/${jobId}/quotes`;
+    const bad = "{x";
+    const h = await providerHeaders({ method: "POST", pathWithQuery: path, body: bad });
+    await expectError(await s.app.request(path, { method: "POST", headers: { ...h, "idempotency-key": freshKey() }, body: bad }), 400, "validation_failed");
   });
 });

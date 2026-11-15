@@ -41,9 +41,11 @@ export function providerAuthMessage(p: {
 
 export function providerAuth(deps: Deps): MiddlewareHandler<AppEnv> {
   const insertNonce = deps.db.prepare(
-    "INSERT OR IGNORE INTO auth_nonces (address, nonce, used_at) VALUES (?, ?, ?)",
+    "INSERT OR IGNORE INTO auth_nonces (address, nonce, used_at, ts) VALUES (?, ?, ?, ?)",
   );
-  const pruneNonces = deps.db.prepare("DELETE FROM auth_nonces WHERE used_at < ?");
+  // A nonce with request timestamp ts can pass the window while nowSec <= ts + 60, so it is only
+  // pruned once ts < nowSec - 60 - 1 (one extra second of margin).
+  const pruneNonces = deps.db.prepare("DELETE FROM auth_nonces WHERE ts < ?");
   return async (c, next) => {
     const address = c.req.header("x-ubc26-address");
     const timestamp = c.req.header("x-ubc26-timestamp");
@@ -55,8 +57,10 @@ export function providerAuth(deps: Deps): MiddlewareHandler<AppEnv> {
     if (!NONCE_RE.test(nonce)) throw unauthorized("Malformed X-UBC26-Nonce");
     if (!SIG_RE.test(signature)) throw unauthorized("Malformed X-UBC26-Signature");
 
-    const nowSec = Math.floor(deps.now() / 1000);
-    if (Math.abs(nowSec - Number(timestamp)) > AUTH_WINDOW_SECONDS) {
+    const nowMs = deps.now();
+    const nowSec = Math.floor(nowMs / 1000);
+    const ts = Number(timestamp);
+    if (Math.abs(nowSec - ts) > AUTH_WINDOW_SECONDS) {
       throw unauthorized("Provider signature timestamp outside the allowed window");
     }
 
@@ -71,7 +75,7 @@ export function providerAuth(deps: Deps): MiddlewareHandler<AppEnv> {
     let valid = false;
     try {
       valid = await verifyMessage({
-        address: address as `0x${string}`,
+        address: address.toLowerCase() as `0x${string}`,
         message,
         signature: signature as `0x${string}`,
       });
@@ -80,12 +84,11 @@ export function providerAuth(deps: Deps): MiddlewareHandler<AppEnv> {
     }
     if (!valid) throw unauthorized("Invalid provider signature");
 
-    // Nonce single use per address. Recorded only after the signature checks out, and committed on its own
-    // so a request that later fails still burns the nonce. Entries older than the window can never replay.
+    // Nonce single use per lowercase address. Recorded only after the signature checks out, and committed
+    // on its own so a request that later fails still burns the nonce.
     const caller = address.toLowerCase();
-    const nowMs = deps.now();
-    pruneNonces.run(nowMs - 2 * AUTH_WINDOW_SECONDS * 1000);
-    const res = insertNonce.run(caller, nonce, nowMs);
+    pruneNonces.run(nowSec - AUTH_WINDOW_SECONDS - 1);
+    const res = insertNonce.run(caller, nonce, nowMs, ts);
     if (Number(res.changes) !== 1) throw unauthorized("Provider nonce already used");
 
     c.set("caller", caller);

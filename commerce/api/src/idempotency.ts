@@ -54,10 +54,10 @@ export function idempotency(deps: Deps): Idempotency {
   const middleware: MiddlewareHandler<AppEnv> = async (c, next) => {
     const key = c.req.header("idempotency-key");
     if (key === undefined || !KEY_RE.test(key)) {
-      throw new ApiError(
-        "validation_failed",
-        "Idempotency-Key header is required: 1-128 characters from [A-Za-z0-9_.:-]",
-      );
+      const message = "Idempotency-Key header is required: 1-128 characters from [A-Za-z0-9_.:-]";
+      throw new ApiError("validation_failed", message, {
+        errors: [{ path: "/headers/idempotency-key", message }],
+      });
     }
     const method = c.req.method;
     const path = new URL(c.req.url).pathname;

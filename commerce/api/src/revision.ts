@@ -64,8 +64,55 @@ function pointer(...parts: (string | number)[]): string {
   return parts.map((p) => "/" + String(p).replace(/~/g, "~0").replace(/\//g, "~1")).join("");
 }
 
+export const MAX_PLAN_DEPTH = 64;
+const MAX_HASHABLE_ERRORS = 10;
+const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+
 /**
- * Checks every revision field except `plan` (which the PlanValidator owns, though it must be present).
+ * Checks that a parsed JSON value can be hashed under JCS: container nesting at most 64 (the root
+ * container is depth 1), finite numbers, and well-formed UTF-16 in strings and object keys.
+ * Iterative, so arbitrarily deep input cannot overflow the stack. Reports at most 10 errors.
+ */
+export function checkHashable(value: unknown, basePath: string): FieldError[] {
+  const errors: FieldError[] = [];
+  const stack: { v: unknown; path: string; depth: number }[] = [{ v: value, path: basePath, depth: 0 }];
+  while (stack.length > 0 && errors.length < MAX_HASHABLE_ERRORS) {
+    const { v, path, depth } = stack.pop()!;
+    if (typeof v === "number") {
+      if (!Number.isFinite(v)) errors.push({ path, message: "numbers must be finite" });
+    } else if (typeof v === "string") {
+      if (LONE_SURROGATE.test(v)) errors.push({ path, message: "string contains a lone surrogate" });
+    } else if (typeof v === "object" && v !== null) {
+      if (depth + 1 > MAX_PLAN_DEPTH) {
+        errors.push({ path, message: `nesting depth exceeds ${MAX_PLAN_DEPTH}` });
+        continue;
+      }
+      if (Array.isArray(v)) {
+        for (let i = v.length - 1; i >= 0; i--) stack.push({ v: v[i], path: pointerJoin(path, i), depth: depth + 1 });
+      } else {
+        const keys = Object.keys(v);
+        for (let i = keys.length - 1; i >= 0; i--) {
+          const k = keys[i]!;
+          const child = pointerJoin(path, k);
+          if (LONE_SURROGATE.test(k)) {
+            errors.push({ path: child, message: "object key contains a lone surrogate" });
+            continue;
+          }
+          stack.push({ v: (v as Record<string, unknown>)[k], path: child, depth: depth + 1 });
+        }
+      }
+    }
+  }
+  return errors;
+}
+
+function pointerJoin(base: string, part: string | number): string {
+  return base + pointer(part);
+}
+
+/**
+ * Checks every revision field. For `plan` it checks only presence and that JCS can hash it (contract 2c);
+ * its meaning is left to the PlanValidator.
  * Paths are JSON Pointers relative to the revision object, matching the validator's `/plan...` paths.
  * Returns the normalized revision (referenceDigest lowercased) or the full error list.
  */
@@ -80,6 +127,7 @@ export function validateRevisionShape(
   }
 
   if (!("plan" in input)) errors.push({ path: "/plan", message: "required" });
+  else errors.push(...checkHashable(input.plan, "/plan"));
 
   const digest = input.referenceDigest;
   if (typeof digest !== "string" || !DIGEST_RE.test(digest)) {

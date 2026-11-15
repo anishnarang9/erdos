@@ -45,18 +45,18 @@ describe("errors and routing", () => {
 
   it("501 stubs return not_implemented after auth", async () => {
     t = makeApp();
-    for (const path of ["/v1/drafts", "/v1/jobs/x/compile", "/v1/jobs/x/select-quote", "/v1/jobs/x/funding-receipt"]) {
+    for (const path of ["/v1/drafts", "/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/compile", "/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/select-quote", "/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/funding-receipt"]) {
       const res = await buyerPost(t, path, {});
       expect(res.status).toBe(501);
       expect((await errorOf(res)).code).toBe("not_implemented");
       expect((await buyerPost(t, path, {}, { authorization: "Bearer wrong-token-xxxxxxxx" })).status).toBe(401);
     }
-    for (const path of ["/v1/jobs", "/v1/jobs/x/submission"]) {
+    for (const path of ["/v1/jobs", "/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/submission"]) {
       const res = await t.app.request(path);
       expect(res.status).toBe(501);
       expect((await errorOf(res)).code).toBe("not_implemented");
     }
-    const quotes = "/v1/jobs/x/quotes";
+    const quotes = "/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/quotes";
     const unsigned = await t.app.request(quotes, { method: "POST", body: "{}", headers: { "idempotency-key": "q1" } });
     expect(unsigned.status).toBe(401);
     const h = await providerHeaders({ method: "POST", pathWithQuery: quotes, body: "{}" });

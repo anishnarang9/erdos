@@ -124,14 +124,20 @@ describe("Common rule 6: provider auth failures return 401 unauthorized", () => 
     s = makeApp();
     await expectError(await get(P, await providerHeaders({ pathWithQuery: P, timestamp: T0 })), 401, "unauthorized");
   });
-  for (const ts of ["abc", "1.5", "", `${TS}.0`, `0x${TS.toString(16)}`]) {
-    it(`non-integer timestamp header ${JSON.stringify(ts)}`, async () => {
+  // The malformed string itself is signed, so only the "integer unix seconds" format rule can reject it.
+  for (const ts of ["abc", "1.5", `${TS}.0`, `${TS}.5`, `0x${TS.toString(16)}`, `${TS}e0`, `+${TS}`, `${TS}abc`]) {
+    it(`non-integer timestamp header ${JSON.stringify(ts)} (signed verbatim)`, async () => {
       s = makeApp();
-      const h = await providerHeaders({ pathWithQuery: P });
-      h["x-ubc26-timestamp"] = ts;
+      const h = await providerHeaders({ pathWithQuery: P, timestamp: ts });
+      expect(h["x-ubc26-timestamp"]).toBe(ts);
       await expectError(await get(P, h), 401, "unauthorized");
     });
   }
+  it("empty timestamp header (signed verbatim) is rejected", async () => {
+    s = makeApp();
+    const h = await providerHeaders({ pathWithQuery: P, timestamp: "" });
+    await expectError(await get(P, h), 401, "unauthorized");
+  });
   it("nonce reuse with the identical request (replay)", async () => {
     s = makeApp();
     const h = await providerHeaders({ pathWithQuery: P });
@@ -194,5 +200,13 @@ describe("Common rule 6: provider auth failures return 401 unauthorized", () => 
     const bad = await providerHeaders({ pathWithQuery: P, nonce, account: otherProvider, addressHeader: provider.address });
     await expectError(await get(P, bad), 401, "unauthorized");
     expect((await get(P, await providerHeaders({ pathWithQuery: P, nonce }))).status).toBe(200);
+  });
+});
+
+describe("Rule 2c: provider address header in any case", () => {
+  it("upper-case hex address header is accepted", async () => {
+    s = makeApp();
+    const up = "0x" + provider.address.slice(2).toUpperCase();
+    expect((await get(P, await providerHeaders({ pathWithQuery: P, addressHeader: up }))).status).toBe(200);
   });
 });

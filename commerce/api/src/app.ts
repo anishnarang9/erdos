@@ -4,7 +4,7 @@ import { ApiError } from "./errors.ts";
 import { openDb } from "./db.ts";
 import { buyerAuth, providerAuth } from "./auth.ts";
 import { idempotency } from "./idempotency.ts";
-import { parseJson, readBody, type AppEnv, type Deps } from "./context.ts";
+import { parseJson, readBody, requireJobId, type AppEnv, type Deps } from "./context.ts";
 import { simulatedValidatePlan, type PlanValidator } from "./revision.ts";
 import { jobRoutes } from "./jobs.ts";
 
@@ -46,7 +46,8 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     return c.json(new ApiError("internal", "Internal server error").toBody(), 500);
   });
 
-  // Middleware order per route: raw body (1 MiB cap) -> auth -> JSON parse (POST) -> idempotency (POST /v1/*) -> handler.
+  // Middleware order per route: raw body (1 MiB cap) -> auth -> JSON parse (POST) -> :id check -> idempotency
+  // (POST /v1/*) -> handler.
   const buyer = buyerAuth(deps);
   const provider = providerAuth(deps);
   const idem = idempotency(deps);
@@ -58,19 +59,19 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
 
   const jobs = jobRoutes(deps, idem.commit, monotonicFactory());
   app.post("/v1/jobs", readBody, buyer, parseJson, idem.middleware, jobs.create);
-  app.get("/v1/jobs/:id", readBody, jobs.get);
-  app.post("/v1/jobs/:id/approve", readBody, buyer, parseJson, idem.middleware, jobs.approve);
+  app.get("/v1/jobs/:id", readBody, requireJobId, jobs.get);
+  app.post("/v1/jobs/:id/approve", readBody, buyer, parseJson, requireJobId, idem.middleware, jobs.approve);
 
   app.get("/v1/assignments", readBody, provider, (c) => c.json({ assignments: [] }));
 
   // Owned by later tasks: mounted so auth and idempotency still run, then 501.
   app.post("/v1/drafts", readBody, buyer, parseJson, idem.middleware, notImplemented);
-  app.post("/v1/jobs/:id/compile", readBody, buyer, parseJson, idem.middleware, notImplemented);
+  app.post("/v1/jobs/:id/compile", readBody, buyer, parseJson, requireJobId, idem.middleware, notImplemented);
   app.get("/v1/jobs", readBody, notImplemented);
-  app.post("/v1/jobs/:id/quotes", readBody, provider, parseJson, idem.middleware, notImplemented);
-  app.post("/v1/jobs/:id/select-quote", readBody, buyer, parseJson, idem.middleware, notImplemented);
-  app.post("/v1/jobs/:id/funding-receipt", readBody, buyer, parseJson, idem.middleware, notImplemented);
-  app.get("/v1/jobs/:id/submission", readBody, notImplemented);
+  app.post("/v1/jobs/:id/quotes", readBody, provider, parseJson, requireJobId, idem.middleware, notImplemented);
+  app.post("/v1/jobs/:id/select-quote", readBody, buyer, parseJson, requireJobId, idem.middleware, notImplemented);
+  app.post("/v1/jobs/:id/funding-receipt", readBody, buyer, parseJson, requireJobId, idem.middleware, notImplemented);
+  app.get("/v1/jobs/:id/submission", readBody, requireJobId, notImplemented);
 
   return {
     app,

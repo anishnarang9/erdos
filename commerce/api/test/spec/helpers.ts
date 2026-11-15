@@ -22,10 +22,12 @@ export type SpecApp = {
   clock: { t: number };
 };
 
-export function makeApp(opts: { validatePlan?: PlanValidator; buyerToken?: string } = {}): SpecApp {
+export function makeApp(
+  opts: { validatePlan?: PlanValidator; buyerToken?: string; dbPath?: string } = {},
+): SpecApp {
   const clock = { t: T0 };
   const created = createApp({
-    dbPath: ":memory:",
+    dbPath: opts.dbPath ?? ":memory:",
     buyerToken: opts.buyerToken ?? BUYER_TOKEN,
     now: () => clock.t,
     ...(opts.validatePlan ? { validatePlan: opts.validatePlan } : {}),
@@ -135,7 +137,7 @@ export type ProviderSignOpts = {
   method?: string;
   pathWithQuery: string;
   body?: string;
-  timestamp?: number; // unix seconds
+  timestamp?: number | string; // unix seconds; strings are signed verbatim
   nonce?: string;
   addressHeader?: string;
 };
@@ -150,7 +152,7 @@ export function providerMessage(
   method: string,
   pathWithQuery: string,
   body: string,
-  timestamp: number,
+  timestamp: number | string,
   nonce: string,
 ): string {
   return ["UBC26-API-v1", method, pathWithQuery, sha256hex(body), String(timestamp), nonce].join("\n");

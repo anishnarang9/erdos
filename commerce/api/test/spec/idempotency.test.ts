@@ -70,18 +70,24 @@ describe("Common rule 4: Idempotency-Key header format", () => {
 
 describe("Common rule 4: Idempotency replay", () => {
   it("same scope + same requestHash replays status and body exactly with Idempotent-Replayed: true", async () => {
-    s = makeApp();
+    let calls = 0;
+    const counting: PlanValidator = async () => {
+      calls += 1;
+      return { ok: true };
+    };
+    s = makeApp({ validatePlan: counting });
     const key = freshKey();
     const body = jobBody();
     const first = await s.app.request("/v1/jobs", req(key, body));
     const firstText = await first.text();
     expect(first.status).toBe(201);
-    expect(first.headers.get("idempotent-replayed")).not.toBe("true");
+    expect(first.headers.get("idempotent-replayed")).toBeNull();
     s.clock.t += 5000;
     const second = await s.app.request("/v1/jobs", req(key, body));
     expect(second.status).toBe(201);
     expect(second.headers.get("idempotent-replayed")).toBe("true");
     expect(await second.text()).toBe(firstText);
+    expect(calls).toBe(1); // the handler did not run again
     // A replay must not create a second job: the replayed jobId still resolves.
     const { jobId } = JSON.parse(firstText) as { jobId: string };
     expect((await s.app.request(`/v1/jobs/${jobId}`)).status).toBe(200);
@@ -115,7 +121,7 @@ describe("Common rule 4: Idempotency replay", () => {
       req(key, approveBody, BUYER_TOKEN, { "if-match": `"${revision.revisionHash}"` }),
     );
     expect(res.status).toBe(200);
-    expect(res.headers.get("idempotent-replayed")).not.toBe("true");
+    expect(res.headers.get("idempotent-replayed")).toBeNull();
   });
 
   it("authentication is checked before idempotency: wrong token with a used key returns 401, not a replay", async () => {
@@ -124,7 +130,7 @@ describe("Common rule 4: Idempotency replay", () => {
     const body = jobBody();
     expect((await s.app.request("/v1/jobs", req(key, body))).status).toBe(201);
     const res = await s.app.request("/v1/jobs", req(key, body, "wrong-token-wrong-token"));
-    expect(res.headers.get("idempotent-replayed")).not.toBe("true");
+    expect(res.headers.get("idempotent-replayed")).toBeNull();
     await expectError(res, 401, "unauthorized");
   });
 
@@ -184,7 +190,52 @@ describe("Common rule 4: Idempotency replay", () => {
     await expectError(first, 500, "internal");
     const second = await s.app.request("/v1/jobs", req(key, body));
     expect(second.status).toBe(201);
-    expect(second.headers.get("idempotent-replayed")).not.toBe("true");
+    expect(second.headers.get("idempotent-replayed")).toBeNull();
     expect(calls).toBe(2);
+  });
+});
+
+describe("Rule 2a: requests that fail auth or have invalid JSON are never stored", () => {
+  it("bad auth with key K, then a valid request with K: 201, not replayed", async () => {
+    s = makeApp();
+    const key = freshKey();
+    await expectError(await s.app.request("/v1/jobs", req(key, "{}", "wrong-token-wrong-token")), 401, "unauthorized");
+    const res = await s.app.request("/v1/jobs", req(key, jobBody()));
+    expect(res.status).toBe(201);
+    expect(res.headers.get("idempotent-replayed")).toBeNull();
+  });
+  it("bad auth with key K and the SAME body, then valid auth: 201, not replayed", async () => {
+    s = makeApp();
+    const key = freshKey();
+    const body = jobBody();
+    await expectError(await s.app.request("/v1/jobs", req(key, body, "wrong-token-wrong-token")), 401, "unauthorized");
+    const res = await s.app.request("/v1/jobs", req(key, body));
+    expect(res.status).toBe(201);
+    expect(res.headers.get("idempotent-replayed")).toBeNull();
+  });
+  it("invalid JSON with key K, then a valid request with K: 201, not replayed", async () => {
+    s = makeApp();
+    const key = freshKey();
+    await expectError(await s.app.request("/v1/jobs", req(key, "{nope")), 400, "validation_failed");
+    const res = await s.app.request("/v1/jobs", req(key, jobBody()));
+    expect(res.status).toBe(201);
+    expect(res.headers.get("idempotent-replayed")).toBeNull();
+  });
+  it("invalid UTF-8 with key K, then a valid request with K: 201, not replayed", async () => {
+    s = makeApp();
+    const key = freshKey();
+    const bad = new Uint8Array([...Buffer.from('{"revision":"'), 0xff, ...Buffer.from('"}')]);
+    const init: RequestInit = { ...req(key, ""), body: bad };
+    await expectError(await s.app.request("/v1/jobs", init), 400, "validation_failed");
+    const res = await s.app.request("/v1/jobs", req(key, jobBody()));
+    expect(res.status).toBe(201);
+    expect(res.headers.get("idempotent-replayed")).toBeNull();
+  });
+  it("rule 4 (status < 500 is stored): a bad-shape 400 with key K makes a different body with K a 422", async () => {
+    s = makeApp();
+    const key = freshKey();
+    const badShape = JSON.stringify({ revision: { ...validRevision(), expirySeconds: 1 }, source: "import" });
+    await expectError(await s.app.request("/v1/jobs", req(key, badShape)), 400, "validation_failed");
+    await expectError(await s.app.request("/v1/jobs", req(key, jobBody())), 422, "idempotency_key_reused");
   });
 });

@@ -95,7 +95,7 @@ describe("provider auth (EIP-191)", () => {
 
   it("covers the raw POST body in the signature", async () => {
     t = makeApp();
-    const path = "/v1/jobs/x/quotes";
+    const path = "/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/quotes";
     const body = '{"a":1}';
     const h = await providerHeaders({ method: "POST", pathWithQuery: path, body });
     const res = await t.app.request(path, { method: "POST", body, headers: { ...h, "idempotency-key": "pk" } });

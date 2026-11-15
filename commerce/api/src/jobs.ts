@@ -113,7 +113,13 @@ export function jobRoutes(deps: Deps, commit: Idempotency["commit"], newId: ULID
       throw invalid(plan.errors);
     }
 
-    const hash = revisionHash(revision);
+    // The shape check already rejects what JCS cannot hash; this is the backstop so hashing never 500s.
+    let hash: string;
+    try {
+      hash = revisionHash(revision);
+    } catch {
+      throw invalid([{ path: "/plan", message: "plan cannot be canonicalized (JCS) for hashing" }]);
+    }
     const jobId = newId(deps.now());
     const revId = newId(deps.now());
     const at = isoAt(deps.now());
@@ -167,7 +173,7 @@ export function jobRoutes(deps: Deps, commit: Idempotency["commit"], newId: ULID
     if (typeof body.referenceDigest !== "string") errors.push({ path: "/referenceDigest", message: "required string" });
     const ifMatchRaw = c.req.header("if-match");
     if (ifMatchRaw === undefined || ifMatchRaw.trim() === "") {
-      errors.push({ path: "If-Match", message: "If-Match header is required" });
+      errors.push({ path: "/headers/if-match", message: "If-Match header is required" });
     }
     if (errors.length > 0) throw invalid(errors);
 

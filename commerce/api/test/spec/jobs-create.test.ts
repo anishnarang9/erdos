@@ -22,11 +22,9 @@ function errorsOf(body: ErrorBody): Errs {
   }
   return errs!;
 }
-/** Accepts the pointer relative to the revision ("/x") or to the request body ("/revision/x"). */
+/** Rule 2b: exact JSON Pointer, relative to the revision object (outer-body errors use /revision, /source, /<key>). */
 function hasPath(errs: Errs, ptr: string): boolean {
-  return errs.some((e) =>
-    [ptr, `/revision${ptr}`].some((p) => e.path === p || e.path.startsWith(p + "/")),
-  );
+  return errs.some((e) => e.path === ptr);
 }
 
 async function create(revision: unknown, source: unknown = "import"): Promise<Response> {
@@ -104,23 +102,55 @@ describe("POST /v1/jobs: success", () => {
 });
 
 describe("POST /v1/jobs: request body shape", () => {
-  it("source other than import|grok returns 400", async () => {
+  const outerPath = async (res: Response, ptr: string): Promise<void> => {
+    const errs = errorsOf(await expectError(res, 400, "validation_failed"));
+    expect(hasPath(errs, ptr), `expected error at ${ptr}: ${JSON.stringify(errs)}`).toBe(true);
+  };
+  it("source other than import|grok (case-sensitive) returns 400 at /source", async () => {
     s = makeApp();
-    for (const src of ["GROK", "manual", 1, null, ""]) {
-      await expectError(await create(validRevision(), src), 400, "validation_failed");
+    for (const src of ["GROK", "Import", "manual", 1, null, ""]) {
+      await outerPath(await create(validRevision(), src), "/source");
     }
   });
-  it("missing source returns 400", async () => {
+  it("missing source returns 400 at /source", async () => {
     s = makeApp();
-    await expectError(await post(s, "/v1/jobs", { revision: validRevision() }), 400, "validation_failed");
+    await outerPath(await post(s, "/v1/jobs", { revision: validRevision() }), "/source");
   });
-  it("missing revision returns 400", async () => {
+  it("missing revision returns 400 at /revision", async () => {
     s = makeApp();
-    await expectError(await post(s, "/v1/jobs", { source: "import" }), 400, "validation_failed");
+    await outerPath(await post(s, "/v1/jobs", { source: "import" }), "/revision");
   });
-  it("revision that is not an object returns 400", async () => {
+  it("revision that is not an object returns 400 at /revision", async () => {
     s = makeApp();
-    for (const r of [null, [], "x", 5]) await expectError(await create(r), 400, "validation_failed");
+    for (const r of [null, [], "x", 5]) await outerPath(await create(r), "/revision");
+  });
+  it("unknown outer body key returns 400 at /extra", async () => {
+    s = makeApp();
+    await outerPath(await post(s, "/v1/jobs", { revision: validRevision(), source: "import", extra: 1 }), "/extra");
+  });
+  it("unknown key in an outputs entry returns 400 at /outputs/0/x", async () => {
+    s = makeApp();
+    await rejects(withField("outputs", [{ name: "a", format: "json", x: 1 }]), "/outputs/0/x");
+  });
+  it("outputs entry null returns 400 at /outputs/0", async () => {
+    s = makeApp();
+    await rejects(withField("outputs", [null]), "/outputs/0");
+  });
+  it('outputs entry "a" (a string) returns 400 at /outputs/0', async () => {
+    s = makeApp();
+    await rejects(withField("outputs", ["a"]), "/outputs/0");
+  });
+  it('output name "..." is accepted (only "." and ".." are reserved)', async () => {
+    s = makeApp();
+    await ok(withField("outputs", [{ name: "...", format: "json" }]));
+  });
+  it("non-ASCII plan hashes as UTF-8 JCS (keys sorted by UTF-16 code units)", async () => {
+    s = makeApp();
+    const rev = withField("plan", { version: "é✓😀", "ключ": "値", "é": 1, z: " ", a: [1.5, -0, 1e21] });
+    const res = await create(rev);
+    expect(res.status, await res.clone().text()).toBe(201);
+    const body = (await res.json()) as { revision: { revisionHash: string } };
+    expect(body.revision.revisionHash).toBe(expectedRevisionHash(rev));
   });
   it("unknown top-level revision field returns 400 with details.errors[{path,message}]", async () => {
     s = makeApp();
@@ -159,7 +189,7 @@ describe("POST /v1/jobs: outputs", () => {
   it("not an array rejected", async () => { s = makeApp(); await rejects(withField("outputs", { name: "a", format: "json" }), "/outputs"); });
   it("duplicate names rejected", async () => {
     s = makeApp();
-    await rejects(withField("outputs", [{ name: "a.json", format: "json" }, { name: "a.json", format: "text" }]), "/outputs");
+    await rejects(withField("outputs", [{ name: "a.json", format: "json" }, { name: "a.json", format: "text" }]), "/outputs/1/name");
   });
   it("formats json, text, binary accepted", async () => {
     s = makeApp();
@@ -173,20 +203,20 @@ describe("POST /v1/jobs: outputs", () => {
   for (const name of [".", "..", "", "x".repeat(129), "a/b", "a\\b", "a b", "ä.json", "a:b", 5]) {
     it(`bad name ${JSON.stringify(name).slice(0, 20)} rejected`, async () => {
       s = makeApp();
-      await rejects(withField("outputs", [{ name, format: "json" }]), "/outputs");
+      await rejects(withField("outputs", [{ name, format: "json" }]), "/outputs/0/name");
     });
   }
   for (const format of ["xml", "JSON", "", null]) {
     it(`bad format ${JSON.stringify(format)} rejected`, async () => {
       s = makeApp();
-      await rejects(withField("outputs", [{ name: "a", format }]), "/outputs");
+      await rejects(withField("outputs", [{ name: "a", format }]), "/outputs/0/format");
     });
   }
-  it("missing format rejected", async () => { s = makeApp(); await rejects(withField("outputs", [{ name: "a" }]), "/outputs"); });
-  it("missing name rejected", async () => { s = makeApp(); await rejects(withField("outputs", [{ format: "json" }]), "/outputs"); });
+  it("missing format rejected", async () => { s = makeApp(); await rejects(withField("outputs", [{ name: "a" }]), "/outputs/0/format"); });
+  it("missing name rejected", async () => { s = makeApp(); await rejects(withField("outputs", [{ format: "json" }]), "/outputs/0/name"); });
   it("error path points into the offending entry", async () => {
     s = makeApp();
-    await rejects(withField("outputs", [{ name: "ok", format: "json" }, { name: "..", format: "json" }]), "/outputs/1");
+    await rejects(withField("outputs", [{ name: "ok", format: "json" }, { name: "..", format: "json" }]), "/outputs/1/name");
   });
 });
 
@@ -221,11 +251,11 @@ describe("POST /v1/jobs: plan via PlanValidator", () => {
   });
   it("default validator: plan without version returns 400 at /plan/version", async () => {
     s = makeApp();
-    await rejects(withField("plan", {}), "/plan");
+    await rejects(withField("plan", {}), "/plan/version");
   });
   it("default validator: version boolean returns 400", async () => {
     s = makeApp();
-    await rejects(withField("plan", { version: true }), "/plan");
+    await rejects(withField("plan", { version: true }), "/plan/version");
   });
   it("default validator: string version accepted", async () => {
     s = makeApp();
@@ -236,7 +266,7 @@ describe("POST /v1/jobs: plan via PlanValidator", () => {
     s = makeApp({ validatePlan: v });
     const body = await expectError(await create(validRevision()), 400, "validation_failed");
     const errs = errorsOf(body);
-    expect(errs.some((e) => e.message === "spec-bad-rule" && e.path.endsWith("/plan/rules/0"))).toBe(true);
+    expect(errs).toEqual([{ path: "/plan/rules/0", message: "spec-bad-rule" }]);
   });
   it("custom validator 'unsupported' returns 422 capability_unsupported with details.capabilityError", async () => {
     const capabilityError = { capability: "pdf-ocr", reason: "not in catalog", nested: [1, { a: true }] };

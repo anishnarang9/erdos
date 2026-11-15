@@ -89,3 +89,17 @@ describe("Common rule 5: buyer authentication returns 401 unauthorized", () => {
     await createJob(s);
   });
 });
+
+describe("Rule 2c: Bearer is case-sensitive and followed by exactly one space", () => {
+  for (const auth of [`bearer ${BUYER_TOKEN}`, `BEARER ${BUYER_TOKEN}`, `Bearer  ${BUYER_TOKEN}`, `Bearer\t${BUYER_TOKEN}`, `Bearer${BUYER_TOKEN}`]) {
+    it(`Authorization ${JSON.stringify(auth.replace(BUYER_TOKEN, "<token>"))} returns 401`, async () => {
+      s = makeApp();
+      const res = await s.app.request("/v1/jobs", {
+        method: "POST",
+        headers: { authorization: auth, "content-type": "application/json", "idempotency-key": freshKey() },
+        body: JSON.stringify({ revision: validRevision(), source: "import" }),
+      });
+      await expectError(res, 401, "unauthorized");
+    });
+  }
+});
