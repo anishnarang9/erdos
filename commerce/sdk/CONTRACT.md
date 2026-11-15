@@ -105,6 +105,12 @@ keyCommitment = 3bbc3bf1185df5265d974732502dfffca6037592208f145b6fc143f9cec9c99d
 journalDigest = 9ae8cca7c5828cc27a19039df5593a21e37cc1f05fcf99f32e118d233f4d115e
 ```
 
+### Settled during cross-validation (2026-11-14)
+
+- In `parseProofJson`, a wrong-length `context`, `imageId` or `keyCommitment` gives `bad_length`. Invalid JSON text or a non-object input gives `bad_field`. Checks run in this order: presence and type, hex, version and verdict, sizes, journal (`mismatch`), selector. The function does not limit the envelope size; the delivery cap is checked on-chain.
+- `decryptEnvelope` and `keyCommitment` take the context as bytes. `keyCommitment` also accepts a `FundedContext`.
+- `ENGINE_FIXTURE` is a flat object of hex values, with `chainId` and `jobId` as bigints, plus `fundedContext` and `files`.
+
 ## 2. Chain (`src/chain/`), SIMULATED
 
 ### Stub contracts (`contracts/*.sol`, Solidity 0.8.38)
@@ -113,7 +119,7 @@ Compile them with `pnpm build:contracts` (solc-js). The artifacts go to `contrac
 
 **`MockUSDC`** is an ERC-20 with 6 decimals and a public `mint(address,uint256)`.
 
-**`StubCore`** has the ERC-8183 draft shape. Status values are `Open=0, Funded=1, Submitted=2, Completed=3, Rejected=4, Expired=5`.
+**`StubCore`** has the ERC-8183 draft shape. Its constructor is `constructor(address token)`. Status values are `Open=0, Funded=1, Submitted=2, Completed=3, Rejected=4, Expired=5`.
 
 Hook interface: `beforeAction(uint256 jobId, bytes4 selector, bytes data)` and `afterAction(...)`.
 - For `fund`, the hook gets `data = optParams`.
@@ -151,6 +157,8 @@ Errors: `Unauthorized()`, `WrongStatus(uint8 status)`, `InvalidExpiry()`, `ZeroB
   4. `sha256("UBC26/key/v1" ‖ context ‖ key) == keyCommitment`, otherwise `KeyMismatch()`.
   5. Not already released, otherwise `AlreadyReleased()`.
   6. Call `core.complete(jobId, bytes32(0), "")`. Emit `KeyReleased(uint256 indexed jobId, bytes32 key)`.
+- **Note:** `AlreadyReleased()` cannot be reached in practice. The first release moves the job to Completed, so a second release reverts at step 2 with `WrongStatus`. The guard stays as defence in depth.
+- **Fund event order:** USDC `Transfer`, then `TermsFrozen`, then `JobFunded`. Consumers must not assume `JobFunded` comes first.
 - **Views:**
   - `getTerms(uint256) returns (bytes32 imageId, bytes32 rulesHash, bytes32 referenceHash, address provider, uint256 budget, uint256 expiredAt)`, with zeros if the job was never funded.
   - `getAcceptance(uint256) returns (bytes32 envelopeHash, bytes32 keyCommitment)`, with zeros if nothing was accepted.
@@ -190,7 +198,7 @@ The `CommerceChain` methods are below. Every write waits for its receipt and **t
 Also exported:
 - `class LogCursor`
   - Constructor: `new LogCursor(publicClient, { addresses, fromBlock, decode: (logs) => DecodedEvent[], maxRange = 10_000n, store: { load(): bigint | null; save(block: bigint): void }, confirmations = 0n })`. Pass `chain.decodeLogs` as `decode`.
-  - `next(): Promise<DecodedEvent[]>` reads from `store.load() + 1` (or from `fromBlock`) up to `min(head - confirmations, from + maxRange - 1)`. It returns `[]` when caught up, and saves the cursor only after the read succeeds.
+  - `next(): Promise<DecodedEvent[]>` reads from `store.load() + 1` (or from `fromBlock`) up to `min(head - confirmations, from + maxRange - 1)`. It returns `[]` when there is nothing in the window. `cursor.caughtUp` is `true` once the cursor has reached `head - confirmations`. It saves the cursor only after the read succeeds.
   - All RPC calls go through `withRetry`.
 - `withRetry(fn, { retries = 5, baseMs = 250 })` retries on rate-limit errors (JSON-RPC code `-32005`, HTTP 429, or a message containing "rate limit") with exponential backoff. Any other error is rethrown immediately.
 - `ChainError extends Error { code: "reverted" | "wrong_chain" | "not_submit" | "no_wallet"; errorName?: string }`.
