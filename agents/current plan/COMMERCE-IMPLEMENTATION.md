@@ -115,23 +115,24 @@ Expected values:
 
 The contract H is the single hook-and-evaluator contract. It is set as both `hook` and `evaluator` when the job is created.
 
+> **Updated 2026-11-15 to Nick's deployed contracts** (`nick-settlement` `80c8a4a`, `contracts/deployments/arc-testnet.json`): core proxy `0x4992b29b…`, SettlementHook `0x699d0e4a…`, verifier `0xCf8D70A2…`. The Poster sends four transactions in the order below. The patched core allows only the client (Poster) to call `setBudget`. `fund` has no expected-budget argument. Copies of the ABIs and the manifest are in `commerce/sdk/src/chain/arc/`.
+
 | # | Call | Signer | Commerce-side checks | Result |
 | --- | --- | --- | --- | --- |
-| 0 | `USDC.approve(core, budget)` | buyer | Exact budget only, never unlimited | — |
-| 1 | `core.createJob(provider, evaluator = H, expiredAt, description, hook = H)` | buyer | The provider comes from the selected quote. `expiredAt` covers the quote's proving estimate plus margin. | Open. `jobId` is read from the creation event. |
-| 2 | `core.setBudget(jobId, amount)` *(if the pinned core has it)* | UNSPECIFIED | — | Budget set |
-| 3 | `core.fund(jobId, …, optParams = abi.encode(bytes32 imageId, bytes32 rulesHash, bytes32 referenceHash))` | buyer | The tuple matches the compile manifest exactly | Funded. H freezes the terms. |
-| 4 | `core.submit(jobId, envelopeHash, abi.encode(bytes envelope, bytes seal, bytes32 keyCommitment))` | provider | Preflight with `eth_call`. `verdict = 1`. Envelope within the cap. Enough time left before expiry. | Submitted if the proof verifies. Otherwise the call reverts and the job stays Funded. |
-| 5 | `H.release(jobId, bytes32 key)` | provider | Accepted `keyCommitment` matches the local key. Time remaining is above the release margin. | `complete` runs, the provider is paid, and the key is emitted |
-| 6 | `core.claimRefund(jobId)` | anyone | `now >= expiredAt` | Expired, and the buyer is refunded |
+| 1 | `core.createJob(provider, evaluator = H, expiredAt, description, hook = H)` | buyer (Poster) | The provider comes from the selected quote. `expiredAt > now + 300 s` (core). It must also be `>= now + MIN_EXPIRY_MARGIN` (600 s, hook) when `fund` lands. | Open. `jobId` is read from `JobCreated`. |
+| 2 | `core.setBudget(jobId, amount, "0x")` | buyer (Poster); client only in the patched core | `amount > 0`, USDC with 6 decimals | `BudgetSet` |
+| 3 | `USDC.approve(core, budget)` | buyer | Exact budget only, never unlimited | — |
+| 4 | `core.fund(jobId, optParams = abi.encode(bytes32 imageId, bytes32 rulesHash, bytes32 referenceHash))` | buyer | The tuple matches the compile manifest exactly | Funded. H freezes the terms (`TermsFrozen`). |
+| 5 | `core.submit(jobId, envelopeHash, abi.encode(bytes envelope, bytes seal, bytes32 keyCommitment))` | provider | Preflight with `eth_call`. `verdict = 1`. Envelope within the cap. Enough time left before expiry. | Submitted if the proof verifies. Otherwise the call reverts and the job stays Funded. |
+| 6 | `H.release(jobId, bytes32 key)` | provider | Accepted `keyCommitment` matches the local key. Time remaining is above the release margin. | `complete` runs, the provider is paid, and the key is emitted |
+| 7 | `core.claimRefund(jobId)` | anyone | `now >= expiredAt` | Expired, and the buyer is refunded |
 
-The following are UNSPECIFIED until Nick publishes the ABI:
-- event names and fields
-- the exact `createJob` and `fund` signatures, including whether `fund` takes `expectedBudget`
-- who calls `setBudget`
-- revert error selectors
-- the expiry comparison (`<` or `<=`)
-- the final delivery cap
+Now specified by Nick's deployment:
+- **Events:** the core emits `JobCreated`, `BudgetSet`, `JobFunded`, `JobSubmitted`, `JobCompleted`, `PaymentReleased`, `Refunded` and `JobExpired`. H emits `TermsFrozen`, `ProofAccepted` and `KeyReleased(jobId, provider, key, envelopeHash)`.
+- **Time boundary:** `submit` and `release` need `block.timestamp < expiredAt`, and refund needs `>=`.
+- **Envelope cap:** `MAX_ENVELOPE_BYTES = 16412`.
+- **Reverts:** H's custom errors are in its ABI, for example `WrongKey`, `Expired`, `NotFunded` and `EnvelopeTooLarge`.
+- **Context:** H exposes `contextOf(jobId)` and `expectedJournal(jobId, envelopeHash, keyCommitment)`, so the worker reads the exact 169-byte context from the chain.
 
 The SDK keeps all of these behind one adapter (`commerce/sdk/src/chain/`), so a change to the ABI touches only one file.
 
@@ -307,7 +308,7 @@ The worker's signing wrapper enforces this policy. It is not left to agent discr
 | --- | --- |
 | Chain | `5042002` only |
 | `to` | Core or H from the deployment manifest |
-| Function selectors | `submit`, `release`, and `setBudget` only if Nick's core makes it provider-only |
+| Function selectors | `core.submit` and `H.release` only. `setBudget` is client-only in Nick's core, so the Solver never calls it. |
 | Native value | `0` |
 | Gas | Explicit cap per call, plus a daily USDC gas budget (`MAX_GAS_USDC_PER_DAY`) |
 | Release margin | `RELEASE_MARGIN = 120 s` by default (block timestamps can jump) |

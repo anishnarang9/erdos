@@ -2,6 +2,49 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 10:15 -05:00 — Neil
+
+- **Branch:** `neil/plan-architecture` ([PR #5](https://github.com/anishnarang9/UBC-26/pull/5)).
+- **Real Grok drafting works (`grok-4.7`).** The recordings and the handoff for Anish are in `commerce/api/test/integration/fixtures/grok/` (see its README).
+  - **Success:** a reconciliation draft that the real engine validates. The checker agreed with Grok's predicted verdict on 4 of 5 examples.
+  - **Unsupported:** a regex job returns `capability_unsupported` with the engine's `request: {kind: operation, name: regex_match}`.
+- **Changed:** the draft model now also gets the declared reference files as text, capped at 8 KiB each. With file names only, Grok asked twice for the ledger's shape.
+- **End to end on live components:** Grok's recorded plan was approved and compiled on the real engine. The worker then proved a correct delivery (verdict 1; engine and SDK decryption match the files) and a tampered one (real verdict 0; decrypt refused). The passing proof took 103 s. An earlier run hung while the PC slept; the rerun passed.
+- **Checks:** API 692 and real-engine API 14/14 (both Grok replays included); worker 47; SDK 275; worker e2e 2/2 on Anish's plan and 2/2 on Grok's plan.
+- **For Anish:** `lookup` aborts with `invalid_deliverable` when a deliverable repeats an id, so that case gets no verdict-0 proof. Is that intended? Details are in the fixtures README.
+- **Still blocked:** Nick's deployed core/evaluator ABI and addresses, for real funding, submit and release (T8 live, T10).
+- **Next:** T10 once Nick deploys, then the buyer UI (T12).
+
+## 2026-11-15 02:00 -05:00 — Neil
+
+- **Branch:** `neil/plan-architecture`. Commits `f5d4368`, `91bbfc4` and `7e1dbd0`. The branch is merged with `origin/main` at `9a1b444`.
+- **Real engine connected.** The API runs Anish's engine CLI (`codex/anish-engine`, `adda3a3`) in WSL2 through `wsl.exe -e env … engine`, with no shell:
+  - `validate` stores `structureHash` and `rulesHash` on each revision.
+  - Engine errors pass through unchanged. `unsupported_capability` returns 422 and includes the engine's `request`.
+  - `eval` labels draft examples; the model never labels them. A wrong model prediction is flagged with `agrees: false`.
+  - `compile` keeps the package under `PACKAGES_DIR` and serves it at `GET /v1/jobs/:id/package(/file)`. Reference files are served at `/references`.
+- **Approval binding:**
+  - An approval records the engine's `rulesHash`, `structureHash` and the reference digest, and the API re-validates the plan when it approves.
+  - Compile rejects a package with different rules, structure or references (502), and deletes it.
+  - Any new revision, including a change to reference files only, voids the approval.
+  - A plan must declare exactly the job's outputs and the uploaded reference files.
+- **Worker (`commerce/worker`):**
+  - It downloads the package and checks each file's SHA-256, the manifest and the guest digest.
+  - It builds a **SYNTHETIC** funded context, solves, runs `engine prove`, and checks `proof.json` with the SDK.
+  - It recovers the files with both `engine decrypt` and SDK decryption. A verdict-0 proof is never decrypted.
+- **Checks:**
+  - Unit and spec tests: API 692, worker 47, SDK 275, all passing.
+  - Real-engine API suite 12/12 (about 10 s). The compile on this PC reproduces Anish's reconciliation image ID `0x57eb5af8…` byte for byte.
+  - Worker end to end 2/2 with real Groth16 proofs, 176 s total. One correct delivery gives verdict 1, and both decryption paths recover the exact files. One delivery is tampered by one cent; it gives a real verdict 0, and decrypt is refused.
+  - **Native Linux proving (WSL2, 24 cores):** the reconciliation proof took 91.8 s, 812,703 cycles and 9.6 GB peak RSS. Anish's figure on an M3 was 260 s.
+  - Cross-validation: two independent testers wrote 80 black-box tests and found 3 API bugs and 7 worker hardening issues. All are fixed.
+- **Setup:** see `commerce/README.md` ("Real engine"). It covers Docker with buildx, r0vm 3.1.0 and the pinned prover image in WSL. Note that rzup puts r0vm under `~/.risc0/extensions/…`.
+- **Blocked or remaining:**
+  - Neil: put `XAI_API_KEY` and `XAI_MODEL` in `commerce/api/.env`, then run `pnpm --filter @ubc26/api record:grok`. That records the real Grok success and the unsupported (regex) example for the integration tests and for Anish. The recorder, the replay test and the cases are ready; the replay test reports itself as not run until the recordings exist.
+  - Nick: the deployed core/evaluator ABI and addresses. Until then the worker uses a synthetic context, and T10 (submit and release) is not started.
+  - Engine: the API uses copies of `plan-v1.schema.json` and `capabilities-v1.json` from `adda3a3` (`commerce/api/engine-contract/`). The real-engine test fails if `engine capabilities` drifts.
+- **Next:** record Grok once the key is in. Then T9/T10 against Nick's deployment.
+
 ## 2026-11-14 20:10 -05:00 — Neil
 
 - **Branch:** `neil/plan-architecture`. The workstream 3 plan docs are now on main. The code stays on the branch until it is reviewed.

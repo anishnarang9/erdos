@@ -2,6 +2,15 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 16:20 -05:00 — Anish
+
+- Completed Neil history-merge review on `codex/engine-commerce`, parent `30f507a`, incoming `8584b04`. Reviewed each of 29 conflicts. Commerce remains byte-identical to the integrated parent. Imported Neil's newer status and corrected commerce plan through the normal merge.
+- `pnpm check` passed all three typechecks and 1,357 tests: 13 Node fixtures, 315 SDK, 755 API, 274 worker. Independent specification and quality reviews approved the merge. An earlier overlapping baseline check encountered merge markers and is not a passing baseline result.
+- Rust format, Clippy and 51 workspace tests passed. Three prepared guest tests remain explicitly ignored pending their separate inputs. The wire fixture passed. The upstream `block` future-compatibility warning remains.
+- Installed checksum-verified Apple Silicon Arc Foundry v0.8.0-4 in private sprint tooling. Forge, Cast and Anvil report the required `3e95efae` commit. Installed missing libusb runtime. r0vm reports 3.1.0. The pinned Groth16 image is present.
+- User delegated production of missing workload and operator artifacts. Separate agents are preparing a synthetic workload/oracle, private run state and deployment policy parser. These untracked changes are excluded from this merge checkpoint. Live spending authorization remains absent.
+- Next: commit/push this reviewed merge, then merge Nick `57c387f` and run exact-tree Arc contract checks.
+
 ## 2026-11-15 16:08 -05:00 — Anish
 
 - Execution started at 16:08 -05:00 on `codex/engine-commerce`, HEAD `04f15ff`. The user authorized sprint execution, delegation, checkpoint commits/pushes, and a normal merge into main.
