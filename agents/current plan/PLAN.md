@@ -2,6 +2,21 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-15 00:14 -05:00 — Nick workstream — Settlement stack live on Arc (unfrozen)
+
+- **Live on Arc Testnet:**
+
+  | Contract | Address |
+  | --- | --- |
+  | Core (the address clients call) | `0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8` |
+  | SettlementHook (hook and evaluator) | `0x699d0e4a067F31229Be67C534B37dE964b6eDbAb` |
+  | Verifier | `0xCf8D70A203b40D3A17d023c0CDDF752870BC3992` |
+  | Core implementation | `0x55A3C9319EEe607579855880b5651766eBF103d7` |
+
+- **The hook is whitelisted, but the core is not frozen yet.** The addresses and rules are in [contracts/HANDOFF.md](../../contracts/HANDOFF.md), and the manifest is `contracts/deployments/arc-testnet.json`.
+- **For Neil:** point the client at these addresses. Start log scans at block 72393888. Jobs on this deployment are integration tests until the freeze.
+- **For Anish:** the funded test job needs the image ID, rules hash and reference hash, plus a provider (Solver) address. Nick then runs `08_CreateTestJob`.
+
 ## 2026-11-15 00:04 -05:00 — Nick workstream — Core freeze held for now
 
 - **Decision.** The core will be deployed and the hook whitelisted, but the admin roles will not be renounced yet, so the core is **not frozen**.

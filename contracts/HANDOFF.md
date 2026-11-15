@@ -2,9 +2,22 @@
 
 **2026-11-14 · Nick (workstream 2) → Neil (commerce) and Anish (engine)**
 
-This is the contract-level interface for settlement on Arc Testnet (chain 5042002). The spec is [SETTLEMENT-IMPLEMENTATION.md](../agents/current%20plan/SETTLEMENT-IMPLEMENTATION.md). Code examples are in [examples/README.md](examples/README.md). Addresses fill in [deployments/arc-testnet.json](deployments/arc-testnet.json) (schema: [SCHEMA.md](deployments/SCHEMA.md)) once Nick deploys. Until then, every address in it is `null`, except the verifier below.
+This is the contract-level interface for settlement on Arc Testnet (chain 5042002). The spec is [SETTLEMENT-IMPLEMENTATION.md](../agents/current%20plan/SETTLEMENT-IMPLEMENTATION.md). Code examples are in [examples/README.md](examples/README.md). Live addresses are in [deployments/arc-testnet.json](deployments/arc-testnet.json) (schema: [SCHEMA.md](deployments/SCHEMA.md)).
 
-**Live on Arc:** the pinned RISC Zero verifier, `RiscZeroGroth16Verifier` v3.1.0, at [`0xCf8D70A203b40D3A17d023c0CDDF752870BC3992`](https://explorer.testnet.arc.io/address/0xCf8D70A203b40D3A17d023c0CDDF752870BC3992) (selector `0xe71e6620`). The evidence is in [research/ARC-VERIFIER-LIVE.md](research/ARC-VERIFIER-LIVE.md). The core, the hook and the freeze are not deployed yet.
+## Live on Arc Testnet
+
+| Contract | Address | Deployed in block |
+| --- | --- | --- |
+| Core (escrow proxy, the address you call) | [`0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8`](https://explorer.testnet.arc.io/address/0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8) | 72393888 |
+| Core implementation (patched) | [`0x55A3C9319EEe607579855880b5651766eBF103d7`](https://explorer.testnet.arc.io/address/0x55A3C9319EEe607579855880b5651766eBF103d7) | 72392852 |
+| SettlementHook (hook and evaluator) | [`0x699d0e4a067F31229Be67C534B37dE964b6eDbAb`](https://explorer.testnet.arc.io/address/0x699d0e4a067F31229Be67C534B37dE964b6eDbAb) | 72394174 |
+| RiscZeroGroth16Verifier v3.1.0 | [`0xCf8D70A203b40D3A17d023c0CDDF752870BC3992`](https://explorer.testnet.arc.io/address/0xCf8D70A203b40D3A17d023c0CDDF752870BC3992) | 72392474 |
+
+Notes on the deployment:
+- **Hook settings:** the hook is whitelisted on the core in block 72394225. Its on-chain settings are `MAX_ENVELOPE_BYTES = 16412` and `MIN_EXPIRY_MARGIN = 600`, and it reports `supportsInterface(0x7ff6bc9e) == true`.
+- **Verifier evidence:** see [research/ARC-VERIFIER-LIVE.md](research/ARC-VERIFIER-LIVE.md).
+- **The core is NOT frozen yet.** The deployer `0x27f97754b165B68921c9dD0Ea88eDf617731A35a` still holds both admin roles, so it could upgrade the core, change fees or whitelist other hooks. Treat jobs on this deployment as integration testing until the manifest shows `frozen: true`. Nick runs the freeze before the Nov 16 demo.
+- **Start log scans** at the core's deploy block, 72393888.
 
 ## Limits and rules at a glance
 

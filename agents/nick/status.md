@@ -2,6 +2,40 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 00:14 -05:00 — Nick
+
+### Contract stack live on Arc, core not frozen
+Branch `nick-settlement`, PR #4.
+
+| Step | Contract | Address | Block | Transaction | Cost |
+| --- | --- | --- | --- | --- | --- |
+| 01 | Verifier | `0xCf8D70A203b40D3A17d023c0CDDF752870BC3992` | 72392474 | `0xd0fb5fb5…2b6f` | 0.0449 USDC |
+| 02 | Core implementation | `0x55A3C9319EEe607579855880b5651766eBF103d7` | 72392852 | `0xc734ab50…95bf` | 0.1180 USDC |
+| 03 | Core proxy | `0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8` | 72393888 | `0xa39e70ba…8a89` | 0.0073 USDC |
+| 04 | SettlementHook | `0x699d0e4a067F31229Be67C534B37dE964b6eDbAb` | 72394174 | `0xe98efea3…5248` | 0.0590 USDC |
+| 05 | Hook whitelist only (`SETTLEMENT_WHITELIST_ONLY=1`) | — | 72394225 | `0x5879f156…77ef` | 0.0013 USDC |
+
+The total spent is about 0.231 USDC; the deployer had 20 USDC from the faucet.
+
+### Checks
+- `06_Verify` printed `ok` for the verifier, the core implementation, the core proxy and the hook. It also printed `ok hook whitelisted (core NOT frozen: deployer still holds an admin role)`.
+- Reading the contracts on chain confirmed:
+  - the hook's `core`, `verifier` and `usdc` point at the deployed core, the deployed verifier and Arc USDC;
+  - `MAX_ENVELOPE_BYTES` is 16412 and `MIN_EXPIRY_MARGIN` is 600;
+  - `supportsInterface(0x7ff6bc9e)` is true, and `whitelistedHooks(hook)` is true;
+  - the core uses Arc USDC, both fees are 0, and the deployer holds `ADMIN_ROLE` and `DEFAULT_ADMIN_ROLE`.
+- `arc-forge test --network arc`: 120 passed, 0 failed, 1 skipped (fork-only).
+- The manifest deploy blocks are corrected to the receipt blocks, and the deploy transactions are added.
+
+### Still open
+- **TODO, freeze:** run `05_Freeze` without the flag, then `SETTLEMENT_EXPECT_FROZEN=1 06_Verify`, before the Nov 16 demo. This is decision 27.
+- **Next handoff:** `08_CreateTestJob` with `SETTLEMENT_ALLOW_UNFROZEN=1`. It needs Anish's image ID, rules hash and reference hash, plus a provider address.
+- **Not yet tested on Arc:** a live submit and release with a real engine receipt, and the Nov 16 acceptance transactions (accepted proof, payout with key release, expiry refund, rejected submission).
+
+### Next action
+1. Send Neil and Anish the address table in `contracts/HANDOFF.md`.
+2. Ask Anish for the test job's image ID, rules hash, reference hash and provider.
+
 ## 2026-11-15 00:04 -05:00 — Nick
 
 Branch `nick-settlement`, PR #4.

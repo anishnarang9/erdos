@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "network": "arc-testnet",
-  "status": "partial",
+  "status": "whitelisted",
   "deployer": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
   "chain": {
     "chainId": 5042002,
@@ -48,21 +48,24 @@
       "treasury": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
       "deployBlock": 72393888,
       "frozen": false,
-      "hookWhitelisted": false,
+      "hookWhitelisted": true,
       "proxy": "OpenZeppelin ERC1967Proxy (UUPS), initialize(usdc, treasury, admin)",
       "abi": "abi/AgenticCommerce.json",
-      "deployTx": "0xa39e70bae70c5ec6fd6f3742d1d3b8142531ff45c56cf08cd8b129d7b53d8a89"
+      "deployTx": "0xa39e70bae70c5ec6fd6f3742d1d3b8142531ff45c56cf08cd8b129d7b53d8a89",
+      "whitelistTx": "0x5879f15659775285135a61ffad4b18110a21538fe2350449d5b6c99ec76577ef",
+      "whitelistBlock": 72394225
     },
     "hook": {
-      "address": null,
-      "deployer": null,
-      "deployBlock": null,
+      "address": "0x699d0e4a067F31229Be67C534B37dE964b6eDbAb",
+      "deployer": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
+      "deployBlock": 72394174,
       "contract": "src/SettlementHook.sol:SettlementHook",
       "isEvaluator": true,
       "erc165InterfaceId": "0x7ff6bc9e",
       "maxEnvelopeBytes": 16412,
       "minExpiryMarginSeconds": 600,
-      "abi": "abi/SettlementHook.json"
+      "abi": "abi/SettlementHook.json",
+      "deployTx": "0xe98efea3cf1b9aa5bb9cf1e186fd61f59547534952e7911e8dffb8db52805248"
     }
   },
   "reference": {
