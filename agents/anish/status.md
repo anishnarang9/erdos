@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 21:19 -05:00 — Anish
+
+- Branch codex/anish-engine. Opened [draft PR #3](https://github.com/anishnarang9/UBC-26/pull/3) with the engine, real proof fixtures, replay commands, and pending integration gates. GitHub reports the branch can merge cleanly.
+- The wire fixture, scalar journal check, script syntax, and diff checks passed after the SDK replay commit. The workspace is clean. Earlier guest and Solidity evidence still matches the checked-in receipts.
+- The remaining release gates need the deployed evaluator and funded terms from Nick, final cap confirmation, and native Linux proving measurements. Actual Arc settlement remains unverified.
+
 ## 2026-11-14 21:18 -05:00 — Anish
 
 - Branch codex/anish-engine. Added a repeatable SDK check against Neil's revision 3013d736. All six real receipts matched the SDK's context, journal, SHA-256 digests, and submit calldata. The test preserves the original 260-byte seals. It rejects changed ciphertext and journal bytes.
