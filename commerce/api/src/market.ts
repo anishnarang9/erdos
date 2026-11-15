@@ -633,10 +633,50 @@ export function registerMarketRoutes(ctx: RouteContext): void {
     return c.json({ assignments: out });
   };
 
+  /**
+   * GET /v1/jobs/:id/submission (public, T11). From indexed hook events only, so every value is chain-confirmed:
+   * ProofAccepted is emitted inside the core's submit transaction (its tx is the submit tx), and KeyReleased
+   * carries the released key, which is public from then on. The buyer reads the envelope from the submit
+   * calldata, checks sha256(envelope) == envelopeHash and the key against keyCommitment, then decrypts.
+   */
+  const submission: Handler<AppEnv> = async (c) => {
+    const { job } = loadJob(c.req.param("id") ?? "");
+    const link = linkRow(deps, job.id);
+    if (!link) throw new ApiError("not_found", `Job ${job.id} is not linked to a chain job`);
+    const selection = q.selection.get(job.id) as SelectionRow | undefined;
+    if (!selection) throw new Error(`job ${job.id} is linked but has no selection row`);
+    const hook = lower((JSON.parse(selection.funding_terms_json) as FundingTerms).hook);
+    const hookEvent = (...names: string[]) =>
+      deps.db
+        .prepare(
+          `SELECT tx_hash, args_json FROM events WHERE chain_id = ? AND address = ? AND job_id = ? AND contract = 'hook'
+             AND name IN (${names.map(() => "?").join(", ")})
+           ORDER BY block DESC, log_index DESC LIMIT 1`,
+        )
+        .get(link.chain_id, hook, link.chain_job_id, ...names) as { tx_hash: string; args_json: string } | undefined;
+    // ProofAccepted is Nick's SettlementHook; SubmissionAccepted is the SIMULATED stub's name for the same event.
+    const accepted = hookEvent("ProofAccepted", "SubmissionAccepted");
+    const released = hookEvent("KeyReleased");
+    const a = accepted ? (JSON.parse(accepted.args_json) as Record<string, string>) : null;
+    const r = released ? (JSON.parse(released.args_json) as Record<string, string>) : null;
+    const { status, source } = await chainStatus(deps, link);
+    return c.json({
+      jobId: job.id,
+      chainJob: chainJobOf(link),
+      status,
+      statusSource: source,
+      submitTx: accepted?.tx_hash ?? null,
+      envelopeHash: a?.envelopeHash ?? null,
+      keyCommitment: a?.keyCommitment ?? null,
+      releaseTx: released?.tx_hash ?? null,
+      key: r?.key ?? null,
+    });
+  };
+
   app.get("/v1/jobs", readBody, feed);
   app.get("/v1/assignments", readBody, provider, assignments);
   app.post("/v1/jobs/:id/quotes", readBody, provider, parseJson, requireJobId, idem.middleware, postQuote);
   app.post("/v1/jobs/:id/select-quote", readBody, buyer, parseJson, requireJobId, idem.middleware, selectQuote);
   app.post("/v1/jobs/:id/funding-receipt", readBody, buyer, parseJson, requireJobId, idem.middleware, fundingReceipt);
-  app.get("/v1/jobs/:id/submission", readBody, requireJobId, notImplemented);
+  app.get("/v1/jobs/:id/submission", readBody, requireJobId, submission);
 }

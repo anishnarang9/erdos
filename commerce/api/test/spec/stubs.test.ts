@@ -18,7 +18,7 @@ const buyer = (extra: Record<string, string> = {}) => ({
   ...extra,
 });
 
-// T5-T8 implemented every route except GET /v1/jobs/:id/submission (T11). The buyer and provider routes
+// T5-T8 and T11 implemented every route. The buyer and provider routes
 // below keep their auth-first and idempotency-order checks; the 501 checks moved to the remaining stub.
 describe("buyer routes (formerly 501 stubs)", () => {
   const routes = (id: string) => ["/v1/drafts", `/v1/jobs/${id}/compile`, `/v1/jobs/${id}/select-quote`, `/v1/jobs/${id}/funding-receipt`];
@@ -86,8 +86,8 @@ describe("public routes need no auth", () => {
   it("GET /v1/jobs?capability=x&open=true answers without auth", async () => {
     expect((await s.app.request("/v1/jobs?capability=x&open=true")).status).toBe(200);
   });
-  it("GET /v1/jobs/:id/submission returns 501 without auth", async () => {
-    await expectError(await s.app.request(`/v1/jobs/${jobId}/submission`), 501, "not_implemented");
+  it("GET /v1/jobs/:id/submission needs no auth (404 until the job is linked to a chain job)", async () => {
+    await expectError(await s.app.request(`/v1/jobs/${jobId}/submission`), 404, "not_found");
   });
 });
 

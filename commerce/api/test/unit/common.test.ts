@@ -43,18 +43,15 @@ describe("errors and routing", () => {
     expect((await buyerPost(t, "/v1/jobs", exact)).status).toBe(400); // read and parsed, then fails shape checks
   });
 
-  it("buyer routes check auth first; the remaining stub returns 501", async () => {
+  it("buyer routes check auth first; public routes need none", async () => {
     t = makeApp();
     for (const path of ["/v1/drafts", "/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/compile", "/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/select-quote", "/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/funding-receipt"]) {
       const res = await buyerPost(t, path, {});
       expect(res.status).not.toBe(401);
       expect((await buyerPost(t, path, {}, { authorization: "Bearer wrong-token-xxxxxxxx" })).status).toBe(401);
     }
-    for (const path of ["/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/submission"]) {
-      const res = await t.app.request(path);
-      expect(res.status).toBe(501);
-      expect((await errorOf(res)).code).toBe("not_implemented");
-    }
+    // GET /v1/jobs/:id/submission is public: an unknown job is 404, not 401.
+    expect((await t.app.request("/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/submission")).status).toBe(404);
     const quotes = "/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/quotes";
     const unsigned = await t.app.request(quotes, { method: "POST", body: "{}", headers: { "idempotency-key": "q1" } });
     expect(unsigned.status).toBe(401);
