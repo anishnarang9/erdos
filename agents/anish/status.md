@@ -2,6 +2,16 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 23:31 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `9c4dcff`. Phase 3 is active. The full deterministic reproduction command completed with zero failures. It reproduced all 40 packages, eight images, 262 actual guest executions, 79 pre-guest rejections, and all six commitment checks.
+- Added `LocalEngineAdapter` against Neil's imported `Engine` interface and `RecordedDraftModel` against his `DraftModel`. The adapter preserves normalized reports, typed errors, actual manifests, and private persistent packages. Nine real-CLI/contract tests, two replay tests, and the TypeScript check passed.
+- Completed three fresh GPT-6 Luna low-reasoning batches, 60 opaque requests each. Initial classification matched all 180 requests. The engine accepted 85 of 120 first draft plans. The one allowed validation repair corrected the remaining 35. The [authoring report](../../engine/evaluation/reports/authoring.json) records every first and repaired result separately. Native usage was unavailable. These are three shared-context batches, not 180 isolated API calls.
+- All 1,023 candidate evaluations matched independent outcomes. A conservative screen initially flagged 14 hash constants. Each was independently derived from the exact requested report text. Added the derivation regression and preserved the [review](../../engine/evaluation/reports/constant-screen-review.json). These variants assume SHA-256 collision resistance. No model output changed, and no semantic counterexample reached a model.
+- Source annotation quality remains imperfect: 13 final request results contain 13 nonverbatim source quotes. These annotations do not alter the committed predicates. They remain model-output defects for a buyer to review. Finite candidate coverage does not establish universal request equivalence.
+- The [model guest run](../../engine/evaluation/reports/authoring-guests.json) compiled all 16 distinct accepted model-authored structures. All 134 candidate checks matched, including 102 actual guest executions and 32 pre-guest rejections.
+- The first fresh inventory proof started at 23:29 -05:00. Its live process and private progress report are tracked by the Sol proof worker. No new receipt is complete at this checkpoint. Twelve real receipts, local verifier checks, recovery, final report, and final audit remain pending. No Arc transaction ran.
+
 ## 2026-11-14 23:09 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, preceding pushed commit `fe7ea15`. Phase 2 completed its correctness checks. No production engine defect appeared in the tested corpus. Engine production code remains at baseline `adda3a3`.

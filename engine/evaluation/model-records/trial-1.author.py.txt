@@ -1,0 +1,91 @@
+import json,re,os
+P=json.load(open('/tmp/ubc26-integration-authoring-inputs/trial-1.inputs.json'))
+
+def field(src,file,f): return {'op':'field','source':src,'file':file,'field':f}
+def lit(t,v): return {'op':'literal','type':t,'value':v}
+def op(o,a,b): return {'op':o,'left':a,'right':b}
+def unary(o,x): return {'op':o,'value':x}
+def col(src,file,fieldn): return {'source':src,'file':file,'field':fieldn}
+def count(c): return {'op':'count','collection':c}
+def unique(c,f): return {'op':'unique','collection':c,'field':f}
+def all_(c,w): return {'op':'all','collection':c,'where':w}
+def lookup(c,kf,key,vf): return {'op':'lookup','collection':c,'keyField':kf,'key':key,'valueField':vf}
+def rf(f): return {'op':'record_field','field':f}
+def rule_eq(a,b): return op('eq',a,b)
+def lt(a,b): return op('lt',a,b)
+def le(a,b): return op('lte',a,b)
+def ge(a,b): return op('gte',a,b)
+def ge0(f): return ge(rf(f),lit('i64','0'))
+def draft(inp, deliverables, references, rules, evidence=None, quotes=None):
+ plan={'version':1,'deliverables':deliverables,'references':references}
+ if evidence: plan['evidence']=evidence
+ plan['rules']=rules
+ return {'kind':'draft','plan':plan,'examples':[],'sourceQuotes':[{'path':'/rules/'+str(i),'quote':q} for i,q in enumerate(quotes or [])]}
+
+def files_from(inp,key):
+ return inp.get(key,[])
+def process(x):
+ inp=x['input']; req=inp['request'].split('\n\nPermitted')[0]; outs=inp['outputs']; permitted=json.loads(re.search(r'Permitted file names and input types \(no predicates are supplied\):\n(.*?)\n\nBuyer-supplied',inp['request'],re.S).group(1))
+ outfiles=permitted['outputFiles']; refs=permitted['referenceFiles']; evid=permitted['evidence']
+ def basic_files(files):
+  arr=[]
+  for f in files:
+   d={'name':f['name'],'parser':f['parser']}
+   if 'fields' in f: d['fields']=f['fields']
+   if 'collections' in f: d['collections']=f['collections']
+   arr.append(d)
+  return arr
+ if req.startswith('Check the proposed inventory'):
+  c1=col('deliverable','stock.json','rows'); c2=col('reference','catalog.json','rows')
+  qty=rf('quantity'); sku=rf('sku'); catmin=lookup(c2,'sku',sku,'minimum'); catmax=lookup(c2,'sku',sku,'maximum')
+  rules=[rule_eq(count(c1),count(c2)),unique(c1,'sku'),all_(c1,op('and',ge(qty,catmin),le(qty,catmax))),le({'op':'sum','collection':c1,'value':qty},lit('i64',re.search(r'Store at most ([0-9]+)',req).group(1)))]
+  return draft(inp,basic_files(outfiles),basic_files(refs),rules,quotes=[req.split('. ')[i] for i in [2,3,4] if i<len(req.split('. '))]+[re.search(r'Store at most [0-9]+ units in total\.',req).group(0)])
+ if req.startswith('Check the ' ) and 'expenses.json' in req:
+  c=col('deliverable','expenses.json','rows'); a=rf('amountCents'); lim=re.search(r'Keep the total at or below ([0-9]+) cents',req).group(1); each=re.search(r'Keep each expense at or below ([0-9]+) cents',req).group(1)
+  rules=[ge(count(c),lit('i64','1')),unique(c,'id'),all_(c,op('and',ge(a,lit('i64','0')),op('and',le(a,lit('i64',each)),rule_eq(rf('approved'),lit('bool',True))))),le({'op':'sum','collection':c,'value':a},lit('i64',lim))]
+  return draft(inp,basic_files(outfiles),basic_files(refs),rules,quotes=[s for s in req.split('. ') if any(k in s for k in ['Include at least','Use each expense','Every amount','Keep the total','Keep each expense','Mark every'])])
+ if req.startswith('Reconcile ') and 'ledger.json' in req:
+  c=col('deliverable','result.json','rows'); r=col('reference','ledger.json','rows'); idf=rf('id');
+  checks=op('and',rule_eq(lookup(r,'id',idf,'id'),idf),rule_eq(lookup(r,'id',idf,'amountCents'),rf('amountCents')))
+  report=json.loads(re.search(r'Set report.txt to exactly (".*?")\.',req).group(1))
+  rules=[rule_eq(count(c),count(r)),unique(c,'id'),all_(c,checks),rule_eq(field('deliverable','report.txt','text'),lit('string',report))]
+  return draft(inp,basic_files(outfiles),basic_files(refs),rules,quotes=['Match the reference row count.','Match each ID and amount to the reference ledger.'])
+ if req.startswith('Check a feasible assignment'):
+  c=col('deliverable','assignments.json','rows'); w=col('reference','workers.json','rows'); who=rf('worker'); shift=rf('shift'); cost=lookup(w,'id',who,'costCents')
+  rules=[unique(c,'worker'),all_(c,op('and',rule_eq(lookup(w,'id',who,'id'),who),op('or',rule_eq(shift,lit('i64','0')),rule_eq(shift,lit('i64','1'))))),ge({'op':'count','collection':c,'where':rule_eq(rf('shift'),lit('i64','0'))},lit('i64','1')),ge({'op':'count','collection':c,'where':rule_eq(rf('shift'),lit('i64','1'))},lit('i64','1')),le({'op':'sum','collection':c,'value':cost},lit('i64',re.search(r'at or below ([0-9]+) cents',req).group(1)))]
+  return draft(inp,basic_files(outfiles),basic_files(refs),rules,quotes=[s+'.' for s in req.split('. ') if any(k in s for k in ['Assign each','Use only','Assign at least','Keep total'])])
+ if req.startswith('Check the release-'):
+  lower=int(re.search(r'at least ([0-9]+) bytes',req).group(1)); upper=int(re.search(r'at most ([0-9]+) bytes',req).group(1)); label=re.search(r'Set metadata.json label to (".*?")',req).group(1); refname='approved.dat'
+  rules=[rule_eq({'op':'file_hash','source':'deliverable','file':'artifact.dat'},{'op':'file_hash','source':'reference','file':refname}),ge({'op':'file_size','source':'deliverable','file':'appendix.bin'},lit('i64',str(lower))),le({'op':'file_size','source':'deliverable','file':'appendix.bin'},lit('i64',str(upper))),rule_eq(field('deliverable','metadata.json','label'),lit('string',json.loads(label)))]
+  return draft(inp,basic_files(outfiles),basic_files(refs),rules,quotes=[s+'.' for s in req.split('. ') if any(k in s for k in ['Compare exact','Make artifact','Include at least','Include at most','Set metadata'])])
+ if 'evidence uses the ed25519/v1 envelope' in req:
+  signer=evid[0]['trustedPublicSigner']; authfields=evid[0]['authenticatedFields']; evidence=[{'name':evid[0]['name'],'parser':'json/v1','fields':authfields,'profile':'ed25519/v1','signer':signer,'bindings':[{'field':'artifactHash','file':'note.txt'}],'contextField':'contextHash'}]
+  ec=col('evidence','attestation.json','')
+  # Evidence fields are directly addressed through field expressions; binding and context are enforced by declaration.
+  rules=[ge(field('evidence','attestation.json','score'),lit('i64',re.search(r'at least ([0-9]+)',req).group(1))),rule_eq(field('evidence','attestation.json','issuer'),lit('string',re.search(r'issuer label (".*?")',req).group(1)[1:-1])),rule_eq(field('evidence','attestation.json','approved'),lit('bool',True))]
+  return draft(inp,basic_files(outfiles),basic_files(refs),rules,evidence=evidence,quotes=[s+'.' for s in req.split('. ') if any(k in s for k in ['Accept only','Bind the evidence','Bind contextHash','Require a signed'])])
+ if req.startswith('Fetch the current online') or any(w in req for w in ['division inside the checker','SHA3-256 file hashing primitive','median primitive','date strings into time zones','Sort arbitrary ledger rows','native PDF parser','language model inside the guest','regular expression ^invoice','X.509 certificate chain']):
+  return {'kind':'unsupported','reason':'The requested operation is not available in the supplied capability catalog.'}
+ if req.startswith('Reconcile the payments and ignore tiny differences'):
+  return {'kind':'clarification','questions':['Which tolerance, unit, and comparison rule define “tiny differences”?','Which files and fields contain the payment results and reference ledger?']}
+ if req.startswith('Accept this result if a trusted reviewer') or req.startswith('Use a recent signed audit'):
+  return {'kind':'clarification','questions':['Which evidence profile and trusted signer should be used?','What artifact or context must the signature bind, and what rule defines “recent” or “scores well”?']}
+ if req.startswith('Match transactions by date'):
+  return {'kind':'clarification','questions':['Which files and fields contain the transactions?','What exact matching rule should apply to dates and descriptions?']}
+ if req.startswith('Accept the claim if'):
+  return {'kind':'clarification','questions':['Which file and field contain the total, and what unit should the threshold use?']}
+ if req.startswith('Keep enough stock'):
+  return {'kind':'clarification','questions':['Which output and reference files define the stock quantities?','What minimum stock level and next-event demand should apply?']}
+ if req.startswith('Cover the morning shift'):
+  return {'kind':'clarification','questions':['Which file contains the schedule, and what counts as the morning shift?','What deadline and coverage requirement should apply?']}
+ if req.startswith('Give everyone a fair schedule'):
+  return {'kind':'clarification','questions':['Which people and schedule fields should be checked?','What measurable fairness rule should apply?']}
+ if req.startswith('Approve reasonable travel expenses'):
+  return {'kind':'clarification','questions':['Which expense file and fields should be checked?','What measurable rules define reasonable expenses?']}
+ if req.startswith('Deliver a small report'):
+  return {'kind':'clarification','questions':['What report content and exact format should the deliverable use?']}
+ return {'kind':'clarification','questions':['Please specify the deliverable files, fields, and measurable acceptance rules.']}
+results=[{'requestId':x['requestId'],'result':process(x)} for x in P['requests']]
+out={'trial':1,'results':results}
+path='/tmp/ubc26-luna-trial-1/outputs.json'; json.dump(out,open(path,'w'),indent=2,ensure_ascii=False)
+print(path,len(results))

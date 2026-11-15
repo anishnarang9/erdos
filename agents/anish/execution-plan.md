@@ -31,12 +31,12 @@ The user approved unattended execution through these phases in order. Checkpoint
 
 ## Phase 3: Authoring and end-to-end evidence
 
-- [ ] Implement a reusable adapter for Neil's DraftModel and Engine boundaries. Avoid a competing service.
-- [ ] Use `gpt-6-luna`, low reasoning, with only request, permitted reference information, schema, and catalog.
-- [ ] Run three independent trials per challenge. Allow at most one repair after validation feedback. Record every attempt and usage when available.
-- [ ] Score semantics: missing requirements, invented constants, changed units, and weaker predicates. Keep first attempts separate from repairs.
+- [x] Implement a reusable adapter for Neil's DraftModel and Engine boundaries. Avoid a competing service.
+- [x] Use `gpt-6-luna`, low reasoning, with only request, permitted reference information, schema, and catalog.
+- [x] Run three independent trials per challenge. Allow at most one repair after validation feedback. Record every attempt and usage when available.
+- [x] Score semantics: missing requirements, invented constants, changed units, and weaker predicates. Keep first attempts separate from repairs.
 - [ ] Use real CLI validation, evaluation, compilation, execution, proving, and decryption.
-- [ ] Execute each distinct accepted rule structure in the guest.
+- [x] Execute each distinct accepted rule structure in the guest.
 - [ ] Produce 12 new Groth16 receipts across six families, including passing and failing predicates. Invalid input/signatures may abort.
 - [ ] Verify with the pinned real Solidity verifier locally. Recover passing files byte for byte.
 - [ ] Publish one repeatable evaluation command and a report separating translation, engine, and proof results. Luna evidence does not establish live Grok behavior.

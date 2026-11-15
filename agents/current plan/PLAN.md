@@ -2,6 +2,13 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 23:31 -05:00 — Anish — Tested local adapters and authoring records
+
+- `codex/engine-commerce` now contains a [local engine adapter](../../engine/evaluation/engine-adapter.ts) implementing Neil's current `Engine` type. Successful validation retains `report.preview` and commitments. Compilation returns the commerce manifest plus `engineManifest`, `packagePath`, and `compileReport`. Packages persist after staging cleanup. The package directory must be private.
+- The [recorded model adapter](../../engine/evaluation/recorded-draft-model.ts) implements `DraftModel` and binds each replay to the exact input. Its provenance identifies Luna. This does not establish live Grok behavior or connect the production HTTP routes. The `jobs.ts` validator still needs explicit adapter injection.
+- Three Luna batches produced 180 first outcomes and 35 permitted validation repairs. All 1,023 independent candidate checks matched after validation. All 16 accepted rule structures ran in the actual guest. [Evaluation report](../../engine/evaluation/reports/authoring.json).
+- Twelve new proof receipts are in progress using selected model-authored plans. Settlement still requires Nick's deployed manifest, final caps, and actual funded terms. Native Linux timing and live payment remain unverified.
+
 ## 2026-11-14 22:46 -05:00 — Anish — Isolated engine and commerce evaluation
 
 - `codex/engine-commerce` combines engine `adda3a3` with commerce `3013d736` for evaluation. Engine PR #3 remains separate. Engine fixes will use separate commits.

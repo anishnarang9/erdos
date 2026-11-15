@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "initialSummary": {
+    "firstTrialResults": 180,
+    "repairAttempts": 35,
+    "firstDraftsValid": 85,
+    "firstCoveragePassed": 138,
+    "finalCoveragePassed": 166,
+    "candidateChecks": 1023,
+    "semanticMismatches": 0,
+    "selectedFamilies": 6
+  },
+  "reviewed": [
+    {
+      "trial": 2,
+      "challenge": "ledger-7",
+      "derivedHash": "0x3920225b710bda5b0a22255d3957b0c87618b0043c00ea7619c58495462e34c3",
+      "derivation": "SHA256(UTF8(exact requested report text))",
+      "verified": true
+    },
+    {
+      "trial": 2,
+      "challenge": "ledger-2",
+      "derivedHash": "0xc127719ec11d68e57ede19f7621a3106b4da7d3146d0f4b25ea296fc453c0697",
+      "derivation": "SHA256(UTF8(exact requested report text))",
+      "verified": true
+    },
+    {
+      "trial": 2,
+      "challenge": "ledger-5",
+      "derivedHash": "0x71e9febcc4f3f33f8cac8ce6f901cb022b215e01b4fb733d74ec64db8b1aa53f",
+      "derivation": "SHA256(UTF8(exact requested report text))",
+      "verified": true
+    },
+    {
+      "trial": 2,
+      "challenge": "ledger-1",
+      "derivedHash": "0x7de38c532bcf9b05455bd84e15d4fab38e7227f1baf467a94a656f82af067e01",
+      "derivation": "SHA256(UTF8(exact requested report text))",
+      "verified": true
+    },
+    {
+      "trial": 2,
+      "challenge": "ledger-3",
+      "derivedHash": "0x10c70b179f7115581cc57475c08efecf54181cb8a7962a5795f5a69d24fd8da3",
+      "derivation": "SHA256(UTF8(exact requested report text))",
+      "verified": true
+    },
+    {
+      "trial": 2,
+      "challenge": "ledger-6",
+      "derivedHash": "0x7c25488c3799900314bbeda585dcec2b90571fd98b249a729bb10adb1b7a8494",
+      "derivation": "SHA256(UTF8(exact requested report text))",
+      "verified": true
+    },
+    {
+      "trial": 2,
+      "challenge": "ledger-4",
+      "derivedHash": "0x0fe2abd983cfc7b467d35ff5d4c002d08943dd65a686bef4d76ca34181a4a516",
+      "derivation": "SHA256(UTF8(exact requested report text))",
+      "verified": true
+    },
+    {
+      "trial": 3,
+      "challenge": "ledger-6",
+      "derivedHash": "0x7c25488c3799900314bbeda585dcec2b90571fd98b249a729bb10adb1b7a8494",
+      "derivation": "SHA256(UTF8(exact requested report text))",
+      "verified": true
+    },
+    {
+      "trial": 3,
+      "challenge": "ledger-7",
+      "derivedHash": "0x3920225b710bda5b0a22255d3957b0c87618b0043c00ea7619c58495462e34c3",
+      "derivation": "SHA256(UTF8(exact requested report text))",
+      "verified": true
+    },
+    {
+      "trial": 3,
+      "challenge": "ledger-1",
+      "derivedHash": "0x7de38c532bcf9b05455bd84e15d4fab38e7227f1baf467a94a656f82af067e01",
+      "derivation": "SHA256(UTF8(exact requested report text))",
+      "verified": true
+    },
+    {
+      "trial": 3,
+      "challenge": "ledger-5",
+      "derivedHash": "0x71e9febcc4f3f33f8cac8ce6f901cb022b215e01b4fb733d74ec64db8b1aa53f",
+      "derivation": "SHA256(UTF8(exact requested report text))",
+      "verified": true
+    },
+    {
+      "trial": 3,
+      "challenge": "ledger-2",
+      "derivedHash": "0xc127719ec11d68e57ede19f7621a3106b4da7d3146d0f4b25ea296fc453c0697",
+      "derivation": "SHA256(UTF8(exact requested report text))",
+      "verified": true
+    },
+    {
+      "trial": 3,
+      "challenge": "ledger-3",
+      "derivedHash": "0x10c70b179f7115581cc57475c08efecf54181cb8a7962a5795f5a69d24fd8da3",
+      "derivation": "SHA256(UTF8(exact requested report text))",
+      "verified": true
+    },
+    {
+      "trial": 3,
+      "challenge": "ledger-4",
+      "derivedHash": "0x0fe2abd983cfc7b467d35ff5d4c002d08943dd65a686bef4d76ca34181a4a516",
+      "derivation": "SHA256(UTF8(exact requested report text))",
+      "verified": true
+    }
+  ],
+  "finding": "The screen initially lacked hash derivation from public text. All 14 flagged constants matched the exact requested text. A regression test now covers that derivation.",
+  "assumption": "The hash-based text predicates rely on SHA-256 collision resistance. No model received semantic repair feedback. No model outputs changed."
+}

@@ -1,0 +1,6097 @@
+{
+  "trial": 2,
+  "results": [
+    {
+      "requestId": "q-91b567698225649b",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "expenses.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    },
+                    {
+                      "name": "approved",
+                      "type": "bool"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [],
+          "rules": [
+            {
+              "op": "gte",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "expenses.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1"
+              }
+            },
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "gte",
+                "left": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "0"
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "expenses.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1100"
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "lte",
+                "left": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "440"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "record_field",
+                "field": "approved",
+                "level": 0
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the lab equipment claim in expenses.json Amounts use integer cents as decimal strings Include at least one expense Use each expense ID once Every amount must be zero or positive Keep the total at or below 1100 cents Keep each expense at or below 440 cents."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-85c2b1dd328e9529",
+      "result": {
+        "kind": "clarification",
+        "questions": [
+          "What schedule data and fairness rule should the checker use?"
+        ]
+      }
+    },
+    {
+      "requestId": "q-6cace53c0a6dbc29",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "result.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "report.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [
+            {
+              "name": "ledger.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "result.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "ledger.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "id",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id",
+                      "level": 0
+                    },
+                    "valueField": "id"
+                  }
+                },
+                "right": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "amountCents",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id",
+                      "level": 0
+                    },
+                    "valueField": "amountCents"
+                  }
+                }
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "file_hash",
+                "source": "deliverable",
+                "file": "report.txt"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "0x3920225b710bda5b0a22255d3957b0c87618b0043c00ea7619c58495462e34c3"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Reconcile charity receipts against ledger.json. IDs are case-sensitive. Amounts use integer cents as decimal strings. Use every result ID at most once. Match the reference row count. Match each ID and amount to the reference ledger. Set report.txt to exactly \"Reconciled charity receipts.\\n\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-1cee562d5c8a790a",
+      "result": {
+        "kind": "unsupported",
+        "reason": "The capability catalog provides SHA-256 file hashing, but it does not provide a SHA3-256 hashing primitive."
+      }
+    },
+    {
+      "requestId": "q-d8330d9f1ee0e9ee",
+      "result": {
+        "kind": "unsupported",
+        "reason": "The capability catalog does not provide a median operation."
+      }
+    },
+    {
+      "requestId": "q-f780fb9d3954752c",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "note.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [],
+          "rules": [
+            {
+              "op": "gte",
+              "left": {
+                "op": "field",
+                "source": "evidence",
+                "file": "attestation.json",
+                "field": "score"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "73"
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "evidence",
+                "file": "attestation.json",
+                "field": "issuer"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "synthetic-2"
+              }
+            },
+            {
+              "op": "field",
+              "source": "evidence",
+              "file": "attestation.json",
+              "field": "approved"
+            }
+          ],
+          "evidence": [
+            {
+              "name": "attestation.json",
+              "parser": "json/v1",
+              "fields": [
+                {
+                  "name": "artifactHash",
+                  "type": "string"
+                },
+                {
+                  "name": "contextHash",
+                  "type": "string"
+                },
+                {
+                  "name": "score",
+                  "type": "i64"
+                },
+                {
+                  "name": "issuer",
+                  "type": "string"
+                },
+                {
+                  "name": "approved",
+                  "type": "bool"
+                }
+              ],
+              "profile": "ed25519/v1",
+              "signer": "0x48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd",
+              "bindings": [
+                {
+                  "field": "artifactHash",
+                  "file": "note.txt"
+                }
+              ],
+              "contextField": "contextHash"
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the signed archive review result. All signers and data in this test are synthetic. The evidence uses the ed25519/v1 envelope and decimal-string scores. Accept only a valid Ed25519 signature from the pinned synthetic signer. Bind the evidence artifactHash to the exact note.txt bytes. Bind contextHash to SHA-256 of the funded context bytes. Require a signed score of at least 73. Require the signed issuer label \"synthetic-2\". Require the signed approved field to be true."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-3beeacb42e70aa04",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "assignments.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "worker",
+                      "type": "string"
+                    },
+                    {
+                      "name": "shift",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "workers.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "costCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "field": "worker"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "worker",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "workers.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "worker",
+                      "level": 0
+                    },
+                    "valueField": "id"
+                  }
+                },
+                "right": {
+                  "op": "or",
+                  "left": {
+                    "op": "eq",
+                    "left": {
+                      "op": "record_field",
+                      "field": "shift",
+                      "level": 0
+                    },
+                    "right": {
+                      "op": "literal",
+                      "type": "i64",
+                      "value": "0"
+                    }
+                  },
+                  "right": {
+                    "op": "eq",
+                    "left": {
+                      "op": "record_field",
+                      "field": "shift",
+                      "level": 0
+                    },
+                    "right": {
+                      "op": "literal",
+                      "type": "i64",
+                      "value": "1"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "op": "any",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "eq",
+                "left": {
+                  "op": "record_field",
+                  "field": "shift",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "0"
+                }
+              }
+            },
+            {
+              "op": "any",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "eq",
+                "left": {
+                  "op": "record_field",
+                  "field": "shift",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "1"
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "assignments.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "lookup",
+                  "collection": {
+                    "source": "reference",
+                    "file": "workers.json",
+                    "field": "rows"
+                  },
+                  "keyField": "id",
+                  "key": {
+                    "op": "record_field",
+                    "field": "worker",
+                    "level": 0
+                  },
+                  "valueField": "costCents"
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "600"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check a feasible assignment for clinic staffing. All catalog workers are available for either shift. The catalog gives the full cost per assignment in cents. Assign each worker to at most one shift. Use only shift 0 or shift 1. Assign at least one worker to shift 0. Assign at least one worker to shift 1. Keep total worker cost at or below 600 cents. A feasible result does not claim an optimal schedule."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-915395b3a4b30051",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "artifact.dat",
+              "parser": "text/v1"
+            },
+            {
+              "name": "appendix.bin",
+              "parser": "opaque/v1"
+            },
+            {
+              "name": "metadata.json",
+              "parser": "json/v1",
+              "fields": [
+                {
+                  "name": "label",
+                  "type": "string"
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "approved.dat",
+              "parser": "opaque/v1"
+            }
+          ],
+          "rules": [
+            {
+              "op": "eq",
+              "left": {
+                "op": "file_hash",
+                "source": "deliverable",
+                "file": "artifact.dat"
+              },
+              "right": {
+                "op": "file_hash",
+                "source": "reference",
+                "file": "approved.dat"
+              }
+            },
+            {
+              "op": "gte",
+              "left": {
+                "op": "file_size",
+                "source": "deliverable",
+                "file": "appendix.bin"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "3"
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "file_size",
+                "source": "deliverable",
+                "file": "appendix.bin"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "9"
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "deliverable",
+                "file": "metadata.json",
+                "field": "label"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "release-2"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the release-2 delivery package. Parse artifact.dat with text/v1. Compare exact file bytes, including whitespace and newlines. appendix.bin is opaque binary data. Make artifact.dat match the exact SHA-256 bytes of approved.dat. Include at least 3 bytes in appendix.bin. Include at most 9 bytes in appendix.bin. Set metadata.json label to \"release-2\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-b9a93a3edefe05ea",
+      "result": {
+        "kind": "clarification",
+        "questions": [
+          "What output file, format, content, and acceptance conditions should the report use?"
+        ]
+      }
+    },
+    {
+      "requestId": "q-b266794bfeb9630f",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "expenses.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    },
+                    {
+                      "name": "approved",
+                      "type": "bool"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [],
+          "rules": [
+            {
+              "op": "gte",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "expenses.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1"
+              }
+            },
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "gte",
+                "left": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "0"
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "expenses.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1600"
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "lte",
+                "left": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "640"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "record_field",
+                "field": "approved",
+                "level": 0
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the volunteer meal claim in expenses.json Amounts use integer cents as decimal strings Include at least one expense Use each expense ID once Every amount must be zero or positive Keep the total at or below 1600 cents Keep each expense at or below 640 cents."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-a75b8394b849dfcc",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "assignments.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "worker",
+                      "type": "string"
+                    },
+                    {
+                      "name": "shift",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "workers.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "costCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "field": "worker"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "worker",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "workers.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "worker",
+                      "level": 0
+                    },
+                    "valueField": "id"
+                  }
+                },
+                "right": {
+                  "op": "or",
+                  "left": {
+                    "op": "eq",
+                    "left": {
+                      "op": "record_field",
+                      "field": "shift",
+                      "level": 0
+                    },
+                    "right": {
+                      "op": "literal",
+                      "type": "i64",
+                      "value": "0"
+                    }
+                  },
+                  "right": {
+                    "op": "eq",
+                    "left": {
+                      "op": "record_field",
+                      "field": "shift",
+                      "level": 0
+                    },
+                    "right": {
+                      "op": "literal",
+                      "type": "i64",
+                      "value": "1"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "op": "any",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "eq",
+                "left": {
+                  "op": "record_field",
+                  "field": "shift",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "0"
+                }
+              }
+            },
+            {
+              "op": "any",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "eq",
+                "left": {
+                  "op": "record_field",
+                  "field": "shift",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "1"
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "assignments.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "lookup",
+                  "collection": {
+                    "source": "reference",
+                    "file": "workers.json",
+                    "field": "rows"
+                  },
+                  "keyField": "id",
+                  "key": {
+                    "op": "record_field",
+                    "field": "worker",
+                    "level": 0
+                  },
+                  "valueField": "costCents"
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1080"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check a feasible assignment for festival support. All catalog workers are available for either shift. The catalog gives the full cost per assignment in cents. Assign each worker to at most one shift. Use only shift 0 or shift 1. Assign at least one worker to shift 0. Assign at least one worker to shift 1. Keep total worker cost at or below 1080 cents. A feasible result does not claim an optimal schedule."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-16907adc3afc62db",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "stock.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "sku",
+                      "type": "string"
+                    },
+                    {
+                      "name": "quantity",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "catalog.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "sku",
+                      "type": "string"
+                    },
+                    {
+                      "name": "minimum",
+                      "type": "i64"
+                    },
+                    {
+                      "name": "maximum",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "stock.json",
+                "field": "rows"
+              },
+              "field": "sku"
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "stock.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "catalog.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "stock.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "gte",
+                  "left": {
+                    "op": "record_field",
+                    "field": "quantity",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "catalog.json",
+                      "field": "rows"
+                    },
+                    "keyField": "sku",
+                    "key": {
+                      "op": "record_field",
+                      "field": "sku",
+                      "level": 0
+                    },
+                    "valueField": "minimum"
+                  }
+                },
+                "right": {
+                  "op": "lte",
+                  "left": {
+                    "op": "record_field",
+                    "field": "quantity",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "catalog.json",
+                      "field": "rows"
+                    },
+                    "keyField": "sku",
+                    "key": {
+                      "op": "record_field",
+                      "field": "sku",
+                      "level": 0
+                    },
+                    "valueField": "maximum"
+                  }
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "stock.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "record_field",
+                  "field": "quantity",
+                  "level": 0
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "32"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the proposed inventory for library stock. Quantities are indivisible units encoded as decimal strings. The catalog sets each SKU range. Use each SKU once. Match the catalog SKU count. Meet each SKU minimum from the catalog. Do not exceed each SKU maximum from the catalog. Store at most 32 units in total."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-8708d4af92b30015",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "result.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "report.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [
+            {
+              "name": "ledger.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "result.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "ledger.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "id",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id",
+                      "level": 0
+                    },
+                    "valueField": "id"
+                  }
+                },
+                "right": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "amountCents",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id",
+                      "level": 0
+                    },
+                    "valueField": "amountCents"
+                  }
+                }
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "file_hash",
+                "source": "deliverable",
+                "file": "report.txt"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "0xc127719ec11d68e57ede19f7621a3106b4da7d3146d0f4b25ea296fc453c0697"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Reconcile membership dues against ledger.json. IDs are case-sensitive. Amounts use integer cents as decimal strings. Use every result ID at most once. Match the reference row count. Match each ID and amount to the reference ledger. Set report.txt to exactly \"Reconciled membership dues.\\n\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-262ea3d943f3d0a0",
+      "result": {
+        "kind": "unsupported",
+        "reason": "The capability catalog does not provide date or time-zone parsing."
+      }
+    },
+    {
+      "requestId": "q-aa6a265dbfe7bf0e",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "stock.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "sku",
+                      "type": "string"
+                    },
+                    {
+                      "name": "quantity",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "catalog.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "sku",
+                      "type": "string"
+                    },
+                    {
+                      "name": "minimum",
+                      "type": "i64"
+                    },
+                    {
+                      "name": "maximum",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "stock.json",
+                "field": "rows"
+              },
+              "field": "sku"
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "stock.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "catalog.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "stock.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "gte",
+                  "left": {
+                    "op": "record_field",
+                    "field": "quantity",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "catalog.json",
+                      "field": "rows"
+                    },
+                    "keyField": "sku",
+                    "key": {
+                      "op": "record_field",
+                      "field": "sku",
+                      "level": 0
+                    },
+                    "valueField": "minimum"
+                  }
+                },
+                "right": {
+                  "op": "lte",
+                  "left": {
+                    "op": "record_field",
+                    "field": "quantity",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "catalog.json",
+                      "field": "rows"
+                    },
+                    "keyField": "sku",
+                    "key": {
+                      "op": "record_field",
+                      "field": "sku",
+                      "level": 0
+                    },
+                    "valueField": "maximum"
+                  }
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "stock.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "record_field",
+                  "field": "quantity",
+                  "level": 0
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "41"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the proposed inventory for event supplies. Quantities are indivisible units encoded as decimal strings. The catalog sets each SKU range. Use each SKU once. Match the catalog SKU count. Meet each SKU minimum from the catalog. Do not exceed each SKU maximum from the catalog. Store at most 41 units in total."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-d154b3393bd8aff1",
+      "result": {
+        "kind": "unsupported",
+        "reason": "The capability catalog does not provide HTTPS access or online data fetching."
+      }
+    },
+    {
+      "requestId": "q-d91a7122e2b27103",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "artifact.dat",
+              "parser": "json/v1"
+            },
+            {
+              "name": "appendix.bin",
+              "parser": "opaque/v1"
+            },
+            {
+              "name": "metadata.json",
+              "parser": "json/v1",
+              "fields": [
+                {
+                  "name": "label",
+                  "type": "string"
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "approved.dat",
+              "parser": "opaque/v1"
+            }
+          ],
+          "rules": [
+            {
+              "op": "eq",
+              "left": {
+                "op": "file_hash",
+                "source": "deliverable",
+                "file": "artifact.dat"
+              },
+              "right": {
+                "op": "file_hash",
+                "source": "reference",
+                "file": "approved.dat"
+              }
+            },
+            {
+              "op": "gte",
+              "left": {
+                "op": "file_size",
+                "source": "deliverable",
+                "file": "appendix.bin"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "7"
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "file_size",
+                "source": "deliverable",
+                "file": "appendix.bin"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "13"
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "deliverable",
+                "file": "metadata.json",
+                "field": "label"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "release-6"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the release-6 delivery package. Parse artifact.dat with json/v1. Compare exact file bytes, including whitespace and newlines. appendix.bin is opaque binary data. Make artifact.dat match the exact SHA-256 bytes of approved.dat. Include at least 7 bytes in appendix.bin. Include at most 13 bytes in appendix.bin. Set metadata.json label to \"release-6\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-7522a8c5c704e145",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "artifact.dat",
+              "parser": "opaque/v1"
+            },
+            {
+              "name": "appendix.bin",
+              "parser": "opaque/v1"
+            },
+            {
+              "name": "metadata.json",
+              "parser": "json/v1",
+              "fields": [
+                {
+                  "name": "label",
+                  "type": "string"
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "approved.dat",
+              "parser": "opaque/v1"
+            }
+          ],
+          "rules": [
+            {
+              "op": "eq",
+              "left": {
+                "op": "file_hash",
+                "source": "deliverable",
+                "file": "artifact.dat"
+              },
+              "right": {
+                "op": "file_hash",
+                "source": "reference",
+                "file": "approved.dat"
+              }
+            },
+            {
+              "op": "gte",
+              "left": {
+                "op": "file_size",
+                "source": "deliverable",
+                "file": "appendix.bin"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "5"
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "file_size",
+                "source": "deliverable",
+                "file": "appendix.bin"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "11"
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "deliverable",
+                "file": "metadata.json",
+                "field": "label"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "release-4"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the release-4 delivery package. Parse artifact.dat with opaque/v1. Compare exact file bytes, including whitespace and newlines. appendix.bin is opaque binary data. Make artifact.dat match the exact SHA-256 bytes of approved.dat. Include at least 5 bytes in appendix.bin. Include at most 11 bytes in appendix.bin. Set metadata.json label to \"release-4\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-e9b452d918f15106",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "note.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [],
+          "rules": [
+            {
+              "op": "gte",
+              "left": {
+                "op": "field",
+                "source": "evidence",
+                "file": "attestation.json",
+                "field": "score"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "79"
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "evidence",
+                "file": "attestation.json",
+                "field": "issuer"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "synthetic-4"
+              }
+            },
+            {
+              "op": "field",
+              "source": "evidence",
+              "file": "attestation.json",
+              "field": "approved"
+            }
+          ],
+          "evidence": [
+            {
+              "name": "attestation.json",
+              "parser": "json/v1",
+              "fields": [
+                {
+                  "name": "artifactHash",
+                  "type": "string"
+                },
+                {
+                  "name": "contextHash",
+                  "type": "string"
+                },
+                {
+                  "name": "score",
+                  "type": "i64"
+                },
+                {
+                  "name": "issuer",
+                  "type": "string"
+                },
+                {
+                  "name": "approved",
+                  "type": "bool"
+                }
+              ],
+              "profile": "ed25519/v1",
+              "signer": "0x48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd",
+              "bindings": [
+                {
+                  "field": "artifactHash",
+                  "file": "note.txt"
+                }
+              ],
+              "contextField": "contextHash"
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the signed source inspection result. All signers and data in this test are synthetic. The evidence uses the ed25519/v1 envelope and decimal-string scores. Accept only a valid Ed25519 signature from the pinned synthetic signer. Bind the evidence artifactHash to the exact note.txt bytes. Bind contextHash to SHA-256 of the funded context bytes. Require a signed score of at least 79. Require the signed issuer label \"synthetic-4\". Require the signed approved field to be true."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-02a1fe5df5b95ab9",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "stock.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "sku",
+                      "type": "string"
+                    },
+                    {
+                      "name": "quantity",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "catalog.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "sku",
+                      "type": "string"
+                    },
+                    {
+                      "name": "minimum",
+                      "type": "i64"
+                    },
+                    {
+                      "name": "maximum",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "stock.json",
+                "field": "rows"
+              },
+              "field": "sku"
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "stock.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "catalog.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "stock.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "gte",
+                  "left": {
+                    "op": "record_field",
+                    "field": "quantity",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "catalog.json",
+                      "field": "rows"
+                    },
+                    "keyField": "sku",
+                    "key": {
+                      "op": "record_field",
+                      "field": "sku",
+                      "level": 0
+                    },
+                    "valueField": "minimum"
+                  }
+                },
+                "right": {
+                  "op": "lte",
+                  "left": {
+                    "op": "record_field",
+                    "field": "quantity",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "catalog.json",
+                      "field": "rows"
+                    },
+                    "keyField": "sku",
+                    "key": {
+                      "op": "record_field",
+                      "field": "sku",
+                      "level": 0
+                    },
+                    "valueField": "maximum"
+                  }
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "stock.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "record_field",
+                  "field": "quantity",
+                  "level": 0
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "47"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the proposed inventory for emergency batteries. Quantities are indivisible units encoded as decimal strings. The catalog sets each SKU range. Use each SKU once. Match the catalog SKU count. Meet each SKU minimum from the catalog. Do not exceed each SKU maximum from the catalog. Store at most 47 units in total."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-85d62683381be6be",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "result.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "report.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [
+            {
+              "name": "ledger.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "result.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "ledger.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "id",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id",
+                      "level": 0
+                    },
+                    "valueField": "id"
+                  }
+                },
+                "right": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "amountCents",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id",
+                      "level": 0
+                    },
+                    "valueField": "amountCents"
+                  }
+                }
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "file_hash",
+                "source": "deliverable",
+                "file": "report.txt"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "0x71e9febcc4f3f33f8cac8ce6f901cb022b215e01b4fb733d74ec64db8b1aa53f"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Reconcile ticket sales against ledger.json. IDs are case-sensitive. Amounts use integer cents as decimal strings. Use every result ID at most once. Match the reference row count. Match each ID and amount to the reference ledger. Set report.txt to exactly \"Reconciled ticket sales.\\n\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-4063db9817a279bf",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "artifact.dat",
+              "parser": "text/v1"
+            },
+            {
+              "name": "appendix.bin",
+              "parser": "opaque/v1"
+            },
+            {
+              "name": "metadata.json",
+              "parser": "json/v1",
+              "fields": [
+                {
+                  "name": "label",
+                  "type": "string"
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "approved.dat",
+              "parser": "opaque/v1"
+            }
+          ],
+          "rules": [
+            {
+              "op": "eq",
+              "left": {
+                "op": "file_hash",
+                "source": "deliverable",
+                "file": "artifact.dat"
+              },
+              "right": {
+                "op": "file_hash",
+                "source": "reference",
+                "file": "approved.dat"
+              }
+            },
+            {
+              "op": "gte",
+              "left": {
+                "op": "file_size",
+                "source": "deliverable",
+                "file": "appendix.bin"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "6"
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "file_size",
+                "source": "deliverable",
+                "file": "appendix.bin"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "12"
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "deliverable",
+                "file": "metadata.json",
+                "field": "label"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "release-5"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the release-5 delivery package. Parse artifact.dat with text/v1. Compare exact file bytes, including whitespace and newlines. appendix.bin is opaque binary data. Make artifact.dat match the exact SHA-256 bytes of approved.dat. Include at least 6 bytes in appendix.bin. Include at most 12 bytes in appendix.bin. Set metadata.json label to \"release-5\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-5966e342170212ed",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "artifact.dat",
+              "parser": "json/v1"
+            },
+            {
+              "name": "appendix.bin",
+              "parser": "opaque/v1"
+            },
+            {
+              "name": "metadata.json",
+              "parser": "json/v1",
+              "fields": [
+                {
+                  "name": "label",
+                  "type": "string"
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "approved.dat",
+              "parser": "opaque/v1"
+            }
+          ],
+          "rules": [
+            {
+              "op": "eq",
+              "left": {
+                "op": "file_hash",
+                "source": "deliverable",
+                "file": "artifact.dat"
+              },
+              "right": {
+                "op": "file_hash",
+                "source": "reference",
+                "file": "approved.dat"
+              }
+            },
+            {
+              "op": "gte",
+              "left": {
+                "op": "file_size",
+                "source": "deliverable",
+                "file": "appendix.bin"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "4"
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "file_size",
+                "source": "deliverable",
+                "file": "appendix.bin"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "10"
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "deliverable",
+                "file": "metadata.json",
+                "field": "label"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "release-3"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the release-3 delivery package. Parse artifact.dat with json/v1. Compare exact file bytes, including whitespace and newlines. appendix.bin is opaque binary data. Make artifact.dat match the exact SHA-256 bytes of approved.dat. Include at least 4 bytes in appendix.bin. Include at most 10 bytes in appendix.bin. Set metadata.json label to \"release-3\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-f4fe5596d8db7c90",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "assignments.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "worker",
+                      "type": "string"
+                    },
+                    {
+                      "name": "shift",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "workers.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "costCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "field": "worker"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "worker",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "workers.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "worker",
+                      "level": 0
+                    },
+                    "valueField": "id"
+                  }
+                },
+                "right": {
+                  "op": "or",
+                  "left": {
+                    "op": "eq",
+                    "left": {
+                      "op": "record_field",
+                      "field": "shift",
+                      "level": 0
+                    },
+                    "right": {
+                      "op": "literal",
+                      "type": "i64",
+                      "value": "0"
+                    }
+                  },
+                  "right": {
+                    "op": "eq",
+                    "left": {
+                      "op": "record_field",
+                      "field": "shift",
+                      "level": 0
+                    },
+                    "right": {
+                      "op": "literal",
+                      "type": "i64",
+                      "value": "1"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "op": "any",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "eq",
+                "left": {
+                  "op": "record_field",
+                  "field": "shift",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "0"
+                }
+              }
+            },
+            {
+              "op": "any",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "eq",
+                "left": {
+                  "op": "record_field",
+                  "field": "shift",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "1"
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "assignments.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "lookup",
+                  "collection": {
+                    "source": "reference",
+                    "file": "workers.json",
+                    "field": "rows"
+                  },
+                  "keyField": "id",
+                  "key": {
+                    "op": "record_field",
+                    "field": "worker",
+                    "level": 0
+                  },
+                  "valueField": "costCents"
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "960"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check a feasible assignment for security shifts. All catalog workers are available for either shift. The catalog gives the full cost per assignment in cents. Assign each worker to at most one shift. Use only shift 0 or shift 1. Assign at least one worker to shift 0. Assign at least one worker to shift 1. Keep total worker cost at or below 960 cents. A feasible result does not claim an optimal schedule."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-ed1cedf2a89cd1b5",
+      "result": {
+        "kind": "clarification",
+        "questions": [
+          "Which inventory data and minimum stock levels should the checker require?"
+        ]
+      }
+    },
+    {
+      "requestId": "q-294e0355002e080c",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "assignments.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "worker",
+                      "type": "string"
+                    },
+                    {
+                      "name": "shift",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "workers.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "costCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "field": "worker"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "worker",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "workers.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "worker",
+                      "level": 0
+                    },
+                    "valueField": "id"
+                  }
+                },
+                "right": {
+                  "op": "or",
+                  "left": {
+                    "op": "eq",
+                    "left": {
+                      "op": "record_field",
+                      "field": "shift",
+                      "level": 0
+                    },
+                    "right": {
+                      "op": "literal",
+                      "type": "i64",
+                      "value": "0"
+                    }
+                  },
+                  "right": {
+                    "op": "eq",
+                    "left": {
+                      "op": "record_field",
+                      "field": "shift",
+                      "level": 0
+                    },
+                    "right": {
+                      "op": "literal",
+                      "type": "i64",
+                      "value": "1"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "op": "any",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "eq",
+                "left": {
+                  "op": "record_field",
+                  "field": "shift",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "0"
+                }
+              }
+            },
+            {
+              "op": "any",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "eq",
+                "left": {
+                  "op": "record_field",
+                  "field": "shift",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "1"
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "assignments.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "lookup",
+                  "collection": {
+                    "source": "reference",
+                    "file": "workers.json",
+                    "field": "rows"
+                  },
+                  "keyField": "id",
+                  "key": {
+                    "op": "record_field",
+                    "field": "worker",
+                    "level": 0
+                  },
+                  "valueField": "costCents"
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1200"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check a feasible assignment for compute batch slots. All catalog workers are available for either shift. The catalog gives the full cost per assignment in cents. Assign each worker to at most one shift. Use only shift 0 or shift 1. Assign at least one worker to shift 0. Assign at least one worker to shift 1. Keep total worker cost at or below 1200 cents. A feasible result does not claim an optimal schedule."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-f64f521d0a3e2c01",
+      "result": {
+        "kind": "unsupported",
+        "reason": "The capability catalog does not provide language-model inference inside the guest."
+      }
+    },
+    {
+      "requestId": "q-25f6b2e447bcdec2",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "expenses.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    },
+                    {
+                      "name": "approved",
+                      "type": "bool"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [],
+          "rules": [
+            {
+              "op": "gte",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "expenses.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1"
+              }
+            },
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "gte",
+                "left": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "0"
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "expenses.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1300"
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "lte",
+                "left": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "520"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "record_field",
+                "field": "approved",
+                "level": 0
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the field research claim in expenses.json Amounts use integer cents as decimal strings Include at least one expense Use each expense ID once Every amount must be zero or positive Keep the total at or below 1300 cents Keep each expense at or below 520 cents."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-9394e2cb7bac9b38",
+      "result": {
+        "kind": "clarification",
+        "questions": [
+          "Which reference and result files should be reconciled, and what numeric tolerance defines a tiny difference?"
+        ]
+      }
+    },
+    {
+      "requestId": "q-83857f3e669114aa",
+      "result": {
+        "kind": "unsupported",
+        "reason": "The capability catalog does not provide X.509 certificate-chain or revocation validation."
+      }
+    },
+    {
+      "requestId": "q-77150aacb3ba035a",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "assignments.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "worker",
+                      "type": "string"
+                    },
+                    {
+                      "name": "shift",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "workers.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "costCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "field": "worker"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "worker",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "workers.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "worker",
+                      "level": 0
+                    },
+                    "valueField": "id"
+                  }
+                },
+                "right": {
+                  "op": "or",
+                  "left": {
+                    "op": "eq",
+                    "left": {
+                      "op": "record_field",
+                      "field": "shift",
+                      "level": 0
+                    },
+                    "right": {
+                      "op": "literal",
+                      "type": "i64",
+                      "value": "0"
+                    }
+                  },
+                  "right": {
+                    "op": "eq",
+                    "left": {
+                      "op": "record_field",
+                      "field": "shift",
+                      "level": 0
+                    },
+                    "right": {
+                      "op": "literal",
+                      "type": "i64",
+                      "value": "1"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "op": "any",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "eq",
+                "left": {
+                  "op": "record_field",
+                  "field": "shift",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "0"
+                }
+              }
+            },
+            {
+              "op": "any",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "eq",
+                "left": {
+                  "op": "record_field",
+                  "field": "shift",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "1"
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "assignments.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "lookup",
+                  "collection": {
+                    "source": "reference",
+                    "file": "workers.json",
+                    "field": "rows"
+                  },
+                  "keyField": "id",
+                  "key": {
+                    "op": "record_field",
+                    "field": "worker",
+                    "level": 0
+                  },
+                  "valueField": "costCents"
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "720"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check a feasible assignment for warehouse coverage. All catalog workers are available for either shift. The catalog gives the full cost per assignment in cents. Assign each worker to at most one shift. Use only shift 0 or shift 1. Assign at least one worker to shift 0. Assign at least one worker to shift 1. Keep total worker cost at or below 720 cents. A feasible result does not claim an optimal schedule."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-43a0b56ea0b9c69d",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "stock.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "sku",
+                      "type": "string"
+                    },
+                    {
+                      "name": "quantity",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "catalog.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "sku",
+                      "type": "string"
+                    },
+                    {
+                      "name": "minimum",
+                      "type": "i64"
+                    },
+                    {
+                      "name": "maximum",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "stock.json",
+                "field": "rows"
+              },
+              "field": "sku"
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "stock.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "catalog.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "stock.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "gte",
+                  "left": {
+                    "op": "record_field",
+                    "field": "quantity",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "catalog.json",
+                      "field": "rows"
+                    },
+                    "keyField": "sku",
+                    "key": {
+                      "op": "record_field",
+                      "field": "sku",
+                      "level": 0
+                    },
+                    "valueField": "minimum"
+                  }
+                },
+                "right": {
+                  "op": "lte",
+                  "left": {
+                    "op": "record_field",
+                    "field": "quantity",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "catalog.json",
+                      "field": "rows"
+                    },
+                    "keyField": "sku",
+                    "key": {
+                      "op": "record_field",
+                      "field": "sku",
+                      "level": 0
+                    },
+                    "valueField": "maximum"
+                  }
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "stock.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "record_field",
+                  "field": "quantity",
+                  "level": 0
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "38"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the proposed inventory for food pantry boxes. Quantities are indivisible units encoded as decimal strings. The catalog sets each SKU range. Use each SKU once. Match the catalog SKU count. Meet each SKU minimum from the catalog. Do not exceed each SKU maximum from the catalog. Store at most 38 units in total."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-2f52e7516aa39798",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "note.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [],
+          "rules": [
+            {
+              "op": "gte",
+              "left": {
+                "op": "field",
+                "source": "evidence",
+                "file": "attestation.json",
+                "field": "score"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "82"
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "evidence",
+                "file": "attestation.json",
+                "field": "issuer"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "synthetic-5"
+              }
+            },
+            {
+              "op": "field",
+              "source": "evidence",
+              "file": "attestation.json",
+              "field": "approved"
+            }
+          ],
+          "evidence": [
+            {
+              "name": "attestation.json",
+              "parser": "json/v1",
+              "fields": [
+                {
+                  "name": "artifactHash",
+                  "type": "string"
+                },
+                {
+                  "name": "contextHash",
+                  "type": "string"
+                },
+                {
+                  "name": "score",
+                  "type": "i64"
+                },
+                {
+                  "name": "issuer",
+                  "type": "string"
+                },
+                {
+                  "name": "approved",
+                  "type": "bool"
+                }
+              ],
+              "profile": "ed25519/v1",
+              "signer": "0x48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd",
+              "bindings": [
+                {
+                  "field": "artifactHash",
+                  "file": "note.txt"
+                }
+              ],
+              "contextField": "contextHash"
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the signed dataset audit result. All signers and data in this test are synthetic. The evidence uses the ed25519/v1 envelope and decimal-string scores. Accept only a valid Ed25519 signature from the pinned synthetic signer. Bind the evidence artifactHash to the exact note.txt bytes. Bind contextHash to SHA-256 of the funded context bytes. Require a signed score of at least 82. Require the signed issuer label \"synthetic-5\". Require the signed approved field to be true."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-3baeda9b21f638e6",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "result.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "report.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [
+            {
+              "name": "ledger.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "result.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "ledger.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "id",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id",
+                      "level": 0
+                    },
+                    "valueField": "id"
+                  }
+                },
+                "right": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "amountCents",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id",
+                      "level": 0
+                    },
+                    "valueField": "amountCents"
+                  }
+                }
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "file_hash",
+                "source": "deliverable",
+                "file": "report.txt"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "0x7de38c532bcf9b05455bd84e15d4fab38e7227f1baf467a94a656f82af067e01"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Reconcile bank payments against ledger.json. IDs are case-sensitive. Amounts use integer cents as decimal strings. Use every result ID at most once. Match the reference row count. Match each ID and amount to the reference ledger. Set report.txt to exactly \"Reconciled bank payments.\\n\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-5b0509493b287974",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "artifact.dat",
+              "parser": "opaque/v1"
+            },
+            {
+              "name": "appendix.bin",
+              "parser": "opaque/v1"
+            },
+            {
+              "name": "metadata.json",
+              "parser": "json/v1",
+              "fields": [
+                {
+                  "name": "label",
+                  "type": "string"
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "approved.dat",
+              "parser": "opaque/v1"
+            }
+          ],
+          "rules": [
+            {
+              "op": "eq",
+              "left": {
+                "op": "file_hash",
+                "source": "deliverable",
+                "file": "artifact.dat"
+              },
+              "right": {
+                "op": "file_hash",
+                "source": "reference",
+                "file": "approved.dat"
+              }
+            },
+            {
+              "op": "gte",
+              "left": {
+                "op": "file_size",
+                "source": "deliverable",
+                "file": "appendix.bin"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "2"
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "file_size",
+                "source": "deliverable",
+                "file": "appendix.bin"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "8"
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "deliverable",
+                "file": "metadata.json",
+                "field": "label"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "release-1"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the release-1 delivery package. Parse artifact.dat with opaque/v1. Compare exact file bytes, including whitespace and newlines. appendix.bin is opaque binary data. Make artifact.dat match the exact SHA-256 bytes of approved.dat. Include at least 2 bytes in appendix.bin. Include at most 8 bytes in appendix.bin. Set metadata.json label to \"release-1\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-5efb5becdda57481",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "expenses.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    },
+                    {
+                      "name": "approved",
+                      "type": "bool"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [],
+          "rules": [
+            {
+              "op": "gte",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "expenses.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1"
+              }
+            },
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "gte",
+                "left": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "0"
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "expenses.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1000"
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "lte",
+                "left": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "400"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "record_field",
+                "field": "approved",
+                "level": 0
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the conference travel claim in expenses.json Amounts use integer cents as decimal strings Include at least one expense Use each expense ID once Every amount must be zero or positive Keep the total at or below 1000 cents Keep each expense at or below 400 cents."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-86948ea39d866310",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "note.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [],
+          "rules": [
+            {
+              "op": "gte",
+              "left": {
+                "op": "field",
+                "source": "evidence",
+                "file": "attestation.json",
+                "field": "score"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "76"
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "evidence",
+                "file": "attestation.json",
+                "field": "issuer"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "synthetic-3"
+              }
+            },
+            {
+              "op": "field",
+              "source": "evidence",
+              "file": "attestation.json",
+              "field": "approved"
+            }
+          ],
+          "evidence": [
+            {
+              "name": "attestation.json",
+              "parser": "json/v1",
+              "fields": [
+                {
+                  "name": "artifactHash",
+                  "type": "string"
+                },
+                {
+                  "name": "contextHash",
+                  "type": "string"
+                },
+                {
+                  "name": "score",
+                  "type": "i64"
+                },
+                {
+                  "name": "issuer",
+                  "type": "string"
+                },
+                {
+                  "name": "approved",
+                  "type": "bool"
+                }
+              ],
+              "profile": "ed25519/v1",
+              "signer": "0x48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd",
+              "bindings": [
+                {
+                  "field": "artifactHash",
+                  "file": "note.txt"
+                }
+              ],
+              "contextField": "contextHash"
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the signed model evaluation result. All signers and data in this test are synthetic. The evidence uses the ed25519/v1 envelope and decimal-string scores. Accept only a valid Ed25519 signature from the pinned synthetic signer. Bind the evidence artifactHash to the exact note.txt bytes. Bind contextHash to SHA-256 of the funded context bytes. Require a signed score of at least 76. Require the signed issuer label \"synthetic-3\". Require the signed approved field to be true."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-f8baa9190b9497c5",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "assignments.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "worker",
+                      "type": "string"
+                    },
+                    {
+                      "name": "shift",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "workers.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "costCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "field": "worker"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "worker",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "workers.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "worker",
+                      "level": 0
+                    },
+                    "valueField": "id"
+                  }
+                },
+                "right": {
+                  "op": "or",
+                  "left": {
+                    "op": "eq",
+                    "left": {
+                      "op": "record_field",
+                      "field": "shift",
+                      "level": 0
+                    },
+                    "right": {
+                      "op": "literal",
+                      "type": "i64",
+                      "value": "0"
+                    }
+                  },
+                  "right": {
+                    "op": "eq",
+                    "left": {
+                      "op": "record_field",
+                      "field": "shift",
+                      "level": 0
+                    },
+                    "right": {
+                      "op": "literal",
+                      "type": "i64",
+                      "value": "1"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "op": "any",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "eq",
+                "left": {
+                  "op": "record_field",
+                  "field": "shift",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "0"
+                }
+              }
+            },
+            {
+              "op": "any",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "eq",
+                "left": {
+                  "op": "record_field",
+                  "field": "shift",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "1"
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "assignments.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "lookup",
+                  "collection": {
+                    "source": "reference",
+                    "file": "workers.json",
+                    "field": "rows"
+                  },
+                  "keyField": "id",
+                  "key": {
+                    "op": "record_field",
+                    "field": "worker",
+                    "level": 0
+                  },
+                  "valueField": "costCents"
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "840"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check a feasible assignment for tutor sessions. All catalog workers are available for either shift. The catalog gives the full cost per assignment in cents. Assign each worker to at most one shift. Use only shift 0 or shift 1. Assign at least one worker to shift 0. Assign at least one worker to shift 1. Keep total worker cost at or below 840 cents. A feasible result does not claim an optimal schedule."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-9c5e3560b5dce69c",
+      "result": {
+        "kind": "unsupported",
+        "reason": "The capability catalog does not provide PDF parsing or table extraction."
+      }
+    },
+    {
+      "requestId": "q-aef78db8a3590d88",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "result.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "report.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [
+            {
+              "name": "ledger.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "result.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "ledger.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "id",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id",
+                      "level": 0
+                    },
+                    "valueField": "id"
+                  }
+                },
+                "right": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "amountCents",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id",
+                      "level": 0
+                    },
+                    "valueField": "amountCents"
+                  }
+                }
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "file_hash",
+                "source": "deliverable",
+                "file": "report.txt"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "0x10c70b179f7115581cc57475c08efecf54181cb8a7962a5795f5a69d24fd8da3"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Reconcile supplier invoices against ledger.json. IDs are case-sensitive. Amounts use integer cents as decimal strings. Use every result ID at most once. Match the reference row count. Match each ID and amount to the reference ledger. Set report.txt to exactly \"Reconciled supplier invoices.\\n\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-038eb6aa61b0a441",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "note.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [],
+          "rules": [
+            {
+              "op": "gte",
+              "left": {
+                "op": "field",
+                "source": "evidence",
+                "file": "attestation.json",
+                "field": "score"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "85"
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "evidence",
+                "file": "attestation.json",
+                "field": "issuer"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "synthetic-6"
+              }
+            },
+            {
+              "op": "field",
+              "source": "evidence",
+              "file": "attestation.json",
+              "field": "approved"
+            }
+          ],
+          "evidence": [
+            {
+              "name": "attestation.json",
+              "parser": "json/v1",
+              "fields": [
+                {
+                  "name": "artifactHash",
+                  "type": "string"
+                },
+                {
+                  "name": "contextHash",
+                  "type": "string"
+                },
+                {
+                  "name": "score",
+                  "type": "i64"
+                },
+                {
+                  "name": "issuer",
+                  "type": "string"
+                },
+                {
+                  "name": "approved",
+                  "type": "bool"
+                }
+              ],
+              "profile": "ed25519/v1",
+              "signer": "0x48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd",
+              "bindings": [
+                {
+                  "field": "artifactHash",
+                  "file": "note.txt"
+                }
+              ],
+              "contextField": "contextHash"
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the signed shipment certificate result. All signers and data in this test are synthetic. The evidence uses the ed25519/v1 envelope and decimal-string scores. Accept only a valid Ed25519 signature from the pinned synthetic signer. Bind the evidence artifactHash to the exact note.txt bytes. Bind contextHash to SHA-256 of the funded context bytes. Require a signed score of at least 85. Require the signed issuer label \"synthetic-6\". Require the signed approved field to be true."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-056ed88ad41dcb42",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "assignments.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "worker",
+                      "type": "string"
+                    },
+                    {
+                      "name": "shift",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "workers.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "costCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "field": "worker"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "worker",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "workers.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "worker",
+                      "level": 0
+                    },
+                    "valueField": "id"
+                  }
+                },
+                "right": {
+                  "op": "or",
+                  "left": {
+                    "op": "eq",
+                    "left": {
+                      "op": "record_field",
+                      "field": "shift",
+                      "level": 0
+                    },
+                    "right": {
+                      "op": "literal",
+                      "type": "i64",
+                      "value": "0"
+                    }
+                  },
+                  "right": {
+                    "op": "eq",
+                    "left": {
+                      "op": "record_field",
+                      "field": "shift",
+                      "level": 0
+                    },
+                    "right": {
+                      "op": "literal",
+                      "type": "i64",
+                      "value": "1"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "op": "any",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "eq",
+                "left": {
+                  "op": "record_field",
+                  "field": "shift",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "0"
+                }
+              }
+            },
+            {
+              "op": "any",
+              "collection": {
+                "source": "deliverable",
+                "file": "assignments.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "eq",
+                "left": {
+                  "op": "record_field",
+                  "field": "shift",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "1"
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "assignments.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "lookup",
+                  "collection": {
+                    "source": "reference",
+                    "file": "workers.json",
+                    "field": "rows"
+                  },
+                  "keyField": "id",
+                  "key": {
+                    "op": "record_field",
+                    "field": "worker",
+                    "level": 0
+                  },
+                  "valueField": "costCents"
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1320"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check a feasible assignment for delivery crews. All catalog workers are available for either shift. The catalog gives the full cost per assignment in cents. Assign each worker to at most one shift. Use only shift 0 or shift 1. Assign at least one worker to shift 0. Assign at least one worker to shift 1. Keep total worker cost at or below 1320 cents. A feasible result does not claim an optimal schedule."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-fc190bdcd0ee41f6",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "stock.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "sku",
+                      "type": "string"
+                    },
+                    {
+                      "name": "quantity",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "catalog.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "sku",
+                      "type": "string"
+                    },
+                    {
+                      "name": "minimum",
+                      "type": "i64"
+                    },
+                    {
+                      "name": "maximum",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "stock.json",
+                "field": "rows"
+              },
+              "field": "sku"
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "stock.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "catalog.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "stock.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "gte",
+                  "left": {
+                    "op": "record_field",
+                    "field": "quantity",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "catalog.json",
+                      "field": "rows"
+                    },
+                    "keyField": "sku",
+                    "key": {
+                      "op": "record_field",
+                      "field": "sku",
+                      "level": 0
+                    },
+                    "valueField": "minimum"
+                  }
+                },
+                "right": {
+                  "op": "lte",
+                  "left": {
+                    "op": "record_field",
+                    "field": "quantity",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "catalog.json",
+                      "field": "rows"
+                    },
+                    "keyField": "sku",
+                    "key": {
+                      "op": "record_field",
+                      "field": "sku",
+                      "level": 0
+                    },
+                    "valueField": "maximum"
+                  }
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "stock.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "record_field",
+                  "field": "quantity",
+                  "level": 0
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "44"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the proposed inventory for lab consumables. Quantities are indivisible units encoded as decimal strings. The catalog sets each SKU range. Use each SKU once. Match the catalog SKU count. Meet each SKU minimum from the catalog. Do not exceed each SKU maximum from the catalog. Store at most 44 units in total."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-4e5189cbe412d0b3",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "stock.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "sku",
+                      "type": "string"
+                    },
+                    {
+                      "name": "quantity",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "catalog.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "sku",
+                      "type": "string"
+                    },
+                    {
+                      "name": "minimum",
+                      "type": "i64"
+                    },
+                    {
+                      "name": "maximum",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "stock.json",
+                "field": "rows"
+              },
+              "field": "sku"
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "stock.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "catalog.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "stock.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "gte",
+                  "left": {
+                    "op": "record_field",
+                    "field": "quantity",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "catalog.json",
+                      "field": "rows"
+                    },
+                    "keyField": "sku",
+                    "key": {
+                      "op": "record_field",
+                      "field": "sku",
+                      "level": 0
+                    },
+                    "valueField": "minimum"
+                  }
+                },
+                "right": {
+                  "op": "lte",
+                  "left": {
+                    "op": "record_field",
+                    "field": "quantity",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "catalog.json",
+                      "field": "rows"
+                    },
+                    "keyField": "sku",
+                    "key": {
+                      "op": "record_field",
+                      "field": "sku",
+                      "level": 0
+                    },
+                    "valueField": "maximum"
+                  }
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "stock.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "record_field",
+                  "field": "quantity",
+                  "level": 0
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "35"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the proposed inventory for robot parts. Quantities are indivisible units encoded as decimal strings. The catalog sets each SKU range. Use each SKU once. Match the catalog SKU count. Meet each SKU minimum from the catalog. Do not exceed each SKU maximum from the catalog. Store at most 35 units in total."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-cc386f3d8dfe941d",
+      "result": {
+        "kind": "clarification",
+        "questions": [
+          "What expense fields, approval criteria, and spending limits define reasonable?"
+        ]
+      }
+    },
+    {
+      "requestId": "q-18e85029f501881b",
+      "result": {
+        "kind": "unsupported",
+        "reason": "The capability catalog does not provide regular-expression matching."
+      }
+    },
+    {
+      "requestId": "q-f45abef2e94bf432",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "expenses.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    },
+                    {
+                      "name": "approved",
+                      "type": "bool"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [],
+          "rules": [
+            {
+              "op": "gte",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "expenses.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1"
+              }
+            },
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "gte",
+                "left": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "0"
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "expenses.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1500"
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "lte",
+                "left": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "600"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "record_field",
+                "field": "approved",
+                "level": 0
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the club workshop claim in expenses.json Amounts use integer cents as decimal strings Include at least one expense Use each expense ID once Every amount must be zero or positive Keep the total at or below 1500 cents Keep each expense at or below 600 cents."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-97b86d8a7f1ebcdf",
+      "result": {
+        "kind": "clarification",
+        "questions": [
+          "Which workers, shift coverage count, and deadline should the checker require?"
+        ]
+      }
+    },
+    {
+      "requestId": "q-bd0cb74c613c108a",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "result.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "report.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [
+            {
+              "name": "ledger.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "result.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "ledger.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "id",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id",
+                      "level": 0
+                    },
+                    "valueField": "id"
+                  }
+                },
+                "right": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "amountCents",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id",
+                      "level": 0
+                    },
+                    "valueField": "amountCents"
+                  }
+                }
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "file_hash",
+                "source": "deliverable",
+                "file": "report.txt"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "0x7c25488c3799900314bbeda585dcec2b90571fd98b249a729bb10adb1b7a8494"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Reconcile payroll adjustments against ledger.json. IDs are case-sensitive. Amounts use integer cents as decimal strings. Use every result ID at most once. Match the reference row count. Match each ID and amount to the reference ledger. Set report.txt to exactly \"Reconciled payroll adjustments.\\n\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-4a2458b4899db605",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "result.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "report.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [
+            {
+              "name": "ledger.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "result.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "ledger.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "id",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id",
+                      "level": 0
+                    },
+                    "valueField": "id"
+                  }
+                },
+                "right": {
+                  "op": "eq",
+                  "left": {
+                    "op": "record_field",
+                    "field": "amountCents",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id",
+                      "level": 0
+                    },
+                    "valueField": "amountCents"
+                  }
+                }
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "file_hash",
+                "source": "deliverable",
+                "file": "report.txt"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "0x0fe2abd983cfc7b467d35ff5d4c002d08943dd65a686bef4d76ca34181a4a516"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Reconcile grant reimbursements against ledger.json. IDs are case-sensitive. Amounts use integer cents as decimal strings. Use every result ID at most once. Match the reference row count. Match each ID and amount to the reference ledger. Set report.txt to exactly \"Reconciled grant reimbursements.\\n\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-c003d5341742bc33",
+      "result": {
+        "kind": "clarification",
+        "questions": [
+          "Which audit artifact, trusted signer, definition of recent, and score threshold should the checker require?"
+        ]
+      }
+    },
+    {
+      "requestId": "q-1cae758f4699b703",
+      "result": {
+        "kind": "clarification",
+        "questions": [
+          "What result fields, trusted reviewer key, and signature format should the checker require?"
+        ]
+      }
+    },
+    {
+      "requestId": "q-10d4351413aefb3b",
+      "result": {
+        "kind": "unsupported",
+        "reason": "The capability catalog does not provide sorting or ordering of collection rows."
+      }
+    },
+    {
+      "requestId": "q-275128fc6c3a7482",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "expenses.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    },
+                    {
+                      "name": "approved",
+                      "type": "bool"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [],
+          "rules": [
+            {
+              "op": "gte",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "expenses.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1"
+              }
+            },
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "gte",
+                "left": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "0"
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "expenses.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1200"
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "lte",
+                "left": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "480"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "record_field",
+                "field": "approved",
+                "level": 0
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the student event claim in expenses.json Amounts use integer cents as decimal strings Include at least one expense Use each expense ID once Every amount must be zero or positive Keep the total at or below 1200 cents Keep each expense at or below 480 cents."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-05f78b726c592957",
+      "result": {
+        "kind": "unsupported",
+        "reason": "The capability catalog has integer arithmetic but does not provide division or decimal arithmetic."
+      }
+    },
+    {
+      "requestId": "q-1825030cedae50d2",
+      "result": {
+        "kind": "clarification",
+        "questions": [
+          "Which input files and matching rules, including date format and duplicate handling, should the checker use?"
+        ]
+      }
+    },
+    {
+      "requestId": "q-5f6a44847b56a5a7",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "stock.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "sku",
+                      "type": "string"
+                    },
+                    {
+                      "name": "quantity",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [
+            {
+              "name": "catalog.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "sku",
+                      "type": "string"
+                    },
+                    {
+                      "name": "minimum",
+                      "type": "i64"
+                    },
+                    {
+                      "name": "maximum",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "stock.json",
+                "field": "rows"
+              },
+              "field": "sku"
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "stock.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "catalog.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "stock.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "gte",
+                  "left": {
+                    "op": "record_field",
+                    "field": "quantity",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "catalog.json",
+                      "field": "rows"
+                    },
+                    "keyField": "sku",
+                    "key": {
+                      "op": "record_field",
+                      "field": "sku",
+                      "level": 0
+                    },
+                    "valueField": "minimum"
+                  }
+                },
+                "right": {
+                  "op": "lte",
+                  "left": {
+                    "op": "record_field",
+                    "field": "quantity",
+                    "level": 0
+                  },
+                  "right": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "catalog.json",
+                      "field": "rows"
+                    },
+                    "keyField": "sku",
+                    "key": {
+                      "op": "record_field",
+                      "field": "sku",
+                      "level": 0
+                    },
+                    "valueField": "maximum"
+                  }
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "stock.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "record_field",
+                  "field": "quantity",
+                  "level": 0
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "29"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the proposed inventory for medical kits. Quantities are indivisible units encoded as decimal strings. The catalog sets each SKU range. Use each SKU once. Match the catalog SKU count. Meet each SKU minimum from the catalog. Do not exceed each SKU maximum from the catalog. Store at most 29 units in total."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-95dcb87f0898631f",
+      "result": {
+        "kind": "clarification",
+        "questions": [
+          "Which file and numeric field define the total, and what unit should 100 use?"
+        ]
+      }
+    },
+    {
+      "requestId": "q-3f75a3b8a8de07fa",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "expenses.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    },
+                    {
+                      "name": "approved",
+                      "type": "bool"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "references": [],
+          "rules": [
+            {
+              "op": "gte",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "expenses.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1"
+              }
+            },
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "gte",
+                "left": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "0"
+                }
+              }
+            },
+            {
+              "op": "lte",
+              "left": {
+                "op": "sum",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "expenses.json",
+                  "field": "rows"
+                },
+                "value": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                }
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1400"
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "lte",
+                "left": {
+                  "op": "record_field",
+                  "field": "amountCents",
+                  "level": 0
+                },
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "560"
+                }
+              }
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "expenses.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "record_field",
+                "field": "approved",
+                "level": 0
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the software purchase claim in expenses.json Amounts use integer cents as decimal strings Include at least one expense Use each expense ID once Every amount must be zero or positive Keep the total at or below 1400 cents Keep each expense at or below 560 cents."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-80df0918945988b8",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "note.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [],
+          "rules": [
+            {
+              "op": "gte",
+              "left": {
+                "op": "field",
+                "source": "evidence",
+                "file": "attestation.json",
+                "field": "score"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "70"
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "evidence",
+                "file": "attestation.json",
+                "field": "issuer"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "synthetic-1"
+              }
+            },
+            {
+              "op": "field",
+              "source": "evidence",
+              "file": "attestation.json",
+              "field": "approved"
+            }
+          ],
+          "evidence": [
+            {
+              "name": "attestation.json",
+              "parser": "json/v1",
+              "fields": [
+                {
+                  "name": "artifactHash",
+                  "type": "string"
+                },
+                {
+                  "name": "contextHash",
+                  "type": "string"
+                },
+                {
+                  "name": "score",
+                  "type": "i64"
+                },
+                {
+                  "name": "issuer",
+                  "type": "string"
+                },
+                {
+                  "name": "approved",
+                  "type": "bool"
+                }
+              ],
+              "profile": "ed25519/v1",
+              "signer": "0x48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd",
+              "bindings": [
+                {
+                  "field": "artifactHash",
+                  "file": "note.txt"
+                }
+              ],
+              "contextField": "contextHash"
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/request",
+            "quote": "Check the signed lab calibration result. All signers and data in this test are synthetic. The evidence uses the ed25519/v1 envelope and decimal-string scores. Accept only a valid Ed25519 signature from the pinned synthetic signer. Bind the evidence artifactHash to the exact note.txt bytes. Bind contextHash to SHA-256 of the funded context bytes. Require a signed score of at least 70. Require the signed issuer label \"synthetic-1\". Require the signed approved field to be true."
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "samplingUnit": "one batch of 60 requests",
+  "independence": "Three fresh agent contexts with different request ordering. Requests within a batch share context and can share model-authored helpers. These are not 180 isolated API calls.",
+  "isolation": "Prompts restricted reads to public schema and assigned batch input. Native tool access was not isolated by a separate filesystem sandbox.",
+  "usageNote": "Native collaboration tools did not expose per-batch token usage. No usage value is invented.",
+  "batches": [
+    {
+      "trial": 1,
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low",
+      "transport": "native collaboration subagent",
+      "taskName": "/root/luna_authoring_trial_1",
+      "inputSha256": "8988adbe55aed5b7f12a635d9721843730017a2e5086a073b836e0431f4fa9de",
+      "schemaSha256": "fae7fff64e7d3ea702d2b54fa77e99901ad9e1a5d22af57998b3b33051003789",
+      "outputSha256": "2d5a57c8692344f09024f4f347cb4ebc8deaee8606f55b2ac723ac2a95332dd4",
+      "authoringHelperSha256": "f620a3e8519343f5f9b5cb16cd499304bc7108e6224be99284137e12e8a35f52",
+      "requestSlots": 60,
+      "returnedResults": 60,
+      "kindCounts": {
+        "draft": 40,
+        "unsupported": 10,
+        "clarification": 10
+      },
+      "usage": null,
+      "repair": {
+        "requestSlots": 7,
+        "feedbackSha256": "375dfd1f979ec9e8921adf689dadb5503ff80d09b10b1f4a196411cefeecd58f",
+        "outputSha256": "a8ae8634000c242021c696f99a12a3a49b5f251262f94084acf718c491bd46f7",
+        "validationOnly": true,
+        "maximumRepairsPerRequest": 1,
+        "usage": null
+      }
+    },
+    {
+      "trial": 2,
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low",
+      "transport": "native collaboration subagent",
+      "taskName": "/root/luna_authoring_trial_2",
+      "inputSha256": "d8a066ef33167436e2c0d7bba560458db604d8be6ff16d6f3c2f854ceb0c174c",
+      "schemaSha256": "fae7fff64e7d3ea702d2b54fa77e99901ad9e1a5d22af57998b3b33051003789",
+      "outputSha256": "d693ae5f751fb2933bccaf7b4d14cefbda2ba0926643d6552c236b338e8c6e4f",
+      "authoringHelperSha256": "21eb0b7ea87f6693fcbdcddc4f7497b07237236898401b15f9218d64a700cc14",
+      "requestSlots": 60,
+      "returnedResults": 60,
+      "kindCounts": {
+        "draft": 40,
+        "clarification": 10,
+        "unsupported": 10
+      },
+      "usage": null
+    },
+    {
+      "trial": 3,
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low",
+      "transport": "native collaboration subagent",
+      "taskName": "/root/luna_authoring_trial_3",
+      "inputSha256": "b5c6e3938c5cfad9c04c79cdd62d043cde27f011792f81ce1220b6b512a28cbe",
+      "schemaSha256": "fae7fff64e7d3ea702d2b54fa77e99901ad9e1a5d22af57998b3b33051003789",
+      "outputSha256": "242f8076e5864a8a6709652777aabfc8e16db0e9d33f15f1acaf316316e326b3",
+      "authoringHelperSha256": "e21b3d6cf0867546caaa06d08f21aa9bc9f35772f1281d19dd875e8e14684083",
+      "requestSlots": 60,
+      "returnedResults": 60,
+      "kindCounts": {
+        "draft": 40,
+        "clarification": 10,
+        "unsupported": 10
+      },
+      "usage": null,
+      "repair": {
+        "requestSlots": 28,
+        "feedbackSha256": "4a5eb2c6327795bc8bd54384a691bdb29efa9eb44559dbbb33abc1ab6899732e",
+        "outputSha256": "9f141f106174d30eb146eec05b3cc01907382ee2f99507697838634a8c9f3c98",
+        "validationOnly": true,
+        "maximumRepairsPerRequest": 1,
+        "usage": null
+      }
+    }
+  ],
+  "execution": "Three first-attempt batch jobs and two validation-only repair follow-ups. Local scoring reuses saved outputs and makes no model calls."
+}

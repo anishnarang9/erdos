@@ -1,0 +1,1167 @@
+{
+  "trial": 1,
+  "results": [
+    {
+      "requestId": "q-aef78db8a3590d88",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "result.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "report.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [
+            {
+              "name": "ledger.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "result.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "ledger.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id"
+                    },
+                    "valueField": "id"
+                  },
+                  "right": {
+                    "op": "record_field",
+                    "field": "id"
+                  }
+                },
+                "right": {
+                  "op": "eq",
+                  "left": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id"
+                    },
+                    "valueField": "amountCents"
+                  },
+                  "right": {
+                    "op": "record_field",
+                    "field": "amountCents"
+                  }
+                }
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "deliverable",
+                "file": "report.txt"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "Reconciled supplier invoices.\n"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/0",
+            "quote": "Match the reference row count."
+          },
+          {
+            "path": "/rules/1",
+            "quote": "Match each ID and amount to the reference ledger."
+          },
+          {
+            "path": "/rules/3",
+            "quote": "Set report.txt to exactly \"Reconciled supplier invoices.\\n\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-bd0cb74c613c108a",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "result.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "report.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [
+            {
+              "name": "ledger.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "result.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "ledger.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id"
+                    },
+                    "valueField": "id"
+                  },
+                  "right": {
+                    "op": "record_field",
+                    "field": "id"
+                  }
+                },
+                "right": {
+                  "op": "eq",
+                  "left": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id"
+                    },
+                    "valueField": "amountCents"
+                  },
+                  "right": {
+                    "op": "record_field",
+                    "field": "amountCents"
+                  }
+                }
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "deliverable",
+                "file": "report.txt"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "Reconciled payroll adjustments.\n"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/0",
+            "quote": "Match the reference row count."
+          },
+          {
+            "path": "/rules/1",
+            "quote": "Match each ID and amount to the reference ledger."
+          },
+          {
+            "path": "/rules/3",
+            "quote": "Set report.txt to exactly \"Reconciled payroll adjustments.\\n\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-3baeda9b21f638e6",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "result.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "report.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [
+            {
+              "name": "ledger.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "result.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "ledger.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id"
+                    },
+                    "valueField": "id"
+                  },
+                  "right": {
+                    "op": "record_field",
+                    "field": "id"
+                  }
+                },
+                "right": {
+                  "op": "eq",
+                  "left": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id"
+                    },
+                    "valueField": "amountCents"
+                  },
+                  "right": {
+                    "op": "record_field",
+                    "field": "amountCents"
+                  }
+                }
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "deliverable",
+                "file": "report.txt"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "Reconciled bank payments.\n"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/0",
+            "quote": "Match the reference row count."
+          },
+          {
+            "path": "/rules/1",
+            "quote": "Match each ID and amount to the reference ledger."
+          },
+          {
+            "path": "/rules/3",
+            "quote": "Set report.txt to exactly \"Reconciled bank payments.\\n\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-4a2458b4899db605",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "result.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "report.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [
+            {
+              "name": "ledger.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "result.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "ledger.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id"
+                    },
+                    "valueField": "id"
+                  },
+                  "right": {
+                    "op": "record_field",
+                    "field": "id"
+                  }
+                },
+                "right": {
+                  "op": "eq",
+                  "left": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id"
+                    },
+                    "valueField": "amountCents"
+                  },
+                  "right": {
+                    "op": "record_field",
+                    "field": "amountCents"
+                  }
+                }
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "deliverable",
+                "file": "report.txt"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "Reconciled grant reimbursements.\n"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/0",
+            "quote": "Match the reference row count."
+          },
+          {
+            "path": "/rules/1",
+            "quote": "Match each ID and amount to the reference ledger."
+          },
+          {
+            "path": "/rules/3",
+            "quote": "Set report.txt to exactly \"Reconciled grant reimbursements.\\n\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-6cace53c0a6dbc29",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "result.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "report.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [
+            {
+              "name": "ledger.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "result.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "ledger.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id"
+                    },
+                    "valueField": "id"
+                  },
+                  "right": {
+                    "op": "record_field",
+                    "field": "id"
+                  }
+                },
+                "right": {
+                  "op": "eq",
+                  "left": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id"
+                    },
+                    "valueField": "amountCents"
+                  },
+                  "right": {
+                    "op": "record_field",
+                    "field": "amountCents"
+                  }
+                }
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "deliverable",
+                "file": "report.txt"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "Reconciled charity receipts.\n"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/0",
+            "quote": "Match the reference row count."
+          },
+          {
+            "path": "/rules/1",
+            "quote": "Match each ID and amount to the reference ledger."
+          },
+          {
+            "path": "/rules/3",
+            "quote": "Set report.txt to exactly \"Reconciled charity receipts.\\n\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-8708d4af92b30015",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "result.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "report.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [
+            {
+              "name": "ledger.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "result.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "ledger.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id"
+                    },
+                    "valueField": "id"
+                  },
+                  "right": {
+                    "op": "record_field",
+                    "field": "id"
+                  }
+                },
+                "right": {
+                  "op": "eq",
+                  "left": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id"
+                    },
+                    "valueField": "amountCents"
+                  },
+                  "right": {
+                    "op": "record_field",
+                    "field": "amountCents"
+                  }
+                }
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "deliverable",
+                "file": "report.txt"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "Reconciled membership dues.\n"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/0",
+            "quote": "Match the reference row count."
+          },
+          {
+            "path": "/rules/1",
+            "quote": "Match each ID and amount to the reference ledger."
+          },
+          {
+            "path": "/rules/3",
+            "quote": "Set report.txt to exactly \"Reconciled membership dues.\\n\"."
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "q-85d62683381be6be",
+      "result": {
+        "kind": "draft",
+        "plan": {
+          "version": 1,
+          "deliverables": [
+            {
+              "name": "result.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "report.txt",
+              "parser": "text/v1"
+            }
+          ],
+          "references": [
+            {
+              "name": "ledger.json",
+              "parser": "json/v1",
+              "collections": [
+                {
+                  "name": "rows",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    },
+                    {
+                      "name": "amountCents",
+                      "type": "i64"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rules": [
+            {
+              "op": "eq",
+              "left": {
+                "op": "count",
+                "collection": {
+                  "source": "deliverable",
+                  "file": "result.json",
+                  "field": "rows"
+                }
+              },
+              "right": {
+                "op": "count",
+                "collection": {
+                  "source": "reference",
+                  "file": "ledger.json",
+                  "field": "rows"
+                }
+              }
+            },
+            {
+              "op": "unique",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "field": "id"
+            },
+            {
+              "op": "all",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "where": {
+                "op": "and",
+                "left": {
+                  "op": "eq",
+                  "left": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id"
+                    },
+                    "valueField": "id"
+                  },
+                  "right": {
+                    "op": "record_field",
+                    "field": "id"
+                  }
+                },
+                "right": {
+                  "op": "eq",
+                  "left": {
+                    "op": "lookup",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "keyField": "id",
+                    "key": {
+                      "op": "record_field",
+                      "field": "id"
+                    },
+                    "valueField": "amountCents"
+                  },
+                  "right": {
+                    "op": "record_field",
+                    "field": "amountCents"
+                  }
+                }
+              }
+            },
+            {
+              "op": "eq",
+              "left": {
+                "op": "field",
+                "source": "deliverable",
+                "file": "report.txt"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "Reconciled ticket sales.\n"
+              }
+            }
+          ]
+        },
+        "examples": [],
+        "sourceQuotes": [
+          {
+            "path": "/rules/0",
+            "quote": "Match the reference row count."
+          },
+          {
+            "path": "/rules/1",
+            "quote": "Match each ID and amount to the reference ledger."
+          },
+          {
+            "path": "/rules/3",
+            "quote": "Set report.txt to exactly \"Reconciled ticket sales.\\n\"."
+          }
+        ]
+      }
+    }
+  ]
+}
