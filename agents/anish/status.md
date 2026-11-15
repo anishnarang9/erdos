@@ -2,6 +2,17 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 23:09 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `fe7ea15`. Phase 2 completed its correctness checks. No production engine defect appeared in the tested corpus. Engine production code remains at baseline `adda3a3`.
+- Compiled all 40 supported plans. The eight normalized structures produced eight images. Parameter variants preserved their corresponding image IDs. [Compilation results](../../engine/evaluation/reports/package-compilations.json).
+- [Actual guest execution](../../engine/evaluation/reports/guests.json): 262 successful guest executions and 79 input rejections before guest execution. All 341 outcomes matched. The [independent artifact audit](../../engine/evaluation/reports/guest-audit.json) matched every delivery, evidence file, context, and expected requirement outcome to a fresh bound host run. No native result was counted as guest execution.
+- The pinned real Solidity verifier accepted all six existing engine receipts locally. Changed proof inputs and failing receipts against passing-only journals failed. [Verifier results](../../engine/evaluation/reports/baseline-verifier.json). Initial missing Node dependencies were installed from the lockfile.
+- Added `engine/evaluation/run-engine-checks.sh` as the deterministic reproduction command. Its complete run is active and has reached package preparation. Treat that command's final result as pending. The earlier environment failure remains recorded in its own report.
+- Commerce typechecks and replay of the six receipts through the SDK passed. No commerce production routes changed.
+- Model authoring trials: 0. New proofs: 0. Phase 3 now proceeds. To reduce model traffic, use three independent Luna batches with 60 opaque request IDs each. Record that batching permits shared context across requests. Do not report those as 180 isolated API calls. Further implementation helpers use GPT-6 Sol. The native batch route avoids the rejected public API credential.
+- Next: adapter and bounded authoring records, semantic checks, and twelve new real proof receipts. No live settlement is authorized.
+
 ## 2026-11-14 23:00 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, latest pushed checkpoint `8bb1a9d`. Phase 2 remains active. Added actual guest execution, package reuse, and commitment-invariant commands.

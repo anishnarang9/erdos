@@ -23,11 +23,11 @@ The user approved unattended execution through these phases in order. Checkpoint
 
 ## Phase 2: Engine hardening
 
-- [ ] Investigate every phase-1 failure. Add regression tests before production fixes.
-- [ ] Compare host and generated guest results against independent expectations.
-- [ ] Check parameter-only image stability and rules/reference commitment changes.
-- [ ] Check malformed and oversized inputs, overflow, types, source injection, context/key/ciphertext/journal/proof changes.
-- [ ] Record capability gaps without weakening requirements or adding unrelated features.
+- [x] Investigate every phase-1 failure. Add regression tests before production fixes.
+- [x] Compare host and generated guest results against independent expectations.
+- [x] Check parameter-only image stability and rules/reference commitment changes.
+- [x] Check malformed and oversized inputs, overflow, types, source injection, context/key/ciphertext/journal/proof changes.
+- [x] Record capability gaps without weakening requirements or adding unrelated features.
 
 ## Phase 3: Authoring and end-to-end evidence
 
