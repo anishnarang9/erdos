@@ -14,7 +14,7 @@ Plan documents in `current plan/`:
 | --- | --- | --- | --- |
 | 1 | RISC Zero engine | Anish | [ZKVM-IMPLEMENTATION.md](current%20plan/ZKVM-IMPLEMENTATION.md) |
 | 2 | Arc settlement | Nick | [WORK-SPLIT.md §2](current%20plan/WORK-SPLIT.md#2-arc-and-ethereum-settlement) |
-| 3 | Agent-to-agent commerce | Neil | [COMMERCE-IMPLEMENTATION.md](https://github.com/anishnarang9/UBC-26/blob/neil/plan-architecture/agents/current%20plan/COMMERCE-IMPLEMENTATION.md) (in [PR #1](https://github.com/anishnarang9/UBC-26/pull/1)) |
+| 3 | Agent-to-agent commerce | Neil | [COMMERCE-IMPLEMENTATION.md](current%20plan/COMMERCE-IMPLEMENTATION.md). The code is on branch `neil/plan-architecture`. |
 
 **Workstream 3 summary (Neil):**
 - **Builds:** `commerce/` (TypeScript), containing:
