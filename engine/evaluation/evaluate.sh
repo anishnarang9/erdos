@@ -32,6 +32,7 @@ node --experimental-transform-types --test "$eval_dir/"*.test.ts >"$run_dir/logs
 node "$eval_dir/run-challenges.mjs" "$UBC26_ENGINE_BIN" "$run_dir/host" >"$run_dir/logs/host.log" 2>&1
 echo 'Replaying the 180 measured Luna outcomes without new model calls.'
 node --experimental-transform-types "$eval_dir/run-authoring.mjs" "$UBC26_ENGINE_BIN" "$run_dir/host" "$eval_dir/model-records" "$run_dir/authoring" >"$run_dir/logs/authoring.log" 2>&1
+export UBC26_AUTHORING_REPORT="$run_dir/authoring/authoring-report.json"
 echo 'Executing archived checker packages and verifying all 12 real receipts.'
 node --experimental-transform-types "$eval_dir/verify-published-proofs.mjs" "$UBC26_ENGINE_BIN" "$eval_dir/proofs" "$verifier_dir" "$run_dir/proof-verification" "${private_args[@]}" >"$run_dir/logs/proofs.log" 2>&1
 echo "Evaluation replay passed. Reports: $run_dir"

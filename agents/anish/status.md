@@ -2,6 +2,15 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 23:56 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `ee0dbee`. Added regression checks for public proof replay from a clean checkout. Git omits empty reference/evidence directories, so replay now creates them in private scratch space. It rejects partial receipt sets before claiming a complete replay.
+- The replay verifier also binds every published package to the exact measured Luna response and the compiler's normalized commitments. Source export now refuses an unrecognized build-source path. Compared the inventory source export against its private package: all 16 files match byte for byte.
+- Documented deterministic checks, recorded authoring replay, package preservation, public proof checks, and optional fresh private-key recovery. No model call is required for replay. The final full replay remains pending until all twelve receipts exist.
+- Current fresh receipt count: 3 of 12. Inventory's pair and exact recovery remain complete. The signed-evidence pass proof is active under engine PID 14701 and r0vm PID 14705. Its guest used about 4.45 million cycles, compared with inventory's 0.85 million. The process remains live and uses CPU. No proof was stopped or restarted.
+- The latest remote review remains the 23:40 checkpoint: Nick settlement source `fe27c200`, Neil `3013d736`, no deployment addresses or funded terms. Next review is due near 00:40 at a safe proof boundary.
+- Next: finish the remaining proof queue, export each completed family, then run the independent full replay with private-key recovery and audit every completion criterion.
+
 ## 2026-11-14 23:40 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, preceding pushed commit `701a546`. Published the first two new real receipts under [inventory evidence](../../engine/evaluation/proofs/inventory). The complete checker package, approved Luna plan, synthetic job, and public fixture inputs accompany them. Release keys stay private.

@@ -23,6 +23,7 @@ async function copyPackage(source,destination,prefix='') {
     if(entry.isDirectory()) {
       if(path==='source'||path.startsWith('source/'))await copyPackage(source,destination,path);
     } else if(entry.isFile()&&publicPackagePath(path))await publish(join(source,path),join(destination,path));
+    else if(path.startsWith('source/'))throw Error('Unrecognized checker source export path: '+path);
   }
 }
 async function copyFlat(source,destination) {
