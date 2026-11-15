@@ -1,7 +1,7 @@
 # Engine and authoring evaluation
 
 Run: November 14–15, 2026. Branch: `codex/engine-commerce`.
-Status: final proof queue and full replay pending.
+Status: all 12 real receipts verified. Independent full replay pending.
 
 The deterministic checks found no engine disagreement in the tested corpus.
 The model preserved all tested supported predicates after validation repairs.
@@ -13,7 +13,7 @@ Its clarification and explanation quality was weaker. These are separate results
 - Commerce interface dependency: `3013d73624c3cf279015b25ec17497d7394ab70f`.
 - Real RISC Zero prover and receipt format: 3.1.0.
 - Solidity verifier: `ff30da77ba4afdd496290ebebedb205348b15d83`, selector `0xe71e6620`.
-- Settlement source reviewed separately: `fe27c2003ac6b50264113fee4fa45b357c1a63e3`. It is not merged here.
+- Latest settlement revision reviewed separately: `80c8a4af68f0cf00e4177c98e9c435d869716edd`. It is not merged here.
 
 All contexts, reference data, signer fixtures, and approvals are synthetic.
 Approval is simulated. No contract deployment, funding, or live transaction occurred.
@@ -102,10 +102,22 @@ All 134 checks matched: 102 actual executions and 32 input rejections.
 The [guest report](reports/authoring-guests.json) binds the preserved report from before the scoring correction.
 The correction independently checks that every measured draft and candidate result remains identical.
 
-The sequential proof queue targets passing and failing Groth16 receipts in all six families.
+The sequential queue completed twelve new Groth16 receipts: one passing and one failing predicate in each family.
 The [public proof index](proofs/index.json) contains completed evidence only.
 The [progress report](reports/proof-progress.json) records measured proof times and cycles.
-Final proof counts and independent replay remain pending at this report checkpoint.
+All twelve receipts passed the pinned local Solidity verifier and its mutation checks.
+All six passing deliveries recovered byte for byte.
+Every pair passed wire checks and all four negative recovery checks.
+Independent full replay remains pending at this checkpoint.
+
+| Family | Passing proof, seconds | Failing proof, seconds | Recovered bytes |
+| --- | ---: | ---: | ---: |
+| inventory | 231.052 | 234.174 | 190 |
+| signed-evidence-bindings | 744.814 | 744.260 | 36 |
+| ledger-reconciliation | 221.277 | 225.942 | 235 |
+| allocation-scheduling | 283.293 | 300.237 | 259 |
+| expenses-budgets | 230.448 | 219.391 | 286 |
+| file-hash-size | 217.296 | 219.101 | 57 |
 
 Each proof carries a 260-byte seal and a 234-byte journal.
 The local verifier checks changed image, journal, seal, and verdict.
@@ -132,5 +144,14 @@ Clients must allow measured proving, submission, and key-release time before exp
 The local adapter implements Neil's imported `Engine` interface and preserves normalized approvals and persistent packages.
 The recorded adapter implements `DraftModel` and returns only exact saved-input matches.
 The production API still needs explicit adapter injection in Neil's workstream.
-Actual buyer review, a deployed settlement manifest, funded terms, and live acceptance/payment/refund remain integration dependencies.
+The hourly review found a deployed settlement stack at Nick's latest revision.
+Eighteen independent [read-only Arc checks](reports/arc-readonly.json) passed at one fixed block.
+They confirm contract code, wiring, limits, whitelist status, retained admin roles, and fresh inventory receipt verification.
+Changed image, journal, and seal reverted. These calls sent no transaction.
+The core remains unfrozen. The manifest contains no funded test job.
+Its policy prose still describes renounced roles, while the explicit freeze field and live role reads show retained privileges.
+Actual buyer review, funded terms, fresh funded-job proofs, and live acceptance/payment/refund remain integration dependencies.
+The [inventory package manifest](proofs/inventory/package/manifest.json) supplies one tested image/rules/reference combination for integration planning.
+A real job still needs its selected provider and approved inputs.
+Existing receipts use synthetic escrow, provider, and job fields. A newly funded job requires a fresh context-bound proof.
 Engine PR #3 remains separate from this integration branch.

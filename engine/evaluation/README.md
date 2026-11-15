@@ -1,5 +1,7 @@
 # Engine evaluation
 
+Read the [measured results and limits](REPORT.md).
+
 The suite separates four questions:
 
 1. Did authoring preserve the request?

@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 00:41 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `3a82ca8`. The sequential real proof queue exited 0. All 12 new receipts across six families passed local Solidity verification and mutations. All six passing deliveries recovered byte for byte, including all nine files. Every pair passed wire checks and all four decryption negatives. No historical or unresolved proof failure is recorded.
+- Published file-integrity pass/fail receipts, measured plan, full checker package/source, and synthetic inputs. Proving took 217,296 / 219,101 ms and used 521,211 / 520,766 user cycles. [Complete proof index](../../engine/evaluation/proofs/index.json). Release keys remain private.
+- Completed the second hourly [remote review](../../engine/evaluation/reports/team-review-2026-11-15.json). Nick settlement advanced from `fe27c200` to `80c8a4af`; Nick/main remain `9a1b4444`, Neil remains `3013d736`. Inspected changed status, plans, PR4, deployment manifest, handoff, scripts, tests, and evidence. Engine PR3 remains `adda3a3`. No remote code was merged and no owner status file changed.
+- Independently ran 18 read-only [Arc checks](../../engine/evaluation/reports/arc-readonly.json) at a fixed block. A fresh inventory receipt verified; changed image/journal/seal reverted. Code, wiring, cap16412, margin600, whitelist, and both retained deployer admin roles matched. No transaction was sent. The core remains unfrozen, and no funded job appears in the manifest. Its policy prose still describes renounced roles, so the explicit freeze field and live reads govern readiness.
+- Updated the shared plan with addresses, freeze/funded-job dependencies, and the measured deadline budget. The full replay with fresh private-key recovery is now starting in private scratch. Its actual result and final requirement audit remain pending. Model counts and all recorded defects remain unchanged.
+
 ## 2026-11-15 00:33 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, preceding pushed commit `b89e60b`. Published the expenses proof pair. Current total: 10/12 real receipts and 5/6 byte-exact passing recoveries. Pass/fail proving took 230,448 / 219,391 ms and used 759,068 / 685,005 user cycles. Both pinned Solidity checks, pair wire checks, and all four negative recovery checks passed.

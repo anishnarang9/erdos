@@ -2,6 +2,13 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-15 00:38 -05:00 — Anish — Live deployment review and measured deadline budget
+
+- Hourly review found Nick settlement at `80c8a4af68f0cf00e4177c98e9c435d869716edd`, advanced from `fe27c200`. Neil remains `3013d736`; `origin/nick` remains `9a1b4444`. No code was merged. Engine PR #3 remains at `adda3a3`. [Review](../../engine/evaluation/reports/team-review-2026-11-15.json).
+- Live addresses are now available: core proxy `0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8`, hook/evaluator `0x699d0e4a067F31229Be67C534B37dE964b6eDbAb`, verifier `0xCf8D70A203b40D3A17d023c0CDDF752870BC3992`. Eighteen independent read-only checks passed, including a fresh engine receipt and changed-image/journal/seal rejections. [RPC requests and responses](../../engine/evaluation/reports/arc-readonly.json). No transaction was sent.
+- The core is whitelisted and unfrozen. Live calls confirm the deployer holds both admin roles. The manifest policy prose still describes renounced roles, so clients must use current state and `core.frozen`. Nick owns the pending freeze. No funded job appears in the inspected manifest. Next integration still needs actual funded terms and a real provider, then fresh context-bound proving and settlement transactions.
+- Timing affects Neil and Nick: signed-evidence proofs took about 744 seconds each on this host. A 600-second funding margin does not cover that proof alone. Set deadlines from the measured proof budget plus submit and release time. These local measurements are not latency guarantees.
+
 ## 2026-11-15 00:27 -05:00 — Anish — Authoring fidelity correction
 
 - Review found that non-draft coverage used response kind alone. The corrected request-specific rubric covers 21/60 non-draft responses. Twenty-nine clarifications omit details or add unrelated assumptions. Ten unsupported explanations are generic. Classification still matches 180/180. These measured model defects remain unresolved.
