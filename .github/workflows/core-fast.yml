@@ -1,0 +1,79 @@
+name: core-fast
+
+on:
+  push:
+    paths: ["engine/**", "contracts/**", "docs/core-sprint-input/**", ".github/workflows/core-fast.yml"]
+  pull_request:
+    paths: ["engine/**", "contracts/**", "docs/core-sprint-input/**", ".github/workflows/core-fast.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  engine:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: engine
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install Rust 1.98.1 with rustfmt and clippy
+        run: rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy --no-self-update
+      - name: Check Rust formatting
+        run: cargo +1.98.1 fmt --all -- --check
+      - name: Check Rust lints
+        run: cargo +1.98.1 clippy --locked --workspace --all-targets -- -D warnings
+      # No proof generation or guest builds. The three prepared-guest tests stay ignored.
+      - name: Test host workspace (prepared-guest tests remain ignored)
+        run: cargo +1.98.1 test --locked --workspace
+      - name: Check wire fixtures with Node 24
+        run: node fixtures/check-wire-v1.mjs
+      - name: Test semantic oracle (Python standard library only)
+        working-directory: docs/core-sprint-input
+        run: python3 -B -m unittest discover -s tests -p 'test_*.py' -v
+
+  contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      ARC_FOUNDRY_BIN: ${{ runner.temp }}/arc-foundry-v0.8.0-4/bin
+    defaults:
+      run:
+        working-directory: contracts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install checksum-pinned native Arc Foundry
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/arc-foundry-v0.8.0-4-x86_64-unknown-linux-gnu.tar.gz"
+          curl --fail --location --retry 3 --output "$archive" \
+            https://github.com/circlefin/arc-foundry/releases/download/v0.8.0-4/arc-foundry-v0.8.0-4-x86_64-unknown-linux-gnu.tar.gz
+          echo "78330505af7dc0d2c9b55fc1aed00d9d063581bb57054949d31ef1c1b4bdbc5e  $archive" | sha256sum --check --strict
+          mkdir -p "$ARC_FOUNDRY_BIN"
+          tar --extract --gzip --file "$archive" --directory "$ARC_FOUNDRY_BIN" forge cast anvil
+          for tool in forge cast anvil; do
+            version="$("$ARC_FOUNDRY_BIN/$tool" --version)"
+            printf '%s\n' "$version"
+            grep --fixed-strings --line-regexp 'Commit SHA: 3e95efaeaaaca64d6ac9c1ee988968683dbd0d22' <<< "$version"
+          done
+      # Local Arc EVM only. The fork-only suite skips without a live fork.
+      # foundry.toml pins solc 0.8.28, which Foundry downloads as needed.
+      - name: Test contracts and deployment scripts on local Arc
+        run: '"$ARC_FOUNDRY_BIN/forge" test --network arc'
+      - name: Install locked example dependencies without lifecycle scripts
+        working-directory: contracts/examples
+        run: npm ci --ignore-scripts
+      - name: Test examples
+        working-directory: contracts/examples
+        run: npm test
+      - name: Typecheck examples
+        working-directory: contracts/examples
+        run: npm run typecheck

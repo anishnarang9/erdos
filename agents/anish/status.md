@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 17:30 -05:00 — Anish
+
+- Added separate fast engine/contract CI with Rust 1.98.1, Node 24, locked checks, wire/oracle tests, and checksum/commit-pinned Arc Foundry v0.8.0-4. Contract CI uses local Arc, not Ethereum substitutes or live broadcasts. It also checks locked examples.
+- YAML/spec and every Bash command passed local validation. Independent review approved the workflow. Local Rust format/Clippy/51 tests, wire fixture, 43 oracle tests and 13 examples/typecheck passed. New Linux jobs remain pending after publication.
+- Commerce CI is green on `5fbfa28`, including the corrected Linux keystore fixtures. Final candidate CI still must be green before main merge.
+- Parent explicitly reran prepared guest evidence and maximum-delivery tests with actual packages and r0vm 3.1.0. Both passed. Their expected invalid-input guest panics are negative checks, not failed tests. Independent rebuild replay remains pending.
+- Next: finish the active local proof/recovery rehearsal, source-bound runner review, full replay and final docs/checks.
+
 ## 2026-11-15 17:18 -05:00 — Anish
 
 - Added `runFunded({ stopAfterProof: true })` for private preparation without settlement preflight, signer construction, submit or release. It validates the saved proof and exact SDK/engine recovery before returning. Normal resume settles that same proof without proving again.
