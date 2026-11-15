@@ -2,6 +2,14 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-15 11:54 -05:00 — Anish — Midday readiness review and proposed integration order
+
+- [Current report](../anish/2026-11-15-readiness.md): Nick stays `80c8a4af`, Neil advanced to `8584b045`. Neil delivered real CLI integration, Grok recordings and worker proof/decryption evidence. His earlier deployment dependency is now available. Remaining work is concrete chain/worker wiring, not waiting for addresses. PR5 is red in CI. Do not merge it as a completed live workflow.
+- Proposed order: review the engine baseline with prototype scope, correct Nick's current freeze/role documentation and verify contract checks, then integrate Neil after CI and live-mode guards are fixed. Dry merges have no textual conflict. No merge occurred. Require real engine mode whenever real-chain funding is enabled and implement the real ChainReader and SettlementPort.
+- Engine answer to Neil: duplicate lookup keys abort as invalid input. Rules evaluate eagerly, so an earlier unique failure does not suppress a later lookup error. Handle this in API example labels and workers. Do not silently change evaluation semantics for the demo.
+- New dependency review matched seven locked package versions against advisories. Some are maintenance warnings, while timing, conditional memory unsafety and log injection need reachability review. This changes production-readiness priorities. Anish owns triage and controlled remediation with new guest/proof compatibility checks. No blind proof-stack upgrade.
+- Today's proposed product gate is one buyer-approved reconciliation lifecycle with actual provider/funded terms, real proof/key release and exact buyer recovery, plus rejection/refund tests. Nick owns authorized chain broadcasts and freeze. This chat remains read-only on chain. UI/model review must not present finite tests or signatures as proof of unexpressed intent or external truth.
+
 ## 2026-11-15 00:47 -05:00 — Anish — Engine evaluation complete
 
 - The [three-phase evaluation](../../engine/evaluation/REPORT.md) completed on `codex/engine-commerce`. Twelve new real receipts, six byte-exact recoveries, all 16 accepted model guest structures, 10,000 seeded cases, and the complete independent replay passed. Engine PR #3 remains separate at `adda3a3`.

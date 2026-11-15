@@ -2,6 +2,16 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 11:54 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `ad2dab1`. Wrote the requested [engine/team readiness report](2026-11-15-readiness.md) and [Orca handoff](ORCA-HANDOFF.md). Core engine crates and generated guests are Rust. Commerce is TypeScript, settlement is Solidity, and external proof tools use a mixed stack.
+- Fetched and reviewed Nick `80c8a4af` and Neil `8584b045`. Two bounded Sol reviews inspected source and current PR checks. Neil now has real engine/Grok/worker evidence, but PR5 CI fails at the setAAD typecheck. Real-chain startup can retain a simulated engine, and the real reader/worker settlement port remain unwired. Nick is a source integration candidate after current-state documentation corrections and repeatable checks. Neither is a production-ready lifecycle. [Review record](reports/team-review-2026-11-15-midday.json).
+- Dry merge checks for engine/main, Nick/main, and Neil/current integration exited0 without conflicts. They did not merge branches or establish semantic compatibility. No owner status file changed. No model trial or proof suite was repeated.
+- New [advisory scan](../../engine/evaluation/reports/dependency-advisories-2026-11-15.json) queried498 locked registry package versions. The six published guest lockfiles are subsets. Seven package versions matched seven distinct issues: four security/soundness findings and three maintenance warnings. Initial source/dependency review found no demonstrated proof-forgery or RSA private-key attack path. Reachability and compatible remediation remain open, so production security is not approved.
+- Orca already registered this exact worktree and indexed this conversation. Renamed its card to Anish engine integration, marked it in review, and opened the readiness report. Prepared a compact fresh-chat handoff. Orca detects system-default API-key credentials and no managed Codex account. The report gives the isolated ChatGPT account setup and switching commands. No credentials or global config changed. The user must complete the one-time ChatGPT authorization.
+- Repeated all 18 Arc read-only checks at a current fixed block. The fresh receipt still verifies and changed inputs fail. The core remains whitelisted and unfrozen, with both deployer admin roles retained. [Current chain evidence](reports/arc-readiness-2026-11-15-midday.json). No transaction was sent.
+- Proposed today: CI and live-mode guard first, dependency triage, then real Arc reader/settlement wiring and one buyer-approved reconciliation lifecycle. Keep human approval and the no-live-transaction constraint. Existing engine evaluation remains complete; service/settlement integration and security remediation remain distinct pending work.
+
 ## 2026-11-15 00:47 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, preceding pushed commit `250519c`. All three evaluation phases are complete. The complete `engine/evaluation/evaluate.sh` replay exited 0 in fresh private scratch. [Final report](../../engine/evaluation/REPORT.md) and [machine summary](../../engine/evaluation/reports/final-replay.json).

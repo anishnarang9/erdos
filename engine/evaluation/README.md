@@ -1,6 +1,7 @@
 # Engine evaluation
 
 Read the [measured results and limits](REPORT.md).
+The [November 15 readiness review](../../agents/anish/2026-11-15-readiness.md) adds current team progress and dependency-advisory findings.
 
 The suite separates four questions:
 

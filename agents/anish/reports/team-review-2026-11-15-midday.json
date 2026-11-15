@@ -1,0 +1,140 @@
+{
+  "checkedAt": "2026-11-15T11:50:35-05:00",
+  "reviewedRevisions": {
+    "engine": "adda3a3c52fd8cebe594aba42d3e43f47a7baf0e",
+    "integration": "ad2dab18ba5fe7239607fda8359db05f0d8845e1",
+    "nick": "80c8a4af68f0cf00e4177c98e9c435d869716edd",
+    "neil": "8584b045f18996667419b8c6d7f965717b099f5e",
+    "remoteMain": "9a1b4444ec30360210cdccc4d26fdfe4601e81d7",
+    "localMain": "072cb2ca8787392c78ed34411dff0c5a065b5196"
+  },
+  "pullRequests": [
+    {
+      "headRefOid": "adda3a3c52fd8cebe594aba42d3e43f47a7baf0e",
+      "mergeStateStatus": "CLEAN",
+      "mergeable": "MERGEABLE",
+      "number": 3,
+      "reviews": [],
+      "statusCheckRollup": [],
+      "title": "Build RISC Zero checker engine and publish real proof fixtures",
+      "url": "https://github.com/anishnarang9/UBC-26/pull/3"
+    },
+    {
+      "headRefOid": "8584b045f18996667419b8c6d7f965717b099f5e",
+      "mergeStateStatus": "UNSTABLE",
+      "mergeable": "MERGEABLE",
+      "number": 5,
+      "reviews": [],
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-11-15T16:12:12Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/anishnarang9/UBC-26/actions/runs/43734093882/job/132872746553",
+          "name": "check",
+          "startedAt": "2026-11-15T16:11:48Z",
+          "status": "COMPLETED",
+          "workflowName": "commerce"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-11-15T16:12:01Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/anishnarang9/UBC-26/actions/runs/43734088440/job/132872729980",
+          "name": "check",
+          "startedAt": "2026-11-15T16:11:45Z",
+          "status": "COMPLETED",
+          "workflowName": "commerce"
+        }
+      ],
+      "title": "Commerce: real engine, engine-bound approvals, worker prove/decrypt",
+      "url": "https://github.com/anishnarang9/UBC-26/pull/5"
+    }
+  ],
+  "nickPR4": {
+    "mergeable": "MERGEABLE",
+    "mergeStateStatus": "CLEAN",
+    "reviews": 0,
+    "checks": 0,
+    "sourceVerdict": "Integration candidate after current-state documentation corrections and repeatable contract checks. Freeze and live lifecycle are separate demo gates.",
+    "tests": "Owner reports120passed1skipped; not rerun here because forge/arc-forge absent."
+  },
+  "dryMergeChecks": [
+    {
+      "command": "git merge-tree --write-tree origin/main adda3a3",
+      "exitCode": 0,
+      "tree": "e7f02cfbd6091f1c14acc11be63f362eb4be3efe"
+    },
+    {
+      "command": "git merge-tree --write-tree origin/main 80c8a4a",
+      "exitCode": 0,
+      "tree": "7652228748da5734fbc9a61349a4076dab6f0aaa"
+    },
+    {
+      "command": "git merge-tree --write-tree ad2dab1 8584b04",
+      "exitCode": 0,
+      "tree": "ecbeec9e03c0f3076fff4a10085d0279ccfeadc5"
+    }
+  ],
+  "CIObserved": {
+    "run": "https://github.com/anishnarang9/UBC-26/actions/runs/43734093882",
+    "command": "pnpm typecheck",
+    "error": "sdk/src/chain/arc/nick-examples/fixture.test.ts(107,12): TS2554: Expected 2 arguments, but got 1.",
+    "exitCode": 2
+  },
+  "findings": [
+    {
+      "priority": "P1",
+      "owner": "Neil",
+      "path": "commerce/api/src/server.ts:47-58,79-90",
+      "finding": "CHAIN_RPC_URL can coexist with default simulatedEngine; forbid live-chain configuration from using simulated commitments."
+    },
+    {
+      "priority": "P1",
+      "owner": "Neil",
+      "path": "commerce/api/src/server.ts:26-45; commerce/api/src/chain.ts:43-51; commerce/worker/src/funded.ts; commerce/worker/src/index.ts",
+      "finding": "Real ChainReader not supplied; stub fallback remains. Funded worker lacks concrete settlement port/CLI wiring."
+    },
+    {
+      "priority": "P1",
+      "owner": "Neil",
+      "path": "commerce/sdk/src/chain/arc/nick-examples/fixture.test.ts:107",
+      "finding": "Both commerce CI checks fail on setAAD typecheck."
+    },
+    {
+      "priority": "P2",
+      "owner": "Nick",
+      "path": "contracts/HANDOFF.md:19,32; contracts/deployments/arc-testnet.json:50,81",
+      "finding": "Current unfrozen state conflicts with prose claiming frozen fees or renounced roles."
+    }
+  ],
+  "integrationDecision": "No branch merged. No owner status edited. No new authoring trials or proof generation or live transactions. Report proposes order and gates, not production approval.",
+  "arcFreshReadOnlyReport": "arc-readiness-2026-11-15-midday.json",
+  "finalSnapshotAt": "2026-11-15T11:56:05-05:00",
+  "finalPR5Snapshot": {
+    "headRefOid": "8584b045f18996667419b8c6d7f965717b099f5e",
+    "mergeStateStatus": "UNSTABLE",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-15T16:12:12Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/anishnarang9/UBC-26/actions/runs/43734093882/job/132872746553",
+        "name": "check",
+        "startedAt": "2026-11-15T16:11:48Z",
+        "status": "COMPLETED",
+        "workflowName": "commerce"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-15T16:12:01Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/anishnarang9/UBC-26/actions/runs/43734088440/job/132872729980",
+        "name": "check",
+        "startedAt": "2026-11-15T16:11:45Z",
+        "status": "COMPLETED",
+        "workflowName": "commerce"
+      }
+    ]
+  }
+}
