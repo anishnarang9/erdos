@@ -146,7 +146,9 @@ abstract contract SettlementScript is Script {
         return string.concat('"', s, '"');
     }
 
-    /// @dev Reverts if `existing` is already deployed on this chain and no override is set.
+    /// @dev A manifest address with no code on the current chain counts as NOT deployed (a failed
+    ///      `--broadcast` can leave the entry behind, because scripts write the manifest during
+    ///      simulation). Reverts if `existing` is already deployed on this chain and no override is set.
     function _refuseRedeploy(string memory what, address existing) internal view {
         if (existing != address(0) && existing.code.length != 0 && !_allowRedeploy()) {
             console.log(what, "already deployed at", existing);
@@ -155,7 +157,10 @@ abstract contract SettlementScript is Script {
     }
 
     function _requireCode(string memory what, address a) internal view {
-        require(a != address(0) && a.code.length != 0, string.concat(what, ": no code at manifest address"));
+        require(
+            a != address(0) && a.code.length != 0,
+            string.concat(what, ": manifest address has no code: reset the entry or rerun the step")
+        );
     }
 
     function _treasury(address deployer) internal view returns (address t) {
@@ -317,8 +322,48 @@ abstract contract SettlementScript is Script {
 
     // ───────────────────────── Step 5: whitelist and freeze ─────────────────────────
 
-    /// @dev Whitelists the hook, then renounces ADMIN_ROLE and DEFAULT_ADMIN_ROLE. Re-running after
-    ///      a complete freeze only repeats the post-condition checks. Partial states resume.
+    /// @dev Non-irreversible variant of step 5 (`SETTLEMENT_WHITELIST_ONLY=1`): whitelists the hook and
+    ///      renounces NOTHING, so the deployer keeps both admin roles and the core is NOT frozen.
+    ///      Idempotent: an already whitelisted hook is skipped. Refuses when the signer no longer holds
+    ///      both roles (a frozen core cannot be un-frozen, and this path must not claim it is).
+    function _stepWhitelistOnly(address core, address hook) internal {
+        _requireCode("core proxy", core);
+        _requireCode("hook", hook);
+        AgenticCommerce c = AgenticCommerce(core);
+
+        vm.startBroadcast();
+        address deployer = _broadcaster();
+        vm.stopBroadcast();
+
+        require(
+            c.hasRole(ADMIN_ROLE, deployer) && c.hasRole(DEFAULT_ADMIN_ROLE, deployer),
+            "signer lacks an admin role: wrong account, or the core is already frozen"
+        );
+        bool wl = c.whitelistedHooks(hook);
+
+        vm.startBroadcast();
+        if (!wl) c.setHookWhitelist(hook, true);
+        vm.stopBroadcast();
+
+        require(c.whitelistedHooks(hook), "hook not whitelisted");
+        require(c.whitelistedHooks(address(0)), "zero hook lost its whitelist");
+        require(c.platformFeeBP() == 0 && c.evaluatorFeeBP() == 0, "fees not zero");
+        require(
+            c.hasRole(ADMIN_ROLE, deployer) && c.hasRole(DEFAULT_ADMIN_ROLE, deployer),
+            "deployer lost an admin role during whitelist-only"
+        );
+
+        _manifestWrite(".contracts.core.hookWhitelisted", "true");
+        _manifestWrite(".contracts.core.frozen", "false");
+        _manifestWrite(".status", _q("whitelisted"));
+        console.log("hook whitelisted; deployer still holds ADMIN_ROLE and DEFAULT_ADMIN_ROLE");
+        console.log("WARNING: the core is NOT frozen. The deployer can still change fees, whitelist and upgrade.");
+        console.log("WARNING: re-run 05_Freeze WITHOUT SETTLEMENT_WHITELIST_ONLY to renounce both roles later.");
+    }
+
+    /// @dev Whitelists the hook (unless already whitelisted), then renounces ADMIN_ROLE and
+    ///      DEFAULT_ADMIN_ROLE. Re-running after a complete freeze only repeats the post-condition
+    ///      checks. Partial states resume, including a hook already whitelisted by `_stepWhitelistOnly`.
     function _stepFreeze(address core, address hook) internal {
         _requireCode("core proxy", core);
         _requireCode("hook", hook);
@@ -342,6 +387,7 @@ abstract contract SettlementScript is Script {
 
         _checkFrozen(core, hook, deployer);
 
+        _manifestWrite(".contracts.core.hookWhitelisted", "true");
         _manifestWrite(".contracts.core.frozen", "true");
         _manifestWrite(".status", _q("frozen"));
         console.log("frozen: hook whitelisted, deployer roles renounced");

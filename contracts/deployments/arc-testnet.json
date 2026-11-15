@@ -48,6 +48,7 @@
       "treasury": null,
       "deployBlock": null,
       "frozen": false,
+      "hookWhitelisted": false,
       "proxy": "OpenZeppelin ERC1967Proxy (UUPS), initialize(usdc, treasury, admin)",
       "abi": "abi/AgenticCommerce.json"
     },

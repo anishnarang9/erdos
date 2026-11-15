@@ -11,6 +11,9 @@ import {SettlementHook} from "../src/SettlementHook.sol";
 ///
 ///         Checks every manifest entry that is non-null. Set `SETTLEMENT_EXPECT_FROZEN=1` after step 5
 ///         to also require the freeze post-conditions (the deployer address comes from the manifest).
+///         Without it, the whitelist status is reported and never fails the run. A non-null manifest
+///         address with no code on chain FAILS ("manifest address has no code: reset the entry or
+///         rerun the step"), for example after a failed `--broadcast` that had written the manifest.
 ///         Reverts with a message on the first failed check.
 contract VerifyDeployment is SettlementScript {
     function run() external {
@@ -60,7 +63,20 @@ contract VerifyDeployment is SettlementScript {
             require(h.MIN_EXPIRY_MARGIN() == c.minExpiryMargin, "MIN_EXPIRY_MARGIN");
             console.log("ok hook", hook);
         }
-        if (vm.envOr("SETTLEMENT_EXPECT_FROZEN", false)) {
+        bool expectFrozen = vm.envOr("SETTLEMENT_EXPECT_FROZEN", false);
+        if (!expectFrozen && core != address(0) && hook != address(0)) {
+            if (AgenticCommerce(core).whitelistedHooks(hook)) {
+                AgenticCommerce k = AgenticCommerce(core);
+                if (deployer != address(0) && (k.hasRole(ADMIN_ROLE, deployer) || k.hasRole(DEFAULT_ADMIN_ROLE, deployer))) {
+                    console.log("ok hook whitelisted (core NOT frozen: deployer still holds an admin role)");
+                } else {
+                    console.log("ok hook whitelisted (deployer holds no admin role)");
+                }
+            } else {
+                console.log("note: hook not whitelisted yet (run step 05)");
+            }
+        }
+        if (expectFrozen) {
             require(
                 core != address(0) && hook != address(0) && deployer != address(0),
                 "manifest incomplete for freeze check"

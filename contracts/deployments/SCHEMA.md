@@ -6,7 +6,8 @@
 | --- | --- |
 | `schemaVersion` | Integer, 1 |
 | `network` | `arc-testnet` |
-| `status` | `template`, `partial` (some steps done), or `frozen` (step 5 done) |
+| `status` | `template`, `partial` (some steps done), `whitelisted` (step 5 run with `SETTLEMENT_WHITELIST_ONLY=1`: hook whitelisted, core NOT frozen, deployer keeps both admin roles), or `frozen` (full step 5 done) |
+| `testJob.coreFrozen` | Written by step 08: false when the job was created on an unfrozen core (`SETTLEMENT_ALLOW_UNFROZEN=1`) |
 | `deployer` | Account that signed steps 03 to 05 and held the admin roles until the freeze. Set by step 03 |
 | `chain.chainId` | 5042002. Scripts abort when the live chain ID differs |
 | `chain.rpcUrl`, `explorerUrl`, `explorerApi` | Public endpoints (Blockscout under `/api/v2/`) |
@@ -25,7 +26,8 @@
 | `contracts.core.address` | ERC1967 proxy. This is the escrow address the clients call and the `escrow` field of the context |
 | `contracts.core.implementation` | Implementation the proxy points to (equals `coreImplementation.address`) |
 | `contracts.core.treasury` | Fee treasury, never paid because fees are zero |
-| `contracts.core.frozen` | True after step 5 |
+| `contracts.core.frozen` | True after a full step 5 (both admin roles renounced). False after the whitelist-only variant |
+| `contracts.core.hookWhitelisted` | True once step 5 has whitelisted the hook (whitelist-only or full freeze) |
 | `contracts.hook.address` | `SettlementHook`: both the job's hook and its evaluator |
 | `contracts.hook.erc165InterfaceId` | `0x7ff6bc9e` (`IACPHook`) |
 | `contracts.hook.maxEnvelopeBytes` | 16412 (16,384-byte bundle + 12-byte nonce + 16-byte tag). Larger envelopes make `submit` revert |

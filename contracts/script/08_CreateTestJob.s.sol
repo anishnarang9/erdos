@@ -25,7 +25,9 @@ interface IERC20Minimal {
 ///         signs the broadcast (`--account <keystore>`); it needs at least `bountyUsdc` plus gas in USDC.
 ///
 ///         Pre-checks (revert with a message before anything is sent): chain guard; hook whitelisted
-///         on the core and the manifest deployer holds neither admin role (frozen); hook is wired to
+///         on the core and the manifest deployer holds neither admin role (frozen; waived by
+///         `SETTLEMENT_ALLOW_UNFROZEN=1`, which prints a warning and records `testJob.coreFrozen`
+///         as false; the hook must still be whitelisted); hook is wired to
 ///         this core and USDC; `expirySeconds >= hook.MIN_EXPIRY_MARGIN() + coreMinExpirySeconds`;
 ///         Poster USDC balance covers the budget; no test job already recorded in the manifest
 ///         (`SETTLEMENT_ALLOW_NEW_TEST_JOB=1` overrides).
@@ -77,15 +79,26 @@ contract CreateTestJob is SettlementScript {
         vm.stopBroadcast();
 
         _preChecks(c, i, poster);
+        bool frozen = _isFrozen(i.core);
+        if (!frozen) {
+            console.log("WARNING: core is NOT frozen (SETTLEMENT_ALLOW_UNFROZEN=1). The deployer can still change fees, whitelist and upgrade.");
+        }
 
         uint256 coreBefore = IERC20Minimal(i.usdc).balanceOf(i.core);
         t = _execute(i, poster);
         _postChecks(i, t, coreBefore);
 
-        _manifestWrite(".testJob", manifestJson(t));
+        _manifestWrite(".testJob", manifestJson(t, frozen));
         console.log("test job funded, jobId", t.jobId);
         console.log("poster", t.poster);
         console.log("expiry", t.expiry);
+    }
+
+    /// @dev True when the manifest deployer holds neither admin role.
+    function _isFrozen(address core) internal view returns (bool) {
+        address deployer = _manifestAddress(".deployer");
+        return !AgenticCommerce(core).hasRole(ADMIN_ROLE, deployer)
+            && !AgenticCommerce(core).hasRole(DEFAULT_ADMIN_ROLE, deployer);
     }
 
     // ───────────────────────── Inputs ─────────────────────────
@@ -147,10 +160,12 @@ contract CreateTestJob is SettlementScript {
         require(core.whitelistedHooks(i.hook), "hook is not whitelisted on the core");
         address deployer = _manifestAddress(".deployer");
         require(deployer != address(0), "manifest .deployer missing");
-        require(
-            !core.hasRole(ADMIN_ROLE, deployer) && !core.hasRole(DEFAULT_ADMIN_ROLE, deployer),
-            "core is not frozen: deployer still holds an admin role"
-        );
+        if (!vm.envOr("SETTLEMENT_ALLOW_UNFROZEN", false)) {
+            require(
+                !core.hasRole(ADMIN_ROLE, deployer) && !core.hasRole(DEFAULT_ADMIN_ROLE, deployer),
+                "core is not frozen: deployer still holds an admin role"
+            );
+        }
         require(address(hook.core()) == i.core, "hook.core != manifest core");
         require(hook.usdc() == i.usdc, "hook.usdc != USDC");
         require(address(core.paymentToken()) == i.usdc, "core paymentToken != USDC");
@@ -227,7 +242,7 @@ contract CreateTestJob is SettlementScript {
     // ───────────────────────── Manifest ─────────────────────────
 
     /// @notice The `testJob` object written to the manifest. Public so tests can check the encoding.
-    function manifestJson(TestJob memory t) public pure returns (string memory) {
+    function manifestJson(TestJob memory t, bool coreFrozen) public pure returns (string memory) {
         return string.concat(
             '{"jobId":', vm.toString(t.jobId),
             ',"poster":', _q(vm.toString(t.poster)),
@@ -240,6 +255,7 @@ contract CreateTestJob is SettlementScript {
             ',"expiry":', vm.toString(t.expiry),
             ',"context":', _q(vm.toString(t.context)),
             ',"createdBlock":', vm.toString(t.createdBlock),
+            ',"coreFrozen":', coreFrozen ? "true" : "false",
             ',"txHashes":null',
             ',"txHashesSource":"broadcast/08_CreateTestJob.s.sol/<chainId>/run-latest.json"}'
         );

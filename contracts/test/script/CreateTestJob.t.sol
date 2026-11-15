@@ -153,6 +153,22 @@ contract CreateTestJobScriptTest is Test {
         vm.expectRevert(bytes("core is not frozen: deployer still holds an admin role"));
         s.run();
 
+        // Opt-in: SETTLEMENT_ALLOW_UNFROZEN=1 lets the same unfrozen core through (hook still whitelisted).
+        vm.setEnv("SETTLEMENT_ALLOW_UNFROZEN", "true");
+        CreateTestJob.TestJob memory tu = s.run();
+        assertEq(tu.jobId, 1);
+        assertEq(uint256(core2.getJob(1).status), uint256(AgenticCommerce.JobStatus.Funded));
+        assertEq(MockUSDC(d.usdc).balanceOf(address(core2)), 1e6);
+        // The manifest object records that the core was not frozen.
+        vm.writeJson(s.manifestJson(tu, false), _mp(), ".testJob");
+        assertFalse(vm.parseJsonBool(vm.readFile(_mp()), ".testJob.coreFrozen"));
+        vm.writeJson("null", _mp(), ".testJob");
+        // The override does not waive the whitelist: an unwhitelisted hook still reverts.
+        core2.setHookWhitelist(address(hook2), false);
+        vm.expectRevert(bytes("hook is not whitelisted on the core"));
+        s.run();
+        vm.setEnv("SETTLEMENT_ALLOW_UNFROZEN", "false");
+
         // Back to the frozen deployment.
         _point(d.core, d.hook, d.deployer);
     }
@@ -217,7 +233,8 @@ contract CreateTestJobScriptTest is Test {
     function _checkManifest(LocalCreateTestJobHarness s, CreateTestJob.TestJob memory t) internal {
         // The manifest object parses back into the same values. `testJob` is absent from the template,
         // so this also checks that writeJson inserts the missing key.
-        vm.writeJson(s.manifestJson(t), _mp(), ".testJob");
+        vm.writeJson(s.manifestJson(t, true), _mp(), ".testJob");
+        assertTrue(vm.parseJsonBool(vm.readFile(_mp()), ".testJob.coreFrozen"));
         string memory m = vm.readFile(_mp());
         assertEq(vm.parseJsonUint(m, ".testJob.jobId"), t.jobId);
         assertEq(vm.parseJsonAddress(m, ".testJob.poster"), poster);

@@ -172,6 +172,15 @@ contract DeployScriptsTest is Test {
         assertEq(address(SettlementHook(hook).verifier()), verifier);
         _put(".contracts.hook.address", hook);
 
+        // A manifest address with no code fails 06 loudly, and is not "already deployed" for 04.
+        _put(".contracts.hook.address", address(0xBEEF));
+        VerifyDeployment noCode = new VerifyDeployment();
+        vm.expectRevert(bytes("hook: manifest address has no code: reset the entry or rerun the step"));
+        noCode.run();
+        address hookAgain = new DeployHook().run();
+        assertTrue(hookAgain.code.length != 0);
+        _put(".contracts.hook.address", hook);
+
         // Read-only verifier script passes before the freeze, and the frozen check fails before it.
         new VerifyDeployment().run();
         vm.setEnv("SETTLEMENT_EXPECT_FROZEN", "true");
@@ -179,8 +188,38 @@ contract DeployScriptsTest is Test {
         vm.expectRevert();
         v.run();
 
+        // Whitelist-only: the hook is whitelisted, but nobody renounces anything.
+        AgenticCommerce k = AgenticCommerce(core);
+        assertFalse(k.whitelistedHooks(hook));
+        vm.setEnv("SETTLEMENT_WHITELIST_ONLY", "true");
         new Freeze().run();
-        assertTrue(AgenticCommerce(core).whitelistedHooks(hook));
+        assertTrue(k.whitelistedHooks(hook));
+        assertTrue(k.whitelistedHooks(address(0)));
+        assertTrue(k.hasRole(k.ADMIN_ROLE(), admin));
+        assertTrue(k.hasRole(k.DEFAULT_ADMIN_ROLE(), admin));
+        assertEq(k.platformFeeBP(), 0);
+        assertEq(k.evaluatorFeeBP(), 0);
+        new Freeze().run(); // idempotent: whitelist already set is skipped, roles still held
+        assertTrue(k.hasRole(k.ADMIN_ROLE(), admin));
+        // 06 without EXPECT_FROZEN reports the whitelist and passes; with it, it still fails (not frozen).
+        vm.setEnv("SETTLEMENT_EXPECT_FROZEN", "false");
+        new VerifyDeployment().run();
+        vm.setEnv("SETTLEMENT_EXPECT_FROZEN", "true");
+        VerifyDeployment notFrozen = new VerifyDeployment();
+        vm.expectRevert();
+        notFrozen.run();
+        // Default 05 (flag off) is the full freeze; it resumes from the whitelisted state.
+        vm.setEnv("SETTLEMENT_WHITELIST_ONLY", "false");
+        new Freeze().run();
+        assertTrue(k.whitelistedHooks(hook));
+        assertFalse(k.hasRole(k.ADMIN_ROLE(), admin));
+        assertFalse(k.hasRole(k.DEFAULT_ADMIN_ROLE(), admin));
+        // Whitelist-only after the freeze refuses instead of pretending the core is unfrozen.
+        vm.setEnv("SETTLEMENT_WHITELIST_ONLY", "true");
+        Freeze afterFreeze = new Freeze();
+        vm.expectRevert(bytes("signer lacks an admin role: wrong account, or the core is already frozen"));
+        afterFreeze.run();
+        vm.setEnv("SETTLEMENT_WHITELIST_ONLY", "false");
 
         // After the freeze: verify passes with the freeze check, and re-running 05 is a no-op check.
         new VerifyDeployment().run();
@@ -206,6 +245,8 @@ contract DeployScriptsTest is Test {
         vm.etch(ARC_USDC, address(new MockUSDC()).code);
         vm.writeFile(_manifestPath(), _template());
 
+        // The template may carry live addresses that have no code in this EVM: deploy a real verifier.
+        _put(".contracts.verifier.address", new DeployVerifier().run());
         // An unrelated UUPS-looking contract is not the patched build.
         address bogus = address(new FakeUUPS());
         _put(".contracts.coreImplementation.address", bogus);

@@ -25,7 +25,7 @@ Use `arc-forge` with `--network arc` for acceptance runs (plain `arc-forge test`
 | `02_DeployCoreImpl.s.sol` | Deploy patched `AgenticCommerce` implementation |
 | `03_DeployCoreProxy.s.sol` | ERC1967 proxy, `initialize(usdc, treasury, admin)`; checks slot, zero fees, `paymentToken`, roles |
 | `04_DeployHook.s.sol` | `SettlementHook(core, verifier, usdc, maxEnvelopeBytes, minExpiryMargin)`; checks `supportsInterface(0x7ff6bc9e)` |
-| `05_Freeze.s.sol` | `setHookWhitelist(hook, true)`, then renounce `ADMIN_ROLE` and `DEFAULT_ADMIN_ROLE`. Irreversible |
+| `05_Freeze.s.sol` | Default: `setHookWhitelist(hook, true)`, then renounce `ADMIN_ROLE` and `DEFAULT_ADMIN_ROLE` (irreversible). With `SETTLEMENT_WHITELIST_ONLY=1`: whitelist only, nothing renounced, status `whitelisted` |
 | `06_Verify.s.sol` | Read-only check of the live deployment against the manifest |
 | `DeployLocal.s.sol` | Whole sequence in one run. Local broadcast on anvil, or a full simulation on Arc (it refuses `--broadcast` on Arc) |
 | `export-abi.sh` | Regenerates `../abi/*.json` |
@@ -34,10 +34,10 @@ The admin and signer for steps 03 and 05 must be the same account. The treasury 
 
 ## Live Arc deployment (Nick)
 
-Fee flags: Arc drops a transaction below 20 gwei `maxFeePerGas` without a receipt, so set both flags to 20 gwei or more. Keep `--slow` so each transaction confirms before the next. Replace `<keystore-name>` with your Foundry keystore (`arc-cast wallet import <keystore-name> --interactive` creates one; type the key into that prompt yourself). Set `--rpc-url https://rpc.testnet.arc.io`.
+Fee flags: Arc drops a transaction below 20 gwei `maxFeePerGas` without a receipt, so set both flags to 20 gwei or more. Keep `--slow` so each transaction confirms before the next. Replace `<keystore-name>` with your Foundry keystore (`arc-cast wallet import <keystore-name> --interactive` creates one; type the key into that prompt yourself) and `<deployer-address>` with that keystore's address. `--sender <deployer-address>` is required in addition to `--account`: with `--account` alone Foundry fails with `Error: You seem to be using Foundry's default sender` (hit on step 03). Every live command below uses `$FLAGS`, so the sender is always set.
 
 ```bash
-FLAGS="--rpc-url https://rpc.testnet.arc.io --account <keystore-name> --with-gas-price 25gwei --priority-gas-price 25gwei --slow"
+FLAGS="--rpc-url https://rpc.testnet.arc.io --account <keystore-name> --sender <deployer-address> --with-gas-price 25gwei --priority-gas-price 25gwei --slow"
 ```
 
 Dry run each step first (same command without `--broadcast`; steps 01 and 02 simulate standalone, steps 03 to 05 need earlier contracts on chain, so use `DeployLocal` for a whole-sequence simulation on Arc state):
@@ -61,10 +61,18 @@ arc-forge script script/06_Verify.s.sol:VerifyDeployment --network arc --rpc-url
 arc-forge script script/04_DeployHook.s.sol:DeployHook --network arc $FLAGS --broadcast
 arc-forge script script/06_Verify.s.sol:VerifyDeployment --network arc --rpc-url https://rpc.testnet.arc.io
 
-# Irreversible. Run only after steps 01 to 04 verified, with the SAME account as step 03.
+# Step 05, option A (now): whitelist the hook only. Reversible: no role is renounced, the core is
+# NOT frozen, the deployer keeps ADMIN_ROLE and DEFAULT_ADMIN_ROLE. Same account as step 03.
+SETTLEMENT_WHITELIST_ONLY=1 arc-forge script script/05_Freeze.s.sol:Freeze --network arc $FLAGS --broadcast
+arc-forge script script/06_Verify.s.sol:VerifyDeployment --network arc --rpc-url https://rpc.testnet.arc.io   # prints: ok hook whitelisted (core NOT frozen ...)
+
+# Step 05, option B (later): the full freeze. IRREVERSIBLE. Same account as step 03. Skips the
+# whitelist if already set, renounces both roles, runs the freeze checks.
 arc-forge script script/05_Freeze.s.sol:Freeze --network arc $FLAGS --broadcast
 SETTLEMENT_EXPECT_FROZEN=1 arc-forge script script/06_Verify.s.sol:VerifyDeployment --network arc --rpc-url https://rpc.testnet.arc.io
 ```
+
+The default of `05_Freeze` (flag unset) is always the full freeze, so only the opt-in flag is safe to type by habit; never run option B by accident. After option A the manifest has `status: "whitelisted"`, `contracts.core.frozen: false`, `contracts.core.hookWhitelisted: true`. Until option B runs, whoever holds the deployer key can change fees, whitelist other hooks and upgrade the core.
 
 Expected after each step (06 prints `ok <name>` lines and reverts with a message on failure):
 
@@ -74,11 +82,12 @@ Expected after each step (06 prints `ok <name>` lines and reverts with a message
 | 02 | implementation has code, `proxiableUUID()` is the ERC1967 slot, bytecode equals the local patched build modulo the UUPS self-address and metadata |
 | 03 | proxy implementation slot equals the manifest implementation; both fees 0; `paymentToken()` is Arc USDC; signer holds both admin roles |
 | 04 | hook has code; `supportsInterface(0x7ff6bc9e)`; immutables equal manifest and config (`MAX_ENVELOPE_BYTES` 16412, `MIN_EXPIRY_MARGIN` from config) |
-| 05 | hook whitelisted; signer holds neither role; `setHookWhitelist`, `setPlatformFee`, `setEvaluatorFee`, `upgradeToAndCall` revert `AccessControlUnauthorizedAccount` |
+| 05 (whitelist-only) | hook whitelisted; zero hook still whitelisted; fees 0; signer STILL holds both roles |
+| 05 (full freeze) | hook whitelisted; signer holds neither role; `setHookWhitelist`, `setPlatformFee`, `setEvaluatorFee`, `upgradeToAndCall` revert `AccessControlUnauthorizedAccount` |
 
-If a step's broadcast fails after the manifest was written, the address in the manifest has no code. The next run treats it as not deployed and continues. Use `--resume` to resend stuck transactions.
+**A failed `--broadcast` can still leave a manifest entry.** Forge executes the script (and its manifest writes) during simulation, before any transaction is sent; if the send then fails, the manifest names an address that was never deployed. Handling: `_refuseRedeploy` ignores a manifest address with no code on the current chain, so rerunning the step works; `06_Verify` fails loudly on it (`<name>: manifest address has no code: reset the entry or rerun the step`); and later steps fail the same way via the code check. If the send did not happen, reset the entry (set the address back to `null`, restore `status`) or rerun the step, then commit only a manifest that `06_Verify` accepts. A forge script cannot write the manifest after the broadcast confirms, so this stays a manual check. Use `--resume` to resend stuck transactions.
 
-After step 05 the script has already set `status` to `frozen`. Commit `deployments/arc-testnet.json` and `broadcast/` receipts for evidence (`broadcast/` is git-ignored; copy what you need). Run `bash script/export-abi.sh` again only if the contracts changed.
+After the full freeze the script has already set `status` to `frozen`. Commit `deployments/arc-testnet.json` and `broadcast/` receipts for evidence (`broadcast/` is git-ignored; copy what you need). Run `bash script/export-abi.sh` again only if the contracts changed.
 
 ## `eth_getLogs`
 
@@ -102,7 +111,7 @@ Full write-up, with the fork evidence and the commands for the Nov 14 verifier g
 | --- | --- |
 | `../test/fork/ArcVerifierFork.t.sol` | Deploys the verifier inside a fork of live Arc and checks the upstream receipt and tampering. Skips unless chain ID is 5042002. `arc-forge test --network arc --fork-url https://rpc.testnet.arc.io --fork-block-number 72389800 --match-path 'test/fork/*' -vv` |
 | `verifier-evidence.py` | Read-only evidence for the deployed verifier: chain guard, code equals local build modulo CBOR metadata and the four immutables, getters, real receipt (must verify), eleven altered inputs (must revert), `eth_estimateGas`. Python standard library and JSON-RPC only; it sends no transaction. It was chosen over a Solidity script because it exercises the Arc node's own execution and gas (a forge script would re-run the call in a local simulation) and can print Markdown |
-| `08_CreateTestJob.s.sol` | Creates and funds one test job on the deployed, frozen core |
+| `08_CreateTestJob.s.sol` | Creates and funds one test job on the deployed core (frozen, or unfrozen with `SETTLEMENT_ALLOW_UNFROZEN=1`) |
 
 After step 01 is broadcast:
 
@@ -114,7 +123,7 @@ The script writes `research/ARC-VERIFIER-LIVE.md` itself (commit it); it does no
 
 ### Step 08: one funded test job
 
-Run only after steps 01 to 05 are live and `06_Verify` passes with `SETTLEMENT_EXPECT_FROZEN=1`. The signer is the Poster and needs the bounty plus gas in USDC.
+Run after steps 01 to 05 are live. Normally 06 passes with `SETTLEMENT_EXPECT_FROZEN=1` (full freeze). If you did the whitelist-only step 05, set `SETTLEMENT_ALLOW_UNFROZEN=1`: the hook must still be whitelisted and every other check still applies, but the frozen requirement is waived, a warning is printed and the manifest `testJob` records `"coreFrozen": false`. The signer is the Poster and needs the bounty plus gas in USDC.
 
 ```bash
 export SETTLEMENT_TEST_PROVIDER=<solver-address>
@@ -122,15 +131,18 @@ export SETTLEMENT_TEST_IMAGE_ID=0x<32 bytes>
 export SETTLEMENT_TEST_RULES_HASH=0x<32 bytes>
 export SETTLEMENT_TEST_REFERENCE_HASH=0x<32 bytes>
 
+# Only after the whitelist-only step 05 (core not frozen):
+export SETTLEMENT_ALLOW_UNFROZEN=1
+
 # Dry run first: runs every pre-check and post-check, writes nothing.
 arc-forge script script/08_CreateTestJob.s.sol:CreateTestJob --network arc --rpc-url https://rpc.testnet.arc.io --sender <poster-address> --with-gas-price 25gwei
 
-arc-forge script script/08_CreateTestJob.s.sol:CreateTestJob --network arc --rpc-url https://rpc.testnet.arc.io \
-  --account <keystore-name> --with-gas-price 25gwei --priority-gas-price 25gwei --slow --broadcast
+# $FLAGS includes --sender; if the Poster differs from the deployer, use the Poster's keystore and address.
+arc-forge script script/08_CreateTestJob.s.sol:CreateTestJob --network arc $FLAGS --broadcast
 ```
 
-It sends the four Poster transactions in order: `createJob(provider, hook, now + demo.expirySeconds, "UBC-26 settlement test job", hook)`, `setBudget(jobId, demo.bountyUsdc in 6-decimal units, 0x)`, USDC `approve(core, budget)`, `fund(jobId, abi.encode(imageId, rulesHash, referenceHash))`. Pre-checks (before anything is sent): hook whitelisted and the manifest deployer holds no admin role (frozen); hook wired to this core and USDC; `demo.expirySeconds >= hook MIN_EXPIRY_MARGIN + coreMinExpirySeconds`; Poster balance covers the bounty; no test job already in the manifest (`SETTLEMENT_ALLOW_NEW_TEST_JOB=1` overrides). Post-checks: job `Funded` with the right client, provider, evaluator, hook, budget and expiry; `hook.terms(jobId)` matches the three inputs and is `funded`; the core's USDC balance rose by the budget.
+It sends the four Poster transactions in order: `createJob(provider, hook, now + demo.expirySeconds, "UBC-26 settlement test job", hook)`, `setBudget(jobId, demo.bountyUsdc in 6-decimal units, 0x)`, USDC `approve(core, budget)`, `fund(jobId, abi.encode(imageId, rulesHash, referenceHash))`. Pre-checks (before anything is sent): hook whitelisted and the manifest deployer holds no admin role (frozen, unless `SETTLEMENT_ALLOW_UNFROZEN=1`); hook wired to this core and USDC; `demo.expirySeconds >= hook MIN_EXPIRY_MARGIN + coreMinExpirySeconds`; Poster balance covers the bounty; no test job already in the manifest (`SETTLEMENT_ALLOW_NEW_TEST_JOB=1` overrides). Post-checks: job `Funded` with the right client, provider, evaluator, hook, budget and expiry; `hook.terms(jobId)` matches the three inputs and is `funded`; the core's USDC balance rose by the budget.
 
-With `--broadcast` it writes a `testJob` object into `deployments/arc-testnet.json`: `jobId`, `poster`, `provider`, `imageId`, `rulesHash`, `referenceHash`, `budget` (base units, 6 decimals), `expiry`, `context` (`hook.contextOf(jobId)`, 169 bytes), `createdBlock`. Transaction hashes are not known inside a script, so `txHashes` is `null`; take them from `broadcast/08_CreateTestJob.s.sol/5042002/run-latest.json`. The job ID is the core's counter plus one at simulation time; the core is public, so if another job lands first `setBudget` reverts and nothing is funded (re-run). The funded job expires after `demo.expirySeconds`: the Solver must submit and release before then, otherwise anyone may `claimRefund`.
+With `--broadcast` it writes a `testJob` object into `deployments/arc-testnet.json`: `jobId`, `poster`, `provider`, `imageId`, `rulesHash`, `referenceHash`, `budget` (base units, 6 decimals), `expiry`, `context` (`hook.contextOf(jobId)`, 169 bytes), `createdBlock`, `coreFrozen`. Transaction hashes are not known inside a script, so `txHashes` is `null`; take them from `broadcast/08_CreateTestJob.s.sol/5042002/run-latest.json`. The job ID is the core's counter plus one at simulation time; the core is public, so if another job lands first `setBudget` reverts and nothing is funded (re-run). The funded job expires after `demo.expirySeconds`: the Solver must submit and release before then, otherwise anyone may `claimRefund`.
 
 Test: `arc-forge test --network arc --match-path 'test/script/CreateTestJob.t.sol'` runs the script in-process against a local-mode deployment.
