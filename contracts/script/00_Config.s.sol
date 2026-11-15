@@ -82,7 +82,7 @@ abstract contract SettlementScript is Script {
         c.coreMinExpirySeconds = vm.parseJsonUint(json, ".coreMinExpirySeconds");
     }
 
-    function _isLocal() internal view returns (bool) {
+    function _isLocal() internal view virtual returns (bool) {
         return vm.envOr("SETTLEMENT_LOCAL", false);
     }
 
@@ -111,7 +111,7 @@ abstract contract SettlementScript is Script {
 
     // ───────────────────────── Manifest ─────────────────────────
 
-    function _manifestPath() internal view returns (string memory) {
+    function _manifestPath() internal view virtual returns (string memory) {
         string memory name = _isLocal() ? "local" : "arc-testnet";
         return vm.envOr("SETTLEMENT_MANIFEST", string.concat(vm.projectRoot(), "/deployments/", name, ".json"));
     }
