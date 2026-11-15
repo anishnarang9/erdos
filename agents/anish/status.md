@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 16:35 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding checkpoint `fff74ce`. Both owner heads and engine `adda3a3` are ancestors. Opened consolidated [PR #6](https://github.com/anishnarang9/UBC-26/pull/6) into main. Owner branches remain intact.
+- Added a pure manifest-to-policy parser with explicit `not-authorized` candidate output. It validates deployment identity, frozen claims, verifier pins and runtime hashes. It starts history at the proxy creation block, never the freeze block. Added a byte-copy regression for the SDK and contract manifests.
+- Independent specification and quality reviews approved the parser. Parent verification passed 378 focused tests across deployment policy/history, private state, local broadcaster and keystore. The parser suite accounts for 189 tests, including manifest equality. This is not live signer or payout evidence.
+- Other modules remain in their own uncommitted review checkpoints. Fresh workload has two valid semantic solutions, 14 rules and 77 nodes. Independent review found zero disagreements across 58 oracle cases and 289 additional engine differential cases. Native agent authoring is not Grok evidence. Buyer approval remains pending.
+- Next: finish signer/state/recovery reviews and funding composition. Rate-aware live deployment and exact source/build checks are running read-only.
+
 ## 2026-11-15 16:26 -05:00 — Anish
 
 - Resolved Nick history merge into `codex/engine-commerce`, parent `b36b588`, incoming `57c387f`. Imported corrected all-holder scripts/tests and frozen manifest. Preserved both parents' plan history and independent verification requirements. SDK and contract manifests now match byte for byte.

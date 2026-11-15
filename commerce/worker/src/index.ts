@@ -4,6 +4,7 @@ export type { ChainJob, ChainTerms, ChainSubmission, SettlementSnapshot, Preflig
 export { createArcSettlementPort } from "./arc-port.ts";
 export type { SettlementPort, ArcSettlementSnapshot, ArcPortConfig, ArcPortClients, ArcBroadcastCapability } from "./arc-port.ts";
 export type { ArcDeploymentPolicy } from "./arc-deployment.ts";
+export { parseDeploymentPolicy, type DeploymentPolicyCandidate } from "./deployment-policy.ts";
 export { checkPolicy, PolicyError, ARC_MIN_FEE, SUBMIT_SELECTOR, RELEASE_SELECTOR } from "./policy.ts";
 export type { PolicyConfig, OutgoingTx, WriteAuthorization } from "./policy.ts";
 export { apiClient, ApiClientError, type ApiClient, type JobView, type PackageListing } from "./client.ts";
