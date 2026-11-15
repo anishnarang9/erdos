@@ -2,10 +2,15 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 — Nick workstream — Settlement plan: Poster naming and push rules
+
+- Decision: the settlement plan calls the buyer role the **Poster** (posts the problem and locks the bounty). The Solver term is unchanged.
+- Decision: settlement subagents push after each checkpoint and open detailed PRs without asking Nick. They record progress in `status.md` and team-affecting decisions here. Nick pushes `SETTLEMENT-IMPLEMENTATION.md` himself, and the file is not pushed yet. Affects settlement subagents.
+
 ## 2026-11-14 — Nick workstream — Settlement implementation plan
 
 - The [settlement implementation plan](SETTLEMENT-IMPLEMENTATION.md) specifies the Arc escrow, verifier, hook and evaluator, tests, and subagent tracks. It is proposed until the build gates pass.
-- Decision: deploy our own copy of Circle's verified `AgenticCommerce` source with one patch (`setBudget` is Requester-only), then renounce admin roles. Reason: Circle's deployment is admin-controlled, so our proof-checking hook cannot be whitelisted there. Affects Anish and Neil.
+- Decision: deploy our own copy of Circle's verified `AgenticCommerce` source with one patch (`setBudget` is Poster-only), then renounce admin roles. Reason: Circle's deployment is admin-controlled, so our proof-checking hook cannot be whitelisted there. Affects Anish and Neil.
 - Decision: pin hook data to the deployed layout, which starts with the caller address. [WORK-SPLIT.md](WORK-SPLIT.md) sections 2.4 and 2.6 decode a different layout and need correcting. Section 10 of the new plan lists this and six other corrections: funding steps, 5-minute minimum expiry, 20 Gwei fee floor, log range limit, stale verifier pin in Anish's context.
 - Subagents work locally and read-only against Arc. Nick runs every live deployment. Real proof verification and the full settlement path on Arc are pending.
 

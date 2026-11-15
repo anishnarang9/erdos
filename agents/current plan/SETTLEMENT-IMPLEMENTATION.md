@@ -2,11 +2,11 @@
 
 **2026-11-14 · Nick workstream · Proposed implementation details**
 
-Build the Arc Testnet escrow, proof verification, and key release that settle a job. The Requester locks a USDC bounty. The Solver submits an encrypted solution with a RISC Zero Groth16 proof. The contract verifies the proof before the escrow records the submission. The Solver then releases the key in the transaction that pays the bounty. See the [three-way handoff](WORK-SPLIT.md) for ownership and the [engine plan](ZKVM-IMPLEMENTATION.md) for the proof wire format.
+Build the Arc Testnet escrow, proof verification, and key release that settle a job. The Poster locks a USDC bounty. The Solver submits an encrypted solution with a RISC Zero Groth16 proof. The contract verifies the proof before the escrow records the submission. The Solver then releases the key in the transaction that pays the bounty. See the [three-way handoff](WORK-SPLIT.md) for ownership and the [engine plan](ZKVM-IMPLEMENTATION.md) for the proof wire format.
 
 ## 0. Terms and status markers
 
-- **Requester** posts the problem and locks the USDC bounty. Earlier documents call this role the buyer.
+- **Poster** posts the problem and locks the USDC bounty. Earlier documents call this role the buyer.
 - **Solver** submits the encrypted solution and proof, then collects the bounty. Earlier documents call this role the worker or provider. In ERC-8183 the Solver is the `provider`.
 - **Bounty** is the ERC-8183 `budget`.
 - **Core** is the ERC-8183 `AgenticCommerce` escrow. **Hook** and **evaluator** are one contract, `SettlementHook`.
@@ -18,7 +18,7 @@ Build the Arc Testnet escrow, proof verification, and key release that settle a 
 | --- | --- | --- |
 | Scope | Workstream 2 only. Thin TypeScript examples are handoff material for the commerce owner | Matches [WORK-SPLIT.md](WORK-SPLIT.md) |
 | Core | Deploy our own copy of Circle's verified `AgenticCommerce` source behind our own ERC1967 proxy | Circle's deployment is upgradeable by a Circle admin. Only an admin can whitelist a hook, so we could not install ours there. We write no new escrow |
-| Patch | Exactly one change: `setBudget` requires `msg.sender == job.client` | The Requester sets the price. The Solver only submits and collects |
+| Patch | Exactly one change: `setBudget` requires `msg.sender == job.client` | The Poster sets the price. The Solver only submits and collects |
 | Hook data layout | Follow the deployed code: every hook payload starts with `address caller` | We deploy that code. The written standard differs |
 | Admin | Whitelist our hook, keep fees at zero, then renounce `DEFAULT_ADMIN_ROLE` and `ADMIN_ROLE` | No later upgrades or fee changes |
 | Release | Only the funded Solver may call `release` | Matches WORK-SPLIT.md |
@@ -80,7 +80,9 @@ Build the Arc Testnet escrow, proof verification, and key release that settle a 
   3. Do not create, request, read, or store private keys. Do not pass `--broadcast` or `--private-key`. Do not send transactions to any live network. Nick runs deploy scripts.
   4. Every script must read the chain ID and abort unless it equals the configured value (5042002).
   5. A subagent that needs a live transaction records the exact command and the expected result in its status entry. It does not run it.
-- Follow [agents/AGENTS.md](../AGENTS.md): checkpoint commits on branch `nick`, a status entry at each checkpoint, no push unless Nick asks. Never weaken a test to make it pass. Mark any claim you cannot verify as UNVERIFIED and open or extend a research task.
+- Follow [agents/AGENTS.md](../AGENTS.md) and the shared rules below. Never weaken a test to make it pass. Mark any claim you cannot verify as UNVERIFIED and open or extend a research task.
+- **Commits, pushes, and PRs.** Commit each coherent change on your track's branch. Push after each checkpoint commit and before you end a session. You do not need Nick's approval to push. Open a pull request against `main` when a track reaches a done condition from Section 9 or a gate from Section 11. Write a detailed description: the track and gate it serves, what changed and why, the files and paths touched, the tests run with their results (pass or fail, with the commands), the S-case IDs covered, open UNVERIFIED items, blockers, and the next owner. Link the commits and any transaction or receipt evidence. Do not merge your own pull request unless Nick asks. Exception: Nick pushes `SETTLEMENT-IMPLEMENTATION.md` himself, so subagents never push changes to that file. Request changes to it in your status entry.
+- **Progress and decisions.** Add an entry to your own `status.md` at each checkpoint, blocker, or handoff, newest first, with `YYYY-MM-DD HH:MM ±HH:MM` in the heading. Record the branch, what changed, checks and results, blockers, and the next action. Record every decision or change that affects the team, including changes to ownership, dependencies, timing, interfaces, or the corrections in Section 10, in a dated entry at the top of the shared [PLAN.md](PLAN.md) with the author in the heading, the reason, and the affected owners.
 
 ## 4. Core: vendored source and the patch
 
@@ -135,7 +137,7 @@ mapping(uint256 => bool) public released;
 
 **Hard rules**
 
-- No `reject` or other evaluator escape hatch. The Requester recovers funds only through the core's permissionless `claimRefund` after expiry.
+- No `reject` or other evaluator escape hatch. The Poster recovers funds only through the core's permissionless `claimRefund` after expiry.
 - Time boundary: submit and release require `block.timestamp < expiry`. Refund requires `block.timestamp >= expiry`. The two never overlap.
 - A bad submission reverts, so the job stays Funded and the Solver may retry before expiry.
 - Read methods and events for the commerce owner: `terms(jobId)`, `submissions(jobId)`, `released(jobId)`, `ProofAccepted`, `KeyReleased`, plus the core's `JobCreated`, `BudgetSet`, `JobFunded`, `JobSubmitted`, `JobCompleted`, `PaymentReleased`, `Refunded`, and `JobExpired`.
@@ -177,7 +179,7 @@ Function inputs:
 | ID | Case | Expected |
 | --- | --- | --- |
 | S1 | Core bytecode provenance (unpatched copy vs Circle's) | Match modulo metadata |
-| S2 | Patch is a single line; Solver `setBudget` reverts; Requester `setBudget` works | Pass |
+| S2 | Patch is a single line; Solver `setBudget` reverts; Poster `setBudget` works | Pass |
 | S3 | Callbacks called by a non-core address | Revert |
 | S4 | Zero budget, unfunded `submit`, wrong evaluator, zero provider | Revert |
 | S5 | Wrong image ID, mutated envelope, invalid seal | `submit` reverts, job stays Funded |
@@ -225,7 +227,7 @@ These affect [WORK-SPLIT.md](WORK-SPLIT.md), [ZKVM-IMPLEMENTATION.md](ZKVM-IMPLE
 
 1. WORK-SPLIT sections 2.4 and 2.6 decode hook data as `(bytes32, bytes)`. The deployed layout is `(address, bytes32, bytes)`. The `fund` payload is `(address, bytes)` and wraps `abi.encode(bytes32, bytes32, bytes32)`.
 2. WORK-SPLIT section 2.1 starts from draft revision `a078cab5`. Use Circle's verified source plus the one-line patch instead.
-3. Funding takes four Requester transactions: `createJob`, `setBudget`, a USDC `approve` for exactly the bounty, and `fund`. The Solver does not call `setBudget`. `fund` has no expected-budget argument.
+3. Funding takes four Poster transactions: `createJob`, `setBudget`, a USDC `approve` for exactly the bounty, and `fund`. The Solver does not call `setBudget`. `fund` has no expected-budget argument.
 4. The core rejects any job whose expiry is not more than 5 minutes ahead. The refund demo needs jobs open for at least that long on Arc.
 5. Any signer that sends Arc transactions must set `maxFeePerGas` at or above 20 Gwei. Log readers must page `eth_getLogs` in ranges of at most 10,000 blocks.
 6. `agents/anish/AGENTS.md` still cites verifier commit `f6d9398`. The current pin is v3.1.0 at `ff30da77…`.
