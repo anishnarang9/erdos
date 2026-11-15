@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 21:18 -05:00 — Anish
+
+- Branch codex/anish-engine. Added a repeatable SDK check against Neil's revision 3013d736. All six real receipts matched the SDK's context, journal, SHA-256 digests, and submit calldata. The test preserves the original 260-byte seals. It rejects changed ciphertext and journal bytes.
+- The SDK capture stub serializes both verdicts. Actual rejection still needs the deployed evaluator. The synthetic key fixture recovered its exact bundle and rejected a changed job context.
+- Independent review found no further defect in CLI file handling, package validation, cache concurrency, receipt verification, or this SDK check. The deployment manifest, funded terms, and native Linux timing remain pending.
+
 ## 2026-11-14 20:59 -05:00 — Anish
 
 - Branch codex/anish-engine. Merged the settlement and commerce plans from main. Kept the owners' plan entries and resolved the shared plan conflict.

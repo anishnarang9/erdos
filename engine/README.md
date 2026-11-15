@@ -205,3 +205,11 @@ node engine/tests/verify-funded-arc.mjs PASS_PROOF_JSON
 | A12. Use real fixtures | Use [reconciliation](fixtures/reconciliation) for both verdicts and [signed text](fixtures/signed-text) for a second domain. Each uses a synthetic funded context. |
 
 Use the engine's returned commitments for approval and funding. Persist the compile package for the worker when cleaning up staged inputs.
+
+To check the SDK against the real engine receipts, install the SDK dependencies in a commerce checkout. Run this command with Node 24 and its TypeScript transform flag.
+
+```sh
+node --experimental-transform-types engine/tests/check-commerce-sdk.mjs /path/to/commerce/sdk
+```
+
+The check covers all six scalar, reconciliation, signed-text, and delivery-limit receipts. It compares the SDK's context, journal, and submit encoding against the engine fixtures and an independent Ethers encoder. It also checks synthetic-key recovery and rejection after ciphertext or journal changes. The SDK call uses a local capture stub. Chain acceptance requires the funded Arc preflight and settlement tests. This check passed against SDK revision `3013d73624c3cf279015b25ec17497d7394ab70f`.

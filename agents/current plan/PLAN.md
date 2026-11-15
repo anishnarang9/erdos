@@ -2,6 +2,11 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 21:18 -05:00 — Anish — Commerce codec replay
+
+- The [SDK replay check](../../engine/tests/check-commerce-sdk.mjs) passed against Neil's revision 3013d736. All six real engine receipts produced matching context, journal, digest, and submit calldata bytes. It covers the full 16 KiB encoded delivery and both verdicts.
+- The SDK's captured calls preserve the real seals. Its mock verifier and local envelope cap still need the settlement workstream's final configuration. Confirm live acceptance through the deployed evaluator for the actual funded terms.
+
 ## 2026-11-14 20:48 -05:00 — Anish — Settlement and commerce integration
 
 - Nick's [settlement plan](SETTLEMENT-IMPLEMENTATION.md) uses Circle's verified core with the Poster-only budget patch. Use the caller-first callback layouts from that plan for `fund` and `submit`. The external submit ABI and engine wire format stay the same. The released verifier pin is `ff30da77ba4afdd496290ebebedb205348b15d83`.
