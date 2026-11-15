@@ -171,6 +171,8 @@ node engine/tests/measure-submit-calldata.mjs engine/fixtures/reconciliation/pro
 
 The calldata tool encodes the documented submit ABI and counts zero and nonzero bytes. It reports the calldata gas component under the stated per-byte assumptions. Actual settlement gas includes verification, storage, and contract calls and requires the deployed evaluator.
 
+The [delivery limit fixture](fixtures/limits) uses a 16,384-byte encoded delivery. The envelope is 16,412 bytes and the documented submit calldata is 16,996 bytes. The [offline measurement](fixtures/limits/calldata.json) reports 268,228 gas for calldata under the 4 and 16 gas per byte assumptions. The proof took 548.906 seconds and the recovered 16,367-byte file matched the original. The reproduction driver generates the file from repeated `0x7f` bytes.
+
 To check a deployed verifier directly, supply its confirmed Arc Testnet address and a proof JSON file. The probe reads the chain ID, code, selector, and proof result at a single block. The estimate covers the verifier call.
 
 ```sh

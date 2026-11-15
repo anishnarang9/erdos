@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 19:02 -05:00 — Anish
+
+- Branch codex/anish-engine. The full 16 KiB delivery produced a passing proof in 548.906 seconds and 3,273,441 guest cycles. Decryption recovered the exact 16,367-byte file.
+- The documented submit ABI encoded 16,996 bytes of calldata for the 16,412-byte envelope. The offline calldata gas component was 268,228 under the 4 and 16 gas per byte assumptions. The Arc state override accepted the proof and rejected the changed inputs. Deployed settlement gas remains pending.
+- The signed-text proof is running with the reviewed guest.
+
 ## 2026-11-14 18:58 -05:00 — Anish
 
 - Branch codex/anish-engine. The Arc submit preflight can test a verdict-0 receipt for the same funded job and image. A mock RPC confirmed that an endpoint accepting that receipt fails the preflight.

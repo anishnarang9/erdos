@@ -125,7 +125,6 @@ if [[ "$selection" == all || "$selection" == limits ]]; then
   case_dir="$scratch/limits"
   mkdir -p -- "$case_dir/reference" "$case_dir/delivery"
   python3 - "$case_dir" <<'PY'
-import json
 import sys
 from pathlib import Path
 
@@ -134,18 +133,8 @@ name = "blob.bin"
 # Account for the version, file count, name length, name and content length.
 payload_bytes = 16 * 1024 - (1 + 2 + 2 + len(name) + 4)
 (root / "delivery" / name).write_bytes(b"\x7f" * payload_bytes)
-(root / "plan.json").write_text(json.dumps({
-    "version": 1,
-    "deliverables": [{"name": name, "parser": "opaque/v1"}],
-    "references": [],
-    "rules": [{
-        "op": "eq",
-        "left": {"op": "file_size", "source": "deliverable", "file": name},
-        "right": {"op": "literal", "type": "i64", "value": str(payload_bytes)},
-    }],
-}))
 PY
-  compile_case "$case_dir" "$case_dir/plan.json" "$case_dir/reference"
+  compile_case "$case_dir" "$engine_dir/fixtures/limits/plan.json" "$case_dir/reference"
   node "$engine_dir/tests/prepare-job.mjs" "$case_dir/package/manifest.json" \
     5042002 0x1111111111111111111111111111111111111111 10 \
     0x2222222222222222222222222222222222222222 >"$case_dir/job.json"
