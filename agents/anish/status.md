@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 00:33 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `b89e60b`. Published the expenses proof pair. Current total: 10/12 real receipts and 5/6 byte-exact passing recoveries. Pass/fail proving took 230,448 / 219,391 ms and used 759,068 / 685,005 user cycles. Both pinned Solidity checks, pair wire checks, and all four negative recovery checks passed.
+- The final focused Sol review passed both harness fixes. Twelve focused tests passed. The strict gate rejects new non-draft defects and regressions outside the proof selections. Added a regression that checks the published report against its explicit defect list. All source-report hashes still match. No new model trials occurred.
+- Added the [evaluation report](../../engine/evaluation/REPORT.md) with completed deterministic and model results, model defects, batch/isolation limits, proof requirements, and settlement readiness. Its final queue and replay sections remain explicitly pending.
+- Integration timing finding: signed-evidence proofs took about 744 seconds each here. The settlement source permits a 600-second minimum funding margin. That minimum is insufficient for these measurements. Clients must budget proving, submission, and release time. No live settlement was attempted.
+- File-integrity pass is active under PID 25783 at this checkpoint. Only that final pair, full replay, and final audit remain. The hourly remote review is due near 00:40 at the next safe boundary.
+
 ## 2026-11-15 00:27 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, preceding pushed commit `b39c807`. Published allocation's two new receipts and exact assignments.json recovery. Current total: 8 of 12 verified receipts and 4 of 6 completed recoveries. Pass/fail proving took 283,293 / 300,237 ms and used 1,210,483 / 1,210,241 user cycles. Both real Solidity checks, pair wire checks, and all four decryption negatives passed.

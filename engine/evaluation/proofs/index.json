@@ -2,7 +2,7 @@
   "version": 1,
   "synthetic": true,
   "publicTestFixtures": true,
-  "sourceReportSha256": "0xc8af8f472cd2df2e260c3773ef33387234552bb04468980f3fe0b5761b18954c",
+  "sourceReportSha256": "0x30b848c55834952e90009dfa4fae7a17768cf102b216658e043bb24588474286",
   "verifierRevision": "ff30da77ba4afdd496290ebebedb205348b15d83",
   "engineSha256": "0x12d6acaf5c79698c92e3dfe272676d48d61155f86b88d82c59123c3d198eadbf",
   "keyPolicy": "Release keys remain in the private run directory. No key file is exported.",
@@ -275,14 +275,79 @@
         "context": "journal_mismatch",
         "verdictZero": "invalid_submission"
       }
+    },
+    {
+      "family": "expenses-budgets",
+      "challenge": "expense-5",
+      "trial": 1,
+      "attempt": "first",
+      "imageId": "0x989c3d1c4dd9932cbd9b67889a1dbdf9fb1481a114eec28fc603bd6337cc2e7b",
+      "rulesHash": "0xf6d842a7ac7fef01d6032edf57ee11a05bd0845375cdb10ecc73b355e1540006",
+      "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+      "packageManifestSha256": "0xb5987aa80262790d3d68004968ba00d7ea0a8149b4000adc78c8c8d19bafd7ac",
+      "proofs": {
+        "pass": {
+          "proofSha256": "0x97fcb4105caefe6767dc5c7f8e3281f866ccb0be1a9e45c21d9f1f2370119c57",
+          "proveMillis": 230448,
+          "userCycles": 759068,
+          "wire": {
+            "selector": "0xe71e6620",
+            "sealBytes": 260,
+            "journalBytes": 234,
+            "sealSha256": "0xd91d9d5e2a21811ee57cdfad32100072bd1bf95a43c6d5e15ee8de8cbc63825c",
+            "journalSha256": "0x71cc88db044e5e05ce22af46cc9725a39e51c136b3cd9b9e9e7a5af7978ef258",
+            "envelopeSha256": "0x78cba20de0789fd722fdcad067b05b3cfbef7d40f447a1b6bc972d75f390d86d"
+          },
+          "solidityVerified": true,
+          "mutationsRejected": [
+            "image",
+            "journal",
+            "seal",
+            "verdict"
+          ]
+        },
+        "fail": {
+          "proofSha256": "0x98321e2f820129af14f05d5e32c3ab13d33e130eb062283664dfeb228ace2a63",
+          "proveMillis": 219391,
+          "userCycles": 685005,
+          "wire": {
+            "selector": "0xe71e6620",
+            "sealBytes": 260,
+            "journalBytes": 234,
+            "sealSha256": "0x950c6c402d446f8d40d9fb055c93c8a1d07ea427f45a6b02fa7088babd5ef50f",
+            "journalSha256": "0x5e01f1eb79375818b1cde7b8c5c9cf92d017614c842abb34da4878266cd265ba",
+            "envelopeSha256": "0xeebe3ae621c2dbbed78afc8475469ed1e9cb87a42f7aa16f532372c448c21157"
+          },
+          "solidityVerified": true,
+          "mutationsRejected": [
+            "image",
+            "journal",
+            "seal",
+            "verdict"
+          ]
+        }
+      },
+      "sameJobWireChecks": true,
+      "recoveryFiles": [
+        {
+          "name": "expenses.json",
+          "bytes": 286,
+          "sha256": "0xb063c8b5878b54f6e541673827724a9a2f5aa6a6e162bddb25d946c6c2947a59"
+        }
+      ],
+      "negativeDecryptionCodes": {
+        "wrongKey": "key_mismatch",
+        "ciphertext": "journal_mismatch",
+        "context": "journal_mismatch",
+        "verdictZero": "invalid_submission"
+      }
     }
   ],
   "summary": {
-    "families": 4,
-    "receipts": 8,
-    "passingRecoveries": 4,
+    "families": 5,
+    "receipts": 10,
+    "passingRecoveries": 5,
     "pendingFamilies": [
-      "expenses-budgets",
       "file-hash-size"
     ],
     "unresolvedFailures": 0

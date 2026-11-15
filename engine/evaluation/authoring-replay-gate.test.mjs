@@ -6,6 +6,12 @@ import {assertAuthoringReplay} from './authoring-replay-gate.mjs';
 
 const original=JSON.parse(readFileSync(new URL('./reports/authoring.json',import.meta.url)));
 const suite={challenges:buildChallenges()};
+test('published measurements match their explicit known model defects',()=>{
+  const expected=JSON.parse(readFileSync(new URL('./authoring-expectations.json',import.meta.url)));
+  const summary=assertAuthoringReplay(original,suite,expected.nonDraftFidelityDefects);
+  assert.equal(summary.nonDraftFidelityPassed,21);
+  assert.equal(summary.nonDraftFidelityDefects,39);
+});
 function resummarize(report) {
   for(const trial of report.trials) {
     const requests=trial.requests,attempts=requests.flatMap(row=>row.attempts);
