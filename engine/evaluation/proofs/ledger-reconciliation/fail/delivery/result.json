@@ -1,0 +1,16 @@
+{
+  "rows": [
+    {
+      "id": "line-a",
+      "amountCents": "300"
+    },
+    {
+      "id": "line-a",
+      "amountCents": "300"
+    },
+    {
+      "id": "line-c",
+      "amountCents": "600"
+    }
+  ]
+}

@@ -1,17 +1,18 @@
 {
-  "updatedAt": "2026-11-15 00:09 -05:00",
-  "verifiedReceipts": 4,
+  "updatedAt": "2026-11-15 00:16 -05:00",
+  "verifiedReceipts": 6,
   "completedFamilies": [
     "inventory",
-    "signed-evidence-bindings"
+    "signed-evidence-bindings",
+    "ledger-reconciliation"
   ],
   "active": [
     {
-      "family": "ledger-reconciliation",
+      "family": "allocation-scheduling",
       "kind": "prove",
       "candidate": "pass",
-      "startedAt": "2026-11-15T05:06:46.310Z",
-      "pid": 17821
+      "startedAt": "2026-11-15T05:14:41.503Z",
+      "pid": 19029
     }
   ],
   "proofs": [
@@ -78,10 +79,41 @@
         "journalSha256": "0x9f0b97796132aca4533c6a112cb917a349f78efd40dde520899f3977fb7f2521",
         "envelopeSha256": "0x87e0d2421150dc9405125c590361f56d30e38fa45bd8252568c09bdd1528e6d1"
       }
+    },
+    {
+      "family": "ledger-reconciliation",
+      "verdict": "pass",
+      "proofSha256": "0x361f6cb3088c9aa4e27c9e1e0712e22380d0aa74cec366f36832a3676c45158d",
+      "proveMillis": 221277,
+      "userCycles": 827609,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x500f3bfc63ba50b280d287ff00a9fd840286641fcfb315574dab4363c9aee718",
+        "journalSha256": "0x60796c320b83b29e5554337c52efff50623e22b79c7b399666763cd040ad0d1e",
+        "envelopeSha256": "0xf16c9264b9a732a30e6f8905674fa79679b95e291b449facfa51a0bf869f4000"
+      }
+    },
+    {
+      "family": "ledger-reconciliation",
+      "verdict": "fail",
+      "proofSha256": "0x14df890aa96f3c5e47b9f97b1b8de1a81595ad40cf644dd72fb1c4e454b1d8e7",
+      "proveMillis": 225942,
+      "userCycles": 827462,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0xc7335ff163fb43ee897525aeefe2375adc8d2bfc7014118211ee465f4cfe06d0",
+        "journalSha256": "0x51b8fed4e8965ce6fd4204ab9d5dfb2cc2bd0d94e161d65ac41fc84d692de47c",
+        "envelopeSha256": "0x00eba2318ecf1fe86ee193ec98e5c70ba1021af78368452b75512c1177774d8f"
+      }
     }
   ],
   "pendingFamilies": [
-    "ledger-reconciliation",
     "allocation-scheduling",
     "expenses-budgets",
     "file-hash-size"

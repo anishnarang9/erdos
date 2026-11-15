@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 00:16 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `ded8ba5`. Published the [reconciliation proof pair](../../engine/evaluation/proofs/ledger-reconciliation), its measured Luna plan, package, synthetic inputs, and results. Current total: 6 of 12 verified new receipts and 3 of 6 completed recoveries.
+- Pass/fail proving took 221,277 / 225,942 ms and used 827,609 / 827,462 user cycles. Both pinned-verifier runs, all pair wire checks, and all four negative decryption checks passed. The two delivered files recovered byte for byte.
+- Added four [semantic scoring controls](../../engine/evaluation/reports/semantic-controls.json). Real CLI calls confirmed detection of an omitted requirement, a weakened predicate, changed units, and an invented constant. These are synthetic test controls, not extra model trials. All four passed.
+- Active process at this checkpoint: allocation-scheduling pass under engine PID 19029. No terminal failure is recorded. The remaining required families are allocation, expenses, and file integrity. Final complete replay and the requirement audit remain pending.
+
 ## 2026-11-15 00:09 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, preceding pushed commit `a2eaea0`. Published the [signed-evidence proof pair](../../engine/evaluation/proofs/signed-evidence-bindings), its model-authored plan, checker package, public synthetic inputs, and verification results. Release keys remain private.

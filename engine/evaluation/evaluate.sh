@@ -20,6 +20,7 @@ mkdir -p "$CARGO_TARGET_DIR"
 CARGO_TARGET_DIR=$(cd -- "$CARGO_TARGET_DIR" && pwd -P)
 export CARGO_TARGET_DIR
 export UBC26_SEEDED_REPORT="$run_dir/seeded.json"
+export UBC26_SEMANTIC_CONTROL_REPORT="$run_dir/semantic-controls.json"
 unset RUST_LOG RISC0_DEV_MODE
 cd -- "$repo_dir"
 echo 'Checking the workspace and independent cases.'

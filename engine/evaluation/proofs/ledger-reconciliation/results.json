@@ -1,0 +1,71 @@
+{
+  "family": "ledger-reconciliation",
+  "challenge": "ledger-3",
+  "trial": 1,
+  "attempt": "repair",
+  "imageId": "0xf310f2d35ee9adeac2d732067b0d817444222368657b2f0890e1fd256458d473",
+  "rulesHash": "0xf377e946ed50d93e8810df2a9ca9d1b7cbd5a185e25d1b5ede94c4f8f5c0fe78",
+  "referenceHash": "0x28b7634b18bf63839f3bf5fa37a848e49e36047b5527a9b26955eafc5574ad34",
+  "packageManifestSha256": "0x184fb2f56f9c561e65de0bb9ddaa0ec28aebff97ca17c8c269b1bf26afcb439a",
+  "proofs": {
+    "pass": {
+      "proofSha256": "0x361f6cb3088c9aa4e27c9e1e0712e22380d0aa74cec366f36832a3676c45158d",
+      "proveMillis": 221277,
+      "userCycles": 827609,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x500f3bfc63ba50b280d287ff00a9fd840286641fcfb315574dab4363c9aee718",
+        "journalSha256": "0x60796c320b83b29e5554337c52efff50623e22b79c7b399666763cd040ad0d1e",
+        "envelopeSha256": "0xf16c9264b9a732a30e6f8905674fa79679b95e291b449facfa51a0bf869f4000"
+      },
+      "solidityVerified": true,
+      "mutationsRejected": [
+        "image",
+        "journal",
+        "seal",
+        "verdict"
+      ]
+    },
+    "fail": {
+      "proofSha256": "0x14df890aa96f3c5e47b9f97b1b8de1a81595ad40cf644dd72fb1c4e454b1d8e7",
+      "proveMillis": 225942,
+      "userCycles": 827462,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0xc7335ff163fb43ee897525aeefe2375adc8d2bfc7014118211ee465f4cfe06d0",
+        "journalSha256": "0x51b8fed4e8965ce6fd4204ab9d5dfb2cc2bd0d94e161d65ac41fc84d692de47c",
+        "envelopeSha256": "0x00eba2318ecf1fe86ee193ec98e5c70ba1021af78368452b75512c1177774d8f"
+      },
+      "solidityVerified": true,
+      "mutationsRejected": [
+        "image",
+        "journal",
+        "seal",
+        "verdict"
+      ]
+    }
+  },
+  "sameJobWireChecks": true,
+  "recoveryFiles": [
+    {
+      "name": "report.txt",
+      "bytes": 30,
+      "sha256": "0x10c70b179f7115581cc57475c08efecf54181cb8a7962a5795f5a69d24fd8da3"
+    },
+    {
+      "name": "result.json",
+      "bytes": 205,
+      "sha256": "0xe580b3b2fe2e16a6514ba49f08595668e73a52d686f3718f05f28b5dcebf0218"
+    }
+  ],
+  "negativeDecryptionCodes": {
+    "wrongKey": "key_mismatch",
+    "ciphertext": "journal_mismatch",
+    "context": "journal_mismatch",
+    "verdictZero": "invalid_submission"
+  }
+}

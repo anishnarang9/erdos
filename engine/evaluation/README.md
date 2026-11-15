@@ -100,6 +100,8 @@ The provenance report records that limit and leaves unavailable token usage as `
 The engine accepted 85 of 120 initial draft plans.
 One validation-only repair corrected each of the other 35 plans.
 All 1,023 candidate outcomes then matched the independent checks.
+Four synthetic controls confirm detection of omitted requirements, weaker predicates, changed units, and invented thresholds.
+These controls call the real engine and do not count as model trials.
 Thirteen final source quotes were not verbatim. The report preserves this annotation defect.
 Coverage checks do not grant buyer approval or prove full natural-language equivalence.
 Hash-based report comparisons assume SHA-256 collision resistance.
