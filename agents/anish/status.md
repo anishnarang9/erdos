@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 18:17 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, pushed head `1099519`, [PR #6](https://github.com/anishnarang9/UBC-26/pull/6) open. Created the [proposed goal and completion tracker](../current%20plan/GOAL-2026-11-15.md). No implementation or signing was authorized by this documentation update.
+- The latest PR query reports green commerce and core-fast engine/contract jobs on `1099519`. The parent reran 15 real-engine API integration tests and the full recorded engine replay. The uncommitted candidate needs new CI after review.
+- Real-workload smoke exposed an oracle-reference snapshot defect in the pushed runner. A scoped local correction passed valid and alternative deliveries and mutation/drift regressions; its implementer reports 70 focused and 844 worker tests. Separate slow-suite review found broad suite inclusion and Anvil setup cleanup defects. Its implementer reports fixes, 14 preflight checks and typechecks. Both need parent review before commit.
+- The successful 592.4-second fresh proof, payout and recovery remain **local-only**, recorded in an uncommitted report. The full proof was not rerun after portability edits. No buyer-approved workload, live wallet access, spending authority, or live exchange is recorded.
+- Next: review the oracle and slow-suite fixes; publish tested checkpoints and docs; rerun final checks and CI. Seek exact buyer/operator approval before any live write. Merge PR #6 normally when final gates permit it, and report a blocked live gate honestly if approvals do not arrive.
+
 ## 2026-11-15 17:48 -05:00 — Anish
 
 - GitHub rejected the initial core workflow before running jobs. Actionlint reproduced the exact error: job-level `env` cannot reference `runner.temp`.

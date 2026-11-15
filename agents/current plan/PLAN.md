@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-15 18:17 -05:00 — Anish — Proposed goal and completion tracker
+
+- Added the proposed [funded-proof goal tracker](GOAL-2026-11-15.md) at the user's request. It records finished integration, the local-only funded proof and payout, the pending oracle/suite/documentation review, final candidate checks, external live authorization, and the normal `main` merge gates. It does not change the acceptance contract or approve a wallet.
+- Latest PR #6 query shows commerce and both core-fast Linux jobs green at pushed `1099519`; this is not a check of the current uncommitted work. Full engine replay and real-engine API integration passed locally. A reviewer found and the implementer corrected a missing oracle reference snapshot. The slow-suite reviewer found two isolation/cleanup issues, and the implementer reports fixes. Both changes remain uncommitted and need final candidate review.
+- The proposed allocation/dispatch workload still needs buyer approval. No live funded job, fresh Grok authoring for this workload, or authorized signing is recorded. Integration owns final review and publication. The buyer/operator owns approvals and protected signing access.
+
 ## 2026-11-15 17:16 -05:00 — Anish — Owner histories merged; integration owns remaining work
 
 - Neil `8584b04`, Nick `57c387f` and engine `adda3a3` are now ancestors of `codex/engine-commerce`. Consolidated [PR #6](https://github.com/anishnarang9/UBC-26/pull/6) preserves all three histories. Main is not merged yet.
