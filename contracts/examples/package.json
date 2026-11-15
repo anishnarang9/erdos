@@ -1,0 +1,21 @@
+{
+  "name": "@ubc26/settlement-examples",
+  "version": "0.1.0",
+  "private": true,
+  "description": "viem examples for the UBC-26 Arc settlement contracts: encoders, preflight reads, log decoders",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "test": "node --test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "viem": "2.57.19"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "typescript": "7.0.2"
+  }
+}
