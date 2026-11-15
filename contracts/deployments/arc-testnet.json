@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "network": "arc-testnet",
+  "status": "template",
+  "deployer": null,
+  "chain": {
+    "chainId": 5042002,
+    "rpcUrl": "https://rpc.testnet.arc.io",
+    "explorerUrl": "https://explorer.testnet.arc.io",
+    "explorerApi": "https://explorer.testnet.arc.io/api/v2/",
+    "blockGasLimit": 30000000,
+    "minMaxFeePerGasGwei": 20,
+    "maxLogBlockRange": 10000,
+    "timestampsNonDecreasing": true
+  },
+  "usdc": {
+    "address": "0x3600000000000000000000000000000000000000",
+    "decimals": 6,
+    "note": "ERC-20 view has 6 decimals. Native gas accounting has 18 decimals over the same balance. Never mix msg.value with balanceOf."
+  },
+  "contracts": {
+    "verifier": {
+      "address": null,
+      "deployer": null,
+      "deployBlock": null,
+      "contract": "src/verifier/groth16/RiscZeroGroth16Verifier.sol:RiscZeroGroth16Verifier",
+      "selector": "0xe71e6620",
+      "version": "3.1.0",
+      "controlRoot": "0xe6feef13db7aed4a731c7b0852de1f5c89b137726073f625d05333184d3a551d",
+      "bn254ControlId": "0x0ac2eaf9d5ae64ffb75c4747fde32456e9ee6db3b32350cb2a0614ba91d081de",
+      "sealLengthBytes": 260,
+      "abi": "abi/RiscZeroGroth16Verifier.json",
+      "interfaceAbi": "abi/IRiscZeroVerifier.json"
+    },
+    "coreImplementation": {
+      "address": null,
+      "deployer": null,
+      "deployBlock": null,
+      "contract": "src/core/src/AgenticCommercePatched.sol:AgenticCommerce",
+      "patch": "src/core/setBudget-client-only.patch"
+    },
+    "core": {
+      "address": null,
+      "implementation": null,
+      "deployer": null,
+      "treasury": null,
+      "deployBlock": null,
+      "frozen": false,
+      "proxy": "OpenZeppelin ERC1967Proxy (UUPS), initialize(usdc, treasury, admin)",
+      "abi": "abi/AgenticCommerce.json"
+    },
+    "hook": {
+      "address": null,
+      "deployer": null,
+      "deployBlock": null,
+      "contract": "src/SettlementHook.sol:SettlementHook",
+      "isEvaluator": true,
+      "erc165InterfaceId": "0x7ff6bc9e",
+      "maxEnvelopeBytes": 16384,
+      "minExpiryMarginSeconds": 120,
+      "abi": "abi/SettlementHook.json"
+    }
+  },
+  "reference": {
+    "circleCoreProxy": "0x0747EEf0706327138c69792bF28Cd525089e4583",
+    "circleCoreImplementation": "0xA316fd02827242D537F84730F8a37D0BA5fd351a",
+    "note": "Circle's deployment, for provenance only. Our core is a separate deployment because only its admin can whitelist a hook."
+  },
+  "policy": {
+    "fees": {
+      "platformFeeBP": 0,
+      "evaluatorFeeBP": 0
+    },
+    "adminRoles": "renounced (ADMIN_ROLE and DEFAULT_ADMIN_ROLE) in step 5; no whitelist changes, fee changes or upgrades afterwards",
+    "coreMinExpirySeconds": 300,
+    "coreMinExpiryRule": "createJob requires expiredAt > block.timestamp + 300 (strictly greater)",
+    "hookMinExpiryMarginSeconds": 120,
+    "hookMinExpiryMarginRule": "fund requires expiredAt >= block.timestamp + MIN_EXPIRY_MARGIN",
+    "maxEnvelopeBytes": 16384,
+    "timeBoundary": {
+      "submitAndRelease": "block.timestamp < expiredAt",
+      "claimRefund": "block.timestamp >= expiredAt",
+      "overlap": "never; the exact-expiry second belongs to refund"
+    }
+  },
+  "sources": {
+    "risc0Ethereum": {
+      "repo": "https://github.com/risc0/risc0-ethereum",
+      "tag": "v3.1.0",
+      "commit": "ff30da77ba4afdd496290ebebedb205348b15d83",
+      "openzeppelinForSafeCast": "v5.2.0 (commit acd4ff74de833399287ed6b31b4debf6b2b35527)"
+    },
+    "circleImplementation": {
+      "address": "0xA316fd02827242D537F84730F8a37D0BA5fd351a",
+      "verifiedSource": "https://explorer.testnet.arc.io/api/v2/smart-contracts/0xA316fd02827242D537F84730F8a37D0BA5fd351a",
+      "openzeppelinContracts": "5.6.x (exact patch release UNVERIFIED; vendored verbatim from the verified source)"
+    },
+    "forgeStd": {
+      "tag": "v1.9.7",
+      "commit": "77041d2ce690e692d6e03cc812b57d1ddaa4d505",
+      "use": "tests and scripts only"
+    },
+    "patch": {
+      "path": "src/core/setBudget-client-only.patch",
+      "sha256": "98887ae10e08040c0dc957ed6a07a753a651e3c23e402bc562f17099eb2bf618",
+      "change": "setBudget requires msg.sender == job.client (was job.provider); no other change"
+    },
+    "settlementRepoCommit": "027382fc00e116187bf4086a5d89408f580933fb"
+  },
+  "compiler": {
+    "solc": "0.8.28",
+    "evmVersion": "cancun",
+    "optimizer": false,
+    "viaIR": false,
+    "toolchain": "arc-forge 1.7.1-dev (3e95efaeaa)"
+  },
+  "abis": {
+    "SettlementHook": "abi/SettlementHook.json",
+    "AgenticCommerce": "abi/AgenticCommerce.json",
+    "IRiscZeroVerifier": "abi/IRiscZeroVerifier.json",
+    "RiscZeroGroth16Verifier": "abi/RiscZeroGroth16Verifier.json"
+  },
+  "hookPayloads": {
+    "note": "The core calls hook.beforeAction/afterAction(jobId, selector, data). Every data blob begins with address caller (msg.sender of the core call).",
+    "createJob": {
+      "when": "after",
+      "data": "abi.encode(address caller, address provider, address evaluator)",
+      "rule": "evaluator == hook and provider != 0"
+    },
+    "setBudget": {
+      "when": "before and after",
+      "data": "abi.encode(address caller, uint256 amount, bytes optParams)",
+      "rule": "amount > 0 and optParams empty"
+    },
+    "fund": {
+      "when": "before and after",
+      "data": "abi.encode(address caller, bytes optParams)",
+      "optParams": "abi.encode(bytes32 imageId, bytes32 rulesHash, bytes32 referenceHash) (exactly 96 bytes)",
+      "rule": "before: budget > 0, provider != 0, expiredAt >= block.timestamp + MIN_EXPIRY_MARGIN. after: status Funded, Terms frozen"
+    },
+    "submit": {
+      "when": "before and after",
+      "data": "abi.encode(address caller, bytes32 deliverable, bytes optParams)",
+      "optParams": "abi.encode(bytes envelope, bytes seal, bytes32 keyCommitment)",
+      "rule": "before: funded, caller == provider, block.timestamp < expiry, no accepted submission, envelope.length <= MAX_ENVELOPE_BYTES, sha256(envelope) == deliverable, verifier.verify(seal, imageId, sha256(journal)). after: store Submission, emit ProofAccepted"
+    },
+    "complete": {
+      "when": "before and after",
+      "data": "abi.encode(address caller, bytes32 reason, bytes optParams)",
+      "rule": "before: only while hook.release is running"
+    },
+    "reject": {
+      "when": "before and after",
+      "data": "abi.encode(address caller, bytes32 reason, bytes optParams)",
+      "rule": "allowed without state changes; the hook never calls reject"
+    }
+  },
+  "encodings": {
+    "context": "0x01 || chainId[32] || escrow[20] || jobId[32] || provider[20] || rulesHash[32] || referenceHash[32] (169 bytes)",
+    "journal": "context || verdict[1] || envelopeHash[32] || keyCommitment[32] (234 bytes); the hook uses verdict 1",
+    "journalDigest": "SHA256(journal)",
+    "keyCommitment": "SHA256(\"UBC26/key/v1\" || context || key[32])",
+    "chainId": "block.chainid as 32-byte big-endian",
+    "escrow": "the core proxy address",
+    "inputs": {
+      "createJob": "(provider, evaluator = hook, expiredAt, description, hook = hook)",
+      "setBudget": "(jobId, amount, optParams = 0x), sent by the Poster (client)",
+      "fund.optParams": "abi.encode(bytes32 imageId, bytes32 rulesHash, bytes32 referenceHash)",
+      "submit.deliverable": "envelopeHash = sha256(envelope)",
+      "submit.optParams": "abi.encode(bytes envelope, bytes seal, bytes32 keyCommitment)",
+      "release": "(jobId, key)"
+    },
+    "fixture": {
+      "chainId": 5042002,
+      "jobId": 7,
+      "escrow": "0x1111111111111111111111111111111111111111",
+      "provider": "0x2222222222222222222222222222222222222222",
+      "rulesHash": "0x3333333333333333333333333333333333333333333333333333333333333333",
+      "referenceHash": "0x4444444444444444444444444444444444444444444444444444444444444444",
+      "key": "0x5555555555555555555555555555555555555555555555555555555555555555",
+      "verdict": 1,
+      "envelopeHash": "0xad46cb7372002d8ee22d8a082781a89ffde85198d5257c2643912ca3898012e6",
+      "keyCommitment": "0x3bbc3bf1185df5265d974732502dfffca6037592208f145b6fc143f9cec9c99d",
+      "journalDigest": "0x9ae8cca7c5828cc27a19039df5593a21e37cc1f05fcf99f32e118d233f4d115e"
+    }
+  },
+  "posterTransactions": [
+    {
+      "step": 1,
+      "sender": "Poster",
+      "to": "core",
+      "call": "createJob(provider, evaluator = hook, expiredAt, description, hook = hook)",
+      "event": "JobCreated(jobId indexed, client indexed, provider indexed, evaluator, expiredAt, hook)"
+    },
+    {
+      "step": 2,
+      "sender": "Poster",
+      "to": "core",
+      "call": "setBudget(jobId, amount, 0x)",
+      "event": "BudgetSet(jobId indexed, amount)",
+      "note": "Patched core: only the client may call it, only while the job is Open."
+    },
+    {
+      "step": 3,
+      "sender": "Poster",
+      "to": "usdc",
+      "call": "approve(core, amount)",
+      "note": "Exactly the budget. fund has no expected-budget argument, so keep the allowance equal to the budget."
+    },
+    {
+      "step": 4,
+      "sender": "Poster",
+      "to": "core",
+      "call": "fund(jobId, abi.encode(imageId, rulesHash, referenceHash))",
+      "event": "JobFunded(jobId indexed, client indexed, amount); then hook TermsFrozen(...)"
+    }
+  ],
+  "solverTransactions": [
+    {
+      "sender": "Solver",
+      "to": "core",
+      "call": "submit(jobId, envelopeHash, abi.encode(envelope, seal, keyCommitment))",
+      "events": "JobSubmitted(jobId indexed, provider indexed, deliverable); hook ProofAccepted(jobId indexed, envelopeHash, keyCommitment)",
+      "note": "A bad proof reverts and the job stays Funded. A garbage seal burns nearly all forwarded gas: set an explicit gas limit."
+    },
+    {
+      "sender": "Solver",
+      "to": "hook",
+      "call": "release(jobId, key)",
+      "events": "JobCompleted, PaymentReleased(jobId indexed, provider indexed, amount) from the core; KeyReleased(jobId indexed, provider indexed, key, envelopeHash) from the hook",
+      "note": "The key is public in calldata once sent."
+    }
+  ],
+  "refund": {
+    "call": "claimRefund(jobId) on the core, permissionless",
+    "when": "block.timestamp >= expiredAt and status Funded or Submitted",
+    "events": "Refunded(jobId indexed, client indexed, amount), JobExpired(jobId indexed)"
+  }
+}
