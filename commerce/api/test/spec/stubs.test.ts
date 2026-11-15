@@ -1,0 +1,89 @@
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { BUYER_TOKEN, createJob, expectError, freshKey, makeApp, providerHeaders } from "./helpers.ts";
+import type { SpecApp } from "./helpers.ts";
+
+let s: SpecApp;
+let jobId: string;
+beforeEach(async () => {
+  s = makeApp();
+  jobId = (await createJob(s)).jobId;
+});
+afterEach(() => s.close());
+
+const body = JSON.stringify({ placeholder: true });
+const buyer = (extra: Record<string, string> = {}) => ({
+  authorization: `Bearer ${BUYER_TOKEN}`,
+  "content-type": "application/json",
+  "idempotency-key": freshKey(),
+  ...extra,
+});
+
+describe("501 stubs: buyer routes", () => {
+  const routes = (id: string) => ["/v1/drafts", `/v1/jobs/${id}/compile`, `/v1/jobs/${id}/select-quote`, `/v1/jobs/${id}/funding-receipt`];
+  it("each returns 501 not_implemented with valid buyer auth", async () => {
+    for (const p of routes(jobId)) {
+      await expectError(await s.app.request(p, { method: "POST", headers: buyer(), body }), 501, "not_implemented");
+    }
+  });
+  it("each returns 401 (auth first) without a token", async () => {
+    for (const p of routes(jobId)) {
+      const res = await s.app.request(p, {
+        method: "POST",
+        headers: { "content-type": "application/json", "idempotency-key": freshKey() },
+        body,
+      });
+      await expectError(res, 401, "unauthorized");
+    }
+  });
+  it("each returns 401 with a wrong token", async () => {
+    for (const p of routes(jobId)) {
+      const res = await s.app.request(p, { method: "POST", headers: buyer({ authorization: "Bearer wrong-wrong-wrong-wrong" }), body });
+      await expectError(res, 401, "unauthorized");
+    }
+  });
+  it("501 responses are not stored for idempotency (>= 500): repeat is not a replay", async () => {
+    const key = freshKey();
+    const h = buyer({ "idempotency-key": key });
+    await expectError(await s.app.request("/v1/drafts", { method: "POST", headers: h, body }), 501, "not_implemented");
+    const again = await s.app.request("/v1/drafts", { method: "POST", headers: h, body });
+    expect(again.headers.get("idempotent-replayed")).not.toBe("true");
+    await expectError(again, 501, "not_implemented");
+  });
+});
+
+describe("501 stubs: provider route POST /v1/jobs/:id/quotes", () => {
+  it("returns 401 without provider auth", async () => {
+    const res = await s.app.request(`/v1/jobs/${jobId}/quotes`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "idempotency-key": freshKey() },
+      body,
+    });
+    await expectError(res, 401, "unauthorized");
+  });
+  it("returns 401 with only the buyer token", async () => {
+    const res = await s.app.request(`/v1/jobs/${jobId}/quotes`, { method: "POST", headers: buyer(), body });
+    await expectError(res, 401, "unauthorized");
+  });
+  it("returns 501 not_implemented with a valid provider signature", async () => {
+    const path = `/v1/jobs/${jobId}/quotes`;
+    const h = await providerHeaders({ method: "POST", pathWithQuery: path, body });
+    const res = await s.app.request(path, {
+      method: "POST",
+      headers: { ...h, "content-type": "application/json", "idempotency-key": freshKey() },
+      body,
+    });
+    await expectError(res, 501, "not_implemented");
+  });
+});
+
+describe("501 stubs: public routes need no auth", () => {
+  it("GET /v1/jobs returns 501 without auth", async () => {
+    await expectError(await s.app.request("/v1/jobs"), 501, "not_implemented");
+  });
+  it("GET /v1/jobs?capability=x&open=true returns 501 without auth", async () => {
+    await expectError(await s.app.request("/v1/jobs?capability=x&open=true"), 501, "not_implemented");
+  });
+  it("GET /v1/jobs/:id/submission returns 501 without auth", async () => {
+    await expectError(await s.app.request(`/v1/jobs/${jobId}/submission`), 501, "not_implemented");
+  });
+});

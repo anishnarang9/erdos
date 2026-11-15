@@ -53,6 +53,15 @@ type PlanValidator = (plan: unknown) => Promise<
    | `not_implemented` | 501 |
 
 2. **Unknown routes** return 404 `not_found`.
+2a. **Processing order** (settled during cross-validation, 2026-11-14):
+   1. Read the raw body, capped at 1 MiB.
+   2. Authenticate. This comes first because provider signatures cover the hash of the raw body.
+   3. Parse the JSON.
+   4. Check the idempotency key.
+   5. Run the handler.
+
+   So a wrong token with invalid JSON returns 401. Requests that fail auth, have a bad key, or have invalid JSON are never stored for replay.
+2b. **`details.errors[].path`** values are JSON Pointers relative to the revision object, for example `/expirySeconds` or `/outputs/0/name`. Errors in the outer request body use `/revision`, `/source` or `/<unknownKey>`. Unknown keys are rejected in the outer body, in the revision, in each `outputs[]` entry, and in the approve body.
 3. **Request bodies.** A body that is not valid JSON on a POST returns 400 `validation_failed`. A body over 1 MiB returns 413 `payload_too_large`.
 4. **Idempotency.** Every `POST /v1/...` requires an `Idempotency-Key` header of 1–128 characters from `[A-Za-z0-9_.:-]`. A missing or malformed key returns 400 `validation_failed`.
    - The scope is `(key, METHOD, path, caller)`, where the caller is `"buyer"` or the provider address in lowercase.
@@ -111,7 +120,7 @@ Unknown top-level fields return 400 `validation_failed`, with `details.errors` g
 | Method and path | Auth | T4 behaviour |
 | --- | --- | --- |
 | `GET /healthz` | public | `200 { "ok": true }` |
-| `POST /v1/jobs` | buyer | Body `{ "revision": Revision, "source": "import" \| "grok" }`. Validates the shape, then runs `PlanValidator`. An `invalid` result returns 400 `validation_failed` with `details.errors`. An `unsupported` result returns 422 `capability_unsupported` with `details.capabilityError`. Success returns **201** `{ jobId, state: "drafted", revision: { n: 1, revisionHash } }`. `jobId` is a ULID. |
+| `POST /v1/jobs` | buyer | Body `{ "revision": Revision, "source": "import" \| "grok" }`. `source` is required and case-sensitive. Validates the shape, then runs `PlanValidator`. An `invalid` result returns 400 `validation_failed` with `details.errors`. An `unsupported` result returns 422 `capability_unsupported` with `details.capabilityError`. Success returns **201** `{ jobId, state: "drafted", revision: { n: 1, revisionHash } }`. `jobId` is a ULID. |
 | `GET /v1/jobs/:id` | public | 200 with the job view below and the header `ETag: "<revisionHash>"`. Returns 404 if the job does not exist. |
 | `POST /v1/jobs/:id/approve` | buyer | See the approval rules below. |
 | `GET /v1/assignments` | provider | `200 { "assignments": [] }`. Chain linkage arrives in T8. |
