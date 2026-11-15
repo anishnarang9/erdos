@@ -1,0 +1,74 @@
+{
+  "updatedAt": "2026-11-15 00:03 -05:00",
+  "verifiedReceipts": 3,
+  "completedFamilies": [
+    "inventory"
+  ],
+  "active": [
+    {
+      "family": "signed-evidence-bindings",
+      "kind": "prove",
+      "candidate": "fail",
+      "startedAt": "2026-11-15T04:54:03.497Z",
+      "pid": 16200
+    }
+  ],
+  "proofs": [
+    {
+      "family": "inventory",
+      "verdict": "pass",
+      "proofSha256": "0x8a8fc940235fdcb96131462bc6c5d61fe3a22793ef10d0f133d6320b2bf4623e",
+      "proveMillis": 231052,
+      "userCycles": 850853,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x321541d805b1dae5db1bc852ba9fec7f105cf091d9113ce8fda8579f69608c89",
+        "journalSha256": "0xfb788d1debd13766201d235f0e1aba42aac275f4c203b92d5ed081de1f865e73",
+        "envelopeSha256": "0x0b80dce6ffc16f3e723249bee12286251628c7f79bc2965cce725e3d9d0869ae"
+      }
+    },
+    {
+      "family": "inventory",
+      "verdict": "fail",
+      "proofSha256": "0xaa5ae415598349cac5c40a28efbc63f702578b09013a23393d0652c24fe148d6",
+      "proveMillis": 234174,
+      "userCycles": 850713,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x8132f48a53cb9d870158806d2abe1af15061cc81a95f957d4ea69319d94010dd",
+        "journalSha256": "0xa60fad4af7230c0e44e7c55cacd21c43a8e58185ed6e86ef392f91ed63cf6a0b",
+        "envelopeSha256": "0x223474f12e744d3654127787d151cc7834cd42690a61560f0d0528aafbaea905"
+      }
+    },
+    {
+      "family": "signed-evidence-bindings",
+      "verdict": "pass",
+      "proofSha256": "0x39f76131fa165b3d13df82c1dfb9d1619c97cbe4e8ff6cd1a4aad42dbe32fa36",
+      "proveMillis": 744814,
+      "userCycles": 4440879,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x4a69d5be6a919064130c64ab4fa23283c8e4534c84ecfcb0c325de196724c13b",
+        "journalSha256": "0xfd3573b6f79f521440dc8141aabcc0cd21ecbc438bdc237eeb409190395cc846",
+        "envelopeSha256": "0xab26998cd8f1cbd1a1f56b16008e1df157b27e8649cdab0bb4b12ce1da579918"
+      }
+    }
+  ],
+  "pendingFamilies": [
+    "signed-evidence-bindings",
+    "ledger-reconciliation",
+    "allocation-scheduling",
+    "expenses-budgets",
+    "file-hash-size"
+  ],
+  "unresolvedFailures": 0
+}

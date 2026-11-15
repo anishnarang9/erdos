@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 00:03 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `2af9fce`. Corrected the preceding entry's process description: the signed passing receipt was already verified. The signed failing-verdict proof is active under engine PID 16200. The prover's durable report always recorded the correct stage. No proof was restarted.
+- Current count: 3 of 12 new receipts verified. The signed passing receipt took 744,814 ms and 4,440,879 user cycles. It passed the pinned Solidity verifier and its changed-input checks. Its pair and recovery checks remain pending. [Live checkpoint summary](../../engine/evaluation/reports/proof-progress.json).
+- Next: continue the active proof and the remaining four families, then run the complete replay. The native model and deterministic test results remain unchanged.
+
 ## 2026-11-14 23:56 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, preceding pushed commit `ee0dbee`. Added regression checks for public proof replay from a clean checkout. Git omits empty reference/evidence directories, so replay now creates them in private scratch space. It rejects partial receipt sets before claiming a complete replay.
