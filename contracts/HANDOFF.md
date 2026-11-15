@@ -16,9 +16,11 @@ This is the contract-level interface for settlement on Arc Testnet (chain 504200
 Notes on the deployment:
 - **Hook settings:** the hook is whitelisted on the core in block 72394225. Its on-chain settings are `MAX_ENVELOPE_BYTES = 16412` and `MIN_EXPIRY_MARGIN = 600`, and it reports `supportsInterface(0x7ff6bc9e) == true`.
 - **Verifier evidence:** see [research/ARC-VERIFIER-LIVE.md](research/ARC-VERIFIER-LIVE.md).
-- **The core is NOT frozen. Freeze authorization is blocked.** The recorded evidence shows deployer `0x27f97754b165B68921c9dD0Ea88eDf617731A35a` holding both admin roles, so it could upgrade the core, change fees or whitelist other hooks. Current `frozen: false` remains unchanged. No freeze is authorized by this handoff.
-- **A script-written `frozen: true` is NOT sufficient evidence.** `script/00_Config.s.sol::_checkFrozen` checks only the broadcaster's role membership and unauthorized calls. Another account (`admin2`), or an unrelated broadcaster with no roles, can leave those checks passing while a different administrator retains control. This is an integration/deployment-verification blocker, not a dependency advisory. Nick owns the script remediation and any separately authorized freeze; neither is performed here.
-- **Required freeze evidence:** reconstruct the holder sets for `ADMIN_ROLE` and `DEFAULT_ADMIN_ROLE` from every proxy-emitted `RoleGranted` and `RoleRevoked` event, including initialization in deployment block 72393888, through one fixed verification block. Order logs by block, transaction index and log index; require complete, gap-free history (page Arc log requests at no more than 10,000 blocks). Require both final holder sets to be empty and cross-check every discovered account with `hasRole` at that same block. Also confirm the ERC-1967 implementation slot and runtime code match the pinned patched implementation, both fee values are zero, and the intended hook is whitelisted at that block. Review intervening upgrade history and role-admin changes: event reconstruction is not sufficient if implementation provenance is unknown or code can mutate roles without emitting those events. Archive the block number/hash, logs and read results. Missing history, an unexpected implementation, or any remaining holder means freeze is unproven regardless of the manifest flag. [OpenZeppelin role enumeration guidance](https://docs.openzeppelin.com/contracts/5.x/access-control#querying-privileged-accounts).
+- **Recorded freeze completed:** the manifest records `frozen: true`. The deployer renounced `ADMIN_ROLE` in tx `0xe9881b7e…0202` (block 72472531) and `DEFAULT_ADMIN_ROLE` in tx `0x01de71f7…0d1d` (block 72472534). Nick's evidence at block 72472573 reports no holders, zero fees, the intended whitelist, and matching runtime pins.
+- **The all-holder script defect is corrected.** The scripts now discover every account from role events and check current membership. Earlier unfrozen observations and the broadcaster-only defect describe the prior revision.
+- **Independent verification remains required.** A script-written `frozen: true` or Nick's snapshot alone does not authorize signing. Reconstruct both role-holder sets from every proxy-emitted `RoleGranted` and `RoleRevoked` event, including initialization in deployment block 72393888. Use one fixed verification block. Order logs by block, transaction index and log index. Require complete, gap-free history and page Arc requests at no more than 10,000 blocks. Require both final holder sets to be empty. Cross-check every discovered account with `hasRole` at that same block.
+- **Verify provenance at that block.** Confirm the ERC-1967 implementation slot and runtime code against the pinned patched build. Check all four runtime hashes, verifier version and selector, both zero fees, and the intended hook whitelist. Review intervening upgrades, role-admin changes and initialization history, including the constructor upgrade, initial grants and `Initialized(1)`. Event reconstruction alone is insufficient when implementation provenance is unknown or code can mutate roles without events. Archive the block number/hash, logs and read results. Missing history, unexpected code or any remaining holder leaves freeze unproven. [OpenZeppelin role enumeration guidance](https://docs.openzeppelin.com/contracts/5.x/access-control#querying-privileged-accounts).
+- **No live write is authorized by this handoff.** Do not repeat the completed freeze. Keep worker signing blocked until independent checks and separate spending/signing approvals pass.
 - **Start log scans** at the core's deploy block, 72393888.
 
 ## Limits and rules at a glance
@@ -31,7 +33,7 @@ Notes on the deployment:
 | Hook minimum margin (`MIN_EXPIRY_MARGIN`) | `fund` needs `expiredAt >= block.timestamp + 600` |
 | Submit and release | Need `block.timestamp < expiredAt` |
 | Refund | `claimRefund` needs `block.timestamp >= expiredAt` and status Funded or Submitted. Anyone may call it. The exact expiry second belongs to refund, so the two windows never overlap |
-| Budget | Must be above 0. The unit is USDC with 6 decimals (`0x3600000000000000000000000000000000000000`). Fees are currently 0, but are not frozen while `core.frozen` is false and the deployer retains admin roles |
+| Budget | Must be above 0. The unit is USDC with 6 decimals (`0x3600000000000000000000000000000000000000`). Fees are 0 and frozen |
 | Fee floor | `maxFeePerGas` must be at least 20 gwei, or Arc drops the transaction silently |
 | Log paging | `eth_getLogs` is limited to 10,000 blocks per call |
 
@@ -101,7 +103,7 @@ keyCommitment = sha256("UBC26/key/v1" || context || key[32])
 
 These are from the review in [research/REVIEW.md](research/REVIEW.md).
 
-1. Before working on a job, require `job.hook == hook`, `job.evaluator == hook` and `terms(jobId).funded`. The core accepts jobs with `hook = 0`, including after a future admin-role freeze, and the hook cannot protect those jobs.
+1. Before working on a job, require `job.hook == hook`, `job.evaluator == hook` and `terms(jobId).funded`. The frozen core still accepts jobs with `hook = 0`, and the hook cannot protect those jobs.
 2. Check `terms.expiry` against your real proving time. The only on-chain floor is 600 s.
 3. Send `submit` with an explicit gas limit after an `eth_call` simulation. A tampered seal burns nearly all forwarded gas.
 4. The key becomes public in calldata when `release` is sent, so do not send it in an `eth_call` to an untrusted RPC.

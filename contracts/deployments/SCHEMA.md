@@ -7,7 +7,7 @@
 | `schemaVersion` | Integer, 1 |
 | `network` | `arc-testnet` |
 | `status` | `template`, `partial` (some steps done), `whitelisted` (step 5 run with `SETTLEMENT_WHITELIST_ONLY=1`: hook whitelisted, core NOT frozen, deployer keeps both admin roles), or `frozen` (full step 5 done) |
-| `testJob.coreFrozen` | Written by step 08: false when the job was created on an unfrozen core (`SETTLEMENT_ALLOW_UNFROZEN=1`) |
+| `testJob.coreFrozen` | Written by step 08: true only when NO address holds `ADMIN_ROLE` or `DEFAULT_ADMIN_ROLE` (role-event replay plus `deployer`, re-checked with `hasRole`); false when the job was created on an unfrozen core (`SETTLEMENT_ALLOW_UNFROZEN=1`) |
 | `deployer` | Account that signed steps 03 to 05 and held the admin roles until the freeze. Set by step 03 |
 | `chain.chainId` | 5042002. Scripts abort when the live chain ID differs |
 | `chain.rpcUrl`, `explorerUrl`, `explorerApi` | Public endpoints (Blockscout under `/api/v2/`) |
@@ -33,9 +33,23 @@
 | `contracts.hook.maxEnvelopeBytes` | 16412 (16,384-byte bundle + 12-byte nonce + 16-byte tag). Larger envelopes make `submit` revert |
 | `contracts.hook.minExpiryMarginSeconds` | Seconds a job must still have when funded. Read from `config/arc-testnet.json` |
 | `contracts.*.deployer`, `deployBlock` | Signer and the block number seen at script time (a lower bound for log scans; the transaction may land a few blocks later) |
+| `contracts.{verifier,coreImplementation,core,hook}.runtimeCodeHash` | Pin: keccak256 of the deployed runtime code (`core` is the ERC1967 proxy's own code, not the implementation's). `06_Verify` fails when a pin is set and the live code hash differs, and only reports the hash when the pin is absent or null. Set by hand from a `06_Verify` run; never written by a script |
+| `evidence` | Snapshot written ONLY by `06_Verify` with `SETTLEMENT_WRITE_EVIDENCE=1` (read-only run, no broadcast; written after every check passed). Absent or null until then. Replaces the whole object on each write. Fields below |
+| `evidence.generatedBy` | `script/06_Verify.s.sol` |
+| `evidence.chainId`, `block`, `blockTimestamp` | Chain and the block the snapshot was read at (the RPC's latest block at run time) |
+| `evidence.replayFromBlock`, `maxLogBlockRange` | Log replay window: `eth_getLogs` from `contracts.core.deployBlock` to `block`, in chunks of `chain.maxLogBlockRange` |
+| `evidence.roles.history[]` | Every `RoleGranted` / `RoleRevoked` for `ADMIN_ROLE` and `DEFAULT_ADMIN_ROLE` on the core, in chain order: `event`, `role`, `account`, `sender`, `onChain`, `block`, `tx`, `logIndex` (`onChain` false with zero position = an event from the forge session, not on chain) |
+| `evidence.roles.currentHolders[]` | `{role, account}` for every account in the history (plus `deployer`) that `hasRole` confirms at `block` |
+| `evidence.roles.noAdminHolders` | True when `currentHolders` is empty, i.e. the core is frozen. Computed; `contracts.core.frozen` is what step 5 recorded |
+| `evidence.hookWhitelist.history[]` | Every `HookWhitelistUpdated`: `hook`, `status`, plus the position fields above. Hook 0x0 is whitelisted by `initialize` without an event and is not listed |
+| `evidence.hookWhitelist.whitelistedNow[]` | Hooks from the history still whitelisted at `block`. 06 fails if this holds anything other than `contracts.hook.address` (or 0x0) |
+| `evidence.upgrades.history[]` | Every ERC1967 `Upgraded` on the proxy: `implementation` plus position fields. Exactly one (the proxy constructor) is expected; 06 fails on more |
+| `evidence.upgrades.implementationSlot` | ERC1967 implementation slot of the proxy at `block` (equals `contracts.coreImplementation.address`) |
+| `evidence.fees.platformFeeBP`, `evaluatorFeeBP` | Read from the core at `block`; both 0 |
+| `evidence.runtimeCode.<name>` | For `verifier`, `coreImplementation`, `hook`, `core`: `address`, `runtimeCodeHash` (keccak256), `runtimeCodeSize` (bytes), `matchesManifestPin` (true when the pin was present and matched, null when no pin). Null when the manifest address is null |
 | `reference.*` | Circle's own proxy and implementation, for provenance only |
 | `policy.fees` | Platform and evaluator fee basis points, both 0 |
-| `policy.adminRoles` | Both admin roles are renounced in step 5 |
+| `policy.adminRoles` | Policy text: both admin roles are renounced in step 5 (full freeze). Not the current state; that is `contracts.core.frozen` (and `evidence.roles`) |
 | `policy.coreMinExpirySeconds`, `coreMinExpiryRule` | `createJob` needs `expiredAt > now + 300` (strict) |
 | `policy.hookMinExpiryMarginSeconds`, `hookMinExpiryMarginRule` | `fund` needs `expiredAt >= now + margin` |
 | `policy.maxEnvelopeBytes` | Same as `contracts.hook.maxEnvelopeBytes` |

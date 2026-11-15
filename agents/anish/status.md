@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 16:26 -05:00 — Anish
+
+- Resolved Nick history merge into `codex/engine-commerce`, parent `b36b588`, incoming `57c387f`. Imported corrected all-holder scripts/tests and frozen manifest. Preserved both parents' plan history and independent verification requirements. SDK and contract manifests now match byte for byte.
+- Independently reran pinned Arc Foundry on the exact merged contracts: 120 passed, one fork-only skip. The separate fork suite at block 72474240 passed all seven tests. The merge implementer also ran both script tests, 13 examples tests and the examples typecheck. Specification and quality reviews approved.
+- Production contract source, ABI, compiler settings and proof pins remain unchanged. No live write, role action, wallet access or new deployment occurred.
+- An initial read-only worker deployment probe reached chain 5042002 and block 72476976, then failed closed on Arc RPC rate limit `-32005`. This is not a passed deployment gate. Rate-aware read-only verification remains pending.
+- Next: publish this merge and start consolidated integration PR/CI. Continue signer, run-state, policy and independent recovery implementation. No final funded-exchange success is claimed.
+
 ## 2026-11-15 16:20 -05:00 — Anish
 
 - Completed Neil history-merge review on `codex/engine-commerce`, parent `30f507a`, incoming `8584b04`. Reviewed each of 29 conflicts. Commerce remains byte-identical to the integrated parent. Imported Neil's newer status and corrected commerce plan through the normal merge.

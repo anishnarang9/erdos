@@ -150,7 +150,10 @@ contract CreateTestJobScriptTest is Test {
             new SettlementHook(ISettlementCore(address(core2)), IProofVerifier(d.verifier), d.usdc, 16412, 600);
         core2.setHookWhitelist(address(hook2), true);
         _point(address(core2), address(hook2), address(this));
-        vm.expectRevert(bytes("core is not frozen: deployer still holds an admin role"));
+        // The replay lists initialize()'s grants first: DEFAULT_ADMIN_ROLE, then ADMIN_ROLE.
+        vm.expectRevert(
+            bytes(string.concat("core is not frozen: ", vm.toString(address(this)), " still holds DEFAULT_ADMIN_ROLE"))
+        );
         s.run();
 
         // Opt-in: SETTLEMENT_ALLOW_UNFROZEN=1 lets the same unfrozen core through (hook still whitelisted).
@@ -169,8 +172,56 @@ contract CreateTestJobScriptTest is Test {
         s.run();
         vm.setEnv("SETTLEMENT_ALLOW_UNFROZEN", "false");
 
+        _secondAdminMeansUnfrozen();
+
         // Back to the frozen deployment.
         _point(d.core, d.hook, d.deployer);
+    }
+
+    /// @dev The manifest deployer renounced both roles, but a second admin it appointed still holds
+    ///      ADMIN_ROLE. The old deployer-only check called this frozen; 08 must not. The holder is
+    ///      found through the role-event replay (session logs: there is no RPC in this test).
+    function _secondAdminMeansUnfrozen() internal {
+        address other = makeAddr("second admin");
+        vm.recordLogs();
+        address impl = address(new AgenticCommerce());
+        AgenticCommerce core3 = AgenticCommerce(
+            address(
+                new ERC1967Proxy(
+                    impl, abi.encodeCall(AgenticCommerce.initialize, (d.usdc, address(this), address(this)))
+                )
+            )
+        );
+        SettlementHook hook3 =
+            new SettlementHook(ISettlementCore(address(core3)), IProofVerifier(d.verifier), d.usdc, 16412, 600);
+        core3.setHookWhitelist(address(hook3), true);
+        core3.grantRole(core3.ADMIN_ROLE(), other);
+        core3.renounceRole(core3.ADMIN_ROLE(), address(this));
+        core3.renounceRole(core3.DEFAULT_ADMIN_ROLE(), address(this));
+        assertFalse(core3.hasRole(core3.ADMIN_ROLE(), address(this)));
+        assertFalse(core3.hasRole(core3.DEFAULT_ADMIN_ROLE(), address(this)));
+        _point(address(core3), address(hook3), address(this));
+
+        LocalCreateTestJobHarness s = new LocalCreateTestJobHarness(_mp());
+        assertFalse(s.isCoreFrozen(address(core3))); // drains the logs into `s`, which keeps them
+        vm.expectRevert(bytes(string.concat("core is not frozen: ", vm.toString(other), " still holds ADMIN_ROLE")));
+        s.run();
+
+        // With the opt-in, the job is created and the manifest object records coreFrozen false.
+        vm.setEnv("SETTLEMENT_ALLOW_UNFROZEN", "true");
+        CreateTestJob.TestJob memory t = s.run();
+        vm.setEnv("SETTLEMENT_ALLOW_UNFROZEN", "false");
+        assertEq(uint256(core3.getJob(t.jobId).status), uint256(AgenticCommerce.JobStatus.Funded));
+        assertFalse(s.isCoreFrozen(address(core3)));
+        vm.writeJson(s.manifestJson(t, s.isCoreFrozen(address(core3))), _mp(), ".testJob");
+        assertFalse(vm.parseJsonBool(vm.readFile(_mp()), ".testJob.coreFrozen"));
+        vm.writeJson("null", _mp(), ".testJob");
+
+        // Revoking the second admin makes the same core frozen.
+        bytes32 adminRole = core3.ADMIN_ROLE();
+        vm.prank(other);
+        core3.renounceRole(adminRole, other);
+        assertTrue(s.isCoreFrozen(address(core3)));
     }
 
     // ───────────── the four Poster transactions ─────────────

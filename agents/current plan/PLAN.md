@@ -81,6 +81,95 @@ Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 - Publish the encoded delivery and encrypted envelope limits in the deployment manifest. The engine accepts 16,384 encoded bytes, which produces a 16,412-byte envelope. A 16,384-byte envelope limit would allow at most 16,356 encoded bytes. Nick sets the final cap after measuring Arc submit gas.
 - Before proving a funded job, use the manifest's core proxy as the escrow address. Read the core job and evaluator terms at one block. Confirm the job is funded and unexpired. Match the provider, image ID, rules hash, and reference hash to the proof inputs. Use the [job helper and funded preflight](../../engine/README.md#prepare-job-json-from-funded-terms) after those checks.
 - Neil can wire the engine through the [commerce interface](../../engine/README.md#connect-commerce). It answers the engine questions in the commerce plan and identifies the fields the adapter needs to retain.
+## 2026-11-15 00:14 -05:00 — Nick workstream — Settlement stack live on Arc (unfrozen)
+
+- **Live on Arc Testnet:**
+
+  | Contract | Address |
+  | --- | --- |
+  | Core (the address clients call) | `0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8` |
+  | SettlementHook (hook and evaluator) | `0x699d0e4a067F31229Be67C534B37dE964b6eDbAb` |
+  | Verifier | `0xCf8D70A203b40D3A17d023c0CDDF752870BC3992` |
+  | Core implementation | `0x55A3C9319EEe607579855880b5651766eBF103d7` |
+
+- **The hook is whitelisted, but the core is not frozen yet.** The addresses and rules are in [contracts/HANDOFF.md](../../contracts/HANDOFF.md), and the manifest is `contracts/deployments/arc-testnet.json`.
+- **For Neil:** point the client at these addresses. Start log scans at block 72393888. Jobs on this deployment are integration tests until the freeze.
+- **For Anish:** the funded test job needs the image ID, rules hash and reference hash, plus a provider (Solver) address. Nick then runs `08_CreateTestJob`.
+
+## 2026-11-15 00:04 -05:00 — Nick workstream — Core freeze held for now
+
+- **Decision.** The core will be deployed and the hook whitelisted, but the admin roles will not be renounced yet, so the core is **not frozen**.
+  - **Reason:** the freeze is irreversible, and holding it keeps room to fix configuration before the Nov 16 demo. Job creation only needs the hook whitelisted.
+  - **Affects** Neil and Anish. Until the freeze, the deployer `0x27f9…A35a` can upgrade the core or change fees. Test jobs on the unfrozen core are for integration only.
+- **TODO (Nick).** Run the full freeze (`05_Freeze` without the whitelist-only flag, then `SETTLEMENT_EXPECT_FROZEN=1 06_Verify`) before the Nov 16 live settlement.
+- **Progress.** The core implementation is live at `0x55A3C9319EEe607579855880b5651766eBF103d7`. The proxy and the hook are next.
+
+## 2026-11-14 23:54 -05:00 — Nick workstream — Arc verifier live
+
+- **Verifier deployed.** The pinned RISC Zero verifier (v3.1.0, selector `0xe71e6620`) is live on Arc Testnet at [`0xCf8D70A203b40D3A17d023c0CDDF752870BC3992`](https://explorer.testnet.arc.io/address/0xCf8D70A203b40D3A17d023c0CDDF752870BC3992), deployed in block 72392474.
+- **Checks pass.** The real upstream receipt verifies, and every altered input reverts: 20 of 20 read-only checks pass, recorded in `contracts/research/ARC-VERIFIER-LIVE.md`.
+- **For Anish and Neil:** use this address as `contracts.verifier.address` in `contracts/deployments/arc-testnet.json`.
+- **Still to deploy:** the core, the hook and the freeze. They are next, followed by the funded test job, which needs Anish's image ID, rules hash and reference hash.
+
+## 2026-11-14 23:30 -05:00 — Nick workstream — Tonight's settlement deliverables
+
+### Status
+- **Delivered:**
+  - the settlement contracts;
+  - passing local tests (120 pass);
+  - the interface handoff in [contracts/HANDOFF.md](../../contracts/HANDOFF.md): ABIs, events and read methods, expiry rules, and the **16,412-byte** envelope cap.
+- **Arc verifier: fork evidence only.** On a fork of live Arc at block 72389800:
+  - the upstream receipt verifies, using 242,661 gas;
+  - changing any journal byte, the image ID, any proof byte, or any selector byte reverts.
+
+  **The live deployment and its address are pending Nick.** The commands are in `contracts/research/ARC-VERIFIER.md`.
+
+### Decisions
+- **Envelope cap:** 16,412 bytes, which replaces 16,384. A full `submit` at the cap is 16,996 bytes of calldata, about 700k gas on Arc. Affects Neil and Anish.
+
+### Next handoff
+The full manifest plus one funded test job, created by `contracts/script/08_CreateTestJob.s.sol`. Anish must supply its image ID, rules hash and reference hash.
+
+## 2026-11-14 23:06 -05:00 — Nick workstream — Settlement contracts built and tested locally
+
+### Status
+- `contracts/` on branch `nick-settlement` contains:
+  - the core, a copy of Circle's verified core with the one-line client-only `setBudget` patch;
+  - the RISC Zero v3.1.0 verifier;
+  - `SettlementHook`, the deploy scripts, ABIs and viem examples.
+- `arc-forge test --network arc` passes 119 of 119, and the examples pass 12 of 12.
+- The live Arc deployment is pending Nick.
+- The full decision log is in [Nick's status](../nick/status.md).
+
+### For Neil (commerce)
+- **Handoff material:**
+  - `contracts/abi/`;
+  - the manifest template `contracts/deployments/arc-testnet.json`, with `SCHEMA.md`;
+  - `contracts/examples/`: encoders, preflight, event decoders and paged `getLogs`;
+  - `contracts/examples/README.md`.
+- **Before working on a job, check three things:**
+  - `job.hook == hook`;
+  - `job.evaluator == hook`;
+  - `terms(jobId).funded`.
+
+  The frozen core still accepts jobs created with no hook, and the hook cannot protect those. Also check `terms.expiry` against real proving time; the on-chain floor is only `MIN_EXPIRY_MARGIN` (600 s).
+- **Sending `submit`:** always set an explicit gas limit and preflight it with `eth_call`. A tampered Groth16 seal burns nearly all forwarded gas.
+- **New hook additions:**
+  - the event `TermsFrozen(jobId, provider, imageId, rulesHash, referenceHash, budget, expiry)`;
+  - the views `contextOf(jobId)` and `expectedJournal(jobId, envelopeHash, keyCommitment)`;
+  - `fund` optParams must be exactly `abi.encode(bytes32, bytes32, bytes32)`, 96 bytes.
+- **Arc facts:**
+  - USDC supports EIP-2612 `permit`, and `approve` overwrites;
+  - 16 KiB of calldata costs about 676k gas;
+  - the expected transaction size limit is 128 KiB, but this is UNVERIFIED.
+
+### For Anish (engine)
+- The calldata cap stays at 16384 bytes for now. A submit at the cap measured 142,810 gas plus about 243k to verify, measured locally.
+- The hook's codec reproduces the shared fixture digest `9ae8cca7…115e`.
+- The verifier's control root is `e6feef13…551d` and its BN254 control ID is `0ac2eaf9…81de`. Both are read from v3.1.0 `ControlID.sol`.
+
+### Residual risk for everyone
+If USDC blocklists a Poster after funding, that refund is stuck forever. Neither the spec nor this build has an admin or sweep path to recover it.
 
 ## 2026-11-14 — Nick workstream — Settlement plan: Poster naming and push rules
 

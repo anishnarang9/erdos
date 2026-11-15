@@ -15,6 +15,7 @@ import {SettlementScript} from "./00_Config.s.sol";
 ///         `deployments/local.json` (git-ignored) so the Poster and Solver examples can find the addresses.
 contract DeployLocal is SettlementScript {
     function run() external returns (Deployment memory d) {
+        _startRoleLogCapture(); // the core is born in this run: its role events exist only in-session
         Config memory c = _loadConfig();
         _guardChain(c);
         if (!_isLocal()) require(!_broadcasting(), "DeployLocal is simulation-only on Arc; run scripts 01 to 05");
