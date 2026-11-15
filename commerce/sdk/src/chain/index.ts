@@ -18,4 +18,6 @@ export type {
   SubmittedEnvelope,
   WriteOptions,
 } from "./types.ts";
+export { fundJob } from "./fund.ts";
+export type { FundingTerms, FundJobResult } from "./fund.ts";
 export { mockRiscZeroVerifierAbi, mockUsdcAbi, stubCoreAbi, stubProofGateAbi } from "./abi.ts";

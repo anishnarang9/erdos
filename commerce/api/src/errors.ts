@@ -9,7 +9,15 @@ export type ErrorCode =
   | "capability_unsupported"
   | "rate_limited"
   | "internal"
-  | "not_implemented";
+  | "not_implemented"
+  | "quote_expired"
+  | "terms_mismatch"
+  | "chain_unconfirmed"
+  | "wrong_state"
+  | "engine_failed"
+  | "model_failed"
+  | "model_unavailable"
+  | "chain_unavailable";
 
 export const ERROR_STATUS: Record<ErrorCode, number> = {
   validation_failed: 400,
@@ -23,6 +31,14 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   rate_limited: 429,
   internal: 500,
   not_implemented: 501,
+  quote_expired: 409,
+  terms_mismatch: 409,
+  chain_unconfirmed: 409,
+  wrong_state: 409,
+  engine_failed: 502,
+  model_failed: 502,
+  model_unavailable: 503,
+  chain_unavailable: 503,
 };
 
 export interface ErrorBody {

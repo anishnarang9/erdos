@@ -99,7 +99,7 @@ describe("provider auth (EIP-191)", () => {
     const body = '{"a":1}';
     const h = await providerHeaders({ method: "POST", pathWithQuery: path, body });
     const res = await t.app.request(path, { method: "POST", body, headers: { ...h, "idempotency-key": "pk" } });
-    expect(res.status).toBe(501);
+    expect(res.status).toBe(400); // signature accepted; the body then fails the quote shape check
     const tampered = await providerHeaders({ method: "POST", pathWithQuery: path, body: '{"a":2}' });
     await expect401(await t.app.request(path, { method: "POST", body, headers: { ...tampered, "idempotency-key": "pk" } }));
   });

@@ -7,7 +7,7 @@ import { idempotency } from "./idempotency.ts";
 import { parseJson, readBody, requireJobId, type AppEnv, type Deps } from "./context.ts";
 import { simulatedValidatePlan, type PlanValidator } from "./revision.ts";
 import { jobRoutes } from "./jobs.ts";
-import type { Engine } from "./engine.ts";
+import { simulatedEngine, type Engine } from "./engine.ts";
 import type { DraftModel } from "./grok.ts";
 import type { ApiChain } from "./chain.ts";
 import { registerAuthoringRoutes } from "./authoring.ts";
@@ -18,10 +18,12 @@ export interface CreateAppOptions {
   buyerToken: string;
   now?: () => number;
   validatePlan?: PlanValidator;
-  /** Defaults to an engine whose validate() is `validatePlan` (T4 behaviour); Coder C swaps in simulatedEngine(). */
+  /** Defaults to simulatedEngine(), or to `validatePlan` plus the simulated compile when validatePlan is given. */
   engine?: Engine;
   draftModel?: DraftModel;
   chain?: ApiChain;
+  /** Keep compiled packages here (see Deps.packagesDir). */
+  packagesDir?: string;
 }
 
 export interface CreatedApp {
@@ -41,14 +43,11 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     buyerToken: opts.buyerToken,
     now,
     validatePlan,
-    engine: opts.engine ?? {
-      validate: validatePlan,
-      compile: async () => {
-        throw new ApiError("not_implemented", "Engine compile not configured");
-      },
-    },
+    // Default: the simulated engine (fake hashes, never provable). server.ts passes the real one.
+    engine: opts.engine ?? (opts.validatePlan ? { validate: opts.validatePlan, compile: simulatedEngine().compile } : simulatedEngine()),
     ...(opts.draftModel ? { draftModel: opts.draftModel } : {}),
     ...(opts.chain ? { chain: opts.chain } : {}),
+    ...(opts.packagesDir ? { packagesDir: opts.packagesDir } : {}),
   };
 
   const app = new Hono<AppEnv>();

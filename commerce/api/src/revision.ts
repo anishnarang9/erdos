@@ -1,8 +1,10 @@
 import canonicalize from "canonicalize";
+import { encodeBundle, referenceHash, type BundleFile } from "@ubc26/sdk";
 import { sha256 } from "./context.ts";
 
 export type PlanValidator = (plan: unknown) => Promise<
-  | { ok: true }
+  /** `hashes` are the engine's commitments (absent from validators that do not compute them). */
+  | { ok: true; hashes?: { structureHash: string; rulesHash: string }; preview?: unknown }
   | { ok: false; kind: "invalid"; errors: { path: string; message: string }[] }
   | { ok: false; kind: "unsupported"; capabilityError: unknown }
 >;
@@ -193,4 +195,124 @@ export function validateRevisionShape(
       maxBudget: budget as string,
     },
   };
+}
+
+// ---------------------------------------------------------------------------------------------------
+// Plan file declarations vs the revision (engine plan-v1: deliverables[] and references[] with name and parser)
+
+/** The engine parser each output format maps to. */
+export const FORMAT_PARSER: Record<OutputFormat, string> = { json: "json/v1", text: "text/v1", binary: "opaque/v1" };
+
+function declaredFiles(list: unknown): { name: string; parser: unknown }[] | null {
+  if (!Array.isArray(list)) return null;
+  return list.filter(isPlainObject).map((d) => ({ name: String(d.name), parser: d.parser }));
+}
+
+/**
+ * For an engine plan (one with a `deliverables` array): its deliverables must be exactly the revision's
+ * outputs, each with the parser of its format, and its references must be exactly the uploaded reference
+ * files. `referenceNames` is null when the caller uploaded no reference files. Other plans are not checked
+ * here (the engine rejects them anyway).
+ */
+export function checkPlanFiles(
+  plan: unknown,
+  outputs: { name: string; format: OutputFormat }[],
+  referenceNames: string[] | null,
+): FieldError[] {
+  if (!isPlainObject(plan)) return [];
+  const deliverables = declaredFiles(plan.deliverables);
+  if (!deliverables) return [];
+  const errors: FieldError[] = [];
+  const want = new Map(outputs.map((o) => [o.name, FORMAT_PARSER[o.format]]));
+  const got = new Set(deliverables.map((d) => d.name));
+  deliverables.forEach((d, i) => {
+    if (!want.has(d.name)) errors.push({ path: `/plan/deliverables/${i}/name`, message: `deliverable ${d.name} is not one of the declared outputs` });
+    else if (d.parser !== want.get(d.name)) {
+      errors.push({ path: `/plan/deliverables/${i}/parser`, message: `output ${d.name} needs parser ${want.get(d.name)}` });
+    }
+  });
+  for (const o of outputs) {
+    if (!got.has(o.name)) errors.push({ path: "/outputs", message: `output ${o.name} is not declared in plan.deliverables` });
+  }
+  const refs = (declaredFiles(plan.references) ?? []).map((r) => r.name).sort();
+  const uploaded = [...(referenceNames ?? [])].sort();
+  if (referenceNames !== null || refs.length > 0) {
+    if (refs.length !== uploaded.length || refs.some((n, i) => n !== uploaded[i])) {
+      errors.push({
+        path: "/references",
+        message: `plan.references declares [${refs.join(", ")}] but the uploaded reference files are [${uploaded.join(", ")}]`,
+      });
+    }
+  }
+  return errors;
+}
+
+// ---------------------------------------------------------------------------------------------------
+// Reference files (CONTRACT-T5-T8 §2)
+
+export const MAX_REFERENCE_FILES = 16;
+export const MAX_REFERENCE_BYTES = 32 * 1024;
+const BASE64_RE = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+const REFERENCE_KEYS = ["name", "contentBase64"] as const;
+
+/** referenceHash(encodeBundle([])), the digest of the empty bundle (0x010000). */
+export const EMPTY_REFERENCE_DIGEST: string = referenceDigestOf([]);
+
+/** Lowercase 0x referenceHash of the encoded bundle of `files`. */
+export function referenceDigestOf(files: BundleFile[]): string {
+  return referenceHash(encodeBundle(files)).toLowerCase();
+}
+
+/**
+ * Checks `references: [{ name, contentBase64 }]`: bundle name rule, unique names, at most 16 files,
+ * at most 32 KiB decoded in total, strict (padded, standard alphabet) base64. Paths are under
+ * `/references`. Returns the decoded files in request order.
+ */
+export function validateReferences(
+  input: unknown,
+): { ok: true; files: BundleFile[] } | { ok: false; errors: FieldError[] } {
+  if (!Array.isArray(input)) {
+    return { ok: false, errors: [{ path: "/references", message: "must be an array of { name, contentBase64 }" }] };
+  }
+  const errors: FieldError[] = [];
+  if (input.length > MAX_REFERENCE_FILES) {
+    errors.push({ path: "/references", message: `at most ${MAX_REFERENCE_FILES} files` });
+  }
+  const files: BundleFile[] = [];
+  const seen = new Set<string>();
+  let total = 0;
+  input.forEach((f: unknown, i) => {
+    if (!isPlainObject(f)) {
+      errors.push({ path: pointer("references", i), message: "must be an object { name, contentBase64 }" });
+      return;
+    }
+    for (const k of Object.keys(f)) {
+      if (!(REFERENCE_KEYS as readonly string[]).includes(k)) {
+        errors.push({ path: pointer("references", i, k), message: "unknown field" });
+      }
+    }
+    const name = f.name;
+    let nameOk = false;
+    if (typeof name !== "string" || !OUTPUT_NAME_RE.test(name) || name === "." || name === "..") {
+      errors.push({ path: pointer("references", i, "name"), message: "must match ^[A-Za-z0-9._-]{1,128}$ and not be '.' or '..'" });
+    } else if (seen.has(name)) {
+      errors.push({ path: pointer("references", i, "name"), message: "duplicate reference name" });
+    } else {
+      seen.add(name);
+      nameOk = true;
+    }
+    const b64 = f.contentBase64;
+    if (typeof b64 !== "string" || !BASE64_RE.test(b64)) {
+      errors.push({ path: pointer("references", i, "contentBase64"), message: "must be standard padded base64" });
+      return;
+    }
+    const content = new Uint8Array(Buffer.from(b64, "base64"));
+    total += content.byteLength;
+    if (nameOk) files.push({ name: name as string, content });
+  });
+  if (total > MAX_REFERENCE_BYTES) {
+    errors.push({ path: "/references", message: `decoded content exceeds ${MAX_REFERENCE_BYTES} bytes in total` });
+  }
+  if (errors.length > 0) return { ok: false, errors };
+  return { ok: true, files };
 }

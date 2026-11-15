@@ -1,6 +1,15 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { simulatedEngine } from "../../src/index.ts";
 import { T0, createJob, expectError, expectedRevisionHash, makeApp, validRevision } from "./helpers.ts";
 import type { SpecApp } from "./helpers.ts";
+
+
+/** The simulated engine's commitments for a plan (createApp's default engine), which approvals now bind. */
+async function simHashes(plan: unknown): Promise<{ structureHash: string; rulesHash: string }> {
+  const v = await simulatedEngine().validate(plan);
+  if (!v.ok || !v.hashes) throw new Error("simulated validate failed");
+  return v.hashes;
+}
 
 let s: SpecApp | undefined;
 afterEach(() => {
@@ -25,8 +34,10 @@ describe("GET /v1/jobs/:id", () => {
         revision: validRevision(),
         source: "grok",
         createdAt: new Date(T0).toISOString(),
+        engine: await simHashes(validRevision().plan),
       },
       approval: null,
+      manifest: null,
       chain: null,
       worker: null,
     });

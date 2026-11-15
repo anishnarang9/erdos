@@ -1,10 +1,18 @@
 import { createHash } from "node:crypto";
 import canonicalize from "canonicalize";
 import { afterEach, describe, expect, it } from "vitest";
-import { createApp, revisionHash, simulatedValidatePlan, type PlanValidator } from "../../src/index.ts";
+import { createApp, revisionHash, simulatedEngine, simulatedValidatePlan, type PlanValidator } from "../../src/index.ts";
 import { DIGEST, T0, buyerPost, createJob, errorOf, makeApp, validRevision, type TestApp } from "./helpers.ts";
 
 const ULID_RE = /^[0-9A-HJKMNP-TV-Z]{26}$/;
+
+/** The simulated engine's commitments for a plan (createApp's default engine), which approvals now bind. */
+async function simHashes(plan: unknown): Promise<{ structureHash: string; rulesHash: string }> {
+  const v = await simulatedEngine().validate(plan);
+  if (!v.ok || !v.hashes) throw new Error("simulated validate failed");
+  return v.hashes;
+}
+
 let t: TestApp;
 afterEach(() => t?.close());
 
@@ -169,8 +177,10 @@ describe("GET /v1/jobs/:id", () => {
         revision: validRevision(),
         source: "import",
         createdAt: new Date(T0).toISOString(),
+        engine: await simHashes(validRevision().plan),
       },
       approval: null,
+      manifest: null,
       chain: null,
       worker: null,
     });
@@ -199,7 +209,12 @@ describe("POST /v1/jobs/:id/approve", () => {
     t.clock.ms = T0 + 5000;
     const res = await approve({ revisionHash: hash, referenceDigest: DIGEST });
     expect(res.status).toBe(200);
-    const approval = { revisionHash: hash, referenceDigest: DIGEST, approvedAt: new Date(T0 + 5000).toISOString() };
+    const approval = {
+      revisionHash: hash,
+      referenceDigest: DIGEST,
+      ...(await simHashes(validRevision().plan)),
+      approvedAt: new Date(T0 + 5000).toISOString(),
+    };
     expect(await res.json()).toEqual({ state: "approved", approval });
     const view = (await (await t.app.request(`/v1/jobs/${job.jobId}`)).json()) as Record<string, unknown>;
     expect(view.state).toBe("approved");

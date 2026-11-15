@@ -18,6 +18,8 @@ export interface Deps {
   engine: Engine;
   /** T5 draft model; absent means POST /v1/drafts returns 503 model_unavailable. */
   draftModel?: DraftModel;
+  /** Host directory where compiled packages are kept for workers. Unset: packages are not kept. */
+  packagesDir?: string;
   /** T7/T8 chain; absent means chain routes return 503 chain_unavailable. */
   chain?: ApiChain;
 }
