@@ -24,6 +24,11 @@ export interface DraftModelInput {
   request: string;
   outputs: DraftOutput[];
   referenceNames: string[];
+  /**
+   * The declared reference files as text (the buyer's own job inputs), so the model can see their shape.
+   * Optional for callers that predate it. Binary or oversized files are summarized, never sent raw.
+   */
+  referenceFiles?: { name: string; text: string }[];
   clarifications: { question: string; answer: string }[];
   /** The engine's plan JSON Schema (engine-contract/plan-v1.schema.json). */
   schema: unknown;
@@ -150,7 +155,7 @@ export const DRAFT_SYSTEM_PROMPT = [
   "The plan must follow the engine plan schema and use only the parsers, value types, operations and",
   "evidence profiles in the capability catalog (both are given below). Declare exactly the buyer's",
   "`outputs` as plan.deliverables (format json -> parser json/v1, text -> text/v1, binary -> opaque/v1)",
-  "and exactly `referenceNames` as plan.references. Write i64 literals as decimal strings, e.g. \"9400\".",
+  "and exactly `referenceNames` as plan.references (their contents are in `referenceFiles`; read field names and types from them). Write i64 literals as decimal strings, e.g. \"9400\".",
   "If the job needs an operation, parser or evidence profile that is NOT in the catalog, still reply with",
   "kind draft and write the plan with the exact name of the missing capability where it is needed; the",
   "engine turns that into a capability request. Use kind unsupported only for tasks that no deterministic",
@@ -182,6 +187,7 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
         request: input.request,
         outputs: input.outputs,
         referenceNames: input.referenceNames,
+        referenceFiles: input.referenceFiles ?? [],
         clarifications: input.clarifications,
       };
       const body = {

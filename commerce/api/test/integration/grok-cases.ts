@@ -8,7 +8,11 @@ export const CASES: Record<string, { expect: "draft" | "capability_unsupported";
   // Success: a reconciliation job the engine supports (collections, sum, count, lookup, unique).
   reconciliation: {
     expect: "draft",
-    answer: "Amounts are integer cents as decimal strings. Every ledger id must appear exactly once. No extra rows.",
+    answer:
+      "ledger.json is an object with a `rows` array of { id, amountCents }: id is a JSON string and amountCents is " +
+      "integer cents written as a decimal string such as \"1000\". result.json must use exactly the same shape. Any " +
+      "row order is fine as long as every ledger id appears exactly once, with no extra rows, and each amount equals " +
+      "the ledger amount. report.txt may contain any plain text; it has no pass rule.",
     body: {
       request:
         "Reconcile our invoice ledger. Deliver result.json with a `rows` array of { id, amountCents } that contains " +

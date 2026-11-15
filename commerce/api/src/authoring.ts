@@ -45,6 +45,20 @@ export const MAX_EVAL_EXAMPLES = 8;
 
 const DRAFT_KEYS = ["request", "outputs", "references", "clarifications", "expirySeconds", "maxBudget"];
 const MAX_REQUEST_CHARS = 8000;
+/** At most this many characters of each reference file are shown to the draft model. */
+export const MAX_REFERENCE_TEXT = 8192;
+
+/** A reference file as the model sees it: UTF-8 text (truncated), or a one-line summary for binary data. */
+export function referenceText(content: Uint8Array): string {
+  let text: string;
+  try {
+    text = new TextDecoder("utf-8", { fatal: true }).decode(content);
+  } catch {
+    return `<binary file, ${content.byteLength} bytes, sha256 ${createHash("sha256").update(content).digest("hex")}>`;
+  }
+  return text.length > MAX_REFERENCE_TEXT ? text.slice(0, MAX_REFERENCE_TEXT) + `
+<truncated: ${text.length} characters in total>` : text;
+}
 const MAX_CLARIFICATION_ROUNDS = 2;
 
 export function registerAuthoringRoutes(ctx: RouteContext): void {
@@ -156,6 +170,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       request: body.request,
       outputs: body.outputs,
       referenceNames: body.references.map((f) => f.name),
+      referenceFiles: body.references.map((f) => ({ name: f.name, text: referenceText(f.content) })),
       clarifications: body.clarifications,
       schema: PLAN_SCHEMA,
       catalog: ENGINE_CATALOG,

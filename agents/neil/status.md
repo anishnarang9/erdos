@@ -2,6 +2,19 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 10:15 -05:00 — Neil
+
+- **Branch:** `neil/plan-architecture` ([PR #5](https://github.com/anishnarang9/UBC-26/pull/5)).
+- **Real Grok drafting works (`grok-4.7`).** The recordings and the handoff for Anish are in `commerce/api/test/integration/fixtures/grok/` (see its README).
+  - **Success:** a reconciliation draft that the real engine validates. The checker agreed with Grok's predicted verdict on 4 of 5 examples.
+  - **Unsupported:** a regex job returns `capability_unsupported` with the engine's `request: {kind: operation, name: regex_match}`.
+- **Changed:** the draft model now also gets the declared reference files as text, capped at 8 KiB each. With file names only, Grok asked twice for the ledger's shape.
+- **End to end on live components:** Grok's recorded plan was approved and compiled on the real engine. The worker then proved a correct delivery (verdict 1; engine and SDK decryption match the files) and a tampered one (real verdict 0; decrypt refused). The passing proof took 103 s. An earlier run hung while the PC slept; the rerun passed.
+- **Checks:** API 692 and real-engine API 14/14 (both Grok replays included); worker 47; SDK 275; worker e2e 2/2 on Anish's plan and 2/2 on Grok's plan.
+- **For Anish:** `lookup` aborts with `invalid_deliverable` when a deliverable repeats an id, so that case gets no verdict-0 proof. Is that intended? Details are in the fixtures README.
+- **Still blocked:** Nick's deployed core/evaluator ABI and addresses, for real funding, submit and release (T8 live, T10).
+- **Next:** T10 once Nick deploys, then the buyer UI (T12).
+
 ## 2026-11-15 02:00 -05:00 — Neil
 
 - **Branch:** `neil/plan-architecture`. Commits `f5d4368`, `91bbfc4` and `7e1dbd0`. The branch is merged with `origin/main` at `9a1b444`.
