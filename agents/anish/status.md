@@ -2,6 +2,15 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 00:47 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `250519c`. All three evaluation phases are complete. The complete `engine/evaluation/evaluate.sh` replay exited 0 in fresh private scratch. [Final report](../../engine/evaluation/REPORT.md) and [machine summary](../../engine/evaluation/reports/final-replay.json).
+- Fresh replay: 51 Rust tests, 38 Node tests, 11 TypeScript tests, typecheck, 10,000 seeded cases, and all 341 host candidates passed. Three prepared guest tests are ignored by default and passed explicitly earlier. All 180 authoring outcomes and 1,023 candidate checks reproduced the measured results. No new inference or proof generation occurred during replay.
+- Proof replay independently executed all 12 archived candidates, verified all 12 real receipts with the pinned Solidity verifier, ran all six pair checks, and freshly decrypted all six passing deliveries. All nine files matched exactly. Zero engine/proof failures. All 120 public package files, including 96 source files, match their private originals. Release keys remain private.
+- Known model defects remain explicit: 39 non-draft fidelity failures and 13 nonverbatim source annotations. Classification matched 180/180 and all 120 final supported drafts passed their finite candidate checks. The corrected rubric and strict replay gate passed independent Sol review. The initial umask-sensitive fixture failure and corrected full rerun remain preserved.
+- Hourly review and 18 independent Arc read-only checks are complete. Nick settlement is pinned at `80c8a4af`, Neil at `3013d736`; no remote code was merged. Core freeze, real provider/funded terms, and live acceptance/payment/refund remain integration work. Existing synthetic receipts cannot settle a new funded job. No live deployment, live transaction, owner-status edit, or message to another chat/person occurred.
+- Final audit verified every required completion criterion and raw model input/schema/first/repair hash. Engine PR #3 remains at `adda3a3`. Next action is tomorrow settlement/API integration from these pinned artifacts. No required evaluation check remains pending.
+
 ## 2026-11-15 00:44 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, preceding pushed commit `62f7739`. The full replay stopped at a permissions-test fixture after Rust tests and all 38 Node tests passed. Ten TypeScript tests passed and one failed. Preserved the complete [failure record](../../engine/evaluation/reports/replay-first-attempt.json).

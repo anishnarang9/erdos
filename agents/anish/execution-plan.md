@@ -35,11 +35,11 @@ The user approved unattended execution through these phases in order. Checkpoint
 - [x] Use `gpt-6-luna`, low reasoning, with only request, permitted reference information, schema, and catalog.
 - [x] Run three independent trials per challenge. Allow at most one repair after validation feedback. Record every attempt and usage when available.
 - [x] Score semantics: missing requirements, invented constants, changed units, and weaker predicates. Keep first attempts separate from repairs.
-- [ ] Use real CLI validation, evaluation, compilation, execution, proving, and decryption.
+- [x] Use real CLI validation, evaluation, compilation, execution, proving, and decryption.
 - [x] Execute each distinct accepted rule structure in the guest.
-- [ ] Produce 12 new Groth16 receipts across six families, including passing and failing predicates. Invalid input/signatures may abort.
-- [ ] Verify with the pinned real Solidity verifier locally. Recover passing files byte for byte.
-- [ ] Publish one repeatable evaluation command and a report separating translation, engine, and proof results. Luna evidence does not establish live Grok behavior.
+- [x] Produce 12 new Groth16 receipts across six families, including passing and failing predicates. Invalid input/signatures may abort.
+- [x] Verify with the pinned real Solidity verifier locally. Recover passing files byte for byte.
+- [x] Publish one repeatable evaluation command and a report separating translation, engine, and proof results. Luna evidence does not establish live Grok behavior.
 
 ## Recurring checkpoints
 
@@ -53,3 +53,11 @@ The user approved unattended execution through these phases in order. Checkpoint
 ## Completion rule
 
 Completion requires verified challenge coverage, generated tests, regression fixes, model records, real proof evidence, and the final report. Missing model access blocks model evidence only. Missing settlement blocks live integration only. Do not present simulations as required real results.
+
+## Verified completion — 2026-11-15 00:47 -05:00
+
+- All three phases completed. The [full replay](../../engine/evaluation/reports/final-replay.json) exited 0.
+- Twelve new real receipts, six fresh byte-exact recoveries, and all required deterministic checks passed.
+- Model results remain qualified: 39 non-draft fidelity defects and 13 nonverbatim source annotations.
+- Three Luna batches and two validation-only repair follow-ups produced the measured records. Helpers used GPT-6 Sol after the rate-limit request.
+- Settlement readiness is recorded. Core freeze, funded terms, actual provider, and live transactions remain tomorrow integration work. No live transaction was sent.

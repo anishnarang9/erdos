@@ -26,5 +26,9 @@
     }
   ],
   "proofsChanged": false,
-  "fullRerun": "pending"
+  "fullRerun": {
+    "exitCode": 0,
+    "directory": "/tmp/ubc26-final-replay-2",
+    "report": "final-replay.json"
+  }
 }

@@ -1,0 +1,413 @@
+{
+  "version": 1,
+  "startedAt": "2026-11-15T05:44:00.362Z",
+  "synthetic": true,
+  "engineSha256": "0x12d6acaf5c79698c92e3dfe272676d48d61155f86b88d82c59123c3d198eadbf",
+  "indexSha256": "0x4a2699498991b68da5d902ad1c863a8841431c4779f3c6146fb97bdab24b0b6e",
+  "verifierRevision": "ff30da77ba4afdd496290ebebedb205348b15d83",
+  "families": [
+    {
+      "family": "inventory",
+      "measuredModelPlanMatched": true,
+      "proofs": [
+        {
+          "name": "pass",
+          "verdict": 1,
+          "actualGuestExecution": true,
+          "execution": {
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "value": {
+              "userCycles": 850853,
+              "verdict": 1
+            },
+            "millis": 1805
+          },
+          "solidity": {
+            "exitCode": 0,
+            "stdoutSha256": "0x6d2a0c470a2d1de627d58bab4de9bacf09f0155b7792d140e7726427e0668288",
+            "stderrSha256": "0xaf96d353857a9d335068b8e936af0b14d686a347d3f7342d5f6556a7056d7695"
+          },
+          "proofSha256": "0x8a8fc940235fdcb96131462bc6c5d61fe3a22793ef10d0f133d6320b2bf4623e"
+        },
+        {
+          "name": "fail",
+          "verdict": 0,
+          "actualGuestExecution": true,
+          "execution": {
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "value": {
+              "userCycles": 850713,
+              "verdict": 0
+            },
+            "millis": 1786
+          },
+          "solidity": {
+            "exitCode": 0,
+            "stdoutSha256": "0x75648fee8f99f8c34c002d452bc5fc6983462237fe8acd6fe5c6e8696a944222",
+            "stderrSha256": "0xaf96d353857a9d335068b8e936af0b14d686a347d3f7342d5f6556a7056d7695"
+          },
+          "proofSha256": "0xaa5ae415598349cac5c40a28efbc63f702578b09013a23393d0652c24fe148d6"
+        }
+      ],
+      "wire": {
+        "exitCode": 0,
+        "stdoutSha256": "0xe33c9cce6a6cb9e6c9e20f17a448597eb4af8cf2d77f2d979445856edd0593d7",
+        "stderrSha256": "0xffb51cba17b49731839f8109cc0b3363fbab3895f8e61a27baddb08f992b14d5"
+      },
+      "recovery": {
+        "fresh": true,
+        "files": [
+          {
+            "name": "stock.json",
+            "bytes": 190,
+            "sha256": "0x18cf1d0cfcb7bfe396d405815c3c85f45c88fbdbb1a8f17a0f19474f860f5f4f"
+          }
+        ]
+      }
+    },
+    {
+      "family": "signed-evidence-bindings",
+      "measuredModelPlanMatched": true,
+      "proofs": [
+        {
+          "name": "pass",
+          "verdict": 1,
+          "actualGuestExecution": true,
+          "execution": {
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "value": {
+              "userCycles": 4440879,
+              "verdict": 1
+            },
+            "millis": 1820
+          },
+          "solidity": {
+            "exitCode": 0,
+            "stdoutSha256": "0x9cb9f9721d5557733ba640859981cb7ac35a871f3e630a7b6f288c19b8db55ed",
+            "stderrSha256": "0xaf96d353857a9d335068b8e936af0b14d686a347d3f7342d5f6556a7056d7695"
+          },
+          "proofSha256": "0x39f76131fa165b3d13df82c1dfb9d1619c97cbe4e8ff6cd1a4aad42dbe32fa36"
+        },
+        {
+          "name": "fail",
+          "verdict": 0,
+          "actualGuestExecution": true,
+          "execution": {
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "value": {
+              "userCycles": 4423979,
+              "verdict": 0
+            },
+            "millis": 1775
+          },
+          "solidity": {
+            "exitCode": 0,
+            "stdoutSha256": "0xd813195c52c3ef5f7380dfe60237f56a9736900713037833b6a411eedf86e38a",
+            "stderrSha256": "0xaf96d353857a9d335068b8e936af0b14d686a347d3f7342d5f6556a7056d7695"
+          },
+          "proofSha256": "0x278152d392a47df0632de7309f644f38a909cf2d4473275080287a9c8d80b5a4"
+        }
+      ],
+      "wire": {
+        "exitCode": 0,
+        "stdoutSha256": "0xe33c9cce6a6cb9e6c9e20f17a448597eb4af8cf2d77f2d979445856edd0593d7",
+        "stderrSha256": "0xffb51cba17b49731839f8109cc0b3363fbab3895f8e61a27baddb08f992b14d5"
+      },
+      "recovery": {
+        "fresh": true,
+        "files": [
+          {
+            "name": "note.txt",
+            "bytes": 36,
+            "sha256": "0xe95995b68acabc96dc5275166b585741a01da7b7f819b802e9ae2ea48287dd90"
+          }
+        ]
+      }
+    },
+    {
+      "family": "ledger-reconciliation",
+      "measuredModelPlanMatched": true,
+      "proofs": [
+        {
+          "name": "pass",
+          "verdict": 1,
+          "actualGuestExecution": true,
+          "execution": {
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "value": {
+              "userCycles": 827609,
+              "verdict": 1
+            },
+            "millis": 1795
+          },
+          "solidity": {
+            "exitCode": 0,
+            "stdoutSha256": "0xd0596af16894044032c10ddf8a950ee5368b79953b7054b4fa9fb1645e9121db",
+            "stderrSha256": "0xaf96d353857a9d335068b8e936af0b14d686a347d3f7342d5f6556a7056d7695"
+          },
+          "proofSha256": "0x361f6cb3088c9aa4e27c9e1e0712e22380d0aa74cec366f36832a3676c45158d"
+        },
+        {
+          "name": "fail",
+          "verdict": 0,
+          "actualGuestExecution": true,
+          "execution": {
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "value": {
+              "userCycles": 827462,
+              "verdict": 0
+            },
+            "millis": 1781
+          },
+          "solidity": {
+            "exitCode": 0,
+            "stdoutSha256": "0x077f73de4a5c42eec5d1c54b10722e6ed27a5806d6ae6b0685d4d1a038c9daee",
+            "stderrSha256": "0xaf96d353857a9d335068b8e936af0b14d686a347d3f7342d5f6556a7056d7695"
+          },
+          "proofSha256": "0x14df890aa96f3c5e47b9f97b1b8de1a81595ad40cf644dd72fb1c4e454b1d8e7"
+        }
+      ],
+      "wire": {
+        "exitCode": 0,
+        "stdoutSha256": "0xe33c9cce6a6cb9e6c9e20f17a448597eb4af8cf2d77f2d979445856edd0593d7",
+        "stderrSha256": "0xffb51cba17b49731839f8109cc0b3363fbab3895f8e61a27baddb08f992b14d5"
+      },
+      "recovery": {
+        "fresh": true,
+        "files": [
+          {
+            "name": "report.txt",
+            "bytes": 30,
+            "sha256": "0x10c70b179f7115581cc57475c08efecf54181cb8a7962a5795f5a69d24fd8da3"
+          },
+          {
+            "name": "result.json",
+            "bytes": 205,
+            "sha256": "0xe580b3b2fe2e16a6514ba49f08595668e73a52d686f3718f05f28b5dcebf0218"
+          }
+        ]
+      }
+    },
+    {
+      "family": "allocation-scheduling",
+      "measuredModelPlanMatched": true,
+      "proofs": [
+        {
+          "name": "pass",
+          "verdict": 1,
+          "actualGuestExecution": true,
+          "execution": {
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "value": {
+              "userCycles": 1210483,
+              "verdict": 1
+            },
+            "millis": 1807
+          },
+          "solidity": {
+            "exitCode": 0,
+            "stdoutSha256": "0xe8644f3cf56ce3b6ebb0199c12ba87bc00a9cc4b981f480c2e3f645312ffc3c8",
+            "stderrSha256": "0xaf96d353857a9d335068b8e936af0b14d686a347d3f7342d5f6556a7056d7695"
+          },
+          "proofSha256": "0xde6aabbea2fbc50010e1f88451135b787ced9c41d803e953055f5a10ce46709b"
+        },
+        {
+          "name": "fail",
+          "verdict": 0,
+          "actualGuestExecution": true,
+          "execution": {
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "value": {
+              "userCycles": 1210241,
+              "verdict": 0
+            },
+            "millis": 1767
+          },
+          "solidity": {
+            "exitCode": 0,
+            "stdoutSha256": "0x7354c3315f875b9ab671efbc3280dd47781d6e1c15014361164c08bcff1985e0",
+            "stderrSha256": "0xaf96d353857a9d335068b8e936af0b14d686a347d3f7342d5f6556a7056d7695"
+          },
+          "proofSha256": "0x512cd81d55e30c92478db1542feb7ce1096f265609ac60e8e2857abcf5604530"
+        }
+      ],
+      "wire": {
+        "exitCode": 0,
+        "stdoutSha256": "0xe33c9cce6a6cb9e6c9e20f17a448597eb4af8cf2d77f2d979445856edd0593d7",
+        "stderrSha256": "0xffb51cba17b49731839f8109cc0b3363fbab3895f8e61a27baddb08f992b14d5"
+      },
+      "recovery": {
+        "fresh": true,
+        "files": [
+          {
+            "name": "assignments.json",
+            "bytes": 259,
+            "sha256": "0xdc423ab12311759d4430e21285d1922a3fdfca405cd8bd9f6bcce0f7f40d05d0"
+          }
+        ]
+      }
+    },
+    {
+      "family": "expenses-budgets",
+      "measuredModelPlanMatched": true,
+      "proofs": [
+        {
+          "name": "pass",
+          "verdict": 1,
+          "actualGuestExecution": true,
+          "execution": {
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "value": {
+              "userCycles": 759068,
+              "verdict": 1
+            },
+            "millis": 1786
+          },
+          "solidity": {
+            "exitCode": 0,
+            "stdoutSha256": "0xaa7c130de3cbb3c44892d35e3bba369a10446aaa3afefd6cc48cb1b701448055",
+            "stderrSha256": "0xaf96d353857a9d335068b8e936af0b14d686a347d3f7342d5f6556a7056d7695"
+          },
+          "proofSha256": "0x97fcb4105caefe6767dc5c7f8e3281f866ccb0be1a9e45c21d9f1f2370119c57"
+        },
+        {
+          "name": "fail",
+          "verdict": 0,
+          "actualGuestExecution": true,
+          "execution": {
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "value": {
+              "userCycles": 685005,
+              "verdict": 0
+            },
+            "millis": 1779
+          },
+          "solidity": {
+            "exitCode": 0,
+            "stdoutSha256": "0x0a660b52d9080905e855e801b8276ea29140f21d3eafac6f137fc46ed9f0e146",
+            "stderrSha256": "0xaf96d353857a9d335068b8e936af0b14d686a347d3f7342d5f6556a7056d7695"
+          },
+          "proofSha256": "0x98321e2f820129af14f05d5e32c3ab13d33e130eb062283664dfeb228ace2a63"
+        }
+      ],
+      "wire": {
+        "exitCode": 0,
+        "stdoutSha256": "0xe33c9cce6a6cb9e6c9e20f17a448597eb4af8cf2d77f2d979445856edd0593d7",
+        "stderrSha256": "0xffb51cba17b49731839f8109cc0b3363fbab3895f8e61a27baddb08f992b14d5"
+      },
+      "recovery": {
+        "fresh": true,
+        "files": [
+          {
+            "name": "expenses.json",
+            "bytes": 286,
+            "sha256": "0xb063c8b5878b54f6e541673827724a9a2f5aa6a6e162bddb25d946c6c2947a59"
+          }
+        ]
+      }
+    },
+    {
+      "family": "file-hash-size",
+      "measuredModelPlanMatched": true,
+      "proofs": [
+        {
+          "name": "pass",
+          "verdict": 1,
+          "actualGuestExecution": true,
+          "execution": {
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "value": {
+              "userCycles": 521211,
+              "verdict": 1
+            },
+            "millis": 1747
+          },
+          "solidity": {
+            "exitCode": 0,
+            "stdoutSha256": "0x36e31ee8f67950581e537b0094c2f34120f95fbfdce3607fabd61be015415169",
+            "stderrSha256": "0xaf96d353857a9d335068b8e936af0b14d686a347d3f7342d5f6556a7056d7695"
+          },
+          "proofSha256": "0x15f460b265fa34880b473c8164b7e3b37df96bb3f38035acef6dfa7288c8ae85"
+        },
+        {
+          "name": "fail",
+          "verdict": 0,
+          "actualGuestExecution": true,
+          "execution": {
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "value": {
+              "userCycles": 520766,
+              "verdict": 0
+            },
+            "millis": 1745
+          },
+          "solidity": {
+            "exitCode": 0,
+            "stdoutSha256": "0x5afc6331041bed59d6d50977bf80ed30359da7b94945a7ff376f8f7952900738",
+            "stderrSha256": "0xaf96d353857a9d335068b8e936af0b14d686a347d3f7342d5f6556a7056d7695"
+          },
+          "proofSha256": "0x6c16857daa22ed56257963f7f9d6db9b1fc9e83a2a7ef32bd66e517dfc5a74c5"
+        }
+      ],
+      "wire": {
+        "exitCode": 0,
+        "stdoutSha256": "0xe33c9cce6a6cb9e6c9e20f17a448597eb4af8cf2d77f2d979445856edd0593d7",
+        "stderrSha256": "0xffb51cba17b49731839f8109cc0b3363fbab3895f8e61a27baddb08f992b14d5"
+      },
+      "recovery": {
+        "fresh": true,
+        "files": [
+          {
+            "name": "appendix.bin",
+            "bytes": 7,
+            "sha256": "0x0f0cf9286f065a2f38e3c4e4886578e35af4050c108e507998a05888c98667ea"
+          },
+          {
+            "name": "artifact.dat",
+            "bytes": 23,
+            "sha256": "0xfd6b5c65c04b1acea78fe60f2e747929a26d6a4660faa8e147c6edda87105f68"
+          },
+          {
+            "name": "metadata.json",
+            "bytes": 27,
+            "sha256": "0xffb7b1c239b99ef5dbfae289c4ef81d6d6966092c9e1d52c9031a61b745a2c37"
+          }
+        ]
+      }
+    }
+  ],
+  "failures": [],
+  "privateKeyReplay": true,
+  "finishedAt": "2026-11-15T05:46:02.243Z",
+  "summary": {
+    "families": 6,
+    "receipts": 12,
+    "actualGuestExecutions": 12,
+    "freshRecoveries": 6,
+    "failures": 0
+  }
+}

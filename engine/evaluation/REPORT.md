@@ -1,7 +1,7 @@
 # Engine and authoring evaluation
 
 Run: November 14–15, 2026. Branch: `codex/engine-commerce`.
-Status: all 12 real receipts verified. Independent full replay pending.
+Status: complete for the stated evaluation scope. Independent full replay passed.
 
 The deterministic checks found no engine disagreement in the tested corpus.
 The model preserved all tested supported predicates after validation repairs.
@@ -16,7 +16,7 @@ Its clarification and explanation quality was weaker. These are separate results
 - Latest settlement revision reviewed separately: `80c8a4af68f0cf00e4177c98e9c435d869716edd`. It is not merged here.
 
 All contexts, reference data, signer fixtures, and approvals are synthetic.
-Approval is simulated. No contract deployment, funding, or live transaction occurred.
+Approval is simulated. No live contract deployment, funding, or transaction occurred.
 Local ephemeral Solidity deployments test the real pinned verifier.
 
 ## Deterministic evidence
@@ -104,11 +104,20 @@ The correction independently checks that every measured draft and candidate resu
 
 The sequential queue completed twelve new Groth16 receipts: one passing and one failing predicate in each family.
 The [public proof index](proofs/index.json) contains completed evidence only.
+The [public artifact audit](reports/public-artifact-audit.json) checks all 120 exported package files, including 96 source files, against private originals.
 The [progress report](reports/proof-progress.json) records measured proof times and cycles.
 All twelve receipts passed the pinned local Solidity verifier and its mutation checks.
 All six passing deliveries recovered byte for byte.
 Every pair passed wire checks and all four negative recovery checks.
-Independent full replay remains pending at this checkpoint.
+The independent full replay passed with zero engine/proof failures.
+It ran 51 Rust tests, 38 Node tests, 11 TypeScript tests, typecheck, and the 10,000 seeded cases.
+It reproduced all 341 host outcomes and 180 measured authoring outcomes.
+It executed all twelve archived candidates, reverified twelve receipts, and freshly decrypted all six passing deliveries.
+[Replay summary](reports/final-replay.json) · [Fresh proof checks](reports/final-proof-replay.json).
+The three prepared guest tests are ignored by default and passed explicitly earlier.
+The first full replay exposed a permissions-fixture error under `umask 077`.
+The corrected fixture passed under both private and ordinary umasks, then the complete command passed.
+The [first failure](reports/replay-first-attempt.json) remains preserved.
 
 | Family | Passing proof, seconds | Failing proof, seconds | Recovered bytes |
 | --- | ---: | ---: | ---: |

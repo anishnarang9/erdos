@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-15 00:47 -05:00 — Anish — Engine evaluation complete
+
+- The [three-phase evaluation](../../engine/evaluation/REPORT.md) completed on `codex/engine-commerce`. Twelve new real receipts, six byte-exact recoveries, all 16 accepted model guest structures, 10,000 seeded cases, and the complete independent replay passed. Engine PR #3 remains separate at `adda3a3`.
+- The tested local adapter implements Neil's current `Engine` interface. The saved model adapter implements `DraftModel`. Production route injection and live Grok remain Neil's integration work. Authoring still needs buyer review: 39 non-draft responses failed the fixed fidelity rubric and 13 final source annotations were nonverbatim.
+- Tomorrow settlement inputs can use the published package manifests after actual buyer approval. Existing receipts use synthetic jobs. Obtain the real provider and funded terms, build the live context, and prove again. Nick's core remains unfrozen at the inspected revision. Eighteen read-only Arc checks include a fresh receipt verification. No live transaction occurred in this run.
+
 ## 2026-11-15 00:38 -05:00 — Anish — Live deployment review and measured deadline budget
 
 - Hourly review found Nick settlement at `80c8a4af68f0cf00e4177c98e9c435d869716edd`, advanced from `fe27c200`. Neil remains `3013d736`; `origin/nick` remains `9a1b4444`. No code was merged. Engine PR #3 remains at `adda3a3`. [Review](../../engine/evaluation/reports/team-review-2026-11-15.json).
