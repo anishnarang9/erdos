@@ -93,3 +93,44 @@ SETTLEMENT_LOCAL=1 arc-forge script script/DeployLocal.s.sol:DeployLocal --netwo
 ```
 
 That anvil account is the well-known public dev account, not a secret. The run writes `deployments/local.json` (git-ignored) with the local addresses, including the mock USDC, which has an open `mint(to, amount)`. Without `--broadcast` the same command is a simulation. `contracts/test/script/Deploy.t.sol` runs every script in-process and asserts all post-conditions: `arc-forge test --network arc --match-path 'test/script/*'`.
+
+## Verifier evidence and test job
+
+Full write-up, with the fork evidence and the commands for the Nov 14 verifier gate: [`../research/ARC-VERIFIER.md`](../research/ARC-VERIFIER.md).
+
+| File | Purpose |
+| --- | --- |
+| `../test/fork/ArcVerifierFork.t.sol` | Deploys the verifier inside a fork of live Arc and checks the upstream receipt and tampering. Skips unless chain ID is 5042002. `arc-forge test --network arc --fork-url https://rpc.testnet.arc.io --fork-block-number 72389800 --match-path 'test/fork/*' -vv` |
+| `verifier-evidence.py` | Read-only evidence for the deployed verifier: chain guard, code equals local build modulo CBOR metadata and the four immutables, getters, real receipt (must verify), eleven altered inputs (must revert), `eth_estimateGas`. Python standard library and JSON-RPC only; it sends no transaction. It was chosen over a Solidity script because it exercises the Arc node's own execution and gas (a forge script would re-run the call in a local simulation) and can print Markdown |
+| `08_CreateTestJob.s.sol` | Creates and funds one test job on the deployed, frozen core |
+
+After step 01 is broadcast:
+
+```bash
+python3 script/verifier-evidence.py --out research/ARC-VERIFIER-LIVE.md   # address from the manifest, or SETTLEMENT_VERIFIER=<addr>
+```
+
+The script writes `research/ARC-VERIFIER-LIVE.md` itself (commit it); it does not edit `ARC-VERIFIER.md`.
+
+### Step 08: one funded test job
+
+Run only after steps 01 to 05 are live and `06_Verify` passes with `SETTLEMENT_EXPECT_FROZEN=1`. The signer is the Poster and needs the bounty plus gas in USDC.
+
+```bash
+export SETTLEMENT_TEST_PROVIDER=<solver-address>
+export SETTLEMENT_TEST_IMAGE_ID=0x<32 bytes>
+export SETTLEMENT_TEST_RULES_HASH=0x<32 bytes>
+export SETTLEMENT_TEST_REFERENCE_HASH=0x<32 bytes>
+
+# Dry run first: runs every pre-check and post-check, writes nothing.
+arc-forge script script/08_CreateTestJob.s.sol:CreateTestJob --network arc --rpc-url https://rpc.testnet.arc.io --sender <poster-address> --with-gas-price 25gwei
+
+arc-forge script script/08_CreateTestJob.s.sol:CreateTestJob --network arc --rpc-url https://rpc.testnet.arc.io \
+  --account <keystore-name> --with-gas-price 25gwei --priority-gas-price 25gwei --slow --broadcast
+```
+
+It sends the four Poster transactions in order: `createJob(provider, hook, now + demo.expirySeconds, "UBC-26 settlement test job", hook)`, `setBudget(jobId, demo.bountyUsdc in 6-decimal units, 0x)`, USDC `approve(core, budget)`, `fund(jobId, abi.encode(imageId, rulesHash, referenceHash))`. Pre-checks (before anything is sent): hook whitelisted and the manifest deployer holds no admin role (frozen); hook wired to this core and USDC; `demo.expirySeconds >= hook MIN_EXPIRY_MARGIN + coreMinExpirySeconds`; Poster balance covers the bounty; no test job already in the manifest (`SETTLEMENT_ALLOW_NEW_TEST_JOB=1` overrides). Post-checks: job `Funded` with the right client, provider, evaluator, hook, budget and expiry; `hook.terms(jobId)` matches the three inputs and is `funded`; the core's USDC balance rose by the budget.
+
+With `--broadcast` it writes a `testJob` object into `deployments/arc-testnet.json`: `jobId`, `poster`, `provider`, `imageId`, `rulesHash`, `referenceHash`, `budget` (base units, 6 decimals), `expiry`, `context` (`hook.contextOf(jobId)`, 169 bytes), `createdBlock`. Transaction hashes are not known inside a script, so `txHashes` is `null`; take them from `broadcast/08_CreateTestJob.s.sol/5042002/run-latest.json`. The job ID is the core's counter plus one at simulation time; the core is public, so if another job lands first `setBudget` reverts and nothing is funded (re-run). The funded job expires after `demo.expirySeconds`: the Solver must submit and release before then, otherwise anyone may `claimRefund`.
+
+Test: `arc-forge test --network arc --match-path 'test/script/CreateTestJob.t.sol'` runs the script in-process against a local-mode deployment.
