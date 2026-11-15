@@ -19,6 +19,7 @@
   "dependencies": {
     "@ubc26/api": "workspace:*",
     "@ubc26/sdk": "workspace:*",
+    "ethers": "6.15.0",
     "viem": "2.57.19"
   },
   "devDependencies": {

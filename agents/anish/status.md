@@ -2,6 +2,15 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 17:02 -05:00 — Anish
+
+- Added an operator-owned encrypted V3 keystore loader with pinned `ethers@6.15.0`. Read-only mode performs no wallet or secret I/O. Signing mode accepts only an inherited descriptor or trusted secure-input callback and checks the exact expected account.
+- File checks reject symlinks, special files, secret-file hardlinks, unsafe ownership/permissions and oversized or changing inputs. Errors from decryption and subsequent local signing discard nested details.
+- Investigated intermittent full-suite keystore failures. Directory child creation changes ancestor link counts. Two deterministic regressions reproduced that false rejection. Directory identity checks now ignore only directory link counts. Secret-file and password-descriptor link checks remain strict.
+- Parent verification passed the earlier 36 focused tests. Independent final review reran all 39 corrected tests successfully. The implementer also ran eight concurrent subsets and two full worker runs of 813 tests, plus typecheck. No actual operator keystore was accessed.
+- Added [new host dependency disposition](reports/core-sprint-signer-dependencies-2026-11-15.json). Two `ws@8.17.1` advisories remain outside this local decryption path. No WebSocket provider/server is constructed. Existing engine findings remain separate. No production-security approval.
+- Next: publish remaining reviewed funding/recovery/preparation units and verify the composed runner.
+
 ## 2026-11-15 16:59 -05:00 — Anish
 
 - Added the concrete provider-only local broadcaster. It validates exact authorizations, chain/account/job/destination, canonical calldata, explicit EIP-1559 fields, gas/fee caps and deadlines. It signs locally and calls raw RPC once with retries disabled.
