@@ -2,8 +2,8 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import * as fs from "node:fs";
 import * as fsPromises from "node:fs/promises";
 import { chmod, link, mkdir, mkdtemp, realpath, rm, symlink, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { homedir } from "node:os";
+import { dirname, join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { inspect } from "node:util";
 import { encryptKeystoreJson, Wallet } from "ethers";
@@ -28,7 +28,10 @@ afterEach(async () => {
   for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true });
 });
 async function fixture() {
-  const root = await realpath(await mkdtemp(join(tmpdir(), "operator-keystore-local-test-")));
+  // Linux /tmp is normally 1777. Strict production path checks must reject that ancestor.
+  // Resolve the home before creating this private fixture. Do not use TMPDIR or change shared modes.
+  const home = await realpath(homedir());
+  const root = await mkdtemp(join(home, ".operator-keystore-local-test-"));
   roots.push(root);
   await chmod(root, 0o700);
   const path = join(root, "operator.json");
@@ -52,6 +55,37 @@ async function rejected(config: OperatorKeystoreConfig) {
   expect((error as Error).cause).toBeUndefined();
 }
 describe("operator keystore", () => {
+  it("creates private fixtures under the canonical home with safe ancestors", async () => {
+    const f = await fixture();
+    expect(dirname(f.root) === await realpath(homedir())).toBe(true);
+    for (let directory = f.root; ; directory = dirname(directory)) {
+      const info = await fsPromises.lstat(directory);
+      expect(info.isDirectory()).toBe(true);
+      expect(info.isSymbolicLink()).toBe(false);
+      expect(info.mode & 0o7022).toBe(0);
+      expect(info.uid === 0 || info.uid === process.getuid!()).toBe(true);
+      if (directory === f.root) {
+        expect(info.uid).toBe(process.getuid!());
+        expect(info.mode & 0o077).toBe(0);
+      }
+      if (dirname(directory) === directory) break;
+    }
+  });
+  it.each([0o777, 0o1777])("rejects a private keystore beneath shared writable ancestor mode %i", async mode => {
+    const f = await fixture();
+    const privateDirectory = join(f.root, "private");
+    await mkdir(privateDirectory, { mode: 0o700 });
+    const path = join(privateDirectory, "operator.json");
+    await writeFile(path, encrypted, { mode: 0o600 });
+    await chmod(f.root, mode);
+    f.config.keystorePath = path;
+    const decrypt = vi.spyOn(Wallet, "fromEncryptedJson");
+    expect((await fsPromises.lstat(privateDirectory)).mode & 0o777).toBe(0o700);
+    expect((await fsPromises.lstat(f.root)).mode & 0o7777).toBe(mode);
+    await rejected(f.config);
+    expect(f.input).not.toHaveBeenCalled();
+    expect(decrypt).not.toHaveBeenCalled();
+  });
   it("returns read-only before accessing configuration, filesystem or decrypting", async () => {
     const decrypt = vi.spyOn(Wallet, "fromEncryptedJson");
     const open = vi.spyOn(fsPromises, "open");

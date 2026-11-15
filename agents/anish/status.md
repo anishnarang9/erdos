@@ -2,6 +2,15 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 17:13 -05:00 — Anish
+
+- PR #6 CI exposed a Linux-only fixture error: `/tmp` is a writable `1777` ancestor. The protected-keystore loader correctly rejected the test paths before password input. No production check was weakened.
+- A controlled writable temporary ancestor reproduced all five failures. Moved happy-path fixtures under the canonical home directory, checked their private modes and ancestor policy, and added explicit `0777`/`1777` rejection cases.
+- Independent review reran all 42 tests successfully. The implementer ran six focused repetitions, including unsafe `TMPDIR` cases, plus a 207-test concurrent subset and typecheck. Remote Linux CI remains pending after this fix.
+- The one-hour ownership checkpoint passed. Integration owns all remaining unpublished critical-path work. No owner absence blocks engineering.
+- One fresh local proof reached actual-contract acceptance. That first rehearsal stopped at missing test-side signer reconciliation before release. It remains partial evidence. A corrected full rerun is active, with one owned prover and no concurrent guest builds.
+- Next: continue checkpoint publication and correct the composed runner's reviewed source/engine/restart/provenance gaps. No main merge while CI is red.
+
 ## 2026-11-15 17:02 -05:00 — Anish
 
 - Added an operator-owned encrypted V3 keystore loader with pinned `ethers@6.15.0`. Read-only mode performs no wallet or secret I/O. Signing mode accepts only an inherited descriptor or trusted secure-input callback and checks the exact expected account.
