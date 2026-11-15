@@ -18,4 +18,9 @@ export type {
   SubmittedEnvelope,
   WriteOptions,
 } from "./types.ts";
+export { fundJob } from "./fund.ts";
+export type { FundingTerms, FundJobResult } from "./fund.ts";
 export { mockRiscZeroVerifierAbi, mockUsdcAbi, stubCoreAbi, stubProofGateAbi } from "./abi.ts";
+export { createArcReader } from "./arc/reader.ts";
+export type { ArcReader, ArcSnapshot } from "./arc/reader.ts";
+export { arcCoreAbi, arcHookAbi, arcErc20Abi } from "./arc/abi.ts";

@@ -18,11 +18,14 @@ const buyer = (extra: Record<string, string> = {}) => ({
   ...extra,
 });
 
-describe("501 stubs: buyer routes", () => {
+// T5-T8 and T11 implemented every route. The buyer and provider routes
+// below keep their auth-first and idempotency-order checks; the 501 checks moved to the remaining stub.
+describe("buyer routes (formerly 501 stubs)", () => {
   const routes = (id: string) => ["/v1/drafts", `/v1/jobs/${id}/compile`, `/v1/jobs/${id}/select-quote`, `/v1/jobs/${id}/funding-receipt`];
-  it("each returns 501 not_implemented with valid buyer auth", async () => {
+  it("each passes buyer auth with a valid token and then rejects the placeholder body or state", async () => {
     for (const p of routes(jobId)) {
-      await expectError(await s.app.request(p, { method: "POST", headers: buyer(), body }), 501, "not_implemented");
+      const res = await s.app.request(p, { method: "POST", headers: buyer(), body });
+      expect([400, 409, 503], `${p}: ${await res.clone().text()}`).toContain(res.status);
     }
   });
   it("each returns 401 (auth first) without a token", async () => {
@@ -41,17 +44,17 @@ describe("501 stubs: buyer routes", () => {
       await expectError(res, 401, "unauthorized");
     }
   });
-  it("501 responses are not stored for idempotency (>= 500): repeat is not a replay", async () => {
+  it("5xx responses are not stored for idempotency: a repeat with no draft model is not a replay", async () => {
     const key = freshKey();
     const h = buyer({ "idempotency-key": key });
-    await expectError(await s.app.request("/v1/drafts", { method: "POST", headers: h, body }), 501, "not_implemented");
+    await expectError(await s.app.request("/v1/drafts", { method: "POST", headers: h, body }), 503, "model_unavailable");
     const again = await s.app.request("/v1/drafts", { method: "POST", headers: h, body });
     expect(again.headers.get("idempotent-replayed")).toBeNull();
-    await expectError(again, 501, "not_implemented");
+    await expectError(again, 503, "model_unavailable");
   });
 });
 
-describe("501 stubs: provider route POST /v1/jobs/:id/quotes", () => {
+describe("provider route POST /v1/jobs/:id/quotes", () => {
   it("returns 401 without provider auth", async () => {
     const res = await s.app.request(`/v1/jobs/${jobId}/quotes`, {
       method: "POST",
@@ -64,7 +67,7 @@ describe("501 stubs: provider route POST /v1/jobs/:id/quotes", () => {
     const res = await s.app.request(`/v1/jobs/${jobId}/quotes`, { method: "POST", headers: buyer(), body });
     await expectError(res, 401, "unauthorized");
   });
-  it("returns 501 not_implemented with a valid provider signature", async () => {
+  it("a valid provider signature passes auth, then the placeholder body fails the quote shape (400)", async () => {
     const path = `/v1/jobs/${jobId}/quotes`;
     const h = await providerHeaders({ method: "POST", pathWithQuery: path, body });
     const res = await s.app.request(path, {
@@ -72,19 +75,19 @@ describe("501 stubs: provider route POST /v1/jobs/:id/quotes", () => {
       headers: { ...h, "content-type": "application/json", "idempotency-key": freshKey() },
       body,
     });
-    await expectError(res, 501, "not_implemented");
+    await expectError(res, 400, "validation_failed");
   });
 });
 
-describe("501 stubs: public routes need no auth", () => {
-  it("GET /v1/jobs returns 501 without auth", async () => {
-    await expectError(await s.app.request("/v1/jobs"), 501, "not_implemented");
+describe("public routes need no auth", () => {
+  it("GET /v1/jobs answers without auth", async () => {
+    expect((await s.app.request("/v1/jobs")).status).toBe(200);
   });
-  it("GET /v1/jobs?capability=x&open=true returns 501 without auth", async () => {
-    await expectError(await s.app.request("/v1/jobs?capability=x&open=true"), 501, "not_implemented");
+  it("GET /v1/jobs?capability=x&open=true answers without auth", async () => {
+    expect((await s.app.request("/v1/jobs?capability=x&open=true")).status).toBe(200);
   });
-  it("GET /v1/jobs/:id/submission returns 501 without auth", async () => {
-    await expectError(await s.app.request(`/v1/jobs/${jobId}/submission`), 501, "not_implemented");
+  it("GET /v1/jobs/:id/submission needs no auth (404 until the job is linked to a chain job)", async () => {
+    await expectError(await s.app.request(`/v1/jobs/${jobId}/submission`), 404, "not_found");
   });
 });
 

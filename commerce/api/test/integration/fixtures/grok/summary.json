@@ -1,0 +1,506 @@
+{
+  "model": "grok-4.7",
+  "engine": "wsl:Ubuntu:/home/neil/ubc26/engine-wt/engine/target/debug/engine",
+  "recordedAt": "2026-11-15T11:46:00.172Z",
+  "cases": {
+    "reconciliation": [
+      {
+        "request": {
+          "request": "Reconcile our invoice ledger. Deliver result.json with a `rows` array of { id, amountCents } that contains exactly the invoices in ledger.json: same ids, no duplicates, and each amount equal to the ledger amount, so the totals match. Also deliver report.txt, a short plain-text note.",
+          "outputs": [
+            {
+              "name": "result.json",
+              "format": "json"
+            },
+            {
+              "name": "report.txt",
+              "format": "text"
+            }
+          ],
+          "references": [
+            {
+              "name": "ledger.json",
+              "contentBase64": "ewogICJyb3dzIjogWwogICAgewogICAgICAiaWQiOiAiaW52b2ljZS1hIiwKICAgICAgImFtb3VudENlbnRzIjogIjEwMDAiCiAgICB9LAogICAgewogICAgICAiaWQiOiAiaW52b2ljZS1iIiwKICAgICAgImFtb3VudENlbnRzIjogIjIwMDAiCiAgICB9CiAgXQp9Cg=="
+            }
+          ],
+          "expirySeconds": 3600,
+          "maxBudget": "5000000"
+        },
+        "status": 200,
+        "response": {
+          "kind": "draft",
+          "draftId": "01M7FGEKBSVM7HSAM3RK1QJDCD",
+          "revision": {
+            "plan": {
+              "version": 1,
+              "deliverables": [
+                {
+                  "name": "result.json",
+                  "parser": "json/v1",
+                  "collections": [
+                    {
+                      "name": "rows",
+                      "fields": [
+                        {
+                          "name": "id",
+                          "type": "string"
+                        },
+                        {
+                          "name": "amountCents",
+                          "type": "i64"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "report.txt",
+                  "parser": "text/v1"
+                }
+              ],
+              "references": [
+                {
+                  "name": "ledger.json",
+                  "parser": "json/v1",
+                  "collections": [
+                    {
+                      "name": "rows",
+                      "fields": [
+                        {
+                          "name": "id",
+                          "type": "string"
+                        },
+                        {
+                          "name": "amountCents",
+                          "type": "i64"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "rules": [
+                {
+                  "op": "unique",
+                  "collection": {
+                    "source": "deliverable",
+                    "file": "result.json",
+                    "field": "rows"
+                  },
+                  "field": "id"
+                },
+                {
+                  "op": "eq",
+                  "left": {
+                    "op": "count",
+                    "collection": {
+                      "source": "deliverable",
+                      "file": "result.json",
+                      "field": "rows"
+                    }
+                  },
+                  "right": {
+                    "op": "count",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    }
+                  }
+                },
+                {
+                  "op": "all",
+                  "collection": {
+                    "source": "deliverable",
+                    "file": "result.json",
+                    "field": "rows"
+                  },
+                  "where": {
+                    "op": "eq",
+                    "left": {
+                      "op": "record_field",
+                      "field": "amountCents"
+                    },
+                    "right": {
+                      "op": "lookup",
+                      "collection": {
+                        "source": "reference",
+                        "file": "ledger.json",
+                        "field": "rows"
+                      },
+                      "keyField": "id",
+                      "key": {
+                        "op": "record_field",
+                        "field": "id"
+                      },
+                      "valueField": "amountCents"
+                    }
+                  }
+                },
+                {
+                  "op": "all",
+                  "collection": {
+                    "source": "reference",
+                    "file": "ledger.json",
+                    "field": "rows"
+                  },
+                  "where": {
+                    "op": "eq",
+                    "left": {
+                      "op": "lookup",
+                      "collection": {
+                        "source": "deliverable",
+                        "file": "result.json",
+                        "field": "rows"
+                      },
+                      "keyField": "id",
+                      "key": {
+                        "op": "record_field",
+                        "field": "id"
+                      },
+                      "valueField": "id"
+                    },
+                    "right": {
+                      "op": "record_field",
+                      "field": "id"
+                    }
+                  }
+                },
+                {
+                  "op": "eq",
+                  "left": {
+                    "op": "sum",
+                    "collection": {
+                      "source": "deliverable",
+                      "file": "result.json",
+                      "field": "rows"
+                    },
+                    "value": {
+                      "op": "record_field",
+                      "field": "amountCents"
+                    }
+                  },
+                  "right": {
+                    "op": "sum",
+                    "collection": {
+                      "source": "reference",
+                      "file": "ledger.json",
+                      "field": "rows"
+                    },
+                    "value": {
+                      "op": "record_field",
+                      "field": "amountCents"
+                    }
+                  }
+                },
+                {
+                  "op": "gt",
+                  "left": {
+                    "op": "file_size",
+                    "source": "deliverable",
+                    "file": "report.txt"
+                  },
+                  "right": {
+                    "op": "literal",
+                    "type": "i64",
+                    "value": "0"
+                  }
+                }
+              ]
+            },
+            "referenceDigest": "0x49a43354a7e390a36a5d0f3281e4fe32e7b2be0052b46c970dfe32de09ce07dd",
+            "outputs": [
+              {
+                "name": "result.json",
+                "format": "json"
+              },
+              {
+                "name": "report.txt",
+                "format": "text"
+              }
+            ],
+            "expirySeconds": 3600,
+            "maxBudget": "5000000"
+          },
+          "revisionHash": "0xe73bc562d8da41576a48c9faccd5ab9d6588ef595cee1903d1962fc7bef9807e",
+          "engine": {
+            "structureHash": "0x2308b819466cda3db8bc50b5d37dd84f05d9a37e07ecca63944a6a49178df093",
+            "rulesHash": "0xe5d4f5a0511625cb97234295edcce49439f2d596a8f70c54eb24569012bd6e02"
+          },
+          "preview": {
+            "deliverables": [
+              {
+                "collections": [
+                  {
+                    "fields": [
+                      {
+                        "name": "id",
+                        "type": "string"
+                      },
+                      {
+                        "name": "amountCents",
+                        "type": "i64"
+                      }
+                    ],
+                    "name": "rows"
+                  }
+                ],
+                "name": "result.json",
+                "parser": "json/v1"
+              },
+              {
+                "name": "report.txt",
+                "parser": "text/v1"
+              }
+            ],
+            "references": [
+              {
+                "collections": [
+                  {
+                    "fields": [
+                      {
+                        "name": "id",
+                        "type": "string"
+                      },
+                      {
+                        "name": "amountCents",
+                        "type": "i64"
+                      }
+                    ],
+                    "name": "rows"
+                  }
+                ],
+                "name": "ledger.json",
+                "parser": "json/v1"
+              }
+            ],
+            "rules": [
+              {
+                "collection": {
+                  "field": "rows",
+                  "file": "result.json",
+                  "source": "deliverable"
+                },
+                "field": "id",
+                "op": "unique"
+              },
+              {
+                "left": {
+                  "collection": {
+                    "field": "rows",
+                    "file": "result.json",
+                    "source": "deliverable"
+                  },
+                  "op": "count"
+                },
+                "op": "eq",
+                "right": {
+                  "collection": {
+                    "field": "rows",
+                    "file": "ledger.json",
+                    "source": "reference"
+                  },
+                  "op": "count"
+                }
+              },
+              {
+                "collection": {
+                  "field": "rows",
+                  "file": "result.json",
+                  "source": "deliverable"
+                },
+                "op": "all",
+                "where": {
+                  "left": {
+                    "field": "amountCents",
+                    "op": "record_field"
+                  },
+                  "op": "eq",
+                  "right": {
+                    "collection": {
+                      "field": "rows",
+                      "file": "ledger.json",
+                      "source": "reference"
+                    },
+                    "key": {
+                      "field": "id",
+                      "op": "record_field"
+                    },
+                    "keyField": "id",
+                    "op": "lookup",
+                    "valueField": "amountCents"
+                  }
+                }
+              },
+              {
+                "collection": {
+                  "field": "rows",
+                  "file": "ledger.json",
+                  "source": "reference"
+                },
+                "op": "all",
+                "where": {
+                  "left": {
+                    "collection": {
+                      "field": "rows",
+                      "file": "result.json",
+                      "source": "deliverable"
+                    },
+                    "key": {
+                      "field": "id",
+                      "op": "record_field"
+                    },
+                    "keyField": "id",
+                    "op": "lookup",
+                    "valueField": "id"
+                  },
+                  "op": "eq",
+                  "right": {
+                    "field": "id",
+                    "op": "record_field"
+                  }
+                }
+              },
+              {
+                "left": {
+                  "collection": {
+                    "field": "rows",
+                    "file": "result.json",
+                    "source": "deliverable"
+                  },
+                  "op": "sum",
+                  "value": {
+                    "field": "amountCents",
+                    "op": "record_field"
+                  }
+                },
+                "op": "eq",
+                "right": {
+                  "collection": {
+                    "field": "rows",
+                    "file": "ledger.json",
+                    "source": "reference"
+                  },
+                  "op": "sum",
+                  "value": {
+                    "field": "amountCents",
+                    "op": "record_field"
+                  }
+                }
+              },
+              {
+                "left": {
+                  "file": "report.txt",
+                  "op": "file_size",
+                  "source": "deliverable"
+                },
+                "op": "gt",
+                "right": {
+                  "op": "literal",
+                  "type": "i64",
+                  "value": "0"
+                }
+              }
+            ],
+            "version": 1
+          },
+          "examples": [
+            {
+              "name": "exact-match",
+              "predictedVerdict": 1,
+              "checkerVerdict": 1,
+              "agrees": true
+            },
+            {
+              "name": "reversed-order",
+              "predictedVerdict": 1,
+              "checkerVerdict": 1,
+              "agrees": true
+            },
+            {
+              "name": "same-total-wrong-amounts",
+              "predictedVerdict": 0,
+              "checkerVerdict": 0,
+              "agrees": true
+            },
+            {
+              "name": "duplicate-and-missing",
+              "predictedVerdict": 0,
+              "checkerVerdict": null,
+              "agrees": null,
+              "checkerError": "invalid_deliverable: Invalid rule expression"
+            },
+            {
+              "name": "empty-report",
+              "predictedVerdict": 0,
+              "checkerVerdict": 0,
+              "agrees": true
+            }
+          ],
+          "sourceQuotes": [
+            {
+              "path": "request",
+              "quote": "Deliver result.json with a `rows` array of { id, amountCents } that contains exactly the invoices in ledger.json: same ids, no duplicates, and each amount equal to the ledger amount, so the totals match."
+            },
+            {
+              "path": "request",
+              "quote": "Also deliver report.txt, a short plain-text note."
+            },
+            {
+              "path": "ledger.json",
+              "quote": "\"rows\": ["
+            },
+            {
+              "path": "ledger.json",
+              "quote": "\"id\": \"invoice-a\""
+            },
+            {
+              "path": "ledger.json",
+              "quote": "\"amountCents\": \"1000\""
+            },
+            {
+              "path": "ledger.json",
+              "quote": "\"id\": \"invoice-b\""
+            },
+            {
+              "path": "ledger.json",
+              "quote": "\"amountCents\": \"2000\""
+            }
+          ],
+          "model": "grok-4.7",
+          "traceId": "682c683e-8ba7-9e51-a6de-9f0048bdf667"
+        }
+      }
+    ],
+    "regexEmails": [
+      {
+        "request": {
+          "request": "Clean our contact list. Deliver contacts.json with a `rows` array of { name, email }. Every email must match the regular expression ^[^@\\s]+@[^@\\s]+\\.[a-z]{2,}$ and the list must have at least 10 rows.",
+          "outputs": [
+            {
+              "name": "contacts.json",
+              "format": "json"
+            }
+          ],
+          "expirySeconds": 3600,
+          "maxBudget": "2000000"
+        },
+        "status": 200,
+        "response": {
+          "kind": "unsupported",
+          "draftId": "01M7FGMHF2HCW9EYHBXK4VY3AS",
+          "reason": "capability_unsupported",
+          "capabilityError": {
+            "code": "unsupported_capability",
+            "message": "Unsupported operation \"regex_match\"",
+            "path": "/rules/0/right/where/op",
+            "request": {
+              "kind": "operation",
+              "name": "regex_match"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

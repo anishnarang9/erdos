@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { simulatedEngine } from "../../src/index.ts";
 import { DIGEST, T0, createJob, expectError, expectedRevisionHash, makeApp, post, validRevision } from "./helpers.ts";
 import type { SpecApp } from "./helpers.ts";
 
@@ -9,6 +10,14 @@ afterEach(() => {
 });
 
 const OTHER_HASH = "0x" + "12".repeat(32);
+
+/** The simulated engine's commitments for a plan (createApp's default engine), which approvals now bind. */
+async function simHashes(plan: unknown): Promise<{ structureHash: string; rulesHash: string }> {
+  const v = await simulatedEngine().validate(plan);
+  if (!v.ok || !v.hashes) throw new Error("simulated validate failed");
+  return v.hashes;
+}
+
 
 async function approve(
   jobId: string,
@@ -67,7 +76,12 @@ describe("POST /v1/jobs/:id/approve", () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({
       state: "approved",
-      approval: { revisionHash, referenceDigest: DIGEST, approvedAt: new Date(T0 + 30_000).toISOString() },
+      approval: {
+        revisionHash,
+        referenceDigest: DIGEST,
+        ...(await simHashes(validRevision().plan)),
+        approvedAt: new Date(T0 + 30_000).toISOString(),
+      },
     });
   });
 
@@ -90,7 +104,12 @@ describe("POST /v1/jobs/:id/approve", () => {
     const v = (await g.json()) as Record<string, unknown>;
     expect(v.state).toBe("approved");
     expect(v.approval).toEqual(approval);
-    expect(v.approval).toEqual({ revisionHash, referenceDigest: DIGEST, approvedAt: new Date(T0 + 1_000).toISOString() });
+    expect(v.approval).toEqual({
+      revisionHash,
+      referenceDigest: DIGEST,
+      ...(await simHashes(validRevision().plan)),
+      approvedAt: new Date(T0 + 1_000).toISOString(),
+    });
     expect(v.chain).toBeNull();
     expect(v.worker).toBeNull();
     expect((v.revision as { n: number }).n).toBe(1);

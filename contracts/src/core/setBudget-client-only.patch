@@ -1,0 +1,11 @@
+--- a/src/AgenticCommerce.sol
++++ b/src/AgenticCommercePatched.sol
+@@ -175,7 +175,7 @@
+         Job storage job = jobs[jobId];
+         if (job.id == 0) revert InvalidJob();
+         if (job.status != JobStatus.Open) revert WrongStatus();
+-        if (msg.sender != job.provider) revert Unauthorized();
++        if (msg.sender != job.client) revert Unauthorized();
+ 
+         bytes memory data = abi.encode(msg.sender, amount, optParams);
+         _beforeHook(job.hook, jobId, msg.sig, data);

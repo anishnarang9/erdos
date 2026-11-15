@@ -1,0 +1,202 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "control_root",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "bn254_control_id",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "BN254_CONTROL_ID",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "CONTROL_ROOT_0",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes16",
+        "internalType": "bytes16"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "CONTROL_ROOT_1",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes16",
+        "internalType": "bytes16"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "SELECTOR",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "VERSION",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "verify",
+    "inputs": [
+      {
+        "name": "seal",
+        "type": "bytes",
+        "internalType": "bytes"
+      },
+      {
+        "name": "imageId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "journalDigest",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "verifyIntegrity",
+    "inputs": [
+      {
+        "name": "receipt",
+        "type": "tuple",
+        "internalType": "struct Receipt",
+        "components": [
+          {
+            "name": "seal",
+            "type": "bytes",
+            "internalType": "bytes"
+          },
+          {
+            "name": "claimDigest",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "verifyProof",
+    "inputs": [
+      {
+        "name": "_pA",
+        "type": "uint256[2]",
+        "internalType": "uint256[2]"
+      },
+      {
+        "name": "_pB",
+        "type": "uint256[2][2]",
+        "internalType": "uint256[2][2]"
+      },
+      {
+        "name": "_pC",
+        "type": "uint256[2]",
+        "internalType": "uint256[2]"
+      },
+      {
+        "name": "_pubSignals",
+        "type": "uint256[5]",
+        "internalType": "uint256[5]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "error",
+    "name": "SafeCastOverflowedUintDowncast",
+    "inputs": [
+      {
+        "name": "bits",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "value",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "SelectorMismatch",
+    "inputs": [
+      {
+        "name": "received",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      },
+      {
+        "name": "expected",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "VerificationFailed",
+    "inputs": []
+  }
+]

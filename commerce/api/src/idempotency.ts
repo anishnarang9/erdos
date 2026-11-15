@@ -1,6 +1,8 @@
 import type { MiddlewareHandler } from "hono";
 import { ApiError } from "./errors.ts";
 import { tx } from "./db.ts";
+import { requireRealArtifact } from "./artifact.ts";
+import { requireChain } from "./chain.ts";
 import { isoAt, sha256, type AppContext, type AppEnv, type Deps, type IdempotencyScope } from "./context.ts";
 
 const KEY_RE = /^[A-Za-z0-9_.:-]{1,128}$/;
@@ -39,6 +41,14 @@ export function idempotency(deps: Deps): Idempotency {
         "idempotency_key_reused",
         "Idempotency-Key was already used with a different request",
       );
+    }
+    const artifactRoute = /^\/v1\/jobs\/([^/]+)\/(compile|select-quote|funding-receipt)$/.exec(s.path);
+    if (row.status >= 200 && row.status < 300 && artifactRoute) {
+      const real = artifactRoute[2] === "compile" ? deps.engine.mode === "real" : requireChain(deps).mode === "arc";
+      if (real) {
+        const current = db.prepare("SELECT current_revision_id FROM jobs WHERE id = ?").get(artifactRoute[1]!);
+        requireRealArtifact(db, String(current?.current_revision_id ?? ""));
+      }
     }
     return new Response(row.response_json, {
       status: row.status,

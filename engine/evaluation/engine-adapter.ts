@@ -11,8 +11,14 @@ type FieldError={path:string;message:string};
 type TypedError={code:string;message:string;path?:string;request?:unknown};
 type ValidationReport={preview:unknown;rulesHash:string;structureHash:string;[key:string]:unknown};
 export type EngineManifest={version:number;inputVersion:number;imageId:string;rulesHash:string;referenceHash:string;structureHash:string;guestSha256:string;parametersSha256:string;structureSha256:string;guestBuilder:string;riscZero:string;buildFingerprint:string};
+// Evaluation retains these extra fields even though commerce's production manifest
+// deliberately preserves arbitrary engine metadata as unknown.
+export type EvaluationManifest=Manifest & {
+  toolchain:{guestBuilder:string;riscZero:string};
+  files:{name:string;sha256:Manifest['imageId']}[];
+};
 export type AdapterCompileResult=
-  | {ok:true;manifest:Manifest;engineManifest:EngineManifest;packagePath:string;compileReport:Record<string,unknown>}
+  | {ok:true;manifest:EvaluationManifest;engineManifest:EngineManifest;packagePath:string;compileReport:Record<string,unknown>}
   | {ok:false;kind:'invalid';errors:FieldError[]}
   | {ok:false;kind:'unsupported';capabilityError:TypedError};
 export type EvaluateResult={ok:true;verdict:0|1}|{ok:false;kind:'invalid'|'unsupported';errors?:FieldError[];capabilityError?:TypedError};
@@ -123,8 +129,8 @@ function validationReport(value:Record<string,unknown>):ValidationReport {
   }
   return value as ValidationReport;
 }
-async function fileHashes(root:string,prefix=''):Promise<Manifest['files']> {
-  const files:Manifest['files']=[];
+async function fileHashes(root:string,prefix=''):Promise<EvaluationManifest['files']> {
+  const files:EvaluationManifest['files']=[];
   for(const entry of await readdir(join(root,prefix),{withFileTypes:true})) {
     const name=prefix?`${prefix}/${entry.name}`:entry.name;
     if(entry.isDirectory()) files.push(...await fileHashes(root,name));
@@ -201,7 +207,7 @@ export class LocalEngineAdapter implements Engine {
           // CLI stdout adds timing and cache fields, but must retain manifest fields.
           throw new EngineAdapterError('crash',`Compile report differs from package manifest: ${key}`);
         }
-      const manifest:Manifest={
+      const manifest:EvaluationManifest={
         imageId:engineManifest.imageId as Manifest['imageId'],
         rulesHash:engineManifest.rulesHash as Manifest['rulesHash'],
         referenceHash:engineManifest.referenceHash as Manifest['referenceHash'],

@@ -1,0 +1,31 @@
+{
+  "name": "@ubc26/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:engine": "vitest run --config vitest.engine.config.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "prove-synthetic": "tsx src/cli.ts",
+    "funded": "tsx src/cli.ts funded",
+    "inspect-funded": "tsx src/cli.ts funded inspect",
+    "preflight-funded": "tsx src/cli.ts funded preflight",
+    "prepare-funded": "tsx src/cli.ts funded prepare"
+  },
+  "dependencies": {
+    "@ubc26/api": "workspace:*",
+    "@ubc26/sdk": "workspace:*",
+    "viem": "2.57.19"
+  },
+  "devDependencies": {
+    "@hono/node-server": "2.1.8",
+    "@types/node": "22.20.5",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3",
+    "vitest": "5.1.0"
+  }
+}

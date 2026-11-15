@@ -43,25 +43,21 @@ describe("errors and routing", () => {
     expect((await buyerPost(t, "/v1/jobs", exact)).status).toBe(400); // read and parsed, then fails shape checks
   });
 
-  it("501 stubs return not_implemented after auth", async () => {
+  it("buyer routes check auth first; public routes need none", async () => {
     t = makeApp();
     for (const path of ["/v1/drafts", "/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/compile", "/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/select-quote", "/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/funding-receipt"]) {
       const res = await buyerPost(t, path, {});
-      expect(res.status).toBe(501);
-      expect((await errorOf(res)).code).toBe("not_implemented");
+      expect(res.status).not.toBe(401);
       expect((await buyerPost(t, path, {}, { authorization: "Bearer wrong-token-xxxxxxxx" })).status).toBe(401);
     }
-    for (const path of ["/v1/jobs", "/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/submission"]) {
-      const res = await t.app.request(path);
-      expect(res.status).toBe(501);
-      expect((await errorOf(res)).code).toBe("not_implemented");
-    }
+    // GET /v1/jobs/:id/submission is public: an unknown job is 404, not 401.
+    expect((await t.app.request("/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/submission")).status).toBe(404);
     const quotes = "/v1/jobs/01JZZZZZZZZZZZZZZZZZZZZZZZ/quotes";
     const unsigned = await t.app.request(quotes, { method: "POST", body: "{}", headers: { "idempotency-key": "q1" } });
     expect(unsigned.status).toBe(401);
     const h = await providerHeaders({ method: "POST", pathWithQuery: quotes, body: "{}" });
     const signed = await t.app.request(quotes, { method: "POST", body: "{}", headers: { ...h, "idempotency-key": "q1" } });
-    expect(signed.status).toBe(501);
+    expect(signed.status).toBe(400); // authenticated, then fails the quote shape check
   });
 });
 
@@ -121,9 +117,10 @@ describe("idempotency", () => {
     expect([a.status, b.status]).toEqual([400, 400]);
     expect(b.headers.get("idempotent-replayed")).toBe("true");
     expect(await b.text()).toBe(await a.text());
+    // No draft model configured: 503 model_unavailable, a 5xx that must not be stored.
     const s1 = await buyerPost(t, "/v1/drafts", {}, { "idempotency-key": "stub-1" });
     const s2 = await buyerPost(t, "/v1/drafts", {}, { "idempotency-key": "stub-1" });
-    expect([s1.status, s2.status]).toEqual([501, 501]);
+    expect([s1.status, s2.status]).toEqual([503, 503]);
     expect(s2.headers.get("idempotent-replayed")).toBeNull();
   });
 
@@ -138,7 +135,7 @@ describe("idempotency", () => {
   it("the same key on a different path is a different scope", async () => {
     t = makeApp();
     expect((await buyerPost(t, "/v1/jobs", jobBody, { "idempotency-key": "scoped" })).status).toBe(201);
-    expect((await buyerPost(t, "/v1/drafts", jobBody, { "idempotency-key": "scoped" })).status).toBe(501);
+    expect((await buyerPost(t, "/v1/drafts", jobBody, { "idempotency-key": "scoped" })).status).toBe(503);
   });
 
   it("a replayed create does not create a second job", async () => {

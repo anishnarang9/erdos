@@ -1,0 +1,4 @@
+@openzeppelin/contracts/=src/core/lib/openzeppelin-contracts/contracts/
+@openzeppelin/contracts-upgradeable/=src/core/lib/openzeppelin-contracts-upgradeable/contracts/
+openzeppelin/=src/verifier/lib/openzeppelin-contracts/
+forge-std/=lib/forge-std/src/

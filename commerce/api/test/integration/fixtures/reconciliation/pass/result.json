@@ -1,0 +1,12 @@
+{
+  "rows": [
+    {
+      "id": "invoice-a",
+      "amountCents": "1000"
+    },
+    {
+      "id": "invoice-b",
+      "amountCents": "2000"
+    }
+  ]
+}

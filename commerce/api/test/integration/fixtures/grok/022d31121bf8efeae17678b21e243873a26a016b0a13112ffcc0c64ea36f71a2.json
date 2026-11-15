@@ -1,0 +1,990 @@
+{
+  "input": {
+    "request": "Reconcile our invoice ledger. Deliver result.json with a `rows` array of { id, amountCents } that contains exactly the invoices in ledger.json: same ids, no duplicates, and each amount equal to the ledger amount, so the totals match. Also deliver report.txt, a short plain-text note.",
+    "outputs": [
+      {
+        "name": "result.json",
+        "format": "json"
+      },
+      {
+        "name": "report.txt",
+        "format": "text"
+      }
+    ],
+    "referenceNames": [
+      "ledger.json"
+    ],
+    "referenceFiles": [
+      {
+        "name": "ledger.json",
+        "text": "{\n  \"rows\": [\n    {\n      \"id\": \"invoice-a\",\n      \"amountCents\": \"1000\"\n    },\n    {\n      \"id\": \"invoice-b\",\n      \"amountCents\": \"2000\"\n    }\n  ]\n}\n"
+      }
+    ],
+    "clarifications": [],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "UBC26 typed plan v1",
+      "type": "object",
+      "required": [
+        "version",
+        "deliverables",
+        "references",
+        "rules"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "deliverables": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/file"
+          }
+        },
+        "references": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/file"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/evidence"
+          }
+        },
+        "rules": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/expression"
+          }
+        }
+      },
+      "$defs": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._-]{1,128}$",
+          "not": {
+            "enum": [
+              ".",
+              ".."
+            ]
+          }
+        },
+        "kind": {
+          "enum": [
+            "bool",
+            "i64",
+            "string"
+          ]
+        },
+        "file": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "parser"
+          ],
+          "properties": {
+            "name": {
+              "$ref": "#/$defs/name"
+            },
+            "parser": {
+              "enum": [
+                "json/v1",
+                "text/v1",
+                "opaque/v1"
+              ]
+            },
+            "fields": {
+              "type": "array",
+              "maxItems": 256,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "type"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "type": {
+                    "$ref": "#/$defs/kind"
+                  }
+                }
+              }
+            },
+            "collections": {
+              "type": "array",
+              "maxItems": 256,
+              "items": {
+                "$ref": "#/$defs/collection"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "parser": {
+                "enum": [
+                  "text/v1",
+                  "opaque/v1"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "fields": {
+                "maxItems": 0
+              },
+              "collections": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        "expression": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "op",
+                "source",
+                "file"
+              ],
+              "properties": {
+                "op": {
+                  "const": "field"
+                },
+                "source": {
+                  "enum": [
+                    "deliverable",
+                    "reference",
+                    "evidence"
+                  ]
+                },
+                "file": {
+                  "$ref": "#/$defs/name"
+                },
+                "field": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "op",
+                "type",
+                "value"
+              ],
+              "properties": {
+                "op": {
+                  "const": "literal"
+                },
+                "type": {
+                  "$ref": "#/$defs/kind"
+                },
+                "value": {}
+              },
+              "oneOf": [
+                {
+                  "properties": {
+                    "type": {
+                      "const": "bool"
+                    },
+                    "value": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "type": {
+                      "const": "i64"
+                    },
+                    "value": {
+                      "type": "string",
+                      "pattern": "^-?[0-9]+$"
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "type": {
+                      "const": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "op",
+                "value"
+              ],
+              "properties": {
+                "op": {
+                  "const": "not"
+                },
+                "value": {
+                  "$ref": "#/$defs/expression"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "op",
+                "left",
+                "right"
+              ],
+              "properties": {
+                "op": {
+                  "enum": [
+                    "add",
+                    "sub",
+                    "mul",
+                    "lt",
+                    "lte",
+                    "gt",
+                    "gte",
+                    "eq",
+                    "ne",
+                    "and",
+                    "or"
+                  ]
+                },
+                "left": {
+                  "$ref": "#/$defs/expression"
+                },
+                "right": {
+                  "$ref": "#/$defs/expression"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "op",
+                "field"
+              ],
+              "properties": {
+                "op": {
+                  "const": "record_field"
+                },
+                "field": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "level": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 31
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "op",
+                "collection"
+              ],
+              "properties": {
+                "op": {
+                  "const": "count"
+                },
+                "collection": {
+                  "$ref": "#/$defs/collectionAccess"
+                },
+                "where": {
+                  "$ref": "#/$defs/expression"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "op",
+                "collection",
+                "value"
+              ],
+              "properties": {
+                "op": {
+                  "const": "sum"
+                },
+                "collection": {
+                  "$ref": "#/$defs/collectionAccess"
+                },
+                "value": {
+                  "$ref": "#/$defs/expression"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "op",
+                "collection",
+                "where"
+              ],
+              "properties": {
+                "op": {
+                  "enum": [
+                    "all",
+                    "any"
+                  ]
+                },
+                "collection": {
+                  "$ref": "#/$defs/collectionAccess"
+                },
+                "where": {
+                  "$ref": "#/$defs/expression"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "op",
+                "collection",
+                "field"
+              ],
+              "properties": {
+                "op": {
+                  "const": "unique"
+                },
+                "collection": {
+                  "$ref": "#/$defs/collectionAccess"
+                },
+                "field": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "op",
+                "collection",
+                "keyField",
+                "key",
+                "valueField"
+              ],
+              "properties": {
+                "op": {
+                  "const": "lookup"
+                },
+                "collection": {
+                  "$ref": "#/$defs/collectionAccess"
+                },
+                "keyField": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "key": {
+                  "$ref": "#/$defs/expression"
+                },
+                "valueField": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "op",
+                "source",
+                "file"
+              ],
+              "properties": {
+                "op": {
+                  "enum": [
+                    "file_hash",
+                    "file_size"
+                  ]
+                },
+                "source": {
+                  "enum": [
+                    "deliverable",
+                    "reference",
+                    "evidence"
+                  ]
+                },
+                "file": {
+                  "$ref": "#/$defs/name"
+                }
+              }
+            }
+          ]
+        },
+        "collection": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "fields"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "fields": {
+              "type": "array",
+              "maxItems": 256,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "type"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "type": {
+                    "$ref": "#/$defs/kind"
+                  }
+                }
+              },
+              "minItems": 1
+            }
+          }
+        },
+        "collectionAccess": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source",
+            "file",
+            "field"
+          ],
+          "properties": {
+            "source": {
+              "enum": [
+                "deliverable",
+                "reference",
+                "evidence"
+              ]
+            },
+            "file": {
+              "$ref": "#/$defs/name"
+            },
+            "field": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "parser",
+            "profile",
+            "signer"
+          ],
+          "properties": {
+            "name": {
+              "$ref": "#/$defs/name"
+            },
+            "parser": {
+              "enum": [
+                "json/v1",
+                "text/v1",
+                "opaque/v1"
+              ]
+            },
+            "fields": {
+              "type": "array",
+              "maxItems": 256,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "type"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "type": {
+                    "$ref": "#/$defs/kind"
+                  }
+                }
+              }
+            },
+            "collections": {
+              "type": "array",
+              "maxItems": 256,
+              "items": {
+                "$ref": "#/$defs/collection"
+              }
+            },
+            "profile": {
+              "enum": [
+                "ed25519/v1",
+                "eip712/v1",
+                "jws/Ed25519/v1",
+                "jws/EdDSA/v1",
+                "jws/ES256/v1",
+                "jws/RS256/v1"
+              ]
+            },
+            "signer": {
+              "type": "string",
+              "pattern": "^0x(?:[0-9A-Fa-f]{2})+$"
+            },
+            "bindings": {
+              "type": "array",
+              "maxItems": 256,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "field",
+                  "file"
+                ],
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "file": {
+                    "$ref": "#/$defs/name"
+                  }
+                }
+              }
+            },
+            "contextField": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "if": {
+            "properties": {
+              "parser": {
+                "enum": [
+                  "text/v1",
+                  "opaque/v1"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "fields": {
+                "maxItems": 0
+              },
+              "collections": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "catalog": {
+      "version": 1,
+      "planSchema": "plan-v1.schema.json",
+      "parsers": [
+        "json/v1",
+        "text/v1",
+        "opaque/v1"
+      ],
+      "valueTypes": [
+        "bool",
+        "i64",
+        "string"
+      ],
+      "collectionSupport": {
+        "declaration": "collections",
+        "parser": "json/v1",
+        "sources": [
+          "deliverable",
+          "reference",
+          "evidence"
+        ]
+      },
+      "integerEncoding": "normalized signed i64 decimal strings",
+      "operations": [
+        "field",
+        "literal",
+        "record_field",
+        "add",
+        "sub",
+        "mul",
+        "lt",
+        "lte",
+        "gt",
+        "gte",
+        "eq",
+        "ne",
+        "and",
+        "or",
+        "not",
+        "sum",
+        "count",
+        "all",
+        "any",
+        "unique",
+        "lookup",
+        "file_hash",
+        "file_size"
+      ],
+      "evidenceProfiles": [
+        "ed25519/v1",
+        "eip712/v1",
+        "jws/Ed25519/v1",
+        "jws/EdDSA/v1",
+        "jws/ES256/v1",
+        "jws/RS256/v1"
+      ],
+      "limits": {
+        "planBytes": 262144,
+        "filesPerBundle": 16,
+        "filenameBytes": 128,
+        "deliveryBundleBytes": 16384,
+        "referenceBundleBytes": 32768,
+        "evidenceBundleBytes": 32768,
+        "recordsPerCollection": 256,
+        "ruleNodes": 256,
+        "parameterSlots": 256,
+        "nestingDepth": 32,
+        "expressionVisits": 1000000
+      },
+      "proof": {
+        "system": "RISC Zero",
+        "version": "3.1.0",
+        "receipt": "Groth16",
+        "selector": "0xe71e6620",
+        "contextBytes": 169,
+        "journalBytes": 234
+      },
+      "errorExitCodes": {
+        "input": 2,
+        "output": 2,
+        "build": 3,
+        "prover": 3
+      }
+    }
+  },
+  "result": {
+    "kind": "draft",
+    "plan": {
+      "version": 1,
+      "deliverables": [
+        {
+          "name": "result.json",
+          "parser": "json/v1",
+          "collections": [
+            {
+              "name": "rows",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "string"
+                },
+                {
+                  "name": "amountCents",
+                  "type": "i64"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "report.txt",
+          "parser": "text/v1"
+        }
+      ],
+      "references": [
+        {
+          "name": "ledger.json",
+          "parser": "json/v1",
+          "collections": [
+            {
+              "name": "rows",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "string"
+                },
+                {
+                  "name": "amountCents",
+                  "type": "i64"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "op": "unique",
+          "collection": {
+            "source": "deliverable",
+            "file": "result.json",
+            "field": "rows"
+          },
+          "field": "id"
+        },
+        {
+          "op": "eq",
+          "left": {
+            "op": "count",
+            "collection": {
+              "source": "deliverable",
+              "file": "result.json",
+              "field": "rows"
+            }
+          },
+          "right": {
+            "op": "count",
+            "collection": {
+              "source": "reference",
+              "file": "ledger.json",
+              "field": "rows"
+            }
+          }
+        },
+        {
+          "op": "all",
+          "collection": {
+            "source": "deliverable",
+            "file": "result.json",
+            "field": "rows"
+          },
+          "where": {
+            "op": "eq",
+            "left": {
+              "op": "record_field",
+              "field": "amountCents"
+            },
+            "right": {
+              "op": "lookup",
+              "collection": {
+                "source": "reference",
+                "file": "ledger.json",
+                "field": "rows"
+              },
+              "keyField": "id",
+              "key": {
+                "op": "record_field",
+                "field": "id"
+              },
+              "valueField": "amountCents"
+            }
+          }
+        },
+        {
+          "op": "all",
+          "collection": {
+            "source": "reference",
+            "file": "ledger.json",
+            "field": "rows"
+          },
+          "where": {
+            "op": "eq",
+            "left": {
+              "op": "lookup",
+              "collection": {
+                "source": "deliverable",
+                "file": "result.json",
+                "field": "rows"
+              },
+              "keyField": "id",
+              "key": {
+                "op": "record_field",
+                "field": "id"
+              },
+              "valueField": "id"
+            },
+            "right": {
+              "op": "record_field",
+              "field": "id"
+            }
+          }
+        },
+        {
+          "op": "eq",
+          "left": {
+            "op": "sum",
+            "collection": {
+              "source": "deliverable",
+              "file": "result.json",
+              "field": "rows"
+            },
+            "value": {
+              "op": "record_field",
+              "field": "amountCents"
+            }
+          },
+          "right": {
+            "op": "sum",
+            "collection": {
+              "source": "reference",
+              "file": "ledger.json",
+              "field": "rows"
+            },
+            "value": {
+              "op": "record_field",
+              "field": "amountCents"
+            }
+          }
+        },
+        {
+          "op": "gt",
+          "left": {
+            "op": "file_size",
+            "source": "deliverable",
+            "file": "report.txt"
+          },
+          "right": {
+            "op": "literal",
+            "type": "i64",
+            "value": "0"
+          }
+        }
+      ]
+    },
+    "examples": [
+      {
+        "name": "exact-match",
+        "files": [
+          {
+            "name": "result.json",
+            "content": "{\"rows\":[{\"id\":\"invoice-a\",\"amountCents\":\"1000\"},{\"id\":\"invoice-b\",\"amountCents\":\"2000\"}]}"
+          },
+          {
+            "name": "report.txt",
+            "content": "Reconciled 2 invoices; totals match the ledger.\n"
+          }
+        ],
+        "predictedVerdict": 1
+      },
+      {
+        "name": "reversed-order",
+        "files": [
+          {
+            "name": "result.json",
+            "content": "{\"rows\":[{\"id\":\"invoice-b\",\"amountCents\":\"2000\"},{\"id\":\"invoice-a\",\"amountCents\":\"1000\"}]}"
+          },
+          {
+            "name": "report.txt",
+            "content": "Invoices listed in reverse order.\n"
+          }
+        ],
+        "predictedVerdict": 1
+      },
+      {
+        "name": "same-total-wrong-amounts",
+        "files": [
+          {
+            "name": "result.json",
+            "content": "{\"rows\":[{\"id\":\"invoice-a\",\"amountCents\":\"500\"},{\"id\":\"invoice-b\",\"amountCents\":\"2500\"}]}"
+          },
+          {
+            "name": "report.txt",
+            "content": "Amounts do not follow the ledger.\n"
+          }
+        ],
+        "predictedVerdict": 0
+      },
+      {
+        "name": "duplicate-and-missing",
+        "files": [
+          {
+            "name": "result.json",
+            "content": "{\"rows\":[{\"id\":\"invoice-a\",\"amountCents\":\"1000\"},{\"id\":\"invoice-a\",\"amountCents\":\"1000\"}]}"
+          },
+          {
+            "name": "report.txt",
+            "content": "Submitted duplicate invoice ids.\n"
+          }
+        ],
+        "predictedVerdict": 0
+      },
+      {
+        "name": "empty-report",
+        "files": [
+          {
+            "name": "result.json",
+            "content": "{\"rows\":[{\"id\":\"invoice-a\",\"amountCents\":\"1000\"},{\"id\":\"invoice-b\",\"amountCents\":\"2000\"}]}"
+          },
+          {
+            "name": "report.txt",
+            "content": ""
+          }
+        ],
+        "predictedVerdict": 0
+      }
+    ],
+    "sourceQuotes": [
+      {
+        "path": "request",
+        "quote": "Deliver result.json with a `rows` array of { id, amountCents } that contains exactly the invoices in ledger.json: same ids, no duplicates, and each amount equal to the ledger amount, so the totals match."
+      },
+      {
+        "path": "request",
+        "quote": "Also deliver report.txt, a short plain-text note."
+      },
+      {
+        "path": "ledger.json",
+        "quote": "\"rows\": ["
+      },
+      {
+        "path": "ledger.json",
+        "quote": "\"id\": \"invoice-a\""
+      },
+      {
+        "path": "ledger.json",
+        "quote": "\"amountCents\": \"1000\""
+      },
+      {
+        "path": "ledger.json",
+        "quote": "\"id\": \"invoice-b\""
+      },
+      {
+        "path": "ledger.json",
+        "quote": "\"amountCents\": \"2000\""
+      }
+    ]
+  },
+  "model": "grok-4.7",
+  "traceId": "682c683e-8ba7-9e51-a6de-9f0048bdf667"
+}

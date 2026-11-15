@@ -1,0 +1,50 @@
+[
+  {
+    "type": "function",
+    "name": "verify",
+    "inputs": [
+      {
+        "name": "seal",
+        "type": "bytes",
+        "internalType": "bytes"
+      },
+      {
+        "name": "imageId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "journalDigest",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "verifyIntegrity",
+    "inputs": [
+      {
+        "name": "receipt",
+        "type": "tuple",
+        "internalType": "struct Receipt",
+        "components": [
+          {
+            "name": "seal",
+            "type": "bytes",
+            "internalType": "bytes"
+          },
+          {
+            "name": "claimDigest",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "view"
+  }
+]
