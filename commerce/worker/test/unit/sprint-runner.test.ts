@@ -9,7 +9,7 @@ import {
 } from "../../src/sprint-runner.ts";
 import type { SprintArgs } from "../../src/sprint-cli.ts";
 import { parseDeploymentPolicy } from "../../src/deployment-policy.ts";
-import { parseSprintAuthorization, readOperatorJson, sprintDigest } from "../../src/sprint-authorization.ts";
+import { parseSprintAuthorization, readOperatorJson, sprintDigest, stableJson } from "../../src/sprint-authorization.ts";
 import { revisionHash, type Revision } from "../../../api/src/revision.ts";
 import { SprintStateStore } from "../../src/sprint-state.ts";
 import { fakeEngine } from "../support/fakes.ts";
@@ -438,6 +438,71 @@ describe("read transport", () => {
 });
 
 describe("reviewed oracle process", () => {
+  const referenceContext = (directory: string) => ({
+    referenceDir: directory,
+    expectedDigest: sprintDigest(stableJson(fs.readdirSync(directory).sort().map(name => ({
+      name, digest: sprintDigest(fs.readFileSync(join(directory, name))),
+    })))),
+  });
+  it("actual core-sprint workload: reviewed oracle accepts valid and alternative deliveries with approved reference context", async () => {
+    const f = fixture(), workload = resolve("../../docs/core-sprint-input");
+    const scriptFile = join(workload, "oracle.py"), context = referenceContext(join(workload, "reference"));
+    for (const candidate of ["valid", "alternative"]) {
+      expect(await runSprintOracle({ kind: "operator-script", scriptFile, scriptDigest: sprintDigest(fs.readFileSync(scriptFile)) },
+        join(workload, "candidates", candidate), f.root, 2000, context)).toMatchObject({ semanticOraclePassed: true });
+    }
+    const changed = join(f.root, "changed-delivery"); fs.mkdirSync(changed, { mode: 0o700 });
+    for (const name of fs.readdirSync(join(workload, "candidates/valid"))) fs.copyFileSync(join(workload, "candidates/valid", name), join(changed, name));
+    for (const name of ["allocations.json", "dispatch.json"]) {
+      const original = fs.readFileSync(join(changed, name));
+      fs.writeFileSync(join(changed, name), "{}");
+      await expect(runSprintOracle({ kind: "operator-script", scriptFile, scriptDigest: sprintDigest(fs.readFileSync(scriptFile)) },
+        changed, f.root, 2000, context)).rejects.toThrow();
+      fs.writeFileSync(join(changed, name), original);
+    }
+  });
+  it("rejects reference drift, unknown files, nested paths, and symlinks", async () => {
+    const f = fixture(), scriptFile = f.file("oracle.py", "pass\n");
+    const oracle = { kind: "operator-script" as const, scriptFile, scriptDigest: sprintDigest(fs.readFileSync(scriptFile)) };
+    const refs = join(f.root, "refs"), context = referenceContext(refs);
+    fs.writeFileSync(join(refs, "input.json"), "changed");
+    await expect(runSprintOracle(oracle, join(f.root, "candidates"), f.root, 1000, context)).rejects.toThrow();
+    fs.writeFileSync(join(refs, "input.json"), "{}");
+    f.file("refs/injected.json", "{}");
+    await expect(runSprintOracle(oracle, join(f.root, "candidates"), f.root, 1000, context)).rejects.toThrow();
+    fs.unlinkSync(join(refs, "injected.json"));
+    fs.mkdirSync(join(refs, "nested"));
+    await expect(runSprintOracle(oracle, join(f.root, "candidates"), f.root, 1000, context)).rejects.toThrow();
+    fs.rmdirSync(join(refs, "nested")); fs.symlinkSync(scriptFile, join(refs, "injected.json"));
+    await expect(runSprintOracle(oracle, join(f.root, "candidates"), f.root, 1000, context)).rejects.toThrow();
+  });
+  it("isolates __file__ from worker state and rejects snapshot reference mutation", async () => {
+    const f = fixture();
+    const scriptFile = f.file("oracle.py", 'import os,sys\nfrom pathlib import Path\np=Path(__file__).parent\nassert str(p)!=str(Path(sys.argv[1]).parent)\nassert sorted(x.name for x in p.iterdir())==["oracle.py","reference"]\nassert "BUYER_TOKEN" not in os.environ\n(p/"reference"/"input.json").write_text("changed")\n');
+    await expect(runSprintOracle({ kind: "operator-script", scriptFile, scriptDigest: sprintDigest(fs.readFileSync(scriptFile)) },
+      join(f.root, "candidates"), f.root, 1000, referenceContext(join(f.root, "refs")))).rejects.toThrow();
+    expect(fs.readFileSync(join(f.root, "refs/input.json"), "utf8")).toBe("{}");
+  });
+  it("provides only declared references beside __file__, with no wallet files or credentials", async () => {
+    const f = fixture(); f.file("wallet.json", "fixture-secret");
+    const scriptFile = f.file("oracle.py", 'import os,sys\nfrom pathlib import Path\np=Path(__file__).parent\nassert p!=Path(sys.argv[1]).parent\nassert sorted(x.name for x in p.iterdir())==["oracle.py","reference"]\nassert (p/"reference"/"input.json").read_text()=="{}"\nassert "BUYER_TOKEN" not in os.environ\nassert "WALLET_PASSWORD" not in os.environ\nassert len(sys.argv)==2\n');
+    const previousToken = process.env.BUYER_TOKEN, previousPassword = process.env.WALLET_PASSWORD;
+    process.env.BUYER_TOKEN = "fixture-token"; process.env.WALLET_PASSWORD = "fixture-password";
+    try {
+      expect(await runSprintOracle({ kind: "operator-script", scriptFile, scriptDigest: sprintDigest(fs.readFileSync(scriptFile)) },
+        join(f.root, "candidates"), f.root, 1000, referenceContext(join(f.root, "refs")))).toMatchObject({ semanticOraclePassed: true });
+    } finally {
+      if (previousToken === undefined) delete process.env.BUYER_TOKEN; else process.env.BUYER_TOKEN = previousToken;
+      if (previousPassword === undefined) delete process.env.WALLET_PASSWORD; else process.env.WALLET_PASSWORD = previousPassword;
+    }
+  });
+  it("rejects original reference drift during oracle execution", async () => {
+    const f = fixture();
+    const scriptFile = f.file("oracle.py", `from pathlib import Path\nPath(${JSON.stringify(join(f.root, "refs/input.json"))}).write_text("changed")\n`);
+    const context = referenceContext(join(f.root, "refs"));
+    await expect(runSprintOracle({ kind: "operator-script", scriptFile, scriptDigest: sprintDigest(fs.readFileSync(scriptFile)) },
+      join(f.root, "candidates"), f.root, 1000, context)).rejects.toThrow();
+  });
   it("receives only recovered directory and a clean environment", async () => {
     const f = fixture();
     const scriptFile = f.file("oracle.py", 'import os,sys\nassert len(sys.argv)==2\nassert "BUYER_TOKEN" not in os.environ\nassert "HOME" not in os.environ\nassert os.path.isdir(sys.argv[1])\n');

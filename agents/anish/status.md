@@ -2,6 +2,16 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 18:48 -05:00 — Anish
+
+- Resumed `codex/engine-commerce` at `ee64e75` under the active goal. Used Grok 4.7 Orca workers for independent oracle, portable-suite, documentation, engine and contract checks. Reduced concurrency to at most two workers after the user's rate-limit warning.
+- The oracle review found no blocking defect. Parent verification passed 56 runner/CLI/composed tests and the worker typecheck. The independent full commerce check passed 1,935 tests and all three typechecks.
+- Engine checks passed format, locked Clippy, 51 workspace tests, wire checks and 43 oracle tests. The three prepared guest tests passed separately, including a new independent Docker rebuild. Recorded evaluation replay matched 180 outcomes and verified 12 receipts with six exact recoveries. Contract checks passed 120 tests with one fork-only suite skipped. Examples passed 13 tests and typecheck.
+- Portable-suite review passed 14 preflight cases but found stale evidence fields. A scoped correction is in progress. The reviewer also proposed a cleanup race. Parent requested a real reproduction before changing synchronous child-process handling.
+- Documentation corrections now distinguish green CI at `ee64e75` from the pending candidate. Publication, final candidate CI, a fresh local rehearsal and read-only deployment refresh remain pending. No live funding, submission, release, refund or credential access occurred.
+- The subsequent deployment refresh passed all 60 checks at block `72490082`, hash `0x58199c922279c535fcba994ef3e0a248a6f9435aa6e626479d68a3fb5b959093`. It used 81 serialized read-only RPC calls, two seconds apart, with no retries. This confirms deployment state, not spending authority.
+- Next: publish the reviewed oracle checkpoint, finish the suite correction, then run the final local rehearsal. Buyer approval, public identities and exact protected-signing authorization still block the live goal.
+
 ## 2026-11-15 18:17 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, pushed head `1099519`, [PR #6](https://github.com/anishnarang9/UBC-26/pull/6) open. Created the [proposed goal and completion tracker](../current%20plan/GOAL-2026-11-15.md). No implementation or signing was authorized by this documentation update.

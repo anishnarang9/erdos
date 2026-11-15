@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import { execFile, execFileSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import { dirname, isAbsolute, join, resolve } from "node:path";
+import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 import {
   bytesToHex, createPublicClient, custom, decodeEventLog, encodeAbiParameters, encodeFunctionData,
@@ -371,9 +372,17 @@ export function createSprintEngineRunner(value: unknown): EngineRunner {
   }, toEnginePath));
 }
 
-/** Reviewed Python is trusted code, not a sandbox. No shell, inherited secrets, or arbitrary executable. */
+export interface SprintOracleReferenceContext {
+  referenceDir: string;
+  /** SprintState.inputHashes.references: digest of the exact flat name/content-digest list. */
+  expectedDigest: string;
+}
+/** Reviewed Python is trusted code, not a sandbox. No shell, inherited secrets, or arbitrary executable.
+ * The isolated script sees only approved files at Path(__file__).parent / "reference" / filename.
+ * No request, candidate, known answer, worker state, or wallet files are copied into that workspace. */
 export async function runSprintOracle(
   oracle: LoadedSprintInput["oracle"], recoveredDirectory: string, privateRoot: string, timeoutMs: number,
+  context?: SprintOracleReferenceContext,
 ): Promise<{ semanticOraclePassed: true; oracleKind: "operator-script" | "exact-files" }> {
   requireSprint(Number.isSafeInteger(timeoutMs) && timeoutMs > 0 && timeoutMs <= 120000);
   privateDirectory(privateRoot);
@@ -382,23 +391,66 @@ export async function runSprintOracle(
     requireSprint(sameFiles(recovered, bundle(oracle.expectedDir)));
     return { semanticOraclePassed: true, oracleKind: "exact-files" };
   }
+  context = context ? { referenceDir: context.referenceDir, expectedDigest: context.expectedDigest } : undefined;
   const script = readSafeFile(oracle.scriptFile);
   requireSprint(sprintDigest(script) === oracle.scriptDigest);
-  const snapshot = join(privateRoot, `reviewed-oracle-${randomUUID()}.py`);
-  const fd = fs.openSync(snapshot, fs.constants.O_CREAT | fs.constants.O_EXCL | fs.constants.O_WRONLY | fs.constants.O_NOFOLLOW, 0o600);
-  try { fs.writeFileSync(fd, script); fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
-  syncDir(privateRoot);
+  const references = context ? bundle(context.referenceDir) : [];
+  if (context) requireSprint(/^[a-f0-9]{64}$/.test(context.expectedDigest) && bundleDigest(references) === context.expectedDigest);
+  // A new sibling under canonical home, never a child of the worker's private state directory.
+  const isolatedParent = fs.realpathSync(homedir());
+  requireSprint(isolatedParent !== resolve(privateRoot) && !isolatedParent.startsWith(resolve(privateRoot) + "/"));
+  const workspace = fs.mkdtempSync(join(isolatedParent, ".sprint-oracle-"));
+  privateDirectory(workspace);
+  const owned = fs.lstatSync(workspace);
+  const referenceDirectory = join(workspace, "reference"), snapshot = join(workspace, "oracle.py");
+  const write = (path: string, bytes: Uint8Array) => {
+    const fd = fs.openSync(path, fs.constants.O_CREAT | fs.constants.O_EXCL | fs.constants.O_WRONLY | fs.constants.O_NOFOLLOW, 0o600);
+    try { fs.writeFileSync(fd, bytes); fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
+  };
+  const originalContext = () => {
+    requireSprint(sprintDigest(readSafeFile(oracle.scriptFile)) === oracle.scriptDigest);
+    if (context) requireSprint(bundleDigest(bundle(context.referenceDir)) === context.expectedDigest);
+  };
+  const snapshotContext = () => {
+    privateDirectory(workspace); privateDirectory(referenceDirectory);
+    requireSprint(stableJson(fs.readdirSync(workspace).sort()) === stableJson(["oracle.py", "reference"]));
+    requireSprint(sprintDigest(readSafeFile(snapshot, true)) === oracle.scriptDigest);
+    requireSprint(sameFiles(bundle(referenceDirectory), references));
+  };
   try {
-    await new Promise<void>((done, reject) => execFile(
+    fs.mkdirSync(referenceDirectory, { mode: 0o700 });
+    write(snapshot, script);
+    for (const reference of references) write(join(referenceDirectory, reference.name), reference.content);
+    syncDir(referenceDirectory); syncDir(workspace);
+    originalContext(); snapshotContext();
+    try { await new Promise<void>((done, reject) => execFile(
       "/usr/bin/python3", ["-I", "-S", "-B", snapshot, resolve(recoveredDirectory)],
-      { cwd: recoveredDirectory, env: { PATH: "/usr/bin:/bin", LANG: "C", LC_ALL: "C" },
+      { cwd: workspace, env: { PATH: "/usr/bin:/bin", LANG: "C", LC_ALL: "C" },
         shell: false, timeout: timeoutMs, killSignal: "SIGKILL", maxBuffer: 4096 },
       error => error ? reject(new Error("Semantic oracle failed")) : done(),
-    ));
-    requireSprint(sprintDigest(readSafeFile(oracle.scriptFile)) === oracle.scriptDigest);
+    )); } finally { originalContext(); snapshotContext(); }
     requireSprint(sameFiles(recovered, bundle(recoveredDirectory)));
     return { semanticOraclePassed: true, oracleKind: "operator-script" };
-  } finally { fs.unlinkSync(snapshot); syncDir(privateRoot); }
+  } finally {
+    try { originalContext(); }
+    finally {
+      // Remove only declared paths in this exclusively created, still-owned directory.
+      // Unknown files or replaced directories cause a private retained workspace, not recursive deletion.
+      privateDirectory(workspace);
+      const current = fs.lstatSync(workspace);
+      requireSprint(current.ino === owned.ino && current.dev === owned.dev);
+      if (fs.existsSync(referenceDirectory)) {
+        privateDirectory(referenceDirectory);
+        for (const reference of references) {
+          const path = join(referenceDirectory, reference.name);
+          try { fs.unlinkSync(path); } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
+        }
+        fs.rmdirSync(referenceDirectory);
+      }
+      try { fs.unlinkSync(snapshot); } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
+      fs.rmdirSync(workspace);
+    }
+  }
 }
 
 interface Preview {
@@ -1005,7 +1057,9 @@ export async function executeSprint(args: SprintArgs, deps: SprintDependencies =
         budget: 1_000_000n, expiry: BigInt(terms.expiredAt), submitTx: attempt.submitTx, releaseTx: attempt.releaseTx,
         expectedOutputs: bundle(input.candidateDir), deploymentPolicy: deployment.policy,
       }, { runner: runner(deps, config.engine), directory: file(`recovery-${randomUUID()}`) });
-      const oracle = await runSprintOracle(input.oracle, recovered.sdkDirectory, store.directory, config.oracleTimeoutMs);
+      const oracle = await runSprintOracle(input.oracle, recovered.sdkDirectory, store.directory, config.oracleTimeoutMs, {
+        referenceDir: input.referenceDir, expectedDigest: s.inputHashes.references!,
+      });
       const report = {
         version: 1, runId: s.runId, sourceCommit: s.sourceCommit, inputDigest: hashes.input,
         authoringProvenance: preview.provenance, revisionHash: preview.revisionHash,
