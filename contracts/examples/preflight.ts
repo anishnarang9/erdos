@@ -297,7 +297,7 @@ export async function preflightRefund(client: PublicClient, d: Deployment, jobId
 // ───────────────────────── helpers ─────────────────────────
 
 /** Calldata bytes of a `submit` call: selector, three head words, deliverable, and the optParams blob. */
-function calldataLength(envelope: Hex, seal: Hex): number {
+export function calldataLength(envelope: Hex, seal: Hex): number {
   const pad32 = (n: number) => Math.ceil(n / 32) * 32;
   const optParams = 3 * 32 + 32 + pad32(size(envelope)) + 32 + pad32(size(seal)); // heads + two length words + padded tails
   return 4 + 32 + 32 + 32 + 32 + pad32(optParams);

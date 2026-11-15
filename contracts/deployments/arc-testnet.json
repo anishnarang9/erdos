@@ -56,7 +56,7 @@
       "contract": "src/SettlementHook.sol:SettlementHook",
       "isEvaluator": true,
       "erc165InterfaceId": "0x7ff6bc9e",
-      "maxEnvelopeBytes": 16384,
+      "maxEnvelopeBytes": 16412,
       "minExpiryMarginSeconds": 600,
       "abi": "abi/SettlementHook.json"
     }
@@ -76,7 +76,7 @@
     "coreMinExpiryRule": "createJob requires expiredAt > block.timestamp + 300 (strictly greater)",
     "hookMinExpiryMarginSeconds": 600,
     "hookMinExpiryMarginRule": "fund requires expiredAt >= block.timestamp + MIN_EXPIRY_MARGIN",
-    "maxEnvelopeBytes": 16384,
+    "maxEnvelopeBytes": 16412,
     "timeBoundary": {
       "submitAndRelease": "block.timestamp < expiredAt",
       "claimRefund": "block.timestamp >= expiredAt",

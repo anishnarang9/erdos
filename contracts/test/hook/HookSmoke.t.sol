@@ -23,6 +23,7 @@ abstract contract HookFixture is Test {
     address poster = makeAddr("poster");
     address solver = makeAddr("solver");
 
+    uint256 constant MAX_ENVELOPE = 16412; // team cap: 16,384 bundle + 12 nonce + 16 tag
     bytes32 constant IMAGE_ID = bytes32(uint256(0xabc));
     bytes32 constant RULES = bytes32(uint256(0x33));
     bytes32 constant REF = bytes32(uint256(0x44));
@@ -40,7 +41,7 @@ abstract contract HookFixture is Test {
         );
         verifier = new MockRiscZeroVerifier();
         hook = new SettlementHook(
-            ISettlementCore(address(core)), IProofVerifier(address(verifier)), address(usdc), 16384, 120
+            ISettlementCore(address(core)), IProofVerifier(address(verifier)), address(usdc), MAX_ENVELOPE, 120
         );
         vm.startPrank(admin);
         core.setHookWhitelist(address(hook), true);

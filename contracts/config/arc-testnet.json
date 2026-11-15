@@ -9,7 +9,7 @@
   "maxLogBlockRange": 10000,
   "coreMinExpirySeconds": 300,
   "hook": {
-    "maxEnvelopeBytes": 16384,
+    "maxEnvelopeBytes": 16412,
     "minExpiryMarginSeconds": 600
   },
   "demo": {

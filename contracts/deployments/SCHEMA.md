@@ -28,7 +28,7 @@
 | `contracts.core.frozen` | True after step 5 |
 | `contracts.hook.address` | `SettlementHook`: both the job's hook and its evaluator |
 | `contracts.hook.erc165InterfaceId` | `0x7ff6bc9e` (`IACPHook`) |
-| `contracts.hook.maxEnvelopeBytes` | 16384. Larger envelopes make `submit` revert |
+| `contracts.hook.maxEnvelopeBytes` | 16412 (16,384-byte bundle + 12-byte nonce + 16-byte tag). Larger envelopes make `submit` revert |
 | `contracts.hook.minExpiryMarginSeconds` | Seconds a job must still have when funded. Read from `config/arc-testnet.json` |
 | `contracts.*.deployer`, `deployBlock` | Signer and the block number seen at script time (a lower bound for log scans; the transaction may land a few blocks later) |
 | `reference.*` | Circle's own proxy and implementation, for provenance only |

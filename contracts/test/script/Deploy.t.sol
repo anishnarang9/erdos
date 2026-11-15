@@ -27,6 +27,7 @@ import {MockUSDC} from "../mocks/MockUSDC.sol";
 contract DeployScriptsTest is Test {
     address constant ARC_USDC = 0x3600000000000000000000000000000000000000;
     string constant TEST_MANIFEST = "deployments/dryrun-test.json";
+    uint256 constant MAX_ENVELOPE = 16412; // team cap: 16,384 bundle + 12 nonce + 16 tag
 
     /// @dev One test function, run in order: the scripts read process-wide environment variables
     ///      (`SETTLEMENT_*`) and a shared manifest file, and forge runs test functions in parallel,
@@ -67,7 +68,8 @@ contract DeployScriptsTest is Test {
         assertEq(core.evaluatorFeeBP(), 0);
         assertEq(address(core.paymentToken()), d.usdc);
         assertTrue(hook.supportsInterface(0x7ff6bc9e));
-        assertEq(hook.MAX_ENVELOPE_BYTES(), 16384);
+        assertEq(hook.MAX_ENVELOPE_BYTES(), MAX_ENVELOPE);
+        assertEq(vm.parseJsonUint(vm.readFile("config/arc-testnet.json"), ".hook.maxEnvelopeBytes"), MAX_ENVELOPE);
         assertEq(hook.MIN_EXPIRY_MARGIN(), vm.parseJsonUint(vm.readFile("config/arc-testnet.json"), ".hook.minExpiryMarginSeconds"));
 
         // The frozen admin surface reverts for the former admin.

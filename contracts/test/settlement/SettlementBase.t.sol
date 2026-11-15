@@ -41,7 +41,7 @@ abstract contract SettlementBase is Test {
 
     // ---- parameters
     uint256 internal constant ARC_CHAIN_ID = 5042002;
-    uint256 internal constant MAX_ENVELOPE = 16384;
+    uint256 internal constant MAX_ENVELOPE = 16412;
     uint256 internal constant MARGIN = 600;
     uint256 internal constant T0 = 1_700_000_000;
     uint256 internal constant EXPIRY = T0 + 1 days;

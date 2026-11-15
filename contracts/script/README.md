@@ -73,7 +73,7 @@ Expected after each step (06 prints `ok <name>` lines and reverts with a message
 | 01 | verifier has code; `SELECTOR() == 0xe71e6620`, `VERSION() == "3.1.0"` |
 | 02 | implementation has code, `proxiableUUID()` is the ERC1967 slot, bytecode equals the local patched build modulo the UUPS self-address and metadata |
 | 03 | proxy implementation slot equals the manifest implementation; both fees 0; `paymentToken()` is Arc USDC; signer holds both admin roles |
-| 04 | hook has code; `supportsInterface(0x7ff6bc9e)`; immutables equal manifest and config (`MAX_ENVELOPE_BYTES` 16384, `MIN_EXPIRY_MARGIN` from config) |
+| 04 | hook has code; `supportsInterface(0x7ff6bc9e)`; immutables equal manifest and config (`MAX_ENVELOPE_BYTES` 16412, `MIN_EXPIRY_MARGIN` from config) |
 | 05 | hook whitelisted; signer holds neither role; `setHookWhitelist`, `setPlatformFee`, `setEvaluatorFee`, `upgradeToAndCall` revert `AccessControlUnauthorizedAccount` |
 
 If a step's broadcast fails after the manifest was written, the address in the manifest has no code. The next run treats it as not deployed and continues. Use `--resume` to resend stuck transactions.

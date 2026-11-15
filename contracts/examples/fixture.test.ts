@@ -7,6 +7,7 @@ import {
   decodeAbiParameters,
   encodeAbiParameters,
   encodeEventTopics,
+  encodeFunctionData,
   size,
   toFunctionSelector,
   type Hex,
@@ -22,6 +23,7 @@ import {
   keyCommitment,
   submitOptParams,
 } from "./encode.ts";
+import { calldataLength, submitGasLimit } from "./preflight.ts";
 
 const rep = (byte: string, n: number): Hex => `0x${byte.repeat(n)}`;
 
@@ -181,4 +183,20 @@ test("blockWindows covers the range exactly in windows of at most 10,000 blocks"
   assert.equal(next, 25_001n);
   assert.deepEqual(blockWindows(5n, 5n), [[5n, 5n]]);
   assert.deepEqual(blockWindows(6n, 5n), []);
+});
+
+test("submit calldata and gas limit at the 16,412-byte envelope cap", () => {
+  const MAX_ENVELOPE_BYTES = 16_412; // contracts/config/arc-testnet.json hook.maxEnvelopeBytes
+  const envelope = `0x${"11".repeat(MAX_ENVELOPE_BYTES)}` as Hex;
+  const seal = `0x${"22".repeat(260)}` as Hex;
+  const kc = `0x${"33".repeat(32)}` as Hex;
+  const data = encodeFunctionData({
+    abi: coreAbi,
+    functionName: "submit",
+    args: [7n, envelopeHash(envelope), submitOptParams(envelope, seal, kc)],
+  });
+  assert.equal(size(data), 16_996);
+  assert.equal(calldataLength(envelope, seal), 16_996);
+  assert.equal(submitGasLimit(16_996), 21_000n + 40n * 16_996n + 1_000_000n);
+  assert.equal(submitGasLimit(16_996), 1_700_840n);
 });

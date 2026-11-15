@@ -106,7 +106,7 @@ contract HookEdgeCasesTest is HookFixture {
                 )
             )
         );
-        h = new SettlementHook(ISettlementCore(address(c)), IProofVerifier(address(real)), address(usdc), 16384, 120);
+        h = new SettlementHook(ISettlementCore(address(c)), IProofVerifier(address(real)), address(usdc), MAX_ENVELOPE, 120);
         vm.prank(admin);
         c.setHookWhitelist(address(h), true);
     }

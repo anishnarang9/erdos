@@ -111,7 +111,7 @@ contract WireTest is SettlementBase {
 
     function test_S15_gasMaxEnvelope() public {
         uint256 used = _gasSubmit(MAX_ENVELOPE);
-        emit log_named_uint("S15 submit gas, 16384 B envelope, mock verifier", used);
+        emit log_named_uint("S15 submit gas, 16412 B envelope, mock verifier", used);
         assertTrue(used < 30_000_000, "over block gas limit");
     }
 
