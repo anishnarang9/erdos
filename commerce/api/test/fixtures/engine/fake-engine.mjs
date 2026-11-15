@@ -89,6 +89,7 @@ if (cmd === "eval") {
 
 if (cmd === "compile") {
   checkPlan();
+  if (dirFiles(flag("--reference")).includes("bad.json")) fail("invalid_reference", "Invalid JSON in bad.json");
   const out = flag("--out");
   if (existsSync(out)) fail("output_io", "File exists (os error 17)");
   const refs = dirFiles(flag("--reference"));

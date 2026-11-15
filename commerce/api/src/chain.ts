@@ -1,13 +1,34 @@
 // T7/T8 chain dependency for the API. Owner: Coder D. Implements ../CONTRACT-T5-T8.md §5–6.
 // SIMULATED: ABI is the @ubc26/sdk stub until Nick publishes the settlement ABI.
 import { encodeFunctionData, getAddress, type Address, type Hex, type PublicClient } from "viem";
-import { createCommerceChain, mockUsdcAbi, stubCoreAbi, type ChainConfig, type CommerceChain } from "@ubc26/sdk";
+import {
+  createCommerceChain,
+  mockUsdcAbi,
+  stubCoreAbi,
+  type ChainConfig,
+  type DecodedEvent,
+  type FrozenTerms,
+  type JobView,
+} from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import type { Deps } from "./context.ts";
+
+/**
+ * The three chain reads the API needs. Two implementations: the SIMULATED stub adapter (tests on anvil) and
+ * the real Arc deployment (arcReader in arc.ts). Events use the stub's DecodedEvent shape; jobs and terms use
+ * JobView and FrozenTerms (getTerms returns null while the hook has not frozen terms for the job).
+ */
+export interface ChainReader {
+  decodeLogs(logs: readonly { address: Address; topics: readonly Hex[]; data: Hex; blockNumber: bigint | null; logIndex: number | null; transactionHash: Hex | null }[]): DecodedEvent[];
+  getJob(jobId: bigint): Promise<JobView>;
+  getTerms(jobId: bigint): Promise<FrozenTerms | null>;
+}
 
 export interface ApiChain {
   config: ChainConfig;
   publicClient: PublicClient;
+  /** Real-deployment reader. Absent: the SIMULATED stub adapter over the same config. */
+  reader?: ChainReader;
 }
 
 /** §5: EIP-712 domain chainId when no chain is configured. */
@@ -19,9 +40,15 @@ export function requireChain(deps: Deps): ApiChain {
   return deps.chain;
 }
 
-/** Read-only SDK adapter over the configured public client (no wallet: the API never signs). */
-export function readChain(chain: ApiChain): CommerceChain {
-  return createCommerceChain(chain.config, { public: chain.publicClient });
+/** Read-only chain access (no wallet: the API never signs). */
+export function readChain(chain: ApiChain): ChainReader {
+  if (chain.reader) return chain.reader;
+  const stub = createCommerceChain(chain.config, { public: chain.publicClient });
+  return {
+    decodeLogs: (logs) => stub.decodeLogs(logs as Parameters<typeof stub.decodeLogs>[0]),
+    getJob: (id) => stub.getJob(id),
+    getTerms: (id) => stub.getTerms(id),
+  };
 }
 
 /** fundingTerms (§5). budget and expiredAt are decimal strings; addresses are EIP-55. */

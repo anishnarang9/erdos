@@ -346,7 +346,7 @@ export function cliEngine(opts: CliEngineOptions): Engine {
           throw new EngineError("package_exists", "The package directory already exists");
         }
         const r = await run(["compile", "--plan", ep(planFile), "--reference", ep(ref), "--out", ep(out)], compileTimeoutMs);
-        if (r.exit !== 0) return planFailure(r, "compile");
+        if (r.exit !== 0) return planFailure(r, "compile", "/references");
         const report = parseStdoutObject(r.stdout, "compile");
         let text: string;
         try {

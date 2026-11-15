@@ -164,6 +164,12 @@ describe("cliEngine against the real CLI contract (fake script)", () => {
     expect(leftovers()).toEqual([]);
   });
 
+  it("compile: a reference file the engine rejects -> kind invalid at /references (400, not 502)", async () => {
+    const r = await fake("ok").compile({ plan: PLAN, reference: [file("bad.json", "{")] });
+    expect(r).toEqual({ ok: false, kind: "invalid", errors: [{ path: "/references", message: "invalid_reference: Invalid JSON in bad.json" }] });
+    expect(leftovers()).toEqual([]);
+  });
+
   it("compile with packageDir keeps the whole package there", async () => {
     const dir = join(work, "pkg-keep");
     const r = await fake("ok").compile({ plan: PLAN, reference: [], packageDir: dir });
