@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 17:48 -05:00 — Anish
+
+- GitHub rejected the initial core workflow before running jobs. Actionlint reproduced the exact error: job-level `env` cannot reference `runner.temp`.
+- Moved the pinned Arc tool path into the installation shell and persisted it with `GITHUB_ENV`. All versions, checksums and test commands remain unchanged.
+- Pinned actionlint v1.7.7 changed from exit 1 to exit 0 with no diagnostics. Whitespace checks passed. Remote engine/contract jobs remain pending after this correction.
+- Next: obtain green final CI and complete clean-source checks before main merge.
+
 ## 2026-11-15 17:47 -05:00 — Anish
 
 - Added the separate operator sprint CLI and real composition for inspect, prepare, deployment check, funding, proving/settlement, independent recovery and oracle verification. The existing funded CLI guard remains unchanged. Added a discoverable `sprint` package command.

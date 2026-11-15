@@ -39,8 +39,6 @@ jobs:
   contracts:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    env:
-      ARC_FOUNDRY_BIN: ${{ runner.temp }}/arc-foundry-v0.8.0-4/bin
     defaults:
       run:
         working-directory: contracts
@@ -53,6 +51,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          ARC_FOUNDRY_BIN="$RUNNER_TEMP/arc-foundry-v0.8.0-4/bin"
+          echo "ARC_FOUNDRY_BIN=$ARC_FOUNDRY_BIN" >> "$GITHUB_ENV"
           archive="$RUNNER_TEMP/arc-foundry-v0.8.0-4-x86_64-unknown-linux-gnu.tar.gz"
           curl --fail --location --retry 3 --output "$archive" \
             https://github.com/circlefin/arc-foundry/releases/download/v0.8.0-4/arc-foundry-v0.8.0-4-x86_64-unknown-linux-gnu.tar.gz
