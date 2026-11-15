@@ -4,3 +4,5 @@ contracts/cache/
 contracts/broadcast/
 node_modules/
 .env
+__pycache__/
+*.py[cod]

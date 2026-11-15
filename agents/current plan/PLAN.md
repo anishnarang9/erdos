@@ -2,6 +2,17 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-15 17:16 -05:00 — Anish — Owner histories merged; integration owns remaining work
+
+- Neil `8584b04`, Nick `57c387f` and engine `adda3a3` are now ancestors of `codex/engine-commerce`. Consolidated [PR #6](https://github.com/anishnarang9/UBC-26/pull/6) preserves all three histories. Main is not merged yet.
+- Independent [deployment evidence](../anish/reports/core-sprint-deployment-2026-11-15.json) passed 60 checks at block 72478546. All four creation inputs and runtime builds match exactly, including metadata and immutables. Role/history, whitelist, fee, wiring and freeze receipt checks passed. This replaces the old current freeze blocker, not the historical observations below.
+- The user delegated missing prerequisites to integration. Anish now owns unpublished critical-path work rather than waiting for owners. A new synthetic [problem/dataset/semantic oracle](../../docs/core-sprint-input/README.md) is proposed for approval. It is not a previously checked-in example or answer-specific checker.
+- Independent native authoring used only the request, reference and declared outputs. The 14-rule plan has 77 nodes. The oracle accepts different valid solutions. Native authoring is not live Grok/API-inference evidence. The model catalog exposes no Grok model in this session.
+- Provider signing, protected keystore loading, real Poster funding, private state and independent chain recovery now have reviewed checkpoints. Permanent maximum gas reservations avoid reuse before finality. General funded CLI broadcasts remain disabled.
+- A first fresh local proof reached actual-contract acceptance. Release/recovery were not completed in that attempt. The corrected full local rehearsal is running. No funded live acceptance is claimed.
+- Real buyer/provider assignment, protected signing access, exact approval/spending files and live payment/recovery evidence remain external acceptance gates. No existing deployer identity or manifest flag grants those permissions.
+- CI found Linux keystore fixtures outside the production path policy. The fixture-only correction is pushed. Require green CI before main integration.
+
 ## 2026-11-15 16:08 -05:00 — Anish — Sprint execution authorized
 
 - Execute the approved core-engine and funded-settlement sprint on `codex/engine-commerce`. The user authorized delegation, tested checkpoint commits/pushes, and normal integration into main. Preserve engine, Neil and Nick ancestry through merge commits.

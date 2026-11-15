@@ -1,0 +1,10 @@
+{"allocations":[
+  {"task_id":"T01","pool_id":"P-A","units":"3"},
+  {"task_id":"T02","pool_id":"P-B","units":"2"},
+  {"task_id":"T03","pool_id":"P-C","units":"4"},
+  {"task_id":"T04","pool_id":"P-A","units":"1"},
+  {"task_id":"T05","pool_id":"P-B","units":"2"},
+  {"task_id":"T06","pool_id":"P-D","units":"3"},
+  {"task_id":"T07","pool_id":"P-B","units":"1"},
+  {"task_id":"T08","pool_id":"P-C","units":"2"}
+]}

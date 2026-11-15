@@ -1,0 +1,6 @@
+{"dispatches":[
+  {"pool_id":"P-A","mode":"open","stamp":"9"},
+  {"pool_id":"P-B","mode":"guarded","stamp":"6"},
+  {"pool_id":"P-C","mode":"guarded","stamp":"12"},
+  {"pool_id":"P-D","mode":"open","stamp":"9"}
+]}

@@ -1,0 +1,19 @@
+{
+  "budget": "100",
+  "tasks": [
+    {"id": "T01", "units": "3", "min_tier": "1", "special": false, "deadline": "11"},
+    {"id": "T02", "units": "2", "min_tier": "2", "special": true, "deadline": "13"},
+    {"id": "T03", "units": "4", "min_tier": "3", "special": true, "deadline": "15"},
+    {"id": "T04", "units": "1", "min_tier": "1", "special": false, "deadline": "10"},
+    {"id": "T05", "units": "2", "min_tier": "2", "special": false, "deadline": "12"},
+    {"id": "T06", "units": "3", "min_tier": "3", "special": false, "deadline": "10"},
+    {"id": "T07", "units": "1", "min_tier": "1", "special": true, "deadline": "9"},
+    {"id": "T08", "units": "2", "min_tier": "2", "special": false, "deadline": "13"}
+  ],
+  "pools": [
+    {"id": "P-A", "tier": "1", "unit_cost": "4", "capacity": "3", "certified": false, "cutoff": "10", "guard_start": "4"},
+    {"id": "P-B", "tier": "2", "unit_cost": "5", "capacity": "3", "certified": true, "cutoff": "12", "guard_start": "6"},
+    {"id": "P-C", "tier": "3", "unit_cost": "6", "capacity": "2", "certified": true, "cutoff": "12", "guard_start": "8"},
+    {"id": "P-D", "tier": "3", "unit_cost": "7", "capacity": "2", "certified": false, "cutoff": "9", "guard_start": "5"}
+  ]
+}
