@@ -1,0 +1,19 @@
+{
+  "_comment": "Chain and demo parameters for settlement. Deploy scripts read this file and abort unless the live chain ID equals chainId. Demo values are placeholders; the plan gives no recommended numbers (SETTLEMENT-IMPLEMENTATION.md Section 1).",
+  "chainId": 5042002,
+  "rpcUrl": "https://rpc.testnet.arc.io",
+  "explorerUrl": "https://explorer.testnet.arc.io",
+  "usdc": "0x3600000000000000000000000000000000000000",
+  "usdcDecimals": 6,
+  "minMaxFeePerGasGwei": 20,
+  "maxLogBlockRange": 10000,
+  "coreMinExpirySeconds": 300,
+  "hook": {
+    "maxEnvelopeBytes": 16384,
+    "minExpiryMarginSeconds": 120
+  },
+  "demo": {
+    "bountyUsdc": "1.00",
+    "expirySeconds": 900
+  }
+}
