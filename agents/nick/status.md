@@ -2,6 +2,32 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 23:54 -05:00 — Nick
+
+### Arc verifier deployed: deliverable 4 is complete
+- **Branch:** `nick-settlement`, PR #4.
+- **Verifier:** [`0xCf8D70A203b40D3A17d023c0CDDF752870BC3992`](https://explorer.testnet.arc.io/address/0xCf8D70A203b40D3A17d023c0CDDF752870BC3992) on Arc Testnet.
+- **Transaction:** [`0xd0fb5fb5…2b6f`](https://explorer.testnet.arc.io/tx/0xd0fb5fb5b4e921df0ee1b0220587f59259f7175cec841a49f3262ccbf2232b6f), block 72392474. It used 1,795,535 gas and cost 0.044888 USDC.
+- **Deployer:** `0x27f97754b165B68921c9dD0Ea88eDf617731A35a`, a testnet-only wallet funded from Circle's faucet. Its key sits in an encrypted Foundry keystore named `settlement-deployer` in root's WSL home.
+
+### Checks
+- `06_Verify` printed `ok verifier`.
+- `script/verifier-evidence.py` (read-only) passed **20 of 20** checks. The full output is in `contracts/research/ARC-VERIFIER-LIVE.md`.
+  - The runtime code equals the local build, ignoring metadata and immutables.
+  - Selector `0xe71e6620`, version `3.1.0`, and the control root and BN254 control ID all match.
+  - The upstream receipt verifies (`eth_estimateGas` 267,946).
+  - Altering any journal byte, the image ID, any proof byte, or any selector byte reverts.
+- Evidence was captured at block 72392546.
+
+### Fix
+`01_DeployVerifier` wrote `deployBlock` as 72392473, the block it simulated against. The receipt says 72392474, so I corrected the manifest by hand and added `deployTx`. Not fixed in the script: steps 02 to 05 will record their simulation block the same way. The deploy block is only a starting point for log scans, so starting one block early does no harm.
+
+### Tonight's deliverables
+All four are now delivered. Sharing the verifier address and `contracts/HANDOFF.md` with Neil and Anish is still Nick's to do.
+
+### Next action
+Steps 02 to 05 (core implementation, proxy, hook, freeze) with `06_Verify` after each. Then `08_CreateTestJob`, once Anish supplies the image ID, rules hash and reference hash.
+
 ## 2026-11-14 23:30 -05:00 — Nick
 
 Branch `nick-settlement`, PR #4. This is an audit against tonight's deliverables.

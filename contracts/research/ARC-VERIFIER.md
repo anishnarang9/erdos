@@ -42,7 +42,14 @@ Notes.
 
 ## 2. Live deployment (Nick runs this)
 
-Nothing below has been run. Placeholders in angle brackets are yours to fill. Never paste a private key anywhere: the signer is a Foundry keystore (`arc-cast wallet import <keystore-name> --interactive` creates one and you type the key into that prompt yourself). The account needs USDC for gas; deployment costs about 1.8M gas, roughly 0.045 USDC at 25 gwei (estimate from a local fork).
+**Done 2026-11-14 23:54 -05:00:**
+- **Verifier:** [`0xCf8D70A203b40D3A17d023c0CDDF752870BC3992`](https://explorer.testnet.arc.io/address/0xCf8D70A203b40D3A17d023c0CDDF752870BC3992).
+- **Deployment:** transaction [`0xd0fb5fb5…2b6f`](https://explorer.testnet.arc.io/tx/0xd0fb5fb5b4e921df0ee1b0220587f59259f7175cec841a49f3262ccbf2232b6f) in block 72392474. It used 1,795,535 gas and cost 0.044888 USDC at 25 gwei.
+- **Deployer:** `0x27f97754b165B68921c9dD0Ea88eDf617731A35a`.
+- **Checks:** `06_Verify` printed `ok verifier`. The read-only evidence passed all 20 checks: the code matches the local build, the selector, version and control IDs are correct, the real receipt verifies (`eth_estimateGas` 267,946), and every altered journal, image ID, proof and selector reverts.
+- **Full evidence:** [ARC-VERIFIER-LIVE.md](ARC-VERIFIER-LIVE.md).
+
+The instructions below are kept for redeploys. Placeholders in angle brackets are yours to fill. Never paste a private key anywhere: the signer is a Foundry keystore (`arc-cast wallet import <keystore-name> --interactive` creates one and you type the key into that prompt yourself). The account needs USDC for gas; deployment costs about 1.8M gas, roughly 0.045 USDC at 25 gwei (estimate from a local fork).
 
 Run inside WSL, from the repo's `contracts/` directory:
 

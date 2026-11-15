@@ -2,6 +2,13 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 23:54 -05:00 — Nick workstream — Arc verifier live
+
+- **Verifier deployed.** The pinned RISC Zero verifier (v3.1.0, selector `0xe71e6620`) is live on Arc Testnet at [`0xCf8D70A203b40D3A17d023c0CDDF752870BC3992`](https://explorer.testnet.arc.io/address/0xCf8D70A203b40D3A17d023c0CDDF752870BC3992), deployed in block 72392474.
+- **Checks pass.** The real upstream receipt verifies, and every altered input reverts: 20 of 20 read-only checks pass, recorded in `contracts/research/ARC-VERIFIER-LIVE.md`.
+- **For Anish and Neil:** use this address as `contracts.verifier.address` in `contracts/deployments/arc-testnet.json`.
+- **Still to deploy:** the core, the hook and the freeze. They are next, followed by the funded test job, which needs Anish's image ID, rules hash and reference hash.
+
 ## 2026-11-14 23:30 -05:00 — Nick workstream — Tonight's settlement deliverables
 
 ### Status

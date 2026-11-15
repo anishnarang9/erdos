@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "network": "arc-testnet",
-  "status": "template",
+  "status": "partial",
   "deployer": null,
   "chain": {
     "chainId": 5042002,
@@ -20,9 +20,10 @@
   },
   "contracts": {
     "verifier": {
-      "address": null,
-      "deployer": null,
-      "deployBlock": null,
+      "address": "0xCf8D70A203b40D3A17d023c0CDDF752870BC3992",
+      "deployer": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
+      "deployBlock": 72392474,
+      "deployTx": "0xd0fb5fb5b4e921df0ee1b0220587f59259f7175cec841a49f3262ccbf2232b6f",
       "contract": "src/verifier/groth16/RiscZeroGroth16Verifier.sol:RiscZeroGroth16Verifier",
       "selector": "0xe71e6620",
       "version": "3.1.0",

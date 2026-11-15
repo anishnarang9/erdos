@@ -2,7 +2,9 @@
 
 **2026-11-14 · Nick (workstream 2) → Neil (commerce) and Anish (engine)**
 
-This is the contract-level interface for settlement on Arc Testnet (chain 5042002). The spec is [SETTLEMENT-IMPLEMENTATION.md](../agents/current%20plan/SETTLEMENT-IMPLEMENTATION.md). Code examples are in [examples/README.md](examples/README.md). Addresses fill in [deployments/arc-testnet.json](deployments/arc-testnet.json) (schema: [SCHEMA.md](deployments/SCHEMA.md)) once Nick deploys. Until then, every address in it is `null`.
+This is the contract-level interface for settlement on Arc Testnet (chain 5042002). The spec is [SETTLEMENT-IMPLEMENTATION.md](../agents/current%20plan/SETTLEMENT-IMPLEMENTATION.md). Code examples are in [examples/README.md](examples/README.md). Addresses fill in [deployments/arc-testnet.json](deployments/arc-testnet.json) (schema: [SCHEMA.md](deployments/SCHEMA.md)) once Nick deploys. Until then, every address in it is `null`, except the verifier below.
+
+**Live on Arc:** the pinned RISC Zero verifier, `RiscZeroGroth16Verifier` v3.1.0, at [`0xCf8D70A203b40D3A17d023c0CDDF752870BC3992`](https://explorer.testnet.arc.io/address/0xCf8D70A203b40D3A17d023c0CDDF752870BC3992) (selector `0xe71e6620`). The evidence is in [research/ARC-VERIFIER-LIVE.md](research/ARC-VERIFIER-LIVE.md). The core, the hook and the freeze are not deployed yet.
 
 ## Limits and rules at a glance
 
