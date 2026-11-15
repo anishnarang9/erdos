@@ -2,6 +2,26 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 15:22 -05:00 — Nick
+
+### Freeze checks cover every admin; live evidence recorded
+Branch `nick-settlement`, commit `ffeb4b9`.
+
+- **Fix:** `_checkFrozen` and `05_Freeze` checked only the deployer's roles. The core uses non-enumerable AccessControl, so they now replay `RoleGranted`/`RoleRevoked` logs from the core deploy block (chunked to 10,000 blocks), confirm each account with `hasRole`, and fail if anyone holds a role. `05_Freeze` refuses before broadcasting if another address holds a role. `08_CreateTestJob` uses the same holder set for `coreFrozen`.
+- **Evidence:** `06_Verify` now also fails on a foreign whitelisted hook, any upgrade after the proxy constructor, nonzero fees, or a runtime code hash that differs from the manifest pin. `SETTLEMENT_WRITE_EVIDENCE=1` writes an `evidence` block into the manifest.
+- **Live Arc evidence (block 72471253):** only the deployer has ever held `ADMIN_ROLE` or `DEFAULT_ADMIN_ROLE` (2 grants in the proxy deploy tx, no revokes); only our hook is whitelisted; one `Upgraded` event (constructor); fees 0; all five manifest transactions succeeded and match.
+- **Manifest:** `runtimeCodeHash` pins added; `policy.adminRoles` no longer claims the roles were already renounced.
+
+### Checks
+- `arc-forge test --network arc`: 120 passed, 0 failed, 1 skipped. New scenarios (second admin per role, grant then revoke, foreign hook, upgrade, pin mismatch, evidence write, 08 with a second admin) run inside `test_deployScripts` and `test_createTestJob`. With the new holder checks disabled, `Deploy.t.sol` fails.
+- Live read-only `06_Verify` on Arc passes; with `SETTLEMENT_EXPECT_FROZEN=1` it correctly fails (`DEFAULT_ADMIN_ROLE still held by 0x27f9…A35a`).
+
+### Notes
+- `05_Freeze` and `06_Verify` now require `--rpc-url`. Back-to-back runs can hit the public RPC's rate limit (HTTP 429); they fail closed. Wait about 90 s and rerun.
+
+### Next action
+Run the full `05_Freeze` (decision 27 lifted by Nick), then `SETTLEMENT_EXPECT_FROZEN=1 06_Verify`.
+
 ## 2026-11-15 00:14 -05:00 — Nick
 
 ### Contract stack live on Arc, core not frozen
