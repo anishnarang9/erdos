@@ -2,6 +2,14 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-15 00:04 -05:00 — Nick workstream — Core freeze held for now
+
+- **Decision.** The core will be deployed and the hook whitelisted, but the admin roles will not be renounced yet, so the core is **not frozen**.
+  - **Reason:** the freeze is irreversible, and holding it keeps room to fix configuration before the Nov 16 demo. Job creation only needs the hook whitelisted.
+  - **Affects** Neil and Anish. Until the freeze, the deployer `0x27f9…A35a` can upgrade the core or change fees. Test jobs on the unfrozen core are for integration only.
+- **TODO (Nick).** Run the full freeze (`05_Freeze` without the whitelist-only flag, then `SETTLEMENT_EXPECT_FROZEN=1 06_Verify`) before the Nov 16 live settlement.
+- **Progress.** The core implementation is live at `0x55A3C9319EEe607579855880b5651766eBF103d7`. The proxy and the hook are next.
+
 ## 2026-11-14 23:54 -05:00 — Nick workstream — Arc verifier live
 
 - **Verifier deployed.** The pinned RISC Zero verifier (v3.1.0, selector `0xe71e6620`) is live on Arc Testnet at [`0xCf8D70A203b40D3A17d023c0CDDF752870BC3992`](https://explorer.testnet.arc.io/address/0xCf8D70A203b40D3A17d023c0CDDF752870BC3992), deployed in block 72392474.

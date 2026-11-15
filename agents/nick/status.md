@@ -2,6 +2,39 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 00:04 -05:00 — Nick
+
+Branch `nick-settlement`, PR #4.
+
+### Deployment progress
+
+| Step | State | Details |
+| --- | --- | --- |
+| 01 Verifier | Live | `0xCf8D70A203b40D3A17d023c0CDDF752870BC3992`, block 72392474 |
+| 02 Core implementation | Live | `0x55A3C9319EEe607579855880b5651766eBF103d7`, tx [`0xc734ab50…95bf`](https://explorer.testnet.arc.io/tx/0xc734ab50615f884c364a7af4627a08b989891b88b83944865b18fa314e5695bf), block 72392852. Used 4,720,997 gas and cost 0.118 USDC. `06_Verify` printed `ok core implementation` |
+| 03 Core proxy | Not deployed | Two attempts sent nothing (see below). The deployer nonce is still 2. On retry, the proxy will be `0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8`, the deployer's next CREATE address |
+| 04 Hook | Not deployed | |
+| 05 Freeze | **On hold** | See the TODO below |
+
+### Step 03 attempts
+- **First attempt.** The deployer was `--account settlement-deployer` without `--sender`. Forge built the transaction from its placeholder sender `0x1804…1f38` and refused to send it. Live commands now always pass `--sender 0x27f97754b165B68921c9dD0Ea88eDf617731A35a`.
+- **Second attempt.** Wrong keystore password, so nothing was sent.
+- **Manifest side effect.** Both failed attempts wrote unsent addresses into the manifest, because the scripts write it during simulation. I reset the `core` entry to null each time and recorded step 02's receipt block and transaction.
+
+### Decision 27: hold the irreversible freeze
+- **Choice:** do not renounce `ADMIN_ROLE` and `DEFAULT_ADMIN_ROLE` yet. Step 05 will run in a whitelist-only mode, which calls `setHookWhitelist(hook, true)` and nothing else, so jobs can be created. `08_CreateTestJob` will take an explicit `SETTLEMENT_ALLOW_UNFROZEN=1` flag.
+- **Alternative rejected:** freezing now, as the spec orders after the whitelist. The freeze cannot be undone. Holding it keeps the option to fix the core or hook configuration, or to redeploy, before anything is permanent. Whitelisting is reversible by the admin and is all that job creation needs.
+- **Cost while unfrozen:** the deployer, a testnet-only key, can still upgrade the core, change fees or whitelist other hooks. Counterparties must not treat the core as trustless until the freeze runs.
+
+### TODO: remove admin rights (Nick)
+- Before the Nov 16 live settlement demo, run the full freeze: `05_Freeze` without `SETTLEMENT_WHITELIST_ONLY`, then `SETTLEMENT_EXPECT_FROZEN=1 06_Verify`.
+- Until then, the manifest shows `frozen: false`, and the funded test job carries `coreFrozen: false`.
+
+### Next action
+1. Retry step 03 with `--sender`, then step 04.
+2. Run the whitelist-only step 05, once the subagent's change lands.
+3. Run `08_CreateTestJob` with `SETTLEMENT_ALLOW_UNFROZEN=1` once Anish supplies the image ID, rules hash and reference hash.
+
 ## 2026-11-14 23:54 -05:00 — Nick
 
 ### Arc verifier deployed: deliverable 4 is complete

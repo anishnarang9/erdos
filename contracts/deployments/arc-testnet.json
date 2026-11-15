@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "network": "arc-testnet",
   "status": "partial",
-  "deployer": null,
+  "deployer": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
   "chain": {
     "chainId": 5042002,
     "rpcUrl": "https://rpc.testnet.arc.io",
@@ -34,11 +34,12 @@
       "interfaceAbi": "abi/IRiscZeroVerifier.json"
     },
     "coreImplementation": {
-      "address": null,
-      "deployer": null,
-      "deployBlock": null,
+      "address": "0x55A3C9319EEe607579855880b5651766eBF103d7",
+      "deployer": "0x27f97754b165B68921c9dD0Ea88eDf617731A35a",
+      "deployBlock": 72392852,
       "contract": "src/core/src/AgenticCommercePatched.sol:AgenticCommerce",
-      "patch": "src/core/setBudget-client-only.patch"
+      "patch": "src/core/setBudget-client-only.patch",
+      "deployTx": "0xc734ab50615f884c364a7af4627a08b989891b88b83944865b18fa314e5695bf"
     },
     "core": {
       "address": null,
