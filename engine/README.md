@@ -186,3 +186,22 @@ After confirming the deployed core and evaluator, run the funded submit prefligh
 ```sh
 node engine/tests/verify-funded-arc.mjs PASS_PROOF_JSON
 ```
+
+## Connect commerce
+
+| Commerce question | Engine interface |
+| --- | --- |
+| A1. Label examples | `engine eval --plan PLAN --deliverables DIR` returns a numeric `verdict` in JSON. Pass `--reference`, `--evidence`, and `--job` when the example needs them. |
+| A2. Author a plan | Use the [schema](plan-v1.schema.json) and [capability catalog](capabilities-v1.json). Supply named selectors and typed literals. The compiler assigns parameter slots. |
+| A3. Handle errors | Read success JSON from stdout and error JSON from stderr. Exit 2 covers arguments, inputs, and outputs. Exit 3 covers build, prover, and randomness failures. Map recognized plan and capability errors separately from service failures. |
+| A4. Store the package | Retain `guest.elf`, `structure.jcs`, `parameters.jcs`, `manifest.json`, and `source/`. The manifest supplies `version`, `inputVersion`, `imageId`, `structureHash`, `rulesHash`, `referenceHash`, `guestSha256`, `parametersSha256`, `structureSha256`, `guestBuilder`, `riscZero`, and `buildFingerprint`. Use the emitted `imageId` directly as Solidity `bytes32`. Compile stdout adds `cacheHit` and `compileMillis`. |
+| A5. Supply funded terms | `prove --job` takes a JSON object with `context` and `imageId`. Both use 0x-prefixed hex. The context is 169 bytes and the image ID is 32 bytes. |
+| A6. Release the key | `release-key.hex` contains 32 bytes of lowercase 0x-prefixed hex. Use it as Solidity `bytes32`. |
+| A7. Recover files | `decrypt` reads the context from the proof file and requires verdict 1. |
+| A8. Parse proof outputs | `proof.json` uses numbers for `version` and `verdict`. Prove stdout supplies `verdict`, `proofFile`, `keyFile`, `proveMillis`, and `userCycles`. |
+| A9. Provide evidence | Pass a directory containing exactly the flat filenames declared in the plan. Omit `--evidence` if the plan declares no evidence. |
+| A10. Show approval | Use `preview` from validation stdout. Keep source quotes as app metadata. Revalidate the approved preview before compiling. It reproduces the structure and rules hashes. |
+| A11. Apply limits | Count file names and headers in the encoded bundle, including for the 32 KiB reference cap. The local delivery cap is 16,384 encoded bytes. Read the final bundle and envelope caps from Nick's deployment manifest. |
+| A12. Use real fixtures | Use [reconciliation](fixtures/reconciliation) for both verdicts and [signed text](fixtures/signed-text) for a second domain. Each uses a synthetic funded context. |
+
+Use the engine's returned commitments for approval and funding. Persist the compile package for the worker when cleaning up staged inputs.

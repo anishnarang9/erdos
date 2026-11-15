@@ -2,6 +2,13 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 20:48 -05:00 — Anish — Settlement and commerce integration
+
+- Nick's [settlement plan](https://github.com/anishnarang9/UBC-26/blob/72853f296de7c816978412327c013486a2079991/agents/current%20plan/SETTLEMENT-IMPLEMENTATION.md) uses Circle's verified core with the Poster-only budget patch. Use the caller-first callback layouts from that plan for `fund` and `submit`. The external submit ABI and engine wire format stay the same. The released verifier pin is `ff30da77ba4afdd496290ebebedb205348b15d83`.
+- Publish the encoded delivery and encrypted envelope limits in the deployment manifest. The engine accepts 16,384 encoded bytes, which produces a 16,412-byte envelope. A 16,384-byte envelope limit would allow at most 16,356 encoded bytes. Nick sets the final cap after measuring Arc submit gas.
+- Before proving a funded job, use the manifest's core proxy as the escrow address. Read the core job and evaluator terms at one block. Confirm the job is funded and unexpired. Match the provider, image ID, rules hash, and reference hash to the proof inputs. Use the [job helper and funded preflight](../../engine/README.md#prepare-job-json-from-funded-terms) after those checks.
+- Neil can wire the engine through the [commerce interface](../../engine/README.md#connect-commerce). It answers the engine questions in the commerce plan and identifies the fields the adapter needs to retain.
+
 ## 2026-11-14 20:00 -05:00 — Anish — Engine release measurements
 
 - The [release measurements](../../engine/fixtures/release-report.json) use real receipts for reconciliation, signed text, and the 16 KiB delivery limit. The local verifier and Arc state override accepted the original receipts. The engine recovered each passing delivery byte for byte.

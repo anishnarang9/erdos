@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 20:48 -05:00 — Anish
+
+- Branch codex/anish-engine. A separate build from the exported signed-text source with empty build caches reproduced the package program and image ID. The reviewed guest ran all six signature profiles and rejected a separate invalid signature for each.
+- Added the exact engine CLI handoff for Neil. Recorded Nick's caller-first hook layout and the distinction between encoded bundle and encrypted envelope caps in the shared plan.
+- Nick owns the deployment manifest, cap confirmation, and funded terms. Confirm them before creating the Arc-bound proof. Native Linux proving time also remains unmeasured.
+
 ## 2026-11-14 20:00 -05:00 — Anish
 
 - Branch codex/anish-engine. Published the reviewed signed-text receipt and [release measurements](../../engine/fixtures/release-report.json). The signed-text guest used 4,232,914 cycles. Host sleep interrupted the proving run, which reported 1,102.373 seconds.

@@ -6,7 +6,7 @@ Build a verification and settlement API for existing agent marketplaces. A buyer
 
 ## Decisions
 
-- **Proof engine.** RISC Zero 3.1.0 with Groth16. Pin the prover, guest toolchain, lockfile and matching Solidity verifier. Deploy the upstream verifier from commit `f6d9398acad07f633819465fecbd85fb72c413dd` and check selector `0xe71e6620`.
+- **Proof engine.** RISC Zero 3.1.0 with Groth16. Pin the prover, guest toolchain, lockfile and matching Solidity verifier. Deploy the `risc0-ethereum` v3.1.0 verifier from commit `ff30da77ba4afdd496290ebebedb205348b15d83` and check selector `0xe71e6620`.
 - **Authoring.** Grok drafts typed rules or asks clarifying questions. A model adapter and typed JSON import allow other authoring clients. The buyer reviews the normalized data, rules and units before funding. The model has no signing authority.
 - **Compiler.** Generate Rust from bounded, typed linear predicates using fixed templates. Rust compiles to the RISC-V guest. The guest evaluates a Boolean assignment using checked integer arithmetic. Compile by rule shape and pass indices, coefficients and thresholds as committed runtime data. Changes to thresholds produce a different plan digest while retaining the same guest image when shape is unchanged.
 - **Settlement.** Use Arc Testnet, chain ID 5042002, and direct test USDC funding. Use a pinned ERC-8183 lifecycle with a custom evaluator and policy hook, zero fees and one selected provider per funded job. Quotes can precede funding. Funded competitions with multiple solvers require a separate award flow.

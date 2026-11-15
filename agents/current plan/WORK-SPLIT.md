@@ -2,6 +2,8 @@
 
 **2026-11-14 · Anish workstream · Proposed handoff**
 
+Use the [settlement and commerce integration entry](PLAN.md#2026-11-14-2048--0500--anish--settlement-and-commerce-integration) for the current core source, hook layout, and delivery limits.
+
 The buyer approves a job and funds a USDC bounty. The solver completes the job, proves that the deliverable meets the rules, and submits the encrypted deliverable. An evaluator verifies the proof on Arc Testnet. The solver releases the matching key in the transaction that pays the bounty.
 
 | Workstream | Owner | Delivers |
