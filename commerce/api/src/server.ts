@@ -5,7 +5,7 @@ import { createApp } from "./app.ts";
 import { openDb } from "./db.ts";
 import { createIndexer } from "./indexer.ts";
 import type { ApiChain } from "./chain.ts";
-import { cliEngine, simulatedEngine, wslEngine, type Engine } from "./engine.ts";
+import { engineConfigFromEnv, engineFromConfig, simulatedEngine, type Engine } from "./engine.ts";
 import { grokDraftModel, recordingDraftModel, replayDraftModel, type DraftModel } from "./grok.ts";
 
 // Secrets live in a gitignored .env next to where the server starts. Real environment variables win.
@@ -44,38 +44,18 @@ function chainFromEnv(): ApiChain | undefined {
   return { config, publicClient };
 }
 
-/**
- * Engine from ENGINE_MODE:
- *   wsl        ENGINE_PATH (Linux path), ENGINE_WSL_DISTRO (default Ubuntu), ENGINE_R0VM, ENGINE_CACHE,
- *              ENGINE_WORK_DIR (host path; prefer \\wsl.localhost\<distro>\...)
- *   native     ENGINE_PATH (host path), ENGINE_WORK_DIR
- *   simulated  (default) fake hashes, never provable
- */
+/** Engine from ENGINE_MODE and friends (see engineConfigFromEnv). The default is the simulated engine. */
 function engineFromEnv(): { engine: Engine; label: string } {
-  const mode = process.env.ENGINE_MODE ?? "simulated";
-  const enginePath = process.env.ENGINE_PATH;
-  const workDir = process.env.ENGINE_WORK_DIR;
-  if (mode === "simulated") return { engine: simulatedEngine(), label: "SIMULATED" };
-  if (!enginePath) {
-    console.error(`ENGINE_PATH is required when ENGINE_MODE=${mode}`);
+  let config: ReturnType<typeof engineConfigFromEnv>;
+  try {
+    config = engineConfigFromEnv(process.env);
+  } catch (err) {
+    console.error((err as Error).message);
     process.exit(1);
   }
-  if (mode === "wsl") {
-    const distro = process.env.ENGINE_WSL_DISTRO ?? "Ubuntu";
-    return {
-      engine: wslEngine({
-        distro,
-        enginePath,
-        ...(process.env.ENGINE_R0VM ? { r0vmPath: process.env.ENGINE_R0VM } : {}),
-        ...(process.env.ENGINE_CACHE ? { cacheDir: process.env.ENGINE_CACHE } : {}),
-        ...(workDir ? { workDir } : {}),
-      }),
-      label: `wsl:${distro}:${enginePath}`,
-    };
-  }
-  if (mode === "native") return { engine: cliEngine({ bin: enginePath, ...(workDir ? { workDir } : {}) }), label: `native:${enginePath}` };
-  console.error(`ENGINE_MODE must be wsl, native or simulated, not ${mode}`);
-  process.exit(1);
+  if (!config) return { engine: simulatedEngine(), label: "SIMULATED (fake hashes; set ENGINE_MODE=wsl for the real engine)" };
+  const { engine, label } = engineFromConfig(config);
+  return { engine, label };
 }
 
 /**

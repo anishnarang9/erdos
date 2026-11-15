@@ -16,6 +16,8 @@ export {
   simulatedEngine,
   cliEngine,
   wslEngine,
+  engineConfigFromEnv,
+  engineFromConfig,
   wslEngineBin,
   windowsToWslPath,
   parseEngineError,
@@ -32,6 +34,7 @@ export {
   type PlanHashes,
   type EngineErrorBody,
   type WslEngineOptions,
+  type EngineEnvConfig,
 } from "./engine.ts";
 export {
   grokDraftModel,

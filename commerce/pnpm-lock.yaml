@@ -73,6 +73,34 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(@types/node@22.20.5)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.27.7)(tsx@4.21.0))
 
+  worker:
+    dependencies:
+      '@ubc26/api':
+        specifier: workspace:*
+        version: link:../api
+      '@ubc26/sdk':
+        specifier: workspace:*
+        version: link:../sdk
+      viem:
+        specifier: 2.57.19
+        version: 2.57.19(typescript@5.9.3)(zod@4.6.7)
+    devDependencies:
+      '@hono/node-server':
+        specifier: 2.1.8
+        version: 2.1.8(hono@4.13.18)
+      '@types/node':
+        specifier: 22.20.5
+        version: 22.20.5
+      tsx:
+        specifier: 4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 5.1.0
+        version: 5.1.0(@types/node@22.20.5)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.27.7)(tsx@4.21.0))
+
 packages:
 
   '@adraffy/ens-normalize@1.11.1':

@@ -422,3 +422,44 @@ export function wslEngine(o: WslEngineOptions): Engine {
     ...(o.compileTimeoutMs ? { compileTimeoutMs: o.compileTimeoutMs } : {}),
   });
 }
+
+// ---------------------------------------------------------------------------------------------------
+// Configuration from the environment (server, integration tests, worker)
+
+export interface EngineEnvConfig {
+  mode: "wsl" | "native";
+  enginePath: string;
+  distro: string;
+  r0vmPath?: string;
+  cacheDir?: string;
+  workDir?: string;
+}
+
+/**
+ * Reads ENGINE_MODE (wsl | native | simulated), ENGINE_PATH, ENGINE_WSL_DISTRO (default Ubuntu), ENGINE_R0VM,
+ * ENGINE_CACHE and ENGINE_WORK_DIR. Returns null for simulated (the default); throws on a bad configuration.
+ */
+export function engineConfigFromEnv(env: Record<string, string | undefined>): EngineEnvConfig | null {
+  const mode = env.ENGINE_MODE ?? "simulated";
+  if (mode === "simulated") return null;
+  if (mode !== "wsl" && mode !== "native") throw new Error(`ENGINE_MODE must be wsl, native or simulated, not ${mode}`);
+  if (!env.ENGINE_PATH) throw new Error(`ENGINE_PATH is required when ENGINE_MODE=${mode}`);
+  return {
+    mode,
+    enginePath: env.ENGINE_PATH,
+    distro: env.ENGINE_WSL_DISTRO ?? "Ubuntu",
+    ...(env.ENGINE_R0VM ? { r0vmPath: env.ENGINE_R0VM } : {}),
+    ...(env.ENGINE_CACHE ? { cacheDir: env.ENGINE_CACHE } : {}),
+    ...(env.ENGINE_WORK_DIR ? { workDir: env.ENGINE_WORK_DIR } : {}),
+  };
+}
+
+/** The engine for a configuration, and the path mapping its callers need for their own files. */
+export function engineFromConfig(c: EngineEnvConfig): { engine: Engine; label: string; bin: EngineBin; toEnginePath: (p: string) => string } {
+  if (c.mode === "wsl") {
+    const toEnginePath = (p: string) => windowsToWslPath(p, c.distro);
+    return { engine: wslEngine(c), label: `wsl:${c.distro}:${c.enginePath}`, bin: wslEngineBin(c), toEnginePath };
+  }
+  const bin = c.enginePath;
+  return { engine: cliEngine({ bin, ...(c.workDir ? { workDir: c.workDir } : {}) }), label: `native:${c.enginePath}`, bin, toEnginePath: (p) => p };
+}
