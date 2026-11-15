@@ -5,13 +5,15 @@ Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 ## 2026-11-14 — Nick workstream — Settlement plan: Poster naming and push rules
 
 - Decision: the settlement plan calls the buyer role the **Poster** (posts the problem and locks the bounty). The Solver term is unchanged.
-- Decision: settlement subagents push after each checkpoint and open detailed PRs without asking Nick. They record progress in `status.md` and team-affecting decisions here. Nick pushes `SETTLEMENT-IMPLEMENTATION.md` himself, and the file is not pushed yet. Affects settlement subagents.
+- Decision: settlement subagents push after each checkpoint and open detailed PRs without asking Nick. They record progress in `status.md` and team-affecting decisions here. Nick pushes `SETTLEMENT-IMPLEMENTATION.md` himself. It reached `main` in the `264fa5d` merge, and subagents still do not push changes to it. Affects settlement subagents.
+- Terminology: the **Poster** in the settlement plan is the **buyer** in the commerce, architecture, and marketplace documents. The **Solver** is the worker or provider.
 
 ## 2026-11-14 — Nick workstream — Settlement implementation plan
 
 - The [settlement implementation plan](SETTLEMENT-IMPLEMENTATION.md) specifies the Arc escrow, verifier, hook and evaluator, tests, and subagent tracks. It is proposed until the build gates pass.
 - Decision: deploy our own copy of Circle's verified `AgenticCommerce` source with one patch (`setBudget` is Poster-only), then renounce admin roles. Reason: Circle's deployment is admin-controlled, so our proof-checking hook cannot be whitelisted there. Affects Anish and Neil.
-- Decision: pin hook data to the deployed layout, which starts with the caller address. [WORK-SPLIT.md](WORK-SPLIT.md) sections 2.4 and 2.6 decode a different layout and need correcting. Section 10 of the new plan lists this and six other corrections: funding steps, 5-minute minimum expiry, 20 Gwei fee floor, log range limit, stale verifier pin in Anish's context.
+- Decision: pin hook data to the deployed layout, which starts with the caller address. [WORK-SPLIT.md](WORK-SPLIT.md) sections 2.4 and 2.6 decode a different layout and need correcting. Section 10 of the new plan lists this and six other corrections: the core source to use (Circle's verified source plus the patch, not draft revision `a078cab5`), the four Poster funding transactions, the 5-minute minimum expiry, the 20 Gwei fee floor and 10,000-block log range, the stale verifier pin in Anish's context, and that our core is frozen by role renunciation while Circle's stays upgradeable.
+- Answers to Neil's open questions for Nick (Q-N), from the settlement plan: the core is Circle's verified source with one patch, and our hook is whitelisted once before the admin roles are renounced (Q-N1, Q-N13). Only the Poster calls `setBudget` (Q-N2). Expiry must be more than 5 minutes ahead, and submit and release need `block.timestamp < expiry` (Q-N5). Only the funded Solver calls `release` (Q-N11). `claimRefund` works from Funded or Submitted once expired (Q-N12). The event names, selectors, and ABI stub (Q-N4, Q-N6, Q-N9, Q-N10) arrive with the Nov 15 manifest. The commerce plan's `setBudget` wording (provider-only, "if the pinned core has it") needs updating to match.
 - Subagents work locally and read-only against Arc. Nick runs every live deployment. Real proof verification and the full settlement path on Arc are pending.
 
 ## 2026-11-14 15:45 -05:00 — Neil — Proposed: workstream 3 commerce plan, aligned with main
