@@ -1,6 +1,6 @@
 // T7 POST /v1/jobs/:id/select-quote (CONTRACT-T5-T8.md §5) and the quote domain with a chain. Black-box, anvil.
 import { afterAll, afterEach, describe, expect, it } from "vitest";
-import { decodeFunctionData } from "viem";
+import { decodeAbiParameters, decodeFunctionData } from "viem";
 import { mockUsdcAbi, stubCoreAbi } from "@ubc26/sdk";
 import { expectError, freshKey } from "./helpers.ts";
 import {
@@ -159,6 +159,19 @@ describe("§5 select-quote: success", () => {
     expect(ca[2]).toBe(BigInt(r.terms.expiredAt));
     expect(ca[3]).toBe("ubc26:" + r.jobId);
     expect(eqAddr(ca[4], ctx.config.hook)).toBe(true);
+  });
+
+  itX("afterCreate: setBudget(amount = price, empty optParams) then fund(optParams = abi.encode(imageId, rulesHash, referenceHash))", async () => {
+    const ctx = chain.ctx!;
+    s = await makeChainApp(ctx);
+    const r = await selectedJob(s, rev78(), { price: "2500000" });
+    const ac = r.body.afterCreate as { order: string[]; steps: { kind: string; to: string; signature: string; args: Record<string, string> }[] };
+    expect(ac.order).toEqual(["createJob", "setBudget", "approve", "fund"]);
+    expect(ac.steps.map((x) => x.kind)).toEqual(["setBudget", "fund"]);
+    for (const st of ac.steps) expect(eqAddr(st.to, ctx.config.core)).toBe(true);
+    expect(ac.steps[0]!.args).toEqual({ amount: "2500000", optParams: "0x" });
+    const [imageId, rulesHash, referenceHash] = decodeAbiParameters([{ type: "bytes32" }, { type: "bytes32" }, { type: "bytes32" }], ac.steps[1]!.args.optParams as `0x${string}`);
+    expect([imageId, rulesHash, referenceHash]).toEqual([r.manifest.imageId, r.manifest.rulesHash, r.manifest.referenceHash]);
   });
 
   itX("idempotent replay returns the identical body; a fresh select afterwards -> wrong_state", async () => {

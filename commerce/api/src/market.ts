@@ -16,6 +16,7 @@ import { readBody, parseJson, requireJobId, isoAt, type AppEnv, type Deps } from
 import type { RouteContext } from "./routes.ts";
 import { isPlainObject, type FieldError } from "./revision.ts";
 import {
+  afterCreateSteps,
   checksum,
   DEFAULT_QUOTE_CHAIN_ID,
   fundingTxRequests,
@@ -491,7 +492,12 @@ export function registerMarketRoutes(ctx: RouteContext): void {
       referenceHash: manifest.reference_hash as Hex,
       description: "ubc26:" + job.id,
     };
-    const resBody = { state: "selected", fundingTerms, txRequests: fundingTxRequests(fundingTerms) };
+    const resBody = {
+      state: "selected",
+      fundingTerms,
+      txRequests: fundingTxRequests(fundingTerms),
+      afterCreate: afterCreateSteps(fundingTerms),
+    };
     const at = isoAt(deps.now());
     return commit(c, 200, resBody, () => {
       q.insertSelection.run(job.id, quote.id, JSON.stringify(fundingTerms), at);
