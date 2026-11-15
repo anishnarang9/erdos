@@ -2,6 +2,15 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 22:53 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, integration baseline `3f4f8c4`. Phase 1 completed. Engine and commerce pins remain `adda3a3` and `3013d736`.
+- Added the reproducible 60-request suite: 40 supported, 10 ambiguous, and 10 unsupported requests across six families. All 341 candidate deliveries matched independent reference checks and the real CLI. Supported plans form eight normalized structures. All ten unsupported drafts returned the expected capability kind and name. Ambiguous requests have expected clarification labels but no model result yet.
+- Added 10,000 seeded compiler/runtime cases. Fresh workspace run passed 51 Rust tests with three prepared-guest tests ignored. The generated corpus covered 40 families, 95 input categories, and all 23 runtime operations with zero oracle mismatches. [Coverage](../../engine/evaluation/reports/seeded.json).
+- `node --test engine/evaluation/challenges.test.mjs engine/evaluation/harness.test.mjs` passed 12 tests. `node engine/evaluation/run-challenges.mjs ENGINE OUTPUT` completed with zero failures after three harness corrections. [Host results](../../engine/evaluation/reports/host.json) and [initial findings](../../engine/evaluation/reports/harness-corrections.json) preserve the actual evidence. No production correctness defect is confirmed by this corpus.
+- User requested fewer model calls and GPT-6 Sol for further helpers. Existing helpers finished. No Luna trials or new proofs ran. The 180 planned authoring trials remain pending while rate limits are tight.
+- Next: compile all accepted structures, compare guest execution with independent expectations, and check commitment/image invariants. Settlement remains pending and outside this run's transaction scope.
+
 ## 2026-11-14 22:46 -05:00 — Anish
 
 - Integration branch `codex/engine-commerce` starts from engine `adda3a3` and commerce `3013d73624c3cf279015b25ec17497d7394ab70f`. The managed worktree is separate from the engine PR. The merge changed commerce files only and has no conflicts.

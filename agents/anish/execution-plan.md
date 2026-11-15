@@ -15,11 +15,11 @@ The user approved unattended execution through these phases in order. Checkpoint
 
 ## Phase 1: Independent challenge testing
 
-- [ ] Generate 60 plain-English requests: 40 supported, 10 ambiguous, 10 unsupported.
-- [ ] Cover expenses, reconciliation, inventory, allocation, file integrity, and signed evidence.
-- [ ] Supply valid candidates and isolated counterexamples with independent expected results.
-- [ ] Run 10,000 seeded cases. Record operations, input types, failure classes, failing seeds, and useful minimized examples.
-- [ ] Separate translation mistakes, compiler/evaluator disagreements, invalid inputs, unsupported features, and proof failures.
+- [x] Generate 60 plain-English requests: 40 supported, 10 ambiguous, 10 unsupported.
+- [x] Cover expenses, reconciliation, inventory, allocation, file integrity, and signed evidence.
+- [x] Supply valid candidates and isolated counterexamples with independent expected results.
+- [x] Run 10,000 seeded cases. Record operations, input types, failure classes, failing seeds, and useful minimized examples.
+- [x] Separate translation mistakes, compiler/evaluator disagreements, invalid inputs, unsupported features, and proof failures.
 
 ## Phase 2: Engine hardening
 
