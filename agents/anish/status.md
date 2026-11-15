@@ -2,6 +2,15 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 16:59 -05:00 — Anish
+
+- Added the concrete provider-only local broadcaster. It validates exact authorizations, chain/account/job/destination, canonical calldata, explicit EIP-1559 fields, gas/fee caps and deadlines. It signs locally and calls raw RPC once with retries disabled.
+- Private account-wide locks and durable journals reserve nonce and maximum gas before signing. Signed hashes and disclosure intents persist before dispatch. Uncertain writes never automatically resend. Reconciliation records observed gas cost separately.
+- Quality review caught unsafe budget reuse before finality and accepted journal hardlinks. Failing regressions drove fixes. Maximum reservations now remain charged permanently, including after canonical receipt observations. Private file checks bind inode/device/owner/mode and require one hardlink.
+- Specification and quality re-reviews approved. Parent focused verification passed 157 tests across provider signing, Poster funding and recovery, including all 38 provider tests. Full typecheck at that instant failed only in the separately unfinished sprint runner. The implementer subsequently reported 760 worker tests and typecheck passing.
+- No actual wallet, chain broadcast or live payout was used. The concrete capability still needs an externally approved authorization and injected protected local account.
+- Next: keystore, Poster and independent recovery checkpoints, then full runner verification and local fresh-context rehearsal.
+
 ## 2026-11-15 16:41 -05:00 — Anish
 
 - Added strict sprint input/state schemas, private atomic storage, exclusive owned locks, phase and approval guards, and a model-input projection that excludes candidate/oracle paths.

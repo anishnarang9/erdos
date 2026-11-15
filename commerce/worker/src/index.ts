@@ -10,6 +10,10 @@ export {
   type SprintInput, type LoadedSprintInput, type SprintState, type SprintPhase,
 } from "./sprint-state.ts";
 export { checkPolicy, PolicyError, ARC_MIN_FEE, SUBMIT_SELECTOR, RELEASE_SELECTOR } from "./policy.ts";
+export {
+  createLocalBroadcaster, type LocalBroadcaster, type LocalBroadcasterConfig,
+  type LocalBroadcasterPublic, type LocalRawSend,
+} from "./local-broadcaster.ts";
 export type { PolicyConfig, OutgoingTx, WriteAuthorization } from "./policy.ts";
 export { apiClient, ApiClientError, type ApiClient, type JobView, type PackageListing } from "./client.ts";
 export { decrypt, engineRunner, evaluate, prove, WorkerEngineError, type EngineRunner, type ProveOutput } from "./engine.ts";
