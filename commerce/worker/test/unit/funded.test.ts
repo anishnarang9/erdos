@@ -208,6 +208,125 @@ describe("runFunded: verdict 0", () => {
   });
 });
 
+describe("runFunded: stop after private proof validation", () => {
+  for (const verdict of [0, 1] as const) {
+    it(`persists verdict ${verdict} without any settlement preflight or broadcast`, async () => {
+      const { o, port, runner } = setup({}, { verdict });
+      o.stopAfterProof = true;
+      port.preflightSubmit = port.preflightRelease = async () => { throw new Error("no preflight allowed"); };
+      port.submit = port.release = async () => { throw new Error("no broadcast allowed"); };
+      const state = await runFunded(o);
+      expect(state).toMatchObject({ phase: verdict ? "proved" : "rejected", verdict, paymentConfirmed: false });
+      expect(state.submitTx).toBeUndefined();
+      expect(state.releaseTx).toBeUndefined();
+      expect(state.rejectedPreflight).toBeUndefined();
+      expect(JSON.parse(readFileSync(join(o.attemptDir, "state.json"), "utf8"))).toEqual(state);
+      expect((await runFunded(o)).phase).toBe(state.phase);
+      expect(runner.calls.filter(c => c[0] === "prove")).toHaveLength(1);
+      expect(runner.calls.filter(c => c[0] === "decrypt")).toHaveLength(verdict ? 2 : 0);
+      expect([port.submits, port.releases, port.preflights.length]).toEqual([0, 0, 0]);
+    });
+  }
+  it("normal resume settles the already validated exact proof without proving again", async () => {
+    const { o, port, runner } = setup();
+    const proof = await runFunded({ ...o, stopAfterProof: true });
+    expect(proof.phase).toBe("proved");
+    expect([port.submits, port.releases]).toEqual([0, 0]);
+    const state = await runFunded(o);
+    expect(state).toMatchObject({ phase: "released", envelopeHash: proof.envelopeHash, keyCommitment: proof.keyCommitment });
+    expect(runner.calls.filter(c => c[0] === "prove")).toHaveLength(1);
+    expect([port.submits, port.releases]).toEqual([1, 1]);
+  });
+  it("requires exact engine recovery even when no signing is requested", async () => {
+    const { o, port } = setup({}, { decryptFiles: [{ name: "wrong.txt", content: DELIVER[0]!.content }] });
+    await checkFails(runFunded({ ...o, stopAfterProof: true }), "engineDecryptMatches");
+    expect([port.submits, port.releases, port.preflights.length]).toEqual([0, 0, 0]);
+  });
+  for (const phase of ["submit_broadcasting", "submit_sent", "submitted", "release_broadcasting", "release_sent", "released", "abandoned"] as const) {
+    it(`refuses ${phase} rather than entering settlement during proof-only resume`, async () => {
+      const { o, port, receipt } = await pending(phase.startsWith("release") || phase === "released" ? "release" : "submit");
+      mutateState(o, { phase });
+      const counts = [port.submits, port.releases, port.preflights.length];
+      port.receipt = receipt;
+      await checkFails(runFunded({ ...o, stopAfterProof: true }), "stop_after_proof");
+      expect([port.submits, port.releases, port.preflights.length]).toEqual(counts);
+    });
+  }
+  it("cannot disguise prior transaction history as a proved state", async () => {
+    const { o, port } = await pending();
+    mutateState(o, { phase: "proved" });
+    await checkFails(runFunded({ ...o, stopAfterProof: true }), "stop_after_proof");
+    expect([port.submits, port.releases]).toEqual([1, 0]);
+  });
+  it("still rejects changed artifacts on a proof-only resume", async () => {
+    const { o, port } = setup();
+    await runFunded({ ...o, stopAfterProof: true });
+    writeFileSync(join(o.attemptDir, "deliverables/result.json"), "tampered");
+    await checkFails(runFunded({ ...o, stopAfterProof: true }), "artifacts");
+    expect([port.submits, port.releases]).toEqual([0, 0]);
+  });
+  for (const verdict of [0, 1] as const) {
+    it(`rejects an API revision changed during verdict-${verdict} proving`, async () => {
+      const { o, port, runner, f } = setup({}, { verdict });
+      const run = runner.run;
+      runner.run = async (...args) => { const result = await run(...args); if (args[0][0] === "prove") f.view.revision.n++; return result; };
+      await checkFails(runFunded({ ...o, stopAfterProof: true }), "api_revision");
+      expect([port.submits, port.releases, port.preflights.length]).toEqual([0, 0, 0]);
+    });
+  }
+  it("rejects artifacts changed during private recovery before returning a proved state", async () => {
+    const { o, port, runner } = setup();
+    const run = runner.run;
+    runner.run = async (...args) => { const result = await run(...args); if (args[0][0] === "decrypt") writeFileSync(join(o.attemptDir, "package/guest.elf"), "changed"); return result; };
+    await checkFails(runFunded({ ...o, stopAfterProof: true }), "artifacts");
+    expect([port.submits, port.releases, port.preflights.length]).toEqual([0, 0, 0]);
+  });
+});
+
+describe("runFunded: bounded actual prover timeout", () => {
+  for (const remaining of [1000n, 200n, 181n]) {
+    it(`uses fresh remaining time ${remaining}s after download and solving`, async () => {
+      const { o, port, runner } = setup({ expiresIn: 1000n });
+      const solve = o.solver.solve;
+      o.solver.solve = async input => { port.time = port.job_.expiredAt - remaining; return solve(input); };
+      const run = runner.run;
+      let timeout: number | undefined;
+      runner.run = async (args, ms) => { if (args[0] === "prove") timeout = ms; return run(args, ms); };
+      await runFunded({ ...o, stopAfterProof: true });
+      expect(timeout).toBe(Number(remaining - 180n > 300n ? 300n : remaining - 180n) * 1000);
+      expect(Number.isSafeInteger(timeout)).toBe(true);
+      expect(timeout).toBeGreaterThan(0);
+      expect(timeout).toBeLessThanOrEqual(o.proveBudgetSec * 1000);
+    });
+  }
+  for (const remaining of [180n, 179n, 0n]) {
+    it(`does not start the prover with only ${remaining}s remaining`, async () => {
+      const { o, port, runner } = setup();
+      o.solver.solve = async () => { port.time = port.job_.expiredAt - remaining; return DELIVER; };
+      await checkFails(runFunded({ ...o, stopAfterProof: true }), "time_budget");
+      expect(runner.calls).toEqual([]);
+      expect([port.submits, port.releases, port.preflights.length]).toEqual([0, 0, 0]);
+    });
+  }
+  it("clamps millisecond conversion to a positive safe integer", async () => {
+    const { o, port, runner } = setup();
+    o.proveBudgetSec = Number.MAX_SAFE_INTEGER;
+    port.job_.expiredAt = NOW + BigInt(o.proveBudgetSec) + 1000n;
+    port.terms_.expiry = port.job_.expiredAt;
+    const run = runner.run;
+    let timeout: number | undefined;
+    runner.run = async (args, ms) => { if (args[0] === "prove") timeout = ms; return run(args, ms); };
+    await runFunded({ ...o, stopAfterProof: true });
+    expect(timeout).toBe(Number.MAX_SAFE_INTEGER);
+  });
+  it("rechecks funded status after solver overhead before starting the prover", async () => {
+    const { o, port, runner } = setup();
+    o.solver.solve = async () => { port.job_.status = "Submitted"; return DELIVER; };
+    await checkFails(runFunded({ ...o, stopAfterProof: true }), "status");
+    expect(runner.calls).toEqual([]);
+  });
+});
+
 describe("runFunded: refuses jobs it must not touch", () => {
   it("another provider's job", async () => {
     const { o, runner } = setup({ provider: "0x00000000000000000000000000000000000Ca11e" as Address });

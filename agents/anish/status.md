@@ -2,6 +2,15 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 17:18 -05:00 — Anish
+
+- Added `runFunded({ stopAfterProof: true })` for private preparation without settlement preflight, signer construction, submit or release. It validates the saved proof and exact SDK/engine recovery before returning. Normal resume settles that same proof without proving again.
+- Proof-only mode rejects prior settlement phases or transaction history. It does not bypass any existing API approval, artifact, context, recovery or uncertain-write guard. The general funded CLI remains read-only.
+- The actual prover timeout now uses a fresh post-solver chain snapshot. It takes the smaller of the configured proving budget and remaining expiry after submit/release reserves, with positive safe-integer bounds.
+- Parent focused verification included all 127 funded tests and passed typecheck. Independent specification and quality review approved the two-file change. Tests first exposed 20 preparation failures and three additional history/guard cases.
+- Optional evidence-directory composition is still absent and unnecessary for this workload. No guest semantics, dependency pins or archived receipts changed.
+- Next: complete source/engine-bound runner review, remote CI and the active local actual-proof rehearsal.
+
 ## 2026-11-15 17:16 -05:00 — Anish
 
 - Published a proposed fresh synthetic allocation/dispatch workload, separate known candidates and a semantic Python oracle. Independent authoring received only the request/reference/output declarations. No answer-specific hash or fixed assignment enters its rules.

@@ -53,6 +53,8 @@ export interface FundedOptions {
   client: ApiClient; runner: EngineRunner; port: SettlementPort; jobId: string; chainJobId: bigint;
   solver: Solver; attemptDir: string; proveBudgetSec: number; releaseMarginSec?: number;
   submitBudgetSec?: number; preflightRejected?: boolean;
+  /** Validate and persist the private proof only. Refuse any settlement history. */
+  stopAfterProof?: boolean;
 }
 export type Phase = typeof PHASES[number];
 export interface FundedState {
@@ -142,6 +144,10 @@ export async function runFunded(o: FundedOptions): Promise<FundedState> {
     const releaseHistory = state.releaseDisclosure === "potentially_public" || !!state.releaseTx || state.phase === "release_broadcasting" || state.phase === "release_sent" || state.phase === "released" || state.log.some(e => e.event.startsWith("release"));
     if (releaseHistory) state.releaseDisclosure = "potentially_public";
     if (!resume || releaseHistory || state.paymentConfirmed === undefined) { state.paymentConfirmed = false; save(); }
+    if (o.stopAfterProof) must(
+      ["preparing", "proving", "proved", "rejected"].includes(state.phase) && !state.submitTx && !state.releaseTx && !releaseHistory && !state.log.some(e => e.event.startsWith("submit")),
+      "stop_after_proof", "proof-only mode refuses settlement phases or transaction history; use normal resume for reconciliation",
+    );
     let lastBlock: bigint | undefined;
     let lastTimestamp: bigint | undefined;
     const readChain = async (): Promise<Omit<SettlementSnapshot, "blockNumber"> & { blockNumber?: bigint }> => {
@@ -197,8 +203,14 @@ export async function runFunded(o: FundedOptions): Promise<FundedState> {
       privateTree(o.attemptDir, true);
       state.artifacts = treeDigests(o.attemptDir);
       phase("proving");
+      // Download and solver time consume the same chain deadline as the prover.
+      const beforeProve = await readChain();
+      must(beforeProve.job.status === "Funded", "status", "job is no longer Funded before proving");
+      const availableMs = (beforeProve.job.expiredAt - beforeProve.timestamp - submitBudget - margin) * 1000n;
+      must(availableMs > 0n, "time_budget", "insufficient prove + submit + release reserve before proving");
+      const timeoutMs = Number([availableMs, BigInt(o.proveBudgetSec) * 1000n, BigInt(Number.MAX_SAFE_INTEGER)].reduce((a, b) => a < b ? a : b));
       let out;
-      try { out = await prove(o.runner, { packageDir: at("package"), jobFile: at("job.json"), deliverablesDir: at("deliverables"), referenceDir: at("reference"), outDir: at("attempt") }); }
+      try { out = await prove(o.runner, { packageDir: at("package"), jobFile: at("job.json"), deliverablesDir: at("deliverables"), referenceDir: at("reference"), outDir: at("attempt") }, timeoutMs); }
       catch { throw new WorkerCheckError("prove", "engine proving failed; inspect private artifacts"); }
       finally { privateTree(o.attemptDir, true); }
       const after = treeDigests(o.attemptDir);
@@ -222,9 +234,27 @@ export async function runFunded(o: FundedOptions): Promise<FundedState> {
     const key = readFileSync(at("attempt/release-key.hex"), "utf8").trim();
     must(/^0x[0-9a-f]{64}$/.test(key), "key_format", "release key is not lowercase 32-byte hex");
     must(equal(keyCommitment(context, bytes(key as Hex)), pkg.keyCommitment), "key", "release key does not open commitment");
+    const checkCurrentInputs = async () => {
+      privateTree(o.attemptDir);
+      must(JSON.stringify(state.artifacts) === JSON.stringify(treeDigests(o.attemptDir)), "artifacts", "artifacts changed before signing");
+      const current = await o.client.job(o.jobId);
+      const linked = (current as unknown as { chain?: { chainId: number; core: string; jobId: string } }).chain;
+      must(current.jobId === o.jobId && linked?.chainId === port.chainId && equal(linked.core, port.core) && linked.jobId === id.toString() && revisionOf(current) === state.revision, "api_revision", "API identity or revision changed before signing");
+      const latestApproval = current.approval as typeof approval;
+      must(latestApproval !== null && equal(latestApproval.revisionHash, current.revision.revisionHash) && equal(latestApproval.rulesHash, terms.rulesHash) && equal(latestApproval.referenceDigest, terms.referenceHash) && equal(latestApproval.structureHash, listing.manifest.structureHash), "approval", "latest API approval changed before signing");
+      for (const k of ["imageId", "rulesHash", "referenceHash"] as const) must(equal(current.manifest?.[k], terms[k]), "terms_package", "latest API manifest changed before signing");
+      must(readFileSync(at("attempt/release-key.hex"), "utf8").trim() === key, "key", "release key changed before signing");
+    };
+    const stopWithValidatedInputs = async () => {
+      await readChain();
+      await checkCurrentInputs();
+      privateTree(o.attemptDir);
+      must(JSON.stringify(state.artifacts) === JSON.stringify(treeDigests(o.attemptDir)), "artifacts", "artifacts changed during proof-only checks");
+    };
     if (pkg.verdict === 0) {
       must(!state.submitTx && !state.releaseTx, "verdict0", "verdict-0 state has transaction history; manual reconciliation required");
-      if (state.phase !== "rejected" && (o.preflightRejected ?? true)) {
+      if (o.stopAfterProof) await stopWithValidatedInputs();
+      if (!o.stopAfterProof && state.phase !== "rejected" && (o.preflightRejected ?? true)) {
         const pf = await port.preflightSubmit(id, pkg);
         must(!pf.ok, "verdict0_preflight", "chain would accept verdict 0");
         // Do not persist arbitrary RPC messages, which may contain private data.
@@ -237,16 +267,9 @@ export async function runFunded(o: FundedOptions): Promise<FundedState> {
     try { await checkRecovery(o.runner, at("attempt/proof.json"), at("attempt/release-key.hex"), join(recovery, "files"), pkg, bytes(key as Hex), readFilesFrom(at("deliverables"))); }
     catch (e) { if (e instanceof WorkerCheckError) throw e; throw new WorkerCheckError("recovery", "private recovery validation failed"); }
     finally { rmSync(recovery, { recursive: true, force: true }); }
+    if (o.stopAfterProof) { await stopWithValidatedInputs(); return state; }
     const beforeSigning = async () => {
-      privateTree(o.attemptDir);
-      must(JSON.stringify(state.artifacts) === JSON.stringify(treeDigests(o.attemptDir)), "artifacts", "artifacts changed before signing");
-      const current = await o.client.job(o.jobId);
-      const linked = (current as unknown as { chain?: { chainId: number; core: string; jobId: string } }).chain;
-      must(current.jobId === o.jobId && linked?.chainId === port.chainId && equal(linked.core, port.core) && linked.jobId === id.toString() && revisionOf(current) === state.revision, "api_revision", "API identity or revision changed before signing");
-      const latestApproval = current.approval as typeof approval;
-      must(latestApproval !== null && equal(latestApproval.revisionHash, current.revision.revisionHash) && equal(latestApproval.rulesHash, terms.rulesHash) && equal(latestApproval.referenceDigest, terms.referenceHash) && equal(latestApproval.structureHash, listing.manifest.structureHash), "approval", "latest API approval changed before signing");
-      for (const k of ["imageId", "rulesHash", "referenceHash"] as const) must(equal(current.manifest?.[k], terms[k]), "terms_package", "latest API manifest changed before signing");
-      must(readFileSync(at("attempt/release-key.hex"), "utf8").trim() === key, "key", "release key changed before signing");
+      await checkCurrentInputs();
       const latest = await readChain();
       const reserve = state.phase === "proved" ? submitBudget + margin : margin + 1n;
       must(latest.job.status === (state.phase === "proved" ? "Funded" : "Submitted") && latest.job.expiredAt - latest.timestamp >= reserve, "time_budget", "status or timing reserve changed before signing");
