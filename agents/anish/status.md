@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 20:00 -05:00 — Anish
+
+- Branch codex/anish-engine. Published the reviewed signed-text receipt and [release measurements](../../engine/fixtures/release-report.json). The signed-text guest used 4,232,914 cycles. Host sleep interrupted the proving run, which reported 1,102.373 seconds.
+- Local Solidity and the Arc state override accepted the original receipt and rejected changed inputs. Decryption recovered the original note byte for byte.
+- An independent build from the exported checker source is running. The deployed evaluator check still needs the funded job terms.
+
 ## 2026-11-14 19:02 -05:00 — Anish
 
 - Branch codex/anish-engine. The full 16 KiB delivery produced a passing proof in 548.906 seconds and 3,273,441 guest cycles. Decryption recovered the exact 16,367-byte file.

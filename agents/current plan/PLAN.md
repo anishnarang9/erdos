@@ -2,6 +2,11 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 20:00 -05:00 — Anish — Engine release measurements
+
+- The [release measurements](../../engine/fixtures/release-report.json) use real receipts for reconciliation, signed text, and the 16 KiB delivery limit. The local verifier and Arc state override accepted the original receipts. The engine recovered each passing delivery byte for byte.
+- The full-size envelope used 16,996 bytes of calldata under the documented submit ABI. The deployed evaluator still needs to confirm the cap and report settlement gas. The funded submit preflight is ready for the November 16 gate.
+
 ## 2026-11-14 18:56 -05:00 — Anish — Funded submit preflight
 
 - The [reconciliation proof pair](../../engine/fixtures/reconciliation) now uses the reviewed checker. The local Solidity test accepted both original journals and rejected a failing receipt against a passing journal.

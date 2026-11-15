@@ -160,6 +160,8 @@ bash engine/tests/reproduce-release.sh engine/target/debug/engine NEW_SCRATCH_DI
 node engine/tests/report-release.mjs NEW_SCRATCH_DIR
 ```
 
+The [release measurements](fixtures/release-report.json) cover the reviewed reconciliation pair, signed text, and full delivery limit. Each proof uses a 260-byte seal. On an Apple M3 Pro with the amd64 compression container, engine cache misses took 14.7–17.9 seconds and hits took 3.5–3.6 seconds. Docker could reuse its own build cache. The signed-text proving run was interrupted by host sleep. Use the recorded guest cycles to compare the cases. Native Linux proving time is pending.
+
 Run the Solidity wire harness with the passing and failing receipts from the same checker and job. It rebuilds each journal from context, verdict, envelope, and key commitment. It checks that a passing-only verifier rejects a verdict-0 receipt and changed inputs.
 
 ```sh
