@@ -3,6 +3,9 @@ import type { Context, MiddlewareHandler } from "hono";
 import { ApiError } from "./errors.ts";
 import type { Db } from "./db.ts";
 import type { PlanValidator } from "./revision.ts";
+import type { Engine } from "./engine.ts";
+import type { DraftModel } from "./grok.ts";
+import type { ApiChain } from "./chain.ts";
 
 export const MAX_BODY_BYTES = 1024 * 1024; // 1 MiB
 
@@ -11,6 +14,12 @@ export interface Deps {
   buyerToken: string;
   now: () => number;
   validatePlan: PlanValidator;
+  /** T6 engine boundary (CONTRACT-T5-T8 §1). */
+  engine: Engine;
+  /** T5 draft model; absent means POST /v1/drafts returns 503 model_unavailable. */
+  draftModel?: DraftModel;
+  /** T7/T8 chain; absent means chain routes return 503 chain_unavailable. */
+  chain?: ApiChain;
 }
 
 export interface IdempotencyScope {

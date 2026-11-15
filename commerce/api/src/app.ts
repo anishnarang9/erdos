@@ -7,12 +7,21 @@ import { idempotency } from "./idempotency.ts";
 import { parseJson, readBody, requireJobId, type AppEnv, type Deps } from "./context.ts";
 import { simulatedValidatePlan, type PlanValidator } from "./revision.ts";
 import { jobRoutes } from "./jobs.ts";
+import type { Engine } from "./engine.ts";
+import type { DraftModel } from "./grok.ts";
+import type { ApiChain } from "./chain.ts";
+import { registerAuthoringRoutes } from "./authoring.ts";
+import { registerMarketRoutes } from "./market.ts";
 
 export interface CreateAppOptions {
   dbPath: string;
   buyerToken: string;
   now?: () => number;
   validatePlan?: PlanValidator;
+  /** Defaults to an engine whose validate() is `validatePlan` (T4 behaviour); Coder C swaps in simulatedEngine(). */
+  engine?: Engine;
+  draftModel?: DraftModel;
+  chain?: ApiChain;
 }
 
 export interface CreatedApp {
@@ -26,11 +35,20 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   }
   const now = opts.now ?? (() => Date.now());
   const db = openDb(opts.dbPath, now);
+  const validatePlan = opts.validatePlan ?? simulatedValidatePlan;
   const deps: Deps = {
     db,
     buyerToken: opts.buyerToken,
     now,
-    validatePlan: opts.validatePlan ?? simulatedValidatePlan,
+    validatePlan,
+    engine: opts.engine ?? {
+      validate: validatePlan,
+      compile: async () => {
+        throw new ApiError("not_implemented", "Engine compile not configured");
+      },
+    },
+    ...(opts.draftModel ? { draftModel: opts.draftModel } : {}),
+    ...(opts.chain ? { chain: opts.chain } : {}),
   };
 
   const app = new Hono<AppEnv>();
@@ -57,21 +75,19 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
 
   app.get("/healthz", (c) => c.json({ ok: true }));
 
-  const jobs = jobRoutes(deps, idem.commit, monotonicFactory());
+  const ulid = monotonicFactory();
+  const newId = () => ulid();
+  const jobs = jobRoutes(deps, idem.commit, ulid);
   app.post("/v1/jobs", readBody, buyer, parseJson, idem.middleware, jobs.create);
-  app.get("/v1/jobs/:id", readBody, requireJobId, jobs.get);
   app.post("/v1/jobs/:id/approve", readBody, buyer, parseJson, requireJobId, idem.middleware, jobs.approve);
 
-  app.get("/v1/assignments", readBody, provider, (c) => c.json({ assignments: [] }));
+  // Route modules (one owner each): authoring.ts (T5/T6), market.ts (T7/T8). Register literal paths such as
+  // GET /v1/jobs before the parameterised GET /v1/jobs/:id below.
+  const ctx = { app, deps, buyer, provider, idem, notImplemented, newId };
+  registerAuthoringRoutes(ctx);
+  registerMarketRoutes(ctx);
 
-  // Owned by later tasks: mounted so auth and idempotency still run, then 501.
-  app.post("/v1/drafts", readBody, buyer, parseJson, idem.middleware, notImplemented);
-  app.post("/v1/jobs/:id/compile", readBody, buyer, parseJson, requireJobId, idem.middleware, notImplemented);
-  app.get("/v1/jobs", readBody, notImplemented);
-  app.post("/v1/jobs/:id/quotes", readBody, provider, parseJson, requireJobId, idem.middleware, notImplemented);
-  app.post("/v1/jobs/:id/select-quote", readBody, buyer, parseJson, requireJobId, idem.middleware, notImplemented);
-  app.post("/v1/jobs/:id/funding-receipt", readBody, buyer, parseJson, requireJobId, idem.middleware, notImplemented);
-  app.get("/v1/jobs/:id/submission", readBody, requireJobId, notImplemented);
+  app.get("/v1/jobs/:id", readBody, requireJobId, jobs.get);
 
   return {
     app,
