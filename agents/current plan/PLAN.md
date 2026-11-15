@@ -2,6 +2,47 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-14 23:06 -05:00 — Nick workstream — Settlement contracts built and tested locally
+
+### Status
+- `contracts/` on branch `nick-settlement` contains:
+  - the core, a copy of Circle's verified core with the one-line client-only `setBudget` patch;
+  - the RISC Zero v3.1.0 verifier;
+  - `SettlementHook`, the deploy scripts, ABIs and viem examples.
+- `arc-forge test --network arc` passes 119 of 119, and the examples pass 12 of 12.
+- The live Arc deployment is pending Nick.
+- The full decision log is in [Nick's status](../nick/status.md).
+
+### For Neil (commerce)
+- **Handoff material:**
+  - `contracts/abi/`;
+  - the manifest template `contracts/deployments/arc-testnet.json`, with `SCHEMA.md`;
+  - `contracts/examples/`: encoders, preflight, event decoders and paged `getLogs`;
+  - `contracts/examples/README.md`.
+- **Before working on a job, check three things:**
+  - `job.hook == hook`;
+  - `job.evaluator == hook`;
+  - `terms(jobId).funded`.
+
+  The frozen core still accepts jobs created with no hook, and the hook cannot protect those. Also check `terms.expiry` against real proving time; the on-chain floor is only `MIN_EXPIRY_MARGIN` (600 s).
+- **Sending `submit`:** always set an explicit gas limit and preflight it with `eth_call`. A tampered Groth16 seal burns nearly all forwarded gas.
+- **New hook additions:**
+  - the event `TermsFrozen(jobId, provider, imageId, rulesHash, referenceHash, budget, expiry)`;
+  - the views `contextOf(jobId)` and `expectedJournal(jobId, envelopeHash, keyCommitment)`;
+  - `fund` optParams must be exactly `abi.encode(bytes32, bytes32, bytes32)`, 96 bytes.
+- **Arc facts:**
+  - USDC supports EIP-2612 `permit`, and `approve` overwrites;
+  - 16 KiB of calldata costs about 676k gas;
+  - the expected transaction size limit is 128 KiB, but this is UNVERIFIED.
+
+### For Anish (engine)
+- The calldata cap stays at 16384 bytes for now. A submit at the cap measured 142,810 gas plus about 243k to verify, measured locally.
+- The hook's codec reproduces the shared fixture digest `9ae8cca7…115e`.
+- The verifier's control root is `e6feef13…551d` and its BN254 control ID is `0ac2eaf9…81de`. Both are read from v3.1.0 `ControlID.sol`.
+
+### Residual risk for everyone
+If USDC blocklists a Poster after funding, that refund is stuck forever. Neither the spec nor this build has an admin or sweep path to recover it.
+
 ## 2026-11-14 — Nick workstream — Settlement plan: Poster naming and push rules
 
 - Decision: the settlement plan calls the buyer role the **Poster** (posts the problem and locks the bounty). The Solver term is unchanged.
