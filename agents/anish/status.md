@@ -2,6 +2,15 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 23:00 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, latest pushed checkpoint `8bb1a9d`. Phase 2 remains active. Added actual guest execution, package reuse, and commitment-invariant commands.
+- One GPT-6 Sol helper completed a batched read-only review. Phase-1 scope passed review. The helper identified missing artifact binding between host and guest reports. Added per-candidate hashes, suite hashes, and exact expectation checks. A fresh host run again passed all 341 cases.
+- Six [commitment checks](../../engine/evaluation/reports/invariants.json) passed: parameter edits preserve image/source and change rules, reference edits preserve image/rules and change reference commitment, altered packages/data reject original terms, and a rule-shape edit changes its commitments.
+- All three [prepared guest checks](../../engine/evaluation/reports/prepared-guests.json) passed against unchanged production code. They cover six signature profiles, direct guest frame limits, and an independently rebuilt guest.
+- The first new guest runner inherited `RUST_LOG` and hit the engine's setup guard. It still prepares the 40 packages. A separate execution process uses those packages with the variable unset. No proof or build was interrupted. Actual execution results remain provisional until completion and an artifact audit. No production engine defect is confirmed.
+- Model authoring trials: 0. New Groth16 receipts: 0. Authoring trials remain held for rate-limit pressure. No live settlement ran. Next: finish and audit actual guest coverage, then continue phase 3.
+
 ## 2026-11-14 22:53 -05:00 — Anish
 
 - Branch `codex/engine-commerce`, integration baseline `3f4f8c4`. Phase 1 completed. Engine and commerce pins remain `adda3a3` and `3013d736`.

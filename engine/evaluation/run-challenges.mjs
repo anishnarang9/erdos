@@ -5,6 +5,7 @@ import {resolve, join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {writeChallengeSuite, writeCandidateEvidence} from './generate-challenges.mjs';
 import {evaluateCandidate} from './reference-oracle.mjs';
+import {candidateFingerprint,sameExpectation} from './artifacts.mjs';
 
 export const sha256 = bytes => '0x'+createHash('sha256').update(bytes).digest('hex');
 export const readJson = async path => JSON.parse(await readFile(path,'utf8'));
@@ -51,6 +52,7 @@ export async function runChallenges({engine,output}) {
     engineSha256:sha256(await readFile(engine)),counts:suite.counts,
     modelTrials:0,ambiguous:'Not sent to a model. Expected clarification labels only.',
     oracle:'Independent domain functions read actual candidate files. Engine results do not supply expected answers.',
+    suiteSha256:sha256(await readFile(join(output,'suite/suite.json'))),artifacts:{},
     shapes:{},coverage:{families:{},operations:{},outcomes:{}},validations:[],candidates:[],failures:[]};
   let jobId=1000;
   for(const challenge of suite.challenges) {
@@ -80,8 +82,8 @@ export async function runChallenges({engine,output}) {
       const directory=join(output,'suite',candidate.path);
       await writeCandidateEvidence(challenge,candidate,directory,job.context);
       const expected=await evaluateCandidate(challenge,directory,{referenceDirectory:reference,contextHex:job.context});
-      const oracleMatched=expected.status===candidate.expected.status
-        &&JSON.stringify([...expected.violatedRequirements].sort())===JSON.stringify([...candidate.expected.violatedRequirements].sort());
+      const oracleMatched=sameExpectation(candidate.expected,expected);
+      report.artifacts[challenge.id+'/'+candidate.id]=await candidateFingerprint(directory,job.context);
       const args=['eval','--plan',planPath,'--deliverables',join(directory,'delivery'),'--reference',reference,'--job',jobPath];
       if(challenge.plan.evidence?.length)args.push('--evidence',join(directory,'evidence'));
       const actual=runEngine(engine,args), actualStatus=classifyEvaluation(actual), matched=oracleMatched&&actualStatus===expected.status;

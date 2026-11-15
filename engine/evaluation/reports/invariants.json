@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "syntheticJobs": true,
+  "engineSha256": "0x12d6acaf5c79698c92e3dfe272676d48d61155f86b88d82c59123c3d198eadbf",
+  "checks": [
+    {
+      "name": "parameter changes preserve image and generated source, and change rules commitment",
+      "passed": true,
+      "evidence": {
+        "imageId": "0x6865b8026b0fd9d3808dd624d794d87d0872a7111861bd2afaf5c6a5bbbac1bf",
+        "originalRulesHash": "0x9091a84a8bab81f7d2af05ffa90f6ceb5fa8a39c5efeaaefb4441517d06e9b8e",
+        "changedRulesHash": "0x6b32a876cd4ae49204be2c8dc43d722629fbf11fedf8bba95dd3377fd895d6d5",
+        "cacheHit": true
+      }
+    },
+    {
+      "name": "changed rules cannot execute against the original synthetic funded terms",
+      "passed": true,
+      "evidence": {
+        "exitCode": 2,
+        "signal": null,
+        "error": null,
+        "value": {
+          "code": "job_mismatch",
+          "message": "Funded terms differ from the checker package or reference files"
+        },
+        "millis": 1763
+      }
+    },
+    {
+      "name": "reference changes preserve image and rules, and change reference commitment",
+      "passed": true,
+      "evidence": {
+        "imageId": "0xf57465ba449093ac72967d9cae7aed6a92b414b099c4ac8a66506eead93bd841",
+        "originalReferenceHash": "0x5e0e5c64b23758284e3be0920ae5e67a3c3b4b343c26500d1c794af2c240ad4a",
+        "changedReferenceHash": "0x36bb692f25740eea7cfc206f8974fd7d5721bfaa67588dd844c45e4a10211f41",
+        "cacheHit": true
+      }
+    },
+    {
+      "name": "changed reference or package cannot execute against original terms: original-package",
+      "passed": true,
+      "evidence": {
+        "exitCode": 2,
+        "signal": null,
+        "error": null,
+        "value": {
+          "code": "job_mismatch",
+          "message": "Funded terms differ from the checker package or reference files"
+        },
+        "millis": 1730
+      }
+    },
+    {
+      "name": "changed reference or package cannot execute against original terms: changed-package",
+      "passed": true,
+      "evidence": {
+        "exitCode": 2,
+        "signal": null,
+        "error": null,
+        "value": {
+          "code": "job_mismatch",
+          "message": "Funded terms differ from the checker package or reference files"
+        },
+        "millis": 1732
+      }
+    },
+    {
+      "name": "rule shape changes alter structure and rules commitments",
+      "passed": true,
+      "evidence": {
+        "originalStructureHash": "0xc199841abe51ada94ae5a32d36bc5db147cd59670df7966d7f7f20e680ca63d6",
+        "changedStructureHash": "0xe78f156ce4def5b7da686657ec966f4e703b4bd915d132b3ad3429348f3bedb0"
+      }
+    }
+  ],
+  "summary": {
+    "checks": 6,
+    "failures": 0
+  }
+}
