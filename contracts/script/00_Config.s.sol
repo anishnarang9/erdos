@@ -191,6 +191,18 @@ abstract contract SettlementScript is Script {
         }
     }
 
+    /// @dev On any non-local chain the verifier must be the real Groth16 verifier. A hook frozen with
+    ///      a permissive mock verifier would be permanently exploitable, so this reverts on anything
+    ///      that does not expose the v3.1.0 SELECTOR, VERSION and BN254 control ID.
+    function _requireRealVerifier(address verifier) internal view {
+        if (_isLocal()) return;
+        _requireCode("verifier", verifier);
+        RiscZeroGroth16Verifier v = RiscZeroGroth16Verifier(verifier);
+        require(v.SELECTOR() == RISC0_V3_1_SELECTOR, "verifier SELECTOR != 0xe71e6620");
+        require(keccak256(bytes(v.VERSION())) == keccak256("3.1.0"), "verifier VERSION != 3.1.0");
+        require(v.BN254_CONTROL_ID() == ControlID.BN254_CONTROL_ID, "verifier BN254_CONTROL_ID mismatch");
+    }
+
     // ───────────────────────── Step 1: verifier ─────────────────────────
 
     function _stepVerifier() internal returns (address verifier) {
@@ -202,12 +214,8 @@ abstract contract SettlementScript is Script {
             : address(new RiscZeroGroth16Verifier(ControlID.CONTROL_ROOT, ControlID.BN254_CONTROL_ID));
         vm.stopBroadcast();
 
-        if (!_isLocal()) {
-            RiscZeroGroth16Verifier v = RiscZeroGroth16Verifier(verifier);
-            require(v.SELECTOR() == RISC0_V3_1_SELECTOR, "verifier SELECTOR != 0xe71e6620");
-            require(keccak256(bytes(v.VERSION())) == keccak256("3.1.0"), "verifier VERSION != 3.1.0");
-        }
         require(verifier.code.length != 0, "verifier not deployed");
+        _requireRealVerifier(verifier);
 
         _manifestWriteAddress(".contracts.verifier.address", verifier);
         _manifestWriteAddress(".contracts.verifier.deployer", deployer);
@@ -278,7 +286,7 @@ abstract contract SettlementScript is Script {
 
     function _stepHook(Config memory c, address core, address verifier, address usdc) internal returns (address hook) {
         _requireCode("core proxy", core);
-        _requireCode("verifier", verifier);
+        _requireRealVerifier(verifier);
         _refuseRedeploy("hook", _manifestAddress(".contracts.hook.address"));
         require(address(AgenticCommerce(core).paymentToken()) == usdc, "core paymentToken != USDC");
         vm.startBroadcast();

@@ -4,7 +4,6 @@ pragma solidity ^0.8.28;
 import {console} from "forge-std/Script.sol";
 import {SettlementScript} from "./00_Config.s.sol";
 import {AgenticCommerce} from "../src/core/src/AgenticCommercePatched.sol";
-import {RiscZeroGroth16Verifier} from "../src/verifier/groth16/RiscZeroGroth16Verifier.sol";
 import {SettlementHook} from "../src/SettlementHook.sol";
 
 /// @notice Read-only check of the live deployment against the manifest. Never broadcasts; run it
@@ -28,11 +27,7 @@ contract VerifyDeployment is SettlementScript {
 
         if (verifier != address(0)) {
             _requireCode("verifier", verifier);
-            if (!_isLocal()) {
-                RiscZeroGroth16Verifier v = RiscZeroGroth16Verifier(verifier);
-                require(v.SELECTOR() == RISC0_V3_1_SELECTOR, "verifier SELECTOR");
-                require(keccak256(bytes(v.VERSION())) == keccak256("3.1.0"), "verifier VERSION");
-            }
+            _requireRealVerifier(verifier);
             console.log("ok verifier", verifier);
         }
         if (impl != address(0)) {
@@ -54,6 +49,7 @@ contract VerifyDeployment is SettlementScript {
         }
         if (hook != address(0)) {
             _requireCode("hook", hook);
+            _requireRealVerifier(verifier);
             SettlementHook h = SettlementHook(hook);
             require(h.supportsInterface(IACP_HOOK_ID), "hook ERC-165");
             require(

@@ -57,7 +57,7 @@
       "isEvaluator": true,
       "erc165InterfaceId": "0x7ff6bc9e",
       "maxEnvelopeBytes": 16384,
-      "minExpiryMarginSeconds": 120,
+      "minExpiryMarginSeconds": 600,
       "abi": "abi/SettlementHook.json"
     }
   },
@@ -74,7 +74,7 @@
     "adminRoles": "renounced (ADMIN_ROLE and DEFAULT_ADMIN_ROLE) in step 5; no whitelist changes, fee changes or upgrades afterwards",
     "coreMinExpirySeconds": 300,
     "coreMinExpiryRule": "createJob requires expiredAt > block.timestamp + 300 (strictly greater)",
-    "hookMinExpiryMarginSeconds": 120,
+    "hookMinExpiryMarginSeconds": 600,
     "hookMinExpiryMarginRule": "fund requires expiredAt >= block.timestamp + MIN_EXPIRY_MARGIN",
     "maxEnvelopeBytes": 16384,
     "timeBoundary": {

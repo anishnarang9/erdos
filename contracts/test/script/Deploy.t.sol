@@ -38,6 +38,7 @@ contract DeployScriptsTest is Test {
         _localSequenceDeploysFrozenSystemThatSettles();
         _verifyDetectsWrongImplementationBytecode();
         _arcModeStepByStepThroughManifest();
+        _hookStepRejectsMockVerifierOnArc();
     }
 
     function _manifestPath() internal view returns (string memory) {
@@ -67,7 +68,7 @@ contract DeployScriptsTest is Test {
         assertEq(address(core.paymentToken()), d.usdc);
         assertTrue(hook.supportsInterface(0x7ff6bc9e));
         assertEq(hook.MAX_ENVELOPE_BYTES(), 16384);
-        assertEq(hook.MIN_EXPIRY_MARGIN(), 120);
+        assertEq(hook.MIN_EXPIRY_MARGIN(), vm.parseJsonUint(vm.readFile("config/arc-testnet.json"), ".hook.minExpiryMarginSeconds"));
 
         // The frozen admin surface reverts for the former admin.
         vm.startPrank(d.deployer);
@@ -208,6 +209,26 @@ contract DeployScriptsTest is Test {
         _put(".contracts.coreImplementation.address", bogus);
         VerifyDeployment v = new VerifyDeployment();
         vm.expectRevert(bytes("implementation bytecode != local patched build"));
+        v.run();
+        vm.removeFile(_manifestPath());
+    }
+
+    function _hookStepRejectsMockVerifierOnArc() internal {
+        vm.setEnv("SETTLEMENT_LOCAL", "false");
+        vm.setEnv("SETTLEMENT_MANIFEST", _manifestPath());
+        vm.chainId(5042002);
+        vm.etch(ARC_USDC, address(new MockUSDC()).code);
+        vm.writeFile(_manifestPath(), _template());
+        _put(".contracts.verifier.address", address(new MockRiscZeroVerifier()));
+        address impl = new DeployCoreImpl().run();
+        _put(".contracts.coreImplementation.address", impl);
+        _put(".contracts.core.address", new DeployCoreProxy().run());
+        DeployHook h = new DeployHook();
+        vm.expectRevert();
+        h.run();
+        // 06_Verify refuses the same manifest.
+        VerifyDeployment v = new VerifyDeployment();
+        vm.expectRevert();
         v.run();
         vm.removeFile(_manifestPath());
     }
