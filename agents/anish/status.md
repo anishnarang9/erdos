@@ -2,6 +2,11 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-14 20:59 -05:00 — Anish
+
+- Branch codex/anish-engine. Merged the settlement and commerce plans from main. Kept the owners' plan entries and resolved the shared plan conflict.
+- Updated the work split to match Nick's caller-first hooks and Poster-only budget patch. The settlement and engine docs now distinguish the encoded bundle and encrypted envelope limits. The deployed cap remains pending.
+
 ## 2026-11-14 20:48 -05:00 — Anish
 
 - Branch codex/anish-engine. A separate build from the exported signed-text source with empty build caches reproduced the package program and image ID. The reviewed guest ran all six signature profiles and rejected a separate invalid signature for each.
