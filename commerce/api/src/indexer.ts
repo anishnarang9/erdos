@@ -11,6 +11,11 @@ export interface IndexerOptions {
   cursorStart: bigint;
   /** Blocks per getLogs window (LogCursor maxRange). */
   maxRange?: bigint;
+  /**
+   * Blocks to stay behind the head. A load-balanced RPC can answer eth_getLogs from a node a block or two behind
+   * the one that served eth_blockNumber; without a margin the cursor could move past logs it never saw. Default 0.
+   */
+  confirmations?: bigint;
   /** Upper bound on cursor windows read per tick, so one tick cannot run unbounded. */
   maxWindowsPerTick?: number;
 }
@@ -59,6 +64,7 @@ export function createIndexer(opts: IndexerOptions): Indexer {
     fromBlock: opts.cursorStart,
     decode: (logs) => readChain(chain).decodeLogs(logs),
     maxRange: opts.maxRange,
+    confirmations: opts.confirmations,
     store,
   });
 

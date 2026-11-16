@@ -12,6 +12,7 @@
 // until expiry and the Poster can claim the refund. Prints a JSON evidence record; never prints a key.
 import { createHash, randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { serve } from "@hono/node-server";
@@ -74,7 +75,10 @@ if (sb.balance < 1_000_000n) throw new Error("the Solver needs about 1 USDC for 
 
 // API in-process on an ephemeral port, real engine, real chain.
 const TOKEN = randomBytes(24).toString("hex");
-const dbPath = join(work, "api.db");
+// SQLite needs real file locks: keep the database on a local disk, never on the \wsl.localhost share.
+const dbDir = join(tmpdir(), `first-funded-db-${Date.now()}`);
+mkdirSync(dbDir, { recursive: true });
+const dbPath = join(dbDir, "api.db");
 const chain = arcChain(d, process.env.CHAIN_RPC_URL ?? d.rpcUrl);
 const { app, close } = createApp({ dbPath, buyerToken: TOKEN, engine, packagesDir: join(work, "packages"), chain });
 const server = await new Promise<ReturnType<typeof serve>>((resolve) => {
@@ -185,10 +189,17 @@ try {
   log("worker", { phase: state.phase, verdict: state.verdict, proveMillis: state.proveMillis, userCycles: state.userCycles, submitTx: state.submitTx, releaseTx: state.releaseTx, rejectedPreflight: state.rejectedPreflight });
 
   // 5. Index and read the submission; the buyer recovers the files from public chain data only.
+  // The indexer stays 3 blocks behind the head (RPC nodes can lag), so poll until the release is indexed.
   const db = openDb(dbPath, () => Date.now());
-  await createIndexer({ db, chain, cursorStart: c1.receipt.blockNumber, maxRange: arc.MAX_LOG_WINDOW }).tick();
+  const indexer = createIndexer({ db, chain, cursorStart: c1.receipt.blockNumber, maxRange: arc.MAX_LOG_WINDOW, confirmations: 3n });
+  let sub: Record<string, any> = {};
+  for (let i = 0; i < 30; i++) {
+    await indexer.tick();
+    sub = (await (await fetch(`${base}/v1/jobs/${jobId}/submission`)).json()) as Record<string, any>;
+    if (tamper ? true : sub.key) break;
+    await new Promise((r) => setTimeout(r, 2000));
+  }
   db.close();
-  const sub = (await (await fetch(`${base}/v1/jobs/${jobId}/submission`)).json()) as Record<string, any>;
   log("submission", sub);
   if (!tamper) {
     const tx = await pc.getTransaction({ hash: sub.submitTx as Hex });

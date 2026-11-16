@@ -106,6 +106,7 @@ if (chain) {
     cursorStart: BigInt(process.env.INDEX_FROM_BLOCK ?? (process.env.CHAIN_MODE === "arc" ? arc.ARC_TESTNET.deployBlock.toString() : "0")),
     // Arc RPCs reject eth_getLogs over more than 10,000 blocks.
     maxRange: arc.MAX_LOG_WINDOW,
+    confirmations: process.env.CHAIN_MODE === "arc" ? 3n : 0n,
   });
   indexTimer = setInterval(() => {
     indexer.tick().catch((err: unknown) => console.error("[indexer] tick failed", err));
