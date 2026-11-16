@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 22:49 -05:00 — Anish
+
+- Branch `codex/anish-engine`. Prepared the [local-first readiness report](2026-11-15-localnet-readiness.md) requested by the user. Reviewed integration `2d9f2fd`, settlement `57c387f`, refreshed commerce `85ca5bb`, and provisional files in the existing integration worktree. Did not change that worktree.
+- The older local lifecycle passed its assertions, but its process exited 1. The cleanup fix has focused checks. Meridian has semantic evidence but still needs a clean complete local proof, acceptance, payout and independent recovery run. These are existing reported results, not tests repeated in this review.
+- Recorded the user's local-first priority in the shared plan. The report lists source publication, workload validation, actual local contracts/verifier, full exchange, negatives/restarts/refunds and clean-checkout reproduction as the gate before a new live Meridian run.
+- No implementation, proof generation, wallet access or live transaction occurred. Documentation whitespace, report-structure and conflict-marker checks passed. No product test was repeated. Next owner: Anish integration, for the reviewed new-workload local candidate and rehearsal.
+
 ## 2026-11-14 21:19 -05:00 — Anish
 
 - Branch codex/anish-engine. Opened [draft PR #3](https://github.com/anishnarang9/UBC-26/pull/3) with the engine, real proof fixtures, replay commands, and pending integration gates. GitHub reports the branch can merge cleanly.

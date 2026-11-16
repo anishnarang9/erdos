@@ -2,6 +2,13 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-15 22:49 -05:00 — Anish — User priority: verify the new workload locally first
+
+- The user set the priority: finish and verify the new proof's complete local run before another live Arc run for that workload. This report request authorizes no implementation, merge, wallet access or spending.
+- The [local-first readiness report](../anish/2026-11-15-localnet-readiness.md) reviews newer owner branches and provisional integration artifacts, not only this engine checkout. Integration `2d9f2fd` contains the cleanup fix. Its older workload lifecycle passed assertions but the whole process exited 1. Meridian's new authoring/solver/oracle evidence still needs publication and a clean complete local exchange.
+- Anish integration leads the local gate. Nick reviews actual-contract/verifier/refund behavior. Neil reviews API, worker and buyer recovery. Require a fresh funded context and proof, exact payout, independent SDK/engine recovery and semantic checks, rejection/refund/restart coverage, process exit 0 and final source/CI evidence.
+- Existing Arc deployment/freeze checks and Neil's separately recorded reconciliation payout are prior evidence, not acceptance of Meridian or the final integrated candidate. Live account, term and spending approval remains separate. No new live run starts to compensate for an incomplete local gate.
+
 ## 2026-11-14 21:18 -05:00 — Anish — Commerce codec replay
 
 - The [SDK replay check](../../engine/tests/check-commerce-sdk.mjs) passed against Neil's revision 3013d736. All six real engine receipts produced matching context, journal, digest, and submit calldata bytes. It covers the full 16 KiB encoded delivery and both verdicts.
