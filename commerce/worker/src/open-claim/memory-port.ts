@@ -165,6 +165,7 @@ export function createOpenClaimMemoryPort(input: {
     const envelopeHash = submission?.envelopeHash ?? `0x${"00".repeat(32)}` as Hex;
     const logs: OpenClaimLog[] = [
       { address: job.adapter, name: "KeyReleased", args: { jobId, solver: job.solver, key, envelopeHash, amount: job.budget } },
+      { address: job.usdc, name: "Transfer", args: { from: job.core, to: job.adapter, value: job.budget } },
       { address: job.usdc, name: "Transfer", args: { from: job.adapter, to: job.solver, value: job.budget } },
       { address: job.core, name: "PaymentReleased", args: { jobId, provider: job.adapter, amount: job.budget } },
     ];

@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 02:47 -05:00 — Anish — Receipt identity and exact payout gate
+
+- The worker now checks the expected job ID in the adapter claim and key events and the core submit and payout events. Payout also requires the core-to-adapter and adapter-to-solver USDC transfers for the exact budget. A receipt for another job or a partial transfer cannot confirm this attempt.
+- Two new receipt tests failed before the change and passed after it. The memory fixture now emits both transfers from the actual adapter flow. All 19 focused worker tests, the actual local port test and worker typecheck pass. A read-only `eth_call` through the real verifier accepted the job-2 proof, while using it for job 3 reverted. No claim transaction or key was sent.
+- The second proof still holds the prover slot. Next: run the staged real exchange after it exits, then inspect the final receipts and complete broader checks.
+
 ## 2026-11-16 02:42 -05:00 — Anish — Confirmed solver job input command
 
 - Added `pnpm open-claim:job-input`. It reads a confirmed funded local Arc job and the verified local deployment manifest, checks pinned code and role history, then writes the engine's public context and image ID to a new private file. It cannot sign or send.

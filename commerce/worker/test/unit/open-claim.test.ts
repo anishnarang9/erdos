@@ -26,6 +26,8 @@ import {
   checkOpenClaimPolicy,
   createOpenClaimMemoryPort,
   encodeOpenClaimClaim,
+  observeClaimOutcome,
+  observeReleasePayout,
   observedOpenClaimDeployment,
   planOpenClaimEngineAcceptance,
   runOpenClaimAcceptance,
@@ -292,6 +294,52 @@ describe("open-claim transaction policy", () => {
     if (release.kind !== "release") throw new Error("expected release authorization");
     const matchingKey = keyCommitment(release.context, Buffer.from(key.slice(2), "hex"));
     expect(() => checkOpenClaimPolicy(config, tx, { ...releaseAuth(), keyCommitment: matchingKey })).not.toThrow();
+  });
+});
+
+describe("open-claim receipt identity", () => {
+  it("rejects a different job's claim and payout events", () => {
+    const adapter = getAddress(ADAPTER);
+    const core = getAddress(CORE);
+    const self = getAddress(SOLVER_ADDRESS);
+    const usdc = getAddress(USDC);
+    const envelopeHash = hashByte("ab");
+    const commitment = hashByte("cd");
+    const key = hashByte("ef");
+    expect(observeClaimOutcome({ adapter, core, self, jobId: 7n, logs: [
+      { address: core, name: "JobSubmitted", args: { jobId: 8n, provider: adapter } },
+      { address: adapter, name: "ClaimAccepted", args: { jobId: 8n, solver: self,
+        envelopeHash, keyCommitment: commitment } },
+    ] })).toEqual({ kind: "unidentified" });
+    expect(observeReleasePayout({ adapter, core, self, jobId: 7n, usdc,
+      budget: 1_000_000n, key, envelopeHash, logs: [
+        { address: core, name: "PaymentReleased", args: { jobId: 8n, provider: adapter, amount: 1_000_000n } },
+        { address: adapter, name: "KeyReleased", args: { jobId: 8n, solver: self, key,
+          envelopeHash, amount: 1_000_000n } },
+        { address: usdc, name: "Transfer", args: { from: core, to: adapter, value: 1_000_000n } },
+        { address: usdc, name: "Transfer", args: { from: adapter, to: self, value: 1_000_000n } },
+      ] })).toBe(false);
+  });
+
+  it("requires the core payout and the adapter-to-solver transfer", () => {
+    const adapter = getAddress(ADAPTER);
+    const core = getAddress(CORE);
+    const self = getAddress(SOLVER_ADDRESS);
+    const usdc = getAddress(USDC);
+    const envelopeHash = hashByte("ab");
+    const key = hashByte("ef");
+    const base = { adapter, core, self, jobId: 7n, usdc,
+      budget: 1_000_000n, key, envelopeHash };
+    const keyEvent = { address: adapter, name: "KeyReleased" as const,
+      args: { jobId: 7n, solver: self, key, envelopeHash, amount: 1_000_000n } };
+    const transfer = { address: usdc, name: "Transfer" as const,
+      args: { from: adapter, to: self, value: 1_000_000n } };
+    expect(observeReleasePayout({ ...base, logs: [keyEvent, transfer] })).toBe(false);
+    expect(observeReleasePayout({ ...base, logs: [
+      keyEvent, { address: core, name: "PaymentReleased", args: { jobId: 7n, provider: adapter, amount: 1_000_000n } },
+      { address: usdc, name: "Transfer", args: { from: core, to: adapter, value: 1_000_000n } },
+      { address: usdc, name: "Transfer", args: { from: core, to: self, value: 1_000_000n } },
+    ] })).toBe(false);
   });
 });
 

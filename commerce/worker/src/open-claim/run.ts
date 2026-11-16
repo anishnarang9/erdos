@@ -344,7 +344,8 @@ export async function runOpenClaim(o: OpenClaimRunOptions): Promise<OpenClaimSta
         state.abandonReason = "claim reverted; no automatic resend and no key release";
         phase("abandoned");
       } else {
-        const outcome = observeClaimOutcome({ adapter: o.job.adapter, self: o.job.solver, logs: receipt.logs });
+        const outcome = observeClaimOutcome({ adapter: o.job.adapter, core: o.job.core,
+          self: o.job.solver, jobId: o.job.jobId, logs: receipt.logs });
         if (outcome.kind === "lost") {
           state.winner = outcome.solver.toLowerCase();
           phase("lost", "confirmed claim belongs to another solver");
@@ -401,7 +402,9 @@ export async function runOpenClaim(o: OpenClaimRunOptions): Promise<OpenClaimSta
       }
       const paid = observeReleasePayout({
         adapter: o.job.adapter,
+        core: o.job.core,
         self: o.job.solver,
+        jobId: o.job.jobId,
         usdc: o.job.usdc,
         budget: o.job.budget,
         key: key!,
