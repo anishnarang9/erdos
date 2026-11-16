@@ -13,6 +13,7 @@ import type { ApiChain } from "./chain.ts";
 import { registerAuthoringRoutes } from "./authoring.ts";
 import { registerMarketRoutes } from "./market.ts";
 import { registerDemoRoutes } from "./demo.ts";
+import { registerDemoSignerRoutes, type DemoSignerOptions } from "./demo-signer.ts";
 
 export interface CreateAppOptions {
   dbPath: string;
@@ -27,6 +28,8 @@ export interface CreateAppOptions {
   packagesDir?: string;
   /** Serve worker run events from here (demo routes). */
   runEventsDir?: string;
+  /** Presenter-mode Poster signer; see demo-signer.ts. */
+  demoSigner?: DemoSignerOptions;
 }
 
 export interface CreatedApp {
@@ -52,6 +55,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     ...(opts.chain ? { chain: opts.chain } : {}),
     ...(opts.packagesDir ? { packagesDir: opts.packagesDir } : {}),
     ...(opts.runEventsDir ? { runEventsDir: opts.runEventsDir } : {}),
+    ...(opts.demoSigner ? { demoSigner: opts.demoSigner } : {}),
   };
 
   const app = new Hono<AppEnv>();
@@ -90,6 +94,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   registerAuthoringRoutes(ctx);
   registerMarketRoutes(ctx);
   registerDemoRoutes(ctx);
+  registerDemoSignerRoutes(ctx);
 
   app.get("/v1/jobs/:id", readBody, requireJobId, jobs.get);
 

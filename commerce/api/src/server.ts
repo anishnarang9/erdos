@@ -1,12 +1,15 @@
 import { existsSync } from "node:fs";
 import { serve } from "@hono/node-server";
-import { createPublicClient, getAddress, http, type PublicClient } from "viem";
+import { createPublicClient, createWalletClient, getAddress, http, type PublicClient } from "viem";
 import { createApp } from "./app.ts";
 import { openDb } from "./db.ts";
 import { createIndexer } from "./indexer.ts";
 import type { ApiChain } from "./chain.ts";
 import { arc } from "@ubc26/sdk";
 import { arcChain } from "./arc.ts";
+import { arcPosterChain } from "./demo-arc.ts";
+import type { DemoSignerOptions } from "./demo-signer.ts";
+import { privateKeyToAccount } from "viem/accounts";
 import { engineConfigFromEnv, engineFromConfig, simulatedEngine, type Engine } from "./engine.ts";
 import { grokDraftModel, recordingDraftModel, replayDraftModel, type DraftModel } from "./grok.ts";
 
@@ -81,6 +84,31 @@ function draftModelFromEnv(): { model?: DraftModel; label: string } {
 }
 
 const chain = chainFromEnv();
+
+/**
+ * Demo signer (presenter mode): only with DEMO_SIGNER=1, CHAIN_MODE=arc and POSTER_PRIVATE_KEY. Limits:
+ * DEMO_MAX_BUDGET_UNITS per job (default 100000 = 0.1 USDC), DEMO_SESSION_BUDGET_UNITS per process (default 1 USDC).
+ */
+function demoSignerFromEnv(): DemoSignerOptions | undefined {
+  if (process.env.DEMO_SIGNER !== "1") return undefined;
+  if (process.env.CHAIN_MODE !== "arc" || !chain) {
+    console.error("DEMO_SIGNER=1 needs CHAIN_MODE=arc");
+    process.exit(1);
+  }
+  const key = process.env.POSTER_PRIVATE_KEY;
+  if (!key || !/^0x[0-9a-fA-F]{64}$/.test(key)) {
+    console.error("DEMO_SIGNER=1 needs POSTER_PRIVATE_KEY (a testnet key) in the API's .env");
+    process.exit(1);
+  }
+  const rpc = process.env.CHAIN_RPC_URL ?? arc.ARC_TESTNET.rpcUrl;
+  const wallet = createWalletClient({ account: privateKeyToAccount(key as `0x${string}`), transport: http(rpc) });
+  return {
+    chain: arcPosterChain(chain.publicClient, wallet),
+    maxBudgetPerJob: BigInt(process.env.DEMO_MAX_BUDGET_UNITS ?? "100000"),
+    sessionBudget: BigInt(process.env.DEMO_SESSION_BUDGET_UNITS ?? "1000000"),
+  };
+}
+const demoSigner = demoSignerFromEnv();
 const { engine, label: engineLabel } = engineFromEnv();
 const { model: draftModel, label: modelLabel } = draftModelFromEnv();
 const packagesDir = process.env.PACKAGES_DIR;
@@ -91,6 +119,7 @@ const { app, close } = createApp({
   ...(draftModel ? { draftModel } : {}),
   ...(packagesDir ? { packagesDir } : {}),
   ...(process.env.RUN_EVENTS_DIR ? { runEventsDir: process.env.RUN_EVENTS_DIR } : {}),
+  ...(demoSigner ? { demoSigner } : {}),
   ...(chain ? { chain } : {}),
 });
 
@@ -117,6 +146,7 @@ if (chain) {
 const server = serve({ fetch: app.fetch, port }, (info) => {
   console.log(`[api] listening on http://localhost:${info.port} (db: ${dbPath}, chain: ${chain ? chain.config.chainId : "none"})`);
   console.log(`[api] engine: ${engineLabel}; draft model: ${modelLabel}; packages: ${packagesDir ?? "not kept"}`);
+  console.log(`[api] demo signer: ${demoSigner ? `ON for Poster ${demoSigner.chain.poster} (testnet)` : "off"}`);
 });
 
 function shutdown(): void {

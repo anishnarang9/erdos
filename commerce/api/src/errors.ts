@@ -17,7 +17,9 @@ export type ErrorCode =
   | "engine_failed"
   | "model_failed"
   | "model_unavailable"
-  | "chain_unavailable";
+  | "chain_unavailable"
+  | "forbidden"
+  | "conflict";
 
 export const ERROR_STATUS: Record<ErrorCode, number> = {
   validation_failed: 400,
@@ -39,6 +41,8 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   model_failed: 502,
   model_unavailable: 503,
   chain_unavailable: 503,
+  forbidden: 403,
+  conflict: 409,
 };
 
 export interface ErrorBody {
