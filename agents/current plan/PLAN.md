@@ -8,6 +8,18 @@ Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 - Protected buyer and solver commands, durable send recovery, chain-based dual recovery and Circle Gateway UUID handling now pass local checks. Require combined-head CI and complete live receipts/balance evidence before claiming the Goal complete.
 - The user requested generated testnet wallets and smaller runs. The proposed bounty is 0.01 USDC per job. The separate API charge is 0.000001 USDC. See the [revised spend preview](../anish/reports/open-claim-arc-spend-preview-2026-11-16.json). Generated public addresses are in Anish's status. Wallet funding, exact spending approval, verified adapter deployment and Gateway deposit remain external inputs.
 
+## 2026-11-16 07:34 -05:00 — Anish — Open-claim contract and agent paths combined
+
+- Draft PR #7 now combines the corrected adapter and guarded local deploy script (`3f0ecbf`) with protected solver signing (`843f842`) and five-step protected buyer execution (`e29da7d`). The signed buyer helper requires a deployment-pin check (`01e418f`). The selected-provider path remains intact.
+- Combined local commerce checks passed (SDK 342, API 777, worker 873, three typechecks). Pinned non-fork Forge passed 168 tests; ABI parity, 16 contract examples, contract typecheck, and the 15-test real-engine API suite passed. The actual local proof/payout/recovery/refund report is tied to earlier source `0cce487`; it does not establish a new full proof at the merged head. Final pushed-head CI is pending.
+- Keep PR #7 draft. Live work still needs a verified adapter manifest, approved buyer and solver identities, protected keystores, exact bounty and gas limits, and separate Circle service-payment authority. The [spend preview](../anish/reports/open-claim-arc-spend-preview-2026-11-16.json) is not approval. The live role-log read was rate limited; do not infer chain state from that incomplete replay. Continue operator wiring and the exact-head PR check before handoff.
+
+## 2026-11-16 07:22 -05:00 — Anish — Open-claim contract checkpoint under review
+
+- The contract branch has the constructor fee correction, local-only deployment guard, adversarial regressions and ABI parity check. Pinned local Foundry passed 168 tests with one fork-only skip. The independent standards review documents current ERC-8183 draft differences and the separate x402 API-fee boundary.
+- `codex/open-escrow-rescue` still owns proof/commerce integration and PR #7. This branch will publish only scoped contract/docs/check changes. Chat 1 will receive the corrected SHA and verified interface.
+- A current read-only Arc freeze replay was incomplete because the public RPC returned HTTP 429. Fixed-block checks and an unsigned gas preview are in progress. Live adapter deployment still needs exact signer and spending approval. No live transaction is authorized yet.
+
 ## 2026-11-16 04:08 -05:00 — Anish — Overnight local acceptance handed off
 
 - The open-claim local goal has [exit-0 real-proof evidence](../anish/reports/open-claim-local-acceptance-2026-11-16.json), a passing selected-provider baseline, and a separate local test-facilitator x402 check. [Draft PR #7](https://github.com/anishnarang9/UBC-26/pull/7) is mergeable against `codex/engine-commerce`. [Commerce](https://github.com/anishnarang9/UBC-26/actions/runs/43835708063) and [core-fast](https://github.com/anishnarang9/UBC-26/actions/runs/43835708011) CI passed at `015996b`. A native fallback reviewer found no concrete P1/P2 issue in the main paths, with static-review limits recorded in Anish's status.

@@ -79,6 +79,7 @@ contract OpenClaimAdapter is ReentrancyGuardTransient {
         core = Core(core_);
         verifier = IProofVerifier(verifier_);
         usdc = IERC20(usdc_);
+        _checkTokenAndFees();
     }
 
     /// @notice Freeze buyer-approved proof terms after the core holds the exact budget.

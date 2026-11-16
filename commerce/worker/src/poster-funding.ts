@@ -89,7 +89,7 @@ export interface PosterFunding {
 export interface OpenClaimBuyerFundingConfig extends Omit<PosterFundingConfig, "terms"> {
   terms: Omit<FundingTerms, "hook" | "provider"> & { adapter: Address };
   confirmations?: bigint;
-  /** Check operator pins against confirmed deployment history before each new signature. */
+  /** Required for signed runs. Check operator pins against confirmed deployment history before each new signature. */
   verifyDeployment?(): Promise<unknown>;
 }
 export function createOpenClaimBuyerFunding(input: OpenClaimBuyerFundingConfig): Promise<PosterFunding> {
@@ -142,6 +142,7 @@ async function createFunding(input: PosterFundingConfig, confirmations?: bigint,
       hookMarginSeconds: input.hookMarginSeconds,
     });
     check((!account || account.type === "local" && same(account.address, buyer)) && !same(buyer, t.provider));
+    if (openClaim && account) check(verifyDeployment);
     check(t.chainId === 5042002 && (openClaim ? /^[1-9][0-9]*$/.test(t.budget) : t.budget === "1000000") && /^[1-9][0-9]*$/.test(t.expiredAt));
     const budget = BigInt(t.budget);
     check(budget < 1n << 256n && (!openClaim || confirmations! >= 0n));
