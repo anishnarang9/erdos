@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 08:42 -05:00 — Anish — Funded buyer and bounded setup signer
+
+- PR #7 at `7937ec4` passed commerce, engine and contract CI. Buyer funding is now verified as 20 USDC. Direct human instructions authorize transfers between the generated wallets for setup. This chat remains the sole signer. The contract chat has prepared a separate unsigned adapter deployment preview and requested its additional gas approval. No deployment is authorized here yet.
+- Added a fixed setup capability for 0.04 native USDC to the solver and the two approved Gateway calls. It shares the buyer lock, durable intent hashes and nonce reservations with funding/refund. Lower buyer call caps (290,000 each) retain the original aggregate gas authority: all allocated gas is at most 0.121625 USDC within the approved 0.1235 ceiling. Source tests cover changed calls, send-response loss, call order, journal deletion and cross-journal nonces. The funding journal can initialize once after setup.
+- Added two-second live role-log pacing and incremental full-history continuation. Each reuse checks the prior canonical audit anchor. Reorgs and new privileged authority fail closed. Independent static review found no concrete defect. Full workspace checks pass: SDK 13 Node checks plus 342 Vitest tests, API 778, worker 894 and all typechecks. Public-receipt dual recovery also passes. The native-engine API suite is running after correcting its missing ENGINE_MODE setting. No wallet transaction or payment signature occurred. Next: publish this checkpoint, pass combined-head CI, then execute setup and the real Circle API payment. Adapter manifest remains the funded-proof gate.
+
 ## 2026-11-16 08:29 -05:00 — Anish — Combined CI green and wallets ready for funding
 
 - PR #7 is pushed at combined code SHA `4fc703c0ddbdfb8683e804872622962999556c87`. [Commerce CI](https://github.com/anishnarang9/UBC-26/actions/runs/43875067967) and [core-fast CI](https://github.com/anishnarang9/UBC-26/actions/runs/43875068035) passed at that exact SHA. The latter passed engine and contract jobs. Relevant local checks remain green as recorded above. No main or PR merge occurred.

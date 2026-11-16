@@ -32,6 +32,8 @@ export interface ArcOpenClaimPortOptions {
   /** Adapter creation block. It must contain the pinned adapter runtime. */
   adapterDeploymentBlock: bigint;
   confirmations?: bigint;
+  /** Delay each role-log request on shared live RPCs. Local tests can use zero. */
+  roleLogIntervalMs?: number;
   /** One send only. The injected signer must disable transport retries and persist its own nonce policy. */
   send(tx: OpenClaimRestrictedTx): Promise<Hex>;
   recoverBroadcast?(tx: OpenClaimRestrictedTx): Promise<Hex | null>;
@@ -70,17 +72,27 @@ export function createArcOpenClaimPort(options: ArcOpenClaimPortOptions): OpenCl
     return keccak256(code);
   }
 
+  const roleLogIntervalMs = options.roleLogIntervalMs ?? 0;
+  must(Number.isSafeInteger(roleLogIntervalMs) && roleLogIntervalMs >= 0 && roleLogIntervalMs <= 10_000,
+    "deployment", "invalid role-log pacing interval");
+  let roleAudit: { block: bigint; hash: Hex; seen: Map<string, Set<string>> } | undefined;
   async function verifyRoleHistory(blockNumber: bigint): Promise<void> {
     const anchor = await pub.getBlock({ blockNumber });
     must(anchor.hash && anchor.number === blockNumber, "deployment", "confirmed block has no stable hash");
+    const previous = roleAudit;
+    if (previous) must(blockNumber >= previous.block &&
+      (await pub.getBlock({ blockNumber: previous.block })).hash === previous.hash,
+      "deployment", "previous role audit is no longer canonical");
     const empty = await pub.getCode({ address: witness.core, blockNumber: options.coreDeploymentBlock - 1n });
     must(!hasCode(empty), "deployment", "core code predates the pinned deployment block");
     const active = new Map<string, Set<string>>([[zeroHash, new Set()], [adminRole, new Set()]]);
-    const seen = new Map<string, Set<string>>([[zeroHash, new Set()], [adminRole, new Set()]]);
-    let upgrades = 0;
-    let initialized = 0;
-    for (let from = options.coreDeploymentBlock; from <= blockNumber; from += 10_000n) {
+    const seen = previous ? new Map([...previous.seen].map(([role,accounts]) => [role,new Set(accounts)]))
+      : new Map<string, Set<string>>([[zeroHash, new Set()], [adminRole, new Set()]]);
+    let upgrades = previous ? 1 : 0;
+    let initialized = previous ? 1 : 0;
+    for (let from = previous ? previous.block + 1n : options.coreDeploymentBlock; from <= blockNumber; from += 10_000n) {
       const to = from + 9_999n < blockNumber ? from + 9_999n : blockNumber;
+      if (roleLogIntervalMs) await new Promise(resolve => setTimeout(resolve, roleLogIntervalMs));
       const logs = await pub.getLogs({ address: witness.core, fromBlock: from, toBlock: to });
       must(Array.isArray(logs), "deployment", "core role history is unavailable");
       logs.sort((a, b) => a.blockNumber === b.blockNumber ? (a.logIndex ?? 0) - (b.logIndex ?? 0)
@@ -128,6 +140,8 @@ export function createArcOpenClaimPort(options: ArcOpenClaimPortOptions): OpenCl
     }
     must((await pub.getBlock({ blockNumber })).hash === anchor.hash,
       "deployment", "core deployment history changed during verification");
+    // Publish only a complete, canonical audit with both privileged roles empty.
+    roleAudit = { block: blockNumber, hash: anchor.hash, seen };
   }
 
   async function verifyPins() {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "approved-awaiting-funding-and-adapter",
+  "status": "approved-buyer-funded-awaiting-adapter",
   "network": "arc-testnet",
   "chainId": 5042002,
   "core": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
@@ -14,7 +14,7 @@
   "nativeGasDecimals": 18,
   "nativeGasMaximumFeePerGas": "25000000000",
   "nativeGasMaximumPriorityFeePerGas": "25000000000",
-  "buyerGasPerCall": "300000",
+  "buyerGasPerCall": "290000",
   "buyerCallsPerJob": [
     "core.createJob(adapter,adapter,approvedExpiry,approvedDescription,address(0))",
     "core.setBudget(confirmedJobId,10000,0x)",
@@ -22,7 +22,7 @@
     "core.fund(confirmedJobId,0x)",
     "adapter.register(confirmedJobId,approvedImageId,approvedRulesHash,approvedReferenceHash,10000,approvedExpiry)"
   ],
-  "buyerMaximumGasCostNative": "75000000000000000",
+  "buyerMaximumGasCostNative": "72500000000000000",
   "claimGas": "650000",
   "releaseGas": "260000",
   "solverMaximumGasCostNative": "22750000000000000",
@@ -30,8 +30,8 @@
   "invalidClaimMaximumGasCostNative": "16250000000000000",
   "refundGas": "150000",
   "refundMaximumGasCostNative": "3750000000000000",
-  "totalMaximumGasCostNative": "117750000000000000",
-  "maximumBountyAndGasUsdc": "0.13775",
+  "totalMaximumGasCostNative": "115250000000000000",
+  "maximumBountyAndGasUsdc": "0.13525",
   "circleServiceChargeAtomic": "1",
   "circleServiceChargeUsdc": "0.000001",
   "circleServiceChargeIncludedInBounty": false,
@@ -47,11 +47,10 @@
     "apiMinimumTermsMarginSeconds": 1200
   },
   "missing": [
-    "verified adapter manifest from contracts chat",
-    "testnet funding for the generated buyer and solver wallets"
+    "verified adapter manifest from contracts chat"
   ],
-  "note": "The user approved revision 2, a separate 0.01-USDC Gateway deposit, a 0.000001-USDC service charge, and a total 0.1235-USDC gas cap at 25 gwei. No transaction or payment was sent. Gateway principal remains in the buyer balance except for the approved service charge. Full live evidence remains pending.",
-  "revision": 2,
+  "note": "The buyer now holds 20 testnet USDC. Exact spending limits remain two 0.01-USDC jobs, a separate 0.01-USDC Gateway deposit and a 1-atomic service charge. Lower buyer call caps allocate the setup transfer within the unchanged 0.1235-USDC gas limit. The allocation totals 0.121625 USDC. No setup/payment/funding transaction was sent at this checkpoint.",
+  "revision": 3,
   "localGasMeasurements": {
     "createJob": 197676,
     "setBudget": 82112,
@@ -73,6 +72,16 @@
     "totalGasCapNative": "123500000000000000",
     "maxFeePerGas": "25000000000"
   },
-  "maximumTotalGasIncludingGatewayDepositNative": "123500000000000000",
-  "maximumBountyGasAndGatewayDepositUsdc": "0.1535"
+  "maximumTotalGasIncludingGatewayDepositNative": "121625000000000000",
+  "maximumBountyGasAndGatewayDepositUsdc": "0.151625",
+  "setup": {
+    "authorizedSource": "Direct human message in Complete UBC-26 proof commerce: send funded USDC among generated wallets as needed for setup",
+    "solverTransferNative": "40000000000000000",
+    "solverTransferUsdc": "0.04",
+    "solverTransferGasCap": "25000",
+    "solverTransferLiveGasEstimate": "21000",
+    "maximumGasNative": "625000000000000",
+    "buyerFundingGasReduction": "Per-call cap reduced from 300000 to 290000 for ten calls to retain the approved aggregate gas limit",
+    "includedInMaximumTotalGasIncludingGatewayDepositNative": true
+  }
 }

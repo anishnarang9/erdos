@@ -202,10 +202,11 @@ async function createFunding(input: PosterFundingConfig, confirmations?: bigint,
     privateFile(lockPath, lock, lockStat);
     fs.writeFileSync(lock, lockToken); fs.fsyncSync(lock); ownedLock(); sync(directory);
     const markerPath=join(directory,"poster-funding-created");
+    let freshMarker = false;
     try {
       const marker=fs.openSync(markerPath,fs.constants.O_CREAT|fs.constants.O_EXCL|fs.constants.O_WRONLY|fs.constants.O_NOFOLLOW,0o600);
       try {fs.writeFileSync(marker,"initialized\n");fs.fsyncSync(marker);} finally {fs.closeSync(marker);}
-      sync(directory);
+      sync(directory); freshMarker = true;
     } catch(error) {if((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;privatePath(markerPath,false);}
     const journalPath = join(directory, "poster-funding.json");
     let journalIdentity: fs.Stats | undefined;
@@ -231,7 +232,7 @@ async function createFunding(input: PosterFundingConfig, confirmations?: bigint,
         }
       }
     } catch (e) {
-      if ((e as NodeJS.ErrnoException).code !== "ENOENT" || !fresh) throw fail();
+      if ((e as NodeJS.ErrnoException).code !== "ENOENT" || !(fresh || freshMarker)) throw fail();
       journal = { version: 1, buyer, nativeGasBudget: String(cfg.nativeGasBudget), runs: {} };
     }
     check(!journal.runs[scope] || journal.runs[scope]!.approval === approval);

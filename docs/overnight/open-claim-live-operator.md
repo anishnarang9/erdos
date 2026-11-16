@@ -18,6 +18,7 @@ test -z "$(git ls-files --others --exclude-standard -- commerce/worker/package.j
 Run from `commerce/worker`:
 
 ```sh
+pnpm open-claim:operator setup --config /absolute/private/setup.json --password-fd 3 3</absolute/private/buyer.password
 pnpm open-claim:operator preview --config /absolute/private/run.json
 pnpm open-claim:operator fund --config /absolute/private/run.json --password-fd 3 3</absolute/private/buyer.password
 pnpm open-claim:operator prepare --config /absolute/private/run.json
@@ -54,7 +55,13 @@ The proposed main expiry is current confirmed chain time plus 3,600 seconds. The
 
 `recover` writes each audit to a new private attempt directory, so the same approved config can be retried. An interrupted process can leave a public release key in an unfinished private audit directory; review stale attempts manually. It reads the public claim transaction and confirmed key event. It checks exact context and payout receipts, SDK and engine recovery, and gas-adjusted native USDC balances. Its output excludes the release key. The independent workload oracle remains a separate check.
 
-`negative` sends one deliberately invalid seal to the separate funded refund job. It sends no release key. It requires a reverted canonical receipt and no payout. `refund` calls only `core.claimRefund(jobId)` after that job expires. It requires the exact refund event, core-to-buyer token transfer, expired core state, and gas-adjusted buyer balance gain. Both commands reconcile saved hashes before another signing attempt. Funding and refund share the buyer lock and inspect each other's nonce reservations.
+`negative` sends one deliberately invalid seal to the separate funded refund job. It sends no release key. It requires a reverted canonical receipt and no payout. `refund` calls only `core.claimRefund(jobId)` after that job expires. It requires the exact refund event, core-to-buyer token transfer, expired core state, and gas-adjusted buyer balance gain. Both commands reconcile saved hashes before another signing attempt. Setup, funding and refund share the buyer lock. Each checks all sibling journals and reserves their confirmed nonces permanently.
+
+`setup` needs no adapter manifest. Its private config includes the common identity/source fields, `directory`, `journalRoot`, and `setup: {authorized: true, validUntil: "<Unix seconds>"}`. It permits only three ordered calls: a 0.04-native-USDC transfer to the configured solver, a 10,000-atomic USDC approval to the pinned Gateway, and a 10,000-atomic deposit. The respective gas caps are 25,000, 80,000 and 150,000 at 25 gwei. It checks four confirmations, exact native balance changes, allowance consumption and the deposit's token transfer. A dropped send resumes by its durable hash. It never replaces a transaction.
+
+The approved setup transfer uses the buyer's newly funded 20 testnet USDC. Buyer funding now caps each of ten calls at 290,000 gas. This lower cap leaves the total allocation, including setup and Gateway, at 0.121625 USDC. The approved aggregate gas ceiling remains 0.1235 USDC. The transferred 0.04 USDC funds solver gas and is not another bounty.
+
+Live operator role checks pace log windows by two seconds. They retain only a complete audit with empty privileged roles. Each later check rechecks the prior canonical block hash and scans all new blocks. A changed audit anchor fails closed.
 
 ## Circle Gateway service payment
 

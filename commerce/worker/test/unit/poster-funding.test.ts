@@ -97,6 +97,25 @@ async function run(f: Awaited<ReturnType<typeof fixture>>) {
   try { return await helper.run(); } finally { await helper.close(); }
 }
 describe("Poster funding", () => {
+  it("initializes after setup, blocks unresolved setup, and preserves its nonce reservations", async () => {
+    const f=await fixture();
+    f.cfg.journalRoot=await realpath(await mkdtemp(join(process.cwd(),".poster-setup-")));
+    const directory=join(f.cfg.journalRoot,account.address.toLowerCase());
+    try {
+      await fs.promises.mkdir(directory,{mode:0o700});
+      const sibling={version:1,account:account.address,entries:[{nonce:9,stage:"intent"}]};
+      await writeFile(join(directory,"setup-journal.json"),JSON.stringify(sibling),{mode:0o600});
+      const h=await createPosterFunding(f.cfg);
+      try {
+        await expect(h.run()).rejects.toThrow();expect(f.rawSend).not.toHaveBeenCalled();
+        sibling.entries[0]!.stage="confirmed";
+        await writeFile(join(directory,"setup-journal.json"),JSON.stringify(sibling));
+        await h.run();expect(parseTransaction(f.rawSend.mock.calls[0]![0].params[0]).nonce).toBe(10);
+      } finally {await h.close();}
+      await fs.promises.unlink(join(directory,"poster-funding.json"));
+      await expect(createPosterFunding(f.cfg)).rejects.toThrow();
+    } finally {await rm(f.cfg.journalRoot,{recursive:true,force:true});}
+  });
   it("blocks unresolved refund sends and reserves sibling refund nonces before funding", async () => {
     const f=await fixture();
     // readSafeFile rejects world-writable /tmp ancestors on Linux.

@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 08:42 -05:00 — Anish — Buyer funded and one signing owner
+
+- The buyer received 20 testnet USDC. Direct human instructions authorize transfers among the generated wallets as needed. PR #7's live-run chat owns all wallet signatures and nonce journals. The contract chat prepares the adapter deployment and verifies its manifest. A separate deployment-gas approval is pending.
+- A fixed setup path transfers only 0.04 USDC for solver gas and performs the approved 0.01-USDC Gateway deposit. Ten buyer call caps decrease to 290,000 gas. The entire existing flow, setup and Gateway allocate at most 0.121625 USDC gas within the approved 0.1235 ceiling. Two bounties remain 0.01 USDC each and the service charge remains one atomic unit.
+- Require reviewed source, combined-head checks/CI and receipt/balance evidence. Role-log reads now use pacing and canonical incremental audit checks. The Goal stays active for the real Circle call, deployed funded proof, payout, recovery, rejection and expiry refund.
+
 ## 2026-11-16 08:10 -05:00 — Anish — Fractional live authority and real API staged
 
 - The user approved two 0.01-USDC jobs, a separate 0.01-USDC Gateway deposit, a 0.000001-USDC service charge, and at most 0.1235 USDC total gas at 25 gwei. The [main preview](../anish/reports/open-claim-arc-spend-preview-2026-11-16.json) and [Gateway calls](../anish/reports/circle-gateway-deposit-preview-2026-11-16.json) record the exact authority.
