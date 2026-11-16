@@ -50,7 +50,7 @@ The private config requires:
 | `purpose` | Optional `expiry-refund` selects a 750-second funding reserve for the separate refund job. Ordinary proof jobs require 2,460 seconds. |
 | `circle` | Optional `url`, `payTo`, decimal `amount`, and separately approved `authorized: true`. |
 
-The proposed main expiry is current confirmed chain time plus 3,600 seconds. The measured proof took 1,053 seconds. The operator allows 1,800 seconds for proving, 60 for claim, and 600 for release and confirmations. Copy the API's exact absolute expiry into the config. Never refresh it inside a retry. A separate refund job can use a 900-second lifetime and expire during the main proof.
+The proposed main expiry is current confirmed chain time plus 3,600 seconds. The measured proof took 1,053 seconds. The operator allows 1,800 seconds for proving, 60 for claim, and 600 for release and confirmations. Copy the API's exact absolute expiry into the config. Never refresh it inside a retry. The API requires at least 1,200 seconds when it prepares terms. Use a 1,500-second lifetime for the separate refund job. It can expire near the end of proving or shortly afterward.
 
 `recover` writes each audit to a new private attempt directory, so the same approved config can be retried. An interrupted process can leave a public release key in an unfinished private audit directory; review stale attempts manually. It reads the public claim transaction and confirmed key event. It checks exact context and payout receipts, SDK and engine recovery, and gas-adjusted native USDC balances. Its output excludes the release key. The independent workload oracle remains a separate check.
 

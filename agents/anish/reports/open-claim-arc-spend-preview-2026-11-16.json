@@ -42,7 +42,9 @@
     "claimSeconds": 60,
     "releaseAndConfirmationSeconds": 600,
     "proposedLifetimeSeconds": 3600,
-    "absoluteExpiry": null
+    "absoluteExpiry": null,
+    "separateRefundLifetimeSeconds": 1500,
+    "apiMinimumTermsMarginSeconds": 1200
   },
   "missing": [
     "verified adapter manifest from contracts chat",

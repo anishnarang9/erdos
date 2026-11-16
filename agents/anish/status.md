@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 08:29 -05:00 — Anish — Combined CI green and wallets ready for funding
+
+- PR #7 is pushed at combined code SHA `4fc703c0ddbdfb8683e804872622962999556c87`. [Commerce CI](https://github.com/anishnarang9/UBC-26/actions/runs/43875067967) and [core-fast CI](https://github.com/anishnarang9/UBC-26/actions/runs/43875068035) passed at that exact SHA. The latter passed engine and contract jobs. Relevant local checks remain green as recorded above. No main or PR merge occurred.
+- Notified the user that the encrypted buyer `0x638202cCB15315dBc5b22e02717B908bEAc3AeBd` needs at least 0.12 Arc Testnet USDC and solver `0xfb7692d0BFb955E7EB727bf744b39F7B8441057F` needs at least 0.04. These cover the approved small-run ceilings. The separate seller wallet needs no direct funding for the service test. Private task authority and the prepared Circle config remain under the generated wallet directory outside Git.
+- Corrected the refund guide to 1,500 seconds because the API requires a 1,200-second terms margin. This changes no transaction code, bounty, fee authority or main proof expiry policy. The main job remains at 3,600 seconds with a 1,800-second prove budget and 600-second release margin.
+- The API is staged on loopback port 18790 with real compilation and a genuine unpaid 402 challenge. No signature, Gateway charge, funded proof or live settlement was produced. Continue after wallet funding. The separate contract/deployment chat must supply the verified adapter manifest before the fresh funded-context Arc proof. The Goal remains active and incomplete.
+
 ## 2026-11-16 08:19 -05:00 — Anish — Linux CI fixture correction
 
 - Pushed combined source `d6172e2`. Its engine and contract CI passed. Both commerce runs passed SDK/API but failed two new cross-journal tests. Linux `/tmp` violates the existing private operator path policy, while this Mac's temporary directory does not.
