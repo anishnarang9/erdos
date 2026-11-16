@@ -32,7 +32,7 @@ export function ProvingGrid({ started, finished }: { started?: RunEvent; finishe
 
   return (
     <div className="card" style={{ background: "var(--surface-2)" }} aria-live="polite">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
         <span className="panel-title">zkVM · RISC Zero 3.1.0 · Groth16</span>
         {proving ? (
           <span className="badge locked">◌ proving · <Elapsed since={started.at} /></span>

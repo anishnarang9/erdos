@@ -105,6 +105,17 @@ export const actions = {
     }
   },
 
+  async compile() {
+    const { jobId, job } = store.get();
+    if (!jobId || !job) return;
+    store.set({ error: null });
+    try {
+      await api.compile(jobId, job.revision.revisionHash);
+    } catch (err) {
+      fail(err);
+    }
+  },
+
   async selectQuote(quoteId: string) {
     const { jobId, job } = store.get();
     if (!jobId || !job) return;

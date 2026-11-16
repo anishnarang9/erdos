@@ -61,7 +61,7 @@ function Coins({ stage }: { stage: Stage }) {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
-      <pointsMaterial size={0.07} color={C.money} transparent opacity={0.9} blending={THREE.AdditiveBlending} depthWrite={false} />
+      <pointsMaterial size={0.13} color={C.money} transparent opacity={0.9} blending={THREE.AdditiveBlending} depthWrite={false} />
     </points>
   );
 }

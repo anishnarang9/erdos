@@ -28,6 +28,9 @@ export function FundCard() {
         {job.manifest ? <span className="badge verified">✓ compiled</span> : <span className="badge locked">◌ compiling guest</span>}
       </div>
       {job.manifest && <div style={{ marginTop: 8 }}><Hash label="imageId" value={job.manifest.imageId} /></div>}
+      {job.state === "approved" && !job.manifest && (
+        <button className="ghost" style={{ marginTop: 12 }} onClick={() => void actions.compile()}>Compile again</button>
+      )}
 
       {stage === "quoting" && (
         <div style={{ marginTop: 16 }}>
@@ -53,12 +56,13 @@ export function FundCard() {
           <ol style={{ listStyle: "none", padding: 0, margin: "8px 0 0", display: "grid", gap: 6 }}>
             {["createJob", "setBudget", "approve", "fund", "link"].map((label, i) => {
               const s = fundOp?.steps.find((x) => x.label === label);
-              const state = s?.status ?? "todo";
+              // A step still "pending" in a failed operation is the one that failed.
+              const state = s?.status === "pending" && fundOp?.status === "failed" ? "failed" : (s?.status ?? "todo");
               return (
                 <motion.li key={label} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}
                   style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span className={`badge ${state === "confirmed" || state === "skipped" ? "verified" : state === "pending" ? "locked" : "neutral"}`} style={{ minWidth: 92, justifyContent: "center" }}>
-                    {state === "confirmed" ? "✓ done" : state === "skipped" ? "– skip" : state === "pending" ? "◌ sending" : "· queued"}
+                  <span className={`badge ${state === "confirmed" || state === "skipped" ? "verified" : state === "pending" ? "locked" : state === "failed" ? "rejected" : "neutral"}`} style={{ minWidth: 92, justifyContent: "center" }}>
+                    {state === "confirmed" ? "✓ done" : state === "skipped" ? "– skip" : state === "pending" ? "◌ sending" : state === "failed" ? "✕ failed" : "· queued"}
                   </span>
                   <span>{STEP_COPY[label]}</span>
                   {s?.txHash && label !== "link" && <Hash value={s.txHash} tx />}

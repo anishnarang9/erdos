@@ -66,6 +66,19 @@ export function RulesCard({ draft }: { draft: Draft }) {
   }, [draft.draftId]);
   const quotes = draft.sourceQuotes.filter((q) => !q.path.includes(".") && request.includes(q.quote)).map((q) => q.quote).slice(0, 4);
   const rules = (draft.preview?.rules ?? []) as unknown[];
+  const [expanded, setExpanded] = useState(false);
+
+  // After approval the rules are settled: show a compact summary so the funding step stays in view.
+  if (job && !expanded) {
+    return (
+      <motion.section className="card" layout style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        <span className="badge verified">✓ {rules.length} rules approved</span>
+        {job.approval?.rulesHash && <Hash label="rulesHash" value={job.approval.rulesHash} />}
+        <span className="spacer" />
+        <button className="ghost" onClick={() => setExpanded(true)} aria-expanded={false}>Show rules</button>
+      </motion.section>
+    );
+  }
 
   return (
     <LayoutGroup>
