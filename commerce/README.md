@@ -2,6 +2,12 @@
 
 Agent-to-agent commerce for proof-gated payments. The plan is [COMMERCE-IMPLEMENTATION.md](../agents/current%20plan/COMMERCE-IMPLEMENTATION.md).
 
+## 2026-11-15 — Anish — Current integration
+
+The API and worker use the domain-independent typed-plan [Rust engine](../engine/README.md), including bounded records, aggregates, and evidence. The integration branch `codex/engine-commerce` includes Neil `8584b04`, Nick `57c387f`, and engine `adda3a3` through actual merge ancestry. [PR #6](https://github.com/anishnarang9/UBC-26/pull/6) is open. Normal integration into main is authorized, not completed by this statement.
+
+The isolated core is frozen. A later read-only refresh passed 60 checks at block 72490082; the earlier check at block 72478546 remains historical. Deployment checks are not live funded acceptance or spending permission. The [core sprint runbook](../docs/core-sprint.md) separates tested modules, the partial local report at `9458a81`, timer correction `2d9f2fd`, and the still-pending [Meridian rehearsal](../docs/core-sprint.md#local-first-meridian-rehearsal) and final-head CI. A buyer web UI remains planned. No `commerce/web` implementation is present.
+
 | Package | Contents | Contract |
 | --- | --- | --- |
 | `sdk` | Byte codec, explicit simulation adapter, and real Arc reader with pinned-block snapshots. | [sdk/CONTRACT.md](sdk/CONTRACT.md), [Arc interface](sdk/src/chain/arc/INTERFACE.md) |
@@ -20,9 +26,15 @@ pnpm test                  # fast suites; the engine is faked, using its real CL
 
 You need Node 22.13 or newer (`node:sqlite`). Chain tests start a local anvil from the `@foundry-rs/anvil` npm package. If anvil cannot start, they are skipped and the reason is printed.
 
+## Separate operator runner
+
+See the [operator runbook](../docs/core-sprint.md#separate-operator-runner) for seven commands, required files, protected descriptors, and separate funding/provider approvals. `src/cli.ts funded` remains read-only. The separate sprint runner accepts pinned native POSIX engines only and fails closed on WSL. The API/worker WSL support below remains available.
+
+The [local report](../agents/anish/reports/core-sprint-local-2026-11-15.json) has status `partial`. Its lifecycle status is `passed`, and the process exit code is 1. On source `9458a81` the lifecycle recorded a 583188 ms proof, then an unhandled cleanup timer failed the process. The report retains a historical 592.4-second attempt. Timer correction `2d9f2fd` has focused checks only. It is not a fresh full pass, live Arc, or live Grok. The [Meridian rehearsal](../docs/core-sprint.md#local-first-meridian-rehearsal) holds the suite command, guest report, and local fixture timing. No fresh full pass or Meridian proof exists. Final-head CI remains pending. Permanent provider gas reservations receive no finality discount. Do not automatically delete stale account locks.
+
 ## Real engine (WSL2 or Linux)
 
-The API and the worker call Anish's engine CLI (branch `codex/anish-engine`, `engine/README.md`). On Windows the engine runs in WSL2, and Node calls it through `wsl.exe -e env … engine` without a shell.
+The API and worker call the engine CLI from this integrated checkout. The original engine branch is `codex/anish-engine`. On Windows the engine runs in WSL2, and Node calls it through `wsl.exe -e env … engine` without a shell.
 
 ### One-time setup inside WSL (Ubuntu)
 
@@ -35,8 +47,8 @@ curl -L https://risczero.com/install | bash && ~/.risc0/bin/rzup install r0vm 3.
 # The pinned Groth16 prover image (about 5.4 GB)
 image=risczero/risc0-groth16-prover; digest=sha256:49093ed164b82aca9305dd80e4a6eb996bd443201ac7bd50b52909b2761ef583
 docker pull --platform linux/amd64 "$image@$digest" && docker tag "$image@$digest" "$image:v2026-10-20.1"
-# Build the engine from Anish's branch
-git clone <repo> ~/ubc26/engine-wt && cd ~/ubc26/engine-wt && git checkout codex/anish-engine
+# Build the integrated engine (use the reviewed integration revision)
+git clone <repo> ~/ubc26/engine-wt && cd ~/ubc26/engine-wt && git checkout codex/engine-commerce
 cargo +1.98.1 build --locked --manifest-path engine/Cargo.toml --bin engine
 mkdir -p ~/ubc26/work
 ```
@@ -85,6 +97,8 @@ The API reads `CHAIN_RPC_URL`, `CHAIN_ID`, `CHAIN_CORE`, `CHAIN_HOOK`, and `CHAI
 
 Arc selection uses pinned chain time, enforces the deployed funding margin, and requires at least 1,200 seconds (or the deployed minimum plus 120 seconds, if larger). This is a safety floor, not a proving SLA: choose the approved expiry using measured proving time, funding, submission, release, and operational overhead. The worker independently enforces its explicit proving, submit, and release budgets.
 
+The Poster sends exactly `createJob → setBudget → approve → fund`. Only the client (Poster) can call `setBudget` in this patched core. Preserve the API-selected absolute `expiredAt` in every call and comparison. Never replace it with a new relative deadline. Bounty and ERC-20 allowance amounts use six decimals. Native gas amounts use 18 decimals. The sprint funding helper currently restricts the bounty to `1000000` units (1 test USDC), but still requires separate spending approval. A completed local Meridian exit 0 does not name the buyer or provider account, the keystore, or the spending cap. Those values stay a later explicit approval.
+
 Read-only worker commands, from `commerce/worker`:
 
 ```sh
@@ -98,9 +112,15 @@ The library exports `createArcSettlementPort`, `runFunded`, and `ArcDeploymentPo
 
 Operator-approved deployment policy must pin the actual proxy creation/initialization block, implementation address, verifier address/version/selector, and audited runtime hashes. Before broadcast the worker checks zero fees, hook whitelist, implementation/code identity, and complete role-grant/revocation history with no surviving privileged role holders. It accepts only never-upgraded cores. RPC history must be complete and truthful; runtime hashes are external audit trust roots, not approval inferred from the RPC itself. A final fresh snapshot checks job identity, commitments, and deadline after history verification. RPC checks cannot be atomic with signing or inclusion.
 
-The current manifest records the deployed core as **unfrozen**. The existing freeze script checks only its broadcaster's roles, so its `frozen: true` result alone would be insufficient. Nick owns correcting that script and supplying verified freeze evidence. Real worker broadcast remains blocked until those deployment requirements are met; do not bypass the guard for a demo.
+The current manifest records the deployed core as **frozen**. Nick corrected the all-holder script defect. The historical [deployment evidence](../agents/anish/reports/core-sprint-deployment-2026-11-15.json) records 60 passing checks at block 72478546, including four exact runtime/build matches. A later read-only refresh passed 60 checks at block 72490082. The nonauthorizing `parseDeploymentPolicy` function returns candidate pins, not permission. Signing still requires operator approval and fresh deployment/job checks. Do not repeat the freeze.
 
 Attempts persist private state before proving or broadcasting, save transaction hashes before receipt polling, and never blindly resend pending or uncertain transactions. Interrupted preparation/proving, stale locks, and an intent without a durable hash require manual reconciliation. Resume validates private artifacts, buyer approval, chain context, and exact recovery again. Once release dispatch begins, state records the key as potentially public and payment as unconfirmed until authoritative receipt/state checks pass. Even a failed release can disclose the key. Only dummy keys are used in release simulations; `WrongKey` does not prove payout liveness.
+
+Separate sprint modules provide strict private state, a restricted provider broadcaster, encrypted operator keystore loading, and four-call Poster funding. `runFunded` supports `stopAfterProof` with a bounded proving timeout. The recorded lifecycle assertions passed, then the suite process exited 1. Live acceptance remains pending. The [operator runbook](../docs/core-sprint.md#separate-operator-runner) documents the separate runner's seven commands. None of this enables writes in `src/cli.ts funded`.
+
+Optional indexer confirmations are published at `e8b9273`. Server startup passes `3n` for Arc and `0n` for simulation. An embedded caller that omits the option stays at `0n` and must set it explicitly. Three blocks are a bounded lag allowance, not protection against an RPC that omits arbitrary logs. Indexed status and delivery appear only after that delay. Adding the delay does not repair logs the cursor already skipped. A clean local run uses a fresh database. An existing deployment needs a deliberate, approved reindex. Do not reset or delete the cursor automatically. Details are in the [indexer note](../docs/core-sprint.md#indexer-confirmation-lag).
+
+Known `ws` advisories remain open. The controlled local keystore path uses no WebSocket connection. That scope limit does not remediate the dependency or establish production security. Keep signing and release keys outside prompts, logs, environment examples, and public reports.
 
 ## Repeatable local settlement verification
 

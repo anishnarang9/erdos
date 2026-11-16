@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 00:04 -05:00 — Anish
+
+- Publishing the six reviewed operator/reference documents and preserved legacy reports on `codex/engine-commerce`, base `e8b9273`. Documentation now separates the partial `9458a81` process result, `2d9f2fd` cleanup correction, Meridian semantic/guest evidence and the still-pending fresh exchange.
+- A Grok 4.7 High documentation worker checked command flags against the real parsers. Parent independently resolved all 104 relative links, checked the six docs and two preserved reports for private paths, parsed the reports and checked secret-field exclusions. Whitespace checks passed.
+- The current indexer fix is documented as implemented, with Arc startup at three confirmations, no automatic reset and explicit margins for embedded callers. The runbook records local-only timing allowances and the absence of a buyer web UI.
+- The suite implementer remains the sole pre-proof source owner and received a bounded source-stage completion request. Full Meridian proof, payout, indexed delivery, independent recovery and process exit 0 remain unverified. No live action occurred.
+
 ## 2026-11-15 23:54 -05:00 — Anish
 
 - Publishing the minimal Arc indexer correction. `createIndexer` forwards optional confirmations. Server startup uses three blocks for Arc and zero for simulation. Cursor identity, atomic persistence, 10,000-block windows and signer/recovery paths remain unchanged.

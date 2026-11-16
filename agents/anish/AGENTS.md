@@ -1,5 +1,17 @@
 # Anish’s project context
 
+## 2026-11-15 — Anish — Current sprint authority and limits
+
+Use the [core sprint runbook](../../docs/core-sprint.md) and the latest [shared plan](../current%20plan/PLAN.md). Earlier scheduling examples below are historical fixtures, not a product taxonomy.
+
+The user authorized sprint continuation, delegation, checkpoint commits/pushes, and normal merge integration into main. Follow the active task's narrower file and shipping scope. Publication-only limits in older handoffs are stale. No real wallet access, spending, or funded live acceptance is authorized yet.
+
+Neil `8584b04`, Nick `57c387f`, and engine `adda3a3` are merged ancestors on `codex/engine-commerce`. The isolated Arc deployment is frozen. A later read-only refresh passed 60 checks at block 72490082. The earlier check at block 72478546 remains historical. Do not repeat the freeze. A passed deployment gate does not authorize signing or prove a funded exchange.
+
+Keep `commerce/worker/src/cli.ts funded` read-only. The separate operator runner has seven commands documented in the runbook. It requires clean relevant source, native executable/wrapper digests, and an explicit environment. WSL fails closed for this runner only. Independent oracle and slow-suite reviews passed, and the reviewed suite source is published at `9458a81`. Final rehearsal and final-head CI remain pending. Buyer UI work remains planned.
+
+The [previous local rehearsal](reports/core-sprint-local-2026-11-15.json) is `partial`. On source `9458a81` the lifecycle recorded a 583188 ms proof and the process exited 1. The report retains an earlier 592.4-second attempt. It is not a clean pass, live Arc, live Grok, or evidence for a later Meridian rehearsal. The current local workload is Meridian. See the [rehearsal section](../../docs/core-sprint.md#local-first-meridian-rehearsal). No fresh full pass exists yet. Provider maximum gas reservations remain permanently charged after reconciliation. Review stale locks manually. Never delete them automatically.
+
 ## Goal
 
 Build a verification and settlement API for existing agent marketplaces. A buyer approves deterministic acceptance rules and funds a job. A worker agent proves the exact encrypted deliverable satisfies those rules while the output remains hidden. The escrow releases USDC when the worker releases the matching key.
@@ -8,28 +20,32 @@ Build a verification and settlement API for existing agent marketplaces. A buyer
 
 - **Proof engine.** RISC Zero 3.1.0 with Groth16. Pin the prover, guest toolchain, lockfile and matching Solidity verifier. Deploy the `risc0-ethereum` v3.1.0 verifier from commit `ff30da77ba4afdd496290ebebedb205348b15d83` and check selector `0xe71e6620`.
 - **Authoring.** Grok drafts typed rules or asks clarifying questions. A model adapter and typed JSON import allow other authoring clients. The buyer reviews the normalized data, rules and units before funding. The model has no signing authority.
-- **Compiler.** Generate Rust from bounded, typed linear predicates using fixed templates. Rust compiles to the RISC-V guest. The guest evaluates a Boolean assignment using checked integer arithmetic. Compile by rule shape and pass indices, coefficients and thresholds as committed runtime data. Changes to thresholds produce a different plan digest while retaining the same guest image when shape is unchanged.
+- **Compiler.** Generate Rust from domain-independent typed plans using fixed templates. Support the catalog's bounded JSON records, aggregates, joins, and signed evidence. The guest uses checked integer arithmetic. Compile by rule structure and retain values as committed runtime parameters. Parameter-only changes alter the rules hash while preserving the guest image when all build inputs remain identical. Do not reduce the compiler to `LinearPlan` or scheduling-only rules.
 - **Settlement.** Use Arc Testnet, chain ID 5042002, and direct test USDC funding. Use a pinned ERC-8183 lifecycle with a custom evaluator and policy hook, zero fees and one selected provider per funded job. Quotes can precede funding. Funded competitions with multiple solvers require a separate award flow.
 - **x402.** Circle’s Arc Testnet facilitator advertised `exact`. If time allows, use it for a real paid compilation or authoring API call. ERC-8183 handles the proof-gated bounty.
-- **App.** Rust worker and prover CLI, thin TypeScript UI/API, viem and Foundry with Arc-specific deployment checks. An external marketplace can supply its own solver and call the API or contracts.
+- **App.** Rust compiler, guest, and engine CLI. TypeScript API, SDK, and worker, with viem and Foundry checks. A buyer web UI is planned, not implemented. External marketplaces can adopt the API/contracts but need explicit integration.
 
 ## Proof and delivery
 
-The buyer’s funding call freezes the provider, budget, expiry, image ID, plan digest and dataset digest. Use versioned canonical binary encodings and fixed-width public fields. The worker locally generates a new random 32-byte key and 12-byte nonce per attempt. The guest checks the canonical assignment bytes and uses ChaCha20-Poly1305 to encrypt those same bytes. Use the job context as authenticated associated data. The envelope is the nonce, ciphertext and authentication tag.
+The buyer’s funding call freezes the provider, budget, expiry, image ID, rules hash and reference hash. The Poster calls `createJob`, `setBudget`, exact-budget `approve`, then `fund`. Only the client (Poster) can call `setBudget`. Preserve the exact API-selected absolute expiry. ERC-20 amounts use six decimals. Native gas amounts use 18 decimals.
 
-The public job context includes chain ID, escrow address, job ID, provider, plan hash and dataset hash. The guest journal commits to that context, a Boolean verdict, the SHA-256 envelope digest and a domain-separated SHA-256 commitment to the context and key. The evaluator reconstructs the exact expected journal with a passing verdict and verifies the Groth16 seal against the funded image ID and SHA-256 journal digest. Share commitment byte fixtures across Rust and Solidity. A passing proof establishes threshold feasibility.
+Use versioned canonical binary encodings and fixed-width public fields. The worker generates a random 32-byte key and 12-byte nonce per attempt. The guest checks the exact canonical file bundle and encrypts those bytes with ChaCha20-Poly1305. Use the job context as authenticated associated data. The envelope is the nonce, ciphertext and authentication tag.
+
+The public job context includes chain ID, escrow address, job ID, provider, rules hash and reference hash. The guest journal commits to that context, a Boolean verdict, the SHA-256 envelope digest and a domain-separated SHA-256 commitment to the context and key. The evaluator reconstructs the exact expected journal with a passing verdict and verifies the Groth16 seal against the funded image ID and SHA-256 journal digest. Share commitment byte fixtures across Rust and Solidity. A passing proof establishes satisfaction of the approved predicates, not unexpressed intent or external truth.
 
 The selected provider submits the envelope and proof onchain. This makes the small fixture retrievable from transaction data. A rejected proof leaves escrow funded. After proof acceptance, the worker calls the evaluator with the key. The evaluator checks the commitment, pays through ERC-8183 and emits the key in the same successful transaction. Expiry allows permissionless refund to the buyer if the job was funded or submitted without settlement. Enforce expiry on submission and release and prevent repeated payout or refund.
 
-Use synthetic schedules. The key becomes public in calldata when the release transaction is broadcast and can be exposed even if the transaction fails. Preflight and leave a deadline margin. Buyer-only delivery and pre-inclusion confidentiality are follow-on protocol work.
+Use synthetic data. The key becomes public in calldata when the release transaction is broadcast, before payment, and can be exposed even if the transaction fails. Never send the real key through simulation or gas estimation. Leave a measured deadline margin. Buyer-only delivery and pre-inclusion confidentiality are follow-on protocol work.
 
 ## Worker and demo
 
 The worker reads chain state, checks that the job is funded and assigned to its address, validates the committed inputs and allowlisted addresses, solves within its resource budget, runs the checker, proves, submits, and releases. Restrict the signer to the Arc testnet submit and release calls, zero transaction value and capped gas. Reconcile chain state before retrying. Document the decision loop and safety limits for the track.
 
-Use three workers costing 4,000, 5,000 and 6,000 cents per shift, two shifts and a one-shift-per-worker rule. Job A caps cost at 10,000 cents with minimum coverage [1, 1]. The first two workers qualify. Job B caps cost at 16,000 cents with minimum coverage [2, 1]. Submit a real failing-verdict receipt for the two-worker schedule and show the bounty remains funded. Then submit a passing receipt for the 15,000-cent three-worker schedule, show proof acceptance while the result is hidden, and show payout plus decryption. Both jobs use the same checker image and verifier.
+The prior [synthetic workload](../../docs/core-sprint-input/README.md) is the legacy local package. The current local workload is [Meridian](../../docs/fresh-exchange-input/README.md). Buyer approval for a live exchange is still pending. Native OpenCode authoring of the legacy package is not Grok evidence. Keep candidates and the independent oracle outside the author's inputs. Admission checks semantic feasibility, not a hardcoded answer. Resource bounds do not provide a universal cost or latency model.
 
-Test changed journal and image ID, cross-job replay, swapped ciphertext, incorrect key, duplicate settlement and expiry refunds. Confirm fund movement through onchain evidence. Start with an upstream receipt and a freshly generated tiny guest receipt on the deployed Arc verifier. Benchmark proving time and verification gas. Then finish the compiler and encryption, exercise settlement, connect authoring and the worker, and rehearse by Wednesday, November 18. Proof generation and complete settlement are build gates.
+Historical scheduling example: three workers cost 4,000, 5,000 and 6,000 cents per shift. Two shifts and one-shift-per-worker rules illustrate threshold changes. Retain this example for history, not as the required current demo.
+
+Retain tests for changed journal/image ID, cross-job replay, swapped ciphertext, incorrect key, duplicate settlement, and expiry refunds. The compiler, encryption, and synthetic proof gates already have evidence. Final funded acceptance still requires a new context-bound proof, authorized chain actions, exact recovery, and recorded payment/refund evidence. Measure timing for the selected workload.
 
 ## Sources
 

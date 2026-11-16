@@ -1,8 +1,18 @@
 # UBC26 engine
 
-The engine turns buyer-approved rules into commitments for a funded job. The scalar guest checks the deliverable and encrypts its exact bundle bytes. The Arc evaluator will verify the job journal and the matching key commitment. See the [engine plan](../agents/current%20plan/ZKVM-IMPLEMENTATION.md) for the full flow.
+The engine compiles buyer-approved typed plans into Rust checkers for the RISC Zero guest. The guest checks the deliverable and encrypts its exact bundle bytes. The Arc evaluator verifies the job journal and the matching key commitment. See the [engine plan](../agents/current%20plan/ZKVM-IMPLEMENTATION.md) for the wire format.
+
+## 2026-11-15 — Anish — Current scope
+
+The compiler is domain-independent within its [capability catalog](capabilities-v1.json). It supports typed JSON, text, opaque files, bounded record collections, aggregates, joins, and signed evidence. Scalar receipts below remain valid historical fixtures, not the current capability boundary.
+
+The engine proves satisfaction of the approved predicates. It does not prove unexpressed buyer intent, external truth, optimality, or equality to a hidden known answer. File-hash predicates are available when explicitly approved. They are not a required admission rule. Input and execution limits are hard bounds, not a universal cost or latency model.
+
+The isolated Arc core is frozen. A later read-only refresh passed 60 checks at block 72490082. The earlier match at block 72478546 remains historical. This does not establish funded acceptance or authorize spending. See the [core sprint runbook](../docs/core-sprint.md) for evidence, remaining gates, and historical report annotations.
 
 ## Validate a plan
+
+The separate [sprint operator runner](../docs/core-sprint.md#separate-operator-runner) pins the native executable, both wrappers, and explicit clean environment. It rejects WSL. Existing API WSL support is unchanged. The local report for suite source `9458a81` is `partial`: lifecycle assertions passed and the process exited 1. The canonical lifecycle proof is 583188 ms, and the report retains a historical 592.4-second attempt. Timer correction `2d9f2fd` has focused checks, not a fresh full pass. The current local workload is Meridian. See the [local-first rehearsal](../docs/core-sprint.md#local-first-meridian-rehearsal). No fresh full pass or Meridian Groth16 proof exists yet. Optional indexer confirmations are published at `e8b9273`. See the [indexer note](../docs/core-sprint.md#indexer-confirmation-lag). Exact accounts and spending approval remain a later boundary.
 
 Run these commands from the repository root.
 
@@ -15,7 +25,7 @@ node engine/fixtures/check-wire-v1.mjs
 
 The validator writes one JSON object to stdout. Its preview preserves file and field names and normalizes decimal values. Revalidating that preview produces the same commitments. It includes the normalized structure, ordered parameter slots, canonical JSON, and both hashes. The structure uses zero-based file and field indices in declaration order. Evidence signers occupy the first parameter slots in declaration order. Literal values follow in rule traversal order. Edit the budget in the sample plan to see the rules hash change while the structure hash stays the same.
 
-The current syntax supports scalar `bool`, `i64`, and `string` values. Write `i64` literals as decimal strings. Rules can read declared fields from `json/v1` files or compare all the text in a `text/v1` file. Use `opaque/v1` for a file declaration with no projected fields. Run `engine capabilities` for the full list of operations. Every rule in the top-level list must evaluate to a Boolean.
+The syntax supports `bool`, `i64`, and `string` values, including fields in bounded JSON record collections. Write `i64` literals as decimal strings. Rules can inspect declared JSON fields, text files, aggregates, joins, and authenticated evidence. Use `opaque/v1` for a file declaration with no projected fields. Run `engine capabilities` for the full operation list. Every top-level rule must evaluate to a Boolean.
 
 A validation failure exits with code 2 and writes JSON to stderr. Unsupported operations, parsers, and evidence profiles include a request with the capability kind and name. A `regex_match` rule at index 0 produces this error.
 
@@ -49,7 +59,7 @@ engine/target/debug/engine decrypt --submission ATTEMPT_DIR/proof.json \
 
 The CLI writes JSON errors to stderr. Exit code 2 reports an argument, input, or output error. Exit code 3 reports a Docker build, prover, or randomness failure. Each output directory must be new. The CLI publishes it after all files are ready.
 
-The scalar guest embeds the canonical rule structure in a fixed Rust entry point. Parameters remain runtime inputs. The compiler emits typed Rust nodes for each supported rule. Run [the funded-job test](tests/funded-job.sh) against the built CLI with `bash engine/tests/funded-job.sh engine/target/debug/engine`. Set `CHECK_FAILING_VERDICT=1` to also produce a verdict-0 receipt.
+The generated guest embeds the canonical rule structure in a fixed Rust entry point. Parameters remain runtime inputs. The compiler emits typed Rust nodes for each supported rule. Run [the funded-job test](tests/funded-job.sh) against the built CLI with `bash engine/tests/funded-job.sh engine/target/debug/engine`. Set `CHECK_FAILING_VERDICT=1` to also produce a verdict-0 receipt. This test uses a synthetic context, not a live funded job.
 
 ### Retry Groth16 compression after a memory limit
 

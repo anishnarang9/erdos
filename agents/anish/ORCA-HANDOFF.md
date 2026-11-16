@@ -1,8 +1,28 @@
 # Orca handoff — UBC-26 engine integration
 
-Continue in `/Users/anishnarang/.codex/worktrees/engine-commerce/UBC-26-engine`, branch `codex/engine-commerce`.
+Continue in the engine-commerce worktree, branch `codex/engine-commerce`.
 
-## Current state, 2026-11-15 14:00 -05:00
+## 2026-11-15 — Anish — Current sprint handoff
+
+The user authorized sprint continuation, delegation, tested checkpoint commits/pushes, and normal merge integration into main. The older publication-only limits below are historical. Follow narrower limits in the active task. No live spending authorization or funded exchange exists.
+
+Actual merge ancestry includes Neil `8584b04`, Nick `57c387f`, and engine `adda3a3` at integration checkpoint `fff74ce`. Consolidated [PR #6](https://github.com/anishnarang9/UBC-26/pull/6) is open. This is not a claim that main already contains the sprint.
+
+Nick corrected the all-holder defect and froze the existing core. The historical [read-only verification](reports/core-sprint-deployment-2026-11-15.json) passed 60 checks at block 72478546. A later read-only refresh passed 60 checks at block 72490082 and hash `0x58199c922279c535fcba994ef3e0a248a6f9435aa6e626479d68a3fb5b959093`, with 81 reads paced at 2 seconds and 0 retries. All four runtimes match exact source/build inputs, including metadata and approved immutables. Do not repeat the freeze. Old unfrozen reports remain unchanged as historical evidence. Neither check authorizes spending.
+
+The [operator runbook](../../docs/core-sprint.md#separate-operator-runner) documents seven commands and exact file/authorization shapes. The runner requires clean relevant source, pinned native executable/wrappers, and an explicit environment. It fails closed on WSL without changing existing API WSL support. Keep the general funded CLI read-only. Independent oracle and slow-suite reviews passed. The reviewed suite source is published at `9458a81`. Final rehearsal and final-head CI remain pending.
+
+The [previous local rehearsal](reports/core-sprint-local-2026-11-15.json) is `partial`. On source `9458a81` the lifecycle recorded a 583188 ms proof and the process exited 1. The report retains an earlier 592.4-second attempt. This is not a clean pass, live Arc, live Grok, published-suite validation, or a later Meridian rehearsal. Earlier [commerce CI](https://github.com/anishnarang9/UBC-26/actions/runs/43774141501) and [core-fast CI](https://github.com/anishnarang9/UBC-26/actions/runs/43774141450) were green at `ee64e755ac795eca662bba3f327981ab4af9a920` and do not cover `9458a81`. Final-head CI remains pending. Permanent provider maximum gas reservations receive no finality discount. Stale account locks require manual review, never automatic deletion.
+
+The prior [synthetic workload](../../docs/core-sprint-input/README.md) and [native authoring record](../../docs/core-sprint-input/authoring.json) are the legacy package. Independent checks found no acceptance disagreements across 58 oracle cases and 289 additional engine differential cases. These are finite checks, not a complete correctness proof. The author received no oracle or candidate answers. This is not live Grok evidence. The current local workload is [Meridian](../../docs/fresh-exchange-input/README.md). Its rehearsal, guest report, and indexer note are in the [core sprint runbook](../../docs/core-sprint.md#local-first-meridian-rehearsal). No fresh full pass exists yet.
+
+No real wallet access, spending, or funded live acceptance is authorized yet. The parent owns approval gates, `status.md`, and `PLAN.md` updates. Next: finish the local Meridian checks and record that fresh report and final-head CI, then obtain approved identities, terms, and protected signing access before any live phase. A new funded context requires a fresh proof.
+
+Use the [core sprint runbook](../../docs/core-sprint.md) for exact funding order, decimal units, key-disclosure limits, dependency caveats, and pending commands. Do not claim a web UI exists. Do not claim production security or a completed live exchange.
+
+## Historical snapshot — 2026-11-15 14:00 -05:00 — Anish
+
+Everything below records the earlier checkpoint. Its publication-only limits, imported-source state, and unfrozen blocker no longer describe current sprint authority or deployment state.
 
 The local integration is implemented and verified, **not live-settlement or production-security approved**. The user subsequently authorized committing all integration work and pushing `codex/engine-commerce`. This handoff is included in that publication checkpoint, based on prior HEAD `4fc21457b5161f27dde0053851aef08344d8f581`; use Git history for its final commit ID and remote status. The [verification evidence](reports/arc-integration-verification.json) records the pre-commit test snapshot; its uncommitted/staged counts are historical. See also [dependency triage](reports/integration-dependency-triage.json).
 
@@ -26,12 +46,12 @@ Imported source into the working tree, not merge commits:
 - Commerce: **1,357 passed** (13 Node fixture, 315 SDK, 755 API, 274 worker); all three typechecks passed. Eight tests run the funded lifecycle through the concrete port with mocked RPC/engine; they are not cryptographic proof evidence.
 - Actual Rust-engine API integration: **15 passed**, including real compile provenance, restart/cache reuse and selection. Saved Grok replies only; no model calls.
 - Full engine replay: **51 Rust, 38 Node, 11 TypeScript tests**, typecheck, 10,000 seeded cases, 341 host candidates, 180 recorded outcomes and 1,023 authoring candidate checks. All **12 real receipts**, 12 actual archived guest executions and six fresh recoveries (nine exact files) passed. Known 39 non-draft fidelity and 13 source-quote defects remain explicit.
-- Actual local Solidity regression: **18 passed**, covering real verifier, proof/ciphertext/replay rejection, payout, wrong/duplicate release, exact recovery and Funded/Submitted expiry refunds. Command: `node engine/tests/verify-settlement.mjs --private-root /tmp/ubc26-integration-new-proofs`.
+- Actual local Solidity regression: **18 passed**, covering real verifier, proof/ciphertext/replay rejection, payout, wrong/duplicate release, exact recovery and Funded/Submitted expiry refunds. Command shape: `node engine/tests/verify-settlement.mjs --private-root /private/operator/archived-proofs`. This is a nonsecret path placeholder.
 - That test deliberately installs the proxy at the synthetic receipt escrow and impersonates its provider in disposable loopback Anvil with a mock ERC20. It is **not** fresh/live funded-context or full real service/prover/signer evidence. Without `--private-root`, 16 checks run and two key-dependent checks explicitly skip.
 - Contract examples: 13 tests and typecheck; four ABI copies match; seven shell scripts pass syntax checks. Foundry suite was not rerun (no forge installed).
 - Private-key scan: 12 distinct private keys, zero matches in changed/untracked files. Protected Rust/lock/receipt/package files unchanged. No new inference, proof generation, live transaction or deployment.
 
-Fresh replay scratch: `/tmp/ubc26-arc-integration-replay-2`. Prover: `/tmp/ubc26-rz/bin/r0vm`; engine/target cache: `/tmp/ubc26-rz/target`; pinned verifier checkout: `/tmp/ubc26-risc0-ethereum-v310`. An initial replay typecheck failed because commerce widened manifest metadata to unknown; the evaluation-only `EvaluationManifest` fix passed the complete rerun. Do not confuse the earlier failed scratch with the completed rerun.
+The historical replay used private scratch, prover, build-cache, and pinned-verifier paths. Obtain those locations through the protected operator channel. An initial replay typecheck failed because commerce widened manifest metadata to unknown. The evaluation-only `EvaluationManifest` fix passed the complete rerun. Do not confuse the earlier failed scratch with the completed rerun.
 
 ## Next gates
 
@@ -48,4 +68,4 @@ Fresh replay scratch: `/tmp/ubc26-arc-integration-replay-2`. Prover: `/tmp/ubc26
 - Use `agents/anish/status.md` and the shared plan for dated checkpoints; keep older entries as history.
 - Five Orca GPT-6 Sol workers were attempted, but the active ChatGPT account rejected that model before execution. All are stopped/released in Run `run_7343f1da3516`. Available native subagents completed parallel implementation/reviews; their model selector was not exposed. Do not claim those workers ran Sol.
 - Do not change or copy credentials. Prior authentication prose is historical: this session's provider explicitly reported a ChatGPT account. Recheck account availability without exposing secrets if another model is needed.
-- Release keys remain only in private `/tmp/ubc26-integration-new-proofs`; never print/copy them to public artifacts. Local tests suppress exception details that might contain release calldata.
+- Release keys remain only in the protected private proof directory. Never print or copy them to public artifacts. Local tests suppress exception details that might contain release calldata.
