@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 02:17 -05:00 — Anish — Meridian open-claim jobs funded locally
+
+- Branch `codex/open-escrow-rescue` at launch HEAD `ee9412a`. The pinned engine compiled the approved Meridian package with the recorded image and hashes. Local Arc job 2 holds an exact 1,000,000-unit USDC bounty, and the adapter's `contextOf(2, solver)` matches the engine job input. Its fresh Groth16 proof is still running in the only prover slot. No claim or payout is recorded.
+- The real API approved and compiled the same revision before funding local job 3. Five buyer transactions followed its returned order. After three local confirmation blocks, the API linked the registered job and listed it as open. [The funding and API report](reports/open-claim-local-funding-api-2026-11-16.json) records the public receipts and commitments. Arc native USDC pays gas, so the exact funding check uses the 1,000,000-unit `Transfer` event and core balance, not the buyer's total balance change.
+- The Grok worker remains the sole model process. The API used no draft model, and no model API key was read. Next: finish the proof, integrate the worker's reviewed changes, run the actual adapter claim/release/recovery path, and complete final checks. No live Arc transaction or Circle Gateway payment occurred.
+
 ## 2026-11-16 02:09 -05:00 — Anish — Clean Meridian funded suite passed
 
 - The clean forkless local Arc Meridian suite at source `4fab765` exited 0 after 2,104.028 seconds. The [final report](reports/fresh-exchange-local-2026-11-15.json) records two fresh Groth16 proofs; the successful proof took 1,017,171 ms and 7,053,898 guest cycles. Its 12 source hashes match the launch HEAD.
