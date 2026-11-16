@@ -101,3 +101,132 @@ export interface OpenClaimPrepareInput {
 export interface OpenClaimPlanInput extends Omit<OpenClaimPrepareInput, "compiler"> {
   compiled: OpenClaimCompiledImage;
 }
+
+export interface OpenClaimChainSnapshot {
+  job: {
+    id: bigint;
+    client: Address;
+    provider: Address;
+    evaluator: Address;
+    hook: Address;
+    budget: bigint;
+    expiredAt: bigint;
+    status: number;
+    description: string;
+  } | null;
+  terms: {
+    buyer: Address;
+    imageId: Hex;
+    rulesHash: Hex;
+    referenceHash: Hex;
+    budget: bigint;
+    expiry: bigint;
+    registered: boolean;
+  } | null;
+  submission: {
+    solver: Address;
+    envelopeHash: Hex;
+    keyCommitment: Hex;
+    accepted: boolean;
+  } | null;
+  released: boolean;
+  token: Address;
+  evaluatorFeeBP: bigint;
+  platformFeeBP: bigint;
+  wiring: { core: Address; verifier: Address; usdc: Address };
+}
+
+/** Injected chain boundary. There is no viem adapter until the contract JSON ABI is published. */
+export interface OpenClaimChainPort {
+  observe(deployment: OpenClaimDeployment): Promise<OpenClaimObservation>;
+  snapshot(deployment: OpenClaimDeployment, jobId: bigint): Promise<OpenClaimChainSnapshot>;
+}
+
+export interface OpenClaimDiscoveryInput {
+  deployment: OpenClaimDeployment;
+  approval: OpenClaimApproval;
+  evidence: "signature-fixture";
+  now: bigint;
+  jobId: bigint;
+  registerReceipt: OpenClaimReceipt;
+  snapshot: OpenClaimChainSnapshot;
+}
+
+export interface PublishedOpenClaimJob {
+  mode: "open-claim";
+  chainId: number;
+  core: Address;
+  adapter: Address;
+  verifier: Address;
+  usdc: Address;
+  jobId: bigint;
+  buyer: Address;
+  imageId: Hex;
+  rulesHash: Hex;
+  referenceHash: Hex;
+  budget: bigint;
+  expiry: bigint;
+  description: string;
+  funded: true;
+  registered: true;
+  registerTx: Hex;
+}
+
+export interface OpenClaimCandidate {
+  solver: Address;
+  caller: Address;
+  envelope: Uint8Array;
+  seal: Hex;
+  keyCommitment: Hex;
+  imageId: Hex;
+  context: {
+    chainId: bigint;
+    escrow: Address;
+    jobId: bigint;
+    provider: Address;
+    rulesHash: Hex;
+    referenceHash: Hex;
+  };
+  verdict: 0 | 1;
+  journal: Uint8Array;
+}
+
+export interface VerifiedOpenClaim {
+  solver: Address;
+  jobId: bigint;
+  envelope: Uint8Array;
+  envelopeHash: Hex;
+  keyCommitment: Hex;
+  imageId: Hex;
+  rulesHash: Hex;
+  referenceHash: Hex;
+  contextBytes: Uint8Array;
+  journalDigest: Hex;
+  seal: Hex;
+}
+
+export interface OpenClaimClaimJudgment {
+  winner: VerifiedOpenClaim;
+  losers: readonly VerifiedOpenClaim[];
+}
+
+export interface OpenClaimAcceptedClaim {
+  solver: Address;
+  envelopeHash: Hex;
+  keyCommitment: Hex;
+}
+
+export interface OpenClaimReleaseEvidence {
+  jobId: bigint;
+  solver: Address;
+  caller: Address;
+  payout: Address;
+  amount: bigint;
+  ciphertextDigest: Hex;
+  keyCommitment: Hex;
+  imageId: Hex;
+  rulesHash: Hex;
+  referenceHash: Hex;
+  released: boolean;
+  coreStatus: number;
+}
