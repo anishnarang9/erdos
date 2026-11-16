@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 08:54 -05:00 — Anish — Contract handoff and Arc deployment preflight
+
+- Branch `codex/overnight-open-escrow` pushed contract checkpoint `3f0ecbf`; the exact adapter ABI and selectors were sent to the “Complete UBC-26 proof commerce” chat, which owns PR #7 integration and final CI. An independent Grok 4.7 High source/ABI audit found no concrete P1/P2 issue and reran 48 offline open-claim tests with no failures. No commerce code was edited here.
+- [Arc preflight](reports/open-claim-arc-preflight-2026-11-16.md) verified the frozen core proxy, implementation, ERC-1967 slot, verifier, native USDC, both zero fees, and complete role history at block 72554683, hash `0x240f99565001722f6bfdbeb85e475c7cc0445b8b66ea482cda88fcf68c61192f`. The standard `06_Verify` stopped at RPC HTTP 429 during log replay; a slower independent 17-window replay completed with empty admin sets. The parent reproduced the fixed block, creation data hash and gas estimate.
+- The exact unsigned adapter creation data hash is `0xad7f68985c4978a117d467a8e89321f0b6d4b539492cd34beb1280f104b321d6`. The neutral-sender fixed-block estimate is 2,560,164 gas. The prepared 3,000,000 gas limit at max 25 gwei caps cost at 0.075 USDC. The [operator command](../../docs/overnight/open-claim-testnet-operator.md) uses those caps. The proposed manifest keeps adapter address, transaction, block and runtime hash null because there is no deployed adapter.
+- No live signer or spending authority is recorded. Next: obtain one approved Foundry keystore name, matching deployer address and explicit approval for that gas cap. Then recheck current chain state, estimate from that signer, broadcast once, verify the receipt and runtime, and publish a deployed manifest. Until then there is no live transaction.
+
 ## 2026-11-16 07:22 -05:00 — Anish — Open-claim contract correction and local verification
 
 - Branch `codex/overnight-open-escrow` imported the tested rescue source at `8b9589d`. Constructor now rejects nonzero core fees. Local deploy script checks the active Arc Anvil RPC and rejects a fork or another client before broadcast. It writes a simulated manifest with no invented receipt fields.

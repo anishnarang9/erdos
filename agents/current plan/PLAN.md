@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 08:54 -05:00 — Anish — Contract handoff published; live adapter operator gate
+
+- The corrected adapter, deployment guard, ABI and adversarial tests are pushed on `codex/overnight-open-escrow` at `3f0ecbf`. The exact interface was sent to “Complete UBC-26 proof commerce” for PR #7 integration and final CI. An independent source/ABI review found no concrete P1/P2 issue. This branch made no commerce edits.
+- [Arc preflight](../anish/reports/open-claim-arc-preflight-2026-11-16.md) checked core, verifier, USDC, fees and complete role history at fixed block 72554683. The standard verification script stopped at HTTP 429; a slower replay completed with no admin holders. The unsigned adapter creation hash and neutral-sender gas estimate are recorded in that report and the [operator handoff](../../docs/overnight/open-claim-testnet-operator.md).
+- Live deployment needs one approved Foundry keystore and deployer address plus explicit approval of the prepared 3,000,000 gas limit and 25-gwei max fee (0.075 USDC maximum). The template keeps adapter deployment fields null until a confirmed transaction and independent runtime check. No live signer or transaction is recorded.
+
 ## 2026-11-16 07:22 -05:00 — Anish — Open-claim contract checkpoint under review
 
 - The contract branch has the constructor fee correction, local-only deployment guard, adversarial regressions and ABI parity check. Pinned local Foundry passed 168 tests with one fork-only skip. The independent standards review documents current ERC-8183 draft differences and the separate x402 API-fee boundary.

@@ -17,43 +17,48 @@ Read these values from [the proposed manifest](../../contracts/deployments/open-
 | Adapter constructor | `(core proxy, verifier, native USDC)` in that order |
 | Contract | `contracts/src/OpenClaimAdapter.sol:OpenClaimAdapter` |
 
+The [read-only preflight](../../agents/anish/reports/open-claim-arc-preflight-2026-11-16.md) checked these inputs at Arc block `72554683`, hash `0x240f99565001722f6bfdbeb85e475c7cc0445b8b66ea482cda88fcf68c61192f`. It replayed the complete core role history and found no admin holders. The standard verifier script hit RPC HTTP 429 during its log replay, so it did not finish; the slower independent replay did. Recheck the pins at a new confirmed block before signing.
+
 The adapter address, deployment transaction and block are still unknown. Keep the template's adapter fields null until a confirmed deployment supplies them. The buyer wallet, solver wallet, budget, expiry, gas caps, keystore names and signing authority are also operator inputs. Do not copy local Anvil accounts into a live transaction.
 
 ## Read-only checks before deployment
 
-Run these from `contracts/` with the pinned Arc Foundry tools. The existing [deployment guide](../../contracts/script/README.md) defines the toolchain and signer flags. The core verification script checks all admin role holders, the proxy history, code pins and zero fees. It does not deploy the adapter.
+Run these from `contracts/` with the pinned Arc Foundry tools. Set the binary paths explicitly; `arc-forge` and `arc-cast` are not on this host's `PATH`. The existing [deployment guide](../../contracts/script/README.md) defines the toolchain and signer flags. The core verification script checks all admin role holders, the proxy history, code pins and zero fees. It does not deploy the adapter.
 
 ```sh
 ARC_RPC_URL=https://rpc.testnet.arc.io
+ARC_FORGE=/Users/anishnarang/.local/share/ubc26/sprints/2026-11-15-core/tools/arc-foundry/forge
+ARC_CAST=/Users/anishnarang/.local/share/ubc26/sprints/2026-11-15-core/tools/arc-foundry/cast
 ARC_CORE=0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8
 ARC_VERIFIER=0xCf8D70A203b40D3A17d023c0CDDF752870BC3992
 ARC_USDC=0x3600000000000000000000000000000000000000
 
-arc-cast chain-id --rpc-url "$ARC_RPC_URL"                     # require 5042002
-SETTLEMENT_EXPECT_FROZEN=1 arc-forge script \
+"$ARC_CAST" chain-id --rpc-url "$ARC_RPC_URL"                 # require 5042002
+SETTLEMENT_EXPECT_FROZEN=1 "$ARC_FORGE" script \
   script/06_Verify.s.sol:VerifyDeployment --network arc --rpc-url "$ARC_RPC_URL"
-arc-cast call "$ARC_VERIFIER" 'VERSION()(string)' --rpc-url "$ARC_RPC_URL"
-arc-cast call "$ARC_VERIFIER" 'SELECTOR()(bytes4)' --rpc-url "$ARC_RPC_URL"
-arc-cast call "$ARC_CORE" 'paymentToken()(address)' --rpc-url "$ARC_RPC_URL"
-arc-cast call "$ARC_CORE" 'platformFeeBP()(uint256)' --rpc-url "$ARC_RPC_URL"
-arc-cast call "$ARC_CORE" 'evaluatorFeeBP()(uint256)' --rpc-url "$ARC_RPC_URL"
-arc-forge build --network arc
+"$ARC_CAST" call "$ARC_VERIFIER" 'VERSION()(string)' --rpc-url "$ARC_RPC_URL"
+"$ARC_CAST" call "$ARC_VERIFIER" 'SELECTOR()(bytes4)' --rpc-url "$ARC_RPC_URL"
+"$ARC_CAST" call "$ARC_CORE" 'paymentToken()(address)' --rpc-url "$ARC_RPC_URL"
+"$ARC_CAST" call "$ARC_CORE" 'platformFeeBP()(uint256)' --rpc-url "$ARC_RPC_URL"
+"$ARC_CAST" call "$ARC_CORE" 'evaluatorFeeBP()(uint256)' --rpc-url "$ARC_RPC_URL"
+"$ARC_FORGE" build --network arc
 ```
 
 Compare the outputs with the manifest and the compiled adapter ABI. Stop if the chain, token, verifier or core checks differ. The operator must also check the current `OpenClaimAdapter` runtime build and the deployment transaction before accepting its runtime hash as a pin.
 
 ## Authorized adapter deployment
 
-The following command is a prepared **live write**. It requires the operator's exact deployment and gas approval. Set `OPERATOR_KEYSTORE` to a Foundry keystore name and `OPERATOR_ADDRESS` to its address. These flags match the pinned Arc Foundry `forge create --help`. Check the transaction preview before the operator runs it. Never put a raw key in this command, a report or an agent prompt.
+The following command is a prepared **live write**. It requires the operator's exact deployment and gas approval. Set `OPERATOR_KEYSTORE` to a Foundry keystore name and `OPERATOR_ADDRESS` to its address. These flags match the pinned Arc Foundry `forge create --help`. The constructor creation data has Keccak-256 `0xad7f68985c4978a117d467a8e89321f0b6d4b539492cd34beb1280f104b321d6`. At block `72554683`, `eth_estimateGas` returned 2,560,164 gas from a neutral public address. The proposed 3,000,000 gas limit and 25-gwei max fee cap the gas charge at 0.075 USDC; the estimate at that price is 0.0640041 USDC. The actual approved sender and a fresh block need a new estimate before signing. Never put a raw key in this command, a report or an agent prompt.
 
 ```sh
 : "${ARC_RPC_URL:?Set the approved Arc RPC URL}"
+: "${ARC_FORGE:?Set the pinned Arc Forge path}"
 : "${OPERATOR_KEYSTORE:?Set the approved Foundry keystore name}"
 : "${OPERATOR_ADDRESS:?Set the approved deployer address}"
-arc-forge create src/OpenClaimAdapter.sol:OpenClaimAdapter \
+"$ARC_FORGE" create src/OpenClaimAdapter.sol:OpenClaimAdapter \
   --chain 5042002 --rpc-url "$ARC_RPC_URL" \
   --account "$OPERATOR_KEYSTORE" --from "$OPERATOR_ADDRESS" \
-  --gas-price 25gwei --priority-gas-price 25gwei \
+  --gas-limit 3000000 --gas-price 25gwei --priority-gas-price 25gwei \
   --broadcast --constructor-args "$ARC_CORE" "$ARC_VERIFIER" "$ARC_USDC"
 ```
 
