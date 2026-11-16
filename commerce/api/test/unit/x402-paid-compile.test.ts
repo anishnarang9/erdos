@@ -37,10 +37,10 @@ function facilitator() {
     },
   };
 }
-function setup(engine = countingEngine(), f = facilitator(), dbPath = ":memory:") {
+function setup(engine = countingEngine(), f = facilitator(), dbPath = ":memory:", amount = "10000") {
   const made = createApp({ dbPath, buyerToken: BUYER_TOKEN, now: () => T0, engine,
     x402: { resourceBaseUrl: "https://api.example.test", network: "eip155:5042002", asset,
-      payTo, amount: "10000", extra: { name: "USD Coin", version: "2" }, facilitator: f } } as any);
+      payTo, amount, extra: { name: "USD Coin", version: "2" }, facilitator: f } } as any);
   const s: SpecApp = { app: made.app, close: made.close, clock: { t: T0 } };
   opened.push(s);
   return { s, engine, f };
@@ -129,6 +129,23 @@ it("recovers a paid compile after process restart without another settlement", a
   expect(second.headers.get("payment-response")).toBeTruthy();
   expect(f.settlements).toBe(1);
   expect(engine.compileCalls).toHaveLength(2);
+});
+
+it("retries an already paid compile after a price change without another charge", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "ubc26-x402-price-")); dirs.push(dir);
+  let n = 0;
+  const engine = countingEngine({ compile: async input => {
+    if (++n === 1) throw new Error("transient compile failure");
+    return countingEngine().compile(input);
+  } });
+  const f = facilitator(); const dbPath = join(dir, "api.db");
+  const firstApp = setup(engine, f, dbPath); const j = await job(firstApp.s);
+  const { p } = await signed(await request(firstApp.s, j));
+  expect((await request(firstApp.s, j, p)).status).toBe(502);
+  firstApp.s.close();
+  const secondApp = setup(engine, f, dbPath, "20000");
+  expect((await request(secondApp.s, j, p)).status).toBe(200);
+  expect(f.settlements).toBe(1);
 });
 
 it("does not quote or settle an unapproved job", async () => {

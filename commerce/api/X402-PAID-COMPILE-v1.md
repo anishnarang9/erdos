@@ -12,7 +12,7 @@ The buyer signs a payment for the exact requirement and repeats the same request
 
 The server records the payment before it calls the facilitator. If the call times out, the connection fails, or the outcome is unclear, it returns `payment_pending` (409). It never sends that payment again without reconciliation. If compilation fails after settlement, the response still carries `PAYMENT-RESPONSE`. A repeat with the same signed payload and request retries compilation without another settlement. A successful result is stored and replayed with `Idempotent-Replayed: true`. Reusing one payment for a different job or revision returns `payment_conflict` (409).
 
-The SQLite migration `007_x402_payments.sql` holds this state across API restarts. Operators must inspect the facilitator or chain receipt before resolving a `payment_pending` row. There is no automatic refund for an API fee when the compile engine fails. A buyer can retry the paid compile with the same payload after a confirmed settlement.
+SQLite migrations `007_x402_payments.sql` and `009_x402_quote_snapshot.sql` hold this state and the exact quote across API restarts. An already settled payment can retry even if the current service quote changes. Operators must inspect the facilitator or chain receipt before resolving a `payment_pending` row. There is no automatic refund for an API fee when the compile engine fails. A buyer can retry the paid compile with the same payload after a confirmed settlement.
 
 ## Server configuration
 

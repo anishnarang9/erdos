@@ -90,6 +90,8 @@ type PaymentRow = {
   settlement_json: string | null;
   response_status: number | null;
   response_json: string | null;
+  requirement_json: string | null;
+  resource_json: string | null;
 };
 
 function stable(value: unknown): string {
@@ -132,7 +134,7 @@ export function registerX402Routes(
   if (config) validateConfig(config);
   const { app, deps, buyer } = ctx;
   const select = deps.db.prepare("SELECT * FROM x402_payments WHERE payment_id = ?");
-  const insert = deps.db.prepare("INSERT INTO x402_payments (payment_id, job_id, revision_hash, request_hash, state, created_at, updated_at) VALUES (?, ?, ?, ?, 'settling', ?, ?)");
+  const insert = deps.db.prepare("INSERT INTO x402_payments (payment_id, job_id, revision_hash, request_hash, state, requirement_json, resource_json, created_at, updated_at) VALUES (?, ?, ?, ?, 'settling', ?, ?, ?, ?)");
   const pending = deps.db.prepare("UPDATE x402_payments SET state = 'pending', updated_at = ? WHERE payment_id = ? AND state = 'settling'");
   const settled = deps.db.prepare("UPDATE x402_payments SET state = 'settled', settlement_json = ?, updated_at = ? WHERE payment_id = ? AND state = 'settling'");
   const complete = deps.db.prepare("UPDATE x402_payments SET state = 'complete', response_status = ?, response_json = ?, updated_at = ? WHERE payment_id = ? AND state = 'settled'");
@@ -162,15 +164,20 @@ export function registerX402Routes(
     if (!raw) return stored ? authoring.compile(c, async () => {}) : challenge();
     if (!isPlainObject(raw) || raw.x402Version !== 2 || !isPlainObject(raw.payload) ||
         !isPlainObject(raw.resource) || !isPlainObject(raw.accepted) ||
-        stable(raw.resource) !== stable(resource) || stable(raw.accepted) !== stable(requirement)) {
+        typeof raw.accepted.network !== "string" || typeof raw.accepted.asset !== "string") {
       return challenge();
     }
     const payload = raw as unknown as PaymentPayload;
     // Bind a payment to the signed scheme payload. Changing outer metadata cannot create a second charge.
-    const paymentId = sha256hex0x(stable({ network: requirement.network, asset: requirement.asset, payload: payload.payload }));
+    const paymentId = sha256hex0x(stable({ network: payload.accepted.network, asset: payload.accepted.asset, payload: payload.payload }));
     const existing = select.get(paymentId) as PaymentRow | undefined;
     if (existing && (existing.job_id !== jobId || existing.revision_hash !== revisionHash || existing.request_hash !== requestHash)) {
       throw new ApiError("payment_conflict", "This payment belongs to another request");
+    }
+    const expectedRequirement = existing?.requirement_json ? JSON.parse(existing.requirement_json) as unknown : requirement;
+    const expectedResource = existing?.resource_json ? JSON.parse(existing.resource_json) as unknown : resource;
+    if (stable(payload.accepted) !== stable(expectedRequirement) || stable(payload.resource) !== stable(expectedResource)) {
+      return challenge();
     }
     if (existing?.state === "complete") {
       if (existing.response_status === null || existing.response_json === null || existing.settlement_json === null) {
@@ -188,7 +195,7 @@ export function registerX402Routes(
     let settlementJson = existing?.settlement_json ?? null;
     if (!existing) {
       const at = isoAt(deps.now());
-      tx(deps.db, () => insert.run(paymentId, jobId, revisionHash, requestHash, at, at));
+      tx(deps.db, () => insert.run(paymentId, jobId, revisionHash, requestHash, stable(requirement), stable(resource), at, at));
       let settlement: SettlementResponse;
       try {
         settlement = await config.facilitator.settle(payload, requirement);
