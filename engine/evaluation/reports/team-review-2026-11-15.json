@@ -1,0 +1,42 @@
+{
+  "reviewedAt": "2026-11-15 00:38 -05:00",
+  "integrationBranch": "codex/engine-commerce",
+  "engineBaseline": "adda3a3c52fd8cebe594aba42d3e43f47a7baf0e",
+  "commerceDependency": "3013d73624c3cf279015b25ec17497d7394ab70f",
+  "remoteBranches": {
+    "nick": {
+      "previous": "9a1b4444ec30360210cdccc4d26fdfe4601e81d7",
+      "current": "9a1b4444ec30360210cdccc4d26fdfe4601e81d7"
+    },
+    "neil/plan-architecture": {
+      "previous": "3013d73624c3cf279015b25ec17497d7394ab70f",
+      "current": "3013d73624c3cf279015b25ec17497d7394ab70f"
+    },
+    "nick-settlement": {
+      "previous": "fe27c2003ac6b50264113fee4fa45b357c1a63e3",
+      "current": "80c8a4af68f0cf00e4177c98e9c435d869716edd",
+      "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/4"
+    }
+  },
+  "inspected": [
+    "commit range fe27c200..80c8a4a",
+    "PR4 head/state and PR3 head",
+    "agents/nick/status.md",
+    "agents/current plan/PLAN.md",
+    "contracts/HANDOFF.md",
+    "contracts/deployments/arc-testnet.json and SCHEMA.md",
+    "contracts/research/ARC-VERIFIER-LIVE.md",
+    "00_Config,05_Freeze,06_Verify,08_CreateTestJob script changes",
+    "changed settlement tests and script documentation"
+  ],
+  "findings": [
+    "Nick settlement gained five commits and deployed verifier/core/hook. Neil and nick branches unchanged. No source ABI change in the inspected diff.",
+    "No remote code merged. Engine PR3 remains at adda3a3.",
+    "Manifest status whitelisted; core.frozen false. New whitelist-only and explicitly unfrozen test-job script modes.",
+    "Independent read-only RPC checks at a fixed block passed18checks, including deployed wiring, cap16412, margin600, hook whitelist, both deployer admin roles and a fresh inventory receipt. Changed image/journal/seal reverted. See arc-readonly.json.",
+    "No funded testJob appears in manifest. Actual submission/payment/key-release/refund remain untested here.",
+    "Manifest policy.adminRoles prose still describes renounced roles, while core.frozen=false and live role reads show retained privileges. Treat actual state and explicit freeze field as current evidence.",
+    "Signed receipts measured about744seconds each, exceeding600second source minimum margin before submission/release overhead."
+  ],
+  "integrationDecision": "Keep exact engine and commerce pins. Record deployment availability for next integration. No contract deployment, live transaction, owner-status edit, source merge, or message to another chat/person."
+}

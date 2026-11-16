@@ -1,0 +1,76 @@
+{
+  "family": "file-hash-size",
+  "challenge": "file-5",
+  "trial": 1,
+  "attempt": "first",
+  "imageId": "0x5f068a896281c6a929b7d971be3aece6304a6484cc988ecd413491aec74f101a",
+  "rulesHash": "0xced338315b7fe694fcb8bdbe06f9cad37ce0443a3659a75e266e182a3357e372",
+  "referenceHash": "0x478db343d2e0abdafa40aa5f46f24a15d4f753052ff624876bb19b48390a9b1a",
+  "packageManifestSha256": "0x9405aa90a4bc706de8f9aa3b3780ef625ffeb0e4f7a1cf8d4597abf15e7d49a9",
+  "proofs": {
+    "pass": {
+      "proofSha256": "0x15f460b265fa34880b473c8164b7e3b37df96bb3f38035acef6dfa7288c8ae85",
+      "proveMillis": 217296,
+      "userCycles": 521211,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x9197f431f5a9ba34401a22780f3e53b23055b862e331f81a0318bfb3883f2b88",
+        "journalSha256": "0x1541594051712c3abe172bb5ec1f51948ec57dad3837ede0afbb09209f736dc2",
+        "envelopeSha256": "0x48f7fd8a8ba66c38cc19ab6acb9c934476c30ce3e4e4306e03dadd5ee87edab5"
+      },
+      "solidityVerified": true,
+      "mutationsRejected": [
+        "image",
+        "journal",
+        "seal",
+        "verdict"
+      ]
+    },
+    "fail": {
+      "proofSha256": "0x6c16857daa22ed56257963f7f9d6db9b1fc9e83a2a7ef32bd66e517dfc5a74c5",
+      "proveMillis": 219101,
+      "userCycles": 520766,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x83015c60338ba0fedc804027e98b55a53ea2cc1de5ce8b20040dfaf7767bcbe1",
+        "journalSha256": "0xb163ca610a6c5186b7aa6a3af98ccfbdfe0e8bf00c41f247a470fa356c7d01e5",
+        "envelopeSha256": "0xf5c02db69b299c7734dc71d45602477d9a3e1071c8a5ba8f8a6b146f95f0a408"
+      },
+      "solidityVerified": true,
+      "mutationsRejected": [
+        "image",
+        "journal",
+        "seal",
+        "verdict"
+      ]
+    }
+  },
+  "sameJobWireChecks": true,
+  "recoveryFiles": [
+    {
+      "name": "appendix.bin",
+      "bytes": 7,
+      "sha256": "0x0f0cf9286f065a2f38e3c4e4886578e35af4050c108e507998a05888c98667ea"
+    },
+    {
+      "name": "artifact.dat",
+      "bytes": 23,
+      "sha256": "0xfd6b5c65c04b1acea78fe60f2e747929a26d6a4660faa8e147c6edda87105f68"
+    },
+    {
+      "name": "metadata.json",
+      "bytes": 27,
+      "sha256": "0xffb7b1c239b99ef5dbfae289c4ef81d6d6966092c9e1d52c9031a61b745a2c37"
+    }
+  ],
+  "negativeDecryptionCodes": {
+    "wrongKey": "key_mismatch",
+    "ciphertext": "journal_mismatch",
+    "context": "journal_mismatch",
+    "verdictZero": "invalid_submission"
+  }
+}

@@ -1,0 +1,79 @@
+import json,re,hashlib,os
+src='/tmp/ubc26-integration-authoring-inputs/trial-3.inputs.json'
+data=json.load(open(src))
+
+def L(t,v): return {'op':'literal','type':t,'value':str(v) if t=='i64' else v}
+def F(s,f,file): return {'op':'field','source':s,'file':file,'field':f}
+def C(s,file,field='rows'): return {'source':s,'file':file,'field':field}
+def O(op,a,b): return {'op':op,'left':a,'right':b}
+def U(op,c,where=None,field=None):
+ d={'op':op,'collection':c}
+ if where is not None:d['where']=where
+ if field is not None:d['field']=field
+ return d
+def quote(txt): return {'path':'/rules/request','quote':txt}
+def draft(deliv,refs,rules,quotes,evidence=None):
+ p={'version':1,'deliverables':deliv,'references':refs,'rules':rules}
+ if evidence:p['evidence']=evidence
+ return {'kind':'draft','plan':p,'examples':[],'sourceQuotes':[quote(q) for q in quotes]}
+def files(req):
+ part=req.split('Permitted file names and input types (no predicates are supplied):\n')[1].split('\n\nBuyer-supplied reference bytes:')[0]
+ return json.loads(part)
+def catfield(file,field): return F('reference',field,file)
+def sha(b): return '0x'+hashlib.sha256(b).hexdigest()
+results=[]
+for item in data['requests']:
+ rid=item['requestId']; req=item['input']['request'].split('\n\nPermitted')[0]; spec=files(item['input']['request'])
+ outs=spec['outputFiles']; refs=spec['referenceFiles']; evid=spec['evidence']; rules=[]; qs=[]; evdecl=[]
+ if 'Reconcile ' in req and 'ledger.json' in req:
+  out=outs[0]['name']; ref=refs[0]['name']; rows=C('deliverable',out); rr=C('reference',ref)
+  rules += [O('eq',U('count',rows),U('count',rr)),U('unique',rows,field='id'),U('all',rows,{'op':'eq','left':{'op':'lookup','collection':rr,'keyField':'id','key':F('deliverable','id',out),'valueField':'amountCents'},'right':F('deliverable','amountCents',out)})]
+  body=re.search(r'Set report\.txt to exactly "(.*)"\.',req).group(1).encode().decode('unicode_escape').encode()
+  rules += [O('eq',{'op':'file_hash','source':'deliverable','file':'report.txt'},L('string',sha(body)))]
+  qs += ['Match the reference row count.','Use every result ID at most once.','Match each ID and amount to the reference ledger.',req.split('Set report.txt to exactly ')[1]]
+  results.append({'requestId':rid,'result':draft(outs,refs,rules,qs)}); continue
+ if 'Check the ' in req and 'claim in expenses.json' in req:
+  out='expenses.json'; rows=C('deliverable',out); cap=int(re.search(r'total at or below (\d+) cents',req).group(1)); each=int(re.search(r'each expense at or below (\d+) cents',req).group(1))
+  rules += [O('gte',U('count',rows),L('i64',1)),U('unique',rows,field='id'),U('all',rows,O('and',O('gte',F('deliverable','amountCents',out),L('i64',0)),O('and',O('lte',F('deliverable','amountCents',out),L('i64',each)),O('eq',F('deliverable','approved',out),L('bool',True))))),O('lte',{'op':'sum','collection':rows,'value':F('deliverable','amountCents',out)},L('i64',cap))]
+  qs=['Include at least one expense.','Use each expense ID once.','Every amount must be zero or positive.',f'Keep the total at or below {cap} cents.',f'Keep each expense at or below {each} cents.','Mark every expense approved.']
+  results.append({'requestId':rid,'result':draft(outs,refs,rules,qs)}); continue
+ if 'proposed inventory for ' in req:
+  o='stock.json'; r='catalog.json'; rows=C('deliverable',o); cr=C('reference',r); cap=int(re.search(r'at most (\d+) units in total',req).group(1)); qty=F('deliverable','quantity',o); sku=F('deliverable','sku',o); mn={'op':'lookup','collection':cr,'keyField':'sku','key':sku,'valueField':'minimum'}; mx={'op':'lookup','collection':cr,'keyField':'sku','key':sku,'valueField':'maximum'}
+  rules=[U('unique',rows,field='sku'),O('eq',U('count',rows),U('count',cr)),U('all',rows,O('and',O('gte',qty,mn),O('lte',qty,mx))),O('lte',{'op':'sum','collection':rows,'value':qty},L('i64',cap))]
+  qs=['Use each SKU once.','Match the catalog SKU count.','Meet each SKU minimum from the catalog.','Do not exceed each SKU maximum from the catalog.',f'Store at most {cap} units in total.']
+  results.append({'requestId':rid,'result':draft(outs,refs,rules,qs)});continue
+ if 'Check a feasible assignment for ' in req:
+  o='assignments.json';r='workers.json';rows=C('deliverable',o);cr=C('reference',r);worker=F('deliverable','worker',o);shift=F('deliverable','shift',o);cap=int(re.search(r'at or below (\d+) cents',req).group(1));cost={'op':'lookup','collection':cr,'keyField':'id','key':worker,'valueField':'costCents'}
+  rules=[U('unique',rows,field='worker'),U('all',rows,O('or',O('eq',shift,L('i64',0)),O('eq',shift,L('i64',1)))),O('gte',U('count',rows, O('eq',shift,L('i64',0))),L('i64',1)),O('gte',U('count',rows,O('eq',shift,L('i64',1))),L('i64',1)),O('lte',{'op':'sum','collection':rows,'value':cost},L('i64',cap))]
+  qs=['Assign each worker to at most one shift.','Use only shift 0 or shift 1.','Assign at least one worker to shift 0.','Assign at least one worker to shift 1.',f'Keep total worker cost at or below {cap} cents.']
+  results.append({'requestId':rid,'result':draft(outs,refs,rules,qs)});continue
+ if 'Check the signed ' in req:
+  inp=evid[0]; evidence=[{'name':inp['name'],'parser':inp['parser'],'profile':inp['profile'],'signer':inp['trustedPublicSigner'],'fields':inp['authenticatedFields'],'bindings':[{'field':'artifactHash','file':'note.txt'}],'contextField':'contextHash'}]
+  score=int(re.search(r'at least (\d+)',req).group(1)); issuer=re.search(r'issuer label "([^"]+)"',req).group(1)
+  rules=[O('gte',F('evidence','score','attestation.json'),L('i64',score)),O('eq',F('evidence','issuer','attestation.json'),L('string',issuer)),O('eq',F('evidence','approved','attestation.json'),L('bool',True)),O('eq',F('evidence','artifactHash','attestation.json'),{'op':'file_hash','source':'deliverable','file':'note.txt'})]
+  qs=['Accept only a valid Ed25519 signature from the pinned synthetic signer.','Bind the evidence artifactHash to the exact note.txt bytes.','Bind contextHash to SHA-256 of the funded context bytes.',f'Require a signed score of at least {score}.',f'Require the signed issuer label "{issuer}".','Require the signed approved field to be true.']
+  results.append({'requestId':rid,'result':draft(outs,refs,rules,qs,evidence)});continue
+ if 'delivery package.' in req:
+  m=re.search(r'release-(\d+)',req); label='release-'+m.group(1); art=refs[0]['name']; outart='artifact.dat'; appendix='appendix.bin'; lo=int(re.search(r'Include at least (\d+) bytes',req).group(1)); hi=int(re.search(r'Include at most (\d+) bytes',req).group(1))
+  rules=[O('eq',{'op':'file_hash','source':'deliverable','file':outart},{'op':'file_hash','source':'reference','file':art}),O('gte',{'op':'file_size','source':'deliverable','file':appendix},L('i64',lo)),O('lte',{'op':'file_size','source':'deliverable','file':appendix},L('i64',hi)),O('eq',F('deliverable','label','metadata.json'),L('string',label))]
+  qs=['Compare exact file bytes, including whitespace and newlines.','Make artifact.dat match the exact SHA-256 bytes of approved.dat.',f'Include at least {lo} bytes in appendix.bin.',f'Include at most {hi} bytes in appendix.bin.',f'Set metadata.json label to "{label}".']
+  results.append({'requestId':rid,'result':draft(outs,refs,rules,qs)});continue
+ # unsupported named missing capability
+ unsupported={
+ 'Parse free-form local date strings into time zones inside the checker.':'The catalog has no date parsing or time-zone conversion operation.',
+ 'Compute the median quantity with a median primitive inside the checker.':'The catalog has no median operation.',
+ 'Check the field research claim in expenses.json':'',
+ }
+ patterns=[('PDF','native PDF parser'),('X.509','native X.509 certificate-chain and revocation validation'),('HTTPS API','network access to an HTTPS API'),('language model','in-guest language-model inference'),('regular expression','regular-expression matching'),('SHA3-256','SHA3-256 file hashing'),('Sort arbitrary','row sorting'),('division inside','division'),('median primitive','median computation'),('date strings','date and time-zone parsing')]
+ hit=next((cap for needle,cap in patterns if needle.lower() in req.lower()),None)
+ if hit:
+  res={'kind':'unsupported','reason':f'The capability catalog does not provide {hit}.'}
+ elif not outs and not refs and not evid:
+  res={'kind':'clarification','questions':['Please specify the output files and fields, the data or reference needed, and the exact acceptance policy.']}
+ else:
+  res={'kind':'clarification','questions':['Please provide the missing policy details needed to express this request using the available files and operations.']}
+ results.append({'requestId':rid,'result':res})
+out={'trial':3,'results':results}
+os.makedirs('/tmp/ubc26-luna-trial-3',exist_ok=True)
+json.dump(out,open('/tmp/ubc26-luna-trial-3/outputs.json','w'),separators=(',',':'))
+print(len(results))

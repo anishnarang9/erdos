@@ -1,0 +1,84 @@
+{
+  "task": "localnet-suite-quality-review",
+  "date": "2026-11-16",
+  "kind": "code-quality-review",
+  "base": "8c41e3dbfb36c6069f22f5633bdac69b6dcb0fe0",
+  "verdict": "approved",
+  "blockers": [],
+  "candidate": {
+    "stat": "Working-tree bytes only. Git was not queried. funded-real.test.ts is 1319 lines. funded-workload.ts is 792 lines.",
+    "files": [
+      {
+        "path": "commerce/worker/test/integration/funded-real.test.ts",
+        "sha256": "f98b9cc9aa52ce7ce0c6cd962519054b5ece437642ff20882c7835a1a7ab61a2"
+      },
+      {
+        "path": "commerce/worker/test/support/funded-workload.ts",
+        "sha256": "ebf9bb5bbca5642245f505f26515274f9f7ac01ce96fdaac92cb1ce98446bd0c"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "pending-uncertain-manual-reconcile",
+      "result": "pass",
+      "evidence": "The slow test turns automine off at funded-real.test.ts:1113, wraps port.submit so the real submit returns and then throws (lines 1072-1075), and expects WorkerCheckError with exactly one provider raw send (lines 1116-1117). The journal submit stage is intent, the hash is 32 bytes, its block number is null, and that hash is in txpool_content (lines 1118-1127). A second runFunded is WorkerCheckError check broadcast_uncertain and the raw-send count stays 1 (lines 1128-1133). State is still submit_broadcasting with submitTx unset (lines 1136-1137). The test then writes phase submit_sent and submitTx to that journal hash (lines 1138-1140). The third run returns submit_sent with the same hash, still one send, and the transaction is still unmined (lines 1141-1145). localPendingRestartEvidence requires one raw send, a null block number, equal hashes, and zero duplicate submits (funded-workload.ts:608-611). One evm_mine follows, and finally restores automine (lines 1149-1151). broadcaster.reconcile of that hash must be success before the release run (line 1159). Release is the second and last provider raw send, and the pending nonce increases by 1 (lines 1165-1166). Production confirm returns false on a null receipt and does not resend (funded.ts:292). submit_broadcasting and release_broadcasting are refused before any send (funded.ts:312). The phase is saved before port.submit (funded.ts:327, phase saves at line 141). The hash is assigned only after submit returns (funded.ts:329-330), so a post-send throw leaves it unset. The broadcaster writes stage intent and potentiallyPublic before eth_sendRawTransaction with retryCount 0 (local-broadcaster.ts:304-308) and refuses another broadcast while any entry is unconfirmed (line 275). The suite throw happens after broadcast returns, so broadcaster error redaction does not hide it."
+    },
+    {
+      "id": "snapshot-before-canonical-payout",
+      "result": "pass",
+      "evidence": "Snapshot isolation is inside the release wrapper, after the submit is mined and automine is back on, and before port.release (funded-real.test.ts:1076-1110). On the Submitted canonical job it takes evm_snapshot, expects claimRefund to revert WrongStatus, and expects a zero-key hook release at the exact expiry to revert Expired (lines 1082-1085). It then sets the next block timestamp to expiry and mines admin claimRefund (lines 1089-1090). The buyer balance increases by 1000000, the provider balance is unchanged, the job is Expired and not Completed, and the provider raw-send count is unchanged (lines 1092-1095 and 1102). evm_revert must return true, the refund receipt must throw, status must be Submitted again, and the restored block hash and number must equal the pre-snapshot parent (lines 1096-1101). submittedSnapshotRefundEvidence requires those equalities, refund timestamp equal to expiry, kind Submitted, amount 1000000, and payoutOnThisBranch null, then stamps label local-snapshot-branch and sameHistoryAsCanonicalPayout false (funded-workload.ts:579-592). Completion refuses a true flag (funded-real.test.ts:1264). The indexer runs only after the canonical release (lines 1171-1175). A second poster-funded job has no API listing; its link records only that job id (lines 1034-1035). After the canonical release, claimRefund at that job's exact expiry requires the refund block timestamp to equal expiry, buyer plus 1000000, an unchanged provider, that job Expired, and the canonical job still Completed (lines 1242-1256). A second claimRefund reverts (lines 1257-1259). Evidence records that refund job id and sameJobAsCanonicalPayout false (lines 1275-1279)."
+    },
+    {
+      "id": "real-key-no-simulation",
+      "result": "pass",
+      "evidence": "prepareRelease simulates only a zero dummy, or 32 bytes of 0x01 if the zero key collides with the commitment, and accepts only a 4-byte WrongKey (arc-port.ts:147-159). The broadcast path does not estimate or simulate after the local commitment check, and signer errors are replaced with a redacted error (arc-port.ts:205-209 and 239-246). The returned broadcaster sets noKeyRpcSimulation true (local-broadcaster.ts:258). Suite negatives are eth_call of a changed envelope, changed seal, changed image, or mutated journal, plus zero-key release calls, and none of those calls pass the release key (funded-real.test.ts:995-1026, 1060, 1158, 1237-1241). The verdict-0 path eth_calls submit with the seal and envelope and expects VerificationFailed, unchanged buyer, provider, and escrow balances, and job status Funded (lines 957-976). The seal must start with 0xe71e6620 (line 955). The real key is used for the release authorization and is checked against the KeyReleased log and the indexed submission key (lines 1053 and 1195-1207). The public workload report must not contain the passing key body or, when present, the verdict-0 key body (lines 1287-1291)."
+    },
+    {
+      "id": "provenance-stamp",
+      "result": "pass",
+      "evidence": "selectFundedWorkload accepts only an unset value, legacy, or meridian, and the error does not include the raw value (funded-workload.ts:145-149). Legacy binds docs/core-sprint-input and the core-sprint local report, with prove budget 900 and expiry 3600. Meridian binds docs/fresh-exchange-input and the fresh-exchange local report, with prove budget 1800 and expiry 7200 (lines 29-45). bindProvenance hashes oracle.py and tests/test_oracle.py, then re-hashes recorded inputs against file bytes (lines 409-410 and the legacy and meridian branches that follow). assertAllowedProvenanceKey rejects a backslash, an absolute path, a drive letter, an empty part, dot, dot-dot, and any key outside the allowlist (lines 486-495). rehearsalStampFiles keeps the caller base order, adds the selector and workload stamp paths, and rejects absolute or escaping paths (lines 640-652). rehearsalStampRoles covers the four suite files plus the selector, request, plan, outputs, oracle, oracle tests, references, and candidates (lines 655-669). The slow test stamps through rehearsalSource and stores those roles and fundedWorkloadEvidence (funded-real.test.ts:758-762). That evidence uses relative paths (funded-workload.ts:226-247). Preflight requires the meridian evidence string to omit the repository root, https://, and the absolute oracle path (funded-real.test.ts:689-693), and a rejected provenance key is not copied into the error (lines 722-725). LOCAL_TIMING_UNCERTAINTY says the allowances are not a production cap or SLA and that Meridian Groth16 wall time is unmeasured (funded-workload.ts:57-63). readMeridianGuest fail-closes unless the published guest report has groth16 false, guest ownership released, compile elapsedSeconds 16, host journals matching, and the three executions equal to MERIDIAN_GUEST_EXECUTIONS: valid verdict 1 at 7053898 cycles, alternative verdict 1 at 7053842, and verdict 0 at 7053898 (lines 51-55 and 517-542). Those cycles are the published execute record. The 1800 second budget is not a measured Groth16 SLA."
+    },
+    {
+      "id": "exact-balances",
+      "result": "pass",
+      "evidence": "The API revision sets maxBudget to the string 1000000 (funded-real.test.ts:873). Poster funding requires terms.budget 1000000 and chain id 5042002 (poster-funding.ts:129). Approve, fund, and setBudget use the literal 1000000n, and the fund path requires JobFunded amount 1000000n and hook budget 1000000n (lines 262, 301, 313-316, 359-362). Before fund, allowance must be 1000000n; other kinds require 0n (line 301). The returned remainingAllowance is the on-chain allowance after fund (line 420), and the test requires 0n (funded-real.test.ts:902). Both refunds require the buyer balance to increase by exactly 1000000 and the provider balance to stay unchanged (lines 1092-1093 and 1253-1254). The evidence helpers reject any refund amount other than 1000000 (funded-workload.ts:583). recoverArcDeliveryDual is called with budget 1000000n (funded-real.test.ts:1224). Recovery requires PaymentReleased amount 1000000n and the provider match, and its evidence payment amount is 1000000n (buyer-recovery.ts:152-153 and 208). Native USDC is the forkless predeploy named in the test; anvil_setBalance seeds synthetic native gas, not a mock ERC20 (funded-real.test.ts:841)."
+    },
+    {
+      "id": "ordinal-proofs",
+      "result": "pass",
+      "evidence": "proofLimit is 2 for meridian and 1 for legacy (funded-real.test.ts:814). The runner increments only when args[0] is prove and throws if that count exceeds the limit (lines 819-820). On meridian, the first prove is the duplicate-lot stopAfterProof path: phase rejected, verdict 0, and no submitTx (lines 943-952). The second is the passing stopAfterProof path: phase proved and verdict 1 (lines 982-985). proveCalls must equal proofLimit after those proofs (line 988) and again after submit, release, recovery, and the funded-job refund (line 1262). Later settlement therefore cannot add another prove without failing the test. Legacy does not run the failing proof, and notClaimed includes Fresh failing-verdict proof unless the workload is meridian (lines 1265-1266). Before the failing proof, the suite runs the workload oracle on that directory and requires accepted false and a numeric encoded_bytes (lines 929-942). This review did not execute that oracle or either proof."
+    },
+    {
+      "id": "owned-cleanup",
+      "result": "pass",
+      "evidence": "The launcher writes engine stdout and stderr with mode 0600 under the run directory (funded-real.test.ts:803-804). Console errors are redirected into mode-0600 files in that directory (lines 748-751). On failure the catch writes a private failure log, marks the evidence failed, retains the node only when a proof already completed, writes the report, and throws a new error so the test still fails (lines 1294-1304). finally closes the broadcaster, poster funding, server, index database when open, and app (lines 1306-1310). The chain is retained only when proofCompleted is true and allChecksCompleted is false; otherwise it is closed (lines 1311-1312). stopOwned is used for the optional caffeinate child (line 1313). stopOwned returns immediately when the child has no pid or has already exited, and otherwise resolves only on the exit event. The five-second timer sends SIGKILL and does not itself resolve the wait (real-chain.ts:287-314). The focused preflight cases for that timer already passed in the earlier spec run; this review did not repeat them. PATH, ENGINE_DOCKER, RISC0_R0VM_PATH, RISC0_SERVER_PATH, and DOCKER_DEFAULT_PLATFORM are restored after cleanup (funded-real.test.ts:1314-1316). A throw from stopOwned would skip that restore, and the test would still fail."
+    },
+    {
+      "id": "truthful-evidence",
+      "result": "pass",
+      "evidence": "localPendingRestartEvidence and submittedSnapshotRefundEvidence throw unless the observed send count, pending block, hashes, restored parent, expiry timestamp, amount, kind, and null payout match, and only then return fixed labels (funded-workload.ts:579-620). sameHistoryAsCanonicalPayout false is stamped because the caller passed a null payout and the helper already required the reverted branch to restore the parent. The payout has not happened yet. Completion still refuses a true flag (funded-real.test.ts:1264). The pending helper sets receiptObservationSuppressed false only after the test has observed a null block number, and the third runFunded does call confirm while the transaction is pending (funded.ts:318 and 292). indexedDelivery.confirmations is the string 3, the same bound passed to createIndexer as 3n and used by the mine loop that waits until head is at least the release block plus 3 (funded-real.test.ts:1171-1175 and 1208-1212). Public submission and job reads must match the submit and release hashes, envelope hash, key commitment, Completed status, and index as the status source (lines 1177-1194). This review did not execute the slow test, so it does not report an Anvil result, a prove wall time, a Groth16 proof, or the suite process exit."
+    }
+  ],
+  "notes": [
+    "funded-workload.ts:545 says the second charge lot is copied onto the first. Line 558 assigns the first lot_id onto the second charge. Preflight at funded-real.test.ts:733-736 pins that assignment. The checkpoint label duplicate-lot still matches the mutation. This is a comment defect, not a safety blocker. The minimal correction is to change that comment so it says the first charge lot_id is copied onto the second charge. This review did not edit the source.",
+    "indexedDelivery.confirmations is a hardcoded string. It matches the createIndexer argument and the following mine loop. The test does not tick once before those extra mines, so it does not show that the release events were withheld at fewer than 3 confirmations. The call itself passes 3n.",
+    "The slow test does not read the provider USDC balance after the canonical release. The payout amount is the PaymentReleased amount required by recovery, and both refunds check the exact 1000000 return to the buyer. The provider balance is checked on each refund branch.",
+    "The published guest verdict-0 execution is a different well-formed mutation from this suite's duplicate-lot schedule. Guest unique returns false rather than aborting. This review did not conflate those inputs and did not execute either one.",
+    "The in-flight local run was not started, stopped, or inspected. Its process exit is outside this report."
+  ],
+  "thisReview": {
+    "commands": [
+      {
+        "command": "python3 hashlib.sha256 of commerce/worker/test/integration/funded-real.test.ts and commerce/worker/test/support/funded-workload.ts",
+        "exitCode": 0,
+        "result": "Hashes match the frozen candidate. funded-real.test.ts is f98b9cc9aa52ce7ce0c6cd962519054b5ece437642ff20882c7835a1a7ab61a2 and 1319 lines. funded-workload.ts is ebf9bb5bbca5642245f505f26515274f9f7ac01ce96fdaac92cb1ce98446bd0c and 792 lines."
+      }
+    ],
+    "notRun": [
+      "The 31-test preflight and worker typecheck were not repeated. No concrete gap required them.",
+      "The slow funded suite, Anvil, Groth16, guest execution, Docker, compilation, network calls, and git were not run. The in-flight suite was left untouched."
+    ],
+    "independence": "Checks come from the two candidate files and the settlement helpers they call. The earlier specification review was not used as the evidence for these results."
+  }
+}

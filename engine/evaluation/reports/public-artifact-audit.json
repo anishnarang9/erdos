@@ -1,0 +1,62 @@
+{
+  "checkedAt": "2026-11-15T05:42:22.917Z",
+  "indexSha256": "0x4a2699498991b68da5d902ad1c863a8841431c4779f3c6146fb97bdab24b0b6e",
+  "harnessCorrection": "Initial ad hoc audit used guessed negative-code names and failed. Read run-proofs.mjs and export-proofs.mjs, then used their actual documented codes. No engine or evidence change.",
+  "families": [
+    {
+      "family": "inventory",
+      "publicPackageFiles": 20,
+      "sourceFiles": 16,
+      "byteIdentical": true,
+      "receiptHashesMatched": true,
+      "wireAndNegativeChecksRecorded": true
+    },
+    {
+      "family": "signed-evidence-bindings",
+      "publicPackageFiles": 20,
+      "sourceFiles": 16,
+      "byteIdentical": true,
+      "receiptHashesMatched": true,
+      "wireAndNegativeChecksRecorded": true
+    },
+    {
+      "family": "ledger-reconciliation",
+      "publicPackageFiles": 20,
+      "sourceFiles": 16,
+      "byteIdentical": true,
+      "receiptHashesMatched": true,
+      "wireAndNegativeChecksRecorded": true
+    },
+    {
+      "family": "allocation-scheduling",
+      "publicPackageFiles": 20,
+      "sourceFiles": 16,
+      "byteIdentical": true,
+      "receiptHashesMatched": true,
+      "wireAndNegativeChecksRecorded": true
+    },
+    {
+      "family": "expenses-budgets",
+      "publicPackageFiles": 20,
+      "sourceFiles": 16,
+      "byteIdentical": true,
+      "receiptHashesMatched": true,
+      "wireAndNegativeChecksRecorded": true
+    },
+    {
+      "family": "file-hash-size",
+      "publicPackageFiles": 20,
+      "sourceFiles": 16,
+      "byteIdentical": true,
+      "receiptHashesMatched": true,
+      "wireAndNegativeChecksRecorded": true
+    }
+  ],
+  "failures": [],
+  "summary": {
+    "families": 6,
+    "packageFiles": 120,
+    "sourceFiles": 96,
+    "failures": 0
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "charges": [
+    {
+      "release_id": "R-DUNE",
+      "lot_id": "L-SP-04",
+      "kiln_id": "K-02",
+      "panels": "8",
+      "clay_kg": "80"
+    },
+    {
+      "release_id": "R-GATE",
+      "lot_id": "L-KA-03",
+      "kiln_id": "K-01",
+      "panels": "9",
+      "clay_kg": "81"
+    },
+    {
+      "release_id": "R-HARBOR",
+      "lot_id": "L-KA-11",
+      "kiln_id": "K-03",
+      "panels": "12",
+      "clay_kg": "96"
+    },
+    {
+      "release_id": "R-NORTH",
+      "lot_id": "L-IR-12",
+      "kiln_id": "K-04",
+      "panels": "10",
+      "clay_kg": "120"
+    }
+  ],
+  "finishes": [
+    {
+      "release_id": "R-DUNE",
+      "bench_id": "B-01",
+      "temper_id": "T-01",
+      "panels": "8"
+    },
+    {
+      "release_id": "R-GATE",
+      "bench_id": "B-05",
+      "temper_id": "T-03",
+      "panels": "9"
+    },
+    {
+      "release_id": "R-HARBOR",
+      "bench_id": "B-03",
+      "temper_id": "T-04",
+      "panels": "12"
+    },
+    {
+      "release_id": "R-NORTH",
+      "bench_id": "B-02",
+      "temper_id": "T-02",
+      "panels": "10"
+    }
+  ]
+}

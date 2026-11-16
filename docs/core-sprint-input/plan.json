@@ -1,0 +1,250 @@
+{
+  "version": 1,
+  "deliverables": [
+    {
+      "name": "allocations.json",
+      "parser": "json/v1",
+      "collections": [{
+        "name": "allocations",
+        "fields": [
+          {"name": "task_id", "type": "string"},
+          {"name": "pool_id", "type": "string"},
+          {"name": "units", "type": "i64"}
+        ]
+      }]
+    },
+    {
+      "name": "dispatch.json",
+      "parser": "json/v1",
+      "collections": [{
+        "name": "dispatches",
+        "fields": [
+          {"name": "pool_id", "type": "string"},
+          {"name": "mode", "type": "string"},
+          {"name": "stamp", "type": "i64"}
+        ]
+      }]
+    }
+  ],
+  "references": [{
+    "name": "catalog.json",
+    "parser": "json/v1",
+    "fields": [{"name": "budget", "type": "i64"}],
+    "collections": [
+      {
+        "name": "tasks",
+        "fields": [
+          {"name": "id", "type": "string"},
+          {"name": "units", "type": "i64"},
+          {"name": "min_tier", "type": "i64"},
+          {"name": "special", "type": "bool"},
+          {"name": "deadline", "type": "i64"}
+        ]
+      },
+      {
+        "name": "pools",
+        "fields": [
+          {"name": "id", "type": "string"},
+          {"name": "tier", "type": "i64"},
+          {"name": "unit_cost", "type": "i64"},
+          {"name": "capacity", "type": "i64"},
+          {"name": "certified", "type": "bool"},
+          {"name": "cutoff", "type": "i64"},
+          {"name": "guard_start", "type": "i64"}
+        ]
+      }
+    ]
+  }],
+  "rules": [
+    {
+      "op": "unique",
+      "collection": {"source": "deliverable", "file": "allocations.json", "field": "allocations"},
+      "field": "task_id"
+    },
+    {
+      "op": "eq",
+      "left": {"op": "count", "collection": {"source": "deliverable", "file": "allocations.json", "field": "allocations"}},
+      "right": {"op": "count", "collection": {"source": "reference", "file": "catalog.json", "field": "tasks"}}
+    },
+    {
+      "op": "all",
+      "collection": {"source": "deliverable", "file": "allocations.json", "field": "allocations"},
+      "where": {
+        "op": "eq",
+        "left": {"op": "record_field", "field": "units"},
+        "right": {
+          "op": "lookup",
+          "collection": {"source": "reference", "file": "catalog.json", "field": "tasks"},
+          "keyField": "id", "key": {"op": "record_field", "field": "task_id"}, "valueField": "units"
+        }
+      }
+    },
+    {
+      "op": "all",
+      "collection": {"source": "deliverable", "file": "allocations.json", "field": "allocations"},
+      "where": {
+        "op": "gte",
+        "left": {
+          "op": "lookup",
+          "collection": {"source": "reference", "file": "catalog.json", "field": "pools"},
+          "keyField": "id", "key": {"op": "record_field", "field": "pool_id"}, "valueField": "tier"
+        },
+        "right": {
+          "op": "lookup",
+          "collection": {"source": "reference", "file": "catalog.json", "field": "tasks"},
+          "keyField": "id", "key": {"op": "record_field", "field": "task_id"}, "valueField": "min_tier"
+        }
+      }
+    },
+    {
+      "op": "all",
+      "collection": {"source": "deliverable", "file": "allocations.json", "field": "allocations"},
+      "where": {
+        "op": "or",
+        "left": {
+          "op": "not",
+          "value": {
+            "op": "lookup",
+            "collection": {"source": "reference", "file": "catalog.json", "field": "tasks"},
+            "keyField": "id", "key": {"op": "record_field", "field": "task_id"}, "valueField": "special"
+          }
+        },
+        "right": {
+          "op": "and",
+          "left": {
+            "op": "lookup",
+            "collection": {"source": "reference", "file": "catalog.json", "field": "pools"},
+            "keyField": "id", "key": {"op": "record_field", "field": "pool_id"}, "valueField": "certified"
+          },
+          "right": {
+            "op": "eq",
+            "left": {
+              "op": "lookup",
+              "collection": {"source": "deliverable", "file": "dispatch.json", "field": "dispatches"},
+              "keyField": "pool_id", "key": {"op": "record_field", "field": "pool_id"}, "valueField": "mode"
+            },
+            "right": {"op": "literal", "type": "string", "value": "guarded"}
+          }
+        }
+      }
+    },
+    {
+      "op": "unique",
+      "collection": {"source": "deliverable", "file": "dispatch.json", "field": "dispatches"},
+      "field": "pool_id"
+    },
+    {
+      "op": "eq",
+      "left": {"op": "count", "collection": {"source": "deliverable", "file": "dispatch.json", "field": "dispatches"}},
+      "right": {"op": "count", "collection": {"source": "reference", "file": "catalog.json", "field": "pools"}}
+    },
+    {
+      "op": "all",
+      "collection": {"source": "deliverable", "file": "dispatch.json", "field": "dispatches"},
+      "where": {
+        "op": "or",
+        "left": {
+          "op": "eq", "left": {"op": "record_field", "field": "mode"},
+          "right": {"op": "literal", "type": "string", "value": "open"}
+        },
+        "right": {
+          "op": "eq", "left": {"op": "record_field", "field": "mode"},
+          "right": {"op": "literal", "type": "string", "value": "guarded"}
+        }
+      }
+    },
+    {
+      "op": "all",
+      "collection": {"source": "deliverable", "file": "dispatch.json", "field": "dispatches"},
+      "where": {
+        "op": "gte",
+        "left": {"op": "record_field", "field": "stamp"},
+        "right": {"op": "literal", "type": "i64", "value": "0"}
+      }
+    },
+    {
+      "op": "all",
+      "collection": {"source": "deliverable", "file": "dispatch.json", "field": "dispatches"},
+      "where": {
+        "op": "lte",
+        "left": {"op": "record_field", "field": "stamp"},
+        "right": {
+          "op": "lookup",
+          "collection": {"source": "reference", "file": "catalog.json", "field": "pools"},
+          "keyField": "id", "key": {"op": "record_field", "field": "pool_id"}, "valueField": "cutoff"
+        }
+      }
+    },
+    {
+      "op": "all",
+      "collection": {"source": "deliverable", "file": "dispatch.json", "field": "dispatches"},
+      "where": {
+        "op": "or",
+        "left": {
+          "op": "ne", "left": {"op": "record_field", "field": "mode"},
+          "right": {"op": "literal", "type": "string", "value": "guarded"}
+        },
+        "right": {
+          "op": "gte",
+          "left": {"op": "record_field", "field": "stamp"},
+          "right": {
+            "op": "lookup",
+            "collection": {"source": "reference", "file": "catalog.json", "field": "pools"},
+            "keyField": "id", "key": {"op": "record_field", "field": "pool_id"}, "valueField": "guard_start"
+          }
+        }
+      }
+    },
+    {
+      "op": "all",
+      "collection": {"source": "deliverable", "file": "allocations.json", "field": "allocations"},
+      "where": {
+        "op": "lt",
+        "left": {
+          "op": "lookup",
+          "collection": {"source": "deliverable", "file": "dispatch.json", "field": "dispatches"},
+          "keyField": "pool_id", "key": {"op": "record_field", "field": "pool_id"}, "valueField": "stamp"
+        },
+        "right": {
+          "op": "lookup",
+          "collection": {"source": "reference", "file": "catalog.json", "field": "tasks"},
+          "keyField": "id", "key": {"op": "record_field", "field": "task_id"}, "valueField": "deadline"
+        }
+      }
+    },
+    {
+      "op": "all",
+      "collection": {"source": "reference", "file": "catalog.json", "field": "pools"},
+      "where": {
+        "op": "lte",
+        "left": {
+          "op": "count",
+          "collection": {"source": "deliverable", "file": "allocations.json", "field": "allocations"},
+          "where": {
+            "op": "eq",
+            "left": {"op": "record_field", "field": "pool_id"},
+            "right": {"op": "record_field", "field": "id", "level": 1}
+          }
+        },
+        "right": {"op": "record_field", "field": "capacity"}
+      }
+    },
+    {
+      "op": "lte",
+      "left": {
+        "op": "sum",
+        "collection": {"source": "deliverable", "file": "allocations.json", "field": "allocations"},
+        "value": {
+          "op": "mul",
+          "left": {"op": "record_field", "field": "units"},
+          "right": {
+            "op": "lookup",
+            "collection": {"source": "reference", "file": "catalog.json", "field": "pools"},
+            "keyField": "id", "key": {"op": "record_field", "field": "pool_id"}, "valueField": "unit_cost"
+          }
+        }
+      },
+      "right": {"op": "field", "source": "reference", "file": "catalog.json", "field": "budget"}
+    }
+  ]
+}

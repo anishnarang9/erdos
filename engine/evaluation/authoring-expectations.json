@@ -1,0 +1,342 @@
+{
+  "rubric": "fixed-request-facets-v1",
+  "scope": "Frozen measurement of saved outputs. These defects remain model failures. Replay must reproduce them and reject additional or changed failures.",
+  "nonDraftFidelityPassed": 21,
+  "nonDraftFidelityDefects": [
+    {
+      "trial": 1,
+      "challenge": "unsupported-6",
+      "missingFacets": [
+        "named_missing_capability"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "unsupported-2",
+      "missingFacets": [
+        "named_missing_capability"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "unsupported-10",
+      "missingFacets": [
+        "named_missing_capability"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "ambiguous-2",
+      "missingFacets": [
+        "matching_identity"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "unsupported-5",
+      "missingFacets": [
+        "named_missing_capability"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "ambiguous-6",
+      "missingFacets": [],
+      "extraneousAssumptions": [
+        "unrequested_recency",
+        "unrequested_score"
+      ]
+    },
+    {
+      "trial": 1,
+      "challenge": "ambiguous-8",
+      "missingFacets": [
+        "duplicate_keys",
+        "date_encoding"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "unsupported-9",
+      "missingFacets": [
+        "named_missing_capability"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "unsupported-7",
+      "missingFacets": [
+        "named_missing_capability"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "ambiguous-7",
+      "missingFacets": [
+        "strict_or_inclusive_boundary"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "ambiguous-3",
+      "missingFacets": [
+        "valid_sku_catalog"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "ambiguous-10",
+      "missingFacets": [
+        "score_threshold"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "unsupported-1",
+      "missingFacets": [
+        "named_missing_capability"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "ambiguous-9",
+      "missingFacets": [
+        "deadline_timestamp_timezone"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "ambiguous-4",
+      "missingFacets": [
+        "worker_shift_constraints"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "ambiguous-5",
+      "missingFacets": [
+        "byte_limit",
+        "filename"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "unsupported-8",
+      "missingFacets": [
+        "named_missing_capability"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "unsupported-3",
+      "missingFacets": [
+        "named_missing_capability"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "ambiguous-1",
+      "missingFacets": [
+        "spending_limits",
+        "currency",
+        "rounding"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 1,
+      "challenge": "unsupported-4",
+      "missingFacets": [
+        "named_missing_capability"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 2,
+      "challenge": "ambiguous-4",
+      "missingFacets": [
+        "worker_shift_constraints"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 2,
+      "challenge": "ambiguous-5",
+      "missingFacets": [
+        "byte_limit"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 2,
+      "challenge": "ambiguous-3",
+      "missingFacets": [
+        "valid_sku_catalog"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 2,
+      "challenge": "ambiguous-2",
+      "missingFacets": [
+        "tolerance_units",
+        "matching_identity"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 2,
+      "challenge": "ambiguous-1",
+      "missingFacets": [
+        "currency",
+        "rounding"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 2,
+      "challenge": "ambiguous-9",
+      "missingFacets": [
+        "deadline_timestamp_timezone"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 2,
+      "challenge": "ambiguous-6",
+      "missingFacets": [
+        "artifact_and_job_binding"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 2,
+      "challenge": "ambiguous-8",
+      "missingFacets": [
+        "description_equality"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 2,
+      "challenge": "ambiguous-7",
+      "missingFacets": [
+        "strict_or_inclusive_boundary"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 3,
+      "challenge": "ambiguous-1",
+      "missingFacets": [
+        "spending_limits",
+        "currency",
+        "rounding"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 3,
+      "challenge": "ambiguous-10",
+      "missingFacets": [
+        "score_threshold",
+        "recent_interval",
+        "trusted_signer"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 3,
+      "challenge": "ambiguous-9",
+      "missingFacets": [
+        "shift_identity",
+        "minimum_coverage",
+        "deadline_timestamp_timezone"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 3,
+      "challenge": "ambiguous-4",
+      "missingFacets": [
+        "measurable_fairness",
+        "worker_shift_constraints"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 3,
+      "challenge": "ambiguous-2",
+      "missingFacets": [
+        "tolerance",
+        "tolerance_units",
+        "matching_identity"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 3,
+      "challenge": "ambiguous-6",
+      "missingFacets": [
+        "signature_profile",
+        "trusted_signer",
+        "artifact_and_job_binding"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 3,
+      "challenge": "ambiguous-8",
+      "missingFacets": [
+        "description_equality",
+        "duplicate_keys",
+        "date_encoding"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 3,
+      "challenge": "ambiguous-3",
+      "missingFacets": [
+        "stock_bounds",
+        "valid_sku_catalog"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 3,
+      "challenge": "ambiguous-7",
+      "missingFacets": [
+        "numeric_units",
+        "strict_or_inclusive_boundary"
+      ],
+      "extraneousAssumptions": []
+    },
+    {
+      "trial": 3,
+      "challenge": "ambiguous-5",
+      "missingFacets": [
+        "byte_limit",
+        "format"
+      ],
+      "extraneousAssumptions": []
+    }
+  ]
+}

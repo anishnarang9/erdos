@@ -1,0 +1,1230 @@
+{
+  "version": 1,
+  "engineSha256": "0x12d6acaf5c79698c92e3dfe272676d48d61155f86b88d82c59123c3d198eadbf",
+  "compilations": [
+    {
+      "challenge": "expense-1",
+      "family": "expenses-budgets",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "d98dc5bbba0674baed2814e2c0ad6d01284e243253f394980b0b81c9c58de3db",
+        "cacheHit": false,
+        "compileMillis": 17041,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x3b17346a120d691c441bf8b5d6523b65b28913692e274fe50011d010b7e6dd34",
+        "imageId": "0x6865b8026b0fd9d3808dd624d794d87d0872a7111861bd2afaf5c6a5bbbac1bf",
+        "inputVersion": 2,
+        "parametersSha256": "0xebb5515c69d7ad6c5e1b12f27b13d7fcd98cca67d533857fc21c2000c2405689",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x9091a84a8bab81f7d2af05ffa90f6ceb5fa8a39c5efeaaefb4441517d06e9b8e",
+        "structureHash": "0xc199841abe51ada94ae5a32d36bc5db147cd59670df7966d7f7f20e680ca63d6",
+        "structureSha256": "0xa50e82ecd862984e4245bda0760ee22e7db6299db36564d9c2342028c62f8794",
+        "version": 1
+      },
+      "millis": 17049
+    },
+    {
+      "challenge": "expense-2",
+      "family": "expenses-budgets",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "d98dc5bbba0674baed2814e2c0ad6d01284e243253f394980b0b81c9c58de3db",
+        "cacheHit": true,
+        "compileMillis": 3401,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x3b17346a120d691c441bf8b5d6523b65b28913692e274fe50011d010b7e6dd34",
+        "imageId": "0x6865b8026b0fd9d3808dd624d794d87d0872a7111861bd2afaf5c6a5bbbac1bf",
+        "inputVersion": 2,
+        "parametersSha256": "0xb1c0d6f114976f1a6277c918779c6ad482e6cba1bf283dd79f6bc867341678b2",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x5af564f5fb62500104b07fd2e293ec7ca03fbe6ecd8c054e4f2c4cc97c10d80a",
+        "structureHash": "0xc199841abe51ada94ae5a32d36bc5db147cd59670df7966d7f7f20e680ca63d6",
+        "structureSha256": "0xa50e82ecd862984e4245bda0760ee22e7db6299db36564d9c2342028c62f8794",
+        "version": 1
+      },
+      "millis": 3418
+    },
+    {
+      "challenge": "expense-3",
+      "family": "expenses-budgets",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "d98dc5bbba0674baed2814e2c0ad6d01284e243253f394980b0b81c9c58de3db",
+        "cacheHit": true,
+        "compileMillis": 3324,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x3b17346a120d691c441bf8b5d6523b65b28913692e274fe50011d010b7e6dd34",
+        "imageId": "0x6865b8026b0fd9d3808dd624d794d87d0872a7111861bd2afaf5c6a5bbbac1bf",
+        "inputVersion": 2,
+        "parametersSha256": "0x5b059287eb78d32e28397841283a1e59467ad655b4014afc85ded52b2f67c34c",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x1ec34f8ff7816f07d78e166fb8dbdc4a9055521d954ec0e3c8413791e171b810",
+        "structureHash": "0xc199841abe51ada94ae5a32d36bc5db147cd59670df7966d7f7f20e680ca63d6",
+        "structureSha256": "0xa50e82ecd862984e4245bda0760ee22e7db6299db36564d9c2342028c62f8794",
+        "version": 1
+      },
+      "millis": 3329
+    },
+    {
+      "challenge": "expense-4",
+      "family": "expenses-budgets",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "d98dc5bbba0674baed2814e2c0ad6d01284e243253f394980b0b81c9c58de3db",
+        "cacheHit": true,
+        "compileMillis": 3380,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x3b17346a120d691c441bf8b5d6523b65b28913692e274fe50011d010b7e6dd34",
+        "imageId": "0x6865b8026b0fd9d3808dd624d794d87d0872a7111861bd2afaf5c6a5bbbac1bf",
+        "inputVersion": 2,
+        "parametersSha256": "0xe703365fc84c8c5f08d8ad5469fe3c9e336066cf0405af2ad274e191f135063f",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x025c007b1a2e71135ba347a591ead65dd60006ae68bba2ae5d02b90ff51f30dc",
+        "structureHash": "0xc199841abe51ada94ae5a32d36bc5db147cd59670df7966d7f7f20e680ca63d6",
+        "structureSha256": "0xa50e82ecd862984e4245bda0760ee22e7db6299db36564d9c2342028c62f8794",
+        "version": 1
+      },
+      "millis": 3385
+    },
+    {
+      "challenge": "expense-5",
+      "family": "expenses-budgets",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "d98dc5bbba0674baed2814e2c0ad6d01284e243253f394980b0b81c9c58de3db",
+        "cacheHit": true,
+        "compileMillis": 3326,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x3b17346a120d691c441bf8b5d6523b65b28913692e274fe50011d010b7e6dd34",
+        "imageId": "0x6865b8026b0fd9d3808dd624d794d87d0872a7111861bd2afaf5c6a5bbbac1bf",
+        "inputVersion": 2,
+        "parametersSha256": "0xfb5fc125022095d63ad275a78676b172a8cb9627fadefad0593b5a81ffaea71b",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x5fbf8feb02e4f395d34de70bc9198f98101ea62fd44e68328e26f99a0a19d7c8",
+        "structureHash": "0xc199841abe51ada94ae5a32d36bc5db147cd59670df7966d7f7f20e680ca63d6",
+        "structureSha256": "0xa50e82ecd862984e4245bda0760ee22e7db6299db36564d9c2342028c62f8794",
+        "version": 1
+      },
+      "millis": 3332
+    },
+    {
+      "challenge": "expense-6",
+      "family": "expenses-budgets",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "d98dc5bbba0674baed2814e2c0ad6d01284e243253f394980b0b81c9c58de3db",
+        "cacheHit": true,
+        "compileMillis": 3349,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x3b17346a120d691c441bf8b5d6523b65b28913692e274fe50011d010b7e6dd34",
+        "imageId": "0x6865b8026b0fd9d3808dd624d794d87d0872a7111861bd2afaf5c6a5bbbac1bf",
+        "inputVersion": 2,
+        "parametersSha256": "0xcaa11d602b34a679355bbee45592874a2163c170ba26b86b04c3f06566fb451d",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x0984638cde1ec7799e02024738e0f25a71dab5f09e920ff5e5e3705e5fd6312e",
+        "structureHash": "0xc199841abe51ada94ae5a32d36bc5db147cd59670df7966d7f7f20e680ca63d6",
+        "structureSha256": "0xa50e82ecd862984e4245bda0760ee22e7db6299db36564d9c2342028c62f8794",
+        "version": 1
+      },
+      "millis": 3354
+    },
+    {
+      "challenge": "expense-7",
+      "family": "expenses-budgets",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "d98dc5bbba0674baed2814e2c0ad6d01284e243253f394980b0b81c9c58de3db",
+        "cacheHit": true,
+        "compileMillis": 3383,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x3b17346a120d691c441bf8b5d6523b65b28913692e274fe50011d010b7e6dd34",
+        "imageId": "0x6865b8026b0fd9d3808dd624d794d87d0872a7111861bd2afaf5c6a5bbbac1bf",
+        "inputVersion": 2,
+        "parametersSha256": "0xdbec09cd5138630f42fb0713c4784056a972527cfee2960ab6056f635c921a33",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x77818f4bd5e0c7a774b709684aff76861cf65d072b905736fa6f22db53b37624",
+        "structureHash": "0xc199841abe51ada94ae5a32d36bc5db147cd59670df7966d7f7f20e680ca63d6",
+        "structureSha256": "0xa50e82ecd862984e4245bda0760ee22e7db6299db36564d9c2342028c62f8794",
+        "version": 1
+      },
+      "millis": 3388
+    },
+    {
+      "challenge": "ledger-1",
+      "family": "ledger-reconciliation",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "89eb00e78b4bc0a9729634b3e785882ddeeb8913f6e9775277e6a02dab13d01c",
+        "cacheHit": false,
+        "compileMillis": 14024,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xc5896f11a65036e95fb4e98e1adcb2bddbc8db09ea2eeae7dd32c0e119c36a37",
+        "imageId": "0xf57465ba449093ac72967d9cae7aed6a92b414b099c4ac8a66506eead93bd841",
+        "inputVersion": 2,
+        "parametersSha256": "0x5f60c6cd40ad52d9de608ed96f09350a72bf28a72da2bf09243578812d52a381",
+        "referenceHash": "0x5e0e5c64b23758284e3be0920ae5e67a3c3b4b343c26500d1c794af2c240ad4a",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x57ad4dffca1817af4b4fe07e209f2ab12041235916f095c5cdc5ab3f6035fbcf",
+        "structureHash": "0x93df115ebded5af09fdd5bd2fa6ebc991789e03c17b5e3ea092995708efe9cdf",
+        "structureSha256": "0xbac53ed88b12fefe6d6455ea60b2fa06e3f9100c4f54ee78c7c7b10d21a9eeef",
+        "version": 1
+      },
+      "millis": 14030
+    },
+    {
+      "challenge": "ledger-2",
+      "family": "ledger-reconciliation",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "89eb00e78b4bc0a9729634b3e785882ddeeb8913f6e9775277e6a02dab13d01c",
+        "cacheHit": true,
+        "compileMillis": 3410,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xc5896f11a65036e95fb4e98e1adcb2bddbc8db09ea2eeae7dd32c0e119c36a37",
+        "imageId": "0xf57465ba449093ac72967d9cae7aed6a92b414b099c4ac8a66506eead93bd841",
+        "inputVersion": 2,
+        "parametersSha256": "0x7296b15d56bb6631180ef9110edac8846ef2755e3c737288f7e52aeb188d0128",
+        "referenceHash": "0xc99eec61880cfdcf9e785533f266a6596905c9dc5c4095eafc532c63b11bc700",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x5cd034fb47c432acfac0f0f73bbf4182473a7a4b8103ef9c2caaaed802af8c72",
+        "structureHash": "0x93df115ebded5af09fdd5bd2fa6ebc991789e03c17b5e3ea092995708efe9cdf",
+        "structureSha256": "0xbac53ed88b12fefe6d6455ea60b2fa06e3f9100c4f54ee78c7c7b10d21a9eeef",
+        "version": 1
+      },
+      "millis": 3415
+    },
+    {
+      "challenge": "ledger-3",
+      "family": "ledger-reconciliation",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "89eb00e78b4bc0a9729634b3e785882ddeeb8913f6e9775277e6a02dab13d01c",
+        "cacheHit": true,
+        "compileMillis": 3389,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xc5896f11a65036e95fb4e98e1adcb2bddbc8db09ea2eeae7dd32c0e119c36a37",
+        "imageId": "0xf57465ba449093ac72967d9cae7aed6a92b414b099c4ac8a66506eead93bd841",
+        "inputVersion": 2,
+        "parametersSha256": "0x688ec4bf2643e53bd1c7519af40f061301b0323b19cf076a749a52de084f709b",
+        "referenceHash": "0x28b7634b18bf63839f3bf5fa37a848e49e36047b5527a9b26955eafc5574ad34",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x1ee0773b05f65ed073a8cda6e10a248c587101abc59f06aca34d16c00a973abf",
+        "structureHash": "0x93df115ebded5af09fdd5bd2fa6ebc991789e03c17b5e3ea092995708efe9cdf",
+        "structureSha256": "0xbac53ed88b12fefe6d6455ea60b2fa06e3f9100c4f54ee78c7c7b10d21a9eeef",
+        "version": 1
+      },
+      "millis": 3394
+    },
+    {
+      "challenge": "ledger-4",
+      "family": "ledger-reconciliation",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "89eb00e78b4bc0a9729634b3e785882ddeeb8913f6e9775277e6a02dab13d01c",
+        "cacheHit": true,
+        "compileMillis": 3378,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xc5896f11a65036e95fb4e98e1adcb2bddbc8db09ea2eeae7dd32c0e119c36a37",
+        "imageId": "0xf57465ba449093ac72967d9cae7aed6a92b414b099c4ac8a66506eead93bd841",
+        "inputVersion": 2,
+        "parametersSha256": "0x7a4869fce4b973137bc7b2c112a404a7e7d08e2e732d126afc5971e2c3ec8abf",
+        "referenceHash": "0xdc533700b23d9e7973ce1198bf30f0ae6c653f61055cb28174e1594c465f93e7",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x72d78beb8b0c9b23d63bcb893e1e79c403f01bde88e23128f6a429d763ff42dc",
+        "structureHash": "0x93df115ebded5af09fdd5bd2fa6ebc991789e03c17b5e3ea092995708efe9cdf",
+        "structureSha256": "0xbac53ed88b12fefe6d6455ea60b2fa06e3f9100c4f54ee78c7c7b10d21a9eeef",
+        "version": 1
+      },
+      "millis": 3384
+    },
+    {
+      "challenge": "ledger-5",
+      "family": "ledger-reconciliation",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "89eb00e78b4bc0a9729634b3e785882ddeeb8913f6e9775277e6a02dab13d01c",
+        "cacheHit": true,
+        "compileMillis": 3383,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xc5896f11a65036e95fb4e98e1adcb2bddbc8db09ea2eeae7dd32c0e119c36a37",
+        "imageId": "0xf57465ba449093ac72967d9cae7aed6a92b414b099c4ac8a66506eead93bd841",
+        "inputVersion": 2,
+        "parametersSha256": "0xca999752b352662fa695d9b863b2e79e2b4d1f73a9bdc625dafa2ec946d56dd2",
+        "referenceHash": "0xdad5524d0123aed6e0126b409d302b99f19e80a820fa423ac0b26a5516908127",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xe7984f21e861a67406521276701cc4a66d6a4944055e996d69ffc9968adfbc4f",
+        "structureHash": "0x93df115ebded5af09fdd5bd2fa6ebc991789e03c17b5e3ea092995708efe9cdf",
+        "structureSha256": "0xbac53ed88b12fefe6d6455ea60b2fa06e3f9100c4f54ee78c7c7b10d21a9eeef",
+        "version": 1
+      },
+      "millis": 3388
+    },
+    {
+      "challenge": "ledger-6",
+      "family": "ledger-reconciliation",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "89eb00e78b4bc0a9729634b3e785882ddeeb8913f6e9775277e6a02dab13d01c",
+        "cacheHit": true,
+        "compileMillis": 3389,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xc5896f11a65036e95fb4e98e1adcb2bddbc8db09ea2eeae7dd32c0e119c36a37",
+        "imageId": "0xf57465ba449093ac72967d9cae7aed6a92b414b099c4ac8a66506eead93bd841",
+        "inputVersion": 2,
+        "parametersSha256": "0xc24ee4da9adb379ee93e79f4c458c20e0c03f79aaf4392d8b50c57c8da0d58e8",
+        "referenceHash": "0x42f68f743244e985523644b49f079f239b1cee7302c884aebc9c72771c2cea30",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x0a25ed020d625eb9ffe7eafa1efb91ad57064ea05d0af7230a6c2d988bd0ed23",
+        "structureHash": "0x93df115ebded5af09fdd5bd2fa6ebc991789e03c17b5e3ea092995708efe9cdf",
+        "structureSha256": "0xbac53ed88b12fefe6d6455ea60b2fa06e3f9100c4f54ee78c7c7b10d21a9eeef",
+        "version": 1
+      },
+      "millis": 3394
+    },
+    {
+      "challenge": "ledger-7",
+      "family": "ledger-reconciliation",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "89eb00e78b4bc0a9729634b3e785882ddeeb8913f6e9775277e6a02dab13d01c",
+        "cacheHit": true,
+        "compileMillis": 3673,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xc5896f11a65036e95fb4e98e1adcb2bddbc8db09ea2eeae7dd32c0e119c36a37",
+        "imageId": "0xf57465ba449093ac72967d9cae7aed6a92b414b099c4ac8a66506eead93bd841",
+        "inputVersion": 2,
+        "parametersSha256": "0x59a203c46f462b66c7c8f381dd6842026686cac171aaffd55baa6be24b9c889a",
+        "referenceHash": "0x4b0e00ae38c19bd2afb7a64ce08ce6b5df29bf1a91db4f17a0187929cd5cfeeb",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x8883d30a3023caca7724f850fb59ae32cede529c2e929242444cf03334adcc25",
+        "structureHash": "0x93df115ebded5af09fdd5bd2fa6ebc991789e03c17b5e3ea092995708efe9cdf",
+        "structureSha256": "0xbac53ed88b12fefe6d6455ea60b2fa06e3f9100c4f54ee78c7c7b10d21a9eeef",
+        "version": 1
+      },
+      "millis": 3679
+    },
+    {
+      "challenge": "inventory-1",
+      "family": "inventory",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "1cf2faae14cc8bba173bc8c1a78eb593c2b45b7bbb57c42c3428fdc58a07f098",
+        "cacheHit": false,
+        "compileMillis": 14721,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xa32fa426dfaac9567f4ab4ddd602c24b4d88533c295c80b5010e2d54f6fff6e8",
+        "imageId": "0x2449b7450c077511f65bcf0c95a6e4a6dd1887c274b0ab9c31983d4120770347",
+        "inputVersion": 2,
+        "parametersSha256": "0x9aca42134b74ba37fa077086739d7d4834cfd6da209352688661d5bfacd0e3e1",
+        "referenceHash": "0xd04cc186986a067ccace395761ca58adf839c5826d6280805531ade0563afc8d",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x75d766fc4c2a713334572f70b65107b12bd349043caed603f84b2021e3d022af",
+        "structureHash": "0x9524b15961171d4122aba46f6a7610b839e66ac7c6ed9a755bf2a3d07c70f333",
+        "structureSha256": "0x05fd63ea7cec8e93fffb588e39afb5a62185f12d9416d4ff5a5a30ba3a6d0b54",
+        "version": 1
+      },
+      "millis": 14727
+    },
+    {
+      "challenge": "inventory-2",
+      "family": "inventory",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "1cf2faae14cc8bba173bc8c1a78eb593c2b45b7bbb57c42c3428fdc58a07f098",
+        "cacheHit": true,
+        "compileMillis": 3408,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xa32fa426dfaac9567f4ab4ddd602c24b4d88533c295c80b5010e2d54f6fff6e8",
+        "imageId": "0x2449b7450c077511f65bcf0c95a6e4a6dd1887c274b0ab9c31983d4120770347",
+        "inputVersion": 2,
+        "parametersSha256": "0x4cf775386fbf6804cbccac9680d37f54016dd18878908e1d4e2a57ed47af059d",
+        "referenceHash": "0xc836973e0156f57575ff9e731887cb85707a4784af57ecadfe32dfa1591364fd",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x4d65545070d824aca4626644a8760f8c897df8408c5343da822190f04f687553",
+        "structureHash": "0x9524b15961171d4122aba46f6a7610b839e66ac7c6ed9a755bf2a3d07c70f333",
+        "structureSha256": "0x05fd63ea7cec8e93fffb588e39afb5a62185f12d9416d4ff5a5a30ba3a6d0b54",
+        "version": 1
+      },
+      "millis": 3414
+    },
+    {
+      "challenge": "inventory-3",
+      "family": "inventory",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "1cf2faae14cc8bba173bc8c1a78eb593c2b45b7bbb57c42c3428fdc58a07f098",
+        "cacheHit": true,
+        "compileMillis": 3442,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xa32fa426dfaac9567f4ab4ddd602c24b4d88533c295c80b5010e2d54f6fff6e8",
+        "imageId": "0x2449b7450c077511f65bcf0c95a6e4a6dd1887c274b0ab9c31983d4120770347",
+        "inputVersion": 2,
+        "parametersSha256": "0x81b39bae975283b445db6f4bdd6c65efa9e5a62cf2a2be06e58b0a8b3d5022d5",
+        "referenceHash": "0x485d95b8e53d8fa4332b9e3fa7a24be7e3030bfaf13c8478bc8082680cb0a836",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x814b392bb27d6f7dc9f3098c74c6c04fb8407a051767214b27b0bb0f28f9eb44",
+        "structureHash": "0x9524b15961171d4122aba46f6a7610b839e66ac7c6ed9a755bf2a3d07c70f333",
+        "structureSha256": "0x05fd63ea7cec8e93fffb588e39afb5a62185f12d9416d4ff5a5a30ba3a6d0b54",
+        "version": 1
+      },
+      "millis": 3448
+    },
+    {
+      "challenge": "inventory-4",
+      "family": "inventory",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "1cf2faae14cc8bba173bc8c1a78eb593c2b45b7bbb57c42c3428fdc58a07f098",
+        "cacheHit": true,
+        "compileMillis": 3520,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xa32fa426dfaac9567f4ab4ddd602c24b4d88533c295c80b5010e2d54f6fff6e8",
+        "imageId": "0x2449b7450c077511f65bcf0c95a6e4a6dd1887c274b0ab9c31983d4120770347",
+        "inputVersion": 2,
+        "parametersSha256": "0xb361000aaa960c878f79e7d368894ce053f2f850685842ed4cddf0b798638e6d",
+        "referenceHash": "0x4795076de0fcc0b8413e3918174a12def11965d60604bf88ef9e7daf83879b53",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xfb6f4335affaef1d134713bdfcbf1d3ee8c19fde1640b38605edaeff9380a584",
+        "structureHash": "0x9524b15961171d4122aba46f6a7610b839e66ac7c6ed9a755bf2a3d07c70f333",
+        "structureSha256": "0x05fd63ea7cec8e93fffb588e39afb5a62185f12d9416d4ff5a5a30ba3a6d0b54",
+        "version": 1
+      },
+      "millis": 3526
+    },
+    {
+      "challenge": "inventory-5",
+      "family": "inventory",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "1cf2faae14cc8bba173bc8c1a78eb593c2b45b7bbb57c42c3428fdc58a07f098",
+        "cacheHit": true,
+        "compileMillis": 3419,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xa32fa426dfaac9567f4ab4ddd602c24b4d88533c295c80b5010e2d54f6fff6e8",
+        "imageId": "0x2449b7450c077511f65bcf0c95a6e4a6dd1887c274b0ab9c31983d4120770347",
+        "inputVersion": 2,
+        "parametersSha256": "0xef5f1a1bbf1df33708cb20306cdfc8bd561a51f5ab14ffc8821e14d97a9bd6aa",
+        "referenceHash": "0x111e8f5a635448afc122b0b6d8a2cb63f2bfa2f8f8034940e3f42b5f7ae58ea5",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x7601149b37e3696c7b453eae6e7a5b762f50960f42d5adc14f28a47bc7a169df",
+        "structureHash": "0x9524b15961171d4122aba46f6a7610b839e66ac7c6ed9a755bf2a3d07c70f333",
+        "structureSha256": "0x05fd63ea7cec8e93fffb588e39afb5a62185f12d9416d4ff5a5a30ba3a6d0b54",
+        "version": 1
+      },
+      "millis": 3424
+    },
+    {
+      "challenge": "inventory-6",
+      "family": "inventory",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "1cf2faae14cc8bba173bc8c1a78eb593c2b45b7bbb57c42c3428fdc58a07f098",
+        "cacheHit": true,
+        "compileMillis": 3405,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xa32fa426dfaac9567f4ab4ddd602c24b4d88533c295c80b5010e2d54f6fff6e8",
+        "imageId": "0x2449b7450c077511f65bcf0c95a6e4a6dd1887c274b0ab9c31983d4120770347",
+        "inputVersion": 2,
+        "parametersSha256": "0xa726e9c55715af8bbed0eb85f45d5c0af6fb8d4a73536c625c75810237533011",
+        "referenceHash": "0x42b55d17949e43119957df64a56313a45e48431d0cc3971faa43656a4e802728",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x4c263ca7c288d44b2d652e8f1eea165097eb6efc05d935d1a11aca91d0add6a3",
+        "structureHash": "0x9524b15961171d4122aba46f6a7610b839e66ac7c6ed9a755bf2a3d07c70f333",
+        "structureSha256": "0x05fd63ea7cec8e93fffb588e39afb5a62185f12d9416d4ff5a5a30ba3a6d0b54",
+        "version": 1
+      },
+      "millis": 3410
+    },
+    {
+      "challenge": "inventory-7",
+      "family": "inventory",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "1cf2faae14cc8bba173bc8c1a78eb593c2b45b7bbb57c42c3428fdc58a07f098",
+        "cacheHit": true,
+        "compileMillis": 3457,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xa32fa426dfaac9567f4ab4ddd602c24b4d88533c295c80b5010e2d54f6fff6e8",
+        "imageId": "0x2449b7450c077511f65bcf0c95a6e4a6dd1887c274b0ab9c31983d4120770347",
+        "inputVersion": 2,
+        "parametersSha256": "0xaa69d72f714c9a916a6ad6454690b9ab1ade76789dae4fe1a0b7b7e75c682766",
+        "referenceHash": "0xa963927ab4e6798f5e4e38f8a311511816fb163bfefe17e768bbc8bf4b79513c",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x1129156bc2f86f7e39e7aea46e74fcbae9a4f067ea5460c977c710825af21664",
+        "structureHash": "0x9524b15961171d4122aba46f6a7610b839e66ac7c6ed9a755bf2a3d07c70f333",
+        "structureSha256": "0x05fd63ea7cec8e93fffb588e39afb5a62185f12d9416d4ff5a5a30ba3a6d0b54",
+        "version": 1
+      },
+      "millis": 3462
+    },
+    {
+      "challenge": "schedule-1",
+      "family": "allocation-scheduling",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "a3978a70c489a42de89de0028daa9d7613da7a45cb4488292e117081865b3c52",
+        "cacheHit": false,
+        "compileMillis": 14560,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x1bb697fe20d6d8ab5f7763702147f93a816957321cc4c984c805e9c62864a773",
+        "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+        "inputVersion": 2,
+        "parametersSha256": "0xa1a76d3042c1db50d8ef24be4b64859677069e469722803e8b57e34c2cadf019",
+        "referenceHash": "0xd90c774eac6ac4e9fb10297ba512d0c729d8c59a03b13636eea27ded5d696711",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x0d3e572c2a21398e7a2549cca54612f015eda85530d4bea0346295a8118fee64",
+        "structureHash": "0xbaa0d0dff05631910f1461e0fb822a4e3f500bf10ecb64ed1f1b4630f69d7b89",
+        "structureSha256": "0x4ab432068fea3b141a57b7003858c91aa807cdee3b2982bb006807196efd2152",
+        "version": 1
+      },
+      "millis": 14567
+    },
+    {
+      "challenge": "schedule-2",
+      "family": "allocation-scheduling",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "a3978a70c489a42de89de0028daa9d7613da7a45cb4488292e117081865b3c52",
+        "cacheHit": true,
+        "compileMillis": 3487,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x1bb697fe20d6d8ab5f7763702147f93a816957321cc4c984c805e9c62864a773",
+        "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+        "inputVersion": 2,
+        "parametersSha256": "0x327102afc4d132a4646b6c2e15c13b1e65696cc13bacc03a5dde95fd5927a8fd",
+        "referenceHash": "0xe5dc98da8dce549ee39ef9a97d35353014fdccc90bbc4d1071219c2132b1aad6",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x26a578102c1207c5531037a2e666b53f4cce711a6c16ec2eb993d01118746263",
+        "structureHash": "0xbaa0d0dff05631910f1461e0fb822a4e3f500bf10ecb64ed1f1b4630f69d7b89",
+        "structureSha256": "0x4ab432068fea3b141a57b7003858c91aa807cdee3b2982bb006807196efd2152",
+        "version": 1
+      },
+      "millis": 3492
+    },
+    {
+      "challenge": "schedule-3",
+      "family": "allocation-scheduling",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "a3978a70c489a42de89de0028daa9d7613da7a45cb4488292e117081865b3c52",
+        "cacheHit": true,
+        "compileMillis": 3431,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x1bb697fe20d6d8ab5f7763702147f93a816957321cc4c984c805e9c62864a773",
+        "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+        "inputVersion": 2,
+        "parametersSha256": "0x458fc3f990cd6b56264d931f56958502346ad0ca973ce5b4ee859c05b2cf2ad7",
+        "referenceHash": "0x069942dc06fae975e96dff27b8eae2f1e9ab51c0409d3f67303cc4013f00fa06",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xe27d33327d59e5a116d45902786e765dddf188b3d364079cea1e10b0a2b487d8",
+        "structureHash": "0xbaa0d0dff05631910f1461e0fb822a4e3f500bf10ecb64ed1f1b4630f69d7b89",
+        "structureSha256": "0x4ab432068fea3b141a57b7003858c91aa807cdee3b2982bb006807196efd2152",
+        "version": 1
+      },
+      "millis": 3437
+    },
+    {
+      "challenge": "schedule-4",
+      "family": "allocation-scheduling",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "a3978a70c489a42de89de0028daa9d7613da7a45cb4488292e117081865b3c52",
+        "cacheHit": true,
+        "compileMillis": 3472,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x1bb697fe20d6d8ab5f7763702147f93a816957321cc4c984c805e9c62864a773",
+        "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+        "inputVersion": 2,
+        "parametersSha256": "0x73ddfb60d067e316910649bcd01a50a613fa44c09aac4d29e41d1c1dc1a1ae82",
+        "referenceHash": "0x3c74b23b326433f7c45c6a137e80fe1c9a963624a360026f2dbe5cb6b585d260",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xf86e40cbd165fcd789518867ec21886662a8a77accf787e513e95cc0084e3d24",
+        "structureHash": "0xbaa0d0dff05631910f1461e0fb822a4e3f500bf10ecb64ed1f1b4630f69d7b89",
+        "structureSha256": "0x4ab432068fea3b141a57b7003858c91aa807cdee3b2982bb006807196efd2152",
+        "version": 1
+      },
+      "millis": 3477
+    },
+    {
+      "challenge": "schedule-5",
+      "family": "allocation-scheduling",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "a3978a70c489a42de89de0028daa9d7613da7a45cb4488292e117081865b3c52",
+        "cacheHit": true,
+        "compileMillis": 3425,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x1bb697fe20d6d8ab5f7763702147f93a816957321cc4c984c805e9c62864a773",
+        "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+        "inputVersion": 2,
+        "parametersSha256": "0x2df1ddc795d5c5df9ed25555a1f814e12fd4492e33349318dcac7a848d515b5f",
+        "referenceHash": "0xf2866b7cd53684a4fd890e1531da7a60f46b220087449635b102d0a8240f3de6",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xe9b43bcacfed55c73aa259753b601795cb0a08e628472a3814f602b68c8d351a",
+        "structureHash": "0xbaa0d0dff05631910f1461e0fb822a4e3f500bf10ecb64ed1f1b4630f69d7b89",
+        "structureSha256": "0x4ab432068fea3b141a57b7003858c91aa807cdee3b2982bb006807196efd2152",
+        "version": 1
+      },
+      "millis": 3430
+    },
+    {
+      "challenge": "schedule-6",
+      "family": "allocation-scheduling",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "a3978a70c489a42de89de0028daa9d7613da7a45cb4488292e117081865b3c52",
+        "cacheHit": true,
+        "compileMillis": 3391,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x1bb697fe20d6d8ab5f7763702147f93a816957321cc4c984c805e9c62864a773",
+        "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+        "inputVersion": 2,
+        "parametersSha256": "0x2ca24058a7f9f95b8c920531b65b6c16f999c86605ad4d5ff131c4e0fa26b3d9",
+        "referenceHash": "0x04243a14a4d099b8dca2e0e5b5f181e440926c6f20d83545d944acbf3d457a01",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x8f25e37543dd691b84b3da4c7dc1efbab2a2c8261f4089ecb298c4127ed88548",
+        "structureHash": "0xbaa0d0dff05631910f1461e0fb822a4e3f500bf10ecb64ed1f1b4630f69d7b89",
+        "structureSha256": "0x4ab432068fea3b141a57b7003858c91aa807cdee3b2982bb006807196efd2152",
+        "version": 1
+      },
+      "millis": 3397
+    },
+    {
+      "challenge": "schedule-7",
+      "family": "allocation-scheduling",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "a3978a70c489a42de89de0028daa9d7613da7a45cb4488292e117081865b3c52",
+        "cacheHit": true,
+        "compileMillis": 3397,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x1bb697fe20d6d8ab5f7763702147f93a816957321cc4c984c805e9c62864a773",
+        "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+        "inputVersion": 2,
+        "parametersSha256": "0xea53653be911c1535eb7d858706a6e3cd1a0ffedc61a9aee4a6d391801caa436",
+        "referenceHash": "0x84fa71efefd2cf8541f7893ed03de9de811e18ba56d5560206eaa45c2aa658d0",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x1cb22d83d1f55cdcd57ba62f85734de81b712da079e8f7236fc99935490c119c",
+        "structureHash": "0xbaa0d0dff05631910f1461e0fb822a4e3f500bf10ecb64ed1f1b4630f69d7b89",
+        "structureSha256": "0x4ab432068fea3b141a57b7003858c91aa807cdee3b2982bb006807196efd2152",
+        "version": 1
+      },
+      "millis": 3404
+    },
+    {
+      "challenge": "file-1",
+      "family": "file-hash-size",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "bbac29a071ecf678153a5f74722445e21419d3eef6b3069ea12a2909a2ff0c8a",
+        "cacheHit": false,
+        "compileMillis": 14368,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x22339110297ddc68b8afbe0dacfe9f0a0c5af5aa142c2f1cac74701b80ddabd2",
+        "imageId": "0x9f75fd9761550a08519c5c65e866f5462042b3357117e61ee92cd1294b547d7b",
+        "inputVersion": 2,
+        "parametersSha256": "0xc88490ac94b074a226a31456c4b7a152a3da6622985e3bd995e7c625b99077c0",
+        "referenceHash": "0x072e75c6c22f6b76bf536989f43514c5343781116e1ea78cf0ec1e80760643e2",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x3837d02261a2adb38715ad7e0e87293ccdc76c40efed6fab0b65353e3307d1da",
+        "structureHash": "0xdd0e0443998bf705970697af59cf7c772c3e183af694dd470bd7bda20698cd92",
+        "structureSha256": "0x49b0b4f8d0c2f61dd57551315340f549e3077ac0d3502b5b30446c18940e2762",
+        "version": 1
+      },
+      "millis": 14374
+    },
+    {
+      "challenge": "file-2",
+      "family": "file-hash-size",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "5dbc54c2384675fdccd832e0def91acccbd0abb5b58397f28f95b3b28361e8cf",
+        "cacheHit": false,
+        "compileMillis": 13852,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xc23916cc1e9a2986baca03a6cc0f4f29e665d17c221d1e3c670f12d145088381",
+        "imageId": "0x5f068a896281c6a929b7d971be3aece6304a6484cc988ecd413491aec74f101a",
+        "inputVersion": 2,
+        "parametersSha256": "0x1d454d45228084ed6169fce9f35eef7c75b68c529799f03775d83cfcd144a28d",
+        "referenceHash": "0x5103a080dbe790035905a3f741973cdf00642720a0affc97203ab361b2d78e53",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x4027df104d9bd0b00438810f5b0f7cf8d65f1ed3bf8b0723f213233036a8789b",
+        "structureHash": "0x6fc68b95bfbd7640068d7d9aea6cd84a08f58e6a2047da40b1ad221a9d8c88ba",
+        "structureSha256": "0x46cf687596f9133eff2eec4efb80134cd94566de9cfc5104a29883ccd3e783ae",
+        "version": 1
+      },
+      "millis": 13856
+    },
+    {
+      "challenge": "file-3",
+      "family": "file-hash-size",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "4f002544fb1b17951980b583138e0267f562d231af54dd9147d99e670d531b3b",
+        "cacheHit": false,
+        "compileMillis": 13888,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x460c4313f876f108986cb206cbd91b616f42d1f30d8248c46ff952989d7d680c",
+        "imageId": "0xd1216d88ab6235749b7c32fd77ee959a3aa07b585c34d7412712c09f11a3d927",
+        "inputVersion": 2,
+        "parametersSha256": "0x2d731c055cbffb580837a3d6f0465a37f0796925b7b437d9dc6cd0274786ea0c",
+        "referenceHash": "0x2f30595c92da6620284cd40ccd6ff3505c06334fe4eeefd0136908f06f086db7",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x6a23f8ef64bef99faa0a6e4669e5c187f84d2a801368d1dd00b1b076ed13d8c1",
+        "structureHash": "0x7bbbb803ce0eb34a94c7bfa2f87920a1b145d18fa3074ad84e87e80f21215e96",
+        "structureSha256": "0x0f8b2edd521702df3d51e79d5d6deac50b453ee465469593ea5cf3af40b7842a",
+        "version": 1
+      },
+      "millis": 13896
+    },
+    {
+      "challenge": "file-4",
+      "family": "file-hash-size",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "bbac29a071ecf678153a5f74722445e21419d3eef6b3069ea12a2909a2ff0c8a",
+        "cacheHit": true,
+        "compileMillis": 3452,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x22339110297ddc68b8afbe0dacfe9f0a0c5af5aa142c2f1cac74701b80ddabd2",
+        "imageId": "0x9f75fd9761550a08519c5c65e866f5462042b3357117e61ee92cd1294b547d7b",
+        "inputVersion": 2,
+        "parametersSha256": "0xbd38ba2d89535d4d93a1c79097e282269c963ad65efa9bee64d0a95785b27494",
+        "referenceHash": "0x95820ec13cfb6a09deca18325089c62f76acb4f67bf66e7d70474ad54f02fdd7",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x21e1bee8b2c50616826664dda53d0da2ac15b632454a42bdd70705293735c7e8",
+        "structureHash": "0xdd0e0443998bf705970697af59cf7c772c3e183af694dd470bd7bda20698cd92",
+        "structureSha256": "0x49b0b4f8d0c2f61dd57551315340f549e3077ac0d3502b5b30446c18940e2762",
+        "version": 1
+      },
+      "millis": 3457
+    },
+    {
+      "challenge": "file-5",
+      "family": "file-hash-size",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "5dbc54c2384675fdccd832e0def91acccbd0abb5b58397f28f95b3b28361e8cf",
+        "cacheHit": true,
+        "compileMillis": 3392,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xc23916cc1e9a2986baca03a6cc0f4f29e665d17c221d1e3c670f12d145088381",
+        "imageId": "0x5f068a896281c6a929b7d971be3aece6304a6484cc988ecd413491aec74f101a",
+        "inputVersion": 2,
+        "parametersSha256": "0xac51ddec78e7b23c890b6e9f149712d0bce082b2e5f27b1785752455972d9dde",
+        "referenceHash": "0x478db343d2e0abdafa40aa5f46f24a15d4f753052ff624876bb19b48390a9b1a",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xced338315b7fe694fcb8bdbe06f9cad37ce0443a3659a75e266e182a3357e372",
+        "structureHash": "0x6fc68b95bfbd7640068d7d9aea6cd84a08f58e6a2047da40b1ad221a9d8c88ba",
+        "structureSha256": "0x46cf687596f9133eff2eec4efb80134cd94566de9cfc5104a29883ccd3e783ae",
+        "version": 1
+      },
+      "millis": 3398
+    },
+    {
+      "challenge": "file-6",
+      "family": "file-hash-size",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "4f002544fb1b17951980b583138e0267f562d231af54dd9147d99e670d531b3b",
+        "cacheHit": true,
+        "compileMillis": 3409,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x460c4313f876f108986cb206cbd91b616f42d1f30d8248c46ff952989d7d680c",
+        "imageId": "0xd1216d88ab6235749b7c32fd77ee959a3aa07b585c34d7412712c09f11a3d927",
+        "inputVersion": 2,
+        "parametersSha256": "0xca630dab357be61b2a980e517c60c7451715a5b4bdb4373b5cd1cefa3db08315",
+        "referenceHash": "0x54c2f96a06d0f893c9d65dc86f13a5c0394a1eb3c28f31ffe4b595ecf4ddf5a5",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x29e7472a4b6f1ef45dfd89c97e6ea2acfe58478d6578993db8ad04cb6c354896",
+        "structureHash": "0x7bbbb803ce0eb34a94c7bfa2f87920a1b145d18fa3074ad84e87e80f21215e96",
+        "structureSha256": "0x0f8b2edd521702df3d51e79d5d6deac50b453ee465469593ea5cf3af40b7842a",
+        "version": 1
+      },
+      "millis": 3415
+    },
+    {
+      "challenge": "signed-1",
+      "family": "signed-evidence-bindings",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "9e624451797436ab285b26ace72f4a93c08cd377abdb171c20bfdc24a7e5233e",
+        "cacheHit": false,
+        "compileMillis": 13754,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xff1c8991d02a82baccbef70bb8aad86bbc8a8688e09327b17f5eed21d1e55fe8",
+        "imageId": "0x19e2af7f7d5966069490b321e252b7672a6b6a1c3b67a91b99aef494702154a7",
+        "inputVersion": 2,
+        "parametersSha256": "0x7da104b2c05b5b976a5c4073780f7f40fb2f68889e54657903ef5453a17dd5dc",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x72fcce5fb438df5fae1c12ac114b835bb3015dc1a6344d3ec19a1b0e332682e3",
+        "structureHash": "0xe631e1caf4250a321085dad8766d0c467fd8b00596734a0b5cfcc1253c638575",
+        "structureSha256": "0xa3638d47224c53bedfd6d239a8c49f96f1427e22216cf77785968292e7cac004",
+        "version": 1
+      },
+      "millis": 13761
+    },
+    {
+      "challenge": "signed-2",
+      "family": "signed-evidence-bindings",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "9e624451797436ab285b26ace72f4a93c08cd377abdb171c20bfdc24a7e5233e",
+        "cacheHit": true,
+        "compileMillis": 3332,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xff1c8991d02a82baccbef70bb8aad86bbc8a8688e09327b17f5eed21d1e55fe8",
+        "imageId": "0x19e2af7f7d5966069490b321e252b7672a6b6a1c3b67a91b99aef494702154a7",
+        "inputVersion": 2,
+        "parametersSha256": "0x96dca0e448956a9338eb989228a6d442b84928fa4b796fc5c00d505da1779e37",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x0fdfc3374b2fb00dc04c76b4b0c10595a02785d2dcc43467cd152ffc6d967937",
+        "structureHash": "0xe631e1caf4250a321085dad8766d0c467fd8b00596734a0b5cfcc1253c638575",
+        "structureSha256": "0xa3638d47224c53bedfd6d239a8c49f96f1427e22216cf77785968292e7cac004",
+        "version": 1
+      },
+      "millis": 3337
+    },
+    {
+      "challenge": "signed-3",
+      "family": "signed-evidence-bindings",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "9e624451797436ab285b26ace72f4a93c08cd377abdb171c20bfdc24a7e5233e",
+        "cacheHit": true,
+        "compileMillis": 3382,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xff1c8991d02a82baccbef70bb8aad86bbc8a8688e09327b17f5eed21d1e55fe8",
+        "imageId": "0x19e2af7f7d5966069490b321e252b7672a6b6a1c3b67a91b99aef494702154a7",
+        "inputVersion": 2,
+        "parametersSha256": "0x23d2b99e54cd1dc303529223ac50f163f744ec0b2cf9d482901ea01d9a9ad50a",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xd8dd6178add5244626f7cf9c37c00902200d8d05d8fb1b109283882a90a8d4fe",
+        "structureHash": "0xe631e1caf4250a321085dad8766d0c467fd8b00596734a0b5cfcc1253c638575",
+        "structureSha256": "0xa3638d47224c53bedfd6d239a8c49f96f1427e22216cf77785968292e7cac004",
+        "version": 1
+      },
+      "millis": 3390
+    },
+    {
+      "challenge": "signed-4",
+      "family": "signed-evidence-bindings",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "9e624451797436ab285b26ace72f4a93c08cd377abdb171c20bfdc24a7e5233e",
+        "cacheHit": true,
+        "compileMillis": 3407,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xff1c8991d02a82baccbef70bb8aad86bbc8a8688e09327b17f5eed21d1e55fe8",
+        "imageId": "0x19e2af7f7d5966069490b321e252b7672a6b6a1c3b67a91b99aef494702154a7",
+        "inputVersion": 2,
+        "parametersSha256": "0x5e11351a15df085ddfe6c6ac27d4fdacdcd55eaeb59d298e0386af70cac91c25",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xe3e28c0294e9b3045d3fb6473db63ce0f0e88ad382153dc44d3ae0f116d3cb48",
+        "structureHash": "0xe631e1caf4250a321085dad8766d0c467fd8b00596734a0b5cfcc1253c638575",
+        "structureSha256": "0xa3638d47224c53bedfd6d239a8c49f96f1427e22216cf77785968292e7cac004",
+        "version": 1
+      },
+      "millis": 3412
+    },
+    {
+      "challenge": "signed-5",
+      "family": "signed-evidence-bindings",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "9e624451797436ab285b26ace72f4a93c08cd377abdb171c20bfdc24a7e5233e",
+        "cacheHit": true,
+        "compileMillis": 3353,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xff1c8991d02a82baccbef70bb8aad86bbc8a8688e09327b17f5eed21d1e55fe8",
+        "imageId": "0x19e2af7f7d5966069490b321e252b7672a6b6a1c3b67a91b99aef494702154a7",
+        "inputVersion": 2,
+        "parametersSha256": "0x90e3ca58fe88c6020bd6c5f3531181adbce66c33e0691617dcb537427a57bdee",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x68bc6bc9c8ff32d3237f7b891a53ca628bdedcd886a059035ccd71d12e7b1c78",
+        "structureHash": "0xe631e1caf4250a321085dad8766d0c467fd8b00596734a0b5cfcc1253c638575",
+        "structureSha256": "0xa3638d47224c53bedfd6d239a8c49f96f1427e22216cf77785968292e7cac004",
+        "version": 1
+      },
+      "millis": 3358
+    },
+    {
+      "challenge": "signed-6",
+      "family": "signed-evidence-bindings",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "value": {
+        "buildFingerprint": "9e624451797436ab285b26ace72f4a93c08cd377abdb171c20bfdc24a7e5233e",
+        "cacheHit": true,
+        "compileMillis": 3499,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xff1c8991d02a82baccbef70bb8aad86bbc8a8688e09327b17f5eed21d1e55fe8",
+        "imageId": "0x19e2af7f7d5966069490b321e252b7672a6b6a1c3b67a91b99aef494702154a7",
+        "inputVersion": 2,
+        "parametersSha256": "0x0cdb62409f0f9b334fc18f558d3fc345ec0216f7193e24f8a90e61507e471886",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x0bc15149c96ef9bbd090973b620c5ccbf2d815362f186d9e33ea5127bc3977ee",
+        "structureHash": "0xe631e1caf4250a321085dad8766d0c467fd8b00596734a0b5cfcc1253c638575",
+        "structureSha256": "0xa3638d47224c53bedfd6d239a8c49f96f1427e22216cf77785968292e7cac004",
+        "version": 1
+      },
+      "millis": 3505
+    }
+  ],
+  "imagesByStructure": {
+    "0xc199841abe51ada94ae5a32d36bc5db147cd59670df7966d7f7f20e680ca63d6": [
+      {
+        "challenge": "expense-1",
+        "imageId": "0x6865b8026b0fd9d3808dd624d794d87d0872a7111861bd2afaf5c6a5bbbac1bf",
+        "rulesHash": "0x9091a84a8bab81f7d2af05ffa90f6ceb5fa8a39c5efeaaefb4441517d06e9b8e",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95"
+      },
+      {
+        "challenge": "expense-2",
+        "imageId": "0x6865b8026b0fd9d3808dd624d794d87d0872a7111861bd2afaf5c6a5bbbac1bf",
+        "rulesHash": "0x5af564f5fb62500104b07fd2e293ec7ca03fbe6ecd8c054e4f2c4cc97c10d80a",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95"
+      },
+      {
+        "challenge": "expense-3",
+        "imageId": "0x6865b8026b0fd9d3808dd624d794d87d0872a7111861bd2afaf5c6a5bbbac1bf",
+        "rulesHash": "0x1ec34f8ff7816f07d78e166fb8dbdc4a9055521d954ec0e3c8413791e171b810",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95"
+      },
+      {
+        "challenge": "expense-4",
+        "imageId": "0x6865b8026b0fd9d3808dd624d794d87d0872a7111861bd2afaf5c6a5bbbac1bf",
+        "rulesHash": "0x025c007b1a2e71135ba347a591ead65dd60006ae68bba2ae5d02b90ff51f30dc",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95"
+      },
+      {
+        "challenge": "expense-5",
+        "imageId": "0x6865b8026b0fd9d3808dd624d794d87d0872a7111861bd2afaf5c6a5bbbac1bf",
+        "rulesHash": "0x5fbf8feb02e4f395d34de70bc9198f98101ea62fd44e68328e26f99a0a19d7c8",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95"
+      },
+      {
+        "challenge": "expense-6",
+        "imageId": "0x6865b8026b0fd9d3808dd624d794d87d0872a7111861bd2afaf5c6a5bbbac1bf",
+        "rulesHash": "0x0984638cde1ec7799e02024738e0f25a71dab5f09e920ff5e5e3705e5fd6312e",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95"
+      },
+      {
+        "challenge": "expense-7",
+        "imageId": "0x6865b8026b0fd9d3808dd624d794d87d0872a7111861bd2afaf5c6a5bbbac1bf",
+        "rulesHash": "0x77818f4bd5e0c7a774b709684aff76861cf65d072b905736fa6f22db53b37624",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95"
+      }
+    ],
+    "0x93df115ebded5af09fdd5bd2fa6ebc991789e03c17b5e3ea092995708efe9cdf": [
+      {
+        "challenge": "ledger-1",
+        "imageId": "0xf57465ba449093ac72967d9cae7aed6a92b414b099c4ac8a66506eead93bd841",
+        "rulesHash": "0x57ad4dffca1817af4b4fe07e209f2ab12041235916f095c5cdc5ab3f6035fbcf",
+        "referenceHash": "0x5e0e5c64b23758284e3be0920ae5e67a3c3b4b343c26500d1c794af2c240ad4a"
+      },
+      {
+        "challenge": "ledger-2",
+        "imageId": "0xf57465ba449093ac72967d9cae7aed6a92b414b099c4ac8a66506eead93bd841",
+        "rulesHash": "0x5cd034fb47c432acfac0f0f73bbf4182473a7a4b8103ef9c2caaaed802af8c72",
+        "referenceHash": "0xc99eec61880cfdcf9e785533f266a6596905c9dc5c4095eafc532c63b11bc700"
+      },
+      {
+        "challenge": "ledger-3",
+        "imageId": "0xf57465ba449093ac72967d9cae7aed6a92b414b099c4ac8a66506eead93bd841",
+        "rulesHash": "0x1ee0773b05f65ed073a8cda6e10a248c587101abc59f06aca34d16c00a973abf",
+        "referenceHash": "0x28b7634b18bf63839f3bf5fa37a848e49e36047b5527a9b26955eafc5574ad34"
+      },
+      {
+        "challenge": "ledger-4",
+        "imageId": "0xf57465ba449093ac72967d9cae7aed6a92b414b099c4ac8a66506eead93bd841",
+        "rulesHash": "0x72d78beb8b0c9b23d63bcb893e1e79c403f01bde88e23128f6a429d763ff42dc",
+        "referenceHash": "0xdc533700b23d9e7973ce1198bf30f0ae6c653f61055cb28174e1594c465f93e7"
+      },
+      {
+        "challenge": "ledger-5",
+        "imageId": "0xf57465ba449093ac72967d9cae7aed6a92b414b099c4ac8a66506eead93bd841",
+        "rulesHash": "0xe7984f21e861a67406521276701cc4a66d6a4944055e996d69ffc9968adfbc4f",
+        "referenceHash": "0xdad5524d0123aed6e0126b409d302b99f19e80a820fa423ac0b26a5516908127"
+      },
+      {
+        "challenge": "ledger-6",
+        "imageId": "0xf57465ba449093ac72967d9cae7aed6a92b414b099c4ac8a66506eead93bd841",
+        "rulesHash": "0x0a25ed020d625eb9ffe7eafa1efb91ad57064ea05d0af7230a6c2d988bd0ed23",
+        "referenceHash": "0x42f68f743244e985523644b49f079f239b1cee7302c884aebc9c72771c2cea30"
+      },
+      {
+        "challenge": "ledger-7",
+        "imageId": "0xf57465ba449093ac72967d9cae7aed6a92b414b099c4ac8a66506eead93bd841",
+        "rulesHash": "0x8883d30a3023caca7724f850fb59ae32cede529c2e929242444cf03334adcc25",
+        "referenceHash": "0x4b0e00ae38c19bd2afb7a64ce08ce6b5df29bf1a91db4f17a0187929cd5cfeeb"
+      }
+    ],
+    "0x9524b15961171d4122aba46f6a7610b839e66ac7c6ed9a755bf2a3d07c70f333": [
+      {
+        "challenge": "inventory-1",
+        "imageId": "0x2449b7450c077511f65bcf0c95a6e4a6dd1887c274b0ab9c31983d4120770347",
+        "rulesHash": "0x75d766fc4c2a713334572f70b65107b12bd349043caed603f84b2021e3d022af",
+        "referenceHash": "0xd04cc186986a067ccace395761ca58adf839c5826d6280805531ade0563afc8d"
+      },
+      {
+        "challenge": "inventory-2",
+        "imageId": "0x2449b7450c077511f65bcf0c95a6e4a6dd1887c274b0ab9c31983d4120770347",
+        "rulesHash": "0x4d65545070d824aca4626644a8760f8c897df8408c5343da822190f04f687553",
+        "referenceHash": "0xc836973e0156f57575ff9e731887cb85707a4784af57ecadfe32dfa1591364fd"
+      },
+      {
+        "challenge": "inventory-3",
+        "imageId": "0x2449b7450c077511f65bcf0c95a6e4a6dd1887c274b0ab9c31983d4120770347",
+        "rulesHash": "0x814b392bb27d6f7dc9f3098c74c6c04fb8407a051767214b27b0bb0f28f9eb44",
+        "referenceHash": "0x485d95b8e53d8fa4332b9e3fa7a24be7e3030bfaf13c8478bc8082680cb0a836"
+      },
+      {
+        "challenge": "inventory-4",
+        "imageId": "0x2449b7450c077511f65bcf0c95a6e4a6dd1887c274b0ab9c31983d4120770347",
+        "rulesHash": "0xfb6f4335affaef1d134713bdfcbf1d3ee8c19fde1640b38605edaeff9380a584",
+        "referenceHash": "0x4795076de0fcc0b8413e3918174a12def11965d60604bf88ef9e7daf83879b53"
+      },
+      {
+        "challenge": "inventory-5",
+        "imageId": "0x2449b7450c077511f65bcf0c95a6e4a6dd1887c274b0ab9c31983d4120770347",
+        "rulesHash": "0x7601149b37e3696c7b453eae6e7a5b762f50960f42d5adc14f28a47bc7a169df",
+        "referenceHash": "0x111e8f5a635448afc122b0b6d8a2cb63f2bfa2f8f8034940e3f42b5f7ae58ea5"
+      },
+      {
+        "challenge": "inventory-6",
+        "imageId": "0x2449b7450c077511f65bcf0c95a6e4a6dd1887c274b0ab9c31983d4120770347",
+        "rulesHash": "0x4c263ca7c288d44b2d652e8f1eea165097eb6efc05d935d1a11aca91d0add6a3",
+        "referenceHash": "0x42b55d17949e43119957df64a56313a45e48431d0cc3971faa43656a4e802728"
+      },
+      {
+        "challenge": "inventory-7",
+        "imageId": "0x2449b7450c077511f65bcf0c95a6e4a6dd1887c274b0ab9c31983d4120770347",
+        "rulesHash": "0x1129156bc2f86f7e39e7aea46e74fcbae9a4f067ea5460c977c710825af21664",
+        "referenceHash": "0xa963927ab4e6798f5e4e38f8a311511816fb163bfefe17e768bbc8bf4b79513c"
+      }
+    ],
+    "0xbaa0d0dff05631910f1461e0fb822a4e3f500bf10ecb64ed1f1b4630f69d7b89": [
+      {
+        "challenge": "schedule-1",
+        "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+        "rulesHash": "0x0d3e572c2a21398e7a2549cca54612f015eda85530d4bea0346295a8118fee64",
+        "referenceHash": "0xd90c774eac6ac4e9fb10297ba512d0c729d8c59a03b13636eea27ded5d696711"
+      },
+      {
+        "challenge": "schedule-2",
+        "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+        "rulesHash": "0x26a578102c1207c5531037a2e666b53f4cce711a6c16ec2eb993d01118746263",
+        "referenceHash": "0xe5dc98da8dce549ee39ef9a97d35353014fdccc90bbc4d1071219c2132b1aad6"
+      },
+      {
+        "challenge": "schedule-3",
+        "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+        "rulesHash": "0xe27d33327d59e5a116d45902786e765dddf188b3d364079cea1e10b0a2b487d8",
+        "referenceHash": "0x069942dc06fae975e96dff27b8eae2f1e9ab51c0409d3f67303cc4013f00fa06"
+      },
+      {
+        "challenge": "schedule-4",
+        "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+        "rulesHash": "0xf86e40cbd165fcd789518867ec21886662a8a77accf787e513e95cc0084e3d24",
+        "referenceHash": "0x3c74b23b326433f7c45c6a137e80fe1c9a963624a360026f2dbe5cb6b585d260"
+      },
+      {
+        "challenge": "schedule-5",
+        "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+        "rulesHash": "0xe9b43bcacfed55c73aa259753b601795cb0a08e628472a3814f602b68c8d351a",
+        "referenceHash": "0xf2866b7cd53684a4fd890e1531da7a60f46b220087449635b102d0a8240f3de6"
+      },
+      {
+        "challenge": "schedule-6",
+        "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+        "rulesHash": "0x8f25e37543dd691b84b3da4c7dc1efbab2a2c8261f4089ecb298c4127ed88548",
+        "referenceHash": "0x04243a14a4d099b8dca2e0e5b5f181e440926c6f20d83545d944acbf3d457a01"
+      },
+      {
+        "challenge": "schedule-7",
+        "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+        "rulesHash": "0x1cb22d83d1f55cdcd57ba62f85734de81b712da079e8f7236fc99935490c119c",
+        "referenceHash": "0x84fa71efefd2cf8541f7893ed03de9de811e18ba56d5560206eaa45c2aa658d0"
+      }
+    ],
+    "0xdd0e0443998bf705970697af59cf7c772c3e183af694dd470bd7bda20698cd92": [
+      {
+        "challenge": "file-1",
+        "imageId": "0x9f75fd9761550a08519c5c65e866f5462042b3357117e61ee92cd1294b547d7b",
+        "rulesHash": "0x3837d02261a2adb38715ad7e0e87293ccdc76c40efed6fab0b65353e3307d1da",
+        "referenceHash": "0x072e75c6c22f6b76bf536989f43514c5343781116e1ea78cf0ec1e80760643e2"
+      },
+      {
+        "challenge": "file-4",
+        "imageId": "0x9f75fd9761550a08519c5c65e866f5462042b3357117e61ee92cd1294b547d7b",
+        "rulesHash": "0x21e1bee8b2c50616826664dda53d0da2ac15b632454a42bdd70705293735c7e8",
+        "referenceHash": "0x95820ec13cfb6a09deca18325089c62f76acb4f67bf66e7d70474ad54f02fdd7"
+      }
+    ],
+    "0x6fc68b95bfbd7640068d7d9aea6cd84a08f58e6a2047da40b1ad221a9d8c88ba": [
+      {
+        "challenge": "file-2",
+        "imageId": "0x5f068a896281c6a929b7d971be3aece6304a6484cc988ecd413491aec74f101a",
+        "rulesHash": "0x4027df104d9bd0b00438810f5b0f7cf8d65f1ed3bf8b0723f213233036a8789b",
+        "referenceHash": "0x5103a080dbe790035905a3f741973cdf00642720a0affc97203ab361b2d78e53"
+      },
+      {
+        "challenge": "file-5",
+        "imageId": "0x5f068a896281c6a929b7d971be3aece6304a6484cc988ecd413491aec74f101a",
+        "rulesHash": "0xced338315b7fe694fcb8bdbe06f9cad37ce0443a3659a75e266e182a3357e372",
+        "referenceHash": "0x478db343d2e0abdafa40aa5f46f24a15d4f753052ff624876bb19b48390a9b1a"
+      }
+    ],
+    "0x7bbbb803ce0eb34a94c7bfa2f87920a1b145d18fa3074ad84e87e80f21215e96": [
+      {
+        "challenge": "file-3",
+        "imageId": "0xd1216d88ab6235749b7c32fd77ee959a3aa07b585c34d7412712c09f11a3d927",
+        "rulesHash": "0x6a23f8ef64bef99faa0a6e4669e5c187f84d2a801368d1dd00b1b076ed13d8c1",
+        "referenceHash": "0x2f30595c92da6620284cd40ccd6ff3505c06334fe4eeefd0136908f06f086db7"
+      },
+      {
+        "challenge": "file-6",
+        "imageId": "0xd1216d88ab6235749b7c32fd77ee959a3aa07b585c34d7412712c09f11a3d927",
+        "rulesHash": "0x29e7472a4b6f1ef45dfd89c97e6ea2acfe58478d6578993db8ad04cb6c354896",
+        "referenceHash": "0x54c2f96a06d0f893c9d65dc86f13a5c0394a1eb3c28f31ffe4b595ecf4ddf5a5"
+      }
+    ],
+    "0xe631e1caf4250a321085dad8766d0c467fd8b00596734a0b5cfcc1253c638575": [
+      {
+        "challenge": "signed-1",
+        "imageId": "0x19e2af7f7d5966069490b321e252b7672a6b6a1c3b67a91b99aef494702154a7",
+        "rulesHash": "0x72fcce5fb438df5fae1c12ac114b835bb3015dc1a6344d3ec19a1b0e332682e3",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95"
+      },
+      {
+        "challenge": "signed-2",
+        "imageId": "0x19e2af7f7d5966069490b321e252b7672a6b6a1c3b67a91b99aef494702154a7",
+        "rulesHash": "0x0fdfc3374b2fb00dc04c76b4b0c10595a02785d2dcc43467cd152ffc6d967937",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95"
+      },
+      {
+        "challenge": "signed-3",
+        "imageId": "0x19e2af7f7d5966069490b321e252b7672a6b6a1c3b67a91b99aef494702154a7",
+        "rulesHash": "0xd8dd6178add5244626f7cf9c37c00902200d8d05d8fb1b109283882a90a8d4fe",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95"
+      },
+      {
+        "challenge": "signed-4",
+        "imageId": "0x19e2af7f7d5966069490b321e252b7672a6b6a1c3b67a91b99aef494702154a7",
+        "rulesHash": "0xe3e28c0294e9b3045d3fb6473db63ce0f0e88ad382153dc44d3ae0f116d3cb48",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95"
+      },
+      {
+        "challenge": "signed-5",
+        "imageId": "0x19e2af7f7d5966069490b321e252b7672a6b6a1c3b67a91b99aef494702154a7",
+        "rulesHash": "0x68bc6bc9c8ff32d3237f7b891a53ca628bdedcd886a059035ccd71d12e7b1c78",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95"
+      },
+      {
+        "challenge": "signed-6",
+        "imageId": "0x19e2af7f7d5966069490b321e252b7672a6b6a1c3b67a91b99aef494702154a7",
+        "rulesHash": "0x0bc15149c96ef9bbd090973b620c5ccbf2d815362f186d9e33ea5127bc3977ee",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95"
+      }
+    ]
+  },
+  "summary": {
+    "compiledPlans": 40,
+    "distinctStructures": 8,
+    "distinctImages": 8,
+    "compilationFailures": 0
+  }
+}

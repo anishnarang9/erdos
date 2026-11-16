@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "status": "completed",
+  "chainId": 5042002,
+  "sourceCommit": "88c69a29360cb27b0e1ec435f3d1c4de167f4e14",
+  "facilitator": "https://gateway-api-testnet.circle.com/v1/x402",
+  "challengeStatus": 402,
+  "paidResponseStatus": 200,
+  "realNativeCompilation": true,
+  "responseSha256": "2cf9c63734688221e975ecb0a7d7a3857b68209cc298ada62bf11709de5229a4",
+  "replayStatus": 200,
+  "identicalReplay": true,
+  "idempotentReplayedHeader": true,
+  "amountAtomic": "1",
+  "depositAtomic": "10000",
+  "buyerGatewayBefore": "0.010000",
+  "balancesAfter": {
+    "token": "USDC",
+    "balances": [
+      {
+        "domain": 26,
+        "depositor": "0x638202cCB15315dBc5b22e02717B908bEAc3AeBd",
+        "balance": "0.009999",
+        "pendingBatch": "0"
+      },
+      {
+        "domain": 26,
+        "depositor": "0x5c8E2f73Eb2A4E8222b381e2fcb84e5769Ad8c85",
+        "balance": "0.000001",
+        "pendingBatch": "0"
+      }
+    ]
+  },
+  "transfer": {
+    "id": "845d3e15-cfb7-405d-a08f-7ca3911c737e",
+    "status": "completed",
+    "token": "USDC",
+    "sendingNetwork": "eip155:5042002",
+    "recipientNetwork": "eip155:5042002",
+    "fromAddress": "0x638202ccb15315dbc5b22e02717b908beac3aebd",
+    "toAddress": "0x5c8e2f73eb2a4e8222b381e2fcb84e5769ad8c85",
+    "amount": "1",
+    "txHash": "0xa1b09da4c83077e51c4247ea9867215555c6881a7eb6ade34ac91080b3afdee6",
+    "createdAt": "2026-11-16T14:13:06.359Z"
+  },
+  "rejectedAttemptPreserved": true,
+  "renewalRetainedSameNonce": true,
+  "onchainConfirmed": true,
+  "limits": "Official Circle Gateway completed the one-atomic charge in a confirmed canonical Arc batch. Buyer and seller unified balances match the charge. This call used the real facilitator and native engine.",
+  "finalSettlement": {
+    "status": "completed",
+    "id": "845d3e15-cfb7-405d-a08f-7ca3911c737e",
+    "amount": "1",
+    "txHash": "0xa1b09da4c83077e51c4247ea9867215555c6881a7eb6ade34ac91080b3afdee6",
+    "blockNumber": "72564684",
+    "blockHash": "0x9bb74cabf7eb5815a27ffe70dfdc7fb818dda8e05039f91b42f576785add1f1c",
+    "receiptStatus": 1,
+    "canonical": true,
+    "confirmationsObserved": "6530",
+    "gateway": "0x0077777d7eba4688bdef3e311b846f25870a19b9",
+    "onchainConfirmed": true
+  },
+  "apiJobId": "01M7J7EHMGNDD4JKYRDWCN9NXZ",
+  "resourcePath": "/v1/jobs/01M7J7EHMGNDD4JKYRDWCN9NXZ/paid-compile",
+  "finalizedAt": "2026-11-16T16:03:30.754968+00:00"
+}

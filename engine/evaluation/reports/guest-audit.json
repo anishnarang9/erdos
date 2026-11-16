@@ -1,0 +1,2404 @@
+{
+  "version": 1,
+  "hostReportSha256": "0x2731c79597f5fea6210174b3ad6c81a611e2790408d055c1170bd8d445348f3a",
+  "executionReportSha256": "0xa2246ba3847284d53e3fa9bb297945bb8f027e5accf15f3d1568208b4692c25e",
+  "engineSha256": "0x12d6acaf5c79698c92e3dfe272676d48d61155f86b88d82c59123c3d198eadbf",
+  "checks": [
+    {
+      "challenge": "expense-1",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-1",
+      "id": "empty",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-1",
+      "id": "duplicate-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-1",
+      "id": "negative-amount",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-1",
+      "id": "total-over-budget",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-1",
+      "id": "item-over-cap",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-1",
+      "id": "unapproved",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-1",
+      "id": "numeric-instead-of-decimal-string",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-1",
+      "id": "valid-zero-item",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-1",
+      "id": "sum-overflow",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-1",
+      "id": "too-many-rows",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-2",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-2",
+      "id": "empty",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-2",
+      "id": "duplicate-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-2",
+      "id": "negative-amount",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-2",
+      "id": "total-over-budget",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-2",
+      "id": "item-over-cap",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-2",
+      "id": "unapproved",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-2",
+      "id": "numeric-instead-of-decimal-string",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-2",
+      "id": "valid-zero-item",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-2",
+      "id": "sum-overflow",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-2",
+      "id": "too-many-rows",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-3",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-3",
+      "id": "empty",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-3",
+      "id": "duplicate-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-3",
+      "id": "negative-amount",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-3",
+      "id": "total-over-budget",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-3",
+      "id": "item-over-cap",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-3",
+      "id": "unapproved",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-3",
+      "id": "numeric-instead-of-decimal-string",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-3",
+      "id": "valid-zero-item",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-3",
+      "id": "sum-overflow",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-3",
+      "id": "too-many-rows",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-4",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-4",
+      "id": "empty",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-4",
+      "id": "duplicate-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-4",
+      "id": "negative-amount",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-4",
+      "id": "total-over-budget",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-4",
+      "id": "item-over-cap",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-4",
+      "id": "unapproved",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-4",
+      "id": "numeric-instead-of-decimal-string",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-4",
+      "id": "valid-zero-item",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-4",
+      "id": "sum-overflow",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-4",
+      "id": "too-many-rows",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-5",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-5",
+      "id": "empty",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-5",
+      "id": "duplicate-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-5",
+      "id": "negative-amount",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-5",
+      "id": "total-over-budget",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-5",
+      "id": "item-over-cap",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-5",
+      "id": "unapproved",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-5",
+      "id": "numeric-instead-of-decimal-string",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-5",
+      "id": "valid-zero-item",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-5",
+      "id": "sum-overflow",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-5",
+      "id": "too-many-rows",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-6",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-6",
+      "id": "empty",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-6",
+      "id": "duplicate-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-6",
+      "id": "negative-amount",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-6",
+      "id": "total-over-budget",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-6",
+      "id": "item-over-cap",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-6",
+      "id": "unapproved",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-6",
+      "id": "numeric-instead-of-decimal-string",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-6",
+      "id": "valid-zero-item",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-6",
+      "id": "sum-overflow",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-6",
+      "id": "too-many-rows",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-7",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-7",
+      "id": "empty",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-7",
+      "id": "duplicate-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-7",
+      "id": "negative-amount",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-7",
+      "id": "total-over-budget",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-7",
+      "id": "item-over-cap",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-7",
+      "id": "unapproved",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-7",
+      "id": "numeric-instead-of-decimal-string",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-7",
+      "id": "valid-zero-item",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-7",
+      "id": "sum-overflow",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "expense-7",
+      "id": "too-many-rows",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-1",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-1",
+      "id": "valid-reordered",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-1",
+      "id": "duplicate-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-1",
+      "id": "missing-row",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-1",
+      "id": "changed-amount",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-1",
+      "id": "wrong-label",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-1",
+      "id": "unknown-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-1",
+      "id": "wrong-integer-type",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-2",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-2",
+      "id": "valid-reordered",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-2",
+      "id": "duplicate-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-2",
+      "id": "missing-row",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-2",
+      "id": "changed-amount",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-2",
+      "id": "wrong-label",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-2",
+      "id": "unknown-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-2",
+      "id": "wrong-integer-type",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-3",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-3",
+      "id": "valid-reordered",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-3",
+      "id": "duplicate-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-3",
+      "id": "missing-row",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-3",
+      "id": "changed-amount",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-3",
+      "id": "wrong-label",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-3",
+      "id": "unknown-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-3",
+      "id": "wrong-integer-type",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-4",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-4",
+      "id": "valid-reordered",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-4",
+      "id": "duplicate-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-4",
+      "id": "missing-row",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-4",
+      "id": "changed-amount",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-4",
+      "id": "wrong-label",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-4",
+      "id": "unknown-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-4",
+      "id": "wrong-integer-type",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-5",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-5",
+      "id": "valid-reordered",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-5",
+      "id": "duplicate-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-5",
+      "id": "missing-row",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-5",
+      "id": "changed-amount",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-5",
+      "id": "wrong-label",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-5",
+      "id": "unknown-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-5",
+      "id": "wrong-integer-type",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-6",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-6",
+      "id": "valid-reordered",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-6",
+      "id": "duplicate-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-6",
+      "id": "missing-row",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-6",
+      "id": "changed-amount",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-6",
+      "id": "wrong-label",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-6",
+      "id": "unknown-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-6",
+      "id": "wrong-integer-type",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-7",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-7",
+      "id": "valid-reordered",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-7",
+      "id": "duplicate-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-7",
+      "id": "missing-row",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-7",
+      "id": "changed-amount",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-7",
+      "id": "wrong-label",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-7",
+      "id": "unknown-id",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "ledger-7",
+      "id": "wrong-integer-type",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-1",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-1",
+      "id": "valid-at-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-1",
+      "id": "duplicate-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-1",
+      "id": "missing-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-1",
+      "id": "below-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-1",
+      "id": "above-maximum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-1",
+      "id": "over-storage",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-1",
+      "id": "unknown-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-2",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-2",
+      "id": "valid-at-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-2",
+      "id": "duplicate-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-2",
+      "id": "missing-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-2",
+      "id": "below-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-2",
+      "id": "above-maximum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-2",
+      "id": "over-storage",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-2",
+      "id": "unknown-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-3",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-3",
+      "id": "valid-at-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-3",
+      "id": "duplicate-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-3",
+      "id": "missing-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-3",
+      "id": "below-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-3",
+      "id": "above-maximum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-3",
+      "id": "over-storage",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-3",
+      "id": "unknown-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-4",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-4",
+      "id": "valid-at-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-4",
+      "id": "duplicate-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-4",
+      "id": "missing-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-4",
+      "id": "below-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-4",
+      "id": "above-maximum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-4",
+      "id": "over-storage",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-4",
+      "id": "unknown-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-5",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-5",
+      "id": "valid-at-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-5",
+      "id": "duplicate-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-5",
+      "id": "missing-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-5",
+      "id": "below-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-5",
+      "id": "above-maximum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-5",
+      "id": "over-storage",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-5",
+      "id": "unknown-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-6",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-6",
+      "id": "valid-at-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-6",
+      "id": "duplicate-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-6",
+      "id": "missing-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-6",
+      "id": "below-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-6",
+      "id": "above-maximum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-6",
+      "id": "over-storage",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-6",
+      "id": "unknown-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-7",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-7",
+      "id": "valid-at-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-7",
+      "id": "duplicate-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-7",
+      "id": "missing-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-7",
+      "id": "below-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-7",
+      "id": "above-maximum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-7",
+      "id": "over-storage",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "inventory-7",
+      "id": "unknown-sku",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-1",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-1",
+      "id": "valid-two-workers",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-1",
+      "id": "duplicate-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-1",
+      "id": "invalid-shift",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-1",
+      "id": "no-shift-zero",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-1",
+      "id": "no-shift-one",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-1",
+      "id": "expensive-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-1",
+      "id": "unknown-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-2",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-2",
+      "id": "valid-two-workers",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-2",
+      "id": "duplicate-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-2",
+      "id": "invalid-shift",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-2",
+      "id": "no-shift-zero",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-2",
+      "id": "no-shift-one",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-2",
+      "id": "expensive-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-2",
+      "id": "unknown-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-3",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-3",
+      "id": "valid-two-workers",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-3",
+      "id": "duplicate-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-3",
+      "id": "invalid-shift",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-3",
+      "id": "no-shift-zero",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-3",
+      "id": "no-shift-one",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-3",
+      "id": "expensive-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-3",
+      "id": "unknown-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-4",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-4",
+      "id": "valid-two-workers",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-4",
+      "id": "duplicate-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-4",
+      "id": "invalid-shift",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-4",
+      "id": "no-shift-zero",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-4",
+      "id": "no-shift-one",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-4",
+      "id": "expensive-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-4",
+      "id": "unknown-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-5",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-5",
+      "id": "valid-two-workers",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-5",
+      "id": "duplicate-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-5",
+      "id": "invalid-shift",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-5",
+      "id": "no-shift-zero",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-5",
+      "id": "no-shift-one",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-5",
+      "id": "expensive-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-5",
+      "id": "unknown-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-6",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-6",
+      "id": "valid-two-workers",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-6",
+      "id": "duplicate-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-6",
+      "id": "invalid-shift",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-6",
+      "id": "no-shift-zero",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-6",
+      "id": "no-shift-one",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-6",
+      "id": "expensive-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-6",
+      "id": "unknown-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-7",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-7",
+      "id": "valid-two-workers",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-7",
+      "id": "duplicate-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-7",
+      "id": "invalid-shift",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-7",
+      "id": "no-shift-zero",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-7",
+      "id": "no-shift-one",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-7",
+      "id": "expensive-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "schedule-7",
+      "id": "unknown-worker",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-1",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-1",
+      "id": "valid-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-1",
+      "id": "hash-mismatch",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-1",
+      "id": "short-appendix",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-1",
+      "id": "long-appendix",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-1",
+      "id": "wrong-label",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-1",
+      "id": "missing-artifact",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-2",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-2",
+      "id": "valid-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-2",
+      "id": "hash-mismatch",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-2",
+      "id": "short-appendix",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-2",
+      "id": "long-appendix",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-2",
+      "id": "wrong-label",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-2",
+      "id": "missing-artifact",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-3",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-3",
+      "id": "valid-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-3",
+      "id": "hash-mismatch",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-3",
+      "id": "short-appendix",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-3",
+      "id": "long-appendix",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-3",
+      "id": "wrong-label",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-3",
+      "id": "missing-artifact",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-4",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-4",
+      "id": "valid-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-4",
+      "id": "hash-mismatch",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-4",
+      "id": "short-appendix",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-4",
+      "id": "long-appendix",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-4",
+      "id": "wrong-label",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-4",
+      "id": "missing-artifact",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-5",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-5",
+      "id": "valid-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-5",
+      "id": "hash-mismatch",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-5",
+      "id": "short-appendix",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-5",
+      "id": "long-appendix",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-5",
+      "id": "wrong-label",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-5",
+      "id": "missing-artifact",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-6",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-6",
+      "id": "valid-minimum",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-6",
+      "id": "hash-mismatch",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-6",
+      "id": "short-appendix",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-6",
+      "id": "long-appendix",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-6",
+      "id": "wrong-label",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "file-6",
+      "id": "missing-artifact",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-1",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-1",
+      "id": "valid-at-threshold",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-1",
+      "id": "invalid-signature",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-1",
+      "id": "unapproved-signer",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-1",
+      "id": "swapped-artifact",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-1",
+      "id": "replayed-context",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-1",
+      "id": "low-score",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-1",
+      "id": "wrong-issuer",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-1",
+      "id": "not-approved",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-2",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-2",
+      "id": "valid-at-threshold",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-2",
+      "id": "invalid-signature",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-2",
+      "id": "unapproved-signer",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-2",
+      "id": "swapped-artifact",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-2",
+      "id": "replayed-context",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-2",
+      "id": "low-score",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-2",
+      "id": "wrong-issuer",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-2",
+      "id": "not-approved",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-3",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-3",
+      "id": "valid-at-threshold",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-3",
+      "id": "invalid-signature",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-3",
+      "id": "unapproved-signer",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-3",
+      "id": "swapped-artifact",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-3",
+      "id": "replayed-context",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-3",
+      "id": "low-score",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-3",
+      "id": "wrong-issuer",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-3",
+      "id": "not-approved",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-4",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-4",
+      "id": "valid-at-threshold",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-4",
+      "id": "invalid-signature",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-4",
+      "id": "unapproved-signer",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-4",
+      "id": "swapped-artifact",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-4",
+      "id": "replayed-context",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-4",
+      "id": "low-score",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-4",
+      "id": "wrong-issuer",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-4",
+      "id": "not-approved",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-5",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-5",
+      "id": "valid-at-threshold",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-5",
+      "id": "invalid-signature",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-5",
+      "id": "unapproved-signer",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-5",
+      "id": "swapped-artifact",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-5",
+      "id": "replayed-context",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-5",
+      "id": "low-score",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-5",
+      "id": "wrong-issuer",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-5",
+      "id": "not-approved",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-6",
+      "id": "valid",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-6",
+      "id": "valid-at-threshold",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-6",
+      "id": "invalid-signature",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-6",
+      "id": "unapproved-signer",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-6",
+      "id": "swapped-artifact",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-6",
+      "id": "replayed-context",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-6",
+      "id": "low-score",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-6",
+      "id": "wrong-issuer",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    },
+    {
+      "challenge": "signed-6",
+      "id": "not-approved",
+      "artifactAndExpectationMatched": true,
+      "executionMatched": true,
+      "passed": true
+    }
+  ],
+  "failures": [],
+  "summary": {
+    "candidateChecks": 341,
+    "failures": 0,
+    "actualGuestExecutions": 262,
+    "inputRejectionsBeforeGuest": 79,
+    "distinctStructures": 8,
+    "distinctImages": 8
+  }
+}

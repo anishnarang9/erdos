@@ -1,0 +1,87 @@
+{
+  "status": "partial-process-exit-1",
+  "scope": "forkless local Arc with native local USDC and real RISC Zero 3.1.0 verifier",
+  "sourceHeadAtRun": "f8e3516db59e11ceb48aceadeba42aaec757ac89",
+  "test": "commerce/worker/test/integration/open-claim-real.test.ts",
+  "durationSeconds": 1134.92,
+  "processExitCode": 1,
+  "failedAssertion": "Final three-block-confirmed refund snapshot read Funded after the successful refund in block 37; the earlier assertions passed.",
+  "rootCause": "Viem cached eth_blockNumber in SDK and API readers; direct local reproduction returned cached head 40 and fresh head 41.",
+  "network": {
+    "chainId": 5042002,
+    "localOnly": true
+  },
+  "workload": {
+    "planSha256": "8adab8d931f6065cd91fab141b8049d231fcb29ab438350118c4973c63b9238a",
+    "candidateSha256": "0607a7b43bf95913d5561d1872b14df0e9ba3fce160946f0bfac99d76608fbc2",
+    "imageId": "0x9b6b32b79bee4fbe407a83ffe9161200dfe3c0392920db3e8477491ff325aa6a",
+    "rulesHash": "0x5d637c9b710c72857f7752f665ca08565eecc7d1c5b3877a5a8339d700a1f60b",
+    "referenceHash": "0x9c652686c37d6fd375c8b7f930eff54bdc7b67c1c23666f4eb3542f75bc30812"
+  },
+  "jobs": {
+    "winnerJobId": "3",
+    "refundJobId": "2",
+    "budgetBaseUnits": "1000000"
+  },
+  "winner": {
+    "solver": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+    "phase": "released",
+    "paymentConfirmed": true,
+    "claim": {
+      "hash": "0xf30c3f8bf91414b730970883ab7a57c8de858eed16ebd185003ffa69ba0f93af",
+      "blockNumber": "28",
+      "status": "success",
+      "gasUsed": "460733"
+    },
+    "release": {
+      "hash": "0xae4f8f2600578a1d60ff59eda975f3b9d898322d5a14e8901b2adae8bf7a8508",
+      "blockNumber": "32",
+      "status": "success",
+      "gasUsed": "186352"
+    },
+    "envelopeHash": "0xa986c6c6e7df3c8e1fbce0da8e37f2edc8b048723d516108e4838746283d63b4",
+    "keyCommitment": "0x5a092519e459206228ff4d8aa5a8b69a2c7244a3d47bc4e61784c6cbb2e3242b"
+  },
+  "loser": {
+    "solver": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+    "proofVerdict": 1,
+    "claimBeforeWinnerEthCallAccepted": true,
+    "sentClaim": false,
+    "sentRelease": false
+  },
+  "refund": {
+    "receipt": {
+      "hash": "0x245a9924acfbbe1099da3006b0e09ee3d9ae2a3aac1cd16e0addb2625d927113",
+      "blockNumber": "37",
+      "status": "success",
+      "gasUsed": "74696"
+    },
+    "coreStatusAtReceiptBlock": "Expired",
+    "amountBaseUnits": "1000000"
+  },
+  "passedBeforeFinalAssertion": [
+    "exact core-to-adapter and adapter-to-winner transfers",
+    "no loser transfer",
+    "SDK byte-exact recovery",
+    "engine byte-exact recovery",
+    "independent oracle acceptance",
+    "confirmed API Completed detail and feed removal",
+    "losing worker abstention",
+    "Refunded event and exact core-to-buyer transfer"
+  ],
+  "recoveredFileSha256": "0607a7b43bf95913d5561d1872b14df0e9ba3fce160946f0bfac99d76608fbc2",
+  "proofMetrics": {
+    "job2Solver1": {
+      "proveMillis": 1024044,
+      "userCycles": 7053898,
+      "verdict": 1
+    },
+    "job3Solver2": {
+      "proveMillis": 996987,
+      "userCycles": 7053898,
+      "verdict": 1
+    },
+    "job3Solver1": "engine milliseconds were captured in the test but not written after its final assertion failed"
+  },
+  "next": "Run a clean exit-0 exchange on a new forkless local node after the confirmed-head cache fix. This partial report is not that acceptance."
+}

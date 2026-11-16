@@ -1,0 +1,291 @@
+{
+  "version": 1,
+  "date": "2026-11-15",
+  "status": "native-agent-draft-validated-buyer-approval-pending",
+  "author": {
+    "role": "independent native agent drafting typed engine rules",
+    "harness": "OpenCode",
+    "model": {
+      "provider": "openai",
+      "id": "gpt-6.1-sol",
+      "name": "GPT-6.1 Sol",
+      "source": "harness developer instructions",
+      "independentlyVerified": false,
+      "defaultSubagentModel": {"state": "unknown", "value": null}
+    },
+    "grok": {
+      "used": false,
+      "catalogQuery": {"query": "grok", "total": 0, "providers": [], "next": null},
+      "limitation": "Grok is absent from the accessible model catalog. This record is not evidence of live Grok authoring."
+    },
+    "autonomousAppAuthoring": false,
+    "buyerApproved": false
+  },
+  "inputSha256": {
+    "docs/core-sprint-input/request.md": "2ce92fbd0bbafd5785a6b7628628e5971ff5b9174e56d69dcbec644432db60a0",
+    "docs/core-sprint-input/reference/catalog.json": "0ee396b2314e7cc4920bab6dad749b105b3af964a2cac65b4cfe1a1e7c801568",
+    "docs/core-sprint-input/outputs.json": "1a93491ccd745bab7cb6b1cf4d707fc765f5c84aaefdbf57a41971c47fec75e3"
+  },
+  "plan": {
+    "path": "docs/core-sprint-input/plan.json",
+    "sha256": "e10a43a4918215636b69c29a1a07a3093a01d8530488f9003d20746d799ed295",
+    "referenceFiles": ["catalog.json"],
+    "deliverableFiles": ["allocations.json", "dispatch.json"],
+    "referenceScalars": ["catalog.json:budget"],
+    "referenceCollections": ["catalog.json:tasks", "catalog.json:pools"],
+    "deliverableCollections": ["allocations.json:allocations", "dispatch.json:dispatches"],
+    "evidence": [],
+    "answerSpecificHashes": false,
+    "fixedExpectedAssignment": false,
+    "design": "Use unique keys, equal cardinalities, required lookups, quantified predicates, a correlated count, and a checked weighted sum.",
+    "coverageReason": "Unique output keys, reference membership from required lookups, and equal counts imply exact coverage. This also requires dispatches for unused pools.",
+    "joinSemantics": "A lookup requires exactly one matching key. Missing matches and duplicate source keys abort checking and cannot produce an accepted delivery.",
+    "conditionalSemantics": "Implications use not/or and ne/or. Evaluation is eager. Dispatch coverage makes each pool dispatch available even for non-special tasks."
+  },
+  "validation": {
+    "command": "/tmp/ubc26-rz/target/debug/engine validate --plan docs/core-sprint-input/plan.json",
+    "exitCode": 0,
+    "attempts": 1,
+    "repeatValidationExitCode": 0,
+    "rulesHash": "0x65a425e81ce7b439e17bc9a3e2b9f0a47c170f7e738ed89caf6e1c409f5a4902",
+    "structureHash": "0xd6e5ba5d3fb98d7098031020e03a69b7ed0e991b721c395c0574757511dde786",
+    "topLevelRules": 14,
+    "normalizedExpressionNodes": 77,
+    "maxExpressionDepth": 6,
+    "nodeCountingMethod": "Count each object with an op member in normalized structure.rules. Count each expression root as depth 1.",
+    "parameterSlots": 5,
+    "parametersInTraversalOrder": [
+      {"type": "string", "value": "guarded"},
+      {"type": "string", "value": "open"},
+      {"type": "string", "value": "guarded"},
+      {"type": "i64", "value": "0"},
+      {"type": "string", "value": "guarded"}
+    ],
+    "previewEqualsAuthoredPlan": true,
+    "validatorBinarySha256": "12d6acaf5c79698c92e3dfe272676d48d61155f86b88d82c59123c3d198eadbf",
+    "schemaSha256": "5c333917cf889e1682d38da76e95a4da9b331c4dd95870da5fb2e4f6050ead56",
+    "capabilityCatalogSha256": "fdb05c7b3ab6cac185dca29771e5f9364d9d3170174f14223d70c9a9f2db2e6a",
+    "capabilitiesCommand": "/tmp/ubc26-rz/target/debug/engine capabilities",
+    "capabilitiesExitCode": 0,
+    "candidateEvaluations": 0,
+    "guestCompiled": false,
+    "proofGenerated": false
+  },
+  "requirementToRuleMapping": [
+    {
+      "requirement": "1: exact output directory",
+      "source": "request.md:60-61",
+      "sourceQuotes": [
+        "1. The recovered directory contains exactly the two output files named above.",
+        "   Reject symlinks, nested directories, missing files, renamed files, and additional entries."
+      ],
+      "rulePaths": [],
+      "enforcement": "The deliverables declaration fixes the exact file set. CLI directory import rejects symlinks and nonregular entries. Bundle filenames cannot contain paths.",
+      "engineSources": ["engine/cli/src/files.rs:42-89", "engine/guest-runtime/src/lib.rs:460-483"]
+    },
+    {
+      "requirement": "2: exact task coverage and reference pool membership",
+      "source": "request.md:62-64",
+      "sourceQuotes": [
+        "2. Include every reference task exactly once in `allocations`.",
+        "   Reject duplicate, missing, or foreign task identifiers.",
+        "   Every allocation must name a reference pool."
+      ],
+      "rulePaths": ["/rules/0", "/rules/1", "/rules/2", "/rules/3"],
+      "enforcement": "Rule 0 requires unique task_id. Rule 1 equates task counts. Rule 2 requires each task lookup to exist. Rule 3 requires each selected pool lookup to exist."
+    },
+    {
+      "requirement": "3: exact pool dispatch coverage",
+      "source": "request.md:65-66",
+      "sourceQuotes": [
+        "3. Include every reference pool exactly once in `dispatches`.",
+        "   Reject duplicate, missing, or foreign pool identifiers."
+      ],
+      "rulePaths": ["/rules/5", "/rules/6", "/rules/9"],
+      "enforcement": "Require unique pool_id, equal reference pool count, and a successful pool lookup for every dispatch. This includes unused pools."
+    },
+    {
+      "requirement": "4: units equal reference",
+      "source": "request.md:67",
+      "sourceQuotes": ["4. Each allocation's `units` must equal its reference task's `units`."],
+      "rulePaths": ["/rules/2"],
+      "enforcement": "Compare each allocation units with the task lookup using exact i64 equality."
+    },
+    {
+      "requirement": "5: minimum tier",
+      "source": "request.md:68",
+      "sourceQuotes": ["5. The selected pool's `tier` must be greater than or equal to the task's `min_tier`."],
+      "rulePaths": ["/rules/3"],
+      "enforcement": "Compare reference pool tier >= reference task min_tier. Equality passes."
+    },
+    {
+      "requirement": "6: special task conditions",
+      "source": "request.md:69-72",
+      "sourceQuotes": [
+        "6. If a task is special, both conditions below must hold:",
+        "   - The selected pool is certified.",
+        "   - That pool's dispatch mode is `guarded`.",
+        "   Non-special tasks do not require certification or guarded dispatch."
+      ],
+      "rulePaths": ["/rules/4"],
+      "enforcement": "For every allocation require not(task.special) OR (pool.certified AND dispatch.mode == guarded). Non-special tasks receive no extra condition."
+    },
+    {
+      "requirement": "7: dispatch mode and interval",
+      "source": "request.md:73-75",
+      "sourceQuotes": [
+        "7. Each dispatch mode must be `open` or `guarded`.",
+        "   Each dispatch stamp must be greater than or equal to zero.",
+        "   Each dispatch stamp must be less than or equal to its reference pool's `cutoff`."
+      ],
+      "rulePaths": ["/rules/7", "/rules/8", "/rules/9"],
+      "enforcement": "Require exact case-sensitive mode membership and 0 <= stamp <= cutoff for every dispatch."
+    },
+    {
+      "requirement": "8: conditional guard start",
+      "source": "request.md:76-77",
+      "sourceQuotes": [
+        "8. If a dispatch mode is `guarded`, its stamp must be greater than or equal to that pool's `guard_start`.",
+        "   An open dispatch does not have this lower bound."
+      ],
+      "rulePaths": ["/rules/10"],
+      "enforcement": "Require mode != guarded OR stamp >= guard_start. Rule 7 separately restricts mode. Guard-start equality passes."
+    },
+    {
+      "requirement": "9: strict task deadline",
+      "source": "request.md:78-79",
+      "sourceQuotes": [
+        "9. For each task, the selected pool's dispatch stamp must be strictly less than that task's `deadline`.",
+        "   Equality fails, even when the pool's cutoff permits that stamp."
+      ],
+      "rulePaths": ["/rules/11"],
+      "enforcement": "Look up the selected pool dispatch stamp and task deadline. Require stamp < deadline, not <=."
+    },
+    {
+      "requirement": "10: pool capacity counts tasks",
+      "source": "request.md:80",
+      "sourceQuotes": ["10. For each pool, the count of allocations naming that pool must not exceed its `capacity`."],
+      "rulePaths": ["/rules/12"],
+      "enforcement": "For each reference pool count allocations with matching pool_id. The inner record uses level 0 and the outer pool uses level 1. Compare count <= capacity."
+    },
+    {
+      "requirement": "11: checked credit budget",
+      "source": "request.md:81-84",
+      "sourceQuotes": [
+        "11. Sum `allocation.units * selected_pool.unit_cost` over all allocations.",
+        "    The sum must not exceed the reference `budget`.",
+        "    Budget equality passes. Unused pools add no cost.",
+        "    Use checked signed 64-bit integer arithmetic."
+      ],
+      "rulePaths": ["/rules/13"],
+      "enforcement": "Sum checked units * reference pool unit_cost over allocations only. Compare <= the reference budget scalar. No dispatch fee or unused-pool cost exists."
+    },
+    {
+      "requirement": "12: record and original encoded byte limits",
+      "source": "request.md:85-87",
+      "sourceQuotes": [
+        "12. Each collection contains at most 256 records.",
+        "    The encoded delivery bundle must contain at most 16,384 bytes, including filenames and headers.",
+        "    Preserve the submitted file bytes when measuring this limit."
+      ],
+      "rulePaths": [],
+      "enforcement": "Engine collection limits and encoded delivery cap apply before acceptance. CLI import preserves exact contents and includes filenames and framing in the byte count.",
+      "engineSources": ["engine/capabilities-v1.json:53-65", "engine/cli/src/files.rs:42-89", "engine/guest-runtime/src/records.rs:36-67"]
+    },
+    {
+      "requirement": "required JSON projections and integer encoding",
+      "source": "request.md:23-46",
+      "sourceQuotes": [
+        "`allocations.json` contains an `allocations` array.",
+        "`dispatch.json` contains a `dispatches` array.",
+        "An i64 string uses normalized signed decimal notation in a JSON string.",
+        "Reject JSON numbers, fractions, leading zeros, plus signs, whitespace inside numbers, and `\"-0\"`.",
+        "Values must fit the signed 64-bit range.",
+        "Reference `special` and `certified` values are JSON booleans.",
+        "Identifiers and modes are case-sensitive."
+      ],
+      "rulePaths": [],
+      "enforcement": "The declared fields match outputs.json exactly. json/v1 requires typed fields. Scalar conversion parses i64 strings and compares their spelling with canonical to_string output. String equality is case-sensitive.",
+      "engineSources": ["engine/guest-runtime/src/lib.rs:121-126", "engine/guest-runtime/src/records.rs:36-67"]
+    },
+    {
+      "requirement": "strict JSON envelope with ignored extras and order independence",
+      "source": "request.md:48-56",
+      "sourceQuotes": [
+        "Extra object members are allowed. Ignore them when checking these requirements.",
+        "Array order and object-member order do not affect acceptance.",
+        "Both roots and all records must be JSON objects.",
+        "All declared fields and arrays must exist with the specified types.",
+        "Use valid UTF-8 JSON with unique object-member names and valid Unicode strings.",
+        "Reject nonfinite numbers, including numeric overflow, even in extra members.",
+        "Every array has at most 256 entries, including arrays in extra members.",
+        "The maximum JSON depth is 32, counting the root as depth 1.",
+        "Count each object value or array element as one additional depth level."
+      ],
+      "rulePaths": [],
+      "enforcement": "Strict serde_json decoding rejects malformed JSON, duplicate keys, invalid Unicode and nonfinite overflow. Global JSON checks traverse extras before projection. Projection requires objects and required fields but ignores remaining members. All predicates are order-independent for this fixed nonnegative reference.",
+      "engineSources": ["engine/protocol/src/strict_json.rs:8-10", "engine/protocol/src/strict_json.rs:30-47", "engine/guest-runtime/src/lib.rs:489-545", "engine/guest-runtime/src/records.rs:36-67"]
+    },
+    {
+      "requirement": "feasibility only and no live authority",
+      "source": "request.md:3-5,9-12,91-93",
+      "sourceQuotes": [
+        "Status: proposed rehearsal workload, dated 2026-11-15. Buyer approval is pending.",
+        "All identifiers, costs, capacities, and time values are synthetic.",
+        "This request does not authorize funding or any live transaction.",
+        "Allocate every task in `catalog.json` to one pool.",
+        "Choose one dispatch record for every pool, including unused pools.",
+        "Return `allocations.json` and `dispatch.json`.",
+        "Any feasible solution is acceptable. No optimization or particular assignment is required.",
+        "Check feasibility against this synthetic reference only.",
+        "Do not request external facts, network access, signatures, secrets, or additional evidence.",
+        "The result does not claim research quality, real availability, or an optimal allocation."
+      ],
+      "rulePaths": [],
+      "enforcement": "The plan declares only the two output files and one local reference file. It declares no evidence and encodes no optimization, fixed assignment, signature, external fact, or live action."
+    }
+  ],
+  "unitsAndBoundaries": {
+    "sourceQuotes": [
+      "Pool capacity counts tasks, not units.",
+      "Costs use fictional integer credits per unit.",
+      "Dispatch times, deadlines, cutoffs, and guard starts use the same fictional integer ticks.",
+      "They do not represent wall-clock time."
+    ],
+    "source": "request.md:18-21",
+    "allocation.units": "integer task units, exactly equal to reference",
+    "pool.capacity": "number of allocated tasks, inclusive upper bound",
+    "pool.unit_cost": "fictional integer credits per task unit",
+    "budget": "fictional integer credits, inclusive upper bound",
+    "tier": "integer ordinal rank, inclusive minimum",
+    "stamp": "fictional integer ticks, inclusive lower bound zero",
+    "cutoff": "fictional integer ticks, inclusive upper bound",
+    "guard_start": "fictional integer ticks, inclusive lower bound only for guarded dispatch",
+    "deadline": "fictional integer ticks, exclusive upper bound for each assigned task",
+    "i64Range": ["-9223372036854775808", "9223372036854775807"],
+    "arithmetic": "Checked signed 64-bit multiplication and summation. Overflow rejects.",
+    "maxRecordsPerCollection": 256,
+    "maxEntriesInAnyJsonArray": 256,
+    "maxJsonDepth": 32,
+    "jsonDepthConvention": "Root depth is 1. Each object value and array element adds 1.",
+    "maxRuleNodes": 256,
+    "maxExpressionDepth": 32,
+    "maxEncodedDeliveryBytes": 16384,
+    "deliveryBundleOverheadBytes": 44,
+    "maxCombinedOriginalFileContentBytes": 16340,
+    "bundleSizeFormula": "3 + (2 + 16 + 4 + len(allocations.json bytes)) + (2 + 13 + 4 + len(dispatch.json bytes))",
+    "maxReferenceBundleBytes": 32768,
+    "maxExpressionVisits": 1000000
+  },
+  "unsupportedCapabilities": [],
+  "limitations": [
+    "Plan validation checks schema, typing, normalization and engine limits. It does not establish feasibility or fidelity by candidate execution.",
+    "No candidate was read, generated, solved, evaluated, or labelled by this author.",
+    "No workload oracle, expected output, known solution, or workload test was opened.",
+    "A broad engine-source search returned incidental test symbol lines and archived engine-source lines. No test body or candidate data was opened.",
+    "Parser, directory, and byte-limit guarantees rely on the existing engine implementation. They are not extra top-level predicates.",
+    "Malformed JSON, missing lookup keys, duplicate lookup keys and arithmetic overflow can abort with an input error rather than return verdict 0. They do not pass.",
+    "The validator preview equals the authored plan. No guest compilation, guest execution, proof, signing, or live chain action occurred.",
+    "These files are a native-agent draft for a synthetic rehearsal. Buyer approval and independent fidelity review remain pending."
+  ]
+}

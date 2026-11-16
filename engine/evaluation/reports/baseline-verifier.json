@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "verifierRevision": "ff30da77ba4afdd496290ebebedb205348b15d83",
+  "selector": "0xe71e6620",
+  "receipts": 6,
+  "environment": "Local Ganache Shanghai. Real released Solidity verifier. No Arc deployment or live transaction.",
+  "commands": [
+    {
+      "script": "engine/tests/solidity/check-job-wire.cjs",
+      "fixtures": "scalar passing/failing pair",
+      "exitCode": 0
+    },
+    {
+      "script": "engine/tests/solidity/check-job-wire.cjs",
+      "fixtures": "reconciliation passing/failing pair",
+      "exitCode": 0
+    },
+    {
+      "script": "engine/tests/solidity/verify.cjs",
+      "fixtures": "signed-text passing",
+      "exitCode": 0
+    },
+    {
+      "script": "engine/tests/solidity/verify.cjs",
+      "fixtures": "limits passing",
+      "exitCode": 0
+    }
+  ],
+  "results": [
+    "All original receipts verified.",
+    "Reconstructed context and journal bytes matched.",
+    "Failing receipts could not satisfy passing-only journals.",
+    "Changed image, journal, seal, and verdict inputs failed."
+  ],
+  "newReceipts": 0
+}

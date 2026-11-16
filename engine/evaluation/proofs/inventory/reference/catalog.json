@@ -1,0 +1,19 @@
+{
+  "rows": [
+    {
+      "sku": "sku-0",
+      "minimum": "8",
+      "maximum": "16"
+    },
+    {
+      "sku": "sku-1",
+      "minimum": "8",
+      "maximum": "16"
+    },
+    {
+      "sku": "sku-2",
+      "minimum": "8",
+      "maximum": "16"
+    }
+  ]
+}

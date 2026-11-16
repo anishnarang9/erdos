@@ -1,0 +1,121 @@
+{
+  "verifiedAt": "2026-11-15T14:00:00-05:00",
+  "branch": "codex/engine-commerce",
+  "baseHead": "4fc21457b5161f27dde0053851aef08344d8f581",
+  "changesUnstagedAndUncommitted": true,
+  "sourceImports": {
+    "commerce": "8584b045f18996667419b8c6d7f965717b099f5e",
+    "contracts": "80c8a4af68f0cf00e4177c98e9c435d869716edd",
+    "verifier": "ff30da77ba4afdd496290ebebedb205348b15d83"
+  },
+  "implementation": [
+    "Explicit chain/engine modes, rejection before database/listener side effects, and no real-chain stub fallback",
+    "Durable genuine CLI compile provenance and approval/artifact binding; legacy simulated artifacts and idempotent cached responses cannot become real funding terms",
+    "Real ABI Arc reader with one pinned block per snapshot; receipt-block funding linkage and wrong-chain indexer rejection",
+    "Selection from chain time with a 1200-second floor or deployed minimum plus 120 seconds, whichever is larger; worker enforces independent explicit time budgets",
+    "Concrete Arc settlement adapter with hash-only broadcast, separate receipt polling, exact calldata signer policy, immutable captured capability and explicit gas/fee caps",
+    "Trusted runtime/verifier/proxy implementation pins, full initialization/role history, zero fees, and no surviving privileged holders before broadcast",
+    "Fresh final job/context/deadline snapshot after long checks, with block anchors and runtime revalidation before dispatch",
+    "Private durable funded lifecycle, exclusive locking, resume revalidation, exact engine/SDK recovery, pending and uncertain outcome handling without blind resends",
+    "Durable potentially-public release disclosure and unconfirmed payout tracking, including pending/reverted/error paths",
+    "Synthetic attempt confidentiality, symlink/hardlink checks, corrected setAAD fixture executed by normal SDK tests, and narrow evaluation metadata types"
+  ],
+  "checks": {
+    "commerce": {
+      "command": "pnpm typecheck && pnpm test (workdir commerce)",
+      "exitCode": 0,
+      "sdkNodeFixture": 13,
+      "sdkVitest": 315,
+      "apiVitest": 755,
+      "workerVitest": 274,
+      "totalPassed": 1357,
+      "failed": 0,
+      "typechecks": ["sdk", "api", "worker"],
+      "concreteArcLifecycleTestsIncluded": 8,
+      "concreteArcLifecycleUsesMockEngineAndRpc": true
+    },
+    "realEngineApi": {
+      "command": "env -u RUST_LOG -u RISC0_DEV_MODE ENGINE_MODE=native ENGINE_PATH=/tmp/ubc26-rz/target/debug/engine ENGINE_R0VM=/tmp/ubc26-rz/bin/r0vm RISC0_SERVER_PATH=/tmp/ubc26-rz/bin/r0vm pnpm --filter @ubc26/api test:engine (workdir commerce)",
+      "exitCode": 0,
+      "testsPassed": 15,
+      "newModelCalls": 0,
+      "includesRealCompileProvenanceRestartCacheAndSelection": true,
+      "arcTimingMocked": true
+    },
+    "engineReplay": {
+      "command": "env -u RUST_LOG -u RISC0_DEV_MODE CARGO_TARGET_DIR=/tmp/ubc26-rz/target RISC0_SERVER_PATH=/tmp/ubc26-rz/bin/r0vm engine/evaluation/evaluate.sh /tmp/ubc26-arc-integration-replay-2 /tmp/ubc26-risc0-ethereum-v310 /tmp/ubc26-integration-new-proofs",
+      "exitCode": 0,
+      "rustTestsPassed": 51,
+      "preparedGuestTestsIgnoredByDefault": 3,
+      "nodeTestsPassed": 38,
+      "typescriptTestsPassed": 11,
+      "typescriptTypecheckPassed": true,
+      "seededCases": 10000,
+      "hostCandidates": 341,
+      "recordedAuthoringOutcomes": 180,
+      "authoringCandidateChecks": 1023,
+      "realReceiptsVerified": 12,
+      "actualArchivedGuestExecutions": 12,
+      "freshPassingRecoveries": 6,
+      "recoveredFiles": 9,
+      "failures": 0,
+      "newProofs": 0,
+      "newModelCalls": 0,
+      "privateScratch": "/tmp/ubc26-arc-integration-replay-2",
+      "engineSha256": "0x12d6acaf5c79698c92e3dfe272676d48d61155f86b88d82c59123c3d198eadbf"
+    },
+    "localActualSettlement": {
+      "command": "node engine/tests/verify-settlement.mjs --private-root /tmp/ubc26-integration-new-proofs",
+      "exitCode": 0,
+      "checksPassed": 18,
+      "failed": 0,
+      "coordinatorRunSeconds": 56.06,
+      "anvil": "1.7.1",
+      "evm": "cancun",
+      "solc": "0.8.30+commit.73712a01.Emscripten.clang",
+      "ethers": "6.15.0",
+      "checks": ["real Groth16 originals and mutations", "fund exact receipt context", "verdict-zero rejection without payout", "ciphertext mutation", "same-job and cross-job replay", "wrong and duplicate key release", "exact ERC20 payout and events", "exact original-file decryption and AEAD negatives", "Funded and Submitted expiry refunds"],
+      "limitation": "Disposable loopback-only Anvil, actual pinned core/hook/verifier, mock ERC20. Proxy runtime/implementation pointer installed at synthetic receipt escrow and synthetic provider impersonated. No public RPC, fork, live deployment, fresh funded-context proof or end-to-end real service/prover/signer run."
+    },
+    "additional": {
+      "adapterStrictUmaskTestsPassed": 11,
+      "contractsExamplesTestsPassed": 13,
+      "contractsExamplesTypecheckPassed": true,
+      "shellScriptsSyntaxChecked": 7,
+      "contractSdkAbiCopiesMatch": 4,
+      "foundrySuiteRerun": false,
+      "reason": "No forge or arc-forge executable installed; local actual Solidity regression used installed solc and npm-pinned Anvil instead."
+    },
+    "hygiene": {
+      "gitDiffCheckPassed": true,
+      "stagedFiles": 0,
+      "distinctPrivateReleaseKeysCompared": 12,
+      "privateKeyMatchesInChangedOrUntrackedFiles": 0,
+      "protectedTrackedRustLockReceiptPackageFilesUnchanged": 224,
+      "rootIgnoreRulesAdded": "Pinned Nick ignore rules keep dependency directories, contract outputs, broadcasts, .env and local settings out of Git."
+    }
+  },
+  "resolvedVerificationFailures": [
+    "Original commerce setAAD type error corrected and fixture added to normal test script.",
+    "First replay precheck referenced absent prior target path and did not start; reused verified existing /tmp/ubc26-rz/target instead.",
+    "First full replay stopped at evaluation typecheck after commerce Manifest metadata widened to unknown. Added EvaluationManifest intersection retaining actual evaluation output types only; subsequent complete replay passed.",
+    "Independent reviews found omitted-mode and persisted simulated-artifact bypasses, wrong-chain cursor advancement, missing deployment/fee trust, signer mutation, privacy/disclosure gaps, and final-dispatch expiry. Regression tests and fixes passed re-review."
+  ],
+  "workerModels": {
+    "requested": "gpt-6-sol low/medium",
+    "orcaAttempts": 5,
+    "outcome": "All rejected before execution: model unsupported with active ChatGPT account. Confirmed stopped and released; no credentials changed. Available native subagents performed parallel implementation and independent reviews; model selection was not exposed."
+  },
+  "remainingGates": [
+    "Explicit authorization for every live-chain funding, submit/release, refund, deployment or irreversible freeze action.",
+    "Nick: correct broadcaster-only _checkFrozen; supply complete role/initialization/upgrade history, approved runtime and implementation pins and independent zero-fee freeze evidence. Current recorded deployment remains unfrozen and broadcast is blocked.",
+    "Buyer approval, real provider, actual funded terms and fresh context-bound proof, followed by authorized live payment/refund and exact recovery evidence.",
+    "Externally managed safe signer capability; CLI broadcast intentionally disabled. Full real API-to-prover-to-signer lifecycle remains distinct from component/local Solidity evidence.",
+    "Controlled dependency remediation and native Linux timing; advisory triage is not production security approval."
+  ],
+  "unchangedModelLimitations": {"nonDraftFidelityDefects": 39, "nonverbatimSourceQuotes": 13},
+  "liveTransactions": 0,
+  "liveDeployments": 0,
+  "commits": 0,
+  "pushes": 0
+}

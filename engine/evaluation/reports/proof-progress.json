@@ -1,0 +1,209 @@
+{
+  "updatedAt": "2026-11-15T00:41-05:00",
+  "verifiedReceipts": 12,
+  "completedFamilies": [
+    "inventory",
+    "signed-evidence-bindings",
+    "ledger-reconciliation",
+    "allocation-scheduling",
+    "expenses-budgets",
+    "file-hash-size"
+  ],
+  "active": [],
+  "proofs": [
+    {
+      "family": "inventory",
+      "verdict": "pass",
+      "proofSha256": "0x8a8fc940235fdcb96131462bc6c5d61fe3a22793ef10d0f133d6320b2bf4623e",
+      "proveMillis": 231052,
+      "userCycles": 850853,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x321541d805b1dae5db1bc852ba9fec7f105cf091d9113ce8fda8579f69608c89",
+        "journalSha256": "0xfb788d1debd13766201d235f0e1aba42aac275f4c203b92d5ed081de1f865e73",
+        "envelopeSha256": "0x0b80dce6ffc16f3e723249bee12286251628c7f79bc2965cce725e3d9d0869ae"
+      }
+    },
+    {
+      "family": "inventory",
+      "verdict": "fail",
+      "proofSha256": "0xaa5ae415598349cac5c40a28efbc63f702578b09013a23393d0652c24fe148d6",
+      "proveMillis": 234174,
+      "userCycles": 850713,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x8132f48a53cb9d870158806d2abe1af15061cc81a95f957d4ea69319d94010dd",
+        "journalSha256": "0xa60fad4af7230c0e44e7c55cacd21c43a8e58185ed6e86ef392f91ed63cf6a0b",
+        "envelopeSha256": "0x223474f12e744d3654127787d151cc7834cd42690a61560f0d0528aafbaea905"
+      }
+    },
+    {
+      "family": "signed-evidence-bindings",
+      "verdict": "pass",
+      "proofSha256": "0x39f76131fa165b3d13df82c1dfb9d1619c97cbe4e8ff6cd1a4aad42dbe32fa36",
+      "proveMillis": 744814,
+      "userCycles": 4440879,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x4a69d5be6a919064130c64ab4fa23283c8e4534c84ecfcb0c325de196724c13b",
+        "journalSha256": "0xfd3573b6f79f521440dc8141aabcc0cd21ecbc438bdc237eeb409190395cc846",
+        "envelopeSha256": "0xab26998cd8f1cbd1a1f56b16008e1df157b27e8649cdab0bb4b12ce1da579918"
+      }
+    },
+    {
+      "family": "signed-evidence-bindings",
+      "verdict": "fail",
+      "proofSha256": "0x278152d392a47df0632de7309f644f38a909cf2d4473275080287a9c8d80b5a4",
+      "proveMillis": 744260,
+      "userCycles": 4423979,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x911f664a662489127ed6f99a703c4edae1f3969659084d19ea420f63fb3dbb4d",
+        "journalSha256": "0x9f0b97796132aca4533c6a112cb917a349f78efd40dde520899f3977fb7f2521",
+        "envelopeSha256": "0x87e0d2421150dc9405125c590361f56d30e38fa45bd8252568c09bdd1528e6d1"
+      }
+    },
+    {
+      "family": "ledger-reconciliation",
+      "verdict": "pass",
+      "proofSha256": "0x361f6cb3088c9aa4e27c9e1e0712e22380d0aa74cec366f36832a3676c45158d",
+      "proveMillis": 221277,
+      "userCycles": 827609,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x500f3bfc63ba50b280d287ff00a9fd840286641fcfb315574dab4363c9aee718",
+        "journalSha256": "0x60796c320b83b29e5554337c52efff50623e22b79c7b399666763cd040ad0d1e",
+        "envelopeSha256": "0xf16c9264b9a732a30e6f8905674fa79679b95e291b449facfa51a0bf869f4000"
+      }
+    },
+    {
+      "family": "ledger-reconciliation",
+      "verdict": "fail",
+      "proofSha256": "0x14df890aa96f3c5e47b9f97b1b8de1a81595ad40cf644dd72fb1c4e454b1d8e7",
+      "proveMillis": 225942,
+      "userCycles": 827462,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0xc7335ff163fb43ee897525aeefe2375adc8d2bfc7014118211ee465f4cfe06d0",
+        "journalSha256": "0x51b8fed4e8965ce6fd4204ab9d5dfb2cc2bd0d94e161d65ac41fc84d692de47c",
+        "envelopeSha256": "0x00eba2318ecf1fe86ee193ec98e5c70ba1021af78368452b75512c1177774d8f"
+      }
+    },
+    {
+      "family": "allocation-scheduling",
+      "verdict": "pass",
+      "proofSha256": "0xde6aabbea2fbc50010e1f88451135b787ced9c41d803e953055f5a10ce46709b",
+      "proveMillis": 283293,
+      "userCycles": 1210483,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x7ab3206e61908e12992c4aa6ebdcd2bf7e6c3c41c326c61a94b94c89240db6be",
+        "journalSha256": "0xa1d5e3df591b9ee44b3b1c7583760dd77812e4b7f1f664c1fff5a6cab390ff1c",
+        "envelopeSha256": "0x4a43782d5000f4be06874ee1d93b268d3c894c83d1136cc1e04e6c58cd4354b1"
+      }
+    },
+    {
+      "family": "allocation-scheduling",
+      "verdict": "fail",
+      "proofSha256": "0x512cd81d55e30c92478db1542feb7ce1096f265609ac60e8e2857abcf5604530",
+      "proveMillis": 300237,
+      "userCycles": 1210241,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x0d49e1f0286fe3a3428f17e56feb1ea3282d30fbd5ad7fcdc15ae94c5985c824",
+        "journalSha256": "0xd6bc63b3a86673275c7390cfd05fc75e1045756c1768807d5de250cd89f9c10b",
+        "envelopeSha256": "0x4bddc1b9f33c239bd2f1e06b30f76cbd24fd202b21d4d0898a0bbce3a0d6d1cc"
+      }
+    },
+    {
+      "family": "expenses-budgets",
+      "verdict": "pass",
+      "proofSha256": "0x97fcb4105caefe6767dc5c7f8e3281f866ccb0be1a9e45c21d9f1f2370119c57",
+      "proveMillis": 230448,
+      "userCycles": 759068,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0xd91d9d5e2a21811ee57cdfad32100072bd1bf95a43c6d5e15ee8de8cbc63825c",
+        "journalSha256": "0x71cc88db044e5e05ce22af46cc9725a39e51c136b3cd9b9e9e7a5af7978ef258",
+        "envelopeSha256": "0x78cba20de0789fd722fdcad067b05b3cfbef7d40f447a1b6bc972d75f390d86d"
+      }
+    },
+    {
+      "family": "expenses-budgets",
+      "verdict": "fail",
+      "proofSha256": "0x98321e2f820129af14f05d5e32c3ab13d33e130eb062283664dfeb228ace2a63",
+      "proveMillis": 219391,
+      "userCycles": 685005,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x950c6c402d446f8d40d9fb055c93c8a1d07ea427f45a6b02fa7088babd5ef50f",
+        "journalSha256": "0x5e01f1eb79375818b1cde7b8c5c9cf92d017614c842abb34da4878266cd265ba",
+        "envelopeSha256": "0xeebe3ae621c2dbbed78afc8475469ed1e9cb87a42f7aa16f532372c448c21157"
+      }
+    },
+    {
+      "family": "file-hash-size",
+      "verdict": "pass",
+      "proofSha256": "0x15f460b265fa34880b473c8164b7e3b37df96bb3f38035acef6dfa7288c8ae85",
+      "proveMillis": 217296,
+      "userCycles": 521211,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x9197f431f5a9ba34401a22780f3e53b23055b862e331f81a0318bfb3883f2b88",
+        "journalSha256": "0x1541594051712c3abe172bb5ec1f51948ec57dad3837ede0afbb09209f736dc2",
+        "envelopeSha256": "0x48f7fd8a8ba66c38cc19ab6acb9c934476c30ce3e4e4306e03dadd5ee87edab5"
+      }
+    },
+    {
+      "family": "file-hash-size",
+      "verdict": "fail",
+      "proofSha256": "0x6c16857daa22ed56257963f7f9d6db9b1fc9e83a2a7ef32bd66e517dfc5a74c5",
+      "proveMillis": 219101,
+      "userCycles": 520766,
+      "solidityVerified": true,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x83015c60338ba0fedc804027e98b55a53ea2cc1de5ce8b20040dfaf7767bcbe1",
+        "journalSha256": "0xb163ca610a6c5186b7aa6a3af98ccfbdfe0e8bf00c41f247a470fa356c7d01e5",
+        "envelopeSha256": "0xf5c02db69b299c7734dc71d45602477d9a3e1071c8a5ba8f8a6b146f95f0a408"
+      }
+    }
+  ],
+  "pendingFamilies": [],
+  "unresolvedFailures": []
+}

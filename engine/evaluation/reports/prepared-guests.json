@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "command": "cargo +1.98.1 test --locked --manifest-path engine/Cargo.toml -p ubc26-engine-cli --test guest_evidence --test guest_limits --test reproducible_guest -- --ignored",
+  "passed": 3,
+  "failed": 0,
+  "checks": [
+    "Actual guest accepted all six signature profiles and rejected an invalid signature for each.",
+    "Actual guest accepted the full delivery limit and rejected oversized parameter, reference, delivery, and evidence frames.",
+    "Independently rebuilt source produced the exact package guest bytes and image."
+  ],
+  "fixtureRevision": "adda3a3",
+  "note": "Prepared baseline packages use unchanged production code. These checks do not count as new Groth16 receipts."
+}

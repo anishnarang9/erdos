@@ -1,0 +1,50 @@
+{
+  "problem": "Meridian Kiln Cooperative facade panel week",
+  "model": "grok-4.7",
+  "effort": "high",
+  "interface": "Grok Build CLI as an Orca dispatched worker",
+  "solver_command": "python3 -B docs/fresh-exchange-input/solver/solve.py",
+  "search": {
+    "method": "depth-first backtracking",
+    "order": "release_id ascending, then lot_id, kiln_id, bench_id, temper_id ascending",
+    "bound_visits": 2000000,
+    "visits": 19609,
+    "solutions_found": 3200,
+    "selection": "lexicographic first, then the next assignment with a different lot, kiln, or temper"
+  },
+  "input_hashes": {
+    "request.md": "sha256:229223c55c23c24e0f70413154acd84994672fa6fee76fe247557c288ec2750e",
+    "reference/dataset.json": "sha256:6ccaaf06a64a68039dace223fc36fad9f60efce3f250d6044c5f7274b60fc06f",
+    "outputs.json": "sha256:ccf5f21cac432a09c93b51ebfe000aeb602227cea70707a0815c74489dce79aa"
+  },
+  "requirements_modeled": [
+    "1 charge cardinality",
+    "2 charge quantity",
+    "3 finish cardinality",
+    "4 coverage",
+    "5 charge-finish join",
+    "6 clay mass",
+    "7 lot family, availability, certified supplier, unique lot",
+    "8 kiln window, capacity, family lock, unique kiln",
+    "9 bench edge code, unique bench",
+    "10 temper window, capacity, fire or bypass, unique temper",
+    "11 import ceiling",
+    "12 recycled floor",
+    "13 spend ceiling"
+  ],
+  "reasoning": "Each release fixes its panel count and clay kilograms from the joined profile. A charge is feasible only when the lot family matches, the drawn kilograms fit the lot, the supplier is certified, the kiln thickness window and capacity hold, and the kiln family lock is empty or equal to that family. A finish is feasible only when the bench edge code matches and the temper window, panel capacity, and fire-or-bypass class match the release. Lots, kilns, benches, and tempers are exclusive. Releases are assigned in sorted release id order and each resource list is tried in lexicographic id order. A complete assignment is kept only when the import-charge count, recycled-charge count, and exact cent spend meet the three global bounds. The valid file is the lexicographically first accepted assignment. The alternative is the next accepted assignment whose lot, kiln, or temper choice differs. No objective is optimized.",
+  "objectives": {
+    "valid": {
+      "spend_cents": "30480",
+      "import_charges": "1",
+      "recycled_charges": "2"
+    },
+    "alternative": {
+      "spend_cents": "31440",
+      "import_charges": "1",
+      "recycled_charges": "2"
+    }
+  },
+  "engine_or_oracle_checked": false,
+  "engine_oracle_agreement": "not claimed; checked only by this solver's integer audit"
+}

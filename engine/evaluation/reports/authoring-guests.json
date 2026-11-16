@@ -1,0 +1,2697 @@
+{
+  "version": 1,
+  "startedAt": "2026-11-15T04:22:54.671Z",
+  "engineSha256": "0x12d6acaf5c79698c92e3dfe272676d48d61155f86b88d82c59123c3d198eadbf",
+  "authoringReportSha256": "0xfff2e848aa7c0a98ad6f0958ae51c47168bd4088027565de5b319a7414fb6799",
+  "acceptedDefinition": "Every distinct structure of a draft passing independent candidate and public-constant checks. Approval is simulated.",
+  "structures": [
+    {
+      "structureHash": "0x68a8def4e8d7dc7ac20b173c9d7a79f618ec2fc2ac4b45c8470dc5f8b7f5a41c",
+      "imageId": "0xe42ebce1aecd6bc9b24c3172160fe7c3e30c35fa2bee7d8e7886f4f39b7a9800",
+      "trial": 1,
+      "challenge": "inventory-7",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-780f5099-f64e-4448-ae00-7338809418ec",
+      "compileReport": {
+        "buildFingerprint": "db2765f866cf850f5a704741476b8278305b47d4bb96ebf6520cca6abda037f1",
+        "cacheHit": false,
+        "compileMillis": 17288,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x1479b783ff79ad42f3c90e320051f94338df9130c71f796721c2a0da0ceae844",
+        "imageId": "0xe42ebce1aecd6bc9b24c3172160fe7c3e30c35fa2bee7d8e7886f4f39b7a9800",
+        "inputVersion": 2,
+        "parametersSha256": "0xaa69d72f714c9a916a6ad6454690b9ab1ade76789dae4fe1a0b7b7e75c682766",
+        "referenceHash": "0xa963927ab4e6798f5e4e38f8a311511816fb163bfefe17e768bbc8bf4b79513c",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xf71acd84a296603bc836d2f8ca2cd4c8d247435894f58941390751db938a8095",
+        "structureHash": "0x68a8def4e8d7dc7ac20b173c9d7a79f618ec2fc2ac4b45c8470dc5f8b7f5a41c",
+        "structureSha256": "0x108d179f91047a4ca9996798ce5e786b144c59b3fc8deb7d69553adcbfa030e6",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0xeec4919a6f7b5e48d959f78f51b444aa64fbb69c39beee2c352967d54dadd9d3",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 850853,
+            "verdict": 1
+          },
+          "millis": 1772
+        },
+        {
+          "candidate": "valid-at-minimum",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x6fec4dc254252e665480c4daba8b7e28523f4649c168ac051eda589e6af17dbf",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 850853,
+            "verdict": 1
+          },
+          "millis": 1784
+        },
+        {
+          "candidate": "duplicate-sku",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x4b077784b18414f3fcf7ba44c5ee5351c309756d77b8da56abda7ba65acd87c3",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 850713,
+            "verdict": 0
+          },
+          "millis": 1770
+        },
+        {
+          "candidate": "missing-sku",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xc02c55ba85a956bcbf053ff396110a7f33364d74819b3317675614b938a37d16",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 830681,
+            "verdict": 0
+          },
+          "millis": 1777
+        },
+        {
+          "candidate": "below-minimum",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x784d2aea586303bacb322cb6cc608e78a8bd5c198325e10d03e627e964532797",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 850853,
+            "verdict": 0
+          },
+          "millis": 1770
+        },
+        {
+          "candidate": "above-maximum",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xb9180bce413349c9931d0703f7408dca11b72a1c0c6dc6550a834467ab8b2a27",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 850879,
+            "verdict": 0
+          },
+          "millis": 1784
+        },
+        {
+          "candidate": "over-storage",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xb263ad0fa1ce1b91609949ac14f7c78d709f6e0b301c26d125638fa86daf686a",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 850582,
+            "verdict": 0
+          },
+          "millis": 1833
+        },
+        {
+          "candidate": "unknown-sku",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0xa51fef8c926d7ff5c93db46d6974341dfda74662632a36a2045d92db650aff88",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Invalid rule expression"
+          },
+          "millis": 1654
+        }
+      ]
+    },
+    {
+      "structureHash": "0xe631e1caf4250a321085dad8766d0c467fd8b00596734a0b5cfcc1253c638575",
+      "imageId": "0x19e2af7f7d5966069490b321e252b7672a6b6a1c3b67a91b99aef494702154a7",
+      "trial": 1,
+      "challenge": "signed-1",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-be61a7c1-ff5e-448b-873b-b9564283597c",
+      "compileReport": {
+        "buildFingerprint": "9e624451797436ab285b26ace72f4a93c08cd377abdb171c20bfdc24a7e5233e",
+        "cacheHit": true,
+        "compileMillis": 3297,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xff1c8991d02a82baccbef70bb8aad86bbc8a8688e09327b17f5eed21d1e55fe8",
+        "imageId": "0x19e2af7f7d5966069490b321e252b7672a6b6a1c3b67a91b99aef494702154a7",
+        "inputVersion": 2,
+        "parametersSha256": "0x7da104b2c05b5b976a5c4073780f7f40fb2f68889e54657903ef5453a17dd5dc",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x72fcce5fb438df5fae1c12ac114b835bb3015dc1a6344d3ec19a1b0e332682e3",
+        "structureHash": "0xe631e1caf4250a321085dad8766d0c467fd8b00596734a0b5cfcc1253c638575",
+        "structureSha256": "0xa3638d47224c53bedfd6d239a8c49f96f1427e22216cf77785968292e7cac004",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x1989a64fb458b0cd60a146651ce53f25b51562f9148e5dd36738e167af2b001f",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 4450690,
+            "verdict": 1
+          },
+          "millis": 1795
+        },
+        {
+          "candidate": "valid-at-threshold",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x6087b4f29f99ca28e873231e5dca91bb38a62da107ceb8355a8e1ac9f54a7c2c",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 4384512,
+            "verdict": 1
+          },
+          "millis": 1810
+        },
+        {
+          "candidate": "invalid-signature",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x731a8c0a75b27cec5cfc0cd41f62840bdf1d3ca0b698bc57fac2bb1b60500fa3",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Evidence signature or binding failed"
+          },
+          "millis": 1687
+        },
+        {
+          "candidate": "unapproved-signer",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x3a35cf9bb598f9c0a0a66b9e7cd2be65a587e075f24347eed9d365b3125c84fb",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Evidence signature or binding failed"
+          },
+          "millis": 1657
+        },
+        {
+          "candidate": "swapped-artifact",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x560159aae326d3126b31ac45d4f69774983bb237a8da6804b914f9f32c77a654",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Evidence signature or binding failed"
+          },
+          "millis": 1658
+        },
+        {
+          "candidate": "replayed-context",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x547653f3e9df3effc9d380ac2434a5ca80aecd5e0c2cad376ae6b42904163b99",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Evidence signature or binding failed"
+          },
+          "millis": 1685
+        },
+        {
+          "candidate": "low-score",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x3cd5c6e49220d9fceaba27ae2f691a038dadc44fe359cf6b9c5fe2ad3c9fa927",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 4329860,
+            "verdict": 0
+          },
+          "millis": 1794
+        },
+        {
+          "candidate": "wrong-issuer",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x4c4498a416513f377675589e6ba9da5145292f9e8063ac02d72c4272259e1dab",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 4408238,
+            "verdict": 0
+          },
+          "millis": 1774
+        },
+        {
+          "candidate": "not-approved",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xf9066bd92553ac6c27411eda5fef14e76494f6c25020faf87f674036ea2c089c",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 4366715,
+            "verdict": 0
+          },
+          "millis": 1775
+        }
+      ]
+    },
+    {
+      "structureHash": "0xe5019a51667f028caf477d7094e38b4ffd4ce0209380a8299e52af1fba7de893",
+      "imageId": "0xf310f2d35ee9adeac2d732067b0d817444222368657b2f0890e1fd256458d473",
+      "trial": 1,
+      "challenge": "ledger-3",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-5191bbc2-2770-4558-958d-cdff757ff234",
+      "compileReport": {
+        "buildFingerprint": "f76b4f77954272c076c6c99be3f1ee9b8de6e298aa4ebb3336163cb602def8fe",
+        "cacheHit": false,
+        "compileMillis": 13385,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x083277448a389d1e878ca67dd59fb908519f4f2b8cf6f07430dc60bf94173c12",
+        "imageId": "0xf310f2d35ee9adeac2d732067b0d817444222368657b2f0890e1fd256458d473",
+        "inputVersion": 2,
+        "parametersSha256": "0x688ec4bf2643e53bd1c7519af40f061301b0323b19cf076a749a52de084f709b",
+        "referenceHash": "0x28b7634b18bf63839f3bf5fa37a848e49e36047b5527a9b26955eafc5574ad34",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xf377e946ed50d93e8810df2a9ca9d1b7cbd5a185e25d1b5ede94c4f8f5c0fe78",
+        "structureHash": "0xe5019a51667f028caf477d7094e38b4ffd4ce0209380a8299e52af1fba7de893",
+        "structureSha256": "0x45bb6cdd0d94973558a24c61f16e5539b060915de3d88affb991f3405b687320",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0xe757a65c0254e5b44679ed24e4390704029f28b47ada80e19ac94de66f1c0d7a",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 827609,
+            "verdict": 1
+          },
+          "millis": 1767
+        },
+        {
+          "candidate": "valid-reordered",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x43343b6c6f4a39463e4f7aee9f76bebc9baa8a04ade4b7eb1ceb8ea95178927b",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 827666,
+            "verdict": 1
+          },
+          "millis": 1814
+        },
+        {
+          "candidate": "duplicate-id",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x23f5d625617bd5ec346ffa104ed758fe6d2d0e81890e31d6e88005e477a175f1",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 827462,
+            "verdict": 0
+          },
+          "millis": 1773
+        },
+        {
+          "candidate": "missing-row",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x1bfd5956656ccf86fdde20291b50502301bafb5d3e2bd8e73cc6c5fd2a5011ab",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 808028,
+            "verdict": 0
+          },
+          "millis": 1747
+        },
+        {
+          "candidate": "changed-amount",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x0ce439eba6fd85b87335c404e7fe57125730f4de03cdc3cece78a7bb9ec1a8cf",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 827609,
+            "verdict": 0
+          },
+          "millis": 1746
+        },
+        {
+          "candidate": "wrong-label",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x9f80e5e60dc3c68957590c382f5a3949c38b4b768fb701e1c393c222e2b26f4a",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 827351,
+            "verdict": 0
+          },
+          "millis": 1777
+        },
+        {
+          "candidate": "unknown-id",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x0652c7163c0bfdf2c245969ceddc1c990f403514b676a0a35cbd1dd06e6ded8f",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Invalid rule expression"
+          },
+          "millis": 1649
+        },
+        {
+          "candidate": "wrong-integer-type",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0xe243396e479b2dec1102ce63dcfacd402ddf6cc0f043b869087e16c96f9fff18",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "File contents do not match the declared schema"
+          },
+          "millis": 1640
+        }
+      ]
+    },
+    {
+      "structureHash": "0x6a1737b323b28754870da72bcce4155c911a966bf648eaf352e19469d3f46f3e",
+      "imageId": "0x3b4b644580e4cd8b954bf9966a33753680a4fc3f717488b4163416c6fa5b306a",
+      "trial": 1,
+      "challenge": "schedule-7",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-2105945d-6773-4594-bfe4-e1e150e0886c",
+      "compileReport": {
+        "buildFingerprint": "032747d1e8bba0056c56c19b015690b7aacf1b36ed4a22de19484f5eb041bffb",
+        "cacheHit": false,
+        "compileMillis": 13323,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x860b406151be57a3f0c159f44dbf4dc4f6cfa77855fa61f0ddcf34d41d30c66f",
+        "imageId": "0x3b4b644580e4cd8b954bf9966a33753680a4fc3f717488b4163416c6fa5b306a",
+        "inputVersion": 2,
+        "parametersSha256": "0xea53653be911c1535eb7d858706a6e3cd1a0ffedc61a9aee4a6d391801caa436",
+        "referenceHash": "0x84fa71efefd2cf8541f7893ed03de9de811e18ba56d5560206eaa45c2aa658d0",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x7504e32ca830c7b80573c95a27d28993fba42be93d9d097bafb88070903c6338",
+        "structureHash": "0x6a1737b323b28754870da72bcce4155c911a966bf648eaf352e19469d3f46f3e",
+        "structureSha256": "0x5cf660528bdd73a44f6efbab31e43aeec312b3e808aa30191cdfa2583f6b5261",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0xad3835e2261415adebbca2e45974e10b9a31ff743f21a018698518153ec7979d",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1210483,
+            "verdict": 1
+          },
+          "millis": 1825
+        },
+        {
+          "candidate": "valid-two-workers",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x55dcdb0239f2347f4d796a1dc446526d53ee6159fc2db0ec1ae4ac2a6dace699",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1163719,
+            "verdict": 1
+          },
+          "millis": 1778
+        },
+        {
+          "candidate": "duplicate-worker",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xcdfbb82b74d67138dd7b74459300181209eb80691115317c0694b9b4af880eb6",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1210241,
+            "verdict": 0
+          },
+          "millis": 1755
+        },
+        {
+          "candidate": "invalid-shift",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x777e7b03f30b84449c4acd46e5bb8ee14442ef6984472d9ada04cd589e6f9e0b",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1210485,
+            "verdict": 0
+          },
+          "millis": 1777
+        },
+        {
+          "candidate": "no-shift-zero",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x99b56f88f492b5da0988b023f351a12cfb2f639fe64d83fdb53871b57b84c01e",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1210487,
+            "verdict": 0
+          },
+          "millis": 1790
+        },
+        {
+          "candidate": "no-shift-one",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xe04253284bd02547e6fab7195736369b1bf366fd903535ab4f9464827f89fa40",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1210479,
+            "verdict": 0
+          },
+          "millis": 1767
+        },
+        {
+          "candidate": "expensive-worker",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x8bb0047d9e8138cac5273a673f3da16981de044d50895846aec26a39167022f8",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1210531,
+            "verdict": 0
+          },
+          "millis": 1765
+        },
+        {
+          "candidate": "unknown-worker",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0xd22581812d208954f1a14f0a68662c774100e87efda1fb9fdfd5abc7b6ba1e06",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Invalid rule expression"
+          },
+          "millis": 1659
+        }
+      ]
+    },
+    {
+      "structureHash": "0x198e27c4d72356e57557b459ad8ba809c82ac6f5e0b345de5a1dca938e89eb21",
+      "imageId": "0x989c3d1c4dd9932cbd9b67889a1dbdf9fb1481a114eec28fc603bd6337cc2e7b",
+      "trial": 1,
+      "challenge": "expense-5",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-6e7bfa71-28ad-4bcc-a214-f4ef7bb72996",
+      "compileReport": {
+        "buildFingerprint": "146a94a54193be4dc2727666d6c76cc568a23a39bc84c8179f6f681c1b517d5a",
+        "cacheHit": false,
+        "compileMillis": 14022,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x56fe4d08374554520ded922644e2a5753b699655c8cb63d022add59ce86df4b4",
+        "imageId": "0x989c3d1c4dd9932cbd9b67889a1dbdf9fb1481a114eec28fc603bd6337cc2e7b",
+        "inputVersion": 2,
+        "parametersSha256": "0xb439694edb198acf5c5cedff4a9b08bbfa07a3e6b1be80bcb5c8234ff17d9b75",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xf6d842a7ac7fef01d6032edf57ee11a05bd0845375cdb10ecc73b355e1540006",
+        "structureHash": "0x198e27c4d72356e57557b459ad8ba809c82ac6f5e0b345de5a1dca938e89eb21",
+        "structureSha256": "0x9d23b3709d60e484508efdddbad42acc194b2440a9845659d283fd73d1e02592",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0xcb882cd4c63eea3f704912e64fabf557a70eccb83e9d5a122fcf7e279bbe35ed",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 759068,
+            "verdict": 1
+          },
+          "millis": 1777
+        },
+        {
+          "candidate": "empty",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x30cc407eaa552c9273d103a36b15ab46efba14ab8a6ec7bb9b8afe6a825df951",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 685005,
+            "verdict": 0
+          },
+          "millis": 1785
+        },
+        {
+          "candidate": "duplicate-id",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xec3f8bb5c2f0cac239ca6c5e897cd81de3abbde860ca301f81b5ccb59850f6d1",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 758900,
+            "verdict": 0
+          },
+          "millis": 1812
+        },
+        {
+          "candidate": "negative-amount",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x4c9d541ed2f11dcd55947e0b941df7eec7b601be2e2e175e75acf7a3a5ab202c",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 759104,
+            "verdict": 0
+          },
+          "millis": 1777
+        },
+        {
+          "candidate": "total-over-budget",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xda21b672e5173025d4fd357b2361aafd347e111162a0c8bbbfaa4f5307f3d097",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 759068,
+            "verdict": 0
+          },
+          "millis": 1775
+        },
+        {
+          "candidate": "item-over-cap",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x9ae1a775ca82f0625ced15558eb17152fdd0e95295cbb1a3d84459b20d79b136",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 759068,
+            "verdict": 0
+          },
+          "millis": 1764
+        },
+        {
+          "candidate": "unapproved",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x85149f6dfecdcab7d922839ff544ec302a86c8dce2b7bbe31bb3408598ab6389",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 759201,
+            "verdict": 0
+          },
+          "millis": 1762
+        },
+        {
+          "candidate": "numeric-instead-of-decimal-string",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x7554f9b26a5939350c5b2db60ca5da8e5f724b93c41794d3c76db56bda7e98ca",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "File contents do not match the declared schema"
+          },
+          "millis": 1664
+        },
+        {
+          "candidate": "valid-zero-item",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x643113aa745272cb158bf621d3b49d5f236eaa2d23da0b44894865e5fc236165",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 759075,
+            "verdict": 1
+          },
+          "millis": 1759
+        },
+        {
+          "candidate": "sum-overflow",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x5e9fcf4d033566920d5ef335e5f8705b58b2dfc6c6a5a29cbc28aafadd5ab9ab",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Rule arithmetic exceeds the i64 range"
+          },
+          "millis": 1650
+        },
+        {
+          "candidate": "too-many-rows",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x93817c7aa1fd263d3b741d2ca712afaa03ce1ba0e92f2d44f8774910d3be17e1",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "File contents do not match the declared schema"
+          },
+          "millis": 1648
+        }
+      ]
+    },
+    {
+      "structureHash": "0x6fc68b95bfbd7640068d7d9aea6cd84a08f58e6a2047da40b1ad221a9d8c88ba",
+      "imageId": "0x5f068a896281c6a929b7d971be3aece6304a6484cc988ecd413491aec74f101a",
+      "trial": 1,
+      "challenge": "file-5",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-8eab32dc-bc90-44af-8364-ba2457913323",
+      "compileReport": {
+        "buildFingerprint": "5dbc54c2384675fdccd832e0def91acccbd0abb5b58397f28f95b3b28361e8cf",
+        "cacheHit": true,
+        "compileMillis": 3328,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xc23916cc1e9a2986baca03a6cc0f4f29e665d17c221d1e3c670f12d145088381",
+        "imageId": "0x5f068a896281c6a929b7d971be3aece6304a6484cc988ecd413491aec74f101a",
+        "inputVersion": 2,
+        "parametersSha256": "0xac51ddec78e7b23c890b6e9f149712d0bce082b2e5f27b1785752455972d9dde",
+        "referenceHash": "0x478db343d2e0abdafa40aa5f46f24a15d4f753052ff624876bb19b48390a9b1a",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xced338315b7fe694fcb8bdbe06f9cad37ce0443a3659a75e266e182a3357e372",
+        "structureHash": "0x6fc68b95bfbd7640068d7d9aea6cd84a08f58e6a2047da40b1ad221a9d8c88ba",
+        "structureSha256": "0x46cf687596f9133eff2eec4efb80134cd94566de9cfc5104a29883ccd3e783ae",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x5f725ad50caef8c06e87977c2df58f885b02ae5bf6432bf64c8ee1cda3921532",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 521211,
+            "verdict": 1
+          },
+          "millis": 1752
+        },
+        {
+          "candidate": "valid-minimum",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x54afb5c22f3f6985f6860419ae3487d1962969a898584e6babc56f307adbcacd",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 521259,
+            "verdict": 1
+          },
+          "millis": 1741
+        },
+        {
+          "candidate": "hash-mismatch",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xafcf389cbc4560eccf821915cae90d9c2a693fa916318a803fefb923a404c3ea",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 520766,
+            "verdict": 0
+          },
+          "millis": 1770
+        },
+        {
+          "candidate": "short-appendix",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x7f48825702c53e16571234e9783037989fe1d1c50cbc340eadde6bbe9c09622a",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 521020,
+            "verdict": 0
+          },
+          "millis": 1774
+        },
+        {
+          "candidate": "long-appendix",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x2103a8478a8a2a1872d24c9fd0efdfaccbf65728c332f4bbf76ad9a1460961ef",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 521084,
+            "verdict": 0
+          },
+          "millis": 1831
+        },
+        {
+          "candidate": "wrong-label",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xd9043dfc512f8980ca85257f17d041c9f3644df8d3d17f450b2ba742a4ba528e",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 520672,
+            "verdict": 0
+          },
+          "millis": 1771
+        },
+        {
+          "candidate": "missing-artifact",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x03d7d1c13e162b04f5af3053e2d19c4281c707991241e697c6b604c4886b08fa",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Bundle files differ from the declared files"
+          },
+          "millis": 1677
+        }
+      ]
+    },
+    {
+      "structureHash": "0xdd0e0443998bf705970697af59cf7c772c3e183af694dd470bd7bda20698cd92",
+      "imageId": "0x9f75fd9761550a08519c5c65e866f5462042b3357117e61ee92cd1294b547d7b",
+      "trial": 1,
+      "challenge": "file-1",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-ca3c8c5a-f7e3-4833-b2a5-ca62c39d3995",
+      "compileReport": {
+        "buildFingerprint": "bbac29a071ecf678153a5f74722445e21419d3eef6b3069ea12a2909a2ff0c8a",
+        "cacheHit": true,
+        "compileMillis": 3340,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x22339110297ddc68b8afbe0dacfe9f0a0c5af5aa142c2f1cac74701b80ddabd2",
+        "imageId": "0x9f75fd9761550a08519c5c65e866f5462042b3357117e61ee92cd1294b547d7b",
+        "inputVersion": 2,
+        "parametersSha256": "0xc88490ac94b074a226a31456c4b7a152a3da6622985e3bd995e7c625b99077c0",
+        "referenceHash": "0x072e75c6c22f6b76bf536989f43514c5343781116e1ea78cf0ec1e80760643e2",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x3837d02261a2adb38715ad7e0e87293ccdc76c40efed6fab0b65353e3307d1da",
+        "structureHash": "0xdd0e0443998bf705970697af59cf7c772c3e183af694dd470bd7bda20698cd92",
+        "structureSha256": "0x49b0b4f8d0c2f61dd57551315340f549e3077ac0d3502b5b30446c18940e2762",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0xa887e51292cd56099d6224e7f0839681b82de156045c788ae6470b36464fa7d2",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 515768,
+            "verdict": 1
+          },
+          "millis": 1776
+        },
+        {
+          "candidate": "valid-minimum",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0xb6e2f7a4553e3c2b8bc54c87bdabe576100712c2b6779552b6cf83afd1137731",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 515760,
+            "verdict": 1
+          },
+          "millis": 1752
+        },
+        {
+          "candidate": "hash-mismatch",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xa3605cce5f459dc4aa4963a81c11a66f47ad99358a4c34171e5cb782eab83a97",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 515323,
+            "verdict": 0
+          },
+          "millis": 1752
+        },
+        {
+          "candidate": "short-appendix",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xd01cb0b7ce7178831dbd6d7779c40ee2e42b9db87b72606e82c4bb7eda1dda78",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 511398,
+            "verdict": 0
+          },
+          "millis": 1739
+        },
+        {
+          "candidate": "long-appendix",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xd4306a42696321191839057e15f03644807853460163a966805a972b9761993b",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 516158,
+            "verdict": 0
+          },
+          "millis": 1743
+        },
+        {
+          "candidate": "wrong-label",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xc4818351ad359858bacb94ebc64fa810ce002bc9244ae979b044d9b74d9dfa16",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 511329,
+            "verdict": 0
+          },
+          "millis": 1738
+        },
+        {
+          "candidate": "missing-artifact",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0xe99bfcb9e8002ef568881deed5cfe54c38220b70ebff1ddda10a9c6f1703b6fa",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Bundle files differ from the declared files"
+          },
+          "millis": 1641
+        }
+      ]
+    },
+    {
+      "structureHash": "0x7bbbb803ce0eb34a94c7bfa2f87920a1b145d18fa3074ad84e87e80f21215e96",
+      "imageId": "0xd1216d88ab6235749b7c32fd77ee959a3aa07b585c34d7412712c09f11a3d927",
+      "trial": 1,
+      "challenge": "file-3",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-6ee1e71f-47dc-48f3-8841-085626102710",
+      "compileReport": {
+        "buildFingerprint": "4f002544fb1b17951980b583138e0267f562d231af54dd9147d99e670d531b3b",
+        "cacheHit": true,
+        "compileMillis": 3300,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x460c4313f876f108986cb206cbd91b616f42d1f30d8248c46ff952989d7d680c",
+        "imageId": "0xd1216d88ab6235749b7c32fd77ee959a3aa07b585c34d7412712c09f11a3d927",
+        "inputVersion": 2,
+        "parametersSha256": "0x2d731c055cbffb580837a3d6f0465a37f0796925b7b437d9dc6cd0274786ea0c",
+        "referenceHash": "0x2f30595c92da6620284cd40ccd6ff3505c06334fe4eeefd0136908f06f086db7",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x6a23f8ef64bef99faa0a6e4669e5c187f84d2a801368d1dd00b1b076ed13d8c1",
+        "structureHash": "0x7bbbb803ce0eb34a94c7bfa2f87920a1b145d18fa3074ad84e87e80f21215e96",
+        "structureSha256": "0x0f8b2edd521702df3d51e79d5d6deac50b453ee465469593ea5cf3af40b7842a",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x6589180c322775c606ea8b69f87dc8b96e85e990b3c8000159d189f632a2d6dd",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 523053,
+            "verdict": 1
+          },
+          "millis": 1747
+        },
+        {
+          "candidate": "valid-minimum",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0xedc5bd4a56a1051f42d1c1a5f28e518da68a7b404b33f0fca5417a62d93c4661",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 523117,
+            "verdict": 1
+          },
+          "millis": 1737
+        },
+        {
+          "candidate": "hash-mismatch",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x62b8dab1cd5d7f8aa37b54c43841e5b8cca1af3e847e52b334a561d5255375e4",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 522608,
+            "verdict": 0
+          },
+          "millis": 1768
+        },
+        {
+          "candidate": "short-appendix",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x3b5981cbaac1e39f47dc06248d6d191c98886542a0a94ab64c4f07c9e244c070",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 523126,
+            "verdict": 0
+          },
+          "millis": 1774
+        },
+        {
+          "candidate": "long-appendix",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x91b59b535d0ce92ad01f56339727c769286c371f8c0c9d66ea6b5f4e36d1231f",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 523190,
+            "verdict": 0
+          },
+          "millis": 1782
+        },
+        {
+          "candidate": "wrong-label",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x6c3bcf1f7d14313b748ece02613bb4e066ea69ac74b8e3f5c3ac24fac938114c",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 522881,
+            "verdict": 0
+          },
+          "millis": 1766
+        },
+        {
+          "candidate": "missing-artifact",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0xe481a51eaaeab0d8b705003f870281ee6862355ff0351c8a3020e4fa6524117a",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Bundle files differ from the declared files"
+          },
+          "millis": 1673
+        }
+      ]
+    },
+    {
+      "structureHash": "0xb7bd6d46ce50fba9aa496ea4a74ba99c1ccd1d9ca04415df966dcb07b7a64f26",
+      "imageId": "0x0fdfd1ad17a681c9ae083fded09d693673bad6d80e441c5b7ee6ae6e15679944",
+      "trial": 2,
+      "challenge": "expense-2",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-24ade236-b349-43ab-ae7d-f169bbdceaa4",
+      "compileReport": {
+        "buildFingerprint": "d15aa1c9eb05c8429109c7173117400e8da0acc5154ad2e7fa01063da233bd12",
+        "cacheHit": false,
+        "compileMillis": 13867,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x4ff14ed8950e58061521821820f400392112fb33940e3e8bce2a8fabd63c965f",
+        "imageId": "0x0fdfd1ad17a681c9ae083fded09d693673bad6d80e441c5b7ee6ae6e15679944",
+        "inputVersion": 2,
+        "parametersSha256": "0xa7ed37d41ecc149450a13a59ca4eebd68262f1e3df06f855ee1f9d272f661bc3",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xf0c8b87bc38432f9240675057094476edf6792bb421c2c8ad5d54280b739552d",
+        "structureHash": "0xb7bd6d46ce50fba9aa496ea4a74ba99c1ccd1d9ca04415df966dcb07b7a64f26",
+        "structureSha256": "0x3ae6646ad65360bfa01dce779f8c295907e9b74ac1d4ce7abece899a0c13ebe3",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x0fac17092b1588778b8cf8fd915b7432b1c30074c9867ae100df62f5aeb52366",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 742273,
+            "verdict": 1
+          },
+          "millis": 1796
+        },
+        {
+          "candidate": "empty",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x91c73d8d5e872529109870aa0afc8c27489a47df992fea52aa2cbfcfe68a8613",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 669079,
+            "verdict": 0
+          },
+          "millis": 1753
+        },
+        {
+          "candidate": "duplicate-id",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x558dda3a468a6a43e7acd3518286c54a6198dcd6a9e4f33b3fb4c7069c09ca7f",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 742105,
+            "verdict": 0
+          },
+          "millis": 1785
+        },
+        {
+          "candidate": "negative-amount",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x18c28be728edf3cce7ca47af7c54474a484bfe218cf27731b44c44a2990b36e2",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 742309,
+            "verdict": 0
+          },
+          "millis": 1774
+        },
+        {
+          "candidate": "total-over-budget",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xf1c2eef2410f533eaaa38e5e1c69c5358de7781bd3ced72d10cf9019422eccea",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 742273,
+            "verdict": 0
+          },
+          "millis": 1827
+        },
+        {
+          "candidate": "item-over-cap",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xff0ea43cf6f04a2f78995f2a9fe770ba20b116238aa688ccafaaf1ad09804545",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 742273,
+            "verdict": 0
+          },
+          "millis": 1750
+        },
+        {
+          "candidate": "unapproved",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x5eabbe489a87decca123af9d0af5c7690993983b0d636624990f0600cae4d99a",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 742406,
+            "verdict": 0
+          },
+          "millis": 1804
+        },
+        {
+          "candidate": "numeric-instead-of-decimal-string",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x39a1e897974434bed98ebfb6928d565042d07cab00e44caaa4a084df877dd51b",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "File contents do not match the declared schema"
+          },
+          "millis": 1692
+        },
+        {
+          "candidate": "valid-zero-item",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0xd4903ed60a8ad7166af82d5b7e4017d4d7dd06e23a9410860d95931aeaaa8de9",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 742280,
+            "verdict": 1
+          },
+          "millis": 1775
+        },
+        {
+          "candidate": "sum-overflow",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0xa783764222977474df0ae4ad700a84a6b286fd29a9c8d0f5f528723c16c89d64",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Rule arithmetic exceeds the i64 range"
+          },
+          "millis": 1650
+        },
+        {
+          "candidate": "too-many-rows",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0xae943ff95315ebb65f795dfb5b796ebf15714068993314139ce2f73c995b1b68",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "File contents do not match the declared schema"
+          },
+          "millis": 1672
+        }
+      ]
+    },
+    {
+      "structureHash": "0x97c15919acbdda1305d6c1d3d4272d3f5f8a16577fa2f7a6c915cc2a9e9543f0",
+      "imageId": "0x912c82806e4031d4c701687e9c0139004c866428876b6b14914f8fc5e4f3761f",
+      "trial": 2,
+      "challenge": "ledger-7",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-37e68e60-5e0f-45a3-bee3-fc98a2172316",
+      "compileReport": {
+        "buildFingerprint": "f0a9c941c465950d3ba3e477e2cde4e56b94827c9ab329e11ae76495546c225b",
+        "cacheHit": false,
+        "compileMillis": 13495,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x20259ac3f310e0ee8ac45d40f2019f70292ea86e59a4c24c853caf5605115e20",
+        "imageId": "0x912c82806e4031d4c701687e9c0139004c866428876b6b14914f8fc5e4f3761f",
+        "inputVersion": 2,
+        "parametersSha256": "0x68a9a08a3e4ce586566e4b517295fd79d02bfa0183443bbfa36200af616d2e36",
+        "referenceHash": "0x4b0e00ae38c19bd2afb7a64ce08ce6b5df29bf1a91db4f17a0187929cd5cfeeb",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x049a45ffbf884401b1571570742919c964379db781c1815af23902f475ff40fd",
+        "structureHash": "0x97c15919acbdda1305d6c1d3d4272d3f5f8a16577fa2f7a6c915cc2a9e9543f0",
+        "structureSha256": "0x0a1236dc350409b9b7ad7f6fe6b348770a40cefed779eeb356e576b469cd8c81",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0xf54ed3711cd0ef3beeec83c9021294b61e9fd10ce70a0c67a3c92bb237a2eef8",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 828940,
+            "verdict": 1
+          },
+          "millis": 1795
+        },
+        {
+          "candidate": "valid-reordered",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0xec4a1996878ab54ebf9fccb16c9b390ea16141b3b05b09e8685caa0e3a5bbb74",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 828997,
+            "verdict": 1
+          },
+          "millis": 1782
+        },
+        {
+          "candidate": "duplicate-id",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x238ff158ec8de883a907fe32e1894aef5c01ba8a5a03b6e1da9899eadf32632e",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 828793,
+            "verdict": 0
+          },
+          "millis": 1761
+        },
+        {
+          "candidate": "missing-row",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x4c3a89f6fc3de433955b1d2abf0a9de572a8d49ea3d33695e5f02aa8db9dee98",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 808883,
+            "verdict": 0
+          },
+          "millis": 1797
+        },
+        {
+          "candidate": "changed-amount",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x700984fba86e13078b005dfb2d45ed3d58b8ce37dca9b85d4185e2e78e0953da",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 828940,
+            "verdict": 0
+          },
+          "millis": 1756
+        },
+        {
+          "candidate": "wrong-label",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x8b8d9dad61059bba8c1c61380aebf9cbb57a6d7c509e960345c3ddfc6a58664e",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 828508,
+            "verdict": 0
+          },
+          "millis": 1767
+        },
+        {
+          "candidate": "unknown-id",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x0621cadbedceacfdd21ac5f0edcc275de2d56a7f0c0c30d9f202648bf8745ee7",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Invalid rule expression"
+          },
+          "millis": 1649
+        },
+        {
+          "candidate": "wrong-integer-type",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0xf18a6a1f35bf9fc4e725189a8888b0b11fa625b4066026a132aa0f6ccb0d9e89",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "File contents do not match the declared schema"
+          },
+          "millis": 1656
+        }
+      ]
+    },
+    {
+      "structureHash": "0x2f9181e8288b50fb96ce1075ec90e9388284fceebe6568298299fb1f5657e915",
+      "imageId": "0x2ce51298eb3578455912fd0477c82bf66ccdb3fbc0c285fd748f9a6699cb627e",
+      "trial": 2,
+      "challenge": "signed-2",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-60252983-f96d-42cd-a4e9-42bd685cd9df",
+      "compileReport": {
+        "buildFingerprint": "63aeffa3337de47ae06422a55298faee5a010b789e159c94f5d2fe6904deb977",
+        "cacheHit": false,
+        "compileMillis": 13687,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x18ddaa1a00e25c66d34587bf94d295a7dcd90dda5ed8552b95c6dc5b9a0d827f",
+        "imageId": "0x2ce51298eb3578455912fd0477c82bf66ccdb3fbc0c285fd748f9a6699cb627e",
+        "inputVersion": 2,
+        "parametersSha256": "0x39d62efc025bc59c2369c1eae255af3c6d76a75f2266081f26f9b760f33df9a5",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x6611ca9276af56cfcfc8cd20b299f4c7917e976bbc5cf903c90d025023c1df6e",
+        "structureHash": "0x2f9181e8288b50fb96ce1075ec90e9388284fceebe6568298299fb1f5657e915",
+        "structureSha256": "0x8547b72267a4d67627e396bf046baf2136766cf54c4dcf80bf221d1c32128cdc",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x7ce201312fdeb8810a8d1c99e6f36bdca2efad591a0f9a11c4ff4414ae97c783",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 4287364,
+            "verdict": 1
+          },
+          "millis": 1794
+        },
+        {
+          "candidate": "valid-at-threshold",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x2ce4860124b86a4e45f78ffb65ffc04bd6ece8afc0b20c30c17a4651a1f6688b",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 4391344,
+            "verdict": 1
+          },
+          "millis": 1795
+        },
+        {
+          "candidate": "invalid-signature",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x1af2fb3f71d77b9d5e27d35133ed688e9785736a7591c5e988f957213a168e56",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Evidence signature or binding failed"
+          },
+          "millis": 1683
+        },
+        {
+          "candidate": "unapproved-signer",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x2afbe0ecaed1b7151d5b2e841beabd28f9c7ed6905f1a9004d8cab18781feb75",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Evidence signature or binding failed"
+          },
+          "millis": 1673
+        },
+        {
+          "candidate": "swapped-artifact",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x2c386e9132f5644e6bd99388646ef4c20e45dabfe0078cec4f2f09dc140d1d9e",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Evidence signature or binding failed"
+          },
+          "millis": 1678
+        },
+        {
+          "candidate": "replayed-context",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x03640718740d8b7f910a8e3beb840227a504c6930cea58c4b5003d9ae971d571",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Evidence signature or binding failed"
+          },
+          "millis": 1655
+        },
+        {
+          "candidate": "low-score",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xda96002deb5fb7d4644a0bc36b21509603091260580934e4c4ba723a16733649",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 4354723,
+            "verdict": 0
+          },
+          "millis": 1783
+        },
+        {
+          "candidate": "wrong-issuer",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xfae255bc3e9e728493756dd313672f6bf3072d5c7b37415e844ec33272727eaa",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 4299526,
+            "verdict": 0
+          },
+          "millis": 1782
+        },
+        {
+          "candidate": "not-approved",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xd7057dc5c6cf4b5895bed4146efc6b1572ed7f7edfbb8832452e2a0861e8e139",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 4362062,
+            "verdict": 0
+          },
+          "millis": 1773
+        }
+      ]
+    },
+    {
+      "structureHash": "0x700fafa5e66b150e02c5765b27e8f58c339890109c95b0af55cf39cb26a375af",
+      "imageId": "0xa1bb53d32944b180b8c62765b68dd7327bf43fb67ce37ae7f0edd7593299b7c6",
+      "trial": 2,
+      "challenge": "schedule-1",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-4c293425-f8c3-4b32-ba4d-6b32ab22b528",
+      "compileReport": {
+        "buildFingerprint": "720314def090df33ec4a8e330d46afd89b19a020450eaf0bea005065c5d4e884",
+        "cacheHit": false,
+        "compileMillis": 13744,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x0ab2e8cb54e3f41853a7f667f69a44734f5b322840bccdfdcbd149e46214626b",
+        "imageId": "0xa1bb53d32944b180b8c62765b68dd7327bf43fb67ce37ae7f0edd7593299b7c6",
+        "inputVersion": 2,
+        "parametersSha256": "0x5bad0971c4623ecd99797a99c50df34837978f63cd2b9e0151937ce56838c906",
+        "referenceHash": "0xd90c774eac6ac4e9fb10297ba512d0c729d8c59a03b13636eea27ded5d696711",
+        "riscZero": "3.1.0",
+        "rulesHash": "0x655252830f5744953b9e6534136cebe7b3b07055cf972c92c84a673ef7895545",
+        "structureHash": "0x700fafa5e66b150e02c5765b27e8f58c339890109c95b0af55cf39cb26a375af",
+        "structureSha256": "0xddd4010e22688f7ece594af10ebf674f975c3875e3521fcb528e9f58e568b8ba",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0xc574435fafead3755c31e4eadcde1db513547fcc8fa83ad42534599c98fbfa30",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1112559,
+            "verdict": 1
+          },
+          "millis": 1844
+        },
+        {
+          "candidate": "valid-two-workers",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0xc1717f714cf6e6a23795dd7283937edac5d8314b199234a52126bd204b0c1851",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1065811,
+            "verdict": 1
+          },
+          "millis": 1786
+        },
+        {
+          "candidate": "duplicate-worker",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xe304389369b01a0bdb378307c21183c2c8ddba88afdaa47ffe24aed5f3b60735",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1112317,
+            "verdict": 0
+          },
+          "millis": 1785
+        },
+        {
+          "candidate": "invalid-shift",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xc70dec9156273ebd041dcc3aff96756e3e499297e2070ed7b4ecf186f90caa9a",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1112561,
+            "verdict": 0
+          },
+          "millis": 1762
+        },
+        {
+          "candidate": "no-shift-zero",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x0f41dcb73ed0e192d58897307e5ce30daa7187ddaf293722cbff6d9a1fb75613",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1112563,
+            "verdict": 0
+          },
+          "millis": 1784
+        },
+        {
+          "candidate": "no-shift-one",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xcca307df96498403788f2aed2e59026d8631ed30d5dd2fb99e9e30cdc9dae1f5",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1112555,
+            "verdict": 0
+          },
+          "millis": 1831
+        },
+        {
+          "candidate": "expensive-worker",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x7afb93664a57e5757c7fdde4f011ac9876517f398ae713354b159e7637537aa5",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1112607,
+            "verdict": 0
+          },
+          "millis": 1785
+        },
+        {
+          "candidate": "unknown-worker",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0xf33bc1246830593150e3387e92d942f5a148e5b945488dfbd24c43be2823f4d6",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Invalid rule expression"
+          },
+          "millis": 1685
+        }
+      ]
+    },
+    {
+      "structureHash": "0x69fb051686a43e674aa819b4f4e19692ad59c3bfa61f8255cc9888ab7798c68d",
+      "imageId": "0x6aae1d9abe89b09122ccfdddb7a59d34406263eebd6a6d9d920ef79b4b034423",
+      "trial": 2,
+      "challenge": "inventory-2",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-c1d8b25e-a1d0-43a9-bb2d-8b0d90832773",
+      "compileReport": {
+        "buildFingerprint": "4c9957f98a7292a160cc75fcad9a6906f7ffe862c8e005bff58b24777b2b2e30",
+        "cacheHit": false,
+        "compileMillis": 13609,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0xc0dded29c618592ff742565a66f9c0517a359f5962e5c38fcf69a0961c5a04d4",
+        "imageId": "0x6aae1d9abe89b09122ccfdddb7a59d34406263eebd6a6d9d920ef79b4b034423",
+        "inputVersion": 2,
+        "parametersSha256": "0x4cf775386fbf6804cbccac9680d37f54016dd18878908e1d4e2a57ed47af059d",
+        "referenceHash": "0xc836973e0156f57575ff9e731887cb85707a4784af57ecadfe32dfa1591364fd",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xe28de240b74a7c93a2be94bcf697d76267ecd32627a8bbe9f01c2b0b3dd8d1d7",
+        "structureHash": "0x69fb051686a43e674aa819b4f4e19692ad59c3bfa61f8255cc9888ab7798c68d",
+        "structureSha256": "0xa5b630cf31f8bb427d757619a36fa709b28772977d81d7c85115976173e8ca8d",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0xda3f828d76dea422e21c50db95a28800545d63bd3fb688d7d8fe3187a48ed9a0",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 851282,
+            "verdict": 1
+          },
+          "millis": 1799
+        },
+        {
+          "candidate": "valid-at-minimum",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0xfd59ee6e828da7f1bf2c7f9e7cc637b5b42a9f009db6c25f4a0202889e591c4d",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 851282,
+            "verdict": 1
+          },
+          "millis": 1787
+        },
+        {
+          "candidate": "duplicate-sku",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x150ba9ade120b0412026e26f827654f30ff092f924f4a5e299b1140a513b50ab",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 851142,
+            "verdict": 0
+          },
+          "millis": 1756
+        },
+        {
+          "candidate": "missing-sku",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x895c9606934046bb732c6bc7b4057c4906987811d2ce51bfdcd88f248ea2bd7b",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 831110,
+            "verdict": 0
+          },
+          "millis": 1755
+        },
+        {
+          "candidate": "below-minimum",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x7ce942c17504108de194b0ea2a73865fe84ae55c4bb611f613c9fa9a7a370c62",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 851282,
+            "verdict": 0
+          },
+          "millis": 1770
+        },
+        {
+          "candidate": "above-maximum",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x8cbc6880222bfb7d8df3bbad630c408e78a94cf2bfeec96d1158ad3c04079aa7",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 851308,
+            "verdict": 0
+          },
+          "millis": 1790
+        },
+        {
+          "candidate": "over-storage",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xfcd270ede91fb9d986ac22e1e3164abae7c52ad34d2289fc63cbfd642a164782",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 851011,
+            "verdict": 0
+          },
+          "millis": 1891
+        },
+        {
+          "candidate": "unknown-sku",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x373ad23472879baa26c297e6edf2ef67b6ac82b355e56ae321d0023c71fce94f",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Invalid rule expression"
+          },
+          "millis": 1674
+        }
+      ]
+    },
+    {
+      "structureHash": "0x151fbe78b39483b381b84594e676b5ff8af687179f924252e43a68cc956fee34",
+      "imageId": "0xf2122f9c2efb92d28c5e6960f810231a0ceafeea3992ef1d43c273ef3264f1e8",
+      "trial": 3,
+      "challenge": "ledger-6",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-a9e4cf08-4208-4403-874d-aa749a09c5a5",
+      "compileReport": {
+        "buildFingerprint": "76840de0ba67c6e7c38981c601793601007b0cd57af144721a119caa255bb598",
+        "cacheHit": false,
+        "compileMillis": 13756,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x288786f17c79aa2456639dce9237f110a052328f6025eb840bfb71024b9bf041",
+        "imageId": "0xf2122f9c2efb92d28c5e6960f810231a0ceafeea3992ef1d43c273ef3264f1e8",
+        "inputVersion": 2,
+        "parametersSha256": "0x332f032f376f5b2b0e4f02a563cf9f6269e507e8ecca6b059ac1e39cf6d03260",
+        "referenceHash": "0x42f68f743244e985523644b49f079f239b1cee7302c884aebc9c72771c2cea30",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xffcb6eee83ab1298bdcd3e97fcace8e76bbe79ae1495bd1ebfc518d8f8f58d33",
+        "structureHash": "0x151fbe78b39483b381b84594e676b5ff8af687179f924252e43a68cc956fee34",
+        "structureSha256": "0x3664c161a202c34a20872cc2c2dc541fda3b0061793557883584ae3b71902fb7",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x28d36b6f5e506b07e3f5297e8fc8c12594d3ebdbba603ca158255dcabacc28d4",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 709336,
+            "verdict": 1
+          },
+          "millis": 1777
+        },
+        {
+          "candidate": "valid-reordered",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x5bd862a66200458ee50b2958a04d51f2cb2a85f70efc8e2ac4765b6a5c3a29ee",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 709393,
+            "verdict": 1
+          },
+          "millis": 1750
+        },
+        {
+          "candidate": "duplicate-id",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xb129ac01846b49416f9f899d8b730f70e8e035c1adec114663a9e795bc03d67d",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 709189,
+            "verdict": 0
+          },
+          "millis": 1787
+        },
+        {
+          "candidate": "missing-row",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x0ab4033b4e7e6974dff7971a38aff8f75c15d3e53bd740ed095abadd5a955074",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 690845,
+            "verdict": 0
+          },
+          "millis": 1740
+        },
+        {
+          "candidate": "changed-amount",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xc74fc80fe59b27357a67b27b8a35c50bbd49916c5c125629a354662267c6af58",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 709336,
+            "verdict": 0
+          },
+          "millis": 1771
+        },
+        {
+          "candidate": "wrong-label",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x156b0c20f85963ee972237eece15494a2b475429b4872249c6f6a2123242c375",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 708229,
+            "verdict": 0
+          },
+          "millis": 1776
+        },
+        {
+          "candidate": "unknown-id",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x148d56560bfaf2a5765e669afd3eb9e0369ec1f6efe80035aaaa00c13c2e2694",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Invalid rule expression"
+          },
+          "millis": 1647
+        },
+        {
+          "candidate": "wrong-integer-type",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x56a7d39490ae7ecc14715201c2bf036c445524a363cc97130619ac0e4ac3986d",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "File contents do not match the declared schema"
+          },
+          "millis": 1645
+        }
+      ]
+    },
+    {
+      "structureHash": "0xbaa0d0dff05631910f1461e0fb822a4e3f500bf10ecb64ed1f1b4630f69d7b89",
+      "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+      "trial": 3,
+      "challenge": "schedule-3",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-d26dbc97-0a44-432a-87f1-2006981975a5",
+      "compileReport": {
+        "buildFingerprint": "a3978a70c489a42de89de0028daa9d7613da7a45cb4488292e117081865b3c52",
+        "cacheHit": true,
+        "compileMillis": 3336,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x1bb697fe20d6d8ab5f7763702147f93a816957321cc4c984c805e9c62864a773",
+        "imageId": "0xce48bb97b48f87379a8ac6ed0bc818e9ca2040b3c5620a9338d7c17255c8f4c4",
+        "inputVersion": 2,
+        "parametersSha256": "0x458fc3f990cd6b56264d931f56958502346ad0ca973ce5b4ee859c05b2cf2ad7",
+        "referenceHash": "0x069942dc06fae975e96dff27b8eae2f1e9ab51c0409d3f67303cc4013f00fa06",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xe27d33327d59e5a116d45902786e765dddf188b3d364079cea1e10b0a2b487d8",
+        "structureHash": "0xbaa0d0dff05631910f1461e0fb822a4e3f500bf10ecb64ed1f1b4630f69d7b89",
+        "structureSha256": "0x4ab432068fea3b141a57b7003858c91aa807cdee3b2982bb006807196efd2152",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x315ec7cd39238c4e62de0bf106fc017b96c81a10561c4fbdbed21dc0ad13f2c7",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1084093,
+            "verdict": 1
+          },
+          "millis": 1789
+        },
+        {
+          "candidate": "valid-two-workers",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x004d014c499793f68a35c2a3b9b22f2850587d700dba7e23c2ae6a7a284e95f4",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1042483,
+            "verdict": 1
+          },
+          "millis": 1815
+        },
+        {
+          "candidate": "duplicate-worker",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xae6ce316d7c072608d4a73489aa7d2779ab3934a748b12033ba452eda7b4da8a",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1083851,
+            "verdict": 0
+          },
+          "millis": 1843
+        },
+        {
+          "candidate": "invalid-shift",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xab560b1ebf47435c571c225f81d4d1b3a1f70e6c3d0598663293c0d7faddbef3",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1084095,
+            "verdict": 0
+          },
+          "millis": 1749
+        },
+        {
+          "candidate": "no-shift-zero",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x2c615da7fd7d77b64cb1ce6a1e1d88e6b7fbed4b35593644aff08b2fa876d98e",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1084097,
+            "verdict": 0
+          },
+          "millis": 1756
+        },
+        {
+          "candidate": "no-shift-one",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0xfcf4047c150334901ac596c3f6607ed2b4e7d82782c6e87af305164cf76b48eb",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1084089,
+            "verdict": 0
+          },
+          "millis": 1795
+        },
+        {
+          "candidate": "expensive-worker",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x735ed279e1f267e802c2055e1fe4a8c06ff5cb5ec01cbaf2eacbc78702388aa5",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 1084141,
+            "verdict": 0
+          },
+          "millis": 1764
+        },
+        {
+          "candidate": "unknown-worker",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x130f107e9c4c5706550ada30d378efef822adfb36c8f8c26af15e18b04e7ec4d",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Invalid rule expression"
+          },
+          "millis": 1693
+        }
+      ]
+    },
+    {
+      "structureHash": "0x4fe210873b6e49edd9aaef144ff34431faf4b519b7dd3c13ff1ab1e2abbe3204",
+      "imageId": "0x759ca417feb776c388a091d135d7652f50a51c3b11b0dbf1c472d6ab17cef0b7",
+      "trial": 3,
+      "challenge": "signed-6",
+      "packagePath": "/tmp/ubc26-integration-authoring-guests/packages/package-4abe0116-5a4e-4c0a-afbb-a1e2b70dfa32",
+      "compileReport": {
+        "buildFingerprint": "41a70b655c1bf94a02bcc34aae130b9a559d4d58400ae5d0e63b4128a1c4fff5",
+        "cacheHit": false,
+        "compileMillis": 13696,
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x1fd62d9c75ece67945cc7c51830e68b46dba1aec0b112ea5b0bc5cbc4bdb2409",
+        "imageId": "0x759ca417feb776c388a091d135d7652f50a51c3b11b0dbf1c472d6ab17cef0b7",
+        "inputVersion": 2,
+        "parametersSha256": "0x0cdb62409f0f9b334fc18f558d3fc345ec0216f7193e24f8a90e61507e471886",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "riscZero": "3.1.0",
+        "rulesHash": "0xaffe033083a39115dee35c4f6605fa73e68cf3295298f81424b8d92f05006215",
+        "structureHash": "0x4fe210873b6e49edd9aaef144ff34431faf4b519b7dd3c13ff1ab1e2abbe3204",
+        "structureSha256": "0x932ef081e83114d66a075aa4d4a8fd1772e7305c310e7e6dea810d367b73d74b",
+        "version": 1
+      },
+      "executions": [
+        {
+          "candidate": "valid",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0xe93bb53315ebceab901f21fdd3e07ff1fd39ed46fe5dd5d65b77030cb6204786",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 4510572,
+            "verdict": 1
+          },
+          "millis": 1812
+        },
+        {
+          "candidate": "valid-at-threshold",
+          "expected": "pass",
+          "actual": "pass",
+          "fingerprint": "0x347cff3b44c839b8573ac68669c39c8daf46ce0e77e276a5ed5e3b679a22b49e",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 4423409,
+            "verdict": 1
+          },
+          "millis": 1848
+        },
+        {
+          "candidate": "invalid-signature",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0xebdddd45ed54a5ab24a8ad2637e327c05eb42507f81596243b4eadac079b320d",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Evidence signature or binding failed"
+          },
+          "millis": 1680
+        },
+        {
+          "candidate": "unapproved-signer",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x5c961a827baa966ce31ed7b68450c9abe375e5d2e99f69ff3159186c92e614ea",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Evidence signature or binding failed"
+          },
+          "millis": 1646
+        },
+        {
+          "candidate": "swapped-artifact",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x4754ef181f06b203055f9f9a5c42e4a73291e09055dbb53bec3f48e4dcdf1192",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Evidence signature or binding failed"
+          },
+          "millis": 1654
+        },
+        {
+          "candidate": "replayed-context",
+          "expected": "reject",
+          "actual": "reject",
+          "fingerprint": "0x536684450f84f4b4070036bf88b22aa597a4898d7126aeb239b1d7619d0a0622",
+          "identityMatched": true,
+          "guestExecuted": false,
+          "matched": true,
+          "exitCode": 2,
+          "signal": null,
+          "error": null,
+          "value": {
+            "code": "invalid_deliverable",
+            "message": "Evidence signature or binding failed"
+          },
+          "millis": 1665
+        },
+        {
+          "candidate": "low-score",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x6c6e5a85d1832f2a885c9c761a9512c08ad3e5f3beb4790a2678483ee129bfeb",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 4483871,
+            "verdict": 0
+          },
+          "millis": 1786
+        },
+        {
+          "candidate": "wrong-issuer",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x8f43f687cc4836e9f58eefe8d202c873afa8a66a0029b53d88b93573bd6b1b6f",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 4435666,
+            "verdict": 0
+          },
+          "millis": 1813
+        },
+        {
+          "candidate": "not-approved",
+          "expected": "fail",
+          "actual": "fail",
+          "fingerprint": "0x325c3d9eabdadc1b3cfa3369b4021771f717cdd75502831db91f2e39b453eec4",
+          "identityMatched": true,
+          "guestExecuted": true,
+          "matched": true,
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "value": {
+            "userCycles": 4487019,
+            "verdict": 0
+          },
+          "millis": 1808
+        }
+      ]
+    }
+  ],
+  "failures": [],
+  "finishedAt": "2026-11-15T04:29:41.188Z",
+  "summary": {
+    "distinctAcceptedStructures": 16,
+    "compiledStructures": 16,
+    "actualGuestExecutions": 102,
+    "inputRejectionsBeforeGuest": 32,
+    "candidateChecks": 134,
+    "failures": 0
+  }
+}

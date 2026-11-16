@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "status": "passed-diagnostic-only",
+  "chainId": 5042002,
+  "guest": "UBC26/proof-smoke/v1",
+  "imageId": "0x75661c85ddcfde61f0ace9e28491de2e4d7a4c73603f0ad5549b8d10819fab18",
+  "userCycles": 2792,
+  "proveMillis": 141558,
+  "sealBytes": 260,
+  "hostBinarySha256": "49b8c063d334039eddcea9cefbd763e31926986cc97a9394ea509b75caebe108",
+  "r0vmVersion": "3.1.0",
+  "proverImageDigest": "sha256:49093ed164b82aca9305dd80e4a6eb996bd443201ac7bd50b52909b2761ef583",
+  "dockerVmMemoryBytes": 12528828416,
+  "lowMemoryEnvironment": {
+    "GOMAXPROCS": "2",
+    "GOGC": "25",
+    "GOMEMLIMIT": "4GiB"
+  },
+  "wrapperSha256": "6467c82d45487b19f785575d63fc1fa1cc04b10cc564a3ee3acb54531effb62d",
+  "liveFundedProof": false,
+  "limits": "Diagnostic guest only. This validates the low-memory Groth16 backend, not a proof or payout for the new live job."
+}

@@ -1,0 +1,415 @@
+{
+  "schemaVersion": 1,
+  "status": "complete",
+  "completedAt": "2026-11-16T16:03:30.755096+00:00",
+  "network": "arc-testnet",
+  "chainId": 5042002,
+  "sourceCommit": "8fe6dc54873c5c0294ae0d3660ce04796622fbb8",
+  "scope": "Complete prepared Meridian buyer-to-solver CLI/API workflow on Arc Testnet. This run did not draft new natural-language rules with Grok or exercise a browser UI.",
+  "apiJobId": "01M7JEZTWQ3DP0NWNKHVJB56SK",
+  "jobId": "7",
+  "buyer": "0x638202cCB15315dBc5b22e02717B908bEAc3AeBd",
+  "solver": "0xfb7692d0BFb955E7EB727bf744b39F7B8441057F",
+  "adapter": "0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8",
+  "core": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
+  "buyerApproval": {
+    "revisionHash": "0x024a0027a944da576049f3833daff5546f2ea6b69584eda33dd46394d6322768",
+    "referenceDigest": "0x9c652686c37d6fd375c8b7f930eff54bdc7b67c1c23666f4eb3542f75bc30812",
+    "structureHash": "0xb06974923f9625535275905149690c636bbaa6e6e335365a2179907cbe3b85cf",
+    "rulesHash": "0x5d637c9b710c72857f7752f665ca08565eecc7d1c5b3877a5a8339d700a1f60b",
+    "approvedAt": "2026-11-16T15:18:45.743Z"
+  },
+  "funding": {
+    "sourceCommit": "8fe6dc54873c5c0294ae0d3660ce04796622fbb8",
+    "chainId": 5042002,
+    "buyer": "0x638202cCB15315dBc5b22e02717B908bEAc3AeBd",
+    "solver": "0xfb7692d0BFb955E7EB727bf744b39F7B8441057F",
+    "apiJobId": "01M7JEZTWQ3DP0NWNKHVJB56SK",
+    "jobId": "7",
+    "bountyAtomic": "10000",
+    "expiry": "1794847687",
+    "registered": true,
+    "apiLinked": true,
+    "receipts": [
+      {
+        "kind": "createJob",
+        "nonce": 15,
+        "hash": "0xf611faa3089fd0730a509ae89ed90985b76a88c6a61eb1025f5544f9b68743e1",
+        "blockNumber": "72571038",
+        "blockHash": "0xa5b5216f28743ec3fe77cd9fe7d1adea79a37e6edb2cbbec04af1114435f4d52",
+        "gasUsed": "225270",
+        "effectiveGasPrice": "25000000000",
+        "spentNative": "5631750000000000",
+        "buyerBefore": "19908757925000000000",
+        "buyerAfter": "19903126175000000000",
+        "principalNative": "0",
+        "balanceCheck": true
+      },
+      {
+        "kind": "setBudget",
+        "nonce": 16,
+        "hash": "0xf805c3c189543d602304069a2ba3df0314572cd5b6e07fb96011ae6b107d440e",
+        "blockNumber": "72571114",
+        "blockHash": "0xfa376f915cb93a65a61533ad06c84a092eec21933d0e2173bc7ac33b89e0b8b2",
+        "gasUsed": "82100",
+        "effectiveGasPrice": "25000000000",
+        "spentNative": "2052500000000000",
+        "buyerBefore": "19903126175000000000",
+        "buyerAfter": "19901073675000000000",
+        "principalNative": "0",
+        "balanceCheck": true
+      },
+      {
+        "kind": "approve",
+        "nonce": 17,
+        "hash": "0xa619c42b877282ec2f4ad40ceb8a8ffb7bec743a91a4d623a5ec6222f817510a",
+        "blockNumber": "72571185",
+        "blockHash": "0x6db180d4f15a3e86cff8cdcc330138547dee672ecd3aa0087e61ef8ff6aa34ae",
+        "gasUsed": "55426",
+        "effectiveGasPrice": "25000000000",
+        "spentNative": "1385650000000000",
+        "buyerBefore": "19901073675000000000",
+        "buyerAfter": "19899688025000000000",
+        "principalNative": "0",
+        "balanceCheck": true
+      },
+      {
+        "kind": "fund",
+        "nonce": 18,
+        "hash": "0x03825acc379fcfdbb640344beb64a7e78ce184449dee7399aa297e2ec730e061",
+        "blockNumber": "72571257",
+        "blockHash": "0x09a7df72e75e47a54f06a0ea6ced951ff51a85dd2532ff4de62b861efc13a7cf",
+        "gasUsed": "96060",
+        "effectiveGasPrice": "25000000000",
+        "spentNative": "2401500000000000",
+        "buyerBefore": "19899688025000000000",
+        "buyerAfter": "19887286525000000000",
+        "principalNative": "10000000000000000",
+        "balanceCheck": true,
+        "exactBountyTransfer": true
+      },
+      {
+        "kind": "register",
+        "nonce": 19,
+        "hash": "0x38fd6c16851a89aeec9876380be40cda9ca48c7a253b360d2f42db9b042810d0",
+        "blockNumber": "72571334",
+        "blockHash": "0x07a57a2b6235e39be4ebde79b1eaab117e83b030f40a91a5b165a4abecf38245",
+        "gasUsed": "209319",
+        "effectiveGasPrice": "25000000000",
+        "spentNative": "5232975000000000",
+        "buyerBefore": "19887286525000000000",
+        "buyerAfter": "19882053550000000000",
+        "principalNative": "0",
+        "balanceCheck": true
+      }
+    ],
+    "totalGasSpentNative": "16704375000000000",
+    "remainingAllowance": "0",
+    "exactBalances": true,
+    "context": {
+      "byteLength": 169,
+      "sha256": "0x1bf1766fe5056fdd2fa4612664de07c1d54c9f3acadfc1f82b080cc96d84e418",
+      "actualFundedJobAndSolver": true
+    }
+  },
+  "confirmedApiBeforeProof": {
+    "jobId": "01M7JEZTWQ3DP0NWNKHVJB56SK",
+    "revisionHash": "0x024a0027a944da576049f3833daff5546f2ea6b69584eda33dd46394d6322768",
+    "chainJobId": "7",
+    "chainId": 5042002,
+    "core": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
+    "adapter": "0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8",
+    "status": "Funded",
+    "winner": null,
+    "envelopeHash": null,
+    "keyCommitment": null,
+    "released": false,
+    "budget": "10000",
+    "expiry": "1794847687",
+    "buyer": "0x638202ccb15315dbc5b22e02717b908beac3aebd",
+    "manifest": {
+      "imageId": "0x9b6b32b79bee4fbe407a83ffe9161200dfe3c0392920db3e8477491ff325aa6a",
+      "rulesHash": "0x5d637c9b710c72857f7752f665ca08565eecc7d1c5b3877a5a8339d700a1f60b",
+      "referenceHash": "0x9c652686c37d6fd375c8b7f930eff54bdc7b67c1c23666f4eb3542f75bc30812"
+    },
+    "fundingTx": "0x03825acc379fcfdbb640344beb64a7e78ce184449dee7399aa297e2ec730e061",
+    "registrationTx": "0x38fd6c16851a89aeec9876380be40cda9ca48c7a253b360d2f42db9b042810d0",
+    "evidenceMode": "arc"
+  },
+  "proof": {
+    "freshForActualFundedJobAndSolver": true,
+    "verdict": 1,
+    "liveVerifierAccepted": true,
+    "imageId": "0x9b6b32b79bee4fbe407a83ffe9161200dfe3c0392920db3e8477491ff325aa6a",
+    "context": {
+      "byteLength": 169,
+      "sha256": "0x1bf1766fe5056fdd2fa4612664de07c1d54c9f3acadfc1f82b080cc96d84e418",
+      "actualFundedJobAndSolver": true
+    },
+    "proofJsonSha256": "9c9983a2f2081d3526bb6842b576efe967c7a6f0fc2021426f0d27a638709def",
+    "sealBytes": 260,
+    "sealSha256": "8bc6c75ed8972585056beecc43f2a16e95289e4658afede6a28415ad64efe783",
+    "provingPhaseStartedAt": "2026-11-16T15:39:30.708Z",
+    "provedPhaseAt": "2026-11-16T15:57:45.734Z",
+    "proveAndPrivateRecoveryWallSeconds": 1095.026,
+    "timingLimits": "Wall interval includes proving and private decryption validation. Engine cycle/proveMillis counters were not persisted.",
+    "singleProver": true,
+    "risc0DevMode": false,
+    "engineExecutableSha256": "abb34d8156cbe8c38984c53b8bc146745c53958e6752d5a667f01d98d8ccac9d",
+    "engineWrapperSha256": "a120f4d5028d34cc21e2bb0c54ace4dfe115791bbdb51d9c104324667b1b8280",
+    "lowMemoryWrapperSha256": "6467c82d45487b19f785575d63fc1fa1cc04b10cc564a3ee3acb54531effb62d",
+    "dockerMemoryMiB": 12288,
+    "compressionContainer": {
+      "observedAt": "2026-11-16T15:57:14.810151+00:00",
+      "containerId": "c0ea6933bd103d14cf4d7fafed6438b0930bd948f7979c17f437b039aeab0b4f",
+      "image": "risczero/risc0-groth16-prover:v2026-10-20.1",
+      "startedAt": "2026-11-16T15:56:31.735333542Z",
+      "running": true,
+      "oomKilled": false,
+      "goMemorySettings": {
+        "GOMAXPROCS": "2",
+        "GOGC": "25",
+        "GOMEMLIMIT": "4GiB"
+      },
+      "imageId": "sha256:49093ed164b82aca9305dd80e4a6eb996bd443201ac7bd50b52909b2761ef583",
+      "repoDigests": [
+        "risczero/risc0-groth16-prover@sha256:49093ed164b82aca9305dd80e4a6eb996bd443201ac7bd50b52909b2761ef583"
+      ],
+      "terminalEvents": [
+        {
+          "action": "die",
+          "time": 1794844663,
+          "exitCode": "0"
+        },
+        {
+          "action": "destroy",
+          "time": 1794844663,
+          "exitCode": null
+        }
+      ],
+      "compressionExitedSuccessfully": true
+    }
+  },
+  "winningClaim": {
+    "transactionHash": "0x7105aab313556ff9227864cf7e9f7db901ee048fe6e92c6483b7f8d8bcf91491",
+    "accepted": true,
+    "winner": "0xfb7692d0bfb955e7eb727bf744b39f7b8441057f"
+  },
+  "keyRelease": {
+    "transactionHash": "0x78b6870536b171a989a5ebdeb278a20a2ec730bcec91173852bb29a13c3013e2",
+    "confirmed": true,
+    "keyValueOmitted": true
+  },
+  "payoutAndRecovery": {
+    "status": "recovered-exact",
+    "jobId": "7",
+    "claimTx": "0x7105aab313556ff9227864cf7e9f7db901ee048fe6e92c6483b7f8d8bcf91491",
+    "releaseTx": "0x78b6870536b171a989a5ebdeb278a20a2ec730bcec91173852bb29a13c3013e2",
+    "amountAtomic": "10000",
+    "solver": "0xfb7692d0BFb955E7EB727bf744b39F7B8441057F",
+    "envelopeHash": "0xdba76ae19d6f385eeee5c90c5ee39736efa32129653a8e0a3d5c19e2909366bc",
+    "nativeBefore": "31756325000000000",
+    "nativeAfter": "25580100000000000",
+    "gasCostNative": "16176225000000000",
+    "erc20Before": "31756",
+    "erc20After": "25580",
+    "gasAdjustedPayoutExact": true,
+    "files": [
+      {
+        "name": "schedule.json",
+        "sha256": "0x0607a7b43bf95913d5561d1872b14df0e9ba3fce160946f0bfac99d76608fbc2"
+      }
+    ],
+    "engineMatches": true,
+    "sdkMatches": true
+  },
+  "independentOracleOnRecoveredBytes": {
+    "accepted": true,
+    "encoded_bytes": 1091,
+    "errors": []
+  },
+  "apiAfter": {
+    "jobId": "01M7JEZTWQ3DP0NWNKHVJB56SK",
+    "revisionHash": "0x024a0027a944da576049f3833daff5546f2ea6b69584eda33dd46394d6322768",
+    "chainJobId": "7",
+    "chainId": 5042002,
+    "core": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
+    "adapter": "0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8",
+    "status": "Completed",
+    "winner": "0xfb7692d0BFb955E7EB727bf744b39F7B8441057F",
+    "envelopeHash": "0xdba76ae19d6f385eeee5c90c5ee39736efa32129653a8e0a3d5c19e2909366bc",
+    "keyCommitment": "0xff449323ccd6ad443e36b87a5ad5e218e68c4cec7015e3629c23c0668183cc25",
+    "released": true,
+    "budget": "10000",
+    "expiry": "1794847687",
+    "buyer": "0x638202ccb15315dbc5b22e02717b908beac3aebd",
+    "manifest": {
+      "imageId": "0x9b6b32b79bee4fbe407a83ffe9161200dfe3c0392920db3e8477491ff325aa6a",
+      "rulesHash": "0x5d637c9b710c72857f7752f665ca08565eecc7d1c5b3877a5a8339d700a1f60b",
+      "referenceHash": "0x9c652686c37d6fd375c8b7f930eff54bdc7b67c1c23666f4eb3542f75bc30812"
+    },
+    "fundingTx": "0x03825acc379fcfdbb640344beb64a7e78ce184449dee7399aa297e2ec730e061",
+    "registrationTx": "0x38fd6c16851a89aeec9876380be40cda9ca48c7a253b360d2f42db9b042810d0",
+    "evidenceMode": "arc"
+  },
+  "invalidClaim": {
+    "phase": "invalid_claim_rejected",
+    "jobId": "6",
+    "transactionHash": "0xfd70667b27a303f9836b7520b8dceb7fc551ce99a3fa023657fb7c3c2e3290a2",
+    "amountAtomic": "0",
+    "nativeBefore": "40000000000000000",
+    "nativeAfter": "31756325000000000",
+    "gasCostNative": "8243675000000000",
+    "balanceCheck": true
+  },
+  "separateExpiredJobRefund": {
+    "phase": "refunded",
+    "jobId": "6",
+    "transactionHash": "0x4e030f22684c75c5e2e5360c7428ad574400a44d7cc5a08d627dd8076d75434d",
+    "amountAtomic": "10000",
+    "nativeBefore": "19892492725000000000",
+    "nativeAfter": "19900625325000000000",
+    "gasCostNative": "1867400000000000",
+    "balanceCheck": true
+  },
+  "failedAttemptCleanupRefund": {
+    "phase": "refunded",
+    "jobId": "5",
+    "transactionHash": "0x4a4e7b5101eca923d9ace5351271697730c31984034a99dd71ab1ad78761fdec",
+    "amountAtomic": "10000",
+    "nativeBefore": "19900625325000000000",
+    "nativeAfter": "19908757925000000000",
+    "gasCostNative": "1867400000000000",
+    "balanceCheck": true
+  },
+  "failedAttempt": {
+    "jobId": "5",
+    "cause": "Pinned Groth16 Docker container OOM, exit 137",
+    "claimSent": false,
+    "preserved": true,
+    "evidence": "open-claim-arc-proof-oom-2026-11-16.json"
+  },
+  "secondSolverAbstention": {
+    "checkedAt": "2026-11-16T16:02:49.377Z",
+    "sourceCommit": "8fe6dc54873c5c0294ae0d3660ce04796622fbb8",
+    "jobId": "7",
+    "solver": "0x5c8E2f73Eb2A4E8222b381e2fcb84e5769Ad8c85",
+    "winner": "0xfb7692d0bfb955e7eb727bf744b39f7b8441057f",
+    "phase": "lost",
+    "signingAuthorized": false,
+    "passwordDescriptorProvided": false,
+    "freshProofStarted": false,
+    "claimSent": false,
+    "keyReleased": false,
+    "nativeBefore": "0",
+    "nativeAfter": "0",
+    "nativeBalanceUnchanged": true,
+    "limits": "This second solver observed the existing winning claim and abstained before proving. It did not generate a second valid proof or race a claim."
+  },
+  "circlePaidApi": {
+    "report": "circle-gateway-paid-api-2026-11-16.json",
+    "apiJobId": "01M7J7EHMGNDD4JKYRDWCN9NXZ",
+    "challengeStatus": 402,
+    "paidResponseStatus": 200,
+    "replayStatus": 200,
+    "identicalReplay": true,
+    "chargeAtomic": "1",
+    "chargeIncludedInBounty": false,
+    "depositAtomic": "10000",
+    "settlement": {
+      "status": "completed",
+      "id": "845d3e15-cfb7-405d-a08f-7ca3911c737e",
+      "amount": "1",
+      "txHash": "0xa1b09da4c83077e51c4247ea9867215555c6881a7eb6ade34ac91080b3afdee6",
+      "blockNumber": "72564684",
+      "blockHash": "0x9bb74cabf7eb5815a27ffe70dfdc7fb818dda8e05039f91b42f576785add1f1c",
+      "receiptStatus": 1,
+      "canonical": true,
+      "confirmationsObserved": "6530",
+      "gateway": "0x0077777d7eba4688bdef3e311b846f25870a19b9",
+      "balancesAfter": {
+        "token": "USDC",
+        "balances": [
+          {
+            "domain": 26,
+            "depositor": "0x638202cCB15315dBc5b22e02717B908bEAc3AeBd",
+            "balance": "0.009999",
+            "pendingBatch": "0"
+          },
+          {
+            "domain": 26,
+            "depositor": "0x5c8E2f73Eb2A4E8222b381e2fcb84e5769Ad8c85",
+            "balance": "0.000001",
+            "pendingBatch": "0"
+          }
+        ]
+      },
+      "onchainConfirmed": true
+    }
+  },
+  "gas": {
+    "actualTotalNative": "145837525000000000",
+    "actualTotalUsdc": "0.145837525",
+    "includesSeparateAdapterDeployment": true,
+    "includesSetupFailedAttemptInvalidClaimBothRefundsReplacementFundingClaimAndRelease": true,
+    "includesCircleFacilitatorBatchGas": false,
+    "aggregateCapNative": "250000000000000000",
+    "maximumFeePerGas": "25000000000",
+    "withinCap": true,
+    "receiptAudit": "open-claim-arc-receipts-2026-11-16.json"
+  },
+  "expiry": {
+    "lifetimeSeconds": 4500,
+    "absolute": "1794847687",
+    "proveBudgetSeconds": 1800,
+    "claimReserveSeconds": 60,
+    "releaseAndConfirmationMarginSeconds": 600
+  },
+  "retrySafety": {
+    "liveReceiptWaitResumesUsedSameSavedHashes": true,
+    "fundingNonces": [
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "fundingSignedTransactions": 5,
+    "unitTestsCoverDroppedAcknowledgmentsAndAmbiguousSends": true,
+    "oldBudgetEntriesAndMaximumReservationsPreserved": true,
+    "budgetEvidence": "open-claim-retry-budget-2026-11-16.json"
+  },
+  "security": {
+    "encryptedKeystoresOutsideGit": true,
+    "passwordsPassedByDescriptor": true,
+    "solverRestrictedToPinnedClaimAndRelease": true,
+    "engineEnvironmentContainsNoWalletCredentials": true,
+    "releaseKeysAndPaymentSignaturesOmitted": true,
+    "grokCliWorkersUsed": 0
+  },
+  "checks": {
+    "localWorkspace": "SDK 13 Node + 342 Vitest, API 778, worker 901, all typechecks passed",
+    "runtimeHeadCi": {
+      "sourceCommit": "8fe6dc54873c5c0294ae0d3660ce04796622fbb8",
+      "commerce": "https://github.com/anishnarang9/UBC-26/actions/runs/43896280974",
+      "engineAndContracts": "https://github.com/anishnarang9/UBC-26/actions/runs/43896280860",
+      "allPassed": true
+    },
+    "evidenceHeadCi": "Check PR #7 at its final published head."
+  },
+  "marketExclusion": {
+    "checkedAt": "2026-11-16T16:01:32.555192+00:00",
+    "completedAndExpiredJobsExcluded": [
+      "01M7JEZTWQ3DP0NWNKHVJB56SK",
+      "01M7J7EHMGNDD4JKYRDWCN9NXZ",
+      "01M7J7EHNDQP7V96H59MZEQHN8"
+    ],
+    "listedOpenJobCount": 0,
+    "passed": true
+  },
+  "independentOracleOnEngineRecoveredBytes": {
+    "accepted": true,
+    "encoded_bytes": 1091,
+    "errors": []
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "status": "confirmed",
+  "chainId": 5042002,
+  "sourceCommit": "4a39930d418ed92abd58d79b6f3295c17ada9bdd",
+  "buyer": "0x638202cCB15315dBc5b22e02717B908bEAc3AeBd",
+  "solver": "0xfb7692d0BFb955E7EB727bf744b39F7B8441057F",
+  "solverTransferNative": "40000000000000000",
+  "gatewayDepositAtomic": "10000",
+  "confirmations": 4,
+  "results": [
+    {
+      "index": 0,
+      "hash": "0x591a1a26ac80568ddd5cb62336e41dae37f1a1a064d3d63e737ed150239bfe26",
+      "blockNumber": "72562142",
+      "blockHash": "0x9ba264ff0a657309557aa1f7cbc0210e1d0cc4bcc4904573d5f4ea0cce92cf34",
+      "gasUsed": "21000",
+      "effectiveGasPrice": "25000000000",
+      "spent": "525000000000000",
+      "buyerBefore": "20000000000000000000",
+      "buyerAfter": "19959475000000000000",
+      "solverBefore": "0",
+      "solverAfter": "40000000000000000",
+      "remainingAllowance": "0"
+    },
+    {
+      "index": 1,
+      "hash": "0xddfecbad2b30726b46ed3086502a714391cf443be9b064cb3cf9add8f047c763",
+      "blockNumber": "72562154",
+      "blockHash": "0x410bb3667a181b7214cd23ffea8529d79f4c107c73cf3c25dd84a4062c3bd3c3",
+      "gasUsed": "55414",
+      "effectiveGasPrice": "25000000000",
+      "spent": "1385350000000000",
+      "buyerBefore": "19959475000000000000",
+      "buyerAfter": "19958089650000000000",
+      "solverBefore": "40000000000000000",
+      "solverAfter": "40000000000000000",
+      "remainingAllowance": "10000"
+    },
+    {
+      "index": 2,
+      "hash": "0x3e86a4994d9cef430e4997a822f91ef88cd5ca48cb0bd0ac0641b720f00c47ac",
+      "blockNumber": "72562234",
+      "blockHash": "0xad38f2a759f7ab5ff1a87d52f22d75406528165b7255d7335c371f3377325481",
+      "gasUsed": "87527",
+      "effectiveGasPrice": "25000000000",
+      "spent": "2188175000000000",
+      "buyerBefore": "19958089650000000000",
+      "buyerAfter": "19945901475000000000",
+      "solverBefore": "40000000000000000",
+      "solverAfter": "40000000000000000",
+      "remainingAllowance": "0"
+    }
+  ],
+  "totalGasSpentNative": "4098525000000000",
+  "totalGasSpentUsdc": "0.004098525",
+  "gatewayBalanceAfterDepositUsdc": "0.010000",
+  "remainingAllowanceAtomic": "0",
+  "duplicateTransactions": 0,
+  "limits": [
+    "This is live Arc Testnet wallet setup and Gateway funding, not an accepted proof or paid API call.",
+    "Initial package-runner launch dropped the password FD and stopped before journal creation. Direct Node with inherited FD succeeded.",
+    "Receipt waits stopped after sends. Resumes reconciled the durable hashes. Each transaction was signed and sent once."
+  ]
+}

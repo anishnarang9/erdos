@@ -1,0 +1,34 @@
+{
+  "recordedAt": "2026-11-15T00:43-05:00",
+  "command": "engine/evaluation/evaluate.sh NEW_PRIVATE_SCRATCH PINNED_VERIFIER PRIVATE_PROOF_ROOT",
+  "firstRun": "/tmp/ubc26-final-replay",
+  "exitCode": 1,
+  "completed": [
+    "Rust workspace tests",
+    "38 Node tests, none skipped"
+  ],
+  "failed": "TypeScript permissions fixture;10 passed,1 failed",
+  "logSha256": "0x3f0b0850f3cb9ef26cc45a6976ff981ba0b5e81069ff25d02bb80e067b9cc98b",
+  "failureLog": "(node:27337) ExperimentalWarning: Transform Types is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n\u2714 real validation returns the normalized preview and typed unsupported error (10.834792ms)\n\u2714 real host evaluation distinguishes pass, fail, and invalid input (12.935959ms)\n\u2714 real evaluation accepts reference files and signed evidence with a job (10.706875ms)\n\u2714 rejects unsafe files and oversized encoded bundles before staging (0.698083ms)\n\u2714 non-JSON job values return typed invalid input before staging (0.329667ms)\n\u2714 CLI I/O faults are not buyer input errors (551.192209ms)\n\u2714 validation rejects malformed success reports (1246.944875ms)\n\u2716 rejects a package directory that other users can read (2.628458ms)\n\u2714 real cached compile retains the full package and maps its manifest (3424.765959ms)\n(node:27338) ExperimentalWarning: Transform Types is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n\u2714 recorded model replays an actual result only for its exact authoring input (10.192833ms)\n\u2714 recorded model rejects missing, duplicate, or malformed authoring outcomes (0.230625ms)\n\u2139 tests 11\n\u2139 suites 0\n\u2139 pass 10\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 5357.98475\n\n\u2716 failing tests:\n\ntest at engine/evaluation/engine-adapter.test.ts:147:1\n\u2716 rejects a package directory that other users can read (2.628458ms)\n  AssertionError [ERR_ASSERTION]: The validation function is expected to return \"true\". Received false\n  \n  Caught error:\n  \n  EngineAdapterError: Engine compile failed\n      at async TestContext.<anonymous> (/Users/anishnarang/.codex/worktrees/engine-commerce/UBC-26-engine/engine/evaluation/engine-adapter.test.ts:153:5)\n      at async Test.run (node:internal/test_runner/test:1404:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: EngineAdapterError: Engine compile failed\n        at invoke (/Users/anishnarang/.codex/worktrees/engine-commerce/UBC-26-engine/engine/evaluation/engine-adapter.ts:99:11)\n        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n        at async LocalEngineAdapter.compile (/Users/anishnarang/.codex/worktrees/engine-commerce/UBC-26-engine/engine/evaluation/engine-adapter.ts:196:20)\n        at async waitForActual (node:assert:646:5)\n        at async strict.rejects (node:assert:769:25)\n        at async TestContext.<anonymous> (/Users/anishnarang/.codex/worktrees/engine-commerce/UBC-26-engine/engine/evaluation/engine-adapter.test.ts:153:5)\n        at async Test.run (node:internal/test_runner/test:1404:7)\n        at async Test.processPendingSubtests (node:internal/test_runner/test:969:7),\n    operator: 'rejects',\n    diff: 'simple'\n  }\n",
+  "rootCause": "evaluate.sh uses umask077. mkdir(mode0755) therefore created0700. The fixture did not construct an insecure directory and reached the deliberately missing engine binary. The production permission check behaved correctly.",
+  "fix": "Explicit chmod0755 and assert actual fixture mode before exercising compile.",
+  "focusedChecks": [
+    {
+      "umask": "077",
+      "command": "node --experimental-transform-types --test --test-name-pattern=rejects\\ a\\ package\\ directory engine/evaluation/engine-adapter.test.ts",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "umask": "022",
+      "passed": 1,
+      "failed": 0
+    }
+  ],
+  "proofsChanged": false,
+  "fullRerun": {
+    "exitCode": 0,
+    "directory": "/tmp/ubc26-final-replay-2",
+    "report": "final-replay.json"
+  }
+}
