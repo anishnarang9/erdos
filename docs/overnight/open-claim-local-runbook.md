@@ -59,7 +59,7 @@ export OPEN_CLAIM_ADAPTER=$(python3 -c 'import json;print(json.load(open("contra
 export OPEN_CLAIM_VERIFIER=$(python3 -c 'import json;print(json.load(open("contracts/deployments/open-claim-local.json"))["verifier"]["address"])')
 export OPEN_CLAIM_USDC=0x3600000000000000000000000000000000000000
 unset XAI_API_KEY
-PORT=18787 DB_PATH="$SCRATCH_DIR/api.db" pnpm --dir commerce/api dev
+HOST=127.0.0.1 PORT=18787 DB_PATH="$SCRATCH_DIR/api.db" pnpm --dir commerce/api dev
 ```
 
 Use the API's [typed revision, approval and compile routes](../../commerce/api/CONTRACT-T5-T8.md) to compile the `docs/fresh-exchange-input` Meridian plan and references. Approve the exact revision, rules and reference digests before compile. `POST /v1/jobs/:id/open-claim-terms` returns the ordered unsigned buyer transactions. Send them only from the unlocked local buyer account, in its `createJob`, `setBudget`, `approve`, `fund`, `register` order. Use the confirmed `JobCreated` event's job ID in the last three calls. Check every receipt, then call `open-claim-link` after the five receipts have three more local blocks. The public `GET /v1/open-jobs` feed must show the registered funded job before a solver starts.

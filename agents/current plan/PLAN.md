@@ -2,6 +2,11 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 03:59 -05:00 — Anish — Local gate published for review
+
+- [Draft PR #7](https://github.com/anishnarang9/UBC-26/pull/7) carries the open-claim adapter, buyer API and SDK, worker, local proof evidence and operator handoff over `codex/engine-commerce`. The [commerce](https://github.com/anishnarang9/UBC-26/actions/runs/43834594179) and [core-fast](https://github.com/anishnarang9/UBC-26/actions/runs/43834594018) PR checks passed at `7804d23`. A later local API loopback-bind correction is under its final checkpoint check.
+- The local combined gate is closed by [exit-0 evidence](../anish/reports/open-claim-local-acceptance-2026-11-16.json). No main merge or live testnet transaction is part of this checkpoint. The next operator action is to supply approved live adapter deployment, protected buyer and solver signing, exact bounty and gas limits, and Circle Gateway configuration if a live x402 test is desired.
+
 ## 2026-11-16 03:40 -05:00 — Anish — Open-claim local gate complete
 
 - The [combined local acceptance report](../anish/reports/open-claim-local-acceptance-2026-11-16.json) records exit 0 on forkless Arc Anvil with the released RISC Zero 3.1.0 verifier. A fresh funded-context proof won the claim, the adapter paid exactly 1,000,000 local USDC units to that solver, the second solver sent no key or claim after losing, both recovery paths matched the original bytes and independent oracle, and another funded job refunded exactly 1,000,000 units. An independent receipt audit confirmed the chain and API outcomes.

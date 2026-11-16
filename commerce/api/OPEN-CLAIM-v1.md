@@ -2,7 +2,7 @@
 
 These routes use the real engine and the compiled `OpenClaimAdapter` ABI. The API prepares unsigned buyer transactions. It reads Arc at a confirmed block before it lists a bounty. The API does not sign a wallet transaction. See [the adapter interface](../../docs/overnight/open-claim-v1.md) for contract calls and proof bytes.
 
-Set `ENGINE_MODE=native` with `ENGINE_PATH`, `PACKAGES_DIR`, `BUYER_API_TOKEN`, `OPEN_CLAIM_RPC_URL`, `OPEN_CLAIM_CHAIN_ID=5042002`, `OPEN_CLAIM_CORE`, `OPEN_CLAIM_ADAPTER`, `OPEN_CLAIM_USDC`, and `OPEN_CLAIM_VERIFIER` before starting `commerce/api/src/server.ts`. `OPEN_CLAIM_CONFIRMATIONS` defaults to `3`. The server checks that an Arc open-claim route has a real engine. Leave `XAI_API_KEY` unset when using typed import; no draft model is needed.
+Set `ENGINE_MODE=native` with `ENGINE_PATH`, `PACKAGES_DIR`, `BUYER_API_TOKEN`, `OPEN_CLAIM_RPC_URL`, `OPEN_CLAIM_CHAIN_ID=5042002`, `OPEN_CLAIM_CORE`, `OPEN_CLAIM_ADAPTER`, `OPEN_CLAIM_USDC`, and `OPEN_CLAIM_VERIFIER` before starting `commerce/api/src/server.ts`. Set `HOST=127.0.0.1` for the local run so the buyer API binds only to loopback. `OPEN_CLAIM_CONFIRMATIONS` defaults to `3`. The server checks that an Arc open-claim route has a real engine. Leave `XAI_API_KEY` unset when using typed import; no draft model is needed.
 
 All paths below start with `/v1`. Buyer POST routes require `Authorization: Bearer <buyer token>`. `open-claim-terms` and `open-claim-link` also require `Idempotency-Key`. `paid-compile` uses the signed x402 payment identity for replay. The error body is `{ "error": { "code": string, "message": string, "details"?: object } }`. The [base API contract](CONTRACT.md) defines job creation, revision approval, compile, package and reference downloads.
 

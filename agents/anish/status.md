@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 03:59 -05:00 — Anish — Draft PR and local API bind check
+
+- Branch `codex/open-escrow-rescue` at `7804d23` is pushed. [Draft PR #7](https://github.com/anishnarang9/UBC-26/pull/7) targets `codex/engine-commerce`, which remains open against main as PR #6. At `7804d23`, the [commerce PR run](https://github.com/anishnarang9/UBC-26/actions/runs/43834594179) and [core-fast PR run](https://github.com/anishnarang9/UBC-26/actions/runs/43834594018) passed. Core-fast ran Rust formatting, Clippy, host tests, wire/oracle checks, pinned Arc Forge tests and examples.
+- A final process check found that `commerce/api/src/server.ts` omitted a hostname in its `serve` call. With `HOST=127.0.0.1`, the old code still listened on `*:18789`. The server now forwards `HOST`, and the same local check showed `127.0.0.1:18789`; the public `GET /v1/open-jobs` route still responded. The local runbook sets this variable. I stopped the two old API copies that were listening on all interfaces. Their SQLite evidence is retained. Arc Anvil PID 24900 remains on loopback port 18545 for the first attempt at `f8e3516`; PID 50632 remains on 18546 for the exit-0 run launched at `0cce487`. No prover or API process remains.
+- After this server edit, `pnpm check` again exited 0: SDK 13 Node and 342 Vitest tests, API 777, worker 863 and all three typechecks. The real-engine API suite passed 15/15. Next: commit and push the bind/documentation checkpoint, then verify its exact GitHub CI. The live operator gates in the shared plan remain open.
+
 ## 2026-11-16 03:50 -05:00 — Anish — Acceptance evidence and rerun handoff ready
 
 - Branch `codex/open-escrow-rescue`. Added the [passing local acceptance report](reports/open-claim-local-acceptance-2026-11-16.json), corrected the stale API and adapter status prose, and expanded the [local runbook](../../docs/overnight/open-claim-local-runbook.md) with typed import, real-engine API startup, private package handling, proof inputs and fresh report paths. The slow test now accepts fresh deployment and funding report paths and distinct positive job IDs; its recorded defaults remain unchanged.

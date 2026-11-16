@@ -15,6 +15,7 @@ import type { OpenClaimConfig } from "./open-claim.ts";
 if (existsSync(".env")) process.loadEnvFile(".env");
 
 const port = Number(process.env.PORT ?? 8787);
+const hostname = process.env.HOST;
 const dbPath = process.env.DB_PATH ?? "ubc26.db"; // *.db is gitignored
 const buyerToken = process.env.BUYER_API_TOKEN;
 if (!buyerToken) {
@@ -171,8 +172,8 @@ if (chain) {
   }, INDEX_INTERVAL_MS);
 }
 
-const server = serve({ fetch: app.fetch, port }, (info) => {
-  console.log(`[api] listening on http://localhost:${info.port} (db: ${dbPath}, chain: ${chain ? chain.config.chainId : "none"})`);
+const server = serve({ fetch: app.fetch, port, ...(hostname ? { hostname } : {}) }, (info) => {
+  console.log(`[api] listening on ${hostname ?? "all interfaces"}:${info.port} (db: ${dbPath}, chain: ${chain ? chain.config.chainId : "none"})`);
   console.log(`[api] engine: ${engineLabel}; draft model: ${modelLabel}; packages: ${packagesDir ?? "not kept"}`);
   console.log(`[api] x402: ${x402 ? `${x402.network} ${x402.amount} units` : "off"}`);
   console.log(`[api] open claim: ${openClaim ? `Arc chain ${openClaim.chainId}` : "off"}`);
