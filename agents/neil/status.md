@@ -2,6 +2,37 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 12:40 -05:00 — Neil
+
+- **Branch:** `neil/plan-architecture` ([PR #5](https://github.com/anishnarang9/UBC-26/pull/5)).
+- **Connected to Nick's live contracts on Arc** (`nick-settlement` `80c8a4a`):
+  - The SDK has an `arc` client: reads, Poster and Solver transaction requests, preflights, event decoding, and `sendTx` with the Arc fee floor.
+  - `hook.contextOf` and `hook.expectedJournal` equal our encoders byte for byte. The context's escrow is the core proxy.
+- **API:**
+  - `CHAIN_MODE=arc` reads the real core and hook. The indexer starts at the deploy block and reads at most 10,000 blocks per log request.
+  - select-quote also returns the `setBudget` and `fund` steps for Nick's 4-transaction order.
+  - New `GET /v1/jobs/:id/submission` (T11) serves the submit tx, the hashes, the release tx and the released key.
+- **Worker (T9/T10):**
+  - `runFunded` takes the context from the chain, checks the job and its terms, and checks the time budget.
+  - It submits and releases at most once, keeping progress in `state.json` so it can resume after a crash. A verdict-0 proof is never submitted.
+  - A signer policy allows only `core.submit` and `hook.release`.
+  - `scripts/first-funded-job.ts` runs the whole funded flow on Arc.
+- **Checks:**
+  - Default suites: API 695, SDK 436, worker 65.
+  - Live read-only on Arc: SDK 31, API 3, worker 3.
+  - An independent tester wrote 85 black-box tests for the SDK client. The two issues it found were interface naming and are now documented.
+  - Engine drift check: `codex/engine-commerce` changes no interface we use.
+- **Live facts:**
+  - `jobCounter` is 0, so there are no jobs yet.
+  - The core is NOT frozen: the deployer still holds the admin roles, although the manifest's policy text says they were renounced.
+  - Arc rejects `eth_getLogs` over 10,000 blocks.
+- **Blocked:** the first funded job needs two Arc testnet accounts with faucet USDC. Put the keys in `commerce/worker/.env` as `POSTER_PRIVATE_KEY` and `WORKER_PRIVATE_KEY`, then run `corepack pnpm exec tsx scripts/first-funded-job.ts`, and once more with `--tamper` for the rejected case.
+- **For Nick:**
+  1. Measured gas for `submit` and `release` (we default release to 500k).
+  2. Is a zero priority fee accepted?
+  3. When will the core be frozen? Please also fix the manifest's policy text.
+- **For Anish:** are the `lookup` duplicate-key aborts intended (see `commerce/api/test/integration/fixtures/grok/README.md`)? Note that `engine/evaluation` on `codex/engine-commerce` imports commerce types from `3013d73`; `Manifest` and `packageDir` have changed since.
+
 ## 2026-11-15 10:15 -05:00 — Neil
 
 - **Branch:** `neil/plan-architecture` ([PR #5](https://github.com/anishnarang9/UBC-26/pull/5)).
