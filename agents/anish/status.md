@@ -2,6 +2,19 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 23:25 -05:00 — Anish
+
+- Meridian semantic checkpoint on `codex/engine-commerce`, base `2d9f2fd`. Independent Grok 4.7 High review mapped all 13 requirements to 19 predicates. Its [report](reports/localnet-semantic-review-2026-11-15.json) records 34 oracle tests, 53 agreeing engine/oracle cases, both passing solutions and a complete 19,609-visit enumeration with 3,200 accepted assignments.
+- Parent reviewed oracle file handling, checked all 19 report hashes against current bytes, and parsed/sanitized 17 workload artifacts. Authoring/solver provenance remains native Orca inference, not an HTTP draft call or autonomous runtime solver.
+- Parent real-engine API integration passed all 15 tests. Independent fast-stack verification passed 1,935 commerce tests, three typechecks, Rust format/Clippy/51 tests, the wire fixture, 120 contract tests, 13 examples/typecheck and 43 older-workload oracle tests. Three prepared guest tests and one fork suite were explicitly skipped. The fast report is under a separate sanitization/delta-review task.
+- Publishing only the reviewed static Meridian artifacts, semantic report and coordinator history. Acceptance-suite and documentation edits remain unpublished and under assigned review. No fresh Meridian proof, payment or live action occurred. Next: review suite changes, publish tested source, then run fresh local passing/failing proofs and settlement.
+
+## 2026-11-15 23:10 -05:00 — Anish
+
+- Resumed `codex/engine-commerce` at `2d9f2fd` under the user's local-first execution request. The user requests thorough, fast work with parallel Grok 4.7 High workers. Preserved all existing unpublished changes. The earlier coordinator is interrupted and no active worker owns these files according to Orca.
+- Initial work splits into bounded suite completion, independent semantic review, and fast-stack verification. Reviews and checks may run concurrently. Only one owner may build guests or generate proofs. No live write, credential access, or production-security claim is authorized.
+- Pending: review and publish Meridian/selector source, fresh passing and failing local proofs, actual-contract safety/refund/restart coverage, exact payout/dual recovery/oracle, clean process exit, final-head CI and clean-checkout reproduction. Follow-up live signing requires exact external approval.
+
 ## 2026-11-15 19:28 -05:00 — Anish
 
 - Source `9458a81` completed a fresh local lifecycle: proof `583188` ms, `3313169` cycles, exact `1000000`-unit payment, dual exact recovery, independent oracle, nine negative calls and a separate Funded-job refund. The source-stamped report preserves two previous attempts.

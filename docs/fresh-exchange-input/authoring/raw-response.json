@@ -1,0 +1,1170 @@
+{
+  "version": 1,
+  "deliverables": [
+    {
+      "name": "schedule.json",
+      "parser": "json/v1",
+      "fields": [],
+      "collections": [
+        {
+          "name": "charges",
+          "fields": [
+            {
+              "name": "release_id",
+              "type": "string"
+            },
+            {
+              "name": "lot_id",
+              "type": "string"
+            },
+            {
+              "name": "kiln_id",
+              "type": "string"
+            },
+            {
+              "name": "panels",
+              "type": "i64"
+            },
+            {
+              "name": "clay_kg",
+              "type": "i64"
+            }
+          ]
+        },
+        {
+          "name": "finishes",
+          "fields": [
+            {
+              "name": "release_id",
+              "type": "string"
+            },
+            {
+              "name": "bench_id",
+              "type": "string"
+            },
+            {
+              "name": "temper_id",
+              "type": "string"
+            },
+            {
+              "name": "panels",
+              "type": "i64"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "name": "dataset.json",
+      "parser": "json/v1",
+      "fields": [
+        {
+          "name": "max_spend_cents",
+          "type": "i64"
+        },
+        {
+          "name": "max_import_charges",
+          "type": "i64"
+        },
+        {
+          "name": "min_recycled_charges",
+          "type": "i64"
+        }
+      ],
+      "collections": [
+        {
+          "name": "suppliers",
+          "fields": [
+            {
+              "name": "supplier_id",
+              "type": "string"
+            },
+            {
+              "name": "certified",
+              "type": "i64"
+            },
+            {
+              "name": "import",
+              "type": "i64"
+            }
+          ]
+        },
+        {
+          "name": "profiles",
+          "fields": [
+            {
+              "name": "profile_id",
+              "type": "string"
+            },
+            {
+              "name": "thickness_mm",
+              "type": "i64"
+            },
+            {
+              "name": "clay_family",
+              "type": "string"
+            },
+            {
+              "name": "kg_per_panel",
+              "type": "i64"
+            },
+            {
+              "name": "edge_code",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "name": "releases",
+          "fields": [
+            {
+              "name": "release_id",
+              "type": "string"
+            },
+            {
+              "name": "profile_id",
+              "type": "string"
+            },
+            {
+              "name": "panels",
+              "type": "i64"
+            },
+            {
+              "name": "temper_required",
+              "type": "i64"
+            }
+          ]
+        },
+        {
+          "name": "lots",
+          "fields": [
+            {
+              "name": "lot_id",
+              "type": "string"
+            },
+            {
+              "name": "clay_family",
+              "type": "string"
+            },
+            {
+              "name": "kg_available",
+              "type": "i64"
+            },
+            {
+              "name": "cents_per_kg",
+              "type": "i64"
+            },
+            {
+              "name": "recycled",
+              "type": "i64"
+            },
+            {
+              "name": "supplier_id",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "name": "kilns",
+          "fields": [
+            {
+              "name": "kiln_id",
+              "type": "string"
+            },
+            {
+              "name": "thickness_min_mm",
+              "type": "i64"
+            },
+            {
+              "name": "thickness_max_mm",
+              "type": "i64"
+            },
+            {
+              "name": "capacity_kg",
+              "type": "i64"
+            },
+            {
+              "name": "family_lock",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "name": "benches",
+          "fields": [
+            {
+              "name": "bench_id",
+              "type": "string"
+            },
+            {
+              "name": "edge_code",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "name": "tempers",
+          "fields": [
+            {
+              "name": "temper_id",
+              "type": "string"
+            },
+            {
+              "name": "thickness_min_mm",
+              "type": "i64"
+            },
+            {
+              "name": "thickness_max_mm",
+              "type": "i64"
+            },
+            {
+              "name": "capacity_panels",
+              "type": "i64"
+            },
+            {
+              "name": "temper_class",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "op": "unique",
+      "collection": {
+        "source": "deliverable",
+        "file": "schedule.json",
+        "field": "charges"
+      },
+      "field": "release_id"
+    },
+    {
+      "op": "eq",
+      "left": {
+        "op": "count",
+        "collection": {
+          "source": "deliverable",
+          "file": "schedule.json",
+          "field": "charges"
+        }
+      },
+      "right": {
+        "op": "count",
+        "collection": {
+          "source": "reference",
+          "file": "dataset.json",
+          "field": "releases"
+        }
+      }
+    },
+    {
+      "op": "all",
+      "collection": {
+        "source": "deliverable",
+        "file": "schedule.json",
+        "field": "charges"
+      },
+      "where": {
+        "op": "eq",
+        "left": {
+          "op": "record_field",
+          "field": "panels"
+        },
+        "right": {
+          "op": "lookup",
+          "collection": {
+            "source": "reference",
+            "file": "dataset.json",
+            "field": "releases"
+          },
+          "keyField": "release_id",
+          "key": {
+            "op": "record_field",
+            "field": "release_id"
+          },
+          "valueField": "panels"
+        }
+      }
+    },
+    {
+      "op": "unique",
+      "collection": {
+        "source": "deliverable",
+        "file": "schedule.json",
+        "field": "finishes"
+      },
+      "field": "release_id"
+    },
+    {
+      "op": "eq",
+      "left": {
+        "op": "count",
+        "collection": {
+          "source": "deliverable",
+          "file": "schedule.json",
+          "field": "finishes"
+        }
+      },
+      "right": {
+        "op": "count",
+        "collection": {
+          "source": "reference",
+          "file": "dataset.json",
+          "field": "releases"
+        }
+      }
+    },
+    {
+      "op": "all",
+      "collection": {
+        "source": "reference",
+        "file": "dataset.json",
+        "field": "releases"
+      },
+      "where": {
+        "op": "and",
+        "left": {
+          "op": "any",
+          "collection": {
+            "source": "deliverable",
+            "file": "schedule.json",
+            "field": "charges"
+          },
+          "where": {
+            "op": "eq",
+            "left": {
+              "op": "record_field",
+              "field": "release_id"
+            },
+            "right": {
+              "op": "record_field",
+              "field": "release_id",
+              "level": 1
+            }
+          }
+        },
+        "right": {
+          "op": "any",
+          "collection": {
+            "source": "deliverable",
+            "file": "schedule.json",
+            "field": "finishes"
+          },
+          "where": {
+            "op": "eq",
+            "left": {
+              "op": "record_field",
+              "field": "release_id"
+            },
+            "right": {
+              "op": "record_field",
+              "field": "release_id",
+              "level": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "all",
+      "collection": {
+        "source": "deliverable",
+        "file": "schedule.json",
+        "field": "finishes"
+      },
+      "where": {
+        "op": "eq",
+        "left": {
+          "op": "record_field",
+          "field": "panels"
+        },
+        "right": {
+          "op": "lookup",
+          "collection": {
+            "source": "deliverable",
+            "file": "schedule.json",
+            "field": "charges"
+          },
+          "keyField": "release_id",
+          "key": {
+            "op": "record_field",
+            "field": "release_id"
+          },
+          "valueField": "panels"
+        }
+      }
+    },
+    {
+      "op": "all",
+      "collection": {
+        "source": "deliverable",
+        "file": "schedule.json",
+        "field": "charges"
+      },
+      "where": {
+        "op": "eq",
+        "left": {
+          "op": "record_field",
+          "field": "clay_kg"
+        },
+        "right": {
+          "op": "mul",
+          "left": {
+            "op": "record_field",
+            "field": "panels"
+          },
+          "right": {
+            "op": "lookup",
+            "collection": {
+              "source": "reference",
+              "file": "dataset.json",
+              "field": "profiles"
+            },
+            "keyField": "profile_id",
+            "key": {
+              "op": "lookup",
+              "collection": {
+                "source": "reference",
+                "file": "dataset.json",
+                "field": "releases"
+              },
+              "keyField": "release_id",
+              "key": {
+                "op": "record_field",
+                "field": "release_id"
+              },
+              "valueField": "profile_id"
+            },
+            "valueField": "kg_per_panel"
+          }
+        }
+      }
+    },
+    {
+      "op": "unique",
+      "collection": {
+        "source": "deliverable",
+        "file": "schedule.json",
+        "field": "charges"
+      },
+      "field": "lot_id"
+    },
+    {
+      "op": "all",
+      "collection": {
+        "source": "deliverable",
+        "file": "schedule.json",
+        "field": "charges"
+      },
+      "where": {
+        "op": "and",
+        "left": {
+          "op": "and",
+          "left": {
+            "op": "eq",
+            "left": {
+              "op": "lookup",
+              "collection": {
+                "source": "reference",
+                "file": "dataset.json",
+                "field": "lots"
+              },
+              "keyField": "lot_id",
+              "key": {
+                "op": "record_field",
+                "field": "lot_id"
+              },
+              "valueField": "clay_family"
+            },
+            "right": {
+              "op": "lookup",
+              "collection": {
+                "source": "reference",
+                "file": "dataset.json",
+                "field": "profiles"
+              },
+              "keyField": "profile_id",
+              "key": {
+                "op": "lookup",
+                "collection": {
+                  "source": "reference",
+                  "file": "dataset.json",
+                  "field": "releases"
+                },
+                "keyField": "release_id",
+                "key": {
+                  "op": "record_field",
+                  "field": "release_id"
+                },
+                "valueField": "profile_id"
+              },
+              "valueField": "clay_family"
+            }
+          },
+          "right": {
+            "op": "lte",
+            "left": {
+              "op": "record_field",
+              "field": "clay_kg"
+            },
+            "right": {
+              "op": "lookup",
+              "collection": {
+                "source": "reference",
+                "file": "dataset.json",
+                "field": "lots"
+              },
+              "keyField": "lot_id",
+              "key": {
+                "op": "record_field",
+                "field": "lot_id"
+              },
+              "valueField": "kg_available"
+            }
+          }
+        },
+        "right": {
+          "op": "eq",
+          "left": {
+            "op": "lookup",
+            "collection": {
+              "source": "reference",
+              "file": "dataset.json",
+              "field": "suppliers"
+            },
+            "keyField": "supplier_id",
+            "key": {
+              "op": "lookup",
+              "collection": {
+                "source": "reference",
+                "file": "dataset.json",
+                "field": "lots"
+              },
+              "keyField": "lot_id",
+              "key": {
+                "op": "record_field",
+                "field": "lot_id"
+              },
+              "valueField": "supplier_id"
+            },
+            "valueField": "certified"
+          },
+          "right": {
+            "op": "literal",
+            "type": "i64",
+            "value": "1"
+          }
+        }
+      }
+    },
+    {
+      "op": "unique",
+      "collection": {
+        "source": "deliverable",
+        "file": "schedule.json",
+        "field": "charges"
+      },
+      "field": "kiln_id"
+    },
+    {
+      "op": "all",
+      "collection": {
+        "source": "deliverable",
+        "file": "schedule.json",
+        "field": "charges"
+      },
+      "where": {
+        "op": "and",
+        "left": {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": "gte",
+              "left": {
+                "op": "lookup",
+                "collection": {
+                  "source": "reference",
+                  "file": "dataset.json",
+                  "field": "profiles"
+                },
+                "keyField": "profile_id",
+                "key": {
+                  "op": "lookup",
+                  "collection": {
+                    "source": "reference",
+                    "file": "dataset.json",
+                    "field": "releases"
+                  },
+                  "keyField": "release_id",
+                  "key": {
+                    "op": "record_field",
+                    "field": "release_id"
+                  },
+                  "valueField": "profile_id"
+                },
+                "valueField": "thickness_mm"
+              },
+              "right": {
+                "op": "lookup",
+                "collection": {
+                  "source": "reference",
+                  "file": "dataset.json",
+                  "field": "kilns"
+                },
+                "keyField": "kiln_id",
+                "key": {
+                  "op": "record_field",
+                  "field": "kiln_id"
+                },
+                "valueField": "thickness_min_mm"
+              }
+            },
+            "right": {
+              "op": "lte",
+              "left": {
+                "op": "lookup",
+                "collection": {
+                  "source": "reference",
+                  "file": "dataset.json",
+                  "field": "profiles"
+                },
+                "keyField": "profile_id",
+                "key": {
+                  "op": "lookup",
+                  "collection": {
+                    "source": "reference",
+                    "file": "dataset.json",
+                    "field": "releases"
+                  },
+                  "keyField": "release_id",
+                  "key": {
+                    "op": "record_field",
+                    "field": "release_id"
+                  },
+                  "valueField": "profile_id"
+                },
+                "valueField": "thickness_mm"
+              },
+              "right": {
+                "op": "lookup",
+                "collection": {
+                  "source": "reference",
+                  "file": "dataset.json",
+                  "field": "kilns"
+                },
+                "keyField": "kiln_id",
+                "key": {
+                  "op": "record_field",
+                  "field": "kiln_id"
+                },
+                "valueField": "thickness_max_mm"
+              }
+            }
+          },
+          "right": {
+            "op": "lte",
+            "left": {
+              "op": "record_field",
+              "field": "clay_kg"
+            },
+            "right": {
+              "op": "lookup",
+              "collection": {
+                "source": "reference",
+                "file": "dataset.json",
+                "field": "kilns"
+              },
+              "keyField": "kiln_id",
+              "key": {
+                "op": "record_field",
+                "field": "kiln_id"
+              },
+              "valueField": "capacity_kg"
+            }
+          }
+        },
+        "right": {
+          "op": "or",
+          "left": {
+            "op": "eq",
+            "left": {
+              "op": "lookup",
+              "collection": {
+                "source": "reference",
+                "file": "dataset.json",
+                "field": "kilns"
+              },
+              "keyField": "kiln_id",
+              "key": {
+                "op": "record_field",
+                "field": "kiln_id"
+              },
+              "valueField": "family_lock"
+            },
+            "right": {
+              "op": "literal",
+              "type": "string",
+              "value": ""
+            }
+          },
+          "right": {
+            "op": "eq",
+            "left": {
+              "op": "lookup",
+              "collection": {
+                "source": "reference",
+                "file": "dataset.json",
+                "field": "kilns"
+              },
+              "keyField": "kiln_id",
+              "key": {
+                "op": "record_field",
+                "field": "kiln_id"
+              },
+              "valueField": "family_lock"
+            },
+            "right": {
+              "op": "lookup",
+              "collection": {
+                "source": "reference",
+                "file": "dataset.json",
+                "field": "profiles"
+              },
+              "keyField": "profile_id",
+              "key": {
+                "op": "lookup",
+                "collection": {
+                  "source": "reference",
+                  "file": "dataset.json",
+                  "field": "releases"
+                },
+                "keyField": "release_id",
+                "key": {
+                  "op": "record_field",
+                  "field": "release_id"
+                },
+                "valueField": "profile_id"
+              },
+              "valueField": "clay_family"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "unique",
+      "collection": {
+        "source": "deliverable",
+        "file": "schedule.json",
+        "field": "finishes"
+      },
+      "field": "bench_id"
+    },
+    {
+      "op": "all",
+      "collection": {
+        "source": "deliverable",
+        "file": "schedule.json",
+        "field": "finishes"
+      },
+      "where": {
+        "op": "eq",
+        "left": {
+          "op": "lookup",
+          "collection": {
+            "source": "reference",
+            "file": "dataset.json",
+            "field": "benches"
+          },
+          "keyField": "bench_id",
+          "key": {
+            "op": "record_field",
+            "field": "bench_id"
+          },
+          "valueField": "edge_code"
+        },
+        "right": {
+          "op": "lookup",
+          "collection": {
+            "source": "reference",
+            "file": "dataset.json",
+            "field": "profiles"
+          },
+          "keyField": "profile_id",
+          "key": {
+            "op": "lookup",
+            "collection": {
+              "source": "reference",
+              "file": "dataset.json",
+              "field": "releases"
+            },
+            "keyField": "release_id",
+            "key": {
+              "op": "record_field",
+              "field": "release_id"
+            },
+            "valueField": "profile_id"
+          },
+          "valueField": "edge_code"
+        }
+      }
+    },
+    {
+      "op": "unique",
+      "collection": {
+        "source": "deliverable",
+        "file": "schedule.json",
+        "field": "finishes"
+      },
+      "field": "temper_id"
+    },
+    {
+      "op": "all",
+      "collection": {
+        "source": "deliverable",
+        "file": "schedule.json",
+        "field": "finishes"
+      },
+      "where": {
+        "op": "and",
+        "left": {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": "gte",
+              "left": {
+                "op": "lookup",
+                "collection": {
+                  "source": "reference",
+                  "file": "dataset.json",
+                  "field": "profiles"
+                },
+                "keyField": "profile_id",
+                "key": {
+                  "op": "lookup",
+                  "collection": {
+                    "source": "reference",
+                    "file": "dataset.json",
+                    "field": "releases"
+                  },
+                  "keyField": "release_id",
+                  "key": {
+                    "op": "record_field",
+                    "field": "release_id"
+                  },
+                  "valueField": "profile_id"
+                },
+                "valueField": "thickness_mm"
+              },
+              "right": {
+                "op": "lookup",
+                "collection": {
+                  "source": "reference",
+                  "file": "dataset.json",
+                  "field": "tempers"
+                },
+                "keyField": "temper_id",
+                "key": {
+                  "op": "record_field",
+                  "field": "temper_id"
+                },
+                "valueField": "thickness_min_mm"
+              }
+            },
+            "right": {
+              "op": "lte",
+              "left": {
+                "op": "lookup",
+                "collection": {
+                  "source": "reference",
+                  "file": "dataset.json",
+                  "field": "profiles"
+                },
+                "keyField": "profile_id",
+                "key": {
+                  "op": "lookup",
+                  "collection": {
+                    "source": "reference",
+                    "file": "dataset.json",
+                    "field": "releases"
+                  },
+                  "keyField": "release_id",
+                  "key": {
+                    "op": "record_field",
+                    "field": "release_id"
+                  },
+                  "valueField": "profile_id"
+                },
+                "valueField": "thickness_mm"
+              },
+              "right": {
+                "op": "lookup",
+                "collection": {
+                  "source": "reference",
+                  "file": "dataset.json",
+                  "field": "tempers"
+                },
+                "keyField": "temper_id",
+                "key": {
+                  "op": "record_field",
+                  "field": "temper_id"
+                },
+                "valueField": "thickness_max_mm"
+              }
+            }
+          },
+          "right": {
+            "op": "lte",
+            "left": {
+              "op": "record_field",
+              "field": "panels"
+            },
+            "right": {
+              "op": "lookup",
+              "collection": {
+                "source": "reference",
+                "file": "dataset.json",
+                "field": "tempers"
+              },
+              "keyField": "temper_id",
+              "key": {
+                "op": "record_field",
+                "field": "temper_id"
+              },
+              "valueField": "capacity_panels"
+            }
+          }
+        },
+        "right": {
+          "op": "or",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": "eq",
+              "left": {
+                "op": "lookup",
+                "collection": {
+                  "source": "reference",
+                  "file": "dataset.json",
+                  "field": "releases"
+                },
+                "keyField": "release_id",
+                "key": {
+                  "op": "record_field",
+                  "field": "release_id"
+                },
+                "valueField": "temper_required"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "1"
+              }
+            },
+            "right": {
+              "op": "eq",
+              "left": {
+                "op": "lookup",
+                "collection": {
+                  "source": "reference",
+                  "file": "dataset.json",
+                  "field": "tempers"
+                },
+                "keyField": "temper_id",
+                "key": {
+                  "op": "record_field",
+                  "field": "temper_id"
+                },
+                "valueField": "temper_class"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "fire"
+              }
+            }
+          },
+          "right": {
+            "op": "and",
+            "left": {
+              "op": "eq",
+              "left": {
+                "op": "lookup",
+                "collection": {
+                  "source": "reference",
+                  "file": "dataset.json",
+                  "field": "releases"
+                },
+                "keyField": "release_id",
+                "key": {
+                  "op": "record_field",
+                  "field": "release_id"
+                },
+                "valueField": "temper_required"
+              },
+              "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "0"
+              }
+            },
+            "right": {
+              "op": "eq",
+              "left": {
+                "op": "lookup",
+                "collection": {
+                  "source": "reference",
+                  "file": "dataset.json",
+                  "field": "tempers"
+                },
+                "keyField": "temper_id",
+                "key": {
+                  "op": "record_field",
+                  "field": "temper_id"
+                },
+                "valueField": "temper_class"
+              },
+              "right": {
+                "op": "literal",
+                "type": "string",
+                "value": "bypass"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "lte",
+      "left": {
+        "op": "count",
+        "collection": {
+          "source": "deliverable",
+          "file": "schedule.json",
+          "field": "charges"
+        },
+        "where": {
+          "op": "eq",
+          "left": {
+            "op": "lookup",
+            "collection": {
+              "source": "reference",
+              "file": "dataset.json",
+              "field": "suppliers"
+            },
+            "keyField": "supplier_id",
+            "key": {
+              "op": "lookup",
+              "collection": {
+                "source": "reference",
+                "file": "dataset.json",
+                "field": "lots"
+              },
+              "keyField": "lot_id",
+              "key": {
+                "op": "record_field",
+                "field": "lot_id"
+              },
+              "valueField": "supplier_id"
+            },
+            "valueField": "import"
+          },
+          "right": {
+            "op": "literal",
+            "type": "i64",
+            "value": "1"
+          }
+        }
+      },
+      "right": {
+        "op": "field",
+        "source": "reference",
+        "file": "dataset.json",
+        "field": "max_import_charges"
+      }
+    },
+    {
+      "op": "gte",
+      "left": {
+        "op": "count",
+        "collection": {
+          "source": "deliverable",
+          "file": "schedule.json",
+          "field": "charges"
+        },
+        "where": {
+          "op": "eq",
+          "left": {
+            "op": "lookup",
+            "collection": {
+              "source": "reference",
+              "file": "dataset.json",
+              "field": "lots"
+            },
+            "keyField": "lot_id",
+            "key": {
+              "op": "record_field",
+              "field": "lot_id"
+            },
+            "valueField": "recycled"
+          },
+          "right": {
+            "op": "literal",
+            "type": "i64",
+            "value": "1"
+          }
+        }
+      },
+      "right": {
+        "op": "field",
+        "source": "reference",
+        "file": "dataset.json",
+        "field": "min_recycled_charges"
+      }
+    },
+    {
+      "op": "lte",
+      "left": {
+        "op": "sum",
+        "collection": {
+          "source": "deliverable",
+          "file": "schedule.json",
+          "field": "charges"
+        },
+        "value": {
+          "op": "mul",
+          "left": {
+            "op": "record_field",
+            "field": "clay_kg"
+          },
+          "right": {
+            "op": "lookup",
+            "collection": {
+              "source": "reference",
+              "file": "dataset.json",
+              "field": "lots"
+            },
+            "keyField": "lot_id",
+            "key": {
+              "op": "record_field",
+              "field": "lot_id"
+            },
+            "valueField": "cents_per_kg"
+          }
+        }
+      },
+      "right": {
+        "op": "field",
+        "source": "reference",
+        "file": "dataset.json",
+        "field": "max_spend_cents"
+      }
+    }
+  ]
+}

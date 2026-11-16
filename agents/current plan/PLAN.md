@@ -2,6 +2,28 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-15 23:10 -05:00 — Anish — Execute the local-first acceptance gate
+
+- The user approved execution of the local-first readiness actions and requested parallel Grok 4.7 High work. Finish the new Meridian workload locally before another live Arc run for it. Integration owns completion and reviewed checkpoint publication.
+- Preserve the unpublished workload, oracle, selector and documentation changes. Review and publish them before the complete new-workload proof rehearsal. Do not count the previous process-exit-1 report as a clean pass.
+- Parallelize non-overlapping implementation and independent checks. Keep guest builds and proofs under one owner and sequential. Require a real verifier and actual local contracts, fresh funded context/proof, exact payout, independent dual recovery/oracle, rejection/refund/restart evidence, exit 0 and final source/CI evidence.
+- The operator retains live identity, protected-signing and exact-spending approval. This execution request does not authorize live Arc transactions or wallet access.
+
+## 2026-11-15 19:12 -05:00 — Anish — User delegates a new English-to-proof exchange workload
+
+- The user updated the active goal. Integration selects one new synthetic problem through a separate agent, records its English request, and uses a low-cost model call to produce constraints. A separate agent solves it. An independent oracle checks semantic validity.
+- This replaces the need for a user-supplied workload for the next local run. It does not approve an unknown wallet, address, deadline or gas cap. The user may operate both buyer and seller. Use distinct public identities when available.
+- Retain the current engine/API/SDK/ERC-8183 architecture and proof-gated key release. No new UI, marketplace, optimizer or protocol is required. Keep oracle and candidate answers outside authoring inputs.
+- The [goal tracker](GOAL-2026-11-15.md) records this change and its remaining safety gates. The new English challenge is being written under `docs/fresh-exchange-input/`. The prior full local rehearsal is still running as a regression check.
+
+## 2026-11-15 19:07 -05:00 — Anish — Reviewed source published; fresh local acceptance running
+
+- Published reviewed oracle correction `22c1a3b` and portable rehearsal source `9458a81` to `codex/engine-commerce`. Independent Grok reviews approved both. Parent checks passed 56 runner tests, 24 portable preflight tests, worker typecheck and 15 real-engine API tests.
+- Grok 4.7 is available through Orca. The user requested continued delegation with high reasoning. Keep no more than two workers active and run guest builds/proofs sequentially. Earlier statements that this session cannot access Grok are historical.
+- A new full forkless local proof, payout and independent recovery rehearsal is running against committed source. The earlier 592.4-second result does not certify this tree. Final-head CI and documentation publication remain pending.
+- Fresh [read-only deployment verification](../anish/reports/core-sprint-deployment-refresh-2026-11-15.json) passed 60 checks at block `72490082`. It used 81 serialized calls at two-second intervals with no retries. This is deployment evidence only.
+- The [goal tracker](GOAL-2026-11-15.md) retains the live acceptance boundary. Buyer approval, actual identities, protected signing access and exact spending authorization remain external inputs. No live write or wallet access is authorized. Do not merge a code-only candidate as the completed funded goal.
+
 ## 2026-11-15 18:17 -05:00 — Anish — Proposed goal and completion tracker
 
 - Added the proposed [funded-proof goal tracker](GOAL-2026-11-15.md) at the user's request. It records finished integration, the local-only funded proof and payout, the pending oracle/suite/documentation review, final candidate checks, external live authorization, and the normal `main` merge gates. It does not change the acceptance contract or approve a wallet.

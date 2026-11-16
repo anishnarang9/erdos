@@ -1,0 +1,29 @@
+{
+  "integerEncoding": "normalized signed i64 decimal strings",
+  "deliverable": {
+    "name": "schedule.json",
+    "parser": "json/v1",
+    "fields": [],
+    "collections": [
+      {
+        "name": "charges",
+        "fields": [
+          {"name": "release_id", "type": "string"},
+          {"name": "lot_id", "type": "string"},
+          {"name": "kiln_id", "type": "string"},
+          {"name": "panels", "type": "i64"},
+          {"name": "clay_kg", "type": "i64"}
+        ]
+      },
+      {
+        "name": "finishes",
+        "fields": [
+          {"name": "release_id", "type": "string"},
+          {"name": "bench_id", "type": "string"},
+          {"name": "temper_id", "type": "string"},
+          {"name": "panels", "type": "i64"}
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "model": "grok-4.7-build-fast",
+  "interface": "Orca native Grok inference",
+  "effort": "low",
+  "httpDraftModelCall": false,
+  "promptRecording": "Sanitized task summary and exact allowed-input hashes. Not a complete session transcript.",
+  "isolationLimit": "The native worker received explicit file-access restrictions. This was not a separate filesystem sandbox. It reports an additional engine README read for CLI syntax and operation meanings.",
+  "apiId": null,
+  "tokens": null,
+  "cost": null,
+  "startedAt": "2026-11-16T00:27:48Z",
+  "validatedAt": "2026-11-16T00:28:13Z",
+  "elapsedSeconds": 25,
+  "repairAttempts": 0,
+  "authoringAttempts": 1,
+  "inputHashes": {
+    "docs/fresh-exchange-input/request.md": "229223c55c23c24e0f70413154acd84994672fa6fee76fe247557c288ec2750e",
+    "docs/fresh-exchange-input/reference/dataset.json": "6ccaaf06a64a68039dace223fc36fad9f60efce3f250d6044c5f7274b60fc06f",
+    "docs/fresh-exchange-input/outputs.json": "ccf5f21cac432a09c93b51ebfe000aeb602227cea70707a0815c74489dce79aa",
+    "engine/plan-v1.schema.json": "5c333917cf889e1682d38da76e95a4da9b331c4dd95870da5fb2e4f6050ead56",
+    "engine/capabilities-v1.json": "fdb05c7b3ab6cac185dca29771e5f9364d9d3170174f14223d70c9a9f2db2e6a"
+  },
+  "planSha256": "8adab8d931f6065cd91fab141b8049d231fcb29ab438350118c4973c63b9238a",
+  "rawResponseSha256": "8adab8d931f6065cd91fab141b8049d231fcb29ab438350118c4973c63b9238a",
+  "validation": [
+    {
+      "attempt": 1,
+      "command": "engine/target/debug/engine validate --plan docs/fresh-exchange-input/plan.json",
+      "exitCode": 0,
+      "log": "docs/fresh-exchange-input/authoring/validation-1.json",
+      "rulesHash": "0x5d637c9b710c72857f7752f665ca08565eecc7d1c5b3877a5a8339d700a1f60b",
+      "structureHash": "0xb06974923f9625535275905149690c636bbaa6e6e335365a2179907cbe3b85cf",
+      "emittedNodeCount": null,
+      "emittedDepth": null,
+      "authorRuleCount": 19,
+      "authorOpNodeCount": 157
+    }
+  ],
+  "paths": {
+    "plan": "docs/fresh-exchange-input/plan.json",
+    "rawResponse": "docs/fresh-exchange-input/authoring/raw-response.json",
+    "prompt": "docs/fresh-exchange-input/authoring/prompt.md",
+    "provenance": "docs/fresh-exchange-input/authoring/provenance.json",
+    "validation": ["docs/fresh-exchange-input/authoring/validation-1.json"]
+  }
+}

@@ -1,0 +1,1100 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-15",
+  "reviewer": "native Orca Grok 4.7 high, independent local semantic check",
+  "status": "passed",
+  "liveArc": false,
+  "networkUsed": false,
+  "compile": false,
+  "guestExecute": false,
+  "proof": false,
+  "docker": false,
+  "contractBuild": false,
+  "source": {
+    "head": "2d9f2fdcff14c7dc581ba3c4c787cf6730589750",
+    "evaluator": "engine/target/debug/engine",
+    "evaluatorSha256": "abb34d8156cbe8c38984c53b8bc146745c53958e6752d5a667f01d98d8ccac9d",
+    "planSchemaSha256": "5c333917cf889e1682d38da76e95a4da9b331c4dd95870da5fb2e4f6050ead56",
+    "capabilitiesSha256": "fdb05c7b3ab6cac185dca29771e5f9364d9d3170174f14223d70c9a9f2db2e6a"
+  },
+  "hashes": {
+    "docs/fresh-exchange-input/request.md": "229223c55c23c24e0f70413154acd84994672fa6fee76fe247557c288ec2750e",
+    "docs/fresh-exchange-input/reference/dataset.json": "6ccaaf06a64a68039dace223fc36fad9f60efce3f250d6044c5f7274b60fc06f",
+    "docs/fresh-exchange-input/outputs.json": "ccf5f21cac432a09c93b51ebfe000aeb602227cea70707a0815c74489dce79aa",
+    "docs/fresh-exchange-input/plan.json": "8adab8d931f6065cd91fab141b8049d231fcb29ab438350118c4973c63b9238a",
+    "docs/fresh-exchange-input/oracle.py": "0683056137b3dd5103c51d1aa829dad388fd538f498c3765834158cd6fb159fb",
+    "docs/fresh-exchange-input/tests/test_oracle.py": "ebdea825bf0a0be7a0a25d2ebb0e627ab61a997ff48905768e58192db68cfa3b",
+    "docs/fresh-exchange-input/candidates/valid/schedule.json": "0607a7b43bf95913d5561d1872b14df0e9ba3fce160946f0bfac99d76608fbc2",
+    "docs/fresh-exchange-input/candidates/alternative/schedule.json": "a6084c49e8fdef4e8fc0059df1f035126a496a634123a57c0447da35e35a7ecd",
+    "docs/fresh-exchange-input/authoring/provenance.json": "4f302f598396260f5df7f778256787acc6ce710bbf63b200c2e9cdce6e286d0f",
+    "docs/fresh-exchange-input/authoring/raw-response.json": "8adab8d931f6065cd91fab141b8049d231fcb29ab438350118c4973c63b9238a",
+    "docs/fresh-exchange-input/authoring/prompt.md": "b62b3448cc14c21a46403b8f225ec18ac790138ffb52252c43b4290027e40901",
+    "docs/fresh-exchange-input/solver/solve.py": "5679a00b5e66d7ba735c4ef4062f9b031224a6292b3f67d9a6e46a76fda97f35",
+    "docs/fresh-exchange-input/solver/provenance.json": "393b3a05c79ee745dbb2afe62aff0fde2bc0eabe735f52c3fa535e646771fc9f",
+    "docs/fresh-exchange-input/provenance.json": "9949c7dfd1ea93fea334c56cdf75876499742d2e2b6c9fbd97c825813c3ac8a2",
+    "docs/fresh-exchange-input/verification/REPORT.md": "e368a0d84ef8dfd8da5a00978d0e17dab050e05a56a5520a7d4227f6568cb809",
+    "docs/fresh-exchange-input/verification/differential.json": "d3bc2c6d3aba363b7c4bb3ecfd16b4062c62b58827579e9fefee3bb4f3995b01",
+    "engine/plan-v1.schema.json": "5c333917cf889e1682d38da76e95a4da9b331c4dd95870da5fb2e4f6050ead56",
+    "engine/capabilities-v1.json": "fdb05c7b3ab6cac185dca29771e5f9364d9d3170174f14223d70c9a9f2db2e6a",
+    "engine/target/debug/engine": "abb34d8156cbe8c38984c53b8bc146745c53958e6752d5a667f01d98d8ccac9d"
+  },
+  "hashChecks": {
+    "mismatches": []
+  },
+  "commands": [
+    {
+      "command": "python3 -B -m unittest discover -s docs/fresh-exchange-input/tests -p test_*.py",
+      "exitCode": 0,
+      "testsRan": 34,
+      "result": "OK"
+    },
+    {
+      "command": "python3 -B -m unittest docs.fresh-exchange-input.tests.test_oracle",
+      "exitCode": 0,
+      "result": "OK",
+      "testsRan": 34
+    },
+    {
+      "command": "engine/target/debug/engine validate --plan docs/fresh-exchange-input/plan.json",
+      "exitCode": 0,
+      "rulesHash": "0x5d637c9b710c72857f7752f665ca08565eecc7d1c5b3877a5a8339d700a1f60b",
+      "structureHash": "0xb06974923f9625535275905149690c636bbaa6e6e335365a2179907cbe3b85cf"
+    },
+    {
+      "command": "engine/target/debug/engine eval --plan docs/fresh-exchange-input/plan.json --deliverables docs/fresh-exchange-input/candidates/valid --reference docs/fresh-exchange-input/reference",
+      "exitCode": 0,
+      "verdict": 1
+    },
+    {
+      "command": "engine/target/debug/engine eval --plan docs/fresh-exchange-input/plan.json --deliverables docs/fresh-exchange-input/candidates/alternative --reference docs/fresh-exchange-input/reference",
+      "exitCode": 0,
+      "verdict": 1
+    },
+    {
+      "command": "python3 -B docs/fresh-exchange-input/oracle.py docs/fresh-exchange-input/candidates/valid",
+      "exitCode": 0,
+      "kind": "pass"
+    },
+    {
+      "command": "python3 -B docs/fresh-exchange-input/oracle.py docs/fresh-exchange-input/candidates/alternative",
+      "exitCode": 0,
+      "kind": "pass"
+    },
+    {
+      "command": "engine eval and oracle.py on private bounded schedules, same plan and published reference",
+      "cases": 53,
+      "agree": 53
+    }
+  ],
+  "counts": {
+    "englishRequirements": 13,
+    "planRules": 19,
+    "operationNodes": 157,
+    "maxExpressionDepth": 8,
+    "referenceRecords": 37,
+    "referenceCollections": {
+      "suppliers": 4,
+      "profiles": 4,
+      "releases": 4,
+      "lots": 10,
+      "kilns": 5,
+      "benches": 6,
+      "tempers": 4
+    },
+    "oracleTestsRan": 34,
+    "oracleTestsFailed": 0,
+    "pairedCases": 53,
+    "pairedAgree": 53,
+    "publishedCandidates": 2,
+    "searchVisits": 19609,
+    "searchResourceFeasible": 11520,
+    "searchAccepted": 3200,
+    "priorDifferentialCases": 39,
+    "priorDifferentialAgree": 39
+  },
+  "caps": {
+    "rulesLimit": 256,
+    "nodeLimit": 256,
+    "depthLimit": 32,
+    "recordsPerCollectionLimit": 256,
+    "referenceBundleBytes": 32768,
+    "deliveryBundleBytes": 16384,
+    "expressionVisitLimit": 1000000,
+    "observedRules": 19,
+    "observedNodes": 157,
+    "observedDepth": 8,
+    "largestReferenceCollection": 10,
+    "publishedDatasetBytes": 4128,
+    "visitCountMeasured": false
+  },
+  "requirementMap": [
+    {
+      "requirement": 1,
+      "name": "Charge cardinality",
+      "rules": [
+        0,
+        1
+      ],
+      "encoding": "unique charges.release_id, and count(charges) equals count(releases)",
+      "judgment": "faithful"
+    },
+    {
+      "requirement": 2,
+      "name": "Charge quantity",
+      "rules": [
+        2
+      ],
+      "encoding": "every charge panels equals lookup(releases, release_id).panels",
+      "judgment": "faithful",
+      "note": "A missing release id aborts evaluation. It does not return verdict 0."
+    },
+    {
+      "requirement": 3,
+      "name": "Finish cardinality",
+      "rules": [
+        3,
+        4
+      ],
+      "encoding": "unique finishes.release_id, and count(finishes) equals count(releases)",
+      "judgment": "faithful"
+    },
+    {
+      "requirement": 4,
+      "name": "Coverage",
+      "rules": [
+        5
+      ],
+      "encoding": "every release has some charge and some finish with the same release_id",
+      "judgment": "faithful",
+      "note": "Uses any, so a missing stage is verdict 0 when no lookup aborts."
+    },
+    {
+      "requirement": 5,
+      "name": "Charge-finish join",
+      "rules": [
+        6
+      ],
+      "encoding": "every finish panels equals lookup(charges, release_id).panels",
+      "judgment": "faithful",
+      "note": "Charges are a lookup source. Any duplicate charge release_id aborts when this rule runs."
+    },
+    {
+      "requirement": 6,
+      "name": "Clay mass",
+      "rules": [
+        7
+      ],
+      "encoding": "clay_kg equals panels multiplied by lookup(profile through release).kg_per_panel",
+      "judgment": "faithful"
+    },
+    {
+      "requirement": 7,
+      "name": "Lot",
+      "rules": [
+        8,
+        9
+      ],
+      "encoding": "unique lot_id; family matches; clay_kg <= kg_available; certified equals 1",
+      "judgment": "faithful"
+    },
+    {
+      "requirement": 8,
+      "name": "Kiln",
+      "rules": [
+        10,
+        11
+      ],
+      "encoding": "unique kiln_id; inclusive thickness window; clay_kg <= capacity_kg; empty family_lock or exact family",
+      "judgment": "faithful"
+    },
+    {
+      "requirement": 9,
+      "name": "Bench",
+      "rules": [
+        12,
+        13
+      ],
+      "encoding": "unique bench_id; bench edge_code equals the profile edge_code",
+      "judgment": "faithful"
+    },
+    {
+      "requirement": 10,
+      "name": "Temper",
+      "rules": [
+        14,
+        15
+      ],
+      "encoding": "unique temper_id; inclusive thickness; panels <= capacity_panels; fire exactly when temper_required is 1 and bypass exactly when it is 0",
+      "judgment": "faithful"
+    },
+    {
+      "requirement": 11,
+      "name": "Import ceiling",
+      "rules": [
+        16
+      ],
+      "encoding": "count of charges whose supplier import equals 1 is <= max_import_charges",
+      "judgment": "faithful"
+    },
+    {
+      "requirement": 12,
+      "name": "Recycled floor",
+      "rules": [
+        17
+      ],
+      "encoding": "count of charges whose lot recycled equals 1 is >= min_recycled_charges",
+      "judgment": "faithful"
+    },
+    {
+      "requirement": 13,
+      "name": "Spend ceiling",
+      "rules": [
+        18
+      ],
+      "encoding": "sum of clay_kg * lot.cents_per_kg is <= max_spend_cents",
+      "judgment": "faithful"
+    }
+  ],
+  "planOps": {
+    "unique": 6,
+    "eq": 18,
+    "count": 6,
+    "all": 8,
+    "record_field": 41,
+    "lookup": 39,
+    "and": 11,
+    "any": 2,
+    "mul": 2,
+    "lte": 7,
+    "literal": 8,
+    "gte": 3,
+    "or": 2,
+    "field": 3,
+    "sum": 1
+  },
+  "literals": [
+    {
+      "type": "i64",
+      "value": "1"
+    },
+    {
+      "type": "string",
+      "value": ""
+    },
+    {
+      "type": "i64",
+      "value": "1"
+    },
+    {
+      "type": "string",
+      "value": "fire"
+    },
+    {
+      "type": "i64",
+      "value": "0"
+    },
+    {
+      "type": "string",
+      "value": "bypass"
+    },
+    {
+      "type": "i64",
+      "value": "1"
+    },
+    {
+      "type": "i64",
+      "value": "1"
+    }
+  ],
+  "forbiddenOps": [],
+  "schemaMatchesOutputs": true,
+  "referenceIntegersCanonical": true,
+  "candidates": {
+    "byteIdentical": false,
+    "valid": {
+      "sha256": "0607a7b43bf95913d5561d1872b14df0e9ba3fce160946f0bfac99d76608fbc2",
+      "spendCents": 30480,
+      "importCharges": 1,
+      "recycledCharges": 2,
+      "oracleKind": "pass",
+      "engineVerdict": 1,
+      "agree": true
+    },
+    "alternative": {
+      "sha256": "a6084c49e8fdef4e8fc0059df1f035126a496a634123a57c0447da35e35a7ecd",
+      "spendCents": 31440,
+      "importCharges": 1,
+      "recycledCharges": 2,
+      "oracleKind": "pass",
+      "engineVerdict": 1,
+      "agree": true
+    }
+  },
+  "pairedCases": [
+    {
+      "case": "independent-primary",
+      "agree": true,
+      "oracle": "pass",
+      "oracleErrors": [],
+      "engine": "pass",
+      "engineVerdict": 1,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "independent-alternative",
+      "agree": true,
+      "oracle": "pass",
+      "oracleErrors": [],
+      "engine": "pass",
+      "engineVerdict": 1,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "reorder-and-extra-field",
+      "agree": true,
+      "oracle": "pass",
+      "oracleErrors": [],
+      "engine": "pass",
+      "engineVerdict": 1,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "unknown-release",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "LOOKUP"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "Invalid rule expression"
+    },
+    {
+      "case": "unknown-lot",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "LOOKUP"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "Invalid rule expression"
+    },
+    {
+      "case": "unknown-kiln",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "LOOKUP"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "Invalid rule expression"
+    },
+    {
+      "case": "unknown-bench",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "LOOKUP"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "Invalid rule expression"
+    },
+    {
+      "case": "unknown-temper",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "LOOKUP"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "Invalid rule expression"
+    },
+    {
+      "case": "unknown-finish-release",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "LOOKUP"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "Invalid rule expression"
+    },
+    {
+      "case": "finish-without-charge",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "LOOKUP"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "Invalid rule expression"
+    },
+    {
+      "case": "duplicate-charge-release",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "LOOKUP"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "Invalid rule expression"
+    },
+    {
+      "case": "duplicate-lot",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "LOT"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "duplicate-kiln",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "KILN"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "duplicate-bench",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "BENCH"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "duplicate-temper",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "TEMPER"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "drop-gate-both-stages",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "CHARGE_CARDINALITY",
+        "COVERAGE",
+        "FINISH_CARDINALITY"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "panels-mismatch",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "CHARGE_QUANTITY"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "finish-panels-mismatch",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "CHARGE_FINISH"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "clay-mass-mismatch",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "CLAY_MASS"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "uncertified-lot",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "LOT"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "lot-too-small",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "LOT"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "import-ceiling",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "IMPORT_CEILING"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "kiln-thickness",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "KILN"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "kiln-family-lock",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "KILN"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "kiln-capacity",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "KILN"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "bench-edge",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "BENCH"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "temper-capacity",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "TEMPER"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "temper-class",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "TEMPER"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "spend-ceiling",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "SPEND_CEILING"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "recycled-and-spend",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "RECYCLED_FLOOR",
+        "SPEND_CEILING"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "product-overflow",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "ARITHMETIC"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "Rule arithmetic exceeds the i64 range"
+    },
+    {
+      "case": "spend-overflow",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "ARITHMETIC"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "Rule arithmetic exceeds the i64 range"
+    },
+    {
+      "case": "noncanonical-integer",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "SCHEMA"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "File contents do not match the declared schema"
+    },
+    {
+      "case": "plus-sign-integer",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "SCHEMA"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "File contents do not match the declared schema"
+    },
+    {
+      "case": "negative-zero",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "SCHEMA"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "File contents do not match the declared schema"
+    },
+    {
+      "case": "i64-above-max",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "SCHEMA"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "File contents do not match the declared schema"
+    },
+    {
+      "case": "numeric-integer",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "SCHEMA"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "File contents do not match the declared schema"
+    },
+    {
+      "case": "duplicate-release-without-finishes",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "CHARGE_CARDINALITY",
+        "CHARGE_QUANTITY",
+        "CLAY_MASS",
+        "COVERAGE",
+        "FINISH_CARDINALITY",
+        "LOT"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "empty-schedule",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "CHARGE_CARDINALITY",
+        "COVERAGE",
+        "FINISH_CARDINALITY",
+        "RECYCLED_FLOOR"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "eager-false-unique-then-missing-temper",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "LOOKUP"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "Invalid rule expression"
+    },
+    {
+      "case": "case-sensitive-release",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "LOOKUP"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "Invalid rule expression"
+    },
+    {
+      "case": "duplicate-finish-release",
+      "agree": true,
+      "oracle": "verdict0",
+      "oracleErrors": [
+        "BENCH",
+        "COVERAGE",
+        "FINISH_CARDINALITY",
+        "TEMPER"
+      ],
+      "engine": "verdict0",
+      "engineVerdict": 0,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "missing-file",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "FILE_SET"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "Bundle files differ from the declared files"
+    },
+    {
+      "case": "extra-file",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "FILE_SET"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "Bundle files differ from the declared files"
+    },
+    {
+      "case": "symlink-file",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "FILE_TYPE"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "bundle_input",
+      "engineMessage": "Too many levels of symbolic links (os error 62)"
+    },
+    {
+      "case": "symlink-directory",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "FILE_TYPE"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "bundle_input",
+      "engineMessage": "Not a directory (os error 20)"
+    },
+    {
+      "case": "directory-entry",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "FILE_TYPE"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "bundle_input",
+      "engineMessage": "Expected a regular file"
+    },
+    {
+      "case": "duplicate-json-key",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "JSON"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "File contents do not match the declared schema"
+    },
+    {
+      "case": "malformed-json",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "JSON"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "File contents do not match the declared schema"
+    },
+    {
+      "case": "json-depth",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "JSON_LIMIT"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "File contents do not match the declared schema"
+    },
+    {
+      "case": "json-array-257",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "JSON_LIMIT"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "File contents do not match the declared schema"
+    },
+    {
+      "case": "bundle-ceiling",
+      "agree": true,
+      "oracle": "pass",
+      "oracleErrors": [],
+      "engine": "pass",
+      "engineVerdict": 1,
+      "engineCode": null,
+      "engineMessage": null
+    },
+    {
+      "case": "bundle-over",
+      "agree": true,
+      "oracle": "invalid",
+      "oracleErrors": [
+        "BUNDLE_LIMIT"
+      ],
+      "engine": "invalid",
+      "engineVerdict": null,
+      "engineCode": "bundle_input",
+      "engineMessage": "Input exceeds its byte limit"
+    }
+  ],
+  "engineOnlyCases": [
+    {
+      "case": "reference-duplicate-lot-id",
+      "oracle": "not-applicable; oracle reads only the published sibling reference",
+      "engineKind": "invalid",
+      "engineExit": 2,
+      "engineCode": "invalid_deliverable",
+      "engineMessage": "Invalid rule expression",
+      "expected": "invalid",
+      "agreeWithExpected": true
+    },
+    {
+      "case": "reference-family-case-change",
+      "oracle": "not-applicable; oracle reads only the published sibling reference",
+      "engineKind": "verdict0",
+      "engineExit": 0,
+      "engineVerdict": 0,
+      "engineCode": null,
+      "expected": "verdict0",
+      "agreeWithExpected": true
+    }
+  ],
+  "search": {
+    "complete": true,
+    "visits": 19609,
+    "resourceFeasible": 11520,
+    "accepted": 3200,
+    "spendMin": 29340,
+    "spendMax": 31840,
+    "acceptedSpendEqualsCeiling": 0,
+    "acceptedExactLotSupply": 0,
+    "acceptedExactKilnCapacity": 0,
+    "acceptedImportCounts": {
+      "1": 3200
+    },
+    "acceptedRecycledCounts": {
+      "2": 2560,
+      "4": 320,
+      "3": 320
+    },
+    "recycledOneFailureCodes": {
+      "RECYCLED_FLOOR,SPEND_CEILING": 1280,
+      "IMPORT_CEILING,RECYCLED_FLOOR": 1920
+    },
+    "optionCounts": [
+      {
+        "lots": 2,
+        "kilns": 2,
+        "benches": 2,
+        "tempers": 3
+      },
+      {
+        "lots": 4,
+        "kilns": 4,
+        "benches": 2,
+        "tempers": 3
+      },
+      {
+        "lots": 3,
+        "kilns": 2,
+        "benches": 2,
+        "tempers": 1
+      },
+      {
+        "lots": 2,
+        "kilns": 2,
+        "benches": 2,
+        "tempers": 2
+      }
+    ],
+    "witnesses": [
+      {
+        "label": "min",
+        "spendCents": 29340,
+        "importCharges": 1,
+        "recycledCharges": 4,
+        "agree": true,
+        "oracleKind": "pass",
+        "engineKind": "pass",
+        "engineVerdict": 1
+      },
+      {
+        "label": "max",
+        "spendCents": 31840,
+        "importCharges": 1,
+        "recycledCharges": 2,
+        "agree": true,
+        "oracleKind": "pass",
+        "engineKind": "pass",
+        "engineVerdict": 1
+      }
+    ]
+  },
+  "authorship": {
+    "designerClaim": "native Grok 4.7 high through an Orca worker; externalModelCalls 0; apiRequestId null",
+    "authorClaim": "grok-4.7-build-fast low through Orca native inference; httpDraftModelCall false; apiId null; tokens null; cost null",
+    "authorPrompt": "sanitized task summary with input hashes, not a complete session transcript",
+    "rawResponseEqualsPlan": true,
+    "solverClaim": "separate Grok 4.7 high wrote a deterministic bounded Python search; engine_or_oracle_checked false",
+    "solverNetworkMarkers": [],
+    "observedHttpDraftModelCall": false,
+    "observedAutonomousRuntimeSolver": false,
+    "transportIndependentlyProven": false,
+    "judgment": "Artifacts are consistent with native Orca file authoring. The saved raw response is the plan document, not an HTTP DraftModel envelope. No API request id, token count, or cost is recorded. The solver is an explicit local Python search with no network client, and this review did not execute it. Absence of an HTTP envelope does not by itself prove which process produced the files."
+  },
+  "findings": [
+    "All 13 English requirements map onto the 19 plan rules. Comparisons inside each numbered requirement share one pass, with a second rule only for unique or count. There is no file hash, file size, ranking, or preferred assignment.",
+    "Both published schedules pass the oracle and engine eval with verdict 1. They are not byte-identical. The checked spends are 30480 and 31440 cents, each with one import charge and two recycled charges.",
+    "Oracle and engine agree on every paired private case, including canonical i64 rejection, schema failures, lookup aborts, checked overflow, bundle ceiling, and semantic verdict 0.",
+    "A complete enumeration made 19609 visits, found 11520 resource-feasible assignments, and accepted 3200. Accepted spend runs from 29340 to 31840 cents. None draws a lot or kiln to exact capacity, and none spends exactly 32000 cents.",
+    "All 3200 accepted assignments have exactly one import charge. The plan still compares with <=. Every resource-feasible assignment with only one recycled charge also fails the import ceiling or the spend ceiling, so the recycled floor does not fail by itself on this dataset.",
+    "The passing independent schedule sits on inclusive bounds: temper capacity 10, temper thicknesses 25 and 40, and kiln thickness 30. Dropping its non-recycled gate stage fails cardinality and coverage and does not fail the recycled floor.",
+    "Recorded designer, author, and solver hashes match the current files. The author raw response hash equals the plan hash."
+  ],
+  "disagreements": [],
+  "openLimits": [
+    "No compile, guest execution, Groth16 proof, Docker, contract build, live funding, or network call was run.",
+    "Engine eval does not report expression-visit counts. No evaluated case returned a visit-limit error.",
+    "The oracle cannot be pointed at another reference. Duplicate lookup keys and case-sensitive family changes were checked with engine eval only.",
+    "A false unique result does not suppress a later lookup or arithmetic abort, because rules and both Boolean operands evaluate eagerly.",
+    "Duplicate charge release ids are invalid when any finish causes the charge lookup to run. The same duplicate is verdict 0 when finishes is empty, because all over an empty collection does not evaluate its body.",
+    "Public engine and oracle error strings differ. Agreement in this report is by class: pass, verdict 0, or invalid input."
+  ]
+}

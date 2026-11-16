@@ -1,0 +1,823 @@
+{
+  "agree": 39,
+  "total": 39,
+  "cases": [
+    {
+      "case": "candidate-valid",
+      "expect": "pass",
+      "agree": true,
+      "oracle": {
+        "exit": 0,
+        "kind": "pass",
+        "errors": [],
+        "encoded_bytes": 780,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "pass",
+        "verdict": 1,
+        "stdout": "{\"verdict\":1}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "candidate-alternative",
+      "expect": "pass",
+      "agree": true,
+      "oracle": {
+        "exit": 0,
+        "kind": "pass",
+        "errors": [],
+        "encoded_bytes": 780,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "pass",
+        "verdict": 1,
+        "stdout": "{\"verdict\":1}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "independent-primary",
+      "expect": "pass",
+      "agree": true,
+      "oracle": {
+        "exit": 0,
+        "kind": "pass",
+        "errors": [],
+        "encoded_bytes": 780,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "pass",
+        "verdict": 1,
+        "stdout": "{\"verdict\":1}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "reorder-and-extra-field",
+      "expect": "pass",
+      "agree": true,
+      "oracle": {
+        "exit": 0,
+        "kind": "pass",
+        "errors": [],
+        "encoded_bytes": 807,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "pass",
+        "verdict": 1,
+        "stdout": "{\"verdict\":1}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "unknown-release",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "LOOKUP"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "Invalid rule expression",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"Invalid rule expression\"}"
+      }
+    },
+    {
+      "case": "unknown-lot",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "LOOKUP"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "Invalid rule expression",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"Invalid rule expression\"}"
+      }
+    },
+    {
+      "case": "unknown-kiln",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "LOOKUP"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "Invalid rule expression",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"Invalid rule expression\"}"
+      }
+    },
+    {
+      "case": "unknown-bench",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "LOOKUP"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "Invalid rule expression",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"Invalid rule expression\"}"
+      }
+    },
+    {
+      "case": "unknown-temper",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "LOOKUP"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "Invalid rule expression",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"Invalid rule expression\"}"
+      }
+    },
+    {
+      "case": "unknown-finish-release",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "LOOKUP"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "Invalid rule expression",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"Invalid rule expression\"}"
+      }
+    },
+    {
+      "case": "finish-without-charge",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "LOOKUP"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "Invalid rule expression",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"Invalid rule expression\"}"
+      }
+    },
+    {
+      "case": "duplicate-charge-release",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "LOOKUP"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "Invalid rule expression",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"Invalid rule expression\"}"
+      }
+    },
+    {
+      "case": "duplicate-lot",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "LOT"
+        ],
+        "encoded_bytes": 780,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "duplicate-kiln",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "KILN"
+        ],
+        "encoded_bytes": 780,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "duplicate-bench",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "BENCH"
+        ],
+        "encoded_bytes": 780,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "duplicate-temper",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "TEMPER"
+        ],
+        "encoded_bytes": 780,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "drop-gate-both-stages",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "CHARGE_CARDINALITY",
+          "COVERAGE",
+          "FINISH_CARDINALITY",
+          "RECYCLED_FLOOR"
+        ],
+        "encoded_bytes": 600,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "panels-mismatch",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "CHARGE_QUANTITY"
+        ],
+        "encoded_bytes": 778,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "finish-panels-mismatch",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "CHARGE_FINISH"
+        ],
+        "encoded_bytes": 779,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "clay-mass-mismatch",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "CLAY_MASS"
+        ],
+        "encoded_bytes": 780,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "uncertified-lot",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "LOT"
+        ],
+        "encoded_bytes": 780,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "lot-too-small",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "LOT"
+        ],
+        "encoded_bytes": 780,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "import-ceiling",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "IMPORT_CEILING"
+        ],
+        "encoded_bytes": 780,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "kiln-thickness",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "KILN"
+        ],
+        "encoded_bytes": 780,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "bench-edge",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "BENCH"
+        ],
+        "encoded_bytes": 780,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "temper-capacity",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "TEMPER"
+        ],
+        "encoded_bytes": 780,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "spend-ceiling",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "SPEND_CEILING"
+        ],
+        "encoded_bytes": 780,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "product-overflow",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "ARITHMETIC"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "Rule arithmetic exceeds the i64 range",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"Rule arithmetic exceeds the i64 range\"}"
+      }
+    },
+    {
+      "case": "spend-overflow",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "ARITHMETIC"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "Rule arithmetic exceeds the i64 range",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"Rule arithmetic exceeds the i64 range\"}"
+      }
+    },
+    {
+      "case": "noncanonical-integer",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "SCHEMA"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "File contents do not match the declared schema",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"File contents do not match the declared schema\"}"
+      }
+    },
+    {
+      "case": "numeric-integer",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "SCHEMA"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "File contents do not match the declared schema",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"File contents do not match the declared schema\"}"
+      }
+    },
+    {
+      "case": "duplicate-release-without-finishes",
+      "expect": "verdict0",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "verdict0",
+        "errors": [
+          "CHARGE_CARDINALITY",
+          "CHARGE_QUANTITY",
+          "CLAY_MASS",
+          "COVERAGE",
+          "FINISH_CARDINALITY",
+          "LOT"
+        ],
+        "encoded_bytes": 450,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "verdict0",
+        "verdict": 0,
+        "stdout": "{\"verdict\":0}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "extra-file",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "FILE_SET"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "Bundle files differ from the declared files",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"Bundle files differ from the declared files\"}"
+      }
+    },
+    {
+      "case": "missing-file",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "FILE_SET"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "Bundle files differ from the declared files",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"Bundle files differ from the declared files\"}"
+      }
+    },
+    {
+      "case": "symlink-file",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "FILE_TYPE"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "bundle_input",
+        "message": "Too many levels of symbolic links (os error 62)",
+        "stderr": "{\"code\":\"bundle_input\",\"message\":\"Too many levels of symbolic links (os error 62)\"}"
+      }
+    },
+    {
+      "case": "bundle-over",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "BUNDLE_LIMIT"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "bundle_input",
+        "message": "Input exceeds its byte limit",
+        "stderr": "{\"code\":\"bundle_input\",\"message\":\"Input exceeds its byte limit\"}"
+      }
+    },
+    {
+      "case": "bundle-ceiling",
+      "expect": "pass",
+      "agree": true,
+      "oracle": {
+        "exit": 0,
+        "kind": "pass",
+        "errors": [],
+        "encoded_bytes": 16384,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 0,
+        "kind": "pass",
+        "verdict": 1,
+        "stdout": "{\"verdict\":1}",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "duplicate-json-key",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "JSON"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "File contents do not match the declared schema",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"File contents do not match the declared schema\"}"
+      }
+    },
+    {
+      "case": "json-array-257",
+      "expect": "invalid",
+      "agree": true,
+      "oracle": {
+        "exit": 1,
+        "kind": "invalid",
+        "errors": [
+          "JSON_LIMIT"
+        ],
+        "encoded_bytes": null,
+        "stderr": ""
+      },
+      "engine": {
+        "exit": 2,
+        "kind": "invalid",
+        "code": "invalid_deliverable",
+        "message": "File contents do not match the declared schema",
+        "stderr": "{\"code\":\"invalid_deliverable\",\"message\":\"File contents do not match the declared schema\"}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "max_spend_cents": "32000",
+  "max_import_charges": "1",
+  "min_recycled_charges": "2",
+  "suppliers": [
+    {"supplier_id": "S-LOCAL", "certified": "1", "import": "0"},
+    {"supplier_id": "S-COOP", "certified": "1", "import": "0"},
+    {"supplier_id": "S-SEA", "certified": "1", "import": "1"},
+    {"supplier_id": "S-ASH", "certified": "0", "import": "0"}
+  ],
+  "profiles": [
+    {"profile_id": "P-RIB", "thickness_mm": "40", "clay_family": "iron", "kg_per_panel": "12", "edge_code": "E-RIB"},
+    {"profile_id": "P-FLAT", "thickness_mm": "25", "clay_family": "kaolin", "kg_per_panel": "8", "edge_code": "E-FLAT"},
+    {"profile_id": "P-WAVE", "thickness_mm": "40", "clay_family": "speckle", "kg_per_panel": "10", "edge_code": "E-RIB"},
+    {"profile_id": "P-SLOT", "thickness_mm": "30", "clay_family": "kaolin", "kg_per_panel": "9", "edge_code": "E-SLOT"}
+  ],
+  "releases": [
+    {"release_id": "R-NORTH", "profile_id": "P-RIB", "panels": "10", "temper_required": "1"},
+    {"release_id": "R-HARBOR", "profile_id": "P-FLAT", "panels": "12", "temper_required": "0"},
+    {"release_id": "R-DUNE", "profile_id": "P-WAVE", "panels": "8", "temper_required": "1"},
+    {"release_id": "R-GATE", "profile_id": "P-SLOT", "panels": "9", "temper_required": "1"}
+  ],
+  "lots": [
+    {"lot_id": "L-IR-07", "clay_family": "iron", "kg_available": "150", "cents_per_kg": "90", "recycled": "1", "supplier_id": "S-LOCAL"},
+    {"lot_id": "L-IR-12", "clay_family": "iron", "kg_available": "140", "cents_per_kg": "70", "recycled": "0", "supplier_id": "S-SEA"},
+    {"lot_id": "L-IR-19", "clay_family": "iron", "kg_available": "220", "cents_per_kg": "35", "recycled": "0", "supplier_id": "S-ASH"},
+    {"lot_id": "L-KA-03", "clay_family": "kaolin", "kg_available": "120", "cents_per_kg": "80", "recycled": "1", "supplier_id": "S-COOP"},
+    {"lot_id": "L-KA-11", "clay_family": "kaolin", "kg_available": "130", "cents_per_kg": "100", "recycled": "0", "supplier_id": "S-LOCAL"},
+    {"lot_id": "L-KA-18", "clay_family": "kaolin", "kg_available": "90", "cents_per_kg": "60", "recycled": "1", "supplier_id": "S-SEA"},
+    {"lot_id": "L-KA-24", "clay_family": "kaolin", "kg_available": "160", "cents_per_kg": "110", "recycled": "0", "supplier_id": "S-COOP"},
+    {"lot_id": "L-SP-04", "clay_family": "speckle", "kg_available": "100", "cents_per_kg": "75", "recycled": "1", "supplier_id": "S-LOCAL"},
+    {"lot_id": "L-SP-15", "clay_family": "speckle", "kg_available": "95", "cents_per_kg": "50", "recycled": "0", "supplier_id": "S-SEA"},
+    {"lot_id": "L-SP-21", "clay_family": "speckle", "kg_available": "60", "cents_per_kg": "20", "recycled": "1", "supplier_id": "S-LOCAL"}
+  ],
+  "kilns": [
+    {"kiln_id": "K-01", "thickness_min_mm": "20", "thickness_max_mm": "32", "capacity_kg": "180", "family_lock": ""},
+    {"kiln_id": "K-02", "thickness_min_mm": "30", "thickness_max_mm": "50", "capacity_kg": "160", "family_lock": ""},
+    {"kiln_id": "K-03", "thickness_min_mm": "20", "thickness_max_mm": "45", "capacity_kg": "110", "family_lock": "kaolin"},
+    {"kiln_id": "K-04", "thickness_min_mm": "36", "thickness_max_mm": "48", "capacity_kg": "140", "family_lock": "iron"},
+    {"kiln_id": "K-05", "thickness_min_mm": "20", "thickness_max_mm": "50", "capacity_kg": "88", "family_lock": ""}
+  ],
+  "benches": [
+    {"bench_id": "B-01", "edge_code": "E-RIB"},
+    {"bench_id": "B-02", "edge_code": "E-RIB"},
+    {"bench_id": "B-03", "edge_code": "E-FLAT"},
+    {"bench_id": "B-04", "edge_code": "E-FLAT"},
+    {"bench_id": "B-05", "edge_code": "E-SLOT"},
+    {"bench_id": "B-06", "edge_code": "E-SLOT"}
+  ],
+  "tempers": [
+    {"temper_id": "T-01", "thickness_min_mm": "30", "thickness_max_mm": "45", "capacity_panels": "12", "temper_class": "fire"},
+    {"temper_id": "T-02", "thickness_min_mm": "28", "thickness_max_mm": "42", "capacity_panels": "10", "temper_class": "fire"},
+    {"temper_id": "T-03", "thickness_min_mm": "30", "thickness_max_mm": "40", "capacity_panels": "9", "temper_class": "fire"},
+    {"temper_id": "T-04", "thickness_min_mm": "25", "thickness_max_mm": "27", "capacity_panels": "20", "temper_class": "bypass"}
+  ]
+}

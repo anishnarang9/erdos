@@ -1,0 +1,33 @@
+{
+  "role": "independent-problem-designer",
+  "model": "Grok-4.7",
+  "effort": "high",
+  "native": true,
+  "provider": "xAI",
+  "interface": "Grok Build Orca worker",
+  "session": "orca_session_id:64422f39-c535-48bf-ad42-db924b21f904",
+  "task": "task_1df7849b7f73",
+  "dispatch": "ctx_0c0494e32248",
+  "generatedOn": "2026-11-15",
+  "externalModelCalls": 0,
+  "apiRequestId": null,
+  "wrote": [
+    "request.md",
+    "reference/dataset.json",
+    "outputs.json",
+    "provenance.json"
+  ],
+  "sha256": {
+    "request.md": "229223c55c23c24e0f70413154acd84994672fa6fee76fe247557c288ec2750e",
+    "reference/dataset.json": "6ccaaf06a64a68039dace223fc36fad9f60efce3f250d6044c5f7274b60fc06f",
+    "outputs.json": "ccf5f21cac432a09c93b51ebfe000aeb602227cea70707a0815c74489dce79aa"
+  },
+  "notWritten": [
+    "typed plan",
+    "candidate schedule",
+    "hidden witness",
+    "oracle",
+    "answer hash constraint"
+  ],
+  "statement": "One native Grok 4.7 high-effort session wrote this problem. No other model was called. No schedule, witness, oracle, or typed plan was written."
+}
