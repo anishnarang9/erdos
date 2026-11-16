@@ -51,6 +51,25 @@ A non-null fork URL changes the fork tuple from static to dynamic. Direct decodi
 
 The node guard deliberately supports the pinned Arc Anvil response schema. A different or malformed schema fails closed. This worker did not test other Anvil releases.
 
-## Handoff
+## Worker handoff
 
 No scoped commit or push occurred. This worker did not broadcast, read a wallet, call a live RPC, generate a proof or build a guest. The parent owns the unlocked local broadcast check, independent source reviews and final artifact checks. Checked-in receipt acceptance does not establish a new proof or a live exchange for this corrected adapter.
+
+## Final parent verification and publication
+
+The parent then checked the final source and both exported adapter ABIs at contract checkpoint `3f0ecbf`. The adapter and SDK copies of `OpenClaimAdapter.json` are byte identical. `node contracts/script/check-abi.mjs` matched all five exported ABIs with compiled artifacts. The [standards review](erc8183-compatibility.md) records the ERC-8183 draft gaps: the pinned core uses `fund(uint256,bytes)` while the draft includes an expected-budget argument, the core keeps buyer-only budget authority, and hook data differs. The open-claim adapter is an extension over the frozen core. A Circle Gateway x402 API fee does not directly fund a core bounty.
+
+The parent ran these exact commands from `contracts/`, with `$ARC_FORGE` set to the pinned binary above and `RUST_LOG=error`. The example commands ran from `contracts/examples/`.
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `$ARC_FORGE test --network arc --match-path 'test/openclaim/OpenClaimAdapter.t.sol'` | 0 | 42 adversarial adapter tests passed; three fuzz cases ran 256 inputs each. |
+| `$ARC_FORGE test --network arc --match-path 'test/openclaim/OpenClaimRealReceipt.t.sol'` | 0 | Six checked-in real-verifier receipt tests passed. |
+| `$ARC_FORGE test --network arc` | 0 | Full local Foundry suite: 168 passed, zero failed, one fork-only skip. |
+| `$ARC_FORGE fmt --check src/OpenClaimAdapter.sol script/09_DeployOpenClaimLocal.s.sol test/openclaim/OpenClaimAdapter.t.sol test/openclaim/OpenClaimRealReceipt.t.sol` | 0 | Scoped formatting passed. |
+| `node contracts/script/check-abi.mjs` from repository root | 0 | Five compiled/exported ABI parity checks passed. |
+| `npm test` from `contracts/examples/` | 0 | 16 example tests passed. |
+| `npm run typecheck` from `contracts/examples/` | 0 | TypeScript typecheck passed. |
+| `git diff --check` from repository root | 0 | No whitespace errors. |
+
+The safe local deployment simulation command and its exit are in the table above. It sent no transaction. The separate [combined local acceptance report](../../agents/anish/reports/open-claim-local-acceptance-2026-11-16.json) records a fresh proof, exact payout, byte recovery and refund; the six receipt checks above used checked-in proofs. An independent Grok 4.7 High read-only review found no concrete P1/P2 issue and reran 48 open-claim tests offline. The [fixed-block Arc preflight](../../agents/anish/reports/open-claim-arc-preflight-2026-11-16.md) records live reads and an unsigned deployment preview. The corrected contract branch was pushed at `3f0ecbf`; its exact interface was sent to the integration chat. The later [authorized Arc deployment](../../agents/anish/reports/open-claim-arc-deployment-2026-11-16.md) is recorded separately.

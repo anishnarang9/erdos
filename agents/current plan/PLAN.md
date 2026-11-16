@@ -2,11 +2,33 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 09:18 -05:00 — Anish — Adapter verified and real paid API accepted
+
+- Integrate the contract chat's published `ed50964` manifest. Adapter `0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8` passed independent checks and the real worker read-only gates. A separately approved deployer paid 0.063471175 testnet USDC. The buyer nonce remains 3. The unused buyer creation authority/config is superseded and disabled. Do not deploy another adapter.
+- Official Circle Gateway accepted one atomic unit for a real native paid compile and exact HTTP replay. Buyer unified balance decreased by that unit and seller pendingBatch gained it. Transfer `845d3e15-cfb7-405d-a08f-7ca3911c737e` is received, with no onchain hash yet. Keep batch acceptance distinct from later onchain settlement.
+- Code `88c69a2` passed every CI group. The manifest-combined tree passes full workspace checks. Publish and require exact combined-head CI before funding. Then run one fresh proof for the actual funded job, exact payout/recovery, rejection and separate expiry refund. Keep existing spending limits and one prover.
+
+## 2026-11-16 09:07 -05:00 — Anish — Arc adapter deployed and verified; PR #7 integration next
+
+- After explicit user approval, one Arc Testnet creation deployed the [open-claim adapter](https://explorer.testnet.arc.io/address/0x1fed5e532a1405facd45b4096ad1abf25bba0cb8) in [transaction `0x30a8bc27…72e14`](https://explorer.testnet.arc.io/tx/0x30a8bc27f9cecf068eeaf5c822196c5149f825671c4e65013d559de353572e14), block 72563239. The actual fee was 0.063471175 testnet USDC, within the approved 0.075 ceiling. Receipt, creation bytes, constructor getters, compiler-listed immutables and complete runtime matched. Blockscout source verification passed. The [deployment report](../anish/reports/open-claim-arc-deployment-2026-11-16.md) and [manifest](../../contracts/deployments/open-claim-arc-testnet.json) contain the exact evidence.
+- The contract handoff remains on `codex/overnight-open-escrow`. “Complete UBC-26 proof commerce” owns PR #7 integration and final CI. Fresh funded Arc proof, buyer/solver policies, live claim/release and Circle Gateway payment are separate gates; they are not established by the adapter deployment. Preserve the selected-provider deployment. No commerce code changed in this worktree checkpoint.
+
 ## 2026-11-16 09:06 -05:00 — Anish — Setup confirmed and exact deployment approved
 
 - The solver received 0.04 USDC and Gateway received its separate 0.01-USDC deposit. Setup gas was 0.004098525 USDC. The real service authorization was rejected for insufficient remaining validity. Preserve it and repair only the same nonce after definitive rejection and an empty exact transfer search. Use Circle's official 100-second buffer.
 - The user separately approved the exact adapter deployment and a 0.201-USDC aggregate gas ceiling. The live-run chat remains the sole wallet signer. The contract/integration chat independently verifies the deployment receipt and manifest because the original deployment chat stopped. The approved initcode hash is `0xad7f68985c4978a117d467a8e89321f0b6d4b539492cd34beb1280f104b321d6`. Caps remain 3,072,197 gas and 25 gwei. Bounty and service amounts remain unchanged.
 - Publish the reviewed creation/payment checkpoint and finish its checks/combined CI. Deploy once and independently verify the manifest. Then fund both jobs and start one fresh proof. Final evidence still requires accepted claim, payout, exact recovery, rejection, separate refund and real paid API replay.
+
+## 2026-11-16 09:01 -05:00 — Anish — Arc deployer ready; one spending decision remains
+
+- The user authorized creation of a reusable CLI wallet and use of Circle's public faucet. The new encrypted Foundry keystore unlocked successfully; the faucet transaction confirmed 20 Arc Testnet USDC for its public address. [Updated preflight](../anish/reports/open-claim-arc-preflight-2026-11-16.md) verifies the actual signer at block 72563030 with nonce 0, 2,560,164-gas estimate, unchanged code/fee pins and no new privilege events.
+- The user's wallet instruction did not explicitly approve a live broadcast limit. One adapter creation remains pending a clear 3,000,000-gas, 25-gwei maximum fee authorization (0.075 testnet USDC ceiling). Keep adapter manifest fields null until confirmed deployment. The contract handoff to PR #7 integration is already published; this chat owns the live adapter decision and, if approved, verification.
+
+## 2026-11-16 08:54 -05:00 — Anish — Contract handoff published; live adapter operator gate
+
+- The corrected adapter, deployment guard, ABI and adversarial tests are pushed on `codex/overnight-open-escrow` at `3f0ecbf`. The exact interface was sent to “Complete UBC-26 proof commerce” for PR #7 integration and final CI. An independent source/ABI review found no concrete P1/P2 issue. This branch made no commerce edits.
+- [Arc preflight](../anish/reports/open-claim-arc-preflight-2026-11-16.md) checked core, verifier, USDC, fees and complete role history at fixed block 72554683. The standard verification script stopped at HTTP 429; a slower replay completed with no admin holders. The unsigned adapter creation hash and neutral-sender gas estimate are recorded in that report and the [operator handoff](../../docs/overnight/open-claim-testnet-operator.md).
+- Live deployment needs one approved Foundry keystore and deployer address plus explicit approval of the prepared 3,000,000 gas limit and 25-gwei max fee (0.075 USDC maximum). The template keeps adapter deployment fields null until a confirmed transaction and independent runtime check. No live signer or transaction is recorded.
 
 ## 2026-11-16 08:42 -05:00 — Anish — Buyer funded and one signing owner
 
@@ -31,6 +53,7 @@ Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 - Draft PR #7 now combines the corrected adapter and guarded local deploy script (`3f0ecbf`) with protected solver signing (`843f842`) and five-step protected buyer execution (`e29da7d`). The signed buyer helper requires a deployment-pin check (`01e418f`). The selected-provider path remains intact.
 - Combined local commerce checks passed (SDK 342, API 777, worker 873, three typechecks). Pinned non-fork Forge passed 168 tests; ABI parity, 16 contract examples, contract typecheck, and the 15-test real-engine API suite passed. The actual local proof/payout/recovery/refund report is tied to earlier source `0cce487`; it does not establish a new full proof at the merged head. Final pushed-head CI is pending.
 - Keep PR #7 draft. Live work still needs a verified adapter manifest, approved buyer and solver identities, protected keystores, exact bounty and gas limits, and separate Circle service-payment authority. The [spend preview](../anish/reports/open-claim-arc-spend-preview-2026-11-16.json) is not approval. The live role-log read was rate limited; do not infer chain state from that incomplete replay. Continue operator wiring and the exact-head PR check before handoff.
+
 
 ## 2026-11-16 07:22 -05:00 — Anish — Open-claim contract checkpoint under review
 

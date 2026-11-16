@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "status": "approved-setup-confirmed-adapter-not-sent",
+  "status": "adapter-verified-setup-confirmed-service-paid-batch-pending",
   "network": "arc-testnet",
   "chainId": 5042002,
   "core": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
-  "adapter": null,
+  "adapter": "0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8",
   "buyer": "0x638202cCB15315dBc5b22e02717B908bEAc3AeBd",
   "solver": "0xfb7692d0BFb955E7EB727bf744b39F7B8441057F",
   "usdc": "0x3600000000000000000000000000000000000000",
@@ -46,10 +46,8 @@
     "separateRefundLifetimeSeconds": 1500,
     "apiMinimumTermsMarginSeconds": 1200
   },
-  "missing": [
-    "verified adapter manifest from contracts chat"
-  ],
-  "note": "Direct human approval includes the exact adapter deployment and a 0.201-USDC aggregate gas ceiling. Allocated maxima total 0.198429925 USDC. Setup is confirmed. Adapter deployment, funded proof, payout, recovery, refund, and a successful real Circle API payment remain pending.",
+  "missing": [],
+  "note": "The separately approved deployer created and verified the adapter. This chat signed no creation. Buyer deployment authority/config is superseded and disabled. Setup and the one-atomic real Gateway service charge are confirmed at their respective layers. Gateway batch settlement and the full fresh funded Arc exchange remain pending.",
   "revision": 4,
   "localGasMeasurements": {
     "createJob": 197676,
@@ -93,7 +91,11 @@
     "maximumGas": "3072197",
     "maximumGasCostNative": "76804925000000000",
     "maxFeePerGas": "25000000000",
-    "simulatedRuntimeCodeHash": "0x469a337cfb28530e01426274e353792fee03ea8cc7f9663a63c5f9c2a4e13f20"
+    "simulatedRuntimeCodeHash": "0x469a337cfb28530e01426274e353792fee03ea8cc7f9663a63c5f9c2a4e13f20",
+    "executedBy": "0xA2416Eb8159606C133298fF113a472608E6F9Fb7",
+    "transactionHash": "0x30a8bc27f9cecf068eeaf5c822196c5149f825671c4e65013d559de353572e14",
+    "actualGasCostNative": "63471175000000000",
+    "buyerCreationCancelled": true
   },
   "maximumTotalGasIncludingGatewayAndDeploymentNative": "198429925000000000",
   "maximumBountyGasGatewayAndDeploymentUsdc": "0.228429925"
