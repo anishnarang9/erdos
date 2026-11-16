@@ -2,6 +2,22 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 14:30 -05:00 — Neil
+
+- **Checkpoint C is met on Arc testnet.** All transactions and explorer links are in `commerce/evidence/arc-first-funded-jobs.md`.
+  - **Job 1 (correct delivery):**
+    - createJob, setBudget, approve and fund ran, then a real Groth16 proof (126 s, 812,683 cycles).
+    - `submit` was accepted on chain (`ProofAccepted`), and `release` paid the Solver 0.01 USDC (`PaymentReleased`, `KeyReleased`).
+    - The buyer decrypted the delivery from public chain data, byte for byte. Final state: Completed.
+  - **Job 2 (tampered by one cent):** the proof is a real verdict 0. It was never submitted; the chain's own preflight reverts with `VerificationFailed`. The escrow stayed Funded, and after expiry `claimRefund` returned the budget. Final state: Expired.
+- **Fixes found during the live run:**
+  - A `.env` parser collapses a leading `\` in UNC paths, so we now use the `//wsl.localhost/...` form, guarded at config load.
+  - SQLite cannot lock files on the WSL share, so the API database lives on local disk.
+  - The indexer stays 3 blocks behind the head, because Arc's load-balanced RPC can lag.
+- **Tests:** API 727, SDK 436, worker 147. Live read-only and real-engine suites are as before.
+- **New scripts:** `worker/scripts/verify-delivery.ts` (buyer side) and `claim-refund.ts` (Poster).
+- **Next:** the buyer web UI (T12) and the demo script. Nick's items (core freeze, gas figures) and Anish's lookup question are still open.
+
 ## 2026-11-15 12:40 -05:00 — Neil
 
 - **Branch:** `neil/plan-architecture` ([PR #5](https://github.com/anishnarang9/UBC-26/pull/5)).
