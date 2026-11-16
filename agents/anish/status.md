@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 07:25 -05:00 — Anish — Protected solver signing and RPC recovery
+
+- Branch `codex/open-escrow-rescue`, PR #7. Added an adapter-only local signer over the existing protected account journal. It checks exact claim/release calldata, reserves release gas, caps fees, and dispatches raw transactions once with retries disabled.
+- The worker can recover its exact hash from the signer's durable journal after a dropped response. It then reads receipts without another signature or send. A missing journal hash still requires manual reconciliation. Fixed zero-priority EIP-1559 parsing, which viem represents by an absent field.
+- Checks: 62 focused worker tests and worker typecheck pass. Before edits, the workspace baseline passed SDK 342, API 777, worker 863 tests and all typechecks. New tests failed before implementation.
+- The current Goal assigns contracts/deployment to the separate escrow chat. Continue from its published commits after `8b9589d` only. Buyer execution, operator commands, Circle Gateway preparation, combined-head checks and live evidence remain pending. No signer, spending limits, deployed adapter, or Circle configuration was supplied.
+
 ## 2026-11-16 04:08 -05:00 — Anish — Final local open-claim handoff
 
 - Branch `codex/open-escrow-rescue` is pushed at code head `015996b`. [Draft PR #7](https://github.com/anishnarang9/UBC-26/pull/7) targets `codex/engine-commerce`; it is mergeable and unmerged. At that exact head, the [commerce run](https://github.com/anishnarang9/UBC-26/actions/runs/43835708063) and [core-fast run](https://github.com/anishnarang9/UBC-26/actions/runs/43835708011) passed. The local `pnpm check` and 15/15 real-engine API suite also passed after the final server edit. The checkout is clean before this status-only commit.

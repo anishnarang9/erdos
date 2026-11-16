@@ -11,7 +11,8 @@ export {
 } from "./sprint-state.ts";
 export { checkPolicy, PolicyError, ARC_MIN_FEE, SUBMIT_SELECTOR, RELEASE_SELECTOR } from "./policy.ts";
 export {
-  createLocalBroadcaster, type LocalBroadcaster, type LocalBroadcasterConfig,
+  createLocalBroadcaster, createOpenClaimBroadcaster, type OpenClaimBroadcasterConfig,
+  type LocalBroadcaster, type LocalBroadcasterConfig,
   type LocalBroadcasterPublic, type LocalRawSend,
 } from "./local-broadcaster.ts";
 export type { PolicyConfig, OutgoingTx, WriteAuthorization } from "./policy.ts";
