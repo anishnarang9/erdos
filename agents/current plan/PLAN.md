@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 11:04 -05:00 — Anish — Prepared Arc acceptance complete; publish final evidence
+
+- The [live report](../anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) closes the prepared buyer-to-solver Arc run at runtime source `8fe6dc5`. Job 7 confirms buyer approval, five signed funding steps, fresh funded-context proof acceptance, winning claim, key release, exact 0.01-USDC payout and byte-exact SDK/engine recovery. Both recovered directories pass the independent oracle. A second solver abstains after observing the winner. The separate invalid claim and job-6 expiry refund passed. Failed job 5 was preserved and refunded.
+- Official Circle Gateway completed the separate one-atomic paid API charge and exact HTTP replay in a confirmed Arc batch. Buyer/seller Gateway balances match the charge. All 24 receipts and sender native balances match. Aggregate gas was 0.145837525 USDC, below the 0.25-USDC ceiling. The low-memory compression repair passed on the actual funded proof. Keep one prover for future runs.
+- Publish the final reports and status to PR #7, then require commerce, engine and contracts CI at that exact head. Keep the PR draft for review. This acceptance uses the existing approved Meridian workload through CLI/API. Fresh natural-language authoring and buyer browser UI remain separate work. Contracts/deployment stay with their owner. No additional adapter deployment or live spending is needed to close this Goal.
+
 ## 2026-11-16 10:20 -05:00 — Anish — Retry after proven Docker OOM with preserved budgets
 
 - Job 6 passed the live invalid-claim and exact separate expiry-refund checks. Job 5's fresh proof stopped at Docker Groth16 OOM, before any claim or key release. Preserve it and refund its bounty after expiry. Use the repo's documented low-memory Docker wrapper for the new positive attempt. Docker now has 12 GiB, and the wrapper's Go limits/env are verified. One prover only.

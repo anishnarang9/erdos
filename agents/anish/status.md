@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 11:04 -05:00 — Anish — Full prepared Arc workflow passed
+
+- PR #7 runtime source `8fe6dc5` completed [live job 7](reports/open-claim-arc-live-acceptance-2026-11-16.md): buyer approval, all five protected funding calls, confirmed funded reads, one fresh real proof, winning claim, key release and exact 0.01-USDC payout. Proving plus private recovery validation took 1,095.026 seconds. Public-chain SDK and engine recovery matched the original bytes. Both recovered directories passed the independent oracle. The API reports Completed and excludes the job from the open market.
+- Job 6's invalid claim reverted without payout, then its separate expiry refund returned exactly 10,000 units. Failed job 5 remains a preserved Docker OOM attempt and also refunded exactly 10,000 units. A distinct second solver observed job 7's winner and returned lost before proof or signing. Its zero native balance stayed unchanged. This was abstention, not a second valid-proof race.
+- The real Circle paid compile passed 402, payment, 200 and identical replay. Its one-atomic service charge completed in canonical batch `a1b09da4…fdee6`. Buyer/seller Gateway balances are 0.009999/0.000001 USDC, with zero pending batches. The paid compile used the earlier API job and remains separate from bounty funding.
+- The [24-receipt audit](reports/open-claim-arc-receipts-2026-11-16.json) checks every canonical receipt and exact sender native balance change. Total gas is 0.145837525 USDC, including the separate 0.063471175-USDC adapter deployment, setup, failed attempt, invalid claim and both refunds. Successful job 7 used 0.0328806 USDC gas. The aggregate ceiling was 0.25 USDC. The repaired compression container exited 0 without OOM. Docker retains 12 GiB and the documented Go memory settings for future proofs. No prover remains active. Wallet material stays private. Zero Grok CLI workers ran.
+- Checks at runtime source passed: SDK 13 + 342, API 778, worker 901 and all typechecks. Every exact-head commerce, engine and contract CI group passed at `8fe6dc5`. This checkpoint adds reports and guidance only. Publish it and require all PR #7 CI groups at its exact final head before closing the Goal. Keep PR #7 draft for review. No main merge is part of this checkpoint.
+
 ## 2026-11-16 10:25 -05:00 — Anish — Real low-memory Groth16 smoke passed
 
 - The [diagnostic proof](reports/open-claim-low-memory-groth16-smoke-2026-11-16.json) passed with the pinned backend and reviewed low-memory wrapper: 2,792 cycles, 141,558 ms, a real 260-byte Groth16 seal. The guest is the published smoke guest, not the funded workload. No live acceptance is claimed by this diagnostic.

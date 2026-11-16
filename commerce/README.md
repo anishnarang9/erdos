@@ -2,6 +2,12 @@
 
 Agent-to-agent commerce for proof-gated payments. The plan is [COMMERCE-IMPLEMENTATION.md](../agents/current%20plan/COMMERCE-IMPLEMENTATION.md).
 
+## 2026-11-16 — Anish — Arc open-claim acceptance
+
+The [live Arc report](../agents/anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) records the full prepared Meridian workflow at source `8fe6dc5`. Five protected buyer calls funded job 7 with 0.01 USDC. A fresh real proof won the claim. Confirmed key release paid the exact bounty. SDK and engine recovered the original bytes, and both outputs passed the independent oracle. Separate live checks covered invalid-claim rejection, expiry refunds and a second solver's abstention before proving.
+
+The separate Circle Gateway paid compile passed 402, one-atomic payment, successful response and exact replay. Its batch settled on Arc with matching Gateway balances. The [protected operator guide](../docs/overnight/open-claim-live-operator.md) covers source pins, encrypted signers, durable transaction journals and the required low-memory Docker settings. Use one prover at a time. The buyer web UI and fresh natural-language drafting are outside this prepared-workload acceptance.
+
 ## 2026-11-15 — Anish — Current integration
 
 The API and worker use the domain-independent typed-plan [Rust engine](../engine/README.md), including bounded records, aggregates, and evidence. The integration branch `codex/engine-commerce` includes Neil `8584b04`, Nick `57c387f`, and engine `adda3a3` through actual merge ancestry. [PR #6](https://github.com/anishnarang9/UBC-26/pull/6) is open. Normal integration into main is authorized, not completed by this statement.

@@ -2,6 +2,8 @@
 
 2026-11-16 — Anish. Continue the [testnet handoff](open-claim-testnet-operator.md). The buyer and solver use separate encrypted V3 keystores. The worker accepts password bytes through an inherited private file descriptor. It never passes wallet credentials to the engine.
 
+The [completed Arc run](../../agents/anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) is pinned to runtime source `8fe6dc5`. Job 7 passed fresh proof acceptance, exact 0.01-USDC payout and public-chain byte-exact recovery. The separate invalid claim, expired-job refund, second-solver abstention and real Circle settlement also passed. Preserve all historical configs and journals. A future signing run needs its own reviewed source pin, current terms and remaining cumulative limits. Existing deployment is verified. Leave the superseded buyer deployment config disabled.
+
 Before you expose a password file descriptor, run this check from the repository root. Repeat it immediately before each signing command. The check covers the launcher script as well as source and locked dependencies. Keep the reviewed checkout private while it runs.
 
 ```sh
@@ -52,7 +54,7 @@ The private config requires:
 | `purpose` | Optional `expiry-refund` selects a 750-second funding reserve for the separate refund job. Ordinary proof jobs require 2,460 seconds. |
 | `circle` | Optional `url`, `payTo`, decimal `amount`, and separately approved `authorized: true`. |
 
-The proposed main expiry is current confirmed chain time plus 3,600 seconds. The measured proof took 1,053 seconds. The operator allows 1,800 seconds for proving, 60 for claim, and 600 for release and confirmations. Copy the API's exact absolute expiry into the config. Never refresh it inside a retry. The API requires at least 1,200 seconds when it prepares terms. Use a 1,500-second lifetime for the separate refund job. It can expire near the end of proving or shortly afterward.
+Set a fresh main expiry from current confirmed chain time plus 4,500 seconds. The live proof plus private recovery validation took 1,095.026 seconds. The operator allows 1,800 seconds for proving, 60 for claim, and 600 for release and confirmations. Copy the API's exact absolute expiry into the config. Never refresh it inside a retry. The API requires at least 1,200 seconds when it prepares terms. The completed separate refund job used a 1,500-second lifetime.
 
 `recover` writes each audit to a new private attempt directory, so the same approved config can be retried. An interrupted process can leave a public release key in an unfinished private audit directory; review stale attempts manually. It reads the public claim transaction and confirmed key event. It checks exact context and payout receipts, SDK and engine recovery, and gas-adjusted native USDC balances. Its output excludes the release key. The independent workload oracle remains a separate check.
 
@@ -60,7 +62,7 @@ The proposed main expiry is current confirmed chain time plus 3,600 seconds. The
 
 `setup` needs no adapter manifest. Its private config includes the common identity/source fields, `directory`, `journalRoot`, and `setup: {authorized: true, validUntil: "<Unix seconds>"}`. It permits only three ordered calls: a 0.04-native-USDC transfer to the configured solver, a 10,000-atomic USDC approval to the pinned Gateway, and a 10,000-atomic deposit. The respective gas caps are 25,000, 80,000 and 150,000 at 25 gwei. It checks four confirmations, exact native balance changes, allowance consumption and the deposit's token transfer. A dropped send resumes by its durable hash. It never replaces a transaction.
 
-The approved setup transfer uses the buyer's newly funded 20 testnet USDC. Buyer funding now caps each of ten calls at 290,000 gas. This lower cap leaves the total allocation, including setup and Gateway, at 0.121625 USDC. The approved aggregate gas ceiling remains 0.1235 USDC. The transferred 0.04 USDC funds solver gas and is not another bounty.
+The initial setup transfer used the buyer's funded 20 testnet USDC. Buyer funding capped each of the initial ten calls at 290,000 gas. The original allocation, including setup and Gateway, was 0.121625 USDC under a 0.1235-USDC ceiling. Later explicit testnet authority covered deployment, one replacement job and the extra cleanup refund. Their final aggregate gas ceiling was 0.25 USDC. Actual gas for all 24 transactions was 0.145837525 USDC. The transferred 0.04 USDC funded solver gas as a separate wallet transfer.
 
 Live operator role checks pace log windows by two seconds. They retain only a complete audit with empty privileged roles. Each later check rechecks the prior canonical block hash and scans all new blocks. A changed audit anchor fails closed.
 
@@ -82,6 +84,6 @@ The local facilitator tests remain local tests. Only an actual Gateway result, l
 
 Read `engine/README.md` before funding a long proof job. Its low-memory Docker wrapper sets `GOMAXPROCS=2`, `GOGC=25`, and `GOMEMLIMIT=4GiB`. The native operator's clean environment rejects `ENGINE_DOCKER`. Use a reviewed private wrapper with the real Docker path fixed in its script. Prepend that wrapper directory to `engine.environment.PATH`. On Apple Silicon, include `DOCKER_DEFAULT_PLATFORM: linux/amd64`. Check the wrapper digest and run a no-proof environment check before a new funded attempt.
 
-The first job-5 proof completed its STARK work but Docker killed Groth16 compression for memory use. No proof artifact, claim, or key release was published. Preserve the failed directory. Its expiry cannot be extended, so a fresh positive job uses a 4,500-second lifetime. This leaves one measured proof, an optional fresh retry, and confirmation/release margin. Retain one prover at a time. Refund the stranded job after its original expiry.
+The first job-5 proof completed its STARK work but Docker killed Groth16 compression for memory use. No proof artifact, claim, or key release was published. Its failed directory remains intact, and its bounty was refunded after expiry. The replacement job 7 used a fresh 4,500-second lifetime and completed successfully. Its compression container used the pinned image, the documented Go limits and a 12-GiB Docker allocation. It exited 0 without OOM. Docker retains that allocation for future proofs. Retain one prover at a time.
 
 `gas.refundTotal` is an optional cumulative native gas cap for multiple expired jobs. It defaults to one `gas.refund * maxFeePerGas` reservation. A controlled, authorized budget increase must preserve every journal entry, nonce and maximum charge. The recovery run raises cumulative funding reservations to 0.10875 USDC and refunds to 0.0075 USDC. Its aggregate gas ceiling is 0.25 USDC. Each bounty stays 0.01 USDC, and all per-call gas and fee caps stay unchanged. The independent review and before/after entry digests are recorded in the retry-budget report.
