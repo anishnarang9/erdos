@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 03:15 -05:00 — Anish — Confirmed-head cache fix and clean replay staged
+
+- The first fresh open-claim test generated a real job-3/solver-1 proof, accepted its claim, released exactly 1,000,000 local USDC units to that solver, recovered the exact file through SDK and engine, passed the oracle, and confirmed a separate job-2 refund. The process exited 1 after 1,134.92 seconds at its final snapshot assertion: it saw Funded even though the successful refund transaction was in block 37 and `getJob(2)` at that block was Expired. No resend occurred.
+- Viem returned a cached head immediately after local blocks advanced. A direct reproduction returned cached block 40 and fresh block 41. The SDK and API open-claim readers now request `getBlockNumber({ cacheTime: 0 })`. Both regression tests failed before the fix and passed after it. `pnpm check` passed: SDK 13 Node and 342 Vitest tests, API 777 tests, worker 863 tests, and all three typechecks. The real-engine API suite passed 15/15 with no model call.
+- A second forkless local Arc node on port 18546 replayed only the first setup blocks. All 21 transaction hashes matched the original local deployment and funding, and the verifier confirmed the same adapter pins. A separate API copy on port 18788 lists job 3 as Funded. Its public solver input matches the first run byte for byte. The old node and first attempt remain intact. Next: checkpoint the fix, then run one fresh winner proof and the complete test against the new node.
+- One single-response Grok 4.7 High read-only review ended normally with no concrete finding. It used one model call and did not report a rate limit. The review prompt preceded the receipt-identity fix, so the current code still needs final checks. No live Arc deployment, wallet signing, or Circle Gateway payment occurred.
+
 ## 2026-11-16 02:47 -05:00 — Anish — Receipt identity and exact payout gate
 
 - The worker now checks the expected job ID in the adapter claim and key events and the core submit and payout events. Payout also requires the core-to-adapter and adapter-to-solver USDC transfers for the exact budget. A receipt for another job or a partial transfer cannot confirm this attempt.

@@ -4,7 +4,7 @@ These routes use the real engine and the compiled `OpenClaimAdapter` ABI. The AP
 
 Set `ENGINE_MODE=native` with `ENGINE_PATH`, `PACKAGES_DIR`, `BUYER_API_TOKEN`, `OPEN_CLAIM_RPC_URL`, `OPEN_CLAIM_CHAIN_ID=5042002`, `OPEN_CLAIM_CORE`, `OPEN_CLAIM_ADAPTER`, `OPEN_CLAIM_USDC`, and `OPEN_CLAIM_VERIFIER` before starting `commerce/api/src/server.ts`. `OPEN_CLAIM_CONFIRMATIONS` defaults to `3`. The server checks that an Arc open-claim route has a real engine. Leave `XAI_API_KEY` unset when using typed import; no draft model is needed.
 
-All paths below start with `/v1`. Buyer POST routes use `Authorization: Bearer <buyer token>` and `Idempotency-Key`. The error body is `{ "error": { "code": string, "message": string, "details"?: object } }`. The [base API contract](CONTRACT.md) defines job creation, revision approval, compile, package and reference downloads.
+All paths below start with `/v1`. Buyer POST routes require `Authorization: Bearer <buyer token>`. `open-claim-terms` and `open-claim-link` also require `Idempotency-Key`. `paid-compile` uses the signed x402 payment identity for replay. The error body is `{ "error": { "code": string, "message": string, "details"?: object } }`. The [base API contract](CONTRACT.md) defines job creation, revision approval, compile, package and reference downloads.
 
 | Method and path | Caller | Request | Success |
 | --- | --- | --- | --- |
@@ -18,7 +18,7 @@ The returned funding order is `createJob`, `setBudget`, `approve`, `fund`, `regi
 
 ## Buyer request examples
 
-Use a fresh idempotency key for each distinct POST. The values below are placeholders, not live deployment pins. `job_id` comes from typed job import and approval; `revision_hash` comes from its approved current revision.
+Use a fresh idempotency key for each distinct `open-claim-terms` or `open-claim-link` request. The values below are placeholders, not live deployment pins. `job_id` comes from typed job import and approval; `revision_hash` comes from its approved current revision.
 
 ```sh
 api=http://127.0.0.1:8787

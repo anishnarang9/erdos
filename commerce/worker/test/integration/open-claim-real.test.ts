@@ -152,8 +152,8 @@ function exactlyOne<T>(values: T[]): T {
 
 describe("fresh open-claim exchange on forkless local Arc", () => {
   it("proves, pays one solver, withholds the losing key, recovers bytes and refunds another job", async () => {
-    expect(rpc).toBe("http://127.0.0.1:18545");
-    expect(apiUrl).toBe("http://127.0.0.1:18787");
+    expect(new URL(rpc!).origin).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
+    expect(new URL(apiUrl!).origin).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
     expect(scratch && existsSync(scratch)).toBeTruthy();
     expect(engineBin && existsSync(engineBin)).toBeTruthy();
     expect(loserProofDir && existsSync(loserProofDir)).toBeTruthy();

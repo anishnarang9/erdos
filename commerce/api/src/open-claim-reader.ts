@@ -19,7 +19,7 @@ export function createViemOpenClaimReader(
   async function confirmedBlock(): Promise<bigint> {
     const chainId = await client.getChainId();
     if (chainId !== config.chainId) throw new ApiError("chain_unavailable", "Open-claim chain ID differs from configuration");
-    const head = await client.getBlockNumber();
+    const head = await client.getBlockNumber({ cacheTime: 0 });
     if (head < confirmations) throw new ApiError("chain_unconfirmed", "Open-claim confirmation margin is not reached");
     return head - confirmations;
   }

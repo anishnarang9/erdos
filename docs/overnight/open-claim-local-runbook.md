@@ -104,4 +104,4 @@ The test writes a private `open-claim-acceptance-result.json` in its scratch dir
 
 ## Live boundary
 
-The local manifest does not supply a live adapter address. [The testnet template](../../contracts/deployments/open-claim-arc-testnet.template.json) has null deployment fields. Before any live use, an operator must supply the actual deployment receipts and runtime hashes, a funded buyer approval, solver wallet policy and exact signing authority. The local proof and synthetic USDC moves do not authorize live deployment, Circle Gateway payment or real wallet signing.
+The local manifest does not supply a live adapter address. [The testnet template](../../contracts/deployments/open-claim-arc-testnet.template.json) has null deployment fields. The [operator handoff](open-claim-testnet-operator.md) lists the fixed inputs, read-only checks and prepared deployment command. Before any live use, an operator must supply the actual deployment receipts and runtime hashes, a funded buyer approval, solver wallet policy and exact signing authority. The local proof and synthetic USDC moves do not authorize live deployment, Circle Gateway payment or real wallet signing.

@@ -32,7 +32,7 @@ export function createViemOpenClaimPort(
   if (confirmations < 0n) throw new OpenClaimError("unsupported_terms", "confirmations cannot be negative");
 
   async function atBlock(): Promise<bigint> {
-    return pinnedBlock(await client.getBlockNumber(), confirmations);
+    return pinnedBlock(await client.getBlockNumber({ cacheTime: 0 }), confirmations);
   }
 
   return {

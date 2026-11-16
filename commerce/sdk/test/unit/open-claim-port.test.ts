@@ -37,7 +37,10 @@ describe("read-only open-claim chain port", () => {
       }
     });
     const getBytecode = vi.fn(async (_request: { address: string; blockNumber: bigint }) => "0x6000");
-    const client = { getChainId: vi.fn(async () => 5_042_002), getBlockNumber: vi.fn(async () => 42n),
+    let head = 42n;
+    // Viem can return a cached head unless the caller disables that cache.
+    const getBlockNumber = vi.fn(async (options?: { cacheTime?: number }) => options?.cacheTime === 0 ? head : 42n);
+    const client = { getChainId: vi.fn(async () => 5_042_002), getBlockNumber,
       getBytecode, readContract } as unknown as PublicClient;
     const port = createViemOpenClaimPort(client);
     const observation = await port.observe(deployment);
@@ -51,5 +54,7 @@ describe("read-only open-claim chain port", () => {
     expect(snapshot.submission).toBeNull();
     expect(readContract.mock.calls.every(([request]) => request.blockNumber === 42n)).toBe(true);
     expect(getBytecode.mock.calls[0]?.[0]).toMatchObject({ address: deployment.adapter, blockNumber: 42n });
+    head = 43n;
+    expect((await port.snapshot(deployment, 7n)).blockNumber).toBe(43n);
   });
 });
