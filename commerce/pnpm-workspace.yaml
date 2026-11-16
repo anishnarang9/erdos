@@ -2,3 +2,4 @@ packages:
   - sdk
   - api
   - worker
+  - web
