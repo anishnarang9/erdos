@@ -55,6 +55,24 @@ The explicit slow suite lives in `commerce/worker/test/integration/open-claim-re
 
 Create the solver-2 proof with the same pinned engine, approved package, reference and valid candidate files. Its job JSON context must be `adapter + job 3 + solver 2`, not the core or another solver. Keep `proof.json` and `release-key.hex` in a private directory. Never commit the key. The suite generates solver 1's proof itself. The scratch directory must contain `package/` from the approved compile and `attempt/proof.json` from a separate job-2/solver-1 proof. The latter is used only for the wrong-job rejection check.
 
+The read-only worker command builds the engine job JSON from confirmed adapter terms and the local deployment manifest. It checks code pins, role history and SDK context bytes. Run it for each independent proof before `engine prove`:
+
+```sh
+cd commerce/worker
+scratch=<owned-private-scratch-dir>
+pnpm open-claim:job-input --rpc-url http://127.0.0.1:18545 \
+  --manifest ../../contracts/deployments/open-claim-local.json \
+  --job-id 3 --solver 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc \
+  --out "$scratch/job3-solver2.json"
+"$UBC26_OPEN_CLAIM_ENGINE_BIN" prove \
+  --package "$scratch/package" --job "$scratch/job3-solver2.json" \
+  --deliverables ../../docs/fresh-exchange-input/candidates/valid \
+  --reference ../../docs/fresh-exchange-input/reference \
+  --out "$scratch/attempt3"
+```
+
+For the wrong-job proof, use job 2, solver `0x70997970c51812dc3a010c7d01b50e0d17dc79c8`, and output directory `$scratch/attempt`. Keep `$scratch` owned and private. The command was checked against the first run's job-3 input and produced identical public bytes.
+
 On a memory-limited host, put a `docker` wrapper at the front of a private `PATH` directory. The first run used this wrapper with `ENGINE_DOCKER` set to the real Docker executable:
 
 ```sh

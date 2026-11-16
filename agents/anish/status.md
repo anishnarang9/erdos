@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 02:42 -05:00 — Anish — Confirmed solver job input command
+
+- Added `pnpm open-claim:job-input`. It reads a confirmed funded local Arc job and the verified local deployment manifest, checks pinned code and role history, then writes the engine's public context and image ID to a new private file. It cannot sign or send.
+- The first CLI run failed on a wrong import and made no output file. After the fix, worker typecheck passed and the command exited 0 for job 3, solver 2. Its JSON exactly matches the separately proven job-3 input. The runbook now gives the read-only command and sequential proof flags.
+- The second Groth16 proof remains in the sole prover slot. The combined exchange suite and independent review are still pending.
+
 ## 2026-11-16 02:39 -05:00 — Anish — Combined local acceptance test staged
 
 - Branch `codex/open-escrow-rescue`. Added an explicit slow local Arc test for two real solver proofs, actual worker claim/release, losing-key abstention, exact token transfers, confirmed API status, two byte-exact recovery paths, the independent Meridian oracle and a separate expiry refund. Added the versioned open-claim API route contract and local runbook.
