@@ -1,22 +1,27 @@
-// Open-claim solver attempts. The signature fixture is docs/overnight/open-claim-v1.md @ 198e479.
-// That commit has no contracts/abi/OpenClaimAdapter.json. Nothing here is deployed-ABI evidence.
+// Open-claim solver attempts use the adapter ABI exported by the compiled contract.
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { bytesToHex, encodeFunctionData, getAddress, parseAbi, toFunctionSelector, zeroAddress, type Address, type Hex } from "viem";
-import { decodeContext, encodeBundle, encodeContext, encodeJournal, journalDigest, keyCommitment, referenceHash } from "@ubc26/sdk";
+import { decodeContext, encodeBundle, encodeContext, encodeJournal, journalDigest, keyCommitment, referenceHash,
+  OPEN_CLAIM_ABI_STATUS as SDK_OPEN_CLAIM_ABI_STATUS,
+  OPEN_CLAIM_INTERFACE_REVISION as SDK_OPEN_CLAIM_INTERFACE_REVISION,
+  openClaimSignatureAbi as exportedAdapterAbi,
+} from "@ubc26/sdk";
 import { ENGINE_FIXTURE } from "@ubc26/sdk/testing";
 import { ARC_MIN_FEE, checkPolicy, PolicyError, type OutgoingTx, type WriteAuthorization } from "../../src/policy.ts";
 import { WorkerCheckError } from "../../src/run.ts";
 import {
   OPEN_CLAIM_ABI_STATUS,
   OPEN_CLAIM_CLAIM_SELECTOR,
+  OPEN_CLAIM_EVENTS,
   OPEN_CLAIM_INTERFACE_REVISION,
   OPEN_CLAIM_JSON_ABI_PUBLISHED,
   OPEN_CLAIM_RELEASE_SELECTOR,
   OPEN_CLAIM_SELECTORS,
   OPEN_CLAIM_SYNTHETIC,
+  openClaimClaimReleaseAbi,
   assertOpenClaimDeployment,
   checkOpenClaimPolicy,
   createOpenClaimMemoryPort,
@@ -176,11 +181,13 @@ function saved(attemptDir: string) {
   return JSON.parse(readFileSync(join(attemptDir, "state.json"), "utf8")) as { phase: string; claimTx?: string; releaseTx?: string; winner?: string; paymentConfirmed: boolean; releaseDisclosure?: string };
 }
 
-describe("open-claim signature fixture", () => {
-  it("matches the published 198e479 selectors, events, and synthetic vector", () => {
-    expect(OPEN_CLAIM_INTERFACE_REVISION).toBe("198e479");
-    expect(OPEN_CLAIM_ABI_STATUS).toBe("signature-fixture");
-    expect(OPEN_CLAIM_JSON_ABI_PUBLISHED).toBe(false);
+describe("open-claim exported ABI", () => {
+  it("uses the compiled adapter ABI and matches the synthetic wire vector", () => {
+    expect(OPEN_CLAIM_INTERFACE_REVISION).toBe(SDK_OPEN_CLAIM_INTERFACE_REVISION);
+    expect(OPEN_CLAIM_ABI_STATUS).toBe(SDK_OPEN_CLAIM_ABI_STATUS);
+    expect(OPEN_CLAIM_JSON_ABI_PUBLISHED).toBe(true);
+    expect(openClaimClaimReleaseAbi).toBe(exportedAdapterAbi);
+    expect(OPEN_CLAIM_EVENTS.every(name => exportedAdapterAbi.some(item => item.type === "event" && item.name === name))).toBe(true);
     expect(OPEN_CLAIM_SELECTORS).toEqual(PUBLISHED_SELECTORS);
     expect(OPEN_CLAIM_CLAIM_SELECTOR).toBe("0xdbadcda7");
     expect(OPEN_CLAIM_RELEASE_SELECTOR).toBe("0xdd20edf9");
@@ -305,8 +312,8 @@ describe("runOpenClaimAcceptance", () => {
     const plan = planOpenClaimEngineAcceptance();
     expect(plan.mode).toBe("open-claim");
     expect(plan.spawnsEngine).toBe(false);
-    expect(plan.evidence).toBe("signature-fixture");
-    expect(plan.interfaceRevision).toBe("198e479");
+    expect(plan.evidence).toBe(SDK_OPEN_CLAIM_ABI_STATUS);
+    expect(plan.interfaceRevision).toBe(SDK_OPEN_CLAIM_INTERFACE_REVISION);
     expect(plan.context).toBe(OPEN_CLAIM_SYNTHETIC.context);
     expect(plan.flags).toEqual(["prove", "--package", "--job", "--deliverables", "--reference", "--out"]);
   });
@@ -317,7 +324,7 @@ describe("runOpenClaimAcceptance", () => {
     expect(state.phase).toBe("released");
     expect(state.paymentConfirmed).toBe(true);
     expect(state.winner?.toLowerCase()).toBe(options.job.solver.toLowerCase());
-    expect(state.abiStatus).toBe("signature-fixture");
+    expect(state.abiStatus).toBe(SDK_OPEN_CLAIM_ABI_STATUS);
     expect(port.claims).toBe(1);
     expect(port.releases).toBe(1);
     const claim = port.broadcasts.find((tx) => tx.data.startsWith(OPEN_CLAIM_CLAIM_SELECTOR));
@@ -436,6 +443,22 @@ describe("runOpenClaimAcceptance", () => {
     await checkFails(runOpenClaimAcceptance(unknown.options), "broadcast_uncertain");
     expect(unknown.port.claims).toBe(1);
     expect(unknown.port.releases).toBe(0);
+  });
+
+  it("refuses a saved attempt from another adapter ABI revision", async () => {
+    const { port, options } = setup({ receipt: "missing" });
+    expect((await runOpenClaimAcceptance(options)).phase).toBe("claim_sent");
+    const path = join(options.attemptDir, "state.json");
+    const state = JSON.parse(readFileSync(path, "utf8")) as Record<string, unknown>;
+    state.abiStatus = "signature-fixture";
+    writeFileSync(path, JSON.stringify(state));
+    await checkFails(runOpenClaimAcceptance(options), "resume");
+    state.abiStatus = SDK_OPEN_CLAIM_ABI_STATUS;
+    state.interfaceRevision = "198e479";
+    writeFileSync(path, JSON.stringify(state));
+    await checkFails(runOpenClaimAcceptance(options), "resume");
+    expect(port.claims).toBe(1);
+    expect(port.releases).toBe(0);
   });
 
   it("restarts a confirmed attempt without a second claim or release", async () => {

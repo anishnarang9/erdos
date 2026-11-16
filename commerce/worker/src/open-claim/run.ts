@@ -173,7 +173,10 @@ export async function runOpenClaim(o: OpenClaimRunOptions): Promise<OpenClaimSta
     if (resume) {
       try { state = JSON.parse(readFileSync(at("state.json"), "utf8")) as OpenClaimState; }
       catch { throw new WorkerCheckError("resume", "invalid attempt state"); }
-      must(state.version === 1 && state.mode === "open-claim" && OPEN_CLAIM_PHASES.includes(state.phase) && JSON.stringify(state.binding) === JSON.stringify(binding), "resume", "state version, mode, or funded binding differs");
+      must(state.version === 1 && state.mode === "open-claim" &&
+        state.interfaceRevision === OPEN_CLAIM_INTERFACE_REVISION && state.abiStatus === OPEN_CLAIM_ABI_STATUS &&
+        OPEN_CLAIM_PHASES.includes(state.phase) && JSON.stringify(state.binding) === JSON.stringify(binding),
+      "resume", "state version, ABI, mode, or funded binding differs");
       privateArtifactTree(o.attemptDir);
     } else {
       state = {

@@ -162,8 +162,8 @@ export type OpenClaimPhase = typeof OPEN_CLAIM_PHASES[number];
 export interface OpenClaimState {
   version: 1;
   mode: "open-claim";
-  interfaceRevision: "198e479";
-  abiStatus: "signature-fixture";
+  interfaceRevision: string;
+  abiStatus: "exported-json";
   phase: OpenClaimPhase;
   jobId: string;
   binding: {

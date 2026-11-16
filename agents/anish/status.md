@@ -2,6 +2,11 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 02:27 -05:00 — Anish — Worker adopted exported adapter ABI
+
+- The worker now takes its claim and release ABI from the SDK's compiled `OpenClaimAdapter.json` export. It checks the published selectors against that ABI and retains the independent synthetic context and journal vector. A resumed attempt must match the current ABI status and interface revision before any chain action.
+- The new resume test failed against the previous behavior and passed after the check. All 17 focused open-claim tests and worker typecheck passed. The actual Arc port and combined on-chain acceptance remain pending; local job 2's fresh proof is still running.
+
 ## 2026-11-16 02:23 -05:00 — Anish — Worker fixture checkpoint integrated
 
 - Grok 4.7 High stopped at its 50-turn limit after writing the open-claim worker fixture and attempt runner. It made no commit. I reviewed the files, ran its 16 focused tests and typecheck, then ran all 860 worker unit tests across 19 files. All checks exited 0. The reviewed source is committed on `codex/overnight-proof-worker` at `e4792a5` and merged into this branch.

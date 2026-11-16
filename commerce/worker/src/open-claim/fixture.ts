@@ -1,14 +1,16 @@
-// Signature fixture from docs/overnight/open-claim-v1.md at commit 198e479.
-// That commit does not contain contracts/abi/OpenClaimAdapter.json.
-// These selectors and event signatures are published interface text, not a deployed ABI.
-// Custom errors are not in that checkpoint and are intentionally absent.
+// The compiled adapter ABI is exported through the SDK. The published wire vector
+// remains an independent check of context, journal, and commitment bytes.
 import { bytesToHex, parseAbi, toFunctionSelector, type Address, type Hex } from "viem";
-import { encodeContext, encodeJournal, journalDigest, keyCommitment } from "@ubc26/sdk";
+import {
+  encodeContext, encodeJournal, journalDigest, keyCommitment,
+  OPEN_CLAIM_ABI_STATUS as SDK_ABI_STATUS,
+  OPEN_CLAIM_INTERFACE_REVISION as SDK_INTERFACE_REVISION,
+  openClaimSignatureAbi as exportedAdapterAbi,
+} from "@ubc26/sdk";
 
-export const OPEN_CLAIM_INTERFACE_REVISION = "198e479" as const;
-export const OPEN_CLAIM_ABI_STATUS = "signature-fixture" as const;
-/** contracts/abi/OpenClaimAdapter.json is not in the 198e479 checkpoint. */
-export const OPEN_CLAIM_JSON_ABI_PUBLISHED = false;
+export const OPEN_CLAIM_INTERFACE_REVISION = SDK_INTERFACE_REVISION;
+export const OPEN_CLAIM_ABI_STATUS = SDK_ABI_STATUS;
+export const OPEN_CLAIM_JSON_ABI_PUBLISHED = true;
 export const OPEN_CLAIM_MAX_ENVELOPE_BYTES = 16_412;
 export const OPEN_CLAIM_ONE_USDC = 1_000_000n;
 
@@ -36,8 +38,12 @@ const SIGNATURES = {
 
 function pin(name: keyof typeof SIGNATURES): Hex {
   const computed = toFunctionSelector(SIGNATURES[name]);
+  const exported = exportedAdapterAbi.find(item => item.type === "function" && item.name === name);
   if (computed !== PUBLISHED_SELECTORS[name]) {
     throw new Error(`open-claim selector drift for ${name}: computed ${computed}, published ${PUBLISHED_SELECTORS[name]}`);
+  }
+  if (!exported || exported.type !== "function" || toFunctionSelector(exported) !== computed) {
+    throw new Error(`compiled open-claim ABI differs from the published ${name} selector`);
   }
   return computed;
 }
@@ -58,26 +64,13 @@ export const OPEN_CLAIM_RELEASE_SELECTOR = OPEN_CLAIM_SELECTORS.release;
 
 export const OPEN_CLAIM_EVENTS = ["TermsRegistered", "ClaimAccepted", "KeyReleased"] as const;
 
-/** Function and event text from the 198e479 checkpoint. Not the unpublished JSON ABI. */
-export const openClaimSignatureAbi = [
-  "function register(uint256 jobId, bytes32 imageId, bytes32 rulesHash, bytes32 referenceHash, uint256 expectedBudget, uint64 expectedExpiry)",
+export const openClaimSignatureAbi = exportedAdapterAbi;
+const claimReleaseTypes = parseAbi([
   "function claim(uint256 jobId, bytes envelope, bytes seal, bytes32 keyCommitment)",
   "function release(uint256 jobId, bytes32 key)",
-  "function contextOf(uint256 jobId, address solver) view returns (bytes)",
-  "function expectedJournal(uint256 jobId, address solver, bytes32 envelopeHash, bytes32 keyCommitment) view returns (bytes journal, bytes32 journalDigest)",
-  "function terms(uint256 jobId)",
-  "function submissions(uint256 jobId)",
-  "function released(uint256 jobId)",
-  "event TermsRegistered(uint256 indexed jobId, address indexed buyer, bytes32 imageId, bytes32 rulesHash, bytes32 referenceHash, uint256 budget, uint64 expiry)",
-  "event ClaimAccepted(uint256 indexed jobId, address indexed solver, bytes32 envelopeHash, bytes32 keyCommitment, bytes envelope)",
-  "event KeyReleased(uint256 indexed jobId, address indexed solver, bytes32 key, bytes32 envelopeHash, uint256 amount)",
-] as const;
-
-/** Claim and release only. The worker never encodes register or the view calls. */
-export const openClaimClaimReleaseAbi = parseAbi([
-  openClaimSignatureAbi[1],
-  openClaimSignatureAbi[2],
 ]);
+/** Runtime calls use the compiled JSON ABI. The local type narrows decoded calls. */
+export const openClaimClaimReleaseAbi = exportedAdapterAbi as typeof claimReleaseTypes;
 
 const repeat = (byte: string, size: number) => `0x${byte.repeat(size)}`;
 const adapter = "0x1111111111111111111111111111111111111111" as Address;
@@ -97,7 +90,7 @@ const journalBytes = encodeJournal({ context: contextBody, verdict: 1, envelopeH
 const journal = bytesToHex(journalBytes) as Hex;
 const digest = journalDigest(journalBytes);
 if (context !== publishedContext || commitment !== publishedCommitment || digest !== publishedDigest) {
-  throw new Error("open-claim synthetic vector does not match the published 198e479 fixture");
+  throw new Error("open-claim synthetic vector does not match the published wire fixture");
 }
 
 /** Published synthetic vector. Escrow is the adapter and provider is the solver. */
