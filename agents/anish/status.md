@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 01:27 -05:00 — Anish — Proof host released without an exit result
+
+- The earlier Meridian process identities disappeared while its report still recorded `fresh-verdict0-proving`. No exit result or failure diagnostic appeared. The cause remains unknown. [Observation](reports/overnight-meridian-prior-process-2026-11-16.json).
+- Read-only checks found no remaining prover process or Docker container. The original checkout, process records and scratch remain unchanged. A separate clean full-suite run will use this worktree and the stamped unchanged engine binary.
+- The SDK reproduced all five public-vector checks. All six locked Rust wire tests passed. Contract comparison waits for Chat 2 implementation. [Vector evidence](reports/overnight-public-vector-2026-11-16.json).
+- Coordinator baseline commerce checks are running. Three Grok implementation tracks are running. No live call or signing occurred.
+
 ## 2026-11-16 01:27 -05:00 — Anish
 
 - Started the supplied overnight proof-commerce plan on `codex/overnight-proof-commerce`, based on `ae1295a`. The original integration checkout and active Meridian rerun remain untouched.
