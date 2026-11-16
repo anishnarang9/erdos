@@ -2,6 +2,11 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 02:23 -05:00 — Anish — Worker fixture checkpoint integrated
+
+- Grok 4.7 High stopped at its 50-turn limit after writing the open-claim worker fixture and attempt runner. It made no commit. I reviewed the files, ran its 16 focused tests and typecheck, then ran all 860 worker unit tests across 19 files. All checks exited 0. The reviewed source is committed on `codex/overnight-proof-worker` at `e4792a5` and merged into this branch.
+- The runner binds the actual solver and adapter, stores private attempt state, blocks blind resends after uncertain sends, and releases a key only for a confirmed winner. Its current port is an in-memory fixture based on interface checkpoint `198e479`. The exported adapter ABI and actual Arc port still need integration before this runner can establish real-chain acceptance. The fresh job-2 proof remains active in the only prover slot.
+
 ## 2026-11-16 02:19 -05:00 — Anish — Local x402 paid compile checked
 
 - A separate local API job used the real engine and an in-process test facilitator. The route returned HTTP 402, accepted a signed synthetic payment, compiled the approved Meridian image, and returned the same response on replay. The facilitator received one settlement call. [The report](reports/open-claim-x402-local-2026-11-16.json) records the quote and result. Nine focused x402 tests passed, including uncertain settlement and paid compile retry after a transient failure.
