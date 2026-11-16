@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 01:56 -05:00 — Anish — Local open-claim deployment verified
+
+- Branch `codex/open-escrow-rescue` now includes a guarded local Arc deploy script, read-only confirmation verifier, local run instructions and [deployment report](reports/open-claim-local-deployment-2026-11-16.json). The testnet adapter address remains null.
+- A forkless Arc Anvil node confirmed six local transactions: real RISC Zero 3.1.0 verifier, patched core implementation and proxy, adapter, and two role renounces. Independent RPC reads confirmed code, proxy implementation slot, immutable wiring, native USDC, zero fees and the deployer's absent admin roles.
+- Full Forge tests, Python syntax check and the repeatable local verifier passed. This deployment has no fresh adapter-domain proof or actual bounty exchange yet. Next: integrate SDK/API/worker and run the fresh local exchange after Meridian's exclusive prover releases. No live wallet or Arc testnet transaction was used.
+
 ## 2026-11-16 01:53 -05:00 — Anish — Open-claim adapter rescue checkpoint
 
 - Branch `codex/open-escrow-rescue` at `4c41a55` adds the adapter source, ABI and independent adversarial and checked-in real-receipt tests. It was pushed after the Chat 2 task stopped on a model rate limit; that worktree remains untouched.

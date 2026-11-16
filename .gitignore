@@ -2,6 +2,7 @@
 contracts/out/
 contracts/cache/
 contracts/broadcast/
+contracts/deployments/open-claim-local.json
 node_modules/
 .env
 __pycache__/
