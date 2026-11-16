@@ -7,11 +7,11 @@ import { readSafeFile, requireSprint } from "./sprint-authorization.ts";
  * A confirmed reservation still advances the nonce floor if the RPC pending count lags or history changes.
  * An unresolved sibling operation blocks new signing. Reading an existing hash remains permitted.
  */
-export function siblingNonceReservations(directory: string, account: Address, caller: "funding" | "refund" | "setup"): number[] {
-  const names = caller === "funding" ? ["refund", "setup"] : caller === "refund" ? ["funding", "setup"] : ["funding", "refund"];
-  return names.flatMap(name => reservations(directory,account,name as "funding"|"refund"|"setup"));
+export function siblingNonceReservations(directory: string, account: Address, caller: "funding" | "refund" | "setup" | "deployment"): number[] {
+  const names = (["funding", "refund", "setup", "deployment"] as const).filter(name=>name!==caller);
+  return names.flatMap(name => reservations(directory,account,name as "funding"|"refund"|"setup"|"deployment"));
 }
-function reservations(directory: string, account: Address, sibling: "funding"|"refund"|"setup"): number[] {
+function reservations(directory: string, account: Address, sibling: "funding"|"refund"|"setup"|"deployment"): number[] {
   const filename = sibling === "funding" ? "poster-funding" : `${sibling}-journal`;
   let value: any;
   try {value=JSON.parse(readSafeFile(join(directory,`${filename}.json`),true).toString());}

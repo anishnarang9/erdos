@@ -15,18 +15,19 @@ test -z "$(git ls-files --others --exclude-standard -- commerce/worker/package.j
   contracts/src contracts/abi)"
 ```
 
-Run from `commerce/worker`:
+Run from `commerce/worker`. Use direct Node for inherited password FDs. The pnpm script runner can close descriptors above stderr:
 
 ```sh
-pnpm open-claim:operator setup --config /absolute/private/setup.json --password-fd 3 3</absolute/private/buyer.password
-pnpm open-claim:operator preview --config /absolute/private/run.json
-pnpm open-claim:operator fund --config /absolute/private/run.json --password-fd 3 3</absolute/private/buyer.password
-pnpm open-claim:operator prepare --config /absolute/private/run.json
-pnpm open-claim:operator run --config /absolute/private/run.json --password-fd 3 3</absolute/private/solver.password
-pnpm open-claim:operator recover --config /absolute/private/run.json
-pnpm open-claim:operator negative --config /absolute/private/refund-job.json --password-fd 3 3</absolute/private/solver.password
-pnpm open-claim:operator refund --config /absolute/private/refund-job.json --password-fd 3 3</absolute/private/buyer.password
-pnpm open-claim:operator circle --config /absolute/private/run.json --password-fd 3 3</absolute/private/buyer.password
+node --import tsx src/open-claim/operator.ts deploy --config /absolute/private/deploy.json --password-fd 3 3</absolute/private/buyer.password
+node --import tsx src/open-claim/operator.ts setup --config /absolute/private/setup.json --password-fd 3 3</absolute/private/buyer.password
+node --import tsx src/open-claim/operator.ts preview --config /absolute/private/run.json
+node --import tsx src/open-claim/operator.ts fund --config /absolute/private/run.json --password-fd 3 3</absolute/private/buyer.password
+node --import tsx src/open-claim/operator.ts prepare --config /absolute/private/run.json
+node --import tsx src/open-claim/operator.ts run --config /absolute/private/run.json --password-fd 3 3</absolute/private/solver.password
+node --import tsx src/open-claim/operator.ts recover --config /absolute/private/run.json
+node --import tsx src/open-claim/operator.ts negative --config /absolute/private/refund-job.json --password-fd 3 3</absolute/private/solver.password
+node --import tsx src/open-claim/operator.ts refund --config /absolute/private/refund-job.json --password-fd 3 3</absolute/private/buyer.password
+node --import tsx src/open-claim/operator.ts circle --config /absolute/private/run.json --password-fd 3 3</absolute/private/buyer.password
 ```
 
 `prepare` proves without signing. `run` can prove and settle, or resume the saved proof. A pending receipt returns a sent phase. Repeat the same command with the same private directories. It checks the saved hash and never replaces or resends an uncertain transaction. Preserve stale locks for manual review. All proving operators must share `proverLockRoot`. Keep all other host provers stopped.
@@ -67,8 +68,12 @@ Live operator role checks pace log windows by two seconds. They retain only a co
 
 Circle Gateway's [official schema](https://developers.circle.com/openapi/gateway-nanopayments.yaml) returns a transfer UUID from settlement. The API marks this `gateway-batch-accepted` with `onchainConfirmed: false`. A UUID is not a chain transaction hash. Follow [Circle's reconciliation process](https://developers.circle.com/gateway-nanopayments/howtos/x402-seller-reconciliation) to obtain later transfer status, batch receipts and Gateway balance changes.
 
-Configure the API with `X402_SETTLEMENT_MODE=circle-gateway`, `X402_FACILITATOR_URL=https://gateway-api-testnet.circle.com/v1/x402`, its resource origin, seller `X402_PAY_TO`, and `X402_AMOUNT=1` for a 0.000001-USDC service charge. Set `X402_EXTRA_JSON` to the USDC domain from [Circle's signing guide](https://developers.circle.com/gateway-nanopayments/howtos/eip-3009-signing): `name: GatewayWalletBatched`, `version: 1`, `verifyingContract: 0x0077777d7eba4688bdef3e311b846f25870a19b9`. The current capability endpoint requires 604,800 seconds of authorization validity.
+Configure the API with `X402_SETTLEMENT_MODE=circle-gateway`, `X402_FACILITATOR_URL=https://gateway-api-testnet.circle.com/v1/x402`, its resource origin, seller `X402_PAY_TO`, and `X402_AMOUNT=1` for a 0.000001-USDC service charge. Set `X402_EXTRA_JSON` to the USDC domain from [Circle's signing guide](https://developers.circle.com/gateway-nanopayments/howtos/eip-3009-signing): `name: GatewayWalletBatched`, `version: 1`, `verifyingContract: 0x0077777d7eba4688bdef3e311b846f25870a19b9`. The current capability endpoint requires 604,800 seconds of remaining authorization validity. The official 3.2.0 client adds a 100-second buffer. This operator signs for 604,900 seconds.
 
 The buyer must deposit the approved 0.01 USDC into Gateway before paying. The [deposit preview](../../agents/anish/reports/circle-gateway-deposit-preview-2026-11-16.json) contains exact approval and deposit calldata and a separate 0.00575-USDC gas cap. The payment client cannot approve tokens, deposit, or fund escrow. Run `circle` on an approved revision before ordinary compilation stores its manifest. It checks the 402 against the approved URL, recipient and exact amount. It saves one signature privately and repeats that signature after a lost response. It requires a successful compile response and an exact replay with no second charge. Its signature uses the Gateway domain rather than the USDC token domain. The command can run before the adapter manifest exists.
 
 The local facilitator tests remain local tests. Only an actual Gateway result, later batch receipt, and balance evidence can establish live payment and settlement.
+
+`circle.refreshRejectedValidity: true` permits one explicit repair of a saved short-validity authorization. The client requires Circle's exact `authorization_validity_too_short` response and an empty transfer search for the exact sender, recipient, network and nonce. It archives the old private state. It retains the same nonce, amount, identities and Gateway domain. Only validity changes. A queued or unknown result blocks repair. Interrupted signing blocks repair. Normal retries replay the saved signature.
+
+`deploy` requires separate `deployment.authorized: true`, absolute `previewFile` and `authorizationFile` paths, and decimal `validUntil`. The records must carry the exact approved deployment and 0.201-USDC aggregate gas cap. The wrapper independently pins the human-approved initcode hash. It checks the local artifact, code, proxy slot, zero fees, USDC, canonical audit anchors, all new privileged logs since the prior audit, simulated runtime and gas estimate before loading a keystore. Creation uses at most 3,072,197 gas at 25 gwei. It shares the buyer lock and saves raw creation bytes privately before one dispatch. It never signs a replacement. Reconciliation checks the created address, runtime hash, four confirmations and exact native gas loss. Require independent manifest verification before funding a proof job.

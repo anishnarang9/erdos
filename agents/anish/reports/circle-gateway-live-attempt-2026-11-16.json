@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "status": "rejected-before-payment",
+  "chainId": 5042002,
+  "sourceCommit": "4a39930d418ed92abd58d79b6f3295c17ada9bdd",
+  "challengeStatus": 402,
+  "amountAtomic": "1",
+  "gatewayDepositAtomic": "10000",
+  "facilitator": "https://gateway-api-testnet.circle.com/v1/x402",
+  "verification": {
+    "isValid": false,
+    "invalidReason": "authorization_validity_too_short"
+  },
+  "exactNonceTransferSearchCount": 0,
+  "gatewayBalanceAfterAttemptUsdc": "0.010000",
+  "apiPaymentState": "pending",
+  "paidApiSuccess": false,
+  "onchainServicePayment": false,
+  "next": "Add the official SDK 100-second buffer, preserve the rejected attempt, verify no transfer and renew only the same payment nonce and amount."
+}

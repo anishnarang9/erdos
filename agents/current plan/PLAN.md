@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 09:06 -05:00 — Anish — Setup confirmed and exact deployment approved
+
+- The solver received 0.04 USDC and Gateway received its separate 0.01-USDC deposit. Setup gas was 0.004098525 USDC. The real service authorization was rejected for insufficient remaining validity. Preserve it and repair only the same nonce after definitive rejection and an empty exact transfer search. Use Circle's official 100-second buffer.
+- The user separately approved the exact adapter deployment and a 0.201-USDC aggregate gas ceiling. The live-run chat remains the sole wallet signer. The contract/integration chat independently verifies the deployment receipt and manifest because the original deployment chat stopped. The approved initcode hash is `0xad7f68985c4978a117d467a8e89321f0b6d4b539492cd34beb1280f104b321d6`. Caps remain 3,072,197 gas and 25 gwei. Bounty and service amounts remain unchanged.
+- Publish the reviewed creation/payment checkpoint and finish its checks/combined CI. Deploy once and independently verify the manifest. Then fund both jobs and start one fresh proof. Final evidence still requires accepted claim, payout, exact recovery, rejection, separate refund and real paid API replay.
+
 ## 2026-11-16 08:42 -05:00 — Anish — Buyer funded and one signing owner
 
 - The buyer received 20 testnet USDC. Direct human instructions authorize transfers among the generated wallets as needed. PR #7's live-run chat owns all wallet signatures and nonce journals. The contract chat prepares the adapter deployment and verifies its manifest. A separate deployment-gas approval is pending.

@@ -28,6 +28,8 @@ export interface CirclePaidCompileOptions {
   directory: string;
   fetch?: typeof fetch;
   now?: () => bigint;
+  /** Explicit operator repair only. Requires Circle's definitive rejection and no transfer for this nonce. */
+  refreshRejectedValidity?: boolean;
 }
 
 /** Signs one exact service charge against Gateway. It cannot deposit, approve tokens, or fund a bounty.
@@ -63,11 +65,32 @@ export async function runCirclePaidCompile(input: CirclePaidCompileOptions) {
     body: JSON.stringify({ revisionHash }) });
   try {
     writeFileSync(lock, "owned\n"); fsyncSync(lock); sync();
-    let state: { binding: typeof binding; payload?: PaymentPayload };
+    let state: { binding: typeof binding; payload?: PaymentPayload; renewedFrom?: string };
     if (existsSync(statePath)) {
       privateArtifactTree(directory);
       state = JSON.parse(readFileSync(statePath, "utf8"));
       must(JSON.stringify(state.binding) === JSON.stringify(binding) && state.payload);
+      if(input.refreshRejectedValidity && !state.renewedFrom){
+        const old=state.payload,base="https://gateway-api-testnet.circle.com/v1/x402";
+        const verified=await send(base+"/verify",{method:"POST",signal:AbortSignal.timeout(30_000),headers:{"content-type":"application/json"},
+          body:JSON.stringify({paymentPayload:old,paymentRequirements:old.accepted})});
+        must(verified.ok);const verification=await verified.json() as any;
+        must(verification.isValid===false&&verification.invalidReason==="authorization_validity_too_short");
+        const previous=(old.payload as any).authorization;
+        must(previous.from.toLowerCase()===account.toLowerCase()&&previous.to.toLowerCase()===payTo.toLowerCase()&&previous.value===String(amount)&&/^0x[0-9a-fA-F]{64}$/.test(previous.nonce));
+        const query=new URLSearchParams({from:account,to:payTo,network:"eip155:5042002",nonce:previous.nonce});
+        const searched=await send(base+"/transfers?"+query,{signal:AbortSignal.timeout(30_000)});must(searched.ok);
+        const search=await searched.json() as any;must(Array.isArray(search.transfers)&&search.transfers.length===0);
+        const archive=openSync(join(directory,"rejected-validity.json"),"wx",0o600);
+        try{writeFileSync(archive,JSON.stringify(state));fsyncSync(archive);}finally{closeSync(archive);}sync();
+        const at=now();must(at>600n);
+        // Retain the exact payment nonce and amount. Both signatures authorize the same single Gateway payment.
+        const authorization={from:account,to:payTo,value:String(amount),validAfter:String(at-600n),validBefore:String(at+604900n),nonce:previous.nonce as Hex};
+        state={binding,renewedFrom:digest(JSON.stringify(old))};save(state);
+        const signature=await sign({domain:{name:"GatewayWalletBatched",version:"1",chainId:5042002,verifyingContract:ARC_GATEWAY_WALLET},
+          types:gatewayAuthorizationTypes,primaryType:"TransferWithAuthorization",message:{...authorization,value:amount,validAfter:BigInt(authorization.validAfter),validBefore:BigInt(authorization.validBefore)}});
+        state.payload={...old,payload:{authorization,signature}};save(state);
+      }
     } else {
       const challenge = await request();
       must(challenge.status === 402);
@@ -81,7 +104,7 @@ export async function runCirclePaidCompile(input: CirclePaidCompileOptions) {
       const accepted = matches[0] as PaymentRequirements, at = now();
       must(at > 600n);
       const authorization = { from: account, to: payTo, value: String(amount), validAfter: String(at - 600n),
-        validBefore: String(at + 604800n), nonce: `0x${randomBytes(32).toString("hex")}` as Hex };
+        validBefore: String(at + 604900n), nonce: `0x${randomBytes(32).toString("hex")}` as Hex };
       // An interrupted signature operation must not silently create another authorization.
       state = { binding }; save(state);
       const signature = await sign({ domain: { name: "GatewayWalletBatched", version: "1", chainId: 5042002,

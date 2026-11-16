@@ -26,6 +26,9 @@ function fixture() {
     })).toString("base64") } });
     const payload = JSON.parse(Buffer.from(signature, "base64").toString());
     const a = payload.payload.authorization;
+    // Circle requires a full seven days remaining when it receives the request.
+    // Its official client adds 100 seconds for transit and processing.
+    expect(BigInt(a.validBefore)-1800000000n).toBe(604900n);
     expect(await verifyTypedData({ address: account.address, domain: { name: "GatewayWalletBatched", version: "1",
       chainId: 5042002, verifyingContract: gateway }, types: gatewayAuthorizationTypes, primaryType: "TransferWithAuthorization",
       message: { ...a, value: BigInt(a.value), validAfter: BigInt(a.validAfter), validBefore: BigInt(a.validBefore) },
@@ -65,4 +68,31 @@ it("refuses a changed recipient before any payment signature", async () => {
   const sign = vi.spyOn(account, "signTypedData");
   await expect(runCirclePaidCompile(f.options)).rejects.toThrow();
   expect(sign).not.toHaveBeenCalled(); sign.mockRestore();
+});
+it("renews a definitively rejected short-validity message with the same nonce and one service amount",async()=>{
+  const f=fixture();let oldNonce="",oldSignature="",signatures=0;
+  const normal=f.fetcher.getMockImplementation()!;
+  f.fetcher.mockImplementation(async (u,init)=>{
+    if(String(u).endsWith("/verify"))return Response.json({isValid:false,invalidReason:"authorization_validity_too_short"});
+    if(String(u).includes("/transfers?"))return Response.json({transfers:[]});
+    const header=new Headers(init?.headers).get("payment-signature");
+    if(header){const p=JSON.parse(Buffer.from(header,"base64").toString());signatures++;
+      if(signatures===1){oldNonce=p.payload.authorization.nonce;oldSignature=p.payload.signature;return Response.json({error:{code:"payment_pending"}},{status:409});}
+      expect(p.payload.authorization.nonce).toBe(oldNonce);expect(p.payload.signature).not.toBe(oldSignature);
+      expect(p.payload.authorization.value).toBe("10000");
+      return Response.json({status:"compiled"},{headers:{"payment-response":Buffer.from(JSON.stringify({success:true,network:"eip155:5042002",payer:account.address,
+        transaction:"12b6462a-a438-4ec9-84eb-1d69022f4401",settlementType:"gateway-batch-accepted",onchainConfirmed:false})).toString("base64"),...(signatures>2?{"idempotent-replayed":"true"}:{})}});
+    }return normal(u,init);
+  });
+  await expect(runCirclePaidCompile(f.options)).rejects.toThrow();
+  expect((await runCirclePaidCompile({...f.options,now:()=>1800000010n,refreshRejectedValidity:true})).replay).toBe(true);
+});
+it.each(["queued","ambiguous"])("refuses validity renewal when the old payment outcome is %s",async mode=>{
+  const f=fixture();await runCirclePaidCompile(f.options);
+  const sign=vi.spyOn(account,"signTypedData");
+  f.fetcher.mockImplementation(async u=>String(u).endsWith("/verify")
+    ? Response.json(mode==="queued"?{isValid:false,invalidReason:"authorization_validity_too_short"}:{isValid:false,invalidReason:"unknown"})
+    : Response.json({transfers:[{status:"received"}]}));
+  try{await expect(runCirclePaidCompile({...f.options,refreshRejectedValidity:true})).rejects.toThrow();expect(sign).not.toHaveBeenCalled();}
+  finally{sign.mockRestore();}
 });

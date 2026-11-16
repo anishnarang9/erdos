@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "approved-buyer-funded-awaiting-adapter",
+  "status": "approved-setup-confirmed-adapter-not-sent",
   "network": "arc-testnet",
   "chainId": 5042002,
   "core": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
@@ -49,8 +49,8 @@
   "missing": [
     "verified adapter manifest from contracts chat"
   ],
-  "note": "The buyer now holds 20 testnet USDC. Exact spending limits remain two 0.01-USDC jobs, a separate 0.01-USDC Gateway deposit and a 1-atomic service charge. Lower buyer call caps allocate the setup transfer within the unchanged 0.1235-USDC gas limit. The allocation totals 0.121625 USDC. No setup/payment/funding transaction was sent at this checkpoint.",
-  "revision": 3,
+  "note": "Direct human approval includes the exact adapter deployment and a 0.201-USDC aggregate gas ceiling. Allocated maxima total 0.198429925 USDC. Setup is confirmed. Adapter deployment, funded proof, payout, recovery, refund, and a successful real Circle API payment remain pending.",
+  "revision": 4,
   "localGasMeasurements": {
     "createJob": 197676,
     "setBudget": 82112,
@@ -69,8 +69,10 @@
     "jobs": 2,
     "gatewayDepositAtomic": "10000",
     "serviceChargeAtomic": "1",
-    "totalGasCapNative": "123500000000000000",
-    "maxFeePerGas": "25000000000"
+    "totalGasCapNative": "201000000000000000",
+    "maxFeePerGas": "25000000000",
+    "initialSuiteGasCapNative": "123500000000000000",
+    "additionalAdapterDeploymentApproved": true
   },
   "maximumTotalGasIncludingGatewayDepositNative": "121625000000000000",
   "maximumBountyGasAndGatewayDepositUsdc": "0.151625",
@@ -82,6 +84,17 @@
     "solverTransferLiveGasEstimate": "21000",
     "maximumGasNative": "625000000000000",
     "buyerFundingGasReduction": "Per-call cap reduced from 300000 to 290000 for ten calls to retain the approved aggregate gas limit",
-    "includedInMaximumTotalGasIncludingGatewayDepositNative": true
-  }
+    "includedInMaximumTotalGasIncludingGatewayDepositNative": true,
+    "confirmed": true,
+    "totalGasSpentNative": "4098525000000000"
+  },
+  "deployment": {
+    "creationDataKeccak256": "0xad7f68985c4978a117d467a8e89321f0b6d4b539492cd34beb1280f104b321d6",
+    "maximumGas": "3072197",
+    "maximumGasCostNative": "76804925000000000",
+    "maxFeePerGas": "25000000000",
+    "simulatedRuntimeCodeHash": "0x469a337cfb28530e01426274e353792fee03ea8cc7f9663a63c5f9c2a4e13f20"
+  },
+  "maximumTotalGasIncludingGatewayAndDeploymentNative": "198429925000000000",
+  "maximumBountyGasGatewayAndDeploymentUsdc": "0.228429925"
 }

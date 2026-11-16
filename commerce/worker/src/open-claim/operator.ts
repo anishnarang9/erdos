@@ -15,6 +15,7 @@ import { parseOpenClaimManifest, verifyOpenClaimCreation } from "./manifest.ts";
 import { runOpenClaim } from "./run.ts";
 import { runCirclePaidCompile } from "./circle-payment.ts";
 import { recoverOpenClaimFromChain } from "./recovery.ts";
+import { deployApprovedOpenClaim } from "./deploy.ts";
 import type { OpenClaimFundedJob } from "./types.ts";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
@@ -24,7 +25,7 @@ const sourcePaths = ["commerce/package.json", "commerce/pnpm-workspace.yaml", "c
 const json = (value: unknown) => JSON.stringify(value, (_, v: unknown) => typeof v === "bigint" ? String(v) : v);
 const positive = (v: unknown) => { const n = BigInt(decimal(v)); requireSprint(n > 0n); return n; };
 
-export const OPEN_CLAIM_OPERATOR_COMMANDS = ["preview", "fund", "prepare", "run", "recover", "negative", "refund", "circle", "setup"] as const;
+export const OPEN_CLAIM_OPERATOR_COMMANDS = ["preview", "fund", "prepare", "run", "recover", "negative", "refund", "circle", "setup", "deploy"] as const;
 export function parseOpenClaimOperatorArgs(args: string[]) {
   const [command, flag, config, ...rest] = args;
   requireSprint(OPEN_CLAIM_OPERATOR_COMMANDS.includes(command as any) && flag === "--config" && config &&
@@ -54,6 +55,12 @@ export async function openClaimOperator(args: string[]) {
   requireSprint(c.version === 1 && c.mode === "open-claim" && c.chainId === 5042002);
   const buyer = sprintAddress(c.buyer.address), solver = sprintAddress(c.solver.address);
   requireSprint(buyer !== solver);
+  if(parsed.command==="deploy"){
+    cleanSource(c.sourceCommit);requireSprint(parsed.passwordFd!==undefined);
+    const result=await deployApprovedOpenClaim(c,parsed.passwordFd,repo);
+    writeResult(c.directory,result.phase==="deployment_confirmed"?"adapter-deployment-result.json":"adapter-deployment-sent.json",result);
+    return result;
+  }
   if (parsed.command === "setup") {
     cleanSource(c.sourceCommit); privateDirectory(c.directory); privateDirectory(c.journalRoot);
     requireSprint(c.setup?.authorized === true && c.signingAuthorized === true && parsed.passwordFd !== undefined &&
@@ -110,7 +117,7 @@ export async function openClaimOperator(args: string[]) {
     requireSprint(loaded.mode === "signing");
     return runCirclePaidCompile({ account: loaded.account, url: c.circle.url, payTo: sprintAddress(c.circle.payTo),
       amount: positive(c.circle.amount), revisionHash: sprintHash(c.circle.revisionHash ?? c.approval?.revision),
-      buyerToken: process.env.BUYER_API_TOKEN, directory: join(c.directory, "circle-payment") });
+      buyerToken: process.env.BUYER_API_TOKEN, directory: join(c.directory, "circle-payment"),refreshRejectedValidity:c.circle.refreshRejectedValidity===true });
   }
   const a = c.approval, budget = positive(a.budget), expiry = positive(a.expiry);
   const approval = { revision: sprintHash(a.revision), buyer, imageId: sprintHash(a.imageId), rulesHash: sprintHash(a.rulesHash),
