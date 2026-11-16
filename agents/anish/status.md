@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 01:53 -05:00 — Anish — Open-claim adapter rescue checkpoint
+
+- Branch `codex/open-escrow-rescue` at `4c41a55` adds the adapter source, ABI and independent adversarial and checked-in real-receipt tests. It was pushed after the Chat 2 task stopped on a model rate limit; that worktree remains untouched.
+- The adapter checks exact funded buyer terms and zero fees, binds receipts to the actual solver, gives the first valid claim the job, and checks exact core-to-adapter and adapter-to-solver balance changes. It uses a reentrancy guard and refuses verifier addresses without code.
+- All 45 focused open-claim tests pass, including six real-verifier receipt checks and three 256-run fuzz cases. Full `forge test -q` exits 0. Two copied test harness assumptions were corrected before the pass. This is local evidence; no adapter is deployed on Arc.
+- Meridian's separate fresh suite remains at `fresh-groth16-proving` with one proof complete. One Grok proof-worker process is active. Next: local Arc deployment/exchange, API/SDK/worker integration, full review and final checks.
+
 ## 2026-11-16 01:34 -05:00 — Anish — Interface vectors and deployment policy
 
 - Expanded [open-claim v1](../../docs/overnight/open-claim-v1.md) with computed function selectors, public event declarations and exact synthetic context/journal bytes. Added a proposed testnet template and its schema. Adapter deployment fields stay null.
