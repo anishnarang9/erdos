@@ -13,6 +13,7 @@ import { assertChainEngine, type ApiChain } from "./chain.ts";
 import { registerAuthoringRoutes } from "./authoring.ts";
 import { registerMarketRoutes } from "./market.ts";
 import { registerX402Routes, type X402Config } from "./x402.ts";
+import { registerOpenClaimRoutes, type OpenClaimConfig } from "./open-claim.ts";
 
 export interface CreateAppOptions {
   dbPath: string;
@@ -27,6 +28,8 @@ export interface CreateAppOptions {
   packagesDir?: string;
   /** Optional x402 service charge for the separate paid compile route. */
   x402?: X402Config;
+  /** Optional open-claim registration and public discovery reader. */
+  openClaim?: OpenClaimConfig;
 }
 
 export interface CreatedApp {
@@ -93,6 +96,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   const ctx = { app, deps, buyer, provider, idem, notImplemented, newId };
   const authoring = registerAuthoringRoutes(ctx);
   registerX402Routes(ctx, authoring, opts.x402);
+  registerOpenClaimRoutes(ctx, opts.openClaim);
   registerMarketRoutes(ctx);
 
   app.get("/v1/jobs/:id", readBody, requireJobId, jobs.get);
