@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 02:09 -05:00 — Anish — Clean Meridian funded suite passed
+
+- The clean forkless local Arc Meridian suite at source `4fab765` exited 0 after 2,104.028 seconds. The [final report](reports/fresh-exchange-local-2026-11-15.json) records two fresh Groth16 proofs; the successful proof took 1,017,171 ms and 7,053,898 guest cycles. Its 12 source hashes match the launch HEAD.
+- Verified an exact 1,000,000-unit USDC payout, 20 indexed events, matching chain key release, SDK and engine recovery of `schedule.json` (SHA-256 `0607a7b43bf95913d5561d1872b14df0e9ba3fce160946f0bfac99d76608fbc2`), independent oracle acceptance, actual pending-send restart with one raw send, separate Submitted snapshot refund and Funded-job refund. Negative eth_calls reverted. No live Arc write or model call occurred in the suite.
+- Preserved the first clean-attempt environment failure as [a separate report](reports/overnight-meridian-env-failure-2026-11-16.json); the launcher then removed inherited `RISC0_DEV_MODE` and `RUST_LOG` and reran. This closes the Meridian baseline. Next: fresh adapter-domain proof and combined open-claim exchange, then final integration checks and review.
+
 ## 2026-11-16 01:27 -05:00 — Anish — Proof host released without an exit result
 
 - The earlier Meridian process identities disappeared while its report still recorded `fresh-verdict0-proving`. No exit result or failure diagnostic appeared. The cause remains unknown. [Observation](reports/overnight-meridian-prior-process-2026-11-16.json).
