@@ -2,6 +2,25 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 03:40 -05:00 — Neil
+
+- **Branch:** `neil/plan-architecture` (PR #5). The plan is `agents/neil/ui-intent.md`: Decisions D1–D4 and C1–C14, reconciled with Codex's `product-plan.md`.
+- **Built:**
+  - **Run events:** the worker emits allowlisted events, served at `/v1/demo/runs/:id(/events)`.
+  - **Demo signer** (presenter mode, off by default): `/v1/demo/capabilities` and `/v1/demo/jobs/:id/fund|refund`. It resumes from chain state, has per-job and session budget caps, and accepts local origins only.
+  - **Solver agent loop** (`pnpm agent`) and buyer quote listing.
+  - **Buyer demo UI** (`commerce/web`): split screen with a React Three Fiber vault; beams; rules that fly from the request and type out from the engine preview; an honest proving grid (real elapsed time, real cycles at the end); scramble-decrypt reveal; captions; presenter keys (Space/R/D/M/F/S); recording and replay with offline re-verification.
+- **Live UI rehearsal on Arc (job 3): passed end to end.** Draft → approve → compile → agent quote → four funding transactions (demo signer) → proof (147.7 s, 937,488 cycles) → ProofAccepted → payout and key release → browser decrypt from chain data. The recording is `commerce/web/recordings/run-2026-11-16-job3-paid.json`.
+- **Found during the rehearsal:**
+  - Live Grok took 1:47 on one call and timed out at 3 min on another. The adapter now times out instead of hanging.
+  - The public Arc RPC dropped the approve transaction once; resume fixed it without a duplicate escrow.
+  - Proving is about 45 % slower while the UI renders: 147.7 s against about 103 s without the UI.
+- **Tests:** API 737, worker 151, SDK 436, web typecheck and build all pass.
+- **Next:**
+  - Act two needs a third testnet account for the tampered solver.
+  - Make a from-scratch recording, test the replay picker, and record the video.
+  - Commit the live Grok draft as a replay fallback; it must stay labelled.
+
 ## 2026-11-15 14:30 -05:00 — Neil
 
 - **Checkpoint C is met on Arc testnet.** All transactions and explorer links are in `commerce/evidence/arc-first-funded-jobs.md`.
