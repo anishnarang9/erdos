@@ -2,6 +2,11 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 02:19 -05:00 — Anish — Local x402 paid compile checked
+
+- A separate local API job used the real engine and an in-process test facilitator. The route returned HTTP 402, accepted a signed synthetic payment, compiled the approved Meridian image, and returned the same response on replay. The facilitator received one settlement call. [The report](reports/open-claim-x402-local-2026-11-16.json) records the quote and result. Nine focused x402 tests passed, including uncertain settlement and paid compile retry after a transient failure.
+- This is a test facilitator result. It did not call Circle Gateway or move live USDC. The funded ERC-8183 bounty remains a separate payment. The adapter-domain proof remains in progress, and the worker integration and actual claim/release/recovery gates remain open.
+
 ## 2026-11-16 02:17 -05:00 — Anish — Meridian open-claim jobs funded locally
 
 - Branch `codex/open-escrow-rescue` at launch HEAD `ee9412a`. The pinned engine compiled the approved Meridian package with the recorded image and hashes. Local Arc job 2 holds an exact 1,000,000-unit USDC bounty, and the adapter's `contextOf(2, solver)` matches the engine job input. Its fresh Groth16 proof is still running in the only prover slot. No claim or payout is recorded.

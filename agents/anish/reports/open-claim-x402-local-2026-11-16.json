@@ -1,0 +1,19 @@
+{
+  "status": "passed-local-test-facilitator-real-engine",
+  "apiJobId": "01M7HKK0C7M11VMMG9QFCRSZS3",
+  "revisionHash": "0x005f67914142d7ce4ae0848f3b4efdf9a570f654051532804e5a95c0abf50ebb",
+  "quoteStatus": 402,
+  "network": "eip155:5042002",
+  "scheme": "exact",
+  "asset": "0x3600000000000000000000000000000000000000",
+  "serviceAmount": "10000",
+  "facilitator": "in-process synthetic signature verifier",
+  "signedPaymentVerified": true,
+  "settlementCalls": 1,
+  "paidStatus": 200,
+  "replayStatus": 200,
+  "replayHeader": "true",
+  "imageId": "0x9b6b32b79bee4fbe407a83ffe9161200dfe3c0392920db3e8477491ff325aa6a",
+  "escrowFunding": "separate; this service charge did not fund a bounty",
+  "limits": "No Circle Gateway request, live payment, private key output, or model API call."
+}
