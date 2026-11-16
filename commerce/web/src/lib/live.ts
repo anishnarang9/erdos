@@ -15,7 +15,9 @@ function fail(err: unknown) {
   store.set({ error: msg });
 }
 
-async function poll() {
+let gen = 0;
+
+async function poll(myGen: number) {
   const s = store.get();
   if (s.mode !== "live" || !s.jobId) return;
   const id = s.jobId;
@@ -31,9 +33,12 @@ async function poll() {
       }
     }
     const ev = await api.runEvents(id, cursor).catch(() => null);
+    if (gen !== myGen || store.get().jobId !== id) return; // a newer loop or another job took over
     if (ev && ev.events.length > 0) {
-      cursor = ev.cursor;
-      patch.events = [...store.get().events, ...ev.events];
+      cursor = Math.max(cursor, ev.cursor);
+      // Merge by seq: an event can never appear twice, even if two polls overlap.
+      const known = new Set(store.get().events.map((e) => e.seq));
+      patch.events = [...store.get().events, ...ev.events.filter((e) => !known.has(e.seq))];
     }
     for (const k of ["fundOp", "refundOp"] as const) {
       const op = store.get()[k];
@@ -56,16 +61,19 @@ async function poll() {
 
 export function startLive(jobId: string | null) {
   stopLive();
+  const myGen = ++gen;
   cursor = 0;
   store.set({ mode: "live", jobId });
   const loop = async () => {
-    await poll();
-    timer = setTimeout(loop, POLL_MS);
+    await poll(myGen);
+    // stopLive cannot cancel a poll already in flight; a stale loop must not reschedule itself.
+    if (myGen === gen) timer = setTimeout(loop, POLL_MS);
   };
   void loop();
 }
 
 export function stopLive() {
+  gen++; // retire any loop, including one whose poll is still in flight
   if (timer) clearTimeout(timer);
   timer = null;
 }

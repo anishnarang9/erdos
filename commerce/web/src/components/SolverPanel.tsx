@@ -22,14 +22,24 @@ const COPY: Record<string, { icon: string; text: (e: RunEvent) => string; tone: 
 
 export function SolverPanel() {
   const events = useDemo((s) => s.events);
-  const provider = events.find((e) => e.data.provider)?.data.provider as string | undefined;
+  const selected = useDemo((s) => s.fundingTerms?.provider);
+  // Several agents may quote; once the buyer selects one, the panel follows that solver.
+  const assigned = events.find((e) => e.type === "solver.started")?.data.provider as string | undefined;
+  const provider = assigned ?? selected;
+  const quotes = events.filter((e) => e.type === "quote.created").length;
   const started = events.find((e) => e.type === "proof.started");
   const finished = events.find((e) => e.type === "proof.finished");
 
   return (
     <div className="panel" aria-labelledby="solver-title">
       <div className="panel-title" id="solver-title">◈ Solver agent</div>
-      {provider ? <Hash label="wallet" value={provider} /> : <p className="dim">Watching the job feed for work it can solve…</p>}
+      {provider ? (
+        <Hash label="selected solver" value={provider} />
+      ) : quotes > 1 ? (
+        <p className="dim">{quotes} solver agents quoted · the buyer chooses one</p>
+      ) : (
+        <p className="dim">Watching the job feed for work it can solve…</p>
+      )}
       <ProvingGrid {...(started ? { started } : {})} {...(finished ? { finished } : {})} />
       <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 8 }} aria-live="polite">
         <AnimatePresence initial={false}>
