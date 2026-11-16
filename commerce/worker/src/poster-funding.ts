@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import { join, resolve } from "node:path";
 import { randomUUID } from "node:crypto";
 import {
-  decodeEventLog, encodeAbiParameters, encodeFunctionData, getAddress, keccak256, parseTransaction,
+  decodeEventLog, decodeFunctionData, encodeAbiParameters, encodeFunctionData, getAddress, keccak256, parseTransaction,
   recoverTransactionAddress, serializeTransaction, stringToHex, zeroAddress,
   type Abi, type Address, type Hex, type LocalAccount, type Log, type TransactionSerialized,
 } from "viem";
@@ -10,6 +10,7 @@ import { arcCoreAbi, arcHookAbi, arcErc20Abi, openClaimSignatureAbi } from "@ubc
 import type { FundingTerms } from "../../api/src/chain.ts";
 import type { LocalBroadcasterPublic, LocalRawSend } from "./local-broadcaster.ts";
 import { ARC_MIN_FEE } from "./policy.ts";
+import { siblingNonceReservations } from "./account-reservations.ts";
 
 export interface PosterFundingPublic extends Omit<LocalBroadcasterPublic, "getTransactionReceipt"> {
   getTransactionReceipt(args: { hash: Hex }): Promise<Awaited<ReturnType<LocalBroadcasterPublic["getTransactionReceipt"]>> & { logs: readonly Log[] }>;
@@ -200,6 +201,12 @@ async function createFunding(input: PosterFundingConfig, confirmations?: bigint,
     };
     privateFile(lockPath, lock, lockStat);
     fs.writeFileSync(lock, lockToken); fs.fsyncSync(lock); ownedLock(); sync(directory);
+    const markerPath=join(directory,"poster-funding-created");
+    try {
+      const marker=fs.openSync(markerPath,fs.constants.O_CREAT|fs.constants.O_EXCL|fs.constants.O_WRONLY|fs.constants.O_NOFOLLOW,0o600);
+      try {fs.writeFileSync(marker,"initialized\n");fs.fsyncSync(marker);} finally {fs.closeSync(marker);}
+      sync(directory);
+    } catch(error) {if((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;privatePath(markerPath,false);}
     const journalPath = join(directory, "poster-funding.json");
     let journalIdentity: fs.Stats | undefined;
     let journal: Journal;
@@ -279,9 +286,14 @@ async function createFunding(input: PosterFundingConfig, confirmations?: bigint,
         await stable(block.number, block.hash);
         await chain();
         integrity();
-        const approvedData = encodeFunctionData({ abi: arcErc20Abi, functionName: "approve", args: [t.core, 1000000n] });
         const uncertain = Object.values(journal.runs).some(r => {
-          const a = r.entries.find(e => e.kind === "approve" && same(e.to, t.usdc) && same(e.data, approvedData));
+          const a = r.entries.find(e => {
+            if(e.kind !== "approve" || !same(e.to,t.usdc)) return false;
+            try {
+              const call=decodeFunctionData({abi:arcErc20Abi,data:e.data});
+              return call.functionName === "approve" && same(call.args[0],t.core) && call.args[1]>0n;
+            } catch {return true;}
+          });
           // Inspection deliberately does not revalidate all historical receipts.
           // Never treat a cached confirmation as evidence against a pending approval after reorg.
           return a !== undefined;
@@ -427,7 +439,8 @@ async function createFunding(input: PosterFundingConfig, confirmations?: bigint,
               const pending = await pub.nonce({ address: buyer, blockTag: "pending" });
               check(Number.isSafeInteger(pending) && pending >= 0);
               const all = Object.values(journal.runs).flatMap(r => r.entries);
-              const nonce = Math.max(pending, ...all.map(x => x.nonce + 1));
+              const nonce = Math.max(pending, ...all.map(x => x.nonce + 1),
+                ...siblingNonceReservations(directory,buyer,"funding").map(n=>n+1));
               check(Number.isSafeInteger(nonce));
               const maximum = cfg.maxGas * cfg.maxFeePerGas;
               check(all.reduce((n, x) => n + BigInt(x.maximum), 0n) + maximum <= cfg.nativeGasBudget);

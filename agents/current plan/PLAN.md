@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 08:10 -05:00 — Anish — Fractional live authority and real API staged
+
+- The user approved two 0.01-USDC jobs, a separate 0.01-USDC Gateway deposit, a 0.000001-USDC service charge, and at most 0.1235 USDC total gas at 25 gwei. The [main preview](../anish/reports/open-claim-arc-spend-preview-2026-11-16.json) and [Gateway calls](../anish/reports/circle-gateway-deposit-preview-2026-11-16.json) record the exact authority.
+- Protected buyer, solver, rejection, refund and recovery paths pass local checks. Review fixes cover journal initialization, fractional approval uncertainty and cross-journal nonce reservations. [Real API preflight](../anish/reports/open-claim-live-preflight-2026-11-16.json) staged approval, real compilation and the unpaid Gateway challenge. No live payment or funded proof is established.
+- Complete final combined-head CI. The user will fund the generated wallets when notified. The separate contract/deployment chat must publish the verified adapter manifest before the fresh Arc-funded proof can begin. Keep one prover. The Goal remains incomplete until the required receipts, balance changes, exact recovery and separate refund exist.
+
 ## 2026-11-16 07:44 -05:00 — Anish — Prepare the live open-claim run
 
 - The current Goal assigns API, SDK, worker, proof execution and buyer recovery to PR #7 on `codex/open-escrow-rescue`. The separate escrow chat owns contracts and deployment. Integrate only its published commits after `8b9589d`, starting with `3f0ecbf`.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "proposal-not-authorized",
+  "status": "approved-awaiting-funding-and-adapter",
   "network": "arc-testnet",
   "chainId": 5042002,
   "core": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
@@ -35,7 +35,7 @@
   "circleServiceChargeAtomic": "1",
   "circleServiceChargeUsdc": "0.000001",
   "circleServiceChargeIncludedInBounty": false,
-  "circleGatewayDepositAuthorized": false,
+  "circleGatewayDepositAuthorized": true,
   "expiryPolicy": {
     "measuredProofSeconds": 1053,
     "proveBudgetSeconds": 1800,
@@ -46,11 +46,9 @@
   },
   "missing": [
     "verified adapter manifest from contracts chat",
-    "testnet funding for the generated buyer and solver wallets",
-    "approval of the revised exact bounty and gas caps",
-    "a separately approved Gateway deposit and its gas cap"
+    "testnet funding for the generated buyer and solver wallets"
   ],
-  "note": "Revision 2 follows the user request for fractional bounties. Current Arc gas price read: 25 gwei. Limits are conservative maximum reservations, not estimated fees or spending approval. The separate refund returns 0.01 USDC. Gateway deposit principal and deposit gas require a separate preview. No live write or payment was sent.",
+  "note": "The user approved revision 2, a separate 0.01-USDC Gateway deposit, a 0.000001-USDC service charge, and a total 0.1235-USDC gas cap at 25 gwei. No transaction or payment was sent. Gateway principal remains in the buyer balance except for the approved service charge. Full live evidence remains pending.",
   "revision": 2,
   "localGasMeasurements": {
     "createJob": 197676,
@@ -62,5 +60,17 @@
     "release": 186364,
     "mainJobCostAtCurrent25GweiUsdc": "0.032088425",
     "limits": "Gas counts come from prior local receipts. They are not live gas estimates."
-  }
+  },
+  "approval": {
+    "date": "2026-11-16",
+    "source": "Explicit user approval in this Goal",
+    "bountyAtomicPerJob": "10000",
+    "jobs": 2,
+    "gatewayDepositAtomic": "10000",
+    "serviceChargeAtomic": "1",
+    "totalGasCapNative": "123500000000000000",
+    "maxFeePerGas": "25000000000"
+  },
+  "maximumTotalGasIncludingGatewayDepositNative": "123500000000000000",
+  "maximumBountyGasAndGatewayDepositUsdc": "0.1535"
 }

@@ -97,6 +97,29 @@ async function run(f: Awaited<ReturnType<typeof fixture>>) {
   try { return await helper.run(); } finally { await helper.close(); }
 }
 describe("Poster funding", () => {
+  it("blocks unresolved refund sends and reserves sibling refund nonces before funding", async () => {
+    const f=await fixture(),h=await createPosterFunding(f.cfg),path=join(h.directory,"refund-journal.json");
+    const sibling={version:1,account:account.address,entries:[{nonce:7,stage:"intent"}]};
+    try {
+      await writeFile(path,JSON.stringify(sibling),{mode:0o600});
+      await expect(h.run()).rejects.toThrow();expect(f.rawSend).not.toHaveBeenCalled();
+      sibling.entries[0]!.stage="confirmed";await writeFile(path,JSON.stringify(sibling));
+      await h.run();expect(parseTransaction(f.rawSend.mock.calls[0]![0].params[0]).nonce).toBe(8);
+    } finally {await h.close();}
+  });
+  it("reports a possibly pending fractional approval even when observed allowance remains zero", async () => {
+    const f=await fixture(true,10000n),send=f.rawSend.getMockImplementation()!;
+    f.rawSend.mockImplementation(async (...args:any[])=>{
+      if(f.rawSend.mock.calls.length===3) throw Error("approval response lost before receipt visibility");
+      return send(args[0],args[1]);
+    });
+    const {hook:adapter,provider:_provider,...terms}=f.cfg.terms;
+    const h=await createOpenClaimBuyerFunding({...f.cfg,terms:{...terms,adapter},confirmations:0n,verifyDeployment:async()=>{}});
+    try {
+      const error=await h.run().catch(e=>e);
+      expect(error.disposition).toMatchObject({allowanceMayRemain:true,cleanupRequired:"manual-review",remainingAllowance:0n});
+    } finally {await h.close();}
+  });
   it("funds a fractional 0.01-USDC bounty without rounding", async () => {
     const f = await fixture(true, 10000n);
     const { hook: adapter, provider: _provider, ...terms } = f.cfg.terms;

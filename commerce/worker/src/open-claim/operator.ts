@@ -2,9 +2,9 @@ import { closeSync, existsSync, fsyncSync, mkdirSync, openSync, readFileSync, un
 import { execFileSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { bytesToHex, createPublicClient, http, type Hex } from "viem";
-import { parseProofJson } from "@ubc26/sdk";
-import { createOpenClaimBroadcaster, type LocalBroadcaster, type LocalRawSend } from "../local-broadcaster.ts";
+import { bytesToHex, createPublicClient, decodeEventLog, encodeFunctionData, http, zeroAddress, type Hex } from "viem";
+import { arcCoreAbi, arcErc20Abi, openClaimSignatureAbi, parseProofJson } from "@ubc26/sdk";
+import { createOpenClaimBroadcaster, createOpenClaimRefundBroadcaster, type LocalBroadcaster, type LocalRawSend } from "../local-broadcaster.ts";
 import { loadOperatorKeystore } from "../operator-keystore.ts";
 import { createOpenClaimBuyerFunding } from "../poster-funding.ts";
 import { readOperatorJson, privateDirectory, requireSprint, sprintAddress, sprintHash, decimal, readSafeFile } from "../sprint-authorization.ts";
@@ -18,11 +18,11 @@ import { recoverOpenClaimFromChain } from "./recovery.ts";
 import type { OpenClaimFundedJob } from "./types.ts";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
-const sourcePaths = ["commerce/worker/src", "commerce/sdk/src", "commerce/api/src", "commerce/pnpm-lock.yaml", "contracts/src", "contracts/abi"];
+const sourcePaths = ["commerce/worker/src", "commerce/sdk/src", "commerce/api/src", "commerce/pnpm-lock.yaml", "contracts/src", "contracts/vendor", "contracts/abi"];
 const json = (value: unknown) => JSON.stringify(value, (_, v: unknown) => typeof v === "bigint" ? String(v) : v);
 const positive = (v: unknown) => { const n = BigInt(decimal(v)); requireSprint(n > 0n); return n; };
 
-export const OPEN_CLAIM_OPERATOR_COMMANDS = ["preview", "fund", "prepare", "run", "recover", "circle"] as const;
+export const OPEN_CLAIM_OPERATOR_COMMANDS = ["preview", "fund", "prepare", "run", "recover", "negative", "refund", "circle"] as const;
 export function parseOpenClaimOperatorArgs(args: string[]) {
   const [command, flag, config, ...rest] = args;
   requireSprint(OPEN_CLAIM_OPERATOR_COMMANDS.includes(command as any) && flag === "--config" && config &&
@@ -52,6 +52,16 @@ export async function openClaimOperator(args: string[]) {
   requireSprint(c.version === 1 && c.mode === "open-claim" && c.chainId === 5042002);
   const buyer = sprintAddress(c.buyer.address), solver = sprintAddress(c.solver.address);
   requireSprint(buyer !== solver);
+  if (parsed.command === "circle") {
+    cleanSource(c.sourceCommit); privateDirectory(c.directory);
+    requireSprint(c.circle?.authorized === true && c.signingAuthorized === true && parsed.passwordFd !== undefined && process.env.BUYER_API_TOKEN);
+    const loaded = await loadOperatorKeystore({ mode: "signing", keystorePath: c.buyer.keystorePath,
+      expectedAddress: buyer, passwordSource: { kind: "fd", fd: parsed.passwordFd } });
+    requireSprint(loaded.mode === "signing");
+    return runCirclePaidCompile({ account: loaded.account, url: c.circle.url, payTo: sprintAddress(c.circle.payTo),
+      amount: positive(c.circle.amount), revisionHash: sprintHash(c.circle.revisionHash ?? c.approval?.revision),
+      buyerToken: process.env.BUYER_API_TOKEN, directory: join(c.directory, "circle-payment") });
+  }
   const a = c.approval, budget = positive(a.budget), expiry = positive(a.expiry);
   const approval = { revision: sprintHash(a.revision), buyer, imageId: sprintHash(a.imageId), rulesHash: sprintHash(a.rulesHash),
     referenceHash: sprintHash(a.referenceHash), budget, expiry, description: String(a.description) };
@@ -73,12 +83,6 @@ export async function openClaimOperator(args: string[]) {
       expectedAddress: role === "buyer" ? buyer : solver, passwordSource: { kind: "fd", fd: parsed.passwordFd } });
     requireSprint(loaded.mode === "signing"); return loaded.account;
   };
-  if (parsed.command === "circle") {
-    requireSprint(c.circle && c.circle.authorized === true && process.env.BUYER_API_TOKEN);
-    return runCirclePaidCompile({ account: await load("buyer"), url: c.circle.url, payTo: sprintAddress(c.circle.payTo),
-      amount: positive(c.circle.amount), revisionHash: approval.revision, buyerToken: process.env.BUYER_API_TOKEN,
-      directory: join(c.directory, "circle-payment") });
-  }
   const url = new URL(c.rpcUrl);
   const local = url.protocol === "http:" && ["127.0.0.1", "localhost"].includes(url.hostname);
   requireSprint((local || url.protocol === "https:") && !url.username && !url.password);
@@ -123,7 +127,57 @@ export async function openClaimOperator(args: string[]) {
   const snap = await readPort.snapshot(jobId);
   const job: OpenClaimFundedJob = { ...manifest.witness, jobId,
     buyer, solver, imageId: approval.imageId, rulesHash: approval.rulesHash, referenceHash: approval.referenceHash, budget, expiry };
-  requireSprint(snap.terms.buyer === buyer && snap.terms.imageId.toLowerCase() === approval.imageId.toLowerCase());
+  const same = (a:string,b:string) => a.toLowerCase() === b.toLowerCase();
+  requireSprint(same(snap.terms.buyer,buyer) && same(snap.terms.imageId,approval.imageId) &&
+    same(snap.terms.rulesHash,approval.rulesHash) && same(snap.terms.referenceHash,approval.referenceHash) &&
+    snap.terms.budget === budget && snap.terms.expiry === expiry && snap.job.budget === budget && snap.job.expiredAt === expiry &&
+    same(snap.job.provider,job.adapter) && same(snap.job.evaluator,job.adapter) && same(snap.job.hook,zeroAddress) &&
+    same(snap.token,job.usdc) && snap.platformFeeBP === 0n && snap.evaluatorFeeBP === 0n);
+  if (parsed.command === "negative" || parsed.command === "refund") {
+    requireSprint(c.purpose === "expiry-refund");
+    const refund = parsed.command === "refund", gas = refund ? positive(c.gas.refund) : claimGas;
+    const account = await load(refund ? "buyer" : "solver");
+    const envelope = "0x01" as Hex, seal = `0xe71e6620${"00".repeat(256)}` as Hex, commitment = `0x${"00".repeat(32)}` as Hex;
+    const data = refund ? encodeFunctionData({abi:arcCoreAbi,functionName:"claimRefund",args:[jobId]})
+      : encodeFunctionData({abi:openClaimSignatureAbi,functionName:"claim",args:[jobId,envelope,seal,commitment]});
+    const common = {account,provider:account.address,chainId:5042002,core:job.core,adapter:job.adapter,jobId,expiresAt:expiry,
+      validUntil:expiry+3600n,maxGas:gas,maxFeePerGas:fee,maxPriorityFeePerGas:priority,journalRoot:c.journalRoot,public:signingPublic,rawSend};
+    const broadcaster = refund ? await createOpenClaimRefundBroadcaster({...common,totalBudget:gas*fee})
+      : await createOpenClaimBroadcaster({...common,submitDeadline:expiry-120n,releaseDeadline:expiry-60n,validUntil:expiry-60n,
+        totalBudget:solverBudget,releaseGas:1n,authorizations:[{kind:"claim",jobId,caller:solver,envelope,seal,keyCommitment:commitment,gas}]});
+    try {
+      const tx = {chainId:5042002,to:refund?job.core:job.adapter,data,value:0n,gas,maxFeePerGas:fee,maxPriorityFeePerGas:priority};
+      let hash = await broadcaster.transactionHash(tx);
+      if (!hash) {
+        requireSprint(!snap.released && !snap.submission?.accepted && snap.job.status === "Funded" &&
+          (refund ? snap.timestamp >= expiry : snap.timestamp < expiry));
+        try {hash=await broadcaster.broadcast(tx);} catch {hash=await broadcaster.transactionHash(tx);requireSprint(hash);}
+      }
+      let receipt;
+      try {receipt=await pub.getTransactionReceipt({hash});} catch {return {phase:`${parsed.command}_sent`,jobId:String(jobId),transactionHash:hash,resend:false};}
+      if(await pub.getBlockNumber({cacheTime:0}) < receipt.blockNumber+3n) return {phase:`${parsed.command}_sent`,jobId:String(jobId),transactionHash:hash,resend:false};
+      const cost = await broadcaster.reconcile(hash);
+      requireSprint(cost.status === (refund ? "success" : "reverted"));
+      if (refund) {
+        const events = receipt.logs.flatMap(log=>{
+          try {return [{address:log.address,...decodeEventLog({abi:same(log.address,job.usdc)?arcErc20Abi:arcCoreAbi,data:log.data,topics:log.topics})}];}
+          catch{return [];}
+        });
+        const refunds=events.filter(e=>same(e.address,job.core)&&e.eventName==="Refunded") as any[];
+        const transfers=events.filter(e=>same(e.address,job.usdc)&&e.eventName==="Transfer") as any[];
+        requireSprint(refunds.length===1 && refunds[0].args.jobId===jobId && same(refunds[0].args.client,buyer) && refunds[0].args.amount===budget &&
+          transfers.some(e=>same(e.args.from,job.core)&&same(e.args.to,buyer)&&e.args.value===budget) &&
+          (await readPort.snapshot(jobId)).job.status === "Expired");
+      } else requireSprint((await readPort.snapshot(jobId)).submission === null &&
+        (await pub.getBlock({blockNumber:receipt.blockNumber})).timestamp < expiry);
+      const address=account.address;
+      const before=await pub.getBalance({address,blockNumber:receipt.blockNumber-1n}),after=await pub.getBalance({address,blockNumber:receipt.blockNumber});
+      requireSprint(after-before+cost.spent === (refund ? budget*1_000_000_000_000n : 0n));
+      const result={phase:refund?"refunded":"invalid_claim_rejected",jobId:String(jobId),transactionHash:hash,
+        amountAtomic:refund?String(budget):"0",nativeBefore:String(before),nativeAfter:String(after),gasCostNative:String(cost.spent),balanceCheck:true};
+      writeResult(c.directory,`${parsed.command}-result.json`,result);return result;
+    } finally {await broadcaster.close();}
+  }
   if (parsed.command === "recover") {
     const state = readOperatorJson(join(c.attemptDir,"state.json")) as any;
     return recoverOpenClaimFromChain({ publicClient:pub,port:readPort,witness:manifest.witness,job,

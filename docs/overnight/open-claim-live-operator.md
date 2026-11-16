@@ -10,6 +10,8 @@ pnpm open-claim:operator fund --config /absolute/private/run.json --password-fd 
 pnpm open-claim:operator prepare --config /absolute/private/run.json
 pnpm open-claim:operator run --config /absolute/private/run.json --password-fd 3 3</absolute/private/solver.password
 pnpm open-claim:operator recover --config /absolute/private/run.json
+pnpm open-claim:operator negative --config /absolute/private/refund-job.json --password-fd 3 3</absolute/private/solver.password
+pnpm open-claim:operator refund --config /absolute/private/refund-job.json --password-fd 3 3</absolute/private/buyer.password
 pnpm open-claim:operator circle --config /absolute/private/run.json --password-fd 3 3</absolute/private/buyer.password
 ```
 
@@ -39,12 +41,14 @@ The proposed main expiry is current confirmed chain time plus 3,600 seconds. The
 
 `recover` reads the public claim transaction and confirmed key event. It checks exact context and payout receipts, SDK and engine recovery, and gas-adjusted native USDC balances. Its output excludes the release key. The independent workload oracle remains a separate check.
 
+`negative` sends one deliberately invalid seal to the separate funded refund job. It sends no release key. It requires a reverted canonical receipt and no payout. `refund` calls only `core.claimRefund(jobId)` after that job expires. It requires the exact refund event, core-to-buyer token transfer, expired core state, and gas-adjusted buyer balance gain. Both commands reconcile saved hashes before another signing attempt. Funding and refund share the buyer lock and inspect each other's nonce reservations.
+
 ## Circle Gateway service payment
 
 Circle Gateway's [official schema](https://developers.circle.com/openapi/gateway-nanopayments.yaml) returns a transfer UUID from settlement. The API marks this `gateway-batch-accepted` with `onchainConfirmed: false`. A UUID is not a chain transaction hash. Follow [Circle's reconciliation process](https://developers.circle.com/gateway-nanopayments/howtos/x402-seller-reconciliation) to obtain later transfer status, batch receipts and Gateway balance changes.
 
 Configure the API with `X402_SETTLEMENT_MODE=circle-gateway`, `X402_FACILITATOR_URL=https://gateway-api-testnet.circle.com/v1/x402`, its resource origin, seller `X402_PAY_TO`, and `X402_AMOUNT=1` for a 0.000001-USDC service charge. Set `X402_EXTRA_JSON` to the USDC domain from [Circle's signing guide](https://developers.circle.com/gateway-nanopayments/howtos/eip-3009-signing): `name: GatewayWalletBatched`, `version: 1`, `verifyingContract: 0x0077777d7eba4688bdef3e311b846f25870a19b9`. The current capability endpoint requires 604,800 seconds of authorization validity.
 
-The buyer must deposit a separately approved amount into Gateway before paying. The payment client cannot approve tokens, deposit, or fund escrow. It checks the 402 against the approved URL, recipient and exact amount. It saves one signature privately and repeats that signature after a lost response. It requires a successful compile response and an exact replay with no second charge. Its signature uses the Gateway domain rather than the USDC token domain.
+The buyer must deposit the approved 0.01 USDC into Gateway before paying. The [deposit preview](../../agents/anish/reports/circle-gateway-deposit-preview-2026-11-16.json) contains exact approval and deposit calldata and a separate 0.00575-USDC gas cap. The payment client cannot approve tokens, deposit, or fund escrow. Run `circle` on an approved revision before ordinary compilation stores its manifest. It checks the 402 against the approved URL, recipient and exact amount. It saves one signature privately and repeats that signature after a lost response. It requires a successful compile response and an exact replay with no second charge. Its signature uses the Gateway domain rather than the USDC token domain. The command can run before the adapter manifest exists.
 
 The local facilitator tests remain local tests. Only an actual Gateway result, later batch receipt, and balance evidence can establish live payment and settlement.

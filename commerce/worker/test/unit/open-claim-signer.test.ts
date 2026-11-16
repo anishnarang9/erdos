@@ -1,10 +1,11 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { mkdtemp, realpath, readFile } from "node:fs/promises";
+import { mkdtemp, realpath, readFile, mkdir, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { keccak256, sha256, type Hex } from "viem";
+import { encodeFunctionData, keccak256, parseTransaction, sha256, type Hex } from "viem";
+import { arcCoreAbi } from "@ubc26/sdk";
 import { privateKeyToAccount } from "viem/accounts";
-import { createOpenClaimBroadcaster, type OpenClaimBroadcasterConfig } from "../../src/local-broadcaster.ts";
+import { createOpenClaimBroadcaster, createOpenClaimRefundBroadcaster, type OpenClaimBroadcasterConfig } from "../../src/local-broadcaster.ts";
 import { encodeOpenClaimClaim } from "../../src/open-claim/encode.ts";
 import { ARC_MIN_FEE } from "../../src/policy.ts";
 
@@ -63,4 +64,39 @@ it("refuses a claim when the gas budget cannot also cover release", async () => 
   const b = await createOpenClaimBroadcaster(f.cfg); close.push(b.close);
   await expect(b.broadcast(f.tx)).rejects.toThrow();
   expect(f.rawSend).not.toHaveBeenCalled();
+});
+it("signs only the exact expired-job refund and keeps a durable hash after RPC loss", async () => {
+  const f = await fixture(); let at = 99n;
+  f.cfg.public.getBlock = async () => ({ number:10n, hash:sha256("0xab"), timestamp:at });
+  const b = await createOpenClaimRefundBroadcaster({ ...f.cfg, expiresAt:100n, validUntil:200n, now:()=>at }); close.push(b.close);
+  const tx = { ...f.tx, to:core, data:encodeFunctionData({abi:arcCoreAbi,functionName:"claimRefund",args:[7n]}) } as const;
+  await expect(b.broadcast(tx)).rejects.toThrow(); expect(f.rawSend).not.toHaveBeenCalled();
+  at = 100n;
+  await expect(b.broadcast({ ...tx, data:f.tx.data })).rejects.toThrow();
+  let hash: Hex | undefined;
+  f.rawSend.mockImplementation(async r => { hash=keccak256(r.params[0]);throw Error("lost"); });
+  await expect(b.broadcast(tx)).rejects.toThrow();
+  expect(await b.transactionHash(tx)).toBe(hash);
+  await expect(b.broadcast(tx)).rejects.toThrow();expect(f.rawSend).toHaveBeenCalledTimes(1);
+});
+it("opens a refund journal after buyer funding created the account directory, then refuses journal loss", async () => {
+  const f=await fixture();
+  await mkdir(join(f.cfg.journalRoot,account.address.toLowerCase()),{mode:0o700});
+  const config={...f.cfg,expiresAt:100n,validUntil:200n};
+  const b=await createOpenClaimRefundBroadcaster(config);
+  expect(b.journalPath).toContain("refund-journal.json");
+  await b.close();await unlink(b.journalPath);
+  await expect(createOpenClaimRefundBroadcaster(config)).rejects.toThrow();
+});
+it("blocks unresolved funding and reserves sibling funding nonces before a refund", async () => {
+  const f=await fixture();
+  const b=await createOpenClaimRefundBroadcaster({...f.cfg,expiresAt:100n,validUntil:200n});close.push(b.close);
+  const path=join(b.directory,"poster-funding.json");
+  const sibling={version:1,buyer:account.address,runs:{job:{entries:[{nonce:5,stage:"signed"}]}}};
+  await writeFile(path,JSON.stringify(sibling),{mode:0o600});
+  const tx={...f.tx,to:core,data:encodeFunctionData({abi:arcCoreAbi,functionName:"claimRefund",args:[7n]})} as const;
+  await expect(b.broadcast(tx)).rejects.toThrow();expect(f.rawSend).not.toHaveBeenCalled();
+  sibling.runs.job.entries[0]!.stage="confirmed";await writeFile(path,JSON.stringify(sibling));
+  await b.broadcast(tx);
+  expect(parseTransaction(f.rawSend.mock.calls[0]![0].params[0]).nonce).toBe(6);
 });
