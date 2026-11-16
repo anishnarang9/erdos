@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 10:20 -05:00 — Anish — Retry after proven Docker OOM with preserved budgets
+
+- Job 6 passed the live invalid-claim and exact separate expiry-refund checks. Job 5's fresh proof stopped at Docker Groth16 OOM, before any claim or key release. Preserve it and refund its bounty after expiry. Use the repo's documented low-memory Docker wrapper for the new positive attempt. Docker now has 12 GiB, and the wrapper's Go limits/env are verified. One prover only.
+- The user explicitly authorized continued testnet spending without another permission question. One extra 0.01-USDC positive job and one cleanup refund use bounded cumulative reservations: buyer funding 0.10875 USDC, refunds 0.0075 USDC, aggregate gas ceiling 0.25 USDC. All prior entries, nonces and maximum charges remain. Per-call and 25-gwei caps stay unchanged.
+- New API job `01M7JEZTWQ3DP0NWNKHVJB56SK` repeats the approved workload. Require current combined CI, a fresh 4,500-second expiry, actual funded context, fresh proof, payout and byte-exact recovery. The first failed attempt remains evidence of a failed attempt. The earlier real Circle call/replay remains accepted with batch settlement pending.
+
 ## 2026-11-16 09:18 -05:00 — Anish — Adapter verified and real paid API accepted
 
 - Integrate the contract chat's published `ed50964` manifest. Adapter `0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8` passed independent checks and the real worker read-only gates. A separately approved deployer paid 0.063471175 testnet USDC. The buyer nonce remains 3. The unused buyer creation authority/config is superseded and disabled. Do not deploy another adapter.

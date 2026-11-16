@@ -88,6 +88,24 @@ it("opens a refund journal after buyer funding created the account directory, th
   await b.close();await unlink(b.journalPath);
   await expect(createOpenClaimRefundBroadcaster(config)).rejects.toThrow();
 });
+it("reserves two different expired-job refunds against one cumulative buyer budget", async()=>{
+  const f=await fixture(),seen=new Map<Hex,any>(),blockHash=sha256("0xab");
+  f.rawSend.mockImplementation(async r=>{const t=parseTransaction(r.params[0]),hash=keccak256(r.params[0]);
+    seen.set(hash,{...t,hash,from:account.address,value:t.value??0n,input:t.data??"0x",maxPriorityFeePerGas:t.maxPriorityFeePerGas??0n,blockNumber:10n,blockHash});return hash;});
+  f.cfg.public.getTransaction=async({hash})=>seen.get(hash);
+  f.cfg.public.getTransactionReceipt=async({hash})=>({transactionHash:hash,from:account.address,to:core,blockNumber:10n,blockHash,gasUsed:90_000n,effectiveGasPrice:ARC_MIN_FEE,status:"success"});
+  let b;
+  try {
+    for(const jobId of [7n,8n]){
+      b=await createOpenClaimRefundBroadcaster({...f.cfg,jobId,expiresAt:100n,validUntil:200n});
+      const tx={...f.tx,to:core,data:encodeFunctionData({abi:arcCoreAbi,functionName:"claimRefund",args:[jobId]})} as const;
+      const hash=await b.broadcast(tx);await b.reconcile(hash);await b.close();
+    }
+    const j=JSON.parse(await readFile(b!.journalPath,"utf8"));
+    expect(j.entries.map((e:any)=>e.nonce)).toEqual([0,1]);
+    expect(j.entries.every((e:any)=>e.charged===e.maximum&&e.stage==="confirmed")).toBe(true);
+  } finally {await b?.close();await rm(f.cfg.journalRoot,{recursive:true,force:true});}
+});
 it("blocks unresolved funding and reserves sibling funding nonces before a refund", async () => {
   const f=await fixture();
   // readSafeFile rejects world-writable /tmp ancestors on Linux.

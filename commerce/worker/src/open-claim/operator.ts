@@ -199,7 +199,9 @@ export async function openClaimOperator(args: string[]) {
       : encodeFunctionData({abi:openClaimSignatureAbi,functionName:"claim",args:[jobId,envelope,seal,commitment]});
     const common = {account,provider:account.address,chainId:5042002,core:job.core,adapter:job.adapter,jobId,expiresAt:expiry,
       validUntil:expiry+3600n,maxGas:gas,maxFeePerGas:fee,maxPriorityFeePerGas:priority,journalRoot:c.journalRoot,public:signingPublic,rawSend};
-    const broadcaster = refund ? await createOpenClaimRefundBroadcaster({...common,totalBudget:gas*fee})
+    const refundBudget = refund && c.gas.refundTotal !== undefined ? positive(c.gas.refundTotal) : gas*fee;
+    requireSprint(refundBudget >= gas*fee);
+    const broadcaster = refund ? await createOpenClaimRefundBroadcaster({...common,totalBudget:refundBudget})
       : await createOpenClaimBroadcaster({...common,submitDeadline:expiry-120n,releaseDeadline:expiry-60n,validUntil:expiry-60n,
         totalBudget:solverBudget,releaseGas:1n,authorizations:[{kind:"claim",jobId,caller:solver,envelope,seal,keyCommitment:commitment,gas}]});
     try {
