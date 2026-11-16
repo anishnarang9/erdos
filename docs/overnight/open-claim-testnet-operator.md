@@ -48,9 +48,11 @@ Compare the outputs with the manifest and the compiled adapter ABI. Stop if the 
 
 ## Authorized adapter deployment
 
-The following command is a prepared **live write**. It requires the operator's exact deployment and gas approval. Set `OPERATOR_KEYSTORE` to a Foundry keystore name and `OPERATOR_ADDRESS` to its address. These flags match the pinned Arc Foundry `forge create --help`. The constructor creation data has Keccak-256 `0xad7f68985c4978a117d467a8e89321f0b6d4b539492cd34beb1280f104b321d6`. At block `72554683`, `eth_estimateGas` returned 2,560,164 gas from a neutral public address. The proposed 3,000,000 gas limit and 25-gwei max fee cap the gas charge at 0.075 USDC; the estimate at that price is 0.0640041 USDC. The actual approved sender and a fresh block need a new estimate before signing. Never put a raw key in this command, a report or an agent prompt.
+The following command is a prepared **live write**. It requires the operator's exact deployment and gas approval. The dedicated encrypted Foundry keystore is `ubc26-openclaim-arc-testnet`, and its public address is `0xA2416Eb8159606C133298fF113a472608E6F9Fb7`. Its password is stored in macOS Keychain, not in this document. These flags match the pinned Arc Foundry `forge create --help`. The constructor creation data has Keccak-256 `0xad7f68985c4978a117d467a8e89321f0b6d4b539492cd34beb1280f104b321d6`. At block `72563030`, `eth_estimateGas` from this funded signer returned 2,560,164 gas. The proposed 3,000,000 gas limit and 25-gwei max fee cap the gas charge at 0.075 testnet USDC; the estimate at that price is 0.0640041 USDC. Recheck at a new confirmed block before signing. Never put a raw key in this command, a report or an agent prompt.
 
 ```sh
+OPERATOR_KEYSTORE=ubc26-openclaim-arc-testnet
+OPERATOR_ADDRESS=0xA2416Eb8159606C133298fF113a472608E6F9Fb7
 : "${ARC_RPC_URL:?Set the approved Arc RPC URL}"
 : "${ARC_FORGE:?Set the pinned Arc Forge path}"
 : "${OPERATOR_KEYSTORE:?Set the approved Foundry keystore name}"

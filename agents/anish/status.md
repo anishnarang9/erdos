@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 09:01 -05:00 — Anish — Dedicated Arc deployer funded; broadcast cap pending
+
+- The user asked for a reusable CLI wallet. A dedicated encrypted Foundry keystore was created locally, its password stored in macOS Keychain, and an unlock check passed without printing a secret. The public deployer is `0xA2416Eb8159606C133298fF113a472608E6F9Fb7`. After explicit faucet approval, Circle sent 20 Arc Testnet USDC; [the transaction](https://testnet.arcscan.app/tx/0x07dc82fda622993c71cce5d389f2e2aa141945e39ef5f1a87569055ed120e292) succeeded in block 72562912. No wallet transaction was signed here.
+- The [updated preflight](reports/open-claim-arc-preflight-2026-11-16.md) checks the actual signer at fixed block 72563030: balance 20 USDC, nonce 0, estimate 2,560,164 gas. Core/verifier/token pins and zero fees still match; no new privilege or upgrade events occurred since the earlier complete replay. The creation hash is unchanged.
+- The wallet-creation reply did not explicitly approve the live deployment gas cap. The single remaining decision is approval of one adapter creation at gas limit at most 3,000,000 and max fee at most 25 gwei (maximum 0.075 testnet USDC). The adapter remains undeployed and its manifest fields remain null. After approval, recheck current state, broadcast once, verify receipt/runtime/immutables and publish the deployed manifest.
+
 ## 2026-11-16 08:54 -05:00 — Anish — Contract handoff and Arc deployment preflight
 
 - Branch `codex/overnight-open-escrow` pushed contract checkpoint `3f0ecbf`; the exact adapter ABI and selectors were sent to the “Complete UBC-26 proof commerce” chat, which owns PR #7 integration and final CI. An independent Grok 4.7 High source/ABI audit found no concrete P1/P2 issue and reran 48 offline open-claim tests with no failures. No commerce code was edited here.

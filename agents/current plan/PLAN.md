@@ -2,6 +2,11 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 09:01 -05:00 — Anish — Arc deployer ready; one spending decision remains
+
+- The user authorized creation of a reusable CLI wallet and use of Circle's public faucet. The new encrypted Foundry keystore unlocked successfully; the faucet transaction confirmed 20 Arc Testnet USDC for its public address. [Updated preflight](../anish/reports/open-claim-arc-preflight-2026-11-16.md) verifies the actual signer at block 72563030 with nonce 0, 2,560,164-gas estimate, unchanged code/fee pins and no new privilege events.
+- The user's wallet instruction did not explicitly approve a live broadcast limit. One adapter creation remains pending a clear 3,000,000-gas, 25-gwei maximum fee authorization (0.075 testnet USDC ceiling). Keep adapter manifest fields null until confirmed deployment. The contract handoff to PR #7 integration is already published; this chat owns the live adapter decision and, if approved, verification.
+
 ## 2026-11-16 08:54 -05:00 — Anish — Contract handoff published; live adapter operator gate
 
 - The corrected adapter, deployment guard, ABI and adversarial tests are pushed on `codex/overnight-open-escrow` at `3f0ecbf`. The exact interface was sent to “Complete UBC-26 proof commerce” for PR #7 integration and final CI. An independent source/ABI review found no concrete P1/P2 issue. This branch made no commerce edits.
