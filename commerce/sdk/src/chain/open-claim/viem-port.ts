@@ -26,13 +26,18 @@ function pinnedBlock(head: bigint, confirmations: bigint): bigint {
 /** Build a read-only Arc port. It never signs, sends, or retries a transaction. */
 export function createViemOpenClaimPort(
   client: PublicClient,
-  options: { confirmations?: bigint } = {},
+  options: { confirmations?: bigint; blockNumber?: bigint } = {},
 ): OpenClaimChainPort {
   const confirmations = options.confirmations ?? 0n;
+  const fixedBlock = options.blockNumber;
   if (confirmations < 0n) throw new OpenClaimError("unsupported_terms", "confirmations cannot be negative");
 
   async function atBlock(): Promise<bigint> {
-    return pinnedBlock(await client.getBlockNumber({ cacheTime: 0 }), confirmations);
+    const confirmed = pinnedBlock(await client.getBlockNumber({ cacheTime: 0 }), confirmations);
+    if (fixedBlock !== undefined && (fixedBlock < 0n || fixedBlock > confirmed)) {
+      throw new OpenClaimError("awaiting_receipt", "fixed block is outside the confirmation margin");
+    }
+    return fixedBlock ?? confirmed;
   }
 
   return {

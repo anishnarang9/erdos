@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 07:30 -05:00 — Anish — Five-step protected buyer flow
+
+- PR #7 now has a buyer helper for exact `createJob`, `setBudget`, USDC `approve`, `fund`, and adapter `register`. The helper checks transaction identity, confirmed receipts, exact funding transfers, zero hook, full budget, registered commitments, and final allowance. It retains gas reservations and saved hashes across retries.
+- Added fixed-block SDK reads so live deployment checks and job reads share one confirmed anchor while Arc produces new blocks. Added an independent deployment-pin check before each new buyer signature.
+- Checks: 71 buyer tests, 21 open-claim tests, the fixed-block SDK regression, and worker typecheck pass. Four buyer cases cover first completion and dropped responses at create, approval and registration. The prior protected-signer checkpoint is pushed at `843f842`.
+- Prepared a conservative spend preview for two 1-USDC jobs, at most 0.3025 USDC native gas, and a separate proposed 0.01-USDC API charge. Requested the missing protected signers, exact approval and Circle configuration in one question. No live transaction or Circle charge occurred. Next: operator commands, Circle UUID/batch handling, adapter descendant integration and combined-head CI.
+
 ## 2026-11-16 07:25 -05:00 — Anish — Protected solver signing and RPC recovery
 
 - Branch `codex/open-escrow-rescue`, PR #7. Added an adapter-only local signer over the existing protected account journal. It checks exact claim/release calldata, reserves release gas, caps fees, and dispatches raw transactions once with retries disabled.

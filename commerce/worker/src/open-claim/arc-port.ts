@@ -38,7 +38,9 @@ export interface ArcOpenClaimPortOptions {
 }
 
 /** Actual Arc reads and receipts for the worker. Signing remains an injected capability. */
-export function createArcOpenClaimPort(options: ArcOpenClaimPortOptions): OpenClaimAdapterPort {
+export function createArcOpenClaimPort(options: ArcOpenClaimPortOptions): OpenClaimAdapterPort & {
+  verifyPins(): Promise<{ blockNumber: bigint }>;
+} {
   const { publicClient: pub, witness, signer } = options;
   const confirmations = options.confirmations ?? 3n;
   must(witness.mode === "open-claim" && witness.chainId === 5042002 &&
@@ -128,7 +130,7 @@ export function createArcOpenClaimPort(options: ArcOpenClaimPortOptions): OpenCl
       "deployment", "core deployment history changed during verification");
   }
 
-  async function verifyDeployment(jobId: bigint): Promise<OpenClaimDeploymentReport> {
+  async function verifyPins() {
     const blockNumber = await confirmedBlock();
     must(blockNumber >= options.adapterDeploymentBlock, "deployment", "adapter deployment is unconfirmed");
     const hashes = {
@@ -146,11 +148,10 @@ export function createArcOpenClaimPort(options: ArcOpenClaimPortOptions): OpenCl
     const slot = await pub.getStorageAt({ address: witness.core, slot: IMPLEMENTATION_SLOT, blockNumber });
     must(slot && same(`0x${slot.slice(-40)}`, witness.implementation),
       "deployment", "core proxy implementation differs from the pin");
-    const [version, selector, observation, raw] = await Promise.all([
+    const [version, selector, observation] = await Promise.all([
       read<string>(witness.verifier, verifierAbi, "VERSION", blockNumber),
       read<Hex>(witness.verifier, verifierAbi, "SELECTOR", blockNumber),
-      reader.observe(deployment),
-      reader.snapshot(deployment, jobId),
+      createViemOpenClaimPort(pub, { confirmations, blockNumber }).observe(deployment),
     ]);
     must(version === witness.verifierVersion && same(selector, witness.verifierSelector),
       "deployment", "verifier version or selector differs from the pin");
@@ -162,9 +163,15 @@ export function createArcOpenClaimPort(options: ArcOpenClaimPortOptions): OpenCl
       observation.evaluatorFeeBP === 0n && observation.maxEnvelopeBytes === 16_412n &&
       observation.minExpiryMargin === 600n,
     "deployment", "adapter wiring, token, fees, or limits differ from the pin");
+    await verifyRoleHistory(blockNumber);
+    return { blockNumber, version, selector, observation, hashes };
+  }
+
+  async function verifyDeployment(jobId: bigint): Promise<OpenClaimDeploymentReport> {
+    const { blockNumber, version, selector, observation, hashes } = await verifyPins();
+    const raw = await createViemOpenClaimPort(pub, { confirmations, blockNumber }).snapshot(deployment, jobId);
     must(raw.blockNumber === blockNumber && raw.job && raw.terms && raw.terms.registered,
       "deployment", "confirmed registered core job is absent");
-    await verifyRoleHistory(blockNumber);
     const job = raw.job;
     return {
       mode: "open-claim", evidence: "observed", chainId: observation.chainId,
@@ -241,6 +248,6 @@ export function createArcOpenClaimPort(options: ArcOpenClaimPortOptions): OpenCl
     return options.send(tx);
   }
 
-  return { verifyDeployment, snapshot, signer: () => signer, broadcast, receipt,
+  return { verifyDeployment, verifyPins, snapshot, signer: () => signer, broadcast, receipt,
     ...(options.recoverBroadcast ? { recoverBroadcast: options.recoverBroadcast } : {}) };
 }
