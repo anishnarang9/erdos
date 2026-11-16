@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 02:39 -05:00 — Anish — Combined local acceptance test staged
+
+- Branch `codex/open-escrow-rescue`. Added an explicit slow local Arc test for two real solver proofs, actual worker claim/release, losing-key abstention, exact token transfers, confirmed API status, two byte-exact recovery paths, the independent Meridian oracle and a separate expiry refund. Added the versioned open-claim API route contract and local runbook.
+- Worker typecheck and documentation link checks pass. The slow test has not run because the second proof still owns the sole prover slot. Its first source-bound job 2 proof is already complete. The test requires the current private local deployment, funded jobs and the second proof output; it does not touch live Arc or a real wallet.
+- A narrow read-only Grok 4.7 High review stopped at its six-turn cap before returning findings. It did not report a rate limit. Do not treat that attempt as a completed review. Next: wait for the second proof, run the slow suite through its process exit, then review and fix any concrete failures before final checks.
+
 ## 2026-11-16 02:32 -05:00 — Anish — Confirmed local Arc worker port
 
 - Branch `codex/open-escrow-rescue`. Added a read-only confirmed-block worker port with injected restricted sending. It checks pinned contract code, the proxy slot, verifier version, adapter wiring, zero fees, core role history, registered terms, and solver context before an attempt. It decodes confirmed claim and payout receipts.
