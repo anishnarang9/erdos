@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 02:09 -05:00 — Anish — Clean Meridian funded suite passed
+
+- The clean forkless local Arc Meridian suite at source `4fab765` exited 0 after 2,104.028 seconds. The [final report](reports/fresh-exchange-local-2026-11-15.json) records two fresh Groth16 proofs; the successful proof took 1,017,171 ms and 7,053,898 guest cycles. Its 12 source hashes match the launch HEAD.
+- Verified an exact 1,000,000-unit USDC payout, 20 indexed events, matching chain key release, SDK and engine recovery of `schedule.json` (SHA-256 `0607a7b43bf95913d5561d1872b14df0e9ba3fce160946f0bfac99d76608fbc2`), independent oracle acceptance, actual pending-send restart with one raw send, separate Submitted snapshot refund and Funded-job refund. Negative eth_calls reverted. No live Arc write or model call occurred in the suite.
+- Preserved the first clean-attempt environment failure as [a separate report](reports/overnight-meridian-env-failure-2026-11-16.json); the launcher then removed inherited `RISC0_DEV_MODE` and `RUST_LOG` and reran. This closes the Meridian baseline. Next: fresh adapter-domain proof and combined open-claim exchange, then final integration checks and review.
+
 ## 2026-11-16 02:07 -05:00 — Anish — ABI and confirmed discovery integration
 
 - Merged the pushed API and SDK checkpoints into `codex/open-escrow-rescue` without source conflicts. Replaced the SDK signature fixture with the contract-exported JSON ABI and added a fixed-block read-only viem port. The API now has an Arc reader wired through explicit server environment variables.
@@ -28,6 +34,21 @@ Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a headin
 - Added new ABI/fixture/manifest checks. The adapter ABI test currently fails because implementation/export is pending. The separate real scalar-receipt suite also fails compilation until the adapter exists. These are explicit pending checks.
 - Grok standards and test workers exited cancelled without edits. Native fallbacks own those tracks. One Grok implementation worker remains. The user requested avoiding rate limits, so no parallel new Grok workers or direct model API calls are planned.
 - A separate forkless Arc node is ready for local-only deployment verification with native USDC. No live RPC or operator wallet is configured. Next: integrate the scoped source/tests, run full acceptance and hand source to Chat 1.
+
+## 2026-11-16 01:27 -05:00 — Anish — Proof host released without an exit result
+
+- The earlier Meridian process identities disappeared while its report still recorded `fresh-verdict0-proving`. No exit result or failure diagnostic appeared. The cause remains unknown. [Observation](reports/overnight-meridian-prior-process-2026-11-16.json).
+- Read-only checks found no remaining prover process or Docker container. The original checkout, process records and scratch remain unchanged. A separate clean full-suite run will use this worktree and the stamped unchanged engine binary.
+- The SDK reproduced all five public-vector checks. All six locked Rust wire tests passed. Contract comparison waits for Chat 2 implementation. [Vector evidence](reports/overnight-public-vector-2026-11-16.json).
+- Coordinator baseline commerce checks are running. Three Grok implementation tracks are running. No live call or signing occurred.
+
+## 2026-11-16 01:27 -05:00 — Anish
+
+- Started the supplied overnight proof-commerce plan on `codex/overnight-proof-commerce`, based on `ae1295a`. The original integration checkout and active Meridian rerun remain untouched.
+- Dispatched three Grok 4.7 High tracks in separate worktrees. Scopes are worker, API/x402 and SDK/buyer. Each returns scoped commits and checks for independent integration review.
+- Read Chat 2 interface checkpoint `43b4fca`. Open proofs bind the adapter escrow domain and actual solver address. Exact ABI adoption and byte comparison remain pending.
+- The active Meridian process owns the proving slot. No second prover, live wallet access or live signing started.
+- [Execution tracker](../../docs/overnight/proof-commerce-plan.md) records remaining acceptance gates. Next: public vector comparison, worker review and baseline evidence.
 
 ## 2026-11-16 01:24 -05:00 — Anish — Open-claim interface
 

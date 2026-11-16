@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-11-16T06:26:41.558941+00:00",
+  "status": "interrupted-without-observed-exit",
+  "scope": "Read-only observation of prior owner run. No original files or processes changed.",
+  "launchSource": "ae1295a6364f31a4f98baa69536d03dad4276f20",
+  "lastStage": "fresh-verdict0-proving",
+  "reportedStatus": "running",
+  "wholeProcessExitObserved": false,
+  "cause": "Unknown. Recorded process identities were absent. No exit or failure result was written.",
+  "priorProcessIds": [
+    99115,
+    99121,
+    99122,
+    99128,
+    99261,
+    99269,
+    99270,
+    99291
+  ],
+  "processAbsent": true,
+  "dockerProverContainers": 0,
+  "preservedReportSha256": "f8f5751967fcffe792bc84a19c7e1323df5c4584ca08e233eb988f55d11c6e91",
+  "freshGroth16ProofsReported": 0,
+  "engineBinarySha256": "abb34d8156cbe8c38984c53b8bc146745c53958e6752d5a667f01d98d8ccac9d",
+  "action": "Preserve prior owner state. Start separate clean full suite only after no prover or Docker container remains."
+}
