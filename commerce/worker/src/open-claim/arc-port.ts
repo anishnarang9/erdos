@@ -237,6 +237,11 @@ export function createArcOpenClaimPort(options: ArcOpenClaimPortOptions): OpenCl
       tx.to && isAddressEqual(tx.to, witness.adapter) &&
       isAddressEqual(result.from, signer.account) && isAddressEqual(tx.from, signer.account),
     "receipt", "confirmed transaction does not belong to this solver and adapter");
+    must(tx.chainId === witness.chainId && tx.value === 0n && tx.blockNumber === result.blockNumber &&
+      tx.blockHash === result.blockHash && (await pub.getBlock({ blockNumber: result.blockNumber })).hash === result.blockHash &&
+      result.logs.every(log => !log.removed && log.blockNumber === result.blockNumber && log.blockHash === result.blockHash &&
+        log.transactionHash === hash && log.transactionIndex === result.transactionIndex && log.logIndex !== null),
+    "receipt", "transaction or logs differ from the canonical confirmed receipt");
     return { status: result.status, logs: decodeLogs(result.logs) };
   }
 

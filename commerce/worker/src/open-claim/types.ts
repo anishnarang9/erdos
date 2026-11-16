@@ -125,6 +125,8 @@ export interface OpenClaimRestrictedTx {
 }
 
 export interface OpenClaimRunOptions {
+  /** Prepare and validate a fresh proof. Do not sign, claim, release, or reconcile a send. */
+  prepareOnly?: boolean;
   job: OpenClaimFundedJob;
   approval: OpenClaimWorkerApproval;
   witness: OpenClaimDeploymentWitness;

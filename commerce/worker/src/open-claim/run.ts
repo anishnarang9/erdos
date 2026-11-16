@@ -292,6 +292,7 @@ export async function runOpenClaim(o: OpenClaimRunOptions): Promise<OpenClaimSta
     if (!resume) await proveFresh();
     else if (state.phase !== "lost" && state.phase !== "rejected") loadProof(true);
     if (state.phase === "rejected" || state.phase === "lost") return state;
+    if (o.prepareOnly) return state;
 
     const txBase = (data: Hex, gas: bigint) => ({
       chainId: 5042002,

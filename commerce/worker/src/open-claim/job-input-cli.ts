@@ -1,4 +1,4 @@
-// Prepare the engine's public job JSON from one confirmed, locally funded open claim.
+// Prepare the engine's public job JSON from one confirmed funded open claim.
 // Read-only. The output has no release key and cannot send a transaction.
 import { openSync, readFileSync, writeFileSync, closeSync, fsyncSync } from "node:fs";
 import { dirname } from "node:path";
@@ -7,15 +7,8 @@ import { bytesToHex, createPublicClient, getAddress, http, isAddressEqual,
 import { encodeContext } from "@ubc26/sdk";
 import { checkArtifactAncestors } from "../run.ts";
 import { createArcOpenClaimPort } from "./arc-port.ts";
-import type { OpenClaimDeploymentWitness } from "./deployment.ts";
+import { parseOpenClaimManifest, verifyOpenClaimCreation } from "./manifest.ts";
 
-type LocalManifest = {
-  network: string; status: string; chainId: number;
-  core: { address: Address; implementation: Address; platformFeeBP: number; evaluatorFeeBP: number };
-  adapter: { address: Address }; verifier: { address: Address; version: string; selector: Hex };
-  usdc: { address: Address; decimals: number };
-  runtimeCodeHashes: Record<string, Hex>; receipts: { block: number }[];
-};
 
 function flags(args: string[]): Record<string, string> {
   const allowed = new Set(["--rpc-url", "--manifest", "--job-id", "--solver", "--out"]);
@@ -29,43 +22,27 @@ function flags(args: string[]): Record<string, string> {
   return out;
 }
 
-export async function prepareLocalOpenClaimJobInput(args: string[]): Promise<void> {
+export async function prepareOpenClaimJobInput(args: string[]): Promise<void> {
   const a = flags(args);
   const url = new URL(a["--rpc-url"]!);
-  if (url.protocol !== "http:" || !["127.0.0.1", "localhost", "::1"].includes(url.hostname)) {
-    throw new Error("job input only accepts a loopback local Arc RPC");
-  }
-  const manifest = JSON.parse(readFileSync(a["--manifest"]!, "utf8")) as LocalManifest;
-  if (manifest.network !== "local-arc" || manifest.status !== "deployed-verified-local-only" ||
-      manifest.chainId !== 5042002 || manifest.usdc.decimals !== 6 ||
-      manifest.core.platformFeeBP !== 0 || manifest.core.evaluatorFeeBP !== 0 ||
-      manifest.verifier.version !== "3.1.0" || manifest.verifier.selector !== "0xe71e6620" ||
-      !Array.isArray(manifest.receipts) || manifest.receipts.length !== 6) {
-    throw new Error("local Arc deployment manifest is incomplete or differs from open-claim v1");
-  }
+  const local = url.protocol === "http:" && ["127.0.0.1", "localhost", "::1"].includes(url.hostname);
+  if ((!local && url.protocol !== "https:") || url.username || url.password) throw new Error("RPC must use HTTPS or local HTTP");
+  const manifest = parseOpenClaimManifest(JSON.parse(readFileSync(a["--manifest"]!, "utf8")), { allowLocal: local });
+  if ((manifest.network === "local-arc") !== local) throw new Error("manifest network differs from the RPC mode");
   const jobText = a["--job-id"]!;
   if (!/^[1-9][0-9]*$/.test(jobText)) throw new Error("job id must be a positive decimal integer");
   const jobId = BigInt(jobText);
   const solver = getAddress(a["--solver"]!);
-  const witness: OpenClaimDeploymentWitness = {
-    mode: "open-claim", evidence: "operator-pins", chainId: 5042002,
-    core: getAddress(manifest.core.address), adapter: getAddress(manifest.adapter.address),
-    verifier: getAddress(manifest.verifier.address), usdc: getAddress(manifest.usdc.address),
-    implementation: getAddress(manifest.core.implementation), verifierVersion: "3.1.0",
-    verifierSelector: "0xe71e6620", hook: zeroAddress,
-    platformFeeBP: 0n, evaluatorFeeBP: 0n, frozen: true,
-    runtimeHashes: {
-      core: manifest.runtimeCodeHashes.ERC1967Proxy!,
-      implementation: manifest.runtimeCodeHashes.AgenticCommerce!,
-      adapter: manifest.runtimeCodeHashes.OpenClaimAdapter!,
-      verifier: manifest.runtimeCodeHashes.RiscZeroGroth16Verifier!,
-    },
-  };
+  const witness = manifest.witness;
+  if ([witness.core, witness.adapter, witness.verifier, witness.usdc, zeroAddress].some(a => isAddressEqual(a, solver))) {
+    throw new Error("solver must be a distinct payout address");
+  }
   const publicClient = createPublicClient({ transport: http(url.href) });
+  await verifyOpenClaimCreation(publicClient, manifest);
   const port = createArcOpenClaimPort({ publicClient, witness,
     signer: { account: solver, chainId: 5042002, noKeyRpcSimulation: true },
-    coreDeploymentBlock: BigInt(manifest.receipts[2]!.block),
-    adapterDeploymentBlock: BigInt(manifest.receipts[3]!.block),
+    coreDeploymentBlock: manifest.coreDeploymentBlock,
+    adapterDeploymentBlock: manifest.adapterDeploymentBlock,
     send: async () => { throw new Error("read-only job input cannot broadcast"); },
   });
   await port.verifyDeployment(jobId);
@@ -84,12 +61,12 @@ export async function prepareLocalOpenClaimJobInput(args: string[]): Promise<voi
   const fd = openSync(a["--out"]!, "wx", 0o600);
   try { writeFileSync(fd, output); fsyncSync(fd); }
   finally { closeSync(fd); }
-  console.log(JSON.stringify({ status: "prepared-local-job-input", jobId: jobText,
+  console.log(JSON.stringify({ status: "prepared-funded-job-input", network: manifest.network, jobId: jobText,
     solver, blockNumber: snapshot.blockNumber.toString(), imageId: snapshot.terms.imageId }));
 }
 
 if (process.argv[1]?.endsWith("job-input-cli.ts")) {
-  prepareLocalOpenClaimJobInput(process.argv.slice(2)).catch(error => {
+  prepareOpenClaimJobInput(process.argv.slice(2)).catch(error => {
     console.error(error instanceof Error ? error.message : "job input failed");
     process.exitCode = 1;
   });

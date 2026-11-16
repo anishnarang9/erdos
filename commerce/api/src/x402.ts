@@ -40,6 +40,8 @@ export interface X402Facilitator {
 }
 
 export interface X402Config {
+  /** Gateway returns a transfer UUID. Batch acceptance does not establish chain settlement. */
+  settlementMode?: "onchain" | "circle-gateway";
   resourceBaseUrl: string;
   network: string;
   asset: Address;
@@ -123,6 +125,15 @@ function validateConfig(config: X402Config): void {
       !isPlainObject(config.extra)) {
     throw new Error("invalid x402 payment configuration");
   }
+  if (config.settlementMode !== undefined && !["onchain", "circle-gateway"].includes(config.settlementMode)) {
+    throw new Error("invalid x402 settlement mode");
+  }
+  if (config.settlementMode === "circle-gateway" && (config.network !== "eip155:5042002" ||
+      config.asset.toLowerCase() !== "0x3600000000000000000000000000000000000000" ||
+      config.extra.name !== "GatewayWalletBatched" || config.extra.version !== "1" ||
+      String(config.extra.verifyingContract).toLowerCase() !== "0x0077777d7eba4688bdef3e311b846f25870a19b9")) {
+    throw new Error("Circle Gateway requires the pinned Arc Testnet USDC batching domain");
+  }
 }
 
 /** A separate paid route reuses the approved compile handler after confirmed settlement. */
@@ -156,7 +167,8 @@ export function registerX402Routes(
     };
     const requirement: PaymentRequirements = {
       scheme: "exact", network: config.network, asset: config.asset, amount: config.amount,
-      payTo: config.payTo, maxTimeoutSeconds: 60, extra: { ...config.extra, paymentFlow: "upfront" },
+      payTo: config.payTo, maxTimeoutSeconds: config.settlementMode === "circle-gateway" ? 604800 : 60,
+      extra: { ...config.extra, paymentFlow: "upfront" },
     };
     const quote = { x402Version: 2, resource, accepts: [requirement] };
     const challenge = () => c.json(quote, 402, { "payment-required": encodedHeader(quote) });
@@ -203,13 +215,16 @@ export function registerX402Routes(
         pending.run(isoAt(deps.now()), paymentId);
         throw new ApiError("payment_pending", "Payment settlement outcome is unknown; reconcile before retry");
       }
+      const transactionPattern = config.settlementMode === "circle-gateway"
+        ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i : /^0x[0-9a-fA-F]{64}$/;
       if (!settlement.success || settlement.network !== requirement.network ||
           typeof settlement.payer !== "string" || !/^0x[0-9a-fA-F]{40}$/.test(settlement.payer) ||
-          typeof settlement.transaction !== "string" || !/^0x[0-9a-fA-F]{64}$/.test(settlement.transaction)) {
+          typeof settlement.transaction !== "string" || !transactionPattern.test(settlement.transaction)) {
         pending.run(isoAt(deps.now()), paymentId);
         throw new ApiError("payment_pending", "Payment settlement was not confirmed; reconcile before retry");
       }
-      settlementJson = JSON.stringify(settlement);
+      settlementJson = JSON.stringify({ ...settlement, ...(config.settlementMode === "circle-gateway"
+        ? { settlementType: "gateway-batch-accepted", onchainConfirmed: false } : {}) });
       settled.run(settlementJson, isoAt(deps.now()), paymentId);
     }
     if (settlementJson === null) throw new ApiError("internal", "Settled payment has no receipt");

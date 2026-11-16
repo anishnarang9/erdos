@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 07:44 -05:00 — Anish — Protected operator and Circle preparation
+
+- PR #7 adds protected commands for preview, buyer funding, proof preparation, solver run/resume, chain-based recovery, and Circle service payment. Live commands require clean pinned source, verified adapter creation/runtime/history, and an inherited keystore password descriptor. The engine receives an explicit clean environment. One shared host lock guards proving.
+- Fixed the Circle Gateway UUID incompatibility. Gateway batch acceptance carries `onchainConfirmed: false`. The payment client checks the exact 402 recipient, price and Gateway domain, persists one signature, checks a successful compile and exact replay, and never deposits or funds a bounty. The live supported endpoint advertises Arc USDC and 604,800-second minimum validity. Local facilitator and synthetic signing tests are not live payments.
+- Checks: workspace typechecks and tests pass (SDK 342, API 778, worker 880), real-engine API 15/15, and focused operator tests 28/28. A separate read-only test on retained local Arc receipts recovered exact SDK/engine bytes and checked the solver's gas-adjusted native USDC delta. No new prover or live write ran.
+- The user requested generated testnet wallets and fractional bounties. Generated and independently decrypted encrypted keystores outside Git. Buyer `0x638202cCB15315dBc5b22e02717B908bEAc3AeBd`; solver `0xfb7692d0BFb955E7EB727bf744b39F7B8441057F`. Both live balances remained zero on the latest read. Proposed bounty is now 0.01 USDC per job and service charge 0.000001 USDC. The revised preview records a conservative 0.11775-USDC whole-suite gas ceiling, while prior local gas counts imply about 0.03209 USDC for one successful job at the current 25-gwei live quote.
+- Remaining: integrate published escrow descendant `3f0ecbf`, rerun combined-head checks/CI, complete the negative/refund operator actions and Gateway deposit preview, then execute after verified deployment, wallet funding and exact spending authority. No verified live adapter manifest, funded wallet, Gateway deposit, Circle charge, live proof, or payout exists for this Goal yet.
+
 ## 2026-11-16 07:30 -05:00 — Anish — Five-step protected buyer flow
 
 - PR #7 now has a buyer helper for exact `createJob`, `setBudget`, USDC `approve`, `fund`, and adapter `register`. The helper checks transaction identity, confirmed receipts, exact funding transfers, zero hook, full budget, registered commitments, and final allowance. It retains gas reservations and saved hashes across retries.

@@ -99,6 +99,14 @@ function x402FromEnv(): X402Config | undefined {
     throw new Error("X402_EXTRA_JSON must be an object");
   }
   return {
+    settlementMode: (() => {
+      const mode = process.env.X402_SETTLEMENT_MODE ?? "onchain";
+      if (mode !== "onchain" && mode !== "circle-gateway") throw new Error("Invalid X402_SETTLEMENT_MODE");
+      if (mode === "circle-gateway" && new URL(url).href.replace(/\/$/, "") !== "https://gateway-api-testnet.circle.com/v1/x402") {
+        throw new Error("Circle Gateway requires the official testnet facilitator URL");
+      }
+      return mode;
+    })(),
     resourceBaseUrl: need("X402_RESOURCE_BASE_URL"),
     network: process.env.X402_NETWORK ?? "eip155:5042002",
     asset: (process.env.X402_ASSET ?? "0x3600000000000000000000000000000000000000") as `0x${string}`,

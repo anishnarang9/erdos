@@ -16,7 +16,9 @@
     "preflight-funded": "tsx src/cli.ts funded preflight",
     "prepare-funded": "tsx src/cli.ts funded prepare",
     "sprint": "tsx src/sprint-cli.ts",
-    "open-claim:job-input": "tsx src/open-claim/job-input-cli.ts"
+    "open-claim:job-input": "tsx src/open-claim/job-input-cli.ts",
+    "open-claim:operator": "tsx src/open-claim/operator.ts",
+    "test:open-claim-recovery": "vitest run --config vitest.open-claim-recovery.config.ts"
   },
   "dependencies": {
     "@ubc26/api": "workspace:*",

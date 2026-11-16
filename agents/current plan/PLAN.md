@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 07:44 -05:00 — Anish — Prepare the live open-claim run
+
+- The current Goal assigns API, SDK, worker, proof execution and buyer recovery to PR #7 on `codex/open-escrow-rescue`. The separate escrow chat owns contracts and deployment. Integrate only its published commits after `8b9589d`, starting with `3f0ecbf`.
+- Protected buyer and solver commands, durable send recovery, chain-based dual recovery and Circle Gateway UUID handling now pass local checks. Require combined-head CI and complete live receipts/balance evidence before claiming the Goal complete.
+- The user requested generated testnet wallets and smaller runs. The proposed bounty is 0.01 USDC per job. The separate API charge is 0.000001 USDC. See the [revised spend preview](../anish/reports/open-claim-arc-spend-preview-2026-11-16.json). Generated public addresses are in Anish's status. Wallet funding, exact spending approval, verified adapter deployment and Gateway deposit remain external inputs.
+
 ## 2026-11-16 04:08 -05:00 — Anish — Overnight local acceptance handed off
 
 - The open-claim local goal has [exit-0 real-proof evidence](../anish/reports/open-claim-local-acceptance-2026-11-16.json), a passing selected-provider baseline, and a separate local test-facilitator x402 check. [Draft PR #7](https://github.com/anishnarang9/UBC-26/pull/7) is mergeable against `codex/engine-commerce`. [Commerce](https://github.com/anishnarang9/UBC-26/actions/runs/43835708063) and [core-fast](https://github.com/anishnarang9/UBC-26/actions/runs/43835708011) CI passed at `015996b`. A native fallback reviewer found no concrete P1/P2 issue in the main paths, with static-review limits recorded in Anish's status.

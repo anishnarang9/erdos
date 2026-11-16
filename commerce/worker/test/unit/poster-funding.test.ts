@@ -21,13 +21,13 @@ const bh = `0x${"aa".repeat(32)}` as Hex;
 const imageId = `0x${"11".repeat(32)}` as Hex;
 const rulesHash = `0x${"22".repeat(32)}` as Hex;
 const referenceHash = `0x${"33".repeat(32)}` as Hex;
-async function fixture(openClaim = false) {
+async function fixture(openClaim = false, bounty = 1000000n) {
   let budget = 0n, funded = false, allowance = 0n, time = 100n, registered = false;
   const transactions = new Map<Hex, any>(), receipts = new Map<Hex, any>();
   const job = () => ({ id: 42n, client: account.address, provider: openClaim ? hook : provider, evaluator: hook, description: "approved",
     budget, expiredAt: 5000n, status: funded ? 1 : 0, hook: openClaim ? zeroAddress : hook });
-  const terms = () => openClaim ? [account.address, imageId, rulesHash, referenceHash, 1000000n, 5000n, registered]
-    : [imageId, rulesHash, referenceHash, provider, 1000000n, 5000n, funded];
+  const terms = () => openClaim ? [account.address, imageId, rulesHash, referenceHash, bounty, 5000n, registered]
+    : [imageId, rulesHash, referenceHash, provider, bounty, 5000n, funded];
   function log(abi: Abi, eventName: string, args: any, data: Hex, address: Hex, hash: Hex) {
     return { address, topics: encodeEventTopics({ abi, eventName, args } as any), data, removed: false,
       blockNumber: 10n, blockHash: bh, transactionHash: hash, logIndex: 0 };
@@ -56,24 +56,24 @@ async function fixture(openClaim = false) {
     if (decoded.functionName === "createJob") logs.push(log(arcCoreAbi, "JobCreated",
       { jobId: 42n, client: account.address, provider: openClaim ? hook : provider },
       encodeAbiParameters([{ type: "address" }, { type: "uint256" }, { type: "address" }], [hook, 5000n, openClaim ? zeroAddress : hook]), core, hash));
-    if (decoded.functionName === "setBudget") { expect(decoded.args).toEqual([42n, 1000000n, "0x"]); budget = 1000000n; }
-    if (decoded.functionName === "approve") { expect(decoded.args).toEqual([core, 1000000n]); allowance = 1000000n; }
+    if (decoded.functionName === "setBudget") { expect(decoded.args).toEqual([42n, bounty, "0x"]); budget = bounty; }
+    if (decoded.functionName === "approve") { expect(decoded.args).toEqual([core, bounty]); allowance = bounty; }
     if (decoded.functionName === "fund") {
       expect(decoded.args).toEqual([42n, openClaim ? "0x" : encodeAbiParameters([{ type: "bytes32" }, { type: "bytes32" }, { type: "bytes32" }], [imageId, rulesHash, referenceHash])]);
       funded = true; allowance = 0n;
       logs.push(log(arcCoreAbi, "JobFunded", { jobId: 42n, client: account.address },
-        encodeAbiParameters([{ type: "uint256" }], [1000000n]), core, hash));
+        encodeAbiParameters([{ type: "uint256" }], [bounty]), core, hash));
       if (!openClaim) logs.push({ ...log(arcHookAbi, "TermsFrozen", { jobId: 42n, provider },
         encodeAbiParameters([{ type: "bytes32" }, { type: "bytes32" }, { type: "bytes32" }, { type: "uint256" }, { type: "uint64" }],
-          [imageId, rulesHash, referenceHash, 1000000n, 5000n]), hook, hash), logIndex: 1 });
+          [imageId, rulesHash, referenceHash, bounty, 5000n]), hook, hash), logIndex: 1 });
       else logs.push(log(arcErc20Abi, "Transfer", { from: account.address, to: core },
-        encodeAbiParameters([{ type: "uint256" }], [1000000n]), usdc, hash));
+        encodeAbiParameters([{ type: "uint256" }], [bounty]), usdc, hash));
     }
     if (decoded.functionName === "register") {
-      expect(decoded.args).toEqual([42n, imageId, rulesHash, referenceHash, 1000000n, 5000n]); registered = true;
+      expect(decoded.args).toEqual([42n, imageId, rulesHash, referenceHash, bounty, 5000n]); registered = true;
       logs.push(log(openClaimSignatureAbi, "TermsRegistered", { jobId: 42n, buyer: account.address },
         encodeAbiParameters([{type:"bytes32"},{type:"bytes32"},{type:"bytes32"},{type:"uint256"},{type:"uint64"}],
-          [imageId,rulesHash,referenceHash,1000000n,5000n]), hook, hash));
+          [imageId,rulesHash,referenceHash,bounty,5000n]), hook, hash));
     }
     transactions.set(hash, { ...t, hash, input: t.data, from: account.address, blockNumber: 10n, blockHash: bh, value: t.value ?? 0n });
     receipts.set(hash, { transactionHash: hash, from: account.address, to: t.to, blockNumber: 10n, blockHash: bh,
@@ -82,7 +82,7 @@ async function fixture(openClaim = false) {
   });
   const link = vi.fn(async (_: any) => {});
   const cfg: PosterFundingConfig = {
-    terms: { chainId: 5042002, core, hook, usdc, provider, budget: "1000000", expiredAt: "5000",
+    terms: { chainId: 5042002, core, hook, usdc, provider, budget: String(bounty), expiredAt: "5000",
       imageId, rulesHash, referenceHash, description: "approved" },
     buyer: account.address, apiJobId: "api-job-1", revisionHash: imageId,
     account, public: pub, rawSend, link,
@@ -97,6 +97,13 @@ async function run(f: Awaited<ReturnType<typeof fixture>>) {
   try { return await helper.run(); } finally { await helper.close(); }
 }
 describe("Poster funding", () => {
+  it("funds a fractional 0.01-USDC bounty without rounding", async () => {
+    const f = await fixture(true, 10000n);
+    const { hook: adapter, provider: _provider, ...terms } = f.cfg.terms;
+    const h = await createOpenClaimBuyerFunding({ ...f.cfg, terms: { ...terms, adapter }, confirmations: 0n });
+    try { expect((await h.run()).remainingAllowance).toBe(0n); } finally { await h.close(); }
+    expect(f.rawSend).toHaveBeenCalledTimes(5);
+  });
   it.each([0, 1, 3, 5])("confirms all five open-claim calls and safely resumes a dropped response at step %s", async dropped => {
     const f = await fixture(true), send = f.rawSend.getMockImplementation()!;
     f.rawSend.mockImplementation(async (...args: any[]) => {

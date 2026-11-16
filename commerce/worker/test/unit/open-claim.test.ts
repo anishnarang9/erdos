@@ -538,6 +538,14 @@ describe("runOpenClaimAcceptance", () => {
     expect(readFileSync(join(options.attemptDir, "state.json"), "utf8")).not.toContain(runner.key!.slice(2));
   });
 
+  it("prepares one fresh proof without a signing capability, then resumes the same proof", async () => {
+    const f = setup();
+    expect((await runOpenClaimAcceptance({ ...f.options, prepareOnly: true })).phase).toBe("proved");
+    expect(f.port.broadcasts).toHaveLength(0);
+    expect((await runOpenClaimAcceptance(f.options)).phase).toBe("released");
+    expect(f.runner.calls.filter(call => call[0] === "prove")).toHaveLength(1);
+  });
+
   it("refuses to spawn an engine from the acceptance harness", async () => {
     const { runner, options } = setup();
     await checkFails(runOpenClaimAcceptance({ ...options, spawnEngine: true }), "engine");

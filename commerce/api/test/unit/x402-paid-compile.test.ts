@@ -1,4 +1,4 @@
-import { afterEach, expect, it } from "vitest";
+import { afterEach, expect, it, vi } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -87,6 +87,25 @@ it("settles a signed retry once and replays the same result", async () => {
   expect(await json(replay)).toEqual(await json(first));
   expect(replay.headers.get("idempotent-replayed")).toBe("true");
   expect(f.settlements).toBe(1);expect(engine.compileCalls).toHaveLength(1);
+});
+
+it("accepts a Circle Gateway UUID as batch acceptance and replays without another charge", async () => {
+  const id = "12b6462a-a438-4ec9-84eb-1d69022f4401";
+  const settle = vi.fn(async () => ({ success: true, payer: payer.address, transaction: id, network: "eip155:5042002" }));
+  const engine = countingEngine();
+  const made = createApp({ dbPath: ":memory:", buyerToken: BUYER_TOKEN, now: () => T0, engine,
+    x402: { resourceBaseUrl: "https://api.example.test", network: "eip155:5042002", asset, payTo,
+      amount: "10000", settlementMode: "circle-gateway", extra: { name: "GatewayWalletBatched", version: "1",
+        verifyingContract: "0x0077777d7eba4688bdef3e311b846f25870a19b9" }, facilitator: { settle } } } as any);
+  const s: SpecApp = { app: made.app, close: made.close, clock: { t: T0 } }; opened.push(s);
+  const j = await job(s), { p } = await signed(await request(s, j));
+  const first = await request(s, j, p);
+  expect(first.status, await first.clone().text()).toBe(200);
+  const receipt = JSON.parse(Buffer.from(first.headers.get("payment-response")!, "base64").toString());
+  expect(receipt).toMatchObject({ transaction: id, settlementType: "gateway-batch-accepted", onchainConfirmed: false });
+  const replay = await request(s, j, p);
+  expect(replay.status).toBe(200); expect(replay.headers.get("idempotent-replayed")).toBe("true");
+  expect(settle).toHaveBeenCalledTimes(1);
 });
 
 it("retries compilation after payment without another charge", async () => {

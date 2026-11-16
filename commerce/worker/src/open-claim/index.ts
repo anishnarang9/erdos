@@ -26,6 +26,9 @@ export type { OpenClaimWinnerObservation } from "./observe.ts";
 export { checkOpenClaimPolicy, OpenClaimPolicyError } from "./policy.ts";
 export type { OpenClaimAuthorization, OpenClaimPolicyConfig, OpenClaimTx } from "./policy.ts";
 export { runOpenClaim } from "./run.ts";
+export { parseOpenClaimManifest, verifyOpenClaimCreation, type ParsedOpenClaimManifest } from "./manifest.ts";
+export { recoverOpenClaimFromChain } from "./recovery.ts";
+export { runCirclePaidCompile, type CirclePaidCompileOptions } from "./circle-payment.ts";
 export { planOpenClaimEngineAcceptance, runOpenClaimAcceptance } from "./acceptance.ts";
 export type {
   OpenClaimAdapterPort,

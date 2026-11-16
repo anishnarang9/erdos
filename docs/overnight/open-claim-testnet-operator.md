@@ -78,4 +78,4 @@ pnpm open-claim:job-input --rpc-url "$ARC_RPC_URL" \
   --out "$PRIVATE_DIR/job.json"
 ```
 
-The current worker runs through `runOpenClaim` with an injected restricted signer. Its CLI does not broadcast an open-claim transaction. The operator must supply and review that signer, exact gas caps, buyer approval and funded-job manifest before a live claim or release. The local suite used unlocked synthetic Anvil accounts only. The local x402 check used a test facilitator; it did not establish a Circle Gateway charge. Do not use the x402 receipt as evidence that the core bounty was funded.
+The [protected operator commands](open-claim-live-operator.md) execute the five buyer steps and the solver claim/release through encrypted local keystores and durable journals. The operator must still approve exact gas caps, buyer terms and the deployed manifest before a live write. The local suite used unlocked synthetic Anvil accounts only. The local x402 check used a test facilitator; it did not establish a Circle Gateway charge. Do not use the x402 receipt as evidence that the core bounty was funded.
