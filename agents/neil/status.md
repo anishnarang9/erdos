@@ -2,6 +2,21 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 04:45 -05:00 — Neil
+
+- **Act two works from the UI on Arc (job 4).** A dedicated tamper solver (third testnet account) quoted 0.009 against the honest solver's 0.01; the buyer selected it. It produced a real verdict-0 proof, the preflight reported `VerificationFailed` and nothing was sent; the escrow stayed locked; the refund was claimed from the UI after expiry. Evidence: `commerce/evidence/arc-first-funded-jobs.md`.
+- **Replay tested:** Shift+R plays a recording at 4× under a `RECORDED RUN` flag plus a "time-lapse 4× · real time m:ss" badge (D1).
+- **Fixed:**
+  - Overlapping live polling loops duplicated events; a generation token and seq de-duplication stop this.
+  - The solver panel follows the selected solver.
+  - The refunded state has its own card.
+- **Note:** the machine ran low on memory with the prover, the 3D UI and four Node processes running together, and Claude Code stopped the background servers. For recording, run only the API, one agent and Vite at a time, and close other apps.
+- **Next:**
+  - Do a from-scratch recording of both acts for the video.
+  - Write the video script and do the edit.
+  - Nick: freeze the core.
+  - Anish: the lookup question.
+
 ## 2026-11-16 03:40 -05:00 — Neil
 
 - **Branch:** `neil/plan-architecture` (PR #5). The plan is `agents/neil/ui-intent.md`: Decisions D1–D4 and C1–C14, reconciled with Codex's `product-plan.md`.

@@ -40,3 +40,11 @@ The Solver changed one amount by one cent.
 - **Proof:** a real proof with verdict 0 (118.7 s, 812,683 cycles). The worker never submits a verdict-0 proof. Its submit preflight (`eth_call`) shows the chain would reject the proof too: the verifier reverts with `VerificationFailed`.
 - **State after the attempt:** `Funded`, with no submission and no key. The escrow stays locked for the Poster.
 - **Refund** (`scripts/claim-refund.ts 2`, after expiry): [0xf8bd04d4…2de3](https://explorer.testnet.arc.io/tx/0xf8bd04d4693c7fe21c10c11c8d4887f840fcb1abbb03eab49fa3fc17b0c72de3). `Refunded` and `JobExpired`; the final state is `Expired`. The Poster's balance went from 19.949794 to 19.957926 USDC: the 0.01 USDC refund minus the claim's gas.
+
+## Jobs 3 and 4: the same flow driven from the buyer UI (2026-11-16)
+
+Both jobs were clicked through `commerce/web` with the demo signer and the solver agents. All transactions are on Arc testnet.
+
+**Job 3 (honest solver, paid):** funding txs `0x7cd435ae…f22a2c` (createJob), `0xe557e2e6…d6c51d` (setBudget), `0xc606c3a0…68c0ed` (approve), `0xaf139820…981be0` (fund). Proof 147.7 s, 937,488 cycles, verdict 1. Submit [0x05693a09…abf76c](https://explorer.testnet.arc.io/tx/0x05693a09af7886d83b0c7cdac00b0bd134bfc471be76cc9e7b0abaa704abf76c) (ProofAccepted); release [0xb9caccce…2b4956](https://explorer.testnet.arc.io/tx/0xb9caccce8c09ad659812fa12021f3728471caf202765a0e709cbea1c382b4956). The browser decrypted the delivery from chain data and both commitment checks passed. Recording: `commerce/web/recordings/run-2026-11-16-job3-paid.json`.
+
+**Job 4 (tamper solver `0x53be…ada0`, cheaper quote of 0.009 USDC, selected by the buyer):** funding tx `0x941fd66d…1a696e` (fund). Proof 101.1 s, 937,488 cycles, verdict 0. The submit preflight reverted with `VerificationFailed`, so nothing was sent. The escrow stayed Funded until expiry; the refund was claimed from the UI: `0xcfaa40a0…832540`.
