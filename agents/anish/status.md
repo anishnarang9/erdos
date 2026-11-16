@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 08:19 -05:00 — Anish — Linux CI fixture correction
+
+- Pushed combined source `d6172e2`. Its engine and contract CI passed. Both commerce runs passed SDK/API but failed two new cross-journal tests. Linux `/tmp` violates the existing private operator path policy, while this Mac's temporary directory does not.
+- Moved only those nonce fixtures under private checkout directories and added cleanup. Production path checks, signing, nonce guards and spending limits remain intact. The 81 affected tests and worker typecheck pass. Push this fixture checkpoint and require fresh commerce and core-fast CI at its exact SHA.
+- Real-engine API passed 15/15 at the combined source. No live spending or proof occurred. Wallet funding and a verified adapter manifest remain pending.
+
 ## 2026-11-16 08:13 -05:00 — Anish — Final combined source checked
 
 - Integrated the separately published recovery-retry and launcher checks through `a37aa3c` with the reviewed refund, approval and nonce guards. The launcher also checks package files, TypeScript configuration and contract vendor source before signing. No contract or deployment change beyond published descendants of `8b9589d` was introduced.

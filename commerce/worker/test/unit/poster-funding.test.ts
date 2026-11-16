@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { mkdtemp, realpath, readFile, stat, chmod, link as hardlink, rename, writeFile } from "node:fs/promises";
+import { mkdtemp, realpath, readFile, stat, chmod, link as hardlink, rename, writeFile, rm } from "node:fs/promises";
 import * as fs from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -21,7 +21,7 @@ const bh = `0x${"aa".repeat(32)}` as Hex;
 const imageId = `0x${"11".repeat(32)}` as Hex;
 const rulesHash = `0x${"22".repeat(32)}` as Hex;
 const referenceHash = `0x${"33".repeat(32)}` as Hex;
-async function fixture(openClaim = false, bounty = 1000000n) {
+async function fixture(openClaim = false, bounty = 1000000n, journalBase = tmpdir()) {
   let budget = 0n, funded = false, allowance = 0n, time = 100n, registered = false;
   const transactions = new Map<Hex, any>(), receipts = new Map<Hex, any>();
   const job = () => ({ id: 42n, client: account.address, provider: openClaim ? hook : provider, evaluator: hook, description: "approved",
@@ -86,7 +86,7 @@ async function fixture(openClaim = false, bounty = 1000000n) {
       imageId, rulesHash, referenceHash, description: "approved" },
     buyer: account.address, apiJobId: "api-job-1", revisionHash: imageId,
     account, public: pub, rawSend, link,
-    journalRoot: await realpath(await mkdtemp(join(tmpdir(), "poster-local-"))),
+    journalRoot: await realpath(await mkdtemp(join(journalBase, "poster-local-"))),
     maxGas: 300000n, maxFeePerGas: 20000000000n, maxPriorityFeePerGas: 1n,
     nativeGasBudget: 100000000000000000n, operationalReserveSeconds: 1200n, hookMarginSeconds: 120n,
   };
@@ -98,14 +98,14 @@ async function run(f: Awaited<ReturnType<typeof fixture>>) {
 }
 describe("Poster funding", () => {
   it("blocks unresolved refund sends and reserves sibling refund nonces before funding", async () => {
-    const f=await fixture(),h=await createPosterFunding(f.cfg),path=join(h.directory,"refund-journal.json");
+    const f=await fixture(false,1000000n,process.cwd()),h=await createPosterFunding(f.cfg),path=join(h.directory,"refund-journal.json");
     const sibling={version:1,account:account.address,entries:[{nonce:7,stage:"intent"}]};
     try {
       await writeFile(path,JSON.stringify(sibling),{mode:0o600});
       await expect(h.run()).rejects.toThrow();expect(f.rawSend).not.toHaveBeenCalled();
       sibling.entries[0]!.stage="confirmed";await writeFile(path,JSON.stringify(sibling));
       await h.run();expect(parseTransaction(f.rawSend.mock.calls[0]![0].params[0]).nonce).toBe(8);
-    } finally {await h.close();}
+    } finally {await h.close();await rm(f.cfg.journalRoot,{recursive:true,force:true});}
   });
   it("reports a possibly pending fractional approval even when observed allowance remains zero", async () => {
     const f=await fixture(true,10000n),send=f.rawSend.getMockImplementation()!;
