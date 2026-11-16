@@ -1,0 +1,141 @@
+{
+  "task": "localnet-suite-spec-review",
+  "date": "2026-11-16",
+  "kind": "spec-review",
+  "base": "8c41e3dbfb36c6069f22f5633bdac69b6dcb0fe0",
+  "verdict": "approved",
+  "blockers": [],
+  "candidate": {
+    "stat": "commerce/worker/test/integration/funded-real.test.ts is modified, 575 insertions and 63 deletions. commerce/worker/test/support/funded-workload.ts is a new untracked file of 792 lines.",
+    "files": [
+      {
+        "path": "commerce/worker/test/integration/funded-real.test.ts",
+        "sha256": "f98b9cc9aa52ce7ce0c6cd962519054b5ece437642ff20882c7835a1a7ab61a2"
+      },
+      {
+        "path": "commerce/worker/test/support/funded-workload.ts",
+        "sha256": "ebf9bb5bbca5642245f505f26515274f9f7ac01ce96fdaac92cb1ce98446bd0c"
+      }
+    ]
+  },
+  "requirements": [
+    {
+      "id": "allowlisted-selector",
+      "result": "met",
+      "evidence": "selectFundedWorkload accepts only an unset UBC26_FUNDED_WORKLOAD, or the exact strings legacy and meridian. Any other value throws a fixed error that does not echo the raw value. The preflight rejects empty, case variants, fresh, core-sprint, path-like values, and absolute paths. The selector does not read RPC, wallet, or fork variables. Legacy binds docs/core-sprint-input and agents/anish/reports/core-sprint-local-2026-11-15.json. Meridian binds docs/fresh-exchange-input and agents/anish/reports/fresh-exchange-local-2026-11-15.json."
+    },
+    {
+      "id": "complete-hashes",
+      "result": "met",
+      "evidence": "loadFundedWorkload hashes plan.json, request.md, outputs.json, each plan-declared reference, and each candidates/valid deliverable into hashes.plan, hashes.dataset, hashes.candidates, and a sorted manifest hashes.input. It hashes oracle.py and tests/test_oracle.py into hashes.provenance. Legacy also hashes authoring.json and checks authoring plan path, plan sha256, and inputSha256 against the allowlisted file bytes. Meridian also hashes authoring/provenance.json, authoring/raw-response.json, solver/provenance.json, and provenance.json, and checks planSha256, rawResponseSha256, authoring inputHashes (including the two engine catalog files), solver input_hashes, and designer sha256. Unsafe, absolute, and escaping provenance keys are rejected. The rehearsal stamp keeps the existing four suite files, then adds funded-workload.ts and the selected workload, oracle, and oracle-test bytes. fundedWorkloadEvidence stores those relative hashes and omits absolute paths."
+    },
+    {
+      "id": "actual-api-core-hook-groth16-usdc",
+      "result": "met",
+      "evidence": "The slow test still calls startRealChain, verifyArcDeployment, createApp on loopback, createApiArcChain, createPosterFunding, and runFunded through the real engine runner. Settlement uses createArcSettlementPort and createLocalBroadcaster against the deployed core and hook. Native USDC remains the forkless predeploy 0x3600000000000000000000000000000000000000 from real-chain.ts. The passing path requires a real prove and a seal. The verdict-0 path, on meridian, requires a second real prove whose seal starts with 0xe71e6620. No mock ERC20 or simulated chain is introduced."
+    },
+    {
+      "id": "fresh-funded-context",
+      "result": "met",
+      "evidence": "Each run creates a new 0700 scratch directory under the workload prefix, a new API SQLite file, fresh local accounts, and a new funded job. The checkpoint name is fresh-funded-context. The other workload's report bytes are compared at the end and must be unchanged."
+    },
+    {
+      "id": "passing-and-failing-receipt",
+      "result": "met",
+      "evidence": "Meridian first builds one schedule.json by assigning the first charge's lot_id onto the second charge. A local oracle run of that mutation exited 1 with accepted false, errors [LOT], and encoded_bytes 1091, which is the semantic class the slow test requires. The plan has an op unique rule on charges.lot_id, and the guest unique operation returns false for a repeated key rather than aborting. The slow test then proves that file with stopAfterProof, expects phase rejected, verdict 0, and no submitTx. It eth_calls core.submit with that Groth16 seal. SettlementHook._beforeSubmit rebuilds the journal with VERDICT_PASS 0x01 and calls verifier.verify, so a verdict-0 seal is a passing-only rejection. The test requires VerificationFailed and unchanged buyer, provider, and escrow balances, and requires the job to stay Funded. The passing proof is a separate attempt that expects phase proved and verdict 1. Legacy does not run this proof and adds Fresh failing-verdict proof to notClaimed. The published guest verdict0 execution was a clay_kg reduction, not this lot mutation; this review did not prove the mutation."
+    },
+    {
+      "id": "exact-1-usdc",
+      "result": "met",
+      "evidence": "The API revision sets maxBudget to 1000000. Poster funding still requires terms.budget 1000000. Recovery still requires PaymentReleased amount 1000000 and budget 1000000. Both refund helpers reject any amount other than 1000000, and the slow test checks the buyer balance increases by 1000000 on each refund while the provider balance stays unchanged."
+    },
+    {
+      "id": "no-real-key-simulation",
+      "result": "met",
+      "evidence": "The new verdict-0 call sends the seal and envelope, not the release key. Later negatives use a zero dummy release key. arc-port prepareRelease still simulates only a dummy key, and its broadcast path does not estimate the real key. The real key is used only for the authorized release broadcast and is then read back from the KeyReleased log. The public report is checked to exclude both the passing key and the verdict-0 key."
+    },
+    {
+      "id": "buyer-recovery-and-oracle",
+      "result": "met",
+      "evidence": "recoverArcDeliveryDual reads the submit calldata envelope and the KeyReleased key from the chain receipts, checks the 1000000 payment, and decrypts through the SDK and the engine. The test requires engineDecryptMatches and byte-identical files in both the engine and SDK directories. It then runs the workload oracle.py on the engine directory and requires accepted true. The invalid meridian schedule is also checked with that same oracle before its proof."
+    },
+    {
+      "id": "funded-exact-expiry-refund",
+      "result": "met",
+      "evidence": "A second poster-funded job is created with no API listing and is not the canonical payout job. After the canonical release, the test sets the next block timestamp to that job's expiry and calls claimRefund. AgenticCommercePatched.claimRefund allows Funded or Submitted only when block.timestamp is at least expiredAt, then marks the job Expired and returns the budget. The test requires the refund block timestamp to equal expiry, buyer plus 1000000, an unchanged provider, the refund job Expired, and the canonical job still Completed."
+    },
+    {
+      "id": "submitted-snapshot-refund",
+      "result": "met",
+      "evidence": "The release wrapper, before the real port.release, takes evm_snapshot on the already Submitted canonical job. It expects claimRefund to revert WrongStatus before expiry and a dummy hook release at the expiry timestamp to revert Expired. It then mines claimRefund at the exact expiry, checks the 1000000 buyer credit, Expired status, and no provider send, then evm_revert. submittedSnapshotRefundEvidence requires the restored block hash and number to equal the parent, the refund timestamp to equal expiry, kind Submitted, amount 1000000, and payoutOnThisBranch null. The label is local-snapshot-branch and sameHistoryAsCanonicalPayout is false. The revert happens before canonical release and before the indexer. The completion check rejects a refund that shares history with the payout."
+    },
+    {
+      "id": "pending-submit-restart",
+      "result": "met",
+      "evidence": "With automine off, the submit wrapper calls the real port.submit and then throws. runFunded persists submit_broadcasting before the RPC and, on that throw, leaves submitTx unset and raises broadcast_uncertain. The broadcaster writes the hash at journal stage intent before eth_sendRawTransaction and will not resend an intent. The test requires one raw send, journal stage intent, a 32-byte hash, a null block number, and that hash in txpool_content. A second runFunded hits the submit_broadcasting guard, check broadcast_uncertain, and does not send again. The test then copies that journal hash into state as submit_sent. confirm returns false while the receipt is missing and does not resend. After one evm_mine, broadcaster.reconcile must succeed, and the later release is the second and last provider raw send."
+    },
+    {
+      "id": "indexer-3n-same-db",
+      "result": "met",
+      "evidence": "The API is created with a fresh dbPath. After release, the test mines until the head is at least the release block plus 3 and calls createIndexer on openDb(dbPath) with cursorStart 0n and confirmations 3n. That is the real API indexer, not a stub. GET /v1/jobs/:id/submission is public and builds submitTx, releaseTx, envelopeHash, keyCommitment, and key from indexed hook events. The test requires those fields to match the chain receipts and proof commitments, status Completed, and statusSource index. GET /v1/jobs/:id requires state linked, chain.status Completed, and chain.statusSource index. The released key must match both the KeyReleased log and the local key."
+    },
+    {
+      "id": "local-timing-allowances",
+      "result": "met",
+      "evidence": "The catalog sets legacy to proveBudgetSec 900 and expirySeconds 3600, and meridian to 1800 and 7200. Those values are passed only as the suite prove budget and the API revision's expirySeconds. LOCAL_TIMING_UNCERTAINTY states they are suite allowances, not a production cap or SLA, and the preflight checks that wording. No production signer or expiry-cap source is in this candidate. API expirySeconds 3600 and 7200 are inside the existing 300 to 86400 revision range and above ARC_MIN_DEADLINE_SECONDS 1200."
+    },
+    {
+      "id": "preserved-guards",
+      "result": "met",
+      "evidence": "The slow test still calls verifyArcDeployment before use. Broadcast still goes through createLocalBroadcaster with explicit submit and release authorizations, gas and fee caps, and the unchanged no-resend journal. Default vitest.config.ts excludes test/integration. vitest.engine.config.ts excludes funded-real.test.ts. vitest.funded.config.ts includes only that file, with one worker. The preflight asserts the engine exclusion and the funded inclusion. Owned-child cleanup tests remain, including the real-child exit and SIGKILL-timer cases. The finally block still closes the broadcaster, funding, server, database, app, and chain, stops caffeinate with stopOwned, and restores the environment. Console errors and engine logs go to mode 0600 files under the private scratch. A post-proof failure can retain the local node for debug."
+    },
+    {
+      "id": "process-exit-outside-assertions",
+      "result": "met",
+      "evidence": "A failure in the slow test is rethrown after the private failure log is written, so the vitest process exit is not replaced by an internal assertion. This review observed the preflight command's own process exit code 0. The full suite process was not started, so its exit code is not claimed."
+    }
+  ],
+  "thisReview": {
+    "commands": [
+      {
+        "command": "cd commerce/worker && pnpm exec vitest run --config vitest.funded.config.ts -t 'portable funded preflight'",
+        "exitCode": 0,
+        "result": "1 file passed. 31 tests passed and 1 skipped. The skipped test is the fresh real-context integration. Duration 979 ms."
+      },
+      {
+        "command": "cd commerce/worker && pnpm exec tsc --noEmit",
+        "exitCode": 0,
+        "result": "Worker typecheck completed with no emitted errors."
+      },
+      {
+        "command": "python3 oracle.py on a temporary copy of schedule.json with the second charge lot_id set to the first",
+        "exitCode": 1,
+        "result": "Oracle stdout was {\"accepted\": false, \"encoded_bytes\": 1091, \"errors\": [\"LOT\"]}. Exit 1 is the oracle's rejection status. No engine, guest, Docker, or network was used."
+      }
+    ],
+    "notRun": [
+      "vitest.funded.config.ts without the portable preflight filter",
+      "Anvil, contract deployment, Groth16 proving, r0vm, guest compile, and Docker",
+      "live or fork RPC",
+      "the full suite process exit"
+    ]
+  },
+  "unexecutedSlowBehavior": [
+    "The fresh local Anvil chain, actual core, hook, Groth16 verifier, and native USDC deployment were not started.",
+    "No Groth16 proof was produced for the passing candidate or the duplicate-lot candidate. The verdict-0 eth_call, VerificationFailed check, and unchanged-balance check were not executed.",
+    "The 1 USDC funding, canonical submit and release, dual SDK and engine recovery, and accepted oracle run were not executed.",
+    "The separate Funded exact-expiry refund and the Submitted snapshot refund, including evm_snapshot and evm_revert, were not executed.",
+    "The automine-off pending submit, txpool observation, uncertain restart, later mine, reconcile, and single release were not executed.",
+    "The indexer tick with confirmations 3n and the GET status and submission comparisons were not executed.",
+    "Legacy 900-second and Meridian 1800-second prove wall time were not measured. The suite timeout remains 5400000 ms in the unchanged funded Vitest config.",
+    "Post-proof retention of the local node, private failure logs, and the full vitest process exit code were not observed."
+  ],
+  "gaps": [
+    "The failing Groth16 path runs only when UBC26_FUNDED_WORKLOAD=meridian. A legacy run records that proof as not claimed.",
+    "The helper comment says the second lot is copied onto the first charge. The code assigns the first charge's lot_id to the second charge. The preflight pins that assignment, and the oracle rejects it.",
+    "Provenance JSON hashes are stored on the workload evidence and checked at load. They are not additional paths in the rehearsal source file list. The source list does include the oracle and tests/test_oracle.py.",
+    "GET comparisons cover the indexed settlement fields and the KeyReleased key. The test does not dump every chain log and compare it to the events table.",
+    "The published guest verdict0 execution reduced clay_kg by 1. This suite's failing input is the duplicate lot. Both are semantic verdict failures; only the clay_kg case has an executed guest journal."
+  ],
+  "outsideCandidate": "Other dirty plan and status documents, and the untracked agents/anish/reports/fresh-exchange-local-2026-11-15.json, were not part of this review. No source file was edited."
+}

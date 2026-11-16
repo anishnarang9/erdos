@@ -2,6 +2,20 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 00:29 -05:00 — Anish
+
+- The exact frozen two-file suite candidate passed independent [specification](reports/localnet-suite-spec-review-2026-11-16.json) and [quality](reports/localnet-suite-quality-review-2026-11-16.json) review. Parent matched both reports' hashes to the current source. Specification reran 31 portable checks and worker typecheck successfully, with the expensive integration explicitly skipped.
+- Publishing those unchanged source bytes while the actual local run continues. Launch HEAD remains `8c41e3d`, with candidate hashes `f98b9cc9aa52ce7ce0c6cd962519054b5ece437642ff20882c7835a1a7ab61a2` for the suite and `ebf9bb5bbca5642245f505f26515274f9f7ac01ce96fdaac92cb1ce98446bd0c` for its helper. No source edit or test restart occurred.
+- The suite covers real pending submission, no blind resend, explicit manual reconciliation of the uncertain hash, separate canonical payout/indexed delivery, a reverted Submitted-refund branch, a separate Funded refund and fresh passing/failing proofs. These remain source-reviewed behaviors until the full run executes them.
+- Review found one nonblocking reversed-direction mutation comment. Retain it unchanged during the run and preserve the review note. No actual full-run result is claimed here. Final process exit, full-run evidence, final-head CI and clean-checkout reproduction remain pending.
+
+## 2026-11-16 00:10 -05:00 — Anish
+
+- The user requested actual local execution without further preparation delays. Started the complete Meridian funded suite in owned private scratch under background job `sh_1e2c1c871001IWYYGlSZWuLMr4`. It uses pinned Arc Anvil, the native engine, r0vm 3.1.0, real verifier/contracts and local native USDC. No live endpoint or operator wallet is configured.
+- The candidate has 31 passing portable preflight tests and a passing worker typecheck. Independent specification review continues read-only while the run executes. Source at launch is `8c41e3d` plus the explicitly stamped two-file suite candidate. No source file may change underneath the running test.
+- Paused the additional recorded-engine replay. Its worker confirms that no replay, build or proof command started. The full local suite has exclusive proving resources.
+- Whole-process exit status will be added to the public report only after the child exits. No fresh proof, payout or completion claim follows from starting the process. Remaining publication, review and CI gates still apply.
+
 ## 2026-11-16 00:04 -05:00 — Anish
 
 - Publishing the six reviewed operator/reference documents and preserved legacy reports on `codex/engine-commerce`, base `e8b9273`. Documentation now separates the partial `9458a81` process result, `2d9f2fd` cleanup correction, Meridian semantic/guest evidence and the still-pending fresh exchange.

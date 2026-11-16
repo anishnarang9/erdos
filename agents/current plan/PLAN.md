@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 00:10 -05:00 — Anish — Execute now; defer extra replay
+
+- The user requested immediate local execution after preparation took too long. Started the actual full Meridian acceptance suite after its 31 cheap preflight tests and worker typecheck passed. Run independent read-only review concurrently, rather than delaying this local-only run further. Do not weaken guards or claim final acceptance before review and process completion.
+- Extra recorded-engine replay is deferred and did not run. The actual funded suite owns guest/proof resources exclusively. Freeze source bytes during the run. Record its true launch HEAD and two-file candidate hashes, then publish the reviewed source and results separately.
+- This changes execution order, not the local acceptance requirements or live-spending boundary. No live Arc call, wallet access or final on-chain settlement is authorized by it.
+
 ## 2026-11-15 23:54 -05:00 — Anish — Arc indexer margin reviewed
 
 - The minimal API correction passes the configured confirmation margin to `LogCursor`. Arc server startup uses three blocks. Simulation uses zero. Independent specification and quality reviews approved the exact four-file candidate, with 12 focused tests passing in each review. The implementer passed all 762 API tests and API typecheck.
