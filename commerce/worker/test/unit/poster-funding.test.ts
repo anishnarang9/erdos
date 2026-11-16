@@ -5,11 +5,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   decodeFunctionData, encodeAbiParameters, encodeEventTopics, keccak256, parseTransaction,
-  type Hex, type Abi,
+  zeroAddress, type Hex, type Abi,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { arcCoreAbi, arcHookAbi } from "@ubc26/sdk";
-import { createPosterFunding, type PosterFundingConfig } from "../../src/poster-funding.ts";
+import { arcCoreAbi, arcHookAbi, openClaimSignatureAbi, arcErc20Abi } from "@ubc26/sdk";
+import { createPosterFunding, createOpenClaimBuyerFunding, type PosterFundingConfig } from "../../src/poster-funding.ts";
 
 // Public test key. All RPC methods below are local mocks.
 const account = privateKeyToAccount(`0x${"01".repeat(32)}`);
@@ -21,12 +21,13 @@ const bh = `0x${"aa".repeat(32)}` as Hex;
 const imageId = `0x${"11".repeat(32)}` as Hex;
 const rulesHash = `0x${"22".repeat(32)}` as Hex;
 const referenceHash = `0x${"33".repeat(32)}` as Hex;
-async function fixture() {
-  let budget = 0n, funded = false, allowance = 0n, time = 100n;
+async function fixture(openClaim = false) {
+  let budget = 0n, funded = false, allowance = 0n, time = 100n, registered = false;
   const transactions = new Map<Hex, any>(), receipts = new Map<Hex, any>();
-  const job = () => ({ id: 42n, client: account.address, provider, evaluator: hook, description: "approved",
-    budget, expiredAt: 5000n, status: funded ? 1 : 0, hook });
-  const terms = () => [imageId, rulesHash, referenceHash, provider, 1000000n, 5000n, funded];
+  const job = () => ({ id: 42n, client: account.address, provider: openClaim ? hook : provider, evaluator: hook, description: "approved",
+    budget, expiredAt: 5000n, status: funded ? 1 : 0, hook: openClaim ? zeroAddress : hook });
+  const terms = () => openClaim ? [account.address, imageId, rulesHash, referenceHash, 1000000n, 5000n, registered]
+    : [imageId, rulesHash, referenceHash, provider, 1000000n, 5000n, funded];
   function log(abi: Abi, eventName: string, args: any, data: Hex, address: Hex, hash: Hex) {
     return { address, topics: encodeEventTopics({ abi, eventName, args } as any), data, removed: false,
       blockNumber: 10n, blockHash: bh, transactionHash: hash, logIndex: 0 };
@@ -50,21 +51,29 @@ async function fixture() {
     const t = parseTransaction(raw), hash = keccak256(raw);
     const decoded = decodeFunctionData({ abi: t.to?.toLowerCase() === usdc ? [
       { type: "function", name: "approve", inputs: [{ type: "address" }, { type: "uint256" }], outputs: [], stateMutability: "nonpayable" },
-    ] : arcCoreAbi, data: t.data! });
+    ] : openClaim && t.to?.toLowerCase() === hook ? openClaimSignatureAbi : arcCoreAbi, data: t.data! });
     const logs: any[] = [];
     if (decoded.functionName === "createJob") logs.push(log(arcCoreAbi, "JobCreated",
-      { jobId: 42n, client: account.address, provider },
-      encodeAbiParameters([{ type: "address" }, { type: "uint256" }, { type: "address" }], [hook, 5000n, hook]), core, hash));
+      { jobId: 42n, client: account.address, provider: openClaim ? hook : provider },
+      encodeAbiParameters([{ type: "address" }, { type: "uint256" }, { type: "address" }], [hook, 5000n, openClaim ? zeroAddress : hook]), core, hash));
     if (decoded.functionName === "setBudget") { expect(decoded.args).toEqual([42n, 1000000n, "0x"]); budget = 1000000n; }
     if (decoded.functionName === "approve") { expect(decoded.args).toEqual([core, 1000000n]); allowance = 1000000n; }
     if (decoded.functionName === "fund") {
-      expect(decoded.args).toEqual([42n, encodeAbiParameters([{ type: "bytes32" }, { type: "bytes32" }, { type: "bytes32" }], [imageId, rulesHash, referenceHash])]);
+      expect(decoded.args).toEqual([42n, openClaim ? "0x" : encodeAbiParameters([{ type: "bytes32" }, { type: "bytes32" }, { type: "bytes32" }], [imageId, rulesHash, referenceHash])]);
       funded = true; allowance = 0n;
       logs.push(log(arcCoreAbi, "JobFunded", { jobId: 42n, client: account.address },
         encodeAbiParameters([{ type: "uint256" }], [1000000n]), core, hash));
-      logs.push({ ...log(arcHookAbi, "TermsFrozen", { jobId: 42n, provider },
+      if (!openClaim) logs.push({ ...log(arcHookAbi, "TermsFrozen", { jobId: 42n, provider },
         encodeAbiParameters([{ type: "bytes32" }, { type: "bytes32" }, { type: "bytes32" }, { type: "uint256" }, { type: "uint64" }],
           [imageId, rulesHash, referenceHash, 1000000n, 5000n]), hook, hash), logIndex: 1 });
+      else logs.push(log(arcErc20Abi, "Transfer", { from: account.address, to: core },
+        encodeAbiParameters([{ type: "uint256" }], [1000000n]), usdc, hash));
+    }
+    if (decoded.functionName === "register") {
+      expect(decoded.args).toEqual([42n, imageId, rulesHash, referenceHash, 1000000n, 5000n]); registered = true;
+      logs.push(log(openClaimSignatureAbi, "TermsRegistered", { jobId: 42n, buyer: account.address },
+        encodeAbiParameters([{type:"bytes32"},{type:"bytes32"},{type:"bytes32"},{type:"uint256"},{type:"uint64"}],
+          [imageId,rulesHash,referenceHash,1000000n,5000n]), hook, hash));
     }
     transactions.set(hash, { ...t, hash, input: t.data, from: account.address, blockNumber: 10n, blockHash: bh, value: t.value ?? 0n });
     receipts.set(hash, { transactionHash: hash, from: account.address, to: t.to, blockNumber: 10n, blockHash: bh,
@@ -88,6 +97,24 @@ async function run(f: Awaited<ReturnType<typeof fixture>>) {
   try { return await helper.run(); } finally { await helper.close(); }
 }
 describe("Poster funding", () => {
+  it.each([0, 1, 3, 5])("confirms all five open-claim calls and safely resumes a dropped response at step %s", async dropped => {
+    const f = await fixture(true), send = f.rawSend.getMockImplementation()!;
+    f.rawSend.mockImplementation(async (...args: any[]) => {
+      const hash = await send(args[0], args[1]);
+      if (f.rawSend.mock.calls.length === dropped) throw Error("response lost");
+      return hash;
+    });
+    const runOpen = async () => {
+      const { hook: adapter, provider: _provider, ...terms } = f.cfg.terms;
+      const h = await createOpenClaimBuyerFunding({ ...f.cfg, terms: { ...terms, adapter }, confirmations: 0n });
+      try { return await h.run(); } finally { await h.close(); }
+    };
+    if (dropped) await expect(runOpen()).rejects.toThrow();
+    const result = await runOpen(); await runOpen();
+    expect(result.jobId).toBe(42n); expect(result.registerTxHash).toMatch(/^0x[0-9a-f]{64}$/);
+    expect(result.remainingAllowance).toBe(0n); expect(f.rawSend).toHaveBeenCalledTimes(5);
+    expect(f.link).toHaveBeenCalledTimes(1);
+  });
   it("concurrent other job id wins: uses only the actual unique JobCreated id", async () => {
     const f = await fixture(); const result = await run(f);
     expect(result.jobId).toBe(42n); expect(f.rawSend).toHaveBeenCalledTimes(4);

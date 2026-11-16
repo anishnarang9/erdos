@@ -56,5 +56,10 @@ describe("read-only open-claim chain port", () => {
     expect(getBytecode.mock.calls[0]?.[0]).toMatchObject({ address: deployment.adapter, blockNumber: 42n });
     head = 43n;
     expect((await port.snapshot(deployment, 7n)).blockNumber).toBe(43n);
+    const anchored = createViemOpenClaimPort(client, { confirmations: 3n, blockNumber: 39n });
+    expect((await anchored.snapshot(deployment, 7n)).blockNumber).toBe(39n);
+    head = 80n;
+    expect((await anchored.snapshot(deployment, 7n)).blockNumber).toBe(39n);
+    await expect(createViemOpenClaimPort(client, { confirmations: 3n, blockNumber: 79n }).observe(deployment)).rejects.toThrow();
   });
 });

@@ -20,7 +20,8 @@ export {
   loadOperatorKeystore, type OperatorKeystoreConfig, type OperatorKeystoreResult, type OperatorPasswordSource,
 } from "./operator-keystore.ts";
 export {
-  createPosterFunding, PosterFundingError, type PosterFunding, type PosterFundingConfig,
+  createPosterFunding, createOpenClaimBuyerFunding, type OpenClaimBuyerFundingConfig,
+  PosterFundingError, type PosterFunding, type PosterFundingConfig,
   type PosterFundingResult, type PosterFundingDisposition, type PosterFundingLink, type PosterFundingPublic,
 } from "./poster-funding.ts";
 export {

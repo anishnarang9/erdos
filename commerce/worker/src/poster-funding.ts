@@ -6,7 +6,7 @@ import {
   recoverTransactionAddress, serializeTransaction, stringToHex, zeroAddress,
   type Abi, type Address, type Hex, type LocalAccount, type Log, type TransactionSerialized,
 } from "viem";
-import { arcCoreAbi, arcHookAbi, arcErc20Abi } from "@ubc26/sdk";
+import { arcCoreAbi, arcHookAbi, arcErc20Abi, openClaimSignatureAbi } from "@ubc26/sdk";
 import type { FundingTerms } from "../../api/src/chain.ts";
 import type { LocalBroadcasterPublic, LocalRawSend } from "./local-broadcaster.ts";
 import { ARC_MIN_FEE } from "./policy.ts";
@@ -20,6 +20,7 @@ export interface PosterFundingLink {
   revisionHash: Hex;
   jobId: bigint;
   fundTxHash: Hex;
+  registerTxHash?: Hex;
 }
 export interface PosterFundingConfig {
   /** Copy the exact API selection. Never calculate a new expiry here. */
@@ -85,12 +86,22 @@ export interface PosterFunding {
   inspect(): Promise<PosterFundingDisposition>;
   close(): Promise<void>;
 }
-type Kind = "createJob" | "setBudget" | "approve" | "fund";
+export interface OpenClaimBuyerFundingConfig extends Omit<PosterFundingConfig, "terms"> {
+  terms: Omit<FundingTerms, "hook" | "provider"> & { adapter: Address };
+  confirmations?: bigint;
+  /** Check operator pins against confirmed deployment history before each new signature. */
+  verifyDeployment?(): Promise<unknown>;
+}
+export function createOpenClaimBuyerFunding(input: OpenClaimBuyerFundingConfig): Promise<PosterFunding> {
+  const { adapter, ...terms } = input.terms;
+  return createFunding({ ...input, terms: { ...terms, hook: adapter, provider: adapter } }, input.confirmations ?? 3n, input.verifyDeployment);
+}
+type Kind = "createJob" | "setBudget" | "approve" | "fund" | "register";
 type Entry = {
   kind: Kind; to: Address; data: Hex; nonce: number; gas: string; fee: string; priority: string;
   maximum: string; stage: "intent" | "signed" | "sent" | "confirmed"; hash?: Hex;
 };
-type Run = { approval: Hex; entries: Entry[]; linked: boolean };
+type Run = { approval: Hex; entries: Entry[]; linked: boolean; mode?: "open-claim" };
 type Journal = { version: 1; buyer: Address; nativeGasBudget: string; runs: Record<string, Run> };
 const fail = () => new Error("Poster funding operation failed");
 const check: (value: unknown) => asserts value = value => { if (!value) throw fail(); };
@@ -98,7 +109,7 @@ const same = (a: unknown, b: unknown) => typeof a === "string" && typeof b === "
 const hashOK = (v: unknown): v is Hex => typeof v === "string" && /^0x[0-9a-fA-F]{64}$/.test(v);
 const json = (v: unknown) => JSON.stringify(v, (_, x: unknown) => typeof x === "bigint" ? String(x) : x);
 const digest = (v: unknown) => keccak256(stringToHex(json(v)));
-const kinds: Kind[] = ["createJob", "setBudget", "approve", "fund"];
+const selectedKinds: Kind[] = ["createJob", "setBudget", "approve", "fund"];
 function field(v: unknown, name: string, index: number): unknown {
   return Array.isArray(v) ? v[index] : v && typeof v === "object" ? (v as Record<string, unknown>)[name] : undefined;
 }
@@ -108,6 +119,11 @@ function field(v: unknown, name: string, index: number): unknown {
  * RPCs must be trusted and uncached. Inclusion after the last time check is not atomic.
  * Account locks coordinate this helper, not unrelated wallet software or provider signers. */
 export async function createPosterFunding(input: PosterFundingConfig): Promise<PosterFunding> {
+  return createFunding(input);
+}
+async function createFunding(input: PosterFundingConfig, confirmations?: bigint, verifyDeployment?: () => Promise<unknown>): Promise<PosterFunding> {
+  const openClaim = confirmations !== undefined;
+  const kinds: Kind[] = openClaim ? [...selectedKinds, "register"] : selectedKinds;
   let unlock: (() => void) | undefined;
   try {
     // Capture approvals and injected methods before any await.
@@ -126,7 +142,9 @@ export async function createPosterFunding(input: PosterFundingConfig): Promise<P
       hookMarginSeconds: input.hookMarginSeconds,
     });
     check((!account || account.type === "local" && same(account.address, buyer)) && !same(buyer, t.provider));
-    check(t.chainId === 5042002 && t.budget === "1000000" && /^[1-9][0-9]*$/.test(t.expiredAt));
+    check(t.chainId === 5042002 && (openClaim ? /^[1-9][0-9]*$/.test(t.budget) : t.budget === "1000000") && /^[1-9][0-9]*$/.test(t.expiredAt));
+    const budget = BigInt(t.budget);
+    check(budget < 1n << 256n && (!openClaim || confirmations! >= 0n));
     const expiry = BigInt(t.expiredAt);
     check(expiry < 1n << 64n && hashOK(t.imageId) && hashOK(t.rulesHash) && hashOK(t.referenceHash) && hashOK(cfg.revisionHash));
     check(typeof t.description === "string" && t.description.length > 0 && typeof cfg.apiJobId === "string" && cfg.apiJobId.length > 0);
@@ -135,7 +153,7 @@ export async function createPosterFunding(input: PosterFundingConfig): Promise<P
     check(cfg.maxGas > 0n && cfg.maxFeePerGas >= ARC_MIN_FEE && cfg.maxPriorityFeePerGas >= 0n &&
       cfg.maxPriorityFeePerGas <= cfg.maxFeePerGas && cfg.nativeGasBudget > 0n &&
       cfg.operationalReserveSeconds > 0n && cfg.hookMarginSeconds > 0n);
-    const scope = digest(cfg.apiJobId), approval = digest({ t, cfg });
+    const scope = digest(cfg.apiJobId), approval = digest({ t, cfg, ...(openClaim ? { mode: "open-claim", confirmations: String(confirmations) } : {}) });
     function privatePath(path: string, directory: boolean) {
       const s = fs.lstatSync(path);
       check(!s.isSymbolicLink() && (directory ? s.isDirectory() : s.isFile() && s.nlink === 1) &&
@@ -196,9 +214,10 @@ export async function createPosterFunding(input: PosterFundingConfig): Promise<P
       check(journal.version === 1 && same(journal.buyer, buyer) && journal.nativeGasBudget === String(cfg.nativeGasBudget) &&
         journal.runs && typeof journal.runs === "object" && !Array.isArray(journal.runs));
       for (const r of Object.values(journal.runs)) {
-        check(hashOK(r.approval) && Array.isArray(r.entries) && r.entries.length <= 4 && typeof r.linked === "boolean");
+        const recordedKinds = r.mode === "open-claim" ? [...selectedKinds, "register"] : selectedKinds;
+        check(hashOK(r.approval) && Array.isArray(r.entries) && r.entries.length <= recordedKinds.length && typeof r.linked === "boolean");
         for (const [i, e] of r.entries.entries()) {
-          check(e.kind === kinds[i] && Number.isSafeInteger(e.nonce) && e.nonce >= 0 &&
+          check(e.kind === recordedKinds[i] && Number.isSafeInteger(e.nonce) && e.nonce >= 0 &&
             ["intent", "signed", "sent", "confirmed"].includes(e.stage) && (!e.hash || hashOK(e.hash)));
           check(BigInt(e.maximum) === BigInt(e.gas) * BigInt(e.fee) && BigInt(e.maximum) > 0n);
         }
@@ -208,7 +227,7 @@ export async function createPosterFunding(input: PosterFundingConfig): Promise<P
       journal = { version: 1, buyer, nativeGasBudget: String(cfg.nativeGasBudget), runs: {} };
     }
     check(!journal.runs[scope] || journal.runs[scope]!.approval === approval);
-    const state = journal.runs[scope] ??= { approval, entries: [], linked: false };
+    const state = journal.runs[scope] ??= { approval, entries: [], linked: false, ...(openClaim ? { mode: "open-claim" as const } : {}) };
     let poisoned = false, busy = false, closed = false;
     function integrity() {
       try {
@@ -276,13 +295,18 @@ export async function createPosterFunding(input: PosterFundingConfig): Promise<P
         return Object.freeze({ allowanceMayRemain: true, cleanupRequired: "manual-review", allowanceStatus: "unknown" });
       }
     }
-    async function snapshot(jobId: bigint, blockNumber: bigint, funded: boolean, expectedBudget: bigint) {
+    async function snapshot(jobId: bigint, blockNumber: bigint, funded: boolean, expectedBudget: bigint, registered = false) {
       const j = await read(t.core, arcCoreAbi, "getJob", [jobId], blockNumber);
       check(field(j, "id", 0) === jobId && same(field(j, "client", 1), buyer) && same(field(j, "provider", 2), t.provider) &&
         same(field(j, "evaluator", 3), t.hook) && field(j, "description", 4) === t.description &&
         field(j, "budget", 5) === expectedBudget && field(j, "expiredAt", 6) === expiry &&
-        field(j, "status", 7) === (funded ? 1 : 0) && same(field(j, "hook", 8), t.hook));
-      if (funded) {
+        field(j, "status", 7) === (funded ? 1 : 0) && same(field(j, "hook", 8), openClaim ? zeroAddress : t.hook));
+      if (funded && openClaim && registered) {
+        const f = await read(t.hook, openClaimSignatureAbi, "terms", [jobId], blockNumber);
+        check(same(field(f, "buyer", 0), buyer) && same(field(f, "imageId", 1), t.imageId) &&
+          same(field(f, "rulesHash", 2), t.rulesHash) && same(field(f, "referenceHash", 3), t.referenceHash) &&
+          field(f, "budget", 4) === budget && field(f, "expiry", 5) === expiry && field(f, "registered", 6) === true);
+      } else if (funded && !openClaim) {
         const f = await read(t.hook, arcHookAbi, "terms", [jobId], blockNumber);
         check(same(field(f, "imageId", 0), t.imageId) && same(field(f, "rulesHash", 1), t.rulesHash) &&
           same(field(f, "referenceHash", 2), t.referenceHash) && same(field(f, "provider", 3), t.provider) &&
@@ -290,15 +314,16 @@ export async function createPosterFunding(input: PosterFundingConfig): Promise<P
       }
     }
     async function prewrite(jobId: bigint | undefined, kind: Kind) {
+      if (verifyDeployment) await verifyDeployment();
       await chain();
       const b = await pub.block({ blockTag: "latest" });
       check(b.number !== null && b.hash && b.timestamp >= 0n);
       const margin = await read(t.hook, arcHookAbi, "MIN_EXPIRY_MARGIN", [], b.number);
       check(typeof margin === "bigint" && margin >= 0n && b.timestamp + cfg.operationalReserveSeconds < expiry &&
         b.timestamp + margin + cfg.hookMarginSeconds < expiry);
-      if (jobId !== undefined) await snapshot(jobId, b.number, false, kind === "setBudget" ? 0n : 1000000n);
+      if (jobId !== undefined) await snapshot(jobId, b.number, kind === "register", kind === "setBudget" ? 0n : budget);
       const allowance = await read(t.usdc, arcErc20Abi, "allowance", [buyer, t.core], b.number);
-      check(allowance === (kind === "fund" ? 1000000n : 0n));
+      check(allowance === (kind === "fund" ? budget : 0n));
       await stable(b.number, b.hash);
       await chain();
       // Reads and signing can be slow. Do not reuse their earlier timestamp.
@@ -309,13 +334,15 @@ export async function createPosterFunding(input: PosterFundingConfig): Promise<P
     }
     function call(kind: Kind, id?: bigint): { to: Address; data: Hex } {
       if (kind === "createJob") return { to: t.core, data: encodeFunctionData({ abi: arcCoreAbi, functionName: kind,
-        args: [t.provider, t.hook, expiry, t.description, t.hook] }) };
-      if (kind === "approve") return { to: t.usdc, data: encodeFunctionData({ abi: arcErc20Abi, functionName: kind, args: [t.core, 1000000n] }) };
+        args: [t.provider, t.hook, expiry, t.description, openClaim ? zeroAddress : t.hook] }) };
+      if (kind === "approve") return { to: t.usdc, data: encodeFunctionData({ abi: arcErc20Abi, functionName: kind, args: [t.core, budget] }) };
       check(id !== undefined && id > 0n);
+      if (kind === "register") return { to: t.hook, data: encodeFunctionData({ abi: openClaimSignatureAbi, functionName: "register",
+        args: [id, t.imageId, t.rulesHash, t.referenceHash, budget, expiry] }) };
       return { to: t.core, data: kind === "setBudget"
-        ? encodeFunctionData({ abi: arcCoreAbi, functionName: kind, args: [id, 1000000n, "0x"] })
+        ? encodeFunctionData({ abi: arcCoreAbi, functionName: kind, args: [id, budget, "0x"] })
         : encodeFunctionData({ abi: arcCoreAbi, functionName: kind, args: [id,
-          encodeAbiParameters([{ type: "bytes32" }, { type: "bytes32" }, { type: "bytes32" }], [t.imageId, t.rulesHash, t.referenceHash])] }) };
+          openClaim ? "0x" : encodeAbiParameters([{ type: "bytes32" }, { type: "bytes32" }, { type: "bytes32" }], [t.imageId, t.rulesHash, t.referenceHash])] }) };
     }
     async function reconcile(e: Entry, id?: bigint): Promise<bigint | undefined> {
       // A failed recheck must also block other runs for this account.
@@ -334,6 +361,10 @@ export async function createPosterFunding(input: PosterFundingConfig): Promise<P
         same(tx.blockHash, r.blockHash) && r.gasUsed > 0n && r.gasUsed <= cfg.maxGas &&
         r.effectiveGasPrice >= ARC_MIN_FEE && r.effectiveGasPrice <= cfg.maxFeePerGas);
       await stable(r.blockNumber, r.blockHash);
+      if (openClaim) {
+        const head = await pub.block({ blockTag: "latest" });
+        check(head.number !== null && head.number >= r.blockNumber + confirmations!);
+      }
       function event(address: Address, abi: Abi, name: string): Record<string, unknown> {
         const matches: Record<string, unknown>[] = [];
         for (const log of r.logs) {
@@ -350,16 +381,29 @@ export async function createPosterFunding(input: PosterFundingConfig): Promise<P
       if (e.kind === "createJob") {
         const a = event(t.core, arcCoreAbi, "JobCreated");
         check(typeof a.jobId === "bigint" && a.jobId > 0n && same(a.client, buyer) && same(a.provider, t.provider) &&
-          same(a.evaluator, t.hook) && a.expiredAt === expiry && same(a.hook, t.hook));
+          same(a.evaluator, t.hook) && a.expiredAt === expiry && same(a.hook, openClaim ? zeroAddress : t.hook));
         id = a.jobId;
       }
       if (e.kind === "fund") {
         check(id);
-        const a = event(t.core, arcCoreAbi, "JobFunded"), f = event(t.hook, arcHookAbi, "TermsFrozen");
-        check(a.jobId === id && same(a.client, buyer) && a.amount === 1000000n &&
-          f.jobId === id && same(f.provider, t.provider) && same(f.imageId, t.imageId) && same(f.rulesHash, t.rulesHash) &&
-          same(f.referenceHash, t.referenceHash) && f.budget === 1000000n && f.expiry === expiry);
-        await snapshot(id, r.blockNumber, true, 1000000n);
+        const a = event(t.core, arcCoreAbi, "JobFunded");
+        check(a.jobId === id && same(a.client, buyer) && a.amount === budget);
+        if (openClaim) {
+          const transfer = event(t.usdc, arcErc20Abi, "Transfer");
+          check(same(transfer.from, buyer) && same(transfer.to, t.core) && transfer.value === budget);
+        } else {
+          const f = event(t.hook, arcHookAbi, "TermsFrozen");
+          check(f.jobId === id && same(f.provider, t.provider) && same(f.imageId, t.imageId) && same(f.rulesHash, t.rulesHash) &&
+            same(f.referenceHash, t.referenceHash) && f.budget === budget && f.expiry === expiry);
+        }
+        await snapshot(id, r.blockNumber, true, budget);
+      }
+      if (e.kind === "register") {
+        check(id);
+        const f = event(t.hook, openClaimSignatureAbi, "TermsRegistered");
+        check(f.jobId === id && same(f.buyer, buyer) && same(f.imageId, t.imageId) && same(f.rulesHash, t.rulesHash) &&
+          same(f.referenceHash, t.referenceHash) && f.budget === budget && f.expiry === expiry);
+        await snapshot(id, r.blockNumber, true, budget, true);
       }
       await stable(r.blockNumber, r.blockHash);
       e.stage = "confirmed"; save(); return id;
@@ -398,7 +442,7 @@ export async function createPosterFunding(input: PosterFundingConfig): Promise<P
               const p = parseTransaction(raw);
               check(p.type === "eip1559" && p.chainId === 5042002 && p.nonce === nonce && same(p.to, expected.to) &&
                 same(p.data, expected.data) && (p.value ?? 0n) === 0n && p.gas === cfg.maxGas && p.maxFeePerGas === cfg.maxFeePerGas &&
-                p.maxPriorityFeePerGas === cfg.maxPriorityFeePerGas && (!p.accessList || p.accessList.length === 0) &&
+                (p.maxPriorityFeePerGas ?? 0n) === cfg.maxPriorityFeePerGas && (!p.accessList || p.accessList.length === 0) &&
                 same(serializeTransaction(p), raw) && same(await recoverTransactionAddress({ serializedTransaction: raw as TransactionSerialized }), buyer));
               e.hash = keccak256(raw); e.stage = "signed"; save();
               // Persist the hash BEFORE the only dispatch. A crash here never triggers a resend.
@@ -415,7 +459,8 @@ export async function createPosterFunding(input: PosterFundingConfig): Promise<P
           const b = await pub.block({ blockTag: "latest" }); check(b.number !== null && b.hash);
           const allowance = await read(t.usdc, arcErc20Abi, "allowance", [buyer, t.core], b.number);
           check(typeof allowance === "bigint" && allowance >= 0n); await stable(b.number, b.hash);
-          const identity = { apiJobId: cfg.apiJobId, revisionHash: cfg.revisionHash, jobId: id, fundTxHash };
+          const identity = { apiJobId: cfg.apiJobId, revisionHash: cfg.revisionHash, jobId: id, fundTxHash,
+            ...(openClaim ? { registerTxHash: state.entries[4]!.hash! } : {}) };
           if (!state.linked) { await link(Object.freeze(identity)); state.linked = true; save(); }
           return { ...identity, cleanupRequired: allowance !== 0n, remainingAllowance: allowance };
         } catch { throw new PosterFundingError(await disposition()); } finally { busy = false; }
