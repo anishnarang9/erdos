@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 19:07 -05:00 — Anish
+
+- Published oracle checkpoint `22c1a3b` to `origin/codex/engine-commerce`. Parent checks passed 56 runner/CLI/composed tests, worker typecheck and 15 real-engine API tests.
+- The corrected portable suite passed 24 preflight tests and worker typecheck. Four failing regressions preceded the evidence-writer fix. It now records observed tool pins and source hashes, omits the stale missing-runner claim and preserves previous attempts.
+- Independent Grok high-effort review approved the explicit suite, tool checks, cleanup and evidence changes. The proposed cleanup race did not reproduce with a real child process. No speculative timer-based cleanup change was made.
+- This checkpoint publishes the suite source before its new full local rehearsal. The earlier 592.4-second proof does not establish this candidate's full lifecycle. No live transaction or wallet access occurred.
+- Next: run one sequential fresh local proof, payout and recovery against this checkpoint. Publish sanitized results and corrected docs, then require final-head CI. Live approval gates remain unchanged.
+
 ## 2026-11-15 18:48 -05:00 — Anish
 
 - Resumed `codex/engine-commerce` at `ee64e75` under the active goal. Used Grok 4.7 Orca workers for independent oracle, portable-suite, documentation, engine and contract checks. Reduced concurrency to at most two workers after the user's rate-limit warning.
