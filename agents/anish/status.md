@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 08:17 -05:00 — Anish — Linux fixture path correction
+
+- Draft PR #7 reached combined code head `d6172e2`. My exact-head local `pnpm check` passed all typechecks, SDK 342, API 778 and worker 886. Its contract CI job passed; engine CI is still running.
+- Commerce CI failed two new sibling-nonce tests because their `/tmp` fixtures reach `readSafeFile`, which rejects a world-writable ancestor on Linux. The same tests passed on macOS, where the temporary directory has a private ancestor. I moved only those two fixtures under the checkout, with cleanup after each test. Focused 81 tests, worker typecheck and `git diff --check` pass. Full CI for this correction is pending.
+- The correction changes test paths only. The historical real-proof local acceptance remains tied to `0cce487`. A verified Arc adapter manifest and funded buyer and solver wallets are still required for the live run; no live signature, deposit, proof or payout occurred in this checkpoint.
+
 ## 2026-11-16 08:13 -05:00 — Anish — Final combined source checked
 
 - Integrated the separately published recovery-retry and launcher checks through `a37aa3c` with the reviewed refund, approval and nonce guards. The launcher also checks package files, TypeScript configuration and contract vendor source before signing. No contract or deployment change beyond published descendants of `8b9589d` was introduced.

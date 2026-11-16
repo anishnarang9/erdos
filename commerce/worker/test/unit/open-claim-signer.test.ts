@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { mkdtemp, realpath, readFile, mkdir, unlink, writeFile } from "node:fs/promises";
+import { mkdtemp, realpath, readFile, mkdir, rm, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { encodeFunctionData, keccak256, parseTransaction, sha256, type Hex } from "viem";
@@ -90,13 +90,21 @@ it("opens a refund journal after buyer funding created the account directory, th
 });
 it("blocks unresolved funding and reserves sibling funding nonces before a refund", async () => {
   const f=await fixture();
-  const b=await createOpenClaimRefundBroadcaster({...f.cfg,expiresAt:100n,validUntil:200n});close.push(b.close);
-  const path=join(b.directory,"poster-funding.json");
-  const sibling={version:1,buyer:account.address,runs:{job:{entries:[{nonce:5,stage:"signed"}]}}};
-  await writeFile(path,JSON.stringify(sibling),{mode:0o600});
-  const tx={...f.tx,to:core,data:encodeFunctionData({abi:arcCoreAbi,functionName:"claimRefund",args:[7n]})} as const;
-  await expect(b.broadcast(tx)).rejects.toThrow();expect(f.rawSend).not.toHaveBeenCalled();
-  sibling.runs.job.entries[0]!.stage="confirmed";await writeFile(path,JSON.stringify(sibling));
-  await b.broadcast(tx);
-  expect(parseTransaction(f.rawSend.mock.calls[0]![0].params[0]).nonce).toBe(6);
+  // readSafeFile rejects world-writable /tmp ancestors on Linux.
+  f.cfg.journalRoot=await realpath(await mkdtemp(join(process.cwd(),".open-claim-sibling-")));
+  let b: Awaited<ReturnType<typeof createOpenClaimRefundBroadcaster>> | undefined;
+  try {
+    b=await createOpenClaimRefundBroadcaster({...f.cfg,expiresAt:100n,validUntil:200n});
+    const path=join(b.directory,"poster-funding.json");
+    const sibling={version:1,buyer:account.address,runs:{job:{entries:[{nonce:5,stage:"signed"}]}}};
+    await writeFile(path,JSON.stringify(sibling),{mode:0o600});
+    const tx={...f.tx,to:core,data:encodeFunctionData({abi:arcCoreAbi,functionName:"claimRefund",args:[7n]})} as const;
+    await expect(b.broadcast(tx)).rejects.toThrow();expect(f.rawSend).not.toHaveBeenCalled();
+    sibling.runs.job.entries[0]!.stage="confirmed";await writeFile(path,JSON.stringify(sibling));
+    await b.broadcast(tx);
+    expect(parseTransaction(f.rawSend.mock.calls[0]![0].params[0]).nonce).toBe(6);
+  } finally {
+    await b?.close();
+    await rm(f.cfg.journalRoot,{recursive:true,force:true});
+  }
 });

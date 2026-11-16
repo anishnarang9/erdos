@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { mkdtemp, realpath, readFile, stat, chmod, link as hardlink, rename, writeFile } from "node:fs/promises";
+import { mkdtemp, realpath, readFile, stat, chmod, link as hardlink, rename, rm, writeFile } from "node:fs/promises";
 import * as fs from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -98,14 +98,19 @@ async function run(f: Awaited<ReturnType<typeof fixture>>) {
 }
 describe("Poster funding", () => {
   it("blocks unresolved refund sends and reserves sibling refund nonces before funding", async () => {
-    const f=await fixture(),h=await createPosterFunding(f.cfg),path=join(h.directory,"refund-journal.json");
-    const sibling={version:1,account:account.address,entries:[{nonce:7,stage:"intent"}]};
+    const f=await fixture();
+    // readSafeFile rejects world-writable /tmp ancestors on Linux.
+    f.cfg.journalRoot=await realpath(await mkdtemp(join(process.cwd(),".poster-sibling-")));
     try {
-      await writeFile(path,JSON.stringify(sibling),{mode:0o600});
-      await expect(h.run()).rejects.toThrow();expect(f.rawSend).not.toHaveBeenCalled();
-      sibling.entries[0]!.stage="confirmed";await writeFile(path,JSON.stringify(sibling));
-      await h.run();expect(parseTransaction(f.rawSend.mock.calls[0]![0].params[0]).nonce).toBe(8);
-    } finally {await h.close();}
+      const h=await createPosterFunding(f.cfg),path=join(h.directory,"refund-journal.json");
+      const sibling={version:1,account:account.address,entries:[{nonce:7,stage:"intent"}]};
+      try {
+        await writeFile(path,JSON.stringify(sibling),{mode:0o600});
+        await expect(h.run()).rejects.toThrow();expect(f.rawSend).not.toHaveBeenCalled();
+        sibling.entries[0]!.stage="confirmed";await writeFile(path,JSON.stringify(sibling));
+        await h.run();expect(parseTransaction(f.rawSend.mock.calls[0]![0].params[0]).nonce).toBe(8);
+      } finally {await h.close();}
+    } finally {await rm(f.cfg.journalRoot,{recursive:true,force:true});}
   });
   it("reports a possibly pending fractional approval even when observed allowance remains zero", async () => {
     const f=await fixture(true,10000n),send=f.rawSend.getMockImplementation()!;
