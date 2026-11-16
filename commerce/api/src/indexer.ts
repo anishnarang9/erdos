@@ -13,6 +13,11 @@ export interface IndexerOptions {
   maxRange?: bigint;
   /** Upper bound on cursor windows read per tick, so one tick cannot run unbounded. */
   maxWindowsPerTick?: number;
+  /**
+   * Blocks withheld from the saved cursor (LogCursor confirmations). Omitted means 0n, so existing
+   * simulated callers stay unchanged. Arc startup passes 3n.
+   */
+  confirmations?: bigint;
 }
 
 export interface Indexer {
@@ -60,6 +65,7 @@ export function createIndexer(opts: IndexerOptions): Indexer {
     fromBlock: opts.cursorStart,
     decode: (logs) => reader.decodeLogs(logs),
     maxRange: opts.maxRange,
+    confirmations: opts.confirmations,
     store,
   });
 

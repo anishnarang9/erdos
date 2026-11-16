@@ -102,6 +102,9 @@ if (chain) {
     db: indexDb,
     chain,
     cursorStart: BigInt(process.env.INDEX_FROM_BLOCK ?? "0"),
+    // A lagging eth_getLogs can be empty while eth_blockNumber is ahead. Three confirmations keep
+    // acceptance and release logs inside a later window. Simulated mode stays at zero.
+    confirmations: chain.mode === "arc" ? 3n : 0n,
   });
   indexTimer = setInterval(() => {
     indexer.tick().catch((err: unknown) => console.error("[indexer] tick failed", err));

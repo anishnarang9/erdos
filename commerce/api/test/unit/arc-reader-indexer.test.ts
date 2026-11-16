@@ -91,4 +91,104 @@ describe("API real Arc reader and indexer wiring", () => {
       expect(db.prepare("SELECT last_block FROM index_cursor").get()).toMatchObject({ last_block: 42 });
     } finally { db.close(); }
   });
+
+  function acceptanceAndRelease(at: [bigint, bigint]): Log[] {
+    const proofData = encodeAbiParameters([{ type: "bytes32" }, { type: "bytes32" }], [hash("11"), hash("22")]);
+    const accepted = { ...event("ProofAccepted", config.hook, 0, proofData), blockNumber: at[0] };
+    const released = { ...event("KeyReleased", config.hook, 1, proofData), blockNumber: at[1] };
+    released.topics = encodeEventTopics({ abi: arcHookAbi, eventName: "KeyReleased", args: { jobId: 7n, provider: config.core } }) as Log["topics"];
+    return [accepted, released];
+  }
+
+  function cursorOf(db: ReturnType<typeof openDb>): number | bigint | undefined {
+    return (db.prepare("SELECT last_block FROM index_cursor").get() as { last_block: number | bigint } | undefined)?.last_block;
+  }
+
+  it("holds a lagging getLogs window three blocks behind missing acceptance and release logs", async () => {
+    const missing = acceptanceAndRelease([9n, 10n]);
+    let head = 10n;
+    let lagging = true;
+    const getLogs = vi.fn(async ({ fromBlock, toBlock }: { fromBlock: bigint; toBlock: bigint }) => {
+      if (lagging) return [];
+      return missing.filter((log) => (log.blockNumber ?? -1n) >= fromBlock && (log.blockNumber ?? -1n) <= toBlock);
+    });
+    const client = { getChainId: vi.fn(async () => 31337), getBlockNumber: vi.fn(async () => head), getLogs } as unknown as PublicClient;
+    const chain = createApiArcChain(config, client);
+    const db = openDb(":memory:", () => 0);
+    try {
+      const indexer = createIndexer({ db, chain, cursorStart: 0n, confirmations: 3n });
+      expect(await indexer.tick()).toBe(0);
+      expect(cursorOf(db)).toBe(7);
+      expect(db.prepare("SELECT name FROM events").all()).toEqual([]);
+      expect(getLogs).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ fromBlock: 0n, toBlock: 7n }));
+
+      lagging = false;
+      head = 13n;
+      expect(await indexer.tick()).toBe(2);
+      expect(db.prepare("SELECT name FROM events ORDER BY block, log_index").all().map((row) => row.name)).toEqual(["ProofAccepted", "KeyReleased"]);
+      expect(cursorOf(db)).toBe(10);
+    } finally { db.close(); }
+  });
+
+  it("keeps omitted confirmations at zero for a simulated caller, so a lagging read can pass the missing logs", async () => {
+    const missing = acceptanceAndRelease([9n, 10n]);
+    let head = 10n;
+    let lagging = true;
+    const getLogs = vi.fn(async ({ fromBlock, toBlock }: { fromBlock: bigint; toBlock: bigint }) => {
+      if (lagging) return [];
+      return missing.filter((log) => (log.blockNumber ?? -1n) >= fromBlock && (log.blockNumber ?? -1n) <= toBlock);
+    });
+    const client = { getChainId: vi.fn(async () => 31337), getBlockNumber: vi.fn(async () => head), getLogs } as unknown as PublicClient;
+    const chain = { mode: "simulated" as const, config, publicClient: client };
+    const db = openDb(":memory:", () => 0);
+    try {
+      const indexer = createIndexer({ db, chain, cursorStart: 0n });
+      expect(await indexer.tick()).toBe(0);
+      expect(cursorOf(db)).toBe(10);
+      expect(getLogs).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ fromBlock: 0n, toBlock: 10n }));
+      lagging = false;
+      head = 13n;
+      expect(await indexer.tick()).toBe(0);
+      expect(db.prepare("SELECT name FROM events").all()).toEqual([]);
+      expect(cursorOf(db)).toBe(13);
+    } finally { db.close(); }
+  });
+
+  it("still caps one window at 10000 blocks when confirmations are set", async () => {
+    const getLogs = vi.fn(async () => []);
+    const client = { getChainId: vi.fn(async () => 31337), getBlockNumber: vi.fn(async () => 20_000n), getLogs } as unknown as PublicClient;
+    const db = openDb(":memory:", () => 0);
+    try {
+      const indexer = createIndexer({ db, chain: createApiArcChain(config, client), cursorStart: 0n, confirmations: 3n, maxWindowsPerTick: 1 });
+      expect(await indexer.tick()).toBe(0);
+      expect(getLogs).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ fromBlock: 0n, toBlock: 9_999n }));
+      expect(cursorOf(db)).toBe(9999);
+    } finally { db.close(); }
+  });
+
+  it("does not persist a cursor when the confirmed window's getLogs fails", async () => {
+    const getLogs = vi.fn(async () => { throw new Error("lagging replica unavailable"); });
+    const client = { getChainId: vi.fn(async () => 31337), getBlockNumber: vi.fn(async () => 10n), getLogs } as unknown as PublicClient;
+    const db = openDb(":memory:", () => 0);
+    try {
+      const indexer = createIndexer({ db, chain: createApiArcChain(config, client), cursorStart: 0n, confirmations: 3n });
+      await expect(indexer.tick()).rejects.toThrow(/lagging replica unavailable/);
+      expect(cursorOf(db)).toBeUndefined();
+      expect(db.prepare("SELECT * FROM events").all()).toEqual([]);
+    } finally { db.close(); }
+  });
+
+  it("still rejects a wrong RPC chain before log reads when confirmations are set", async () => {
+    const getBlockNumber = vi.fn(async () => 10n);
+    const getLogs = vi.fn(async () => []);
+    const client = { getChainId: vi.fn(async () => 1), getBlockNumber, getLogs } as unknown as PublicClient;
+    const db = openDb(":memory:", () => 0);
+    try {
+      const indexer = createIndexer({ db, chain: createApiArcChain(config, client), cursorStart: 0n, confirmations: 3n });
+      await expect(indexer.tick()).rejects.toThrow(/RPC chain ID/);
+      expect(getBlockNumber).not.toHaveBeenCalled();
+      expect(getLogs).not.toHaveBeenCalled();
+      expect(cursorOf(db)).toBeUndefined();
+    } finally { db.close(); }
+  });
 });

@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 23:54 -05:00 — Anish
+
+- Publishing the minimal Arc indexer correction. `createIndexer` forwards optional confirmations. Server startup uses three blocks for Arc and zero for simulation. Cursor identity, atomic persistence, 10,000-block windows and signer/recovery paths remain unchanged.
+- TDD evidence records the lagging cursor advancing to 10 instead of 7 before the correction. The implementer passed all 762 API tests and typecheck. Separate [specification](reports/localnet-indexer-spec-review-2026-11-15.json) and [quality](reports/localnet-indexer-quality-review-2026-11-15.json) reviews approved. Each passed all 12 focused tests; quality also passed API typecheck.
+- Parent checked all four current source hashes against both reviews. Existing cursors are not rewound. Embedded callers must pass their intended margin explicitly. Three blocks is a bounded lag allowance, not protection from arbitrary RPC omissions.
+- Next: publish the independently reviewed slow-suite candidate and run actual local proof, indexed API delivery, payout, independent recovery and safety checks. No live write, wallet access or production-security approval occurred.
+
 ## 2026-11-15 23:50 -05:00 — Anish
 
 - Publishing the sanitized [fast checks](reports/localnet-fast-verification-2026-11-15.json), [commerce delta review](reports/localnet-commerce-delta-review-2026-11-15.json) and [Meridian guest gate](reports/localnet-meridian-guest-2026-11-15.json). Parent parsed all three reports, checked public paths and matched the recorded guest input hashes to current files.

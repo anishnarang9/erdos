@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-15 23:54 -05:00 — Anish — Arc indexer margin reviewed
+
+- The minimal API correction passes the configured confirmation margin to `LogCursor`. Arc server startup uses three blocks. Simulation uses zero. Independent specification and quality reviews approved the exact four-file candidate, with 12 focused tests passing in each review. The implementer passed all 762 API tests and API typecheck.
+- This preserves signer/recovery hardening and avoids replacing integration with Neil's weaker parallel broadcast path. Existing persisted cursors are not reset. Use a fresh local database for the rehearsal. An already skipped history requires deliberate approved reindexing.
+- Three blocks handles the observed bounded RPC lag, not arbitrary missing logs. Local acceptance also checks the real indexer and API delivery response on the successful payout history.
+
 ## 2026-11-15 23:50 -05:00 — Anish — Local guest gate and measured rehearsal budgets
 
 - Meridian's real guest returned verdicts 1, 1 and 0 for the two valid solutions and a well-formed mass violation. Complete guest/host journals matched. The [guest report](../anish/reports/localnet-meridian-guest-2026-11-15.json) records about 7.05 million cycles and exact image/input commitments. No new Groth16 proof or funded exchange is established by execution alone.
