@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "fixtures": {
+    "records": {
+      "imageId": "0x57eb5af820f9f227023577d40efc83ef67d7dc7628f35611df2efa019298d62d",
+      "buildFingerprint": "16bf1a013d2cf6d01a4655ad4a7a61d6d8cb309167252875c0c40d5b91dca570",
+      "cold": {
+        "compileMillis": 17947,
+        "cacheHit": false
+      },
+      "warm": {
+        "compileMillis": 3555,
+        "cacheHit": true
+      },
+      "proofs": {
+        "pass": {
+          "verdict": 1,
+          "proveMillis": 260506,
+          "userCycles": 812703,
+          "proofBytes": 2086,
+          "envelopeBytes": 240,
+          "sealBytes": 260
+        },
+        "fail": {
+          "verdict": 0,
+          "proveMillis": 276134,
+          "userCycles": 812703,
+          "proofBytes": 2086,
+          "envelopeBytes": 240,
+          "sealBytes": 260
+        }
+      }
+    },
+    "signed": {
+      "imageId": "0x9d7af5c76222ecabfc66e32c7b5a5f0022e70aa37756863fb36b24f972f56e32",
+      "buildFingerprint": "0f1d05445dadf18b9d5952298bc6f57b4ec71ececea7206dea645ac1d31e9961",
+      "cold": {
+        "compileMillis": 15227,
+        "cacheHit": false
+      },
+      "warm": {
+        "compileMillis": 3476,
+        "cacheHit": true
+      },
+      "proofs": {
+        "pass": {
+          "verdict": 1,
+          "proveMillis": 1102373,
+          "userCycles": 4232914,
+          "proofBytes": 1730,
+          "envelopeBytes": 62,
+          "sealBytes": 260
+        }
+      }
+    },
+    "limits": {
+      "imageId": "0x5d2cbcb07bf79ebf31bf8c36aea4beef3c826061d9b017868540c1607e28341b",
+      "buildFingerprint": "90afb863ad156aab7c45a486268deac0ef8e8cacb6411113aa8ec340ce754516",
+      "cold": {
+        "compileMillis": 14668,
+        "cacheHit": false
+      },
+      "warm": {
+        "compileMillis": 3531,
+        "cacheHit": true
+      },
+      "proofs": {
+        "pass": {
+          "verdict": 1,
+          "proveMillis": 548906,
+          "userCycles": 3273441,
+          "proofBytes": 34430,
+          "envelopeBytes": 16412,
+          "sealBytes": 260
+        }
+      }
+    }
+  }
+}

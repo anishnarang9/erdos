@@ -1,0 +1,13 @@
+{
+  "mode": "offline_documented_submit_calldata",
+  "jobId": "10",
+  "bundleBytes": 16384,
+  "maxBundleBytes": 16384,
+  "envelopeBytes": 16412,
+  "calldataBytes": 16996,
+  "zeroBytes": 309,
+  "nonzeroBytes": 16687,
+  "gasPerZeroByte": 4,
+  "gasPerNonzeroByte": 16,
+  "intrinsicCalldataGas": 268228
+}

@@ -2,11 +2,35 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-15 22:49 -05:00 — Anish — User priority: verify the new workload locally first
+
+- The user set the priority: finish and verify the new proof's complete local run before another live Arc run for that workload. This report request authorizes no implementation, merge, wallet access or spending.
+- The [local-first readiness report](../anish/2026-11-15-localnet-readiness.md) reviews newer owner branches and provisional integration artifacts, not only this engine checkout. Integration `2d9f2fd` contains the cleanup fix. Its older workload lifecycle passed assertions but the whole process exited 1. Meridian's new authoring/solver/oracle evidence still needs publication and a clean complete local exchange.
+- Anish integration leads the local gate. Nick reviews actual-contract/verifier/refund behavior. Neil reviews API, worker and buyer recovery. Require a fresh funded context and proof, exact payout, independent SDK/engine recovery and semantic checks, rejection/refund/restart coverage, process exit 0 and final source/CI evidence.
+- Existing Arc deployment/freeze checks and Neil's separately recorded reconciliation payout are prior evidence, not acceptance of Meridian or the final integrated candidate. Live account, term and spending approval remains separate. No new live run starts to compensate for an incomplete local gate.
+
+## 2026-11-14 21:18 -05:00 — Anish — Commerce codec replay
+
+- The [SDK replay check](../../engine/tests/check-commerce-sdk.mjs) passed against Neil's revision 3013d736. All six real engine receipts produced matching context, journal, digest, and submit calldata bytes. It covers the full 16 KiB encoded delivery and both verdicts.
+- The SDK's captured calls preserve the real seals. Its mock verifier and local envelope cap still need the settlement workstream's final configuration. Confirm live acceptance through the deployed evaluator for the actual funded terms.
+
+## 2026-11-14 20:48 -05:00 — Anish — Settlement and commerce integration
+
+- Nick's [settlement plan](SETTLEMENT-IMPLEMENTATION.md) uses Circle's verified core with the Poster-only budget patch. Use the caller-first callback layouts from that plan for `fund` and `submit`. The external submit ABI and engine wire format stay the same. The released verifier pin is `ff30da77ba4afdd496290ebebedb205348b15d83`.
+- Publish the encoded delivery and encrypted envelope limits in the deployment manifest. The engine accepts 16,384 encoded bytes, which produces a 16,412-byte envelope. A 16,384-byte envelope limit would allow at most 16,356 encoded bytes. Nick sets the final cap after measuring Arc submit gas.
+- Before proving a funded job, use the manifest's core proxy as the escrow address. Read the core job and evaluator terms at one block. Confirm the job is funded and unexpired. Match the provider, image ID, rules hash, and reference hash to the proof inputs. Use the [job helper and funded preflight](../../engine/README.md#prepare-job-json-from-funded-terms) after those checks.
+- Neil can wire the engine through the [commerce interface](../../engine/README.md#connect-commerce). It answers the engine questions in the commerce plan and identifies the fields the adapter needs to retain.
+
 ## 2026-11-14 — Nick workstream — Settlement plan: Poster naming and push rules
 
 - Decision: the settlement plan calls the buyer role the **Poster** (posts the problem and locks the bounty). The Solver term is unchanged.
 - Decision: settlement subagents push after each checkpoint and open detailed PRs without asking Nick. They record progress in `status.md` and team-affecting decisions here. Nick pushes `SETTLEMENT-IMPLEMENTATION.md` himself. It reached `main` in the `264fa5d` merge, and subagents still do not push changes to it. Affects settlement subagents.
 - Terminology: the **Poster** in the settlement plan is the **buyer** in the commerce, architecture, and marketplace documents. The **Solver** is the worker or provider.
+
+## 2026-11-14 20:00 -05:00 — Anish — Engine release measurements
+
+- The [release measurements](../../engine/fixtures/release-report.json) use real receipts for reconciliation, signed text, and the 16 KiB delivery limit. The local verifier and Arc state override accepted the original receipts. The engine recovered each passing delivery byte for byte.
+- The full-size envelope used 16,996 bytes of calldata under the documented submit ABI. The deployed evaluator still needs to confirm the cap and report settlement gas. The funded submit preflight is ready for the November 16 gate.
 
 ## 2026-11-14 — Nick workstream — Settlement implementation plan
 
@@ -15,6 +39,33 @@ Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 - Decision: pin hook data to the deployed layout, which starts with the caller address. [WORK-SPLIT.md](WORK-SPLIT.md) sections 2.4 and 2.6 decode a different layout and need correcting. Section 10 of the new plan lists this and six other corrections: the core source to use (Circle's verified source plus the patch, not draft revision `a078cab5`), the four Poster funding transactions, the 5-minute minimum expiry, the 20 Gwei fee floor and 10,000-block log range, the stale verifier pin in Anish's context, and that our core is frozen by role renunciation while Circle's stays upgradeable.
 - Answers to Neil's open questions for Nick (Q-N), from the settlement plan: the core is Circle's verified source with one patch, and our hook is whitelisted once before the admin roles are renounced (Q-N1, Q-N13). Only the Poster calls `setBudget` (Q-N2). Expiry must be more than 5 minutes ahead, and submit and release need `block.timestamp < expiry` (Q-N5). Only the funded Solver calls `release` (Q-N11). `claimRefund` works from Funded or Submitted once expired (Q-N12). The event names, selectors, and ABI stub (Q-N4, Q-N6, Q-N9, Q-N10) arrive with the Nov 15 manifest. The commerce plan's `setBudget` wording (provider-only, "if the pinned core has it") needs updating to match.
 - Subagents work locally and read-only against Arc. Nick runs every live deployment. Real proof verification and the full settlement path on Arc are pending.
+
+## 2026-11-14 18:56 -05:00 — Anish — Funded submit preflight
+
+- The [reconciliation proof pair](../../engine/fixtures/reconciliation) now uses the reviewed checker. The local Solidity test accepted both original journals and rejected a failing receipt against a passing journal.
+- A [read-only submit preflight](../../engine/tests/verify-funded-arc.mjs) uses the documented `submit` ABI. It simulates the exact passing proof from the funded provider, checks that a changed seal reverts, and requests a gas estimate at the same block.
+- Run the preflight after verifying the deployed core, evaluator, and job terms. The November 16 settlement test still requires a funded job for the chosen engine package.
+
+## 2026-11-14 18:49 -05:00 — Anish — Engine release handoff
+
+- The engine now builds typed Rust checkers for record and signed-evidence workloads. The [catalog](../../engine/capabilities-v1.json), [plan schema](../../engine/plan-v1.schema.json), and [CLI guide](../../engine/README.md) are ready for commerce integration.
+- Published [reconciliation](../../engine/fixtures/reconciliation) and [signed-text](../../engine/fixtures/signed-text) fixtures. Verifier and journal tests run on a local EVM. [Arc RPC reports](../../engine/fixtures/arc-rpc) record temporary verifier simulations at specific testnet blocks.
+- Nick supplies the deployed core, evaluator, verifier, ABI, delivery cap, and confirmed funded terms. The engine consumes the exact funded provider and job ID with matching package commitments. Use the job JSON helper to prepare the input after confirming those terms.
+
+## 2026-11-14 16:07 -05:00 — Anish — Scalar proof fixtures for settlement
+
+- The engine produced real [passing](../../engine/fixtures/scalar-proof-pass-v1.json) and [failing](../../engine/fixtures/scalar-proof-fail-v1.json) Groth16 receipts with the full 234-byte journal. Both use the same checker image and synthetic funded context. The local Solidity verifier accepted each original journal. It rejected the failing receipt when tested against a passing journal.
+- The local script proved both cases and recovered the passing delivery byte for byte. Neil can use the [host preview command](../../engine/README.md#evaluate-an-example) to label authoring examples. Nick can use the pair for local Solidity tests before supplying the live funded context.
+
+## 2026-11-14 16:03 -05:00 — Anish — Scalar engine and commerce interface
+
+- The [scalar plan schema](../../engine/plan-v1.schema.json) and [CLI contract](../../engine/README.md) answer the current authoring, compiler, proof, and recovery format questions. The CLI builds a checker package from approved structure and reference data.
+- A threshold-only edit changed the rules hash and preserved the guest image ID. Real funded-job receipt generation is in progress. The current guest evaluates scalar fields and whole text files. Record collections and signed evidence remain pending.
+
+## 2026-11-14 15:47 -05:00 — Anish — First real proof
+
+- The digest-pinned Docker guest produced a [real Groth16 smoke receipt](../../engine/fixtures/groth16-smoke-v1.json). The released v3.1.0 Solidity verifier accepted it and rejected altered inputs on a local EVM.
+- The receipt uses the fixed smoke journal. Settlement can use it to check the verifier on Arc. A funded payout requires an engine-generated receipt with the 234-byte job journal.
 
 ## 2026-11-14 15:45 -05:00 — Neil — Proposed: workstream 3 commerce plan, aligned with main
 
@@ -40,6 +91,11 @@ Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
   - First funded job: Nov 16, end of day
   - Demo: feature freeze Nov 17, rehearsal Nov 18
 - **Pending:** Anish and Nick review this. The Q-A and Q-N questions are unanswered. No commerce code exists yet. Next is T1–T3: workspace, SDK codec against the engine fixture, and a chain adapter on Nick's ABI stub.
+
+## 2026-11-14 15:42 -05:00 — Anish — Engine interface checkpoint
+
+- Engine branch `codex/anish-engine` publishes the [wire fixture](../../engine/fixtures/wire-v1.json) and the [first plan validator](../../engine/README.md). Solidity and TypeScript can use the fixture to check the context, journal, and encryption bytes.
+- The validator accepts scalar rules and returns typed capability requests for operations and evidence beyond its current support. The generated checker, real funded-job proofs, and Arc verification remain pending.
 
 ## 2026-11-14 — Anish workstream — RISC Zero plan and team handoff
 

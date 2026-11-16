@@ -1,0 +1,4 @@
+[workspace]
+members = ["cli", "compiler", "guest-runtime", "protocol"]
+exclude = ["proof-smoke", "proof-smoke/guest"]
+resolver = "2"

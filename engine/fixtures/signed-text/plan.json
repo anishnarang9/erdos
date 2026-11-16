@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "deliverables": [
+    {
+      "name": "note.txt",
+      "parser": "text/v1"
+    }
+  ],
+  "references": [],
+  "evidence": [
+    {
+      "name": "evidence-0.json",
+      "profile": "ed25519/v1",
+      "signer": "0x48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd",
+      "parser": "json/v1",
+      "fields": [
+        {
+          "name": "artifactHash",
+          "type": "string"
+        },
+        {
+          "name": "contextHash",
+          "type": "string"
+        },
+        {
+          "name": "issuedAt",
+          "type": "i64"
+        }
+      ],
+      "bindings": [
+        {
+          "field": "artifactHash",
+          "file": "note.txt"
+        }
+      ],
+      "contextField": "contextHash"
+    }
+  ],
+  "rules": [
+    {
+      "op": "gte",
+      "left": {
+        "op": "field",
+        "source": "evidence",
+        "file": "evidence-0.json",
+        "field": "issuedAt"
+      },
+      "right": {
+        "op": "literal",
+        "type": "i64",
+        "value": "1794680000"
+      }
+    }
+  ]
+}

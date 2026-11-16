@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "deliverables": [
+    {
+      "name": "expense-report.json",
+      "parser": "json/v1",
+      "fields": [
+        {"name": "totalCents", "type": "i64"},
+        {"name": "markedComplete", "type": "bool"}
+      ]
+    }
+  ],
+  "references": [],
+  "rules": [
+    {
+      "op": "lte",
+      "left": {
+        "op": "field",
+        "source": "deliverable",
+        "file": "expense-report.json",
+        "field": "totalCents"
+      },
+      "right": {"op": "literal", "type": "i64", "value": "10000"}
+    },
+    {
+      "op": "field",
+      "source": "deliverable",
+      "file": "expense-report.json",
+      "field": "markedComplete"
+    }
+  ]
+}
