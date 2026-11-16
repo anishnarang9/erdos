@@ -18,7 +18,9 @@ import { recoverOpenClaimFromChain } from "./recovery.ts";
 import type { OpenClaimFundedJob } from "./types.ts";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
-const sourcePaths = ["commerce/worker/src", "commerce/sdk/src", "commerce/api/src", "commerce/pnpm-lock.yaml", "contracts/src", "contracts/vendor", "contracts/abi"];
+const sourcePaths = ["commerce/package.json", "commerce/pnpm-workspace.yaml", "commerce/pnpm-lock.yaml", "commerce/tsconfig.base.json",
+  ...["worker", "api", "sdk"].flatMap(name=>[`commerce/${name}/src`,`commerce/${name}/package.json`,`commerce/${name}/tsconfig.json`]),
+  "contracts/src", "contracts/vendor", "contracts/abi"];
 const json = (value: unknown) => JSON.stringify(value, (_, v: unknown) => typeof v === "bigint" ? String(v) : v);
 const positive = (v: unknown) => { const n = BigInt(decimal(v)); requireSprint(n > 0n); return n; };
 

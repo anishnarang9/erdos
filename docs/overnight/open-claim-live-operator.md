@@ -2,6 +2,19 @@
 
 2026-11-16 — Anish. Continue the [testnet handoff](open-claim-testnet-operator.md). The buyer and solver use separate encrypted V3 keystores. The worker accepts password bytes through an inherited private file descriptor. It never passes wallet credentials to the engine.
 
+Before you expose a password file descriptor, run this check from the repository root. Repeat it immediately before each signing command. The check covers the launcher script as well as source and locked dependencies. Keep the reviewed checkout private while it runs.
+
+```sh
+: "${OPEN_CLAIM_CONFIG:?Set the approved private config path}"
+source_commit=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["sourceCommit"])' "$OPEN_CLAIM_CONFIG")
+test "$(git rev-parse HEAD)" = "$source_commit"
+git diff --quiet HEAD -- commerce/worker/package.json commerce/package.json commerce/pnpm-workspace.yaml \
+  commerce/worker/src commerce/sdk/src commerce/api/src commerce/pnpm-lock.yaml contracts/src contracts/abi
+test -z "$(git ls-files --others --exclude-standard -- commerce/worker/package.json commerce/package.json \
+  commerce/pnpm-workspace.yaml commerce/worker/src commerce/sdk/src commerce/api/src commerce/pnpm-lock.yaml \
+  contracts/src contracts/abi)"
+```
+
 Run from `commerce/worker`:
 
 ```sh
@@ -39,7 +52,7 @@ The private config requires:
 
 The proposed main expiry is current confirmed chain time plus 3,600 seconds. The measured proof took 1,053 seconds. The operator allows 1,800 seconds for proving, 60 for claim, and 600 for release and confirmations. Copy the API's exact absolute expiry into the config. Never refresh it inside a retry. A separate refund job can use a 900-second lifetime and expire during the main proof.
 
-`recover` reads the public claim transaction and confirmed key event. It checks exact context and payout receipts, SDK and engine recovery, and gas-adjusted native USDC balances. Its output excludes the release key. The independent workload oracle remains a separate check.
+`recover` writes each audit to a new private attempt directory, so the same approved config can be retried. An interrupted process can leave a public release key in an unfinished private audit directory; review stale attempts manually. It reads the public claim transaction and confirmed key event. It checks exact context and payout receipts, SDK and engine recovery, and gas-adjusted native USDC balances. Its output excludes the release key. The independent workload oracle remains a separate check.
 
 `negative` sends one deliberately invalid seal to the separate funded refund job. It sends no release key. It requires a reverted canonical receipt and no payout. `refund` calls only `core.claimRefund(jobId)` after that job expires. It requires the exact refund event, core-to-buyer token transfer, expired core state, and gas-adjusted buyer balance gain. Both commands reconcile saved hashes before another signing attempt. Funding and refund share the buyer lock and inspect each other's nonce reservations.
 

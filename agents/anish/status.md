@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 08:13 -05:00 — Anish — Final combined source checked
+
+- Integrated the separately published recovery-retry and launcher checks through `a37aa3c` with the reviewed refund, approval and nonce guards. The launcher also checks package files, TypeScript configuration and contract vendor source before signing. No contract or deployment change beyond published descendants of `8b9589d` was introduced.
+- Fresh combined-tree `pnpm check` passed SDK 342, API 778, worker 886 and all typechecks. The retained local-chain recovery test passed with repeated exact recovery and gas-adjusted balance checks. Forge, ABI parity, examples and the real-engine API checks remain recorded above. Push and exact-head PR #7 CI are the next checks.
+- The real loopback API and private prepared inputs remain available for the approved fractional run. No wallet was signed and no prover started. Wallet funding and the verified live adapter manifest remain the live gates. The user asked to receive the public wallet addresses when preparation is complete.
+
 ## 2026-11-16 08:10 -05:00 — Anish — Refund, rejection and approved fractional run
 
 - The user approved two 0.01-USDC bounties, a separate 0.01-USDC Gateway deposit, a 0.000001-USDC API charge, and aggregate native gas capped at 0.1235 USDC at 25 gwei. Both [spend previews](reports/open-claim-arc-spend-preview-2026-11-16.json) record this authority. Keystores and private task authority remain outside Git. The user will fund the public buyer and solver addresses when preparation is complete.

@@ -1,6 +1,5 @@
 import { expect, it } from "vitest";
 import { mkdtempSync, realpathSync, writeFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parseOpenClaimOperatorArgs, openClaimOperator } from "../../src/open-claim/operator.ts";
 it("rejects ambiguous commands and password arguments", () => {
@@ -11,7 +10,7 @@ it("rejects ambiguous commands and password arguments", () => {
   }
 });
 it("previews fractional spending without a wallet, manifest, RPC, or engine", async () => {
-  const root = realpathSync(mkdtempSync(join(tmpdir(), "open-claim-preview-")));
+  const root = realpathSync(mkdtempSync(join(process.cwd(), ".open-claim-preview-")));
   try {
     const path = join(root, "config.json"), h = `0x${"11".repeat(32)}`;
     const config = { version: 1, mode: "open-claim", chainId: 5042002,

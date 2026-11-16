@@ -1,4 +1,4 @@
-import { closeSync, mkdirSync, openSync, unlinkSync, writeFileSync } from "node:fs";
+import { closeSync, lstatSync, mkdirSync, mkdtempSync, openSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { bytesToHex, decodeFunctionData, encodeFunctionData, hexToBytes, isAddressEqual, sha256, zeroAddress, type Hex, type PublicClient } from "viem";
 import { arcErc20Abi, decodeBundle, decryptEnvelope, encodeContext, encodeJournal, parseProofJson, openClaimSignatureAbi, type BundleFile } from "@ubc26/sdk";
@@ -61,14 +61,20 @@ export async function recoverOpenClaimFromChain(input: {
     ]);
     const gasCost = cr.gasUsed*cr.effectiveGasPrice + rr.gasUsed*rr.effectiveGasPrice;
     must(after-before+gasCost === j.budget*1_000_000_000_000n);
-    checkArtifactAncestors(dirname(input.directory)); mkdirSync(input.directory,{mode:0o700});
-    const proofPath=join(input.directory,"proof.json"), keyPath=join(input.directory,"public-release-key.hex");
+    checkArtifactAncestors(dirname(input.directory));
+    try { mkdirSync(input.directory,{mode:0o700}); }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error; }
+    const root=lstatSync(input.directory);
+    must(root.isDirectory() && !root.isSymbolicLink() && (root.mode & 0o777) === 0o700 && root.uid === process.getuid?.());
+    const outputDirectory=mkdtempSync(join(input.directory,"attempt-"));
+    const proofPath=join(outputDirectory,"proof.json"), keyPath=join(outputDirectory,"public-release-key.hex");
     writeFileSync(proofPath,JSON.stringify(proofJson),{mode:0o600,flag:"wx"});
-    const fd=openSync(keyPath,"wx",0o600); try {writeFileSync(fd,key);ownedKey=keyPath;} finally {closeSync(fd);}
-    await checkRecovery(input.runner,proofPath,keyPath,join(input.directory,"engine"),proof,hexToBytes(key),input.expectedOutputs);
-    mkdirSync(join(input.directory,"sdk"),{mode:0o700});
-    for(const f of files) writeFileSync(join(input.directory,"sdk",f.name),f.content,{mode:0o600,flag:"wx"});
-    return {status:"recovered-exact" as const,jobId:String(j.jobId),claimTx:input.claimTx,releaseTx:input.releaseTx,
+    const fd=openSync(keyPath,"wx",0o600); ownedKey=keyPath;
+    try {writeFileSync(fd,key);} finally {closeSync(fd);}
+    await checkRecovery(input.runner,proofPath,keyPath,join(outputDirectory,"engine"),proof,hexToBytes(key),input.expectedOutputs);
+    mkdirSync(join(outputDirectory,"sdk"),{mode:0o700});
+    for(const f of files) writeFileSync(join(outputDirectory,"sdk",f.name),f.content,{mode:0o600,flag:"wx"});
+    return {status:"recovered-exact" as const,outputDirectory,jobId:String(j.jobId),claimTx:input.claimTx,releaseTx:input.releaseTx,
       amountAtomic:String(j.budget),solver:j.solver,envelopeHash:proof.envelopeHash,
       nativeBefore:String(before),nativeAfter:String(after),gasCostNative:String(gasCost),
       erc20Before:String(tokenBefore),erc20After:String(tokenAfter),gasAdjustedPayoutExact:true,
