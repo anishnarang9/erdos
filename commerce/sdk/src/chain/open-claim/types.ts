@@ -91,8 +91,8 @@ export interface OpenClaimPrepareInput {
   deployment: OpenClaimDeployment;
   approval: OpenClaimApproval;
   compiler: OpenClaimImageCompiler;
-  /** The JSON ABI is unpublished. Only the signature fixture may prepare calldata. */
-  evidence: "signature-fixture";
+  /** The exported contract ABI must match the reviewed adapter source. */
+  evidence: "exported-abi";
   now: bigint;
   observation: OpenClaimObservation;
   progress?: OpenClaimFundingProgress;
@@ -103,6 +103,8 @@ export interface OpenClaimPlanInput extends Omit<OpenClaimPrepareInput, "compile
 }
 
 export interface OpenClaimChainSnapshot {
+  /** Every field in this snapshot was read at this block. */
+  blockNumber?: bigint;
   job: {
     id: bigint;
     client: Address;
@@ -136,7 +138,7 @@ export interface OpenClaimChainSnapshot {
   wiring: { core: Address; verifier: Address; usdc: Address };
 }
 
-/** Injected chain boundary. There is no viem adapter until the contract JSON ABI is published. */
+/** Read-only chain boundary for deployment checks and funded job snapshots. */
 export interface OpenClaimChainPort {
   observe(deployment: OpenClaimDeployment): Promise<OpenClaimObservation>;
   snapshot(deployment: OpenClaimDeployment, jobId: bigint): Promise<OpenClaimChainSnapshot>;
@@ -145,7 +147,7 @@ export interface OpenClaimChainPort {
 export interface OpenClaimDiscoveryInput {
   deployment: OpenClaimDeployment;
   approval: OpenClaimApproval;
-  evidence: "signature-fixture";
+  evidence: "exported-abi";
   now: bigint;
   jobId: bigint;
   registerReceipt: OpenClaimReceipt;

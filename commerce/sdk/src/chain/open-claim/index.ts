@@ -4,6 +4,7 @@ export { openClaimContext } from "./context.ts";
 export type { OpenClaimContextInput } from "./context.ts";
 export { planOpenClaimFunding, prepareOpenClaimFunding } from "./funding.ts";
 export { discoverOpenClaimJob } from "./discover.ts";
+export { createViemOpenClaimPort } from "./viem-port.ts";
 export {
   judgeOpenClaimClaims,
   openClaimClaimTransaction,

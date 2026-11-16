@@ -109,11 +109,21 @@ export function judgeOpenClaimClaims(input: {
   accepted?: OpenClaimAcceptedClaim | null;
 }): OpenClaimClaimJudgment {
   if (input.candidates.length === 0) throw new OpenClaimError("unsupported_terms", "at least one candidate is required");
-  const verified = input.candidates.map((candidate) => verifyOpenClaimCandidate({
-    deployment: input.deployment,
-    published: input.published,
-    candidate,
-  }));
+  const verified: VerifiedOpenClaim[] = [];
+  let firstInvalid: OpenClaimError | undefined;
+  for (const candidate of input.candidates) {
+    try {
+      verified.push(verifyOpenClaimCandidate({
+        deployment: input.deployment,
+        published: input.published,
+        candidate,
+      }));
+    } catch (error) {
+      if (!(error instanceof OpenClaimError)) throw error;
+      firstInvalid ??= error;
+    }
+  }
+  if (verified.length === 0 && firstInvalid) throw firstInvalid;
   let winner = verified[0];
   if (winner === undefined) throw new OpenClaimError("unsupported_terms", "at least one candidate is required");
   if (input.accepted != null) {
@@ -130,7 +140,7 @@ export function judgeOpenClaimClaims(input: {
 
 export function openClaimClaimTransaction(input: {
   deployment: OpenClaimDeployment;
-  evidence: "signature-fixture";
+  evidence: "exported-abi";
   verified: VerifiedOpenClaim;
 }): OpenClaimSignableTransaction {
   assertEvidence(input.evidence);
@@ -154,7 +164,7 @@ export function openClaimClaimTransaction(input: {
 /** Build release calldata only for the winning solver. A loser throws before any key bytes are encoded. */
 export function openClaimReleaseTransaction(input: {
   deployment: OpenClaimDeployment;
-  evidence: "signature-fixture";
+  evidence: "exported-abi";
   judgment: OpenClaimClaimJudgment;
   caller: Address;
   key: Uint8Array;

@@ -58,7 +58,7 @@ function base(): OpenClaimPrepareInput {
         };
       },
     },
-    evidence: "signature-fixture",
+    evidence: "exported-abi",
     now,
     observation: {
       chainId: 5042002,
@@ -156,10 +156,10 @@ describe("open-claim buyer funding", () => {
     await expect(prepareOpenClaimFunding(input)).rejects.toMatchObject({ code: "image_mismatch" });
   });
 
-  it("refuses unpublished ABI evidence and signer material", async () => {
-    const unpublished = base();
-    unpublished.evidence = "published-abi" as "signature-fixture";
-    await expect(prepareOpenClaimFunding(unpublished)).rejects.toMatchObject({ code: "abi_unpublished" });
+  it("refuses stale ABI evidence and signer material", async () => {
+    const stale = base();
+    stale.evidence = "signature-fixture" as "exported-abi";
+    await expect(prepareOpenClaimFunding(stale)).rejects.toMatchObject({ code: "abi_mismatch" });
     const keyed = { ...base(), privateKey: "0x11" } as OpenClaimPrepareInput;
     await expect(prepareOpenClaimFunding(keyed)).rejects.toMatchObject({ code: "unsafe_signer" });
   });

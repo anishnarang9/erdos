@@ -34,8 +34,8 @@ export function assertUnsigned(input: object): void {
 }
 
 export function assertEvidence(evidence: string): void {
-  if (evidence !== "signature-fixture") {
-    throw new OpenClaimError("abi_unpublished", "OpenClaimAdapter JSON ABI is unpublished; refusing signable transactions");
+  if (evidence !== "exported-abi") {
+    throw new OpenClaimError("abi_mismatch", "exported OpenClaimAdapter ABI evidence is required");
   }
 }
 

@@ -193,7 +193,7 @@ describe("open-claim claim evidence and recovery", () => {
         expiry,
         description: "open bounty",
       },
-      evidence: "signature-fixture",
+      evidence: "exported-abi",
       now,
       jobId: ENGINE_FIXTURE.jobId,
       registerReceipt: { state: "confirmed", transactionHash: registerTx },
@@ -212,7 +212,7 @@ describe("open-claim claim evidence and recovery", () => {
         expiry,
         description: "open bounty",
       },
-      evidence: "signature-fixture",
+      evidence: "exported-abi",
       now,
       jobId: ENGINE_FIXTURE.jobId,
       registerReceipt: { state: "pending", transactionHash: registerTx },
@@ -240,7 +240,7 @@ describe("open-claim claim evidence and recovery", () => {
 
     expect(() => openClaimReleaseTransaction({
       deployment,
-      evidence: "signature-fixture",
+      evidence: "exported-abi",
       judgment,
       caller: solverB,
       key: keyB,
@@ -257,7 +257,7 @@ describe("open-claim claim evidence and recovery", () => {
     try {
       openClaimReleaseTransaction({
         deployment,
-        evidence: "signature-fixture",
+        evidence: "exported-abi",
         judgment,
         caller: solverB,
         key: keyB,
@@ -279,7 +279,7 @@ describe("open-claim claim evidence and recovery", () => {
 
     const release = openClaimReleaseTransaction({
       deployment,
-      evidence: "signature-fixture",
+      evidence: "exported-abi",
       judgment,
       caller: solverA,
       key: keyA,
@@ -296,9 +296,16 @@ describe("open-claim claim evidence and recovery", () => {
       ENGINE_FIXTURE.jobId,
       ENGINE_FIXTURE.key,
     ]);
-    const claim = openClaimClaimTransaction({ deployment, evidence: "signature-fixture", verified: judgment.winner });
+    const claim = openClaimClaimTransaction({ deployment, evidence: "exported-abi", verified: judgment.winner });
     expect(claim.data.toLowerCase().includes("55".repeat(32))).toBe(false);
     expect(decodeFunctionData({ abi: claimAbi, data: claim.data }).functionName).toBe("claim");
+  });
+
+  it("lets a later valid solver win after an invalid candidate", () => {
+    const invalid = { ...candidateA, caller: adapter };
+    const judgment = judgeOpenClaimClaims({ deployment, published, candidates: [invalid, candidateB] });
+    expect(judgment.winner.solver).toBe(solverB);
+    expect(judgment.losers).toEqual([]);
   });
 
   it("rejects the wrong caller, payout, context, and deployment", () => {

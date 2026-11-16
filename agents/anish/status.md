@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 02:07 -05:00 — Anish — ABI and confirmed discovery integration
+
+- Merged the pushed API and SDK checkpoints into `codex/open-escrow-rescue` without source conflicts. Replaced the SDK signature fixture with the contract-exported JSON ABI and added a fixed-block read-only viem port. The API now has an Arc reader wired through explicit server environment variables.
+- The local Arc node confirmed a five-transaction buyer setup for job 1: creation, exact budget, exact USDC approval, funding and adapter registration. The [funded report](reports/open-claim-local-funded-2026-11-16.json) records successful receipts and a three-block-confirmed API snapshot with matching `JobFunded` and `TermsRegistered` events. No proof or payout occurred in this check.
+- Fixed SDK winner selection so a structurally invalid candidate cannot block a later valid candidate. A regression failed before the fix and passed afterward. SDK tests: 13 Node and 342 Vitest; API tests: 776; both typechecks and full Forge tests pass. The pending gates are a fresh adapter-domain proof and exact local claim/release/recovery, worker integration, final independent review and final-head checks.
+
 ## 2026-11-16 01:56 -05:00 — Anish — Local open-claim deployment verified
 
 - Branch `codex/open-escrow-rescue` now includes a guarded local Arc deploy script, read-only confirmation verifier, local run instructions and [deployment report](reports/open-claim-local-deployment-2026-11-16.json). The testnet adapter address remains null.

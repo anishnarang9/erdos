@@ -8,6 +8,8 @@ import { assertChainEngine, createApiArcChain, type ApiChain } from "./chain.ts"
 import { engineConfigFromEnv, engineFromConfig, simulatedEngine, type Engine } from "./engine.ts";
 import { grokDraftModel, recordingDraftModel, replayDraftModel, type DraftModel } from "./grok.ts";
 import { httpX402Facilitator, type X402Config } from "./x402.ts";
+import { createViemOpenClaimReader } from "./open-claim-reader.ts";
+import type { OpenClaimConfig } from "./open-claim.ts";
 
 // Secrets live in a gitignored .env next to where the server starts. Real environment variables win.
 if (existsSync(".env")) process.loadEnvFile(".env");
@@ -106,12 +108,37 @@ function x402FromEnv(): X402Config | undefined {
   };
 }
 
+/** Use the compiled adapter ABI and confirmed Arc reads for public open jobs. */
+function openClaimFromEnv(): OpenClaimConfig | undefined {
+  const rpcUrl = process.env.OPEN_CLAIM_RPC_URL;
+  if (!rpcUrl) return undefined;
+  const need = (name: string): string => {
+    const value = process.env[name];
+    if (!value) throw new Error(`${name} is required when OPEN_CLAIM_RPC_URL is set`);
+    return value;
+  };
+  const chainId = Number(need("OPEN_CLAIM_CHAIN_ID"));
+  if (!Number.isSafeInteger(chainId) || chainId <= 0) throw new Error("OPEN_CLAIM_CHAIN_ID is invalid");
+  const confirmations = BigInt(process.env.OPEN_CLAIM_CONFIRMATIONS ?? "3");
+  const config = {
+    mode: "arc" as const,
+    chainId,
+    core: getAddress(need("OPEN_CLAIM_CORE")),
+    adapter: getAddress(need("OPEN_CLAIM_ADAPTER")),
+    usdc: getAddress(need("OPEN_CLAIM_USDC")),
+    verifier: getAddress(need("OPEN_CLAIM_VERIFIER")),
+  };
+  const client = createPublicClient({ transport: http(rpcUrl) }) as PublicClient;
+  return { ...config, reader: createViemOpenClaimReader(client, config, confirmations) };
+}
+
 const chain = chainFromEnv();
 const { engine, label: engineLabel } = engineFromEnv();
 // Must precede createApp/openDb, indexer construction, and listen. Labels are informational only.
 assertChainEngine(chain, engine);
 const { model: draftModel, label: modelLabel } = draftModelFromEnv();
 const x402 = x402FromEnv();
+const openClaim = openClaimFromEnv();
 const packagesDir = process.env.PACKAGES_DIR;
 const { app, close } = createApp({
   dbPath,
@@ -121,6 +148,7 @@ const { app, close } = createApp({
   ...(packagesDir ? { packagesDir } : {}),
   ...(chain ? { chain } : {}),
   ...(x402 ? { x402 } : {}),
+  ...(openClaim ? { openClaim } : {}),
 });
 
 // Indexer (§6): ticks every 5 s when a chain is configured. It uses its own connection to the same database
@@ -147,6 +175,7 @@ const server = serve({ fetch: app.fetch, port }, (info) => {
   console.log(`[api] listening on http://localhost:${info.port} (db: ${dbPath}, chain: ${chain ? chain.config.chainId : "none"})`);
   console.log(`[api] engine: ${engineLabel}; draft model: ${modelLabel}; packages: ${packagesDir ?? "not kept"}`);
   console.log(`[api] x402: ${x402 ? `${x402.network} ${x402.amount} units` : "off"}`);
+  console.log(`[api] open claim: ${openClaim ? `Arc chain ${openClaim.chainId}` : "off"}`);
 });
 
 function shutdown(): void {

@@ -1,4 +1,4 @@
-import { hexToBytes } from "viem";
+import { encodeFunctionData, hexToBytes } from "viem";
 import { describe, expect, it } from "vitest";
 import {
   OPEN_CLAIM_ABI_STATUS,
@@ -36,25 +36,17 @@ describe("open-claim public vector", () => {
     expect(journalDigest(journal)).toBe("0x9ae8cca7c5828cc27a19039df5593a21e37cc1f05fcf99f32e118d233f4d115e");
   });
 
-  it("keeps the adapter ABI at the published signature checkpoint", () => {
-    expect(OPEN_CLAIM_INTERFACE_REVISION).toBe("43b4fca");
-    expect(OPEN_CLAIM_ABI_STATUS).toBe("signature-fixture");
+  it("uses the exported adapter ABI for calls and events", () => {
+    expect(OPEN_CLAIM_INTERFACE_REVISION).toBe("4c41a55");
+    expect(OPEN_CLAIM_ABI_STATUS).toBe("exported-json");
     const entries = openClaimSignatureAbi as readonly { type: string; name?: string }[];
-    expect(entries.some((item) => item.type === "event" || item.type === "error")).toBe(false);
-    expect(openClaimSignatureAbi.map((item) => (item.type === "function" ? item.name : item.type))).toEqual([
-      "register",
-      "claim",
-      "release",
-      "contextOf",
-      "expectedJournal",
-      "core",
-      "verifier",
-      "usdc",
-      "terms",
-      "submissions",
-      "released",
-      "MAX_ENVELOPE_BYTES",
-      "MIN_EXPIRY_MARGIN",
-    ]);
+    expect(entries.some((item) => item.type === "event" && item.name === "TermsRegistered")).toBe(true);
+    expect(entries.some((item) => item.type === "event" && item.name === "ClaimAccepted")).toBe(true);
+    expect(entries.some((item) => item.type === "event" && item.name === "KeyReleased")).toBe(true);
+    const names = new Set(entries.filter((item) => item.type === "function").map((item) => item.name));
+    for (const name of ["register", "claim", "release", "contextOf", "expectedJournal", "terms", "submissions", "released"]) {
+      expect(names.has(name)).toBe(true);
+    }
+    expect(encodeFunctionData({ abi: openClaimSignatureAbi, functionName: "release", args: [7n, ENGINE_FIXTURE.key] }).slice(0, 10)).toBe("0xdd20edf9");
   });
 });

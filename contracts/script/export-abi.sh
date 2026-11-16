@@ -13,10 +13,12 @@ set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 mkdir -p abi
 
-arc-forge build >/dev/null
+FORGE_BIN="${ARC_FORGE:-arc-forge}"
+"$FORGE_BIN" build >/dev/null
 
 # <output file>:<source path>:<contract name>
 TARGETS=(
+  "OpenClaimAdapter:src/OpenClaimAdapter.sol:OpenClaimAdapter"
   "SettlementHook:src/SettlementHook.sol:SettlementHook"
   "AgenticCommerce:src/core/src/AgenticCommercePatched.sol:AgenticCommerce"
   "IRiscZeroVerifier:src/verifier/IRiscZeroVerifier.sol:IRiscZeroVerifier"
@@ -26,7 +28,7 @@ TARGETS=(
 for t in "${TARGETS[@]}"; do
   name="${t%%:*}"
   rest="${t#*:}"
-  arc-forge inspect "$rest" abi --json | python3 -c '
+  "$FORGE_BIN" inspect "$rest" abi --json | python3 -c '
 import json, sys
 abi = json.load(sys.stdin)
 assert isinstance(abi, list) and abi, "empty ABI"
@@ -37,6 +39,9 @@ sys.stdout.write("\n")
   echo "wrote abi/${name}.json"
 done
 
+# Keep the SDK's checked-in ABI byte-identical to the contract export.
+cp abi/OpenClaimAdapter.json ../commerce/sdk/src/chain/arc/abi/OpenClaimAdapter.json
+
 python3 - <<'PY'
 import json
 def names(path, kind):
@@ -46,6 +51,8 @@ core_fn = names("abi/AgenticCommerce.json", "function")
 core_ev = names("abi/AgenticCommerce.json", "event")
 hook_fn = names("abi/SettlementHook.json", "function")
 hook_ev = names("abi/SettlementHook.json", "event")
+open_fn = names("abi/OpenClaimAdapter.json", "function")
+open_ev = names("abi/OpenClaimAdapter.json", "event")
 
 need = [
     (core_fn, {"createJob", "setBudget", "fund", "submit", "claimRefund", "getJob", "jobs", "paymentToken"}),
@@ -54,6 +61,8 @@ need = [
     (hook_fn, {"release", "terms", "submissions", "released", "contextOf", "expectedJournal",
                "MAX_ENVELOPE_BYTES", "MIN_EXPIRY_MARGIN", "supportsInterface"}),
     (hook_ev, {"TermsFrozen", "ProofAccepted", "KeyReleased"}),
+    (open_fn, {"register", "claim", "release", "contextOf", "expectedJournal", "terms", "submissions", "released"}),
+    (open_ev, {"TermsRegistered", "ClaimAccepted", "KeyReleased"}),
 ]
 for have, want in need:
     missing = want - have

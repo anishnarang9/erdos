@@ -1,7 +1,7 @@
 export type OpenClaimErrorCode =
   | "unsupported_terms"
   | "unsupported_deployment"
-  | "abi_unpublished"
+  | "abi_mismatch"
   | "revision_mismatch"
   | "image_mismatch"
   | "awaiting_receipt"

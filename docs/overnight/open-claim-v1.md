@@ -1,6 +1,6 @@
 # Open-claim escrow v1
 
-2026-11-16 — Anish — Normative interface checkpoint. Implementation and acceptance checks are pending.
+2026-11-16 — Anish — Normative interface and implementation checkpoint. Live acceptance remains pending.
 
 ## Deployment policy
 
@@ -114,4 +114,4 @@ journal = 0x0100000000000000000000000000000000000000000000000000000000004cef5211
 
 ABI: `contracts/abi/OpenClaimAdapter.json`. Local deploy script: `contracts/script/09_DeployOpenClaimLocal.s.sol`. Manifest template: `contracts/deployments/open-claim-arc-testnet.template.json`. Manifest schema: `contracts/deployments/OPEN-CLAIM-SCHEMA.md`.
 
-Complete error declarations and tested commands will follow after implementation. Selectors use viem and the published signatures. Standards notes appear in `erc8183-compatibility.md` when its independent review completes. This checkpoint freezes the function and struct signatures above so Chat 1 can implement clients now. State-machine fixtures, real-verifier receipt checks, fresh actual-contract exchange and live Arc exchange must remain separate evidence categories. x402 pays for an API operation initially. Direct x402 bounty funding remains unproven.
+The adapter source and exported ABI are on `codex/open-escrow-rescue`. Forty-five focused Forge tests pass, including adversarial registration, payout and refund checks and six checks against a checked-in real receipt. A forkless Arc node confirmed a separate local deployment and exact buyer funding/registration. The SDK uses the compiled JSON ABI, and the API has read-only confirmed-block wiring. These checks remain separate from a fresh adapter-domain proof and exchange. No live Arc adapter deployment, wallet signing or spending is recorded. x402 pays for an API operation initially. Direct x402 bounty funding remains unproven.

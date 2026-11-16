@@ -32,6 +32,7 @@ export {
   OPEN_CLAIM_ONE_USDC,
   OpenClaimError,
   discoverOpenClaimJob,
+  createViemOpenClaimPort,
   judgeOpenClaimClaims,
   openClaimClaimTransaction,
   openClaimContext,
