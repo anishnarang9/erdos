@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 07:34 -05:00 — Anish — Combined contract, buyer, and solver checkpoint
+
+- Branch `codex/open-claim-contract-integration` merges published contract `3f0ecbf`, protected solver `843f842`, and five-step buyer `e29da7d` work for draft PR #7. Added a fail-closed buyer guard at `01e418f`: a signed open-claim run now requires a deployment-pin callback. Its regression failed before the fix and passed after it.
+- Combined-head local checks exited 0: `pnpm check` passed three typechecks, SDK 13 Node plus 342 Vitest tests, API 777 tests, and worker 873 tests. The real-engine API suite passed 15/15. Pinned non-fork Arc Forge passed 168/168; ABI parity passed for five exports; contract examples passed 16/16 and typecheck. The latter contract and API engine checks ran before the buyer guard, which touches only the worker.
+- The [real-proof local acceptance report](reports/open-claim-local-acceptance-2026-11-16.json) remains source-stamped `0cce487`: one fresh funded-context proof, exact 1,000,000-unit local payout, losing-solver abstention, dual byte-exact recovery and independent oracle, and a separate exact refund. It used unlocked synthetic accounts. The new protected signing and buyer helper have unit checks but no fresh combined-head proof run.
+- [The spend preview](reports/open-claim-arc-spend-preview-2026-11-16.json) is a proposal, not authority. Live adapter deployment, protected identities and keystores, exact bounty/gas approval, and Circle configuration remain external. The separate contract chat's live Arc role-log replay hit HTTP 429; no live write or wallet signing occurred. Next: push the merged head, check exact-head CI, then complete operator wiring when verified live inputs arrive.
+
 ## 2026-11-16 07:30 -05:00 — Anish — Five-step protected buyer flow
 
 - PR #7 now has a buyer helper for exact `createJob`, `setBudget`, USDC `approve`, `fund`, and adapter `register`. The helper checks transaction identity, confirmed receipts, exact funding transfers, zero hook, full budget, registered commitments, and final allowance. It retains gas reservations and saved hashes across retries.

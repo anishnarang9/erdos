@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 07:34 -05:00 — Anish — Open-claim contract and agent paths combined
+
+- Draft PR #7 now combines the corrected adapter and guarded local deploy script (`3f0ecbf`) with protected solver signing (`843f842`) and five-step protected buyer execution (`e29da7d`). The signed buyer helper requires a deployment-pin check (`01e418f`). The selected-provider path remains intact.
+- Combined local commerce checks passed (SDK 342, API 777, worker 873, three typechecks). Pinned non-fork Forge passed 168 tests; ABI parity, 16 contract examples, contract typecheck, and the 15-test real-engine API suite passed. The actual local proof/payout/recovery/refund report is tied to earlier source `0cce487`; it does not establish a new full proof at the merged head. Final pushed-head CI is pending.
+- Keep PR #7 draft. Live work still needs a verified adapter manifest, approved buyer and solver identities, protected keystores, exact bounty and gas limits, and separate Circle service-payment authority. The [spend preview](../anish/reports/open-claim-arc-spend-preview-2026-11-16.json) is not approval. The live role-log read was rate limited; do not infer chain state from that incomplete replay. Continue operator wiring and the exact-head PR check before handoff.
+
 ## 2026-11-16 07:22 -05:00 — Anish — Open-claim contract checkpoint under review
 
 - The contract branch has the constructor fee correction, local-only deployment guard, adversarial regressions and ABI parity check. Pinned local Foundry passed 168 tests with one fork-only skip. The independent standards review documents current ERC-8183 draft differences and the separate x402 API-fee boundary.
