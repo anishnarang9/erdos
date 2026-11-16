@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 01:24 -05:00 — Anish — Open-claim interface
+
+- Branch `codex/overnight-open-escrow` starts at reviewed integration `ae1295a`, including Nick `57c387f`. Active proof worktrees remain intact.
+- Published [open-claim v1](../../docs/overnight/open-claim-v1.md). Reuse the frozen core through a hookless adapter job. The adapter binds the actual solver and its own address in the existing wire encoding.
+- Contract implementation, independent adversarial tests and standards review are next. Live deployment and spending remain unauthorized.
+
 ## 2026-11-16 00:59 -05:00 — Anish
 
 - The first fresh Meridian run generated both Groth16 proofs, rejected verdict zero and completed the passing proof in 1,005,152 ms. It then exited 1 after a local receipt-visibility race while creating the separate refund-test job. The immutable [failure snapshot](reports/fresh-exchange-failed-attempt-2026-11-16.json) preserves the whole 2,056.599-second process result.
