@@ -33,5 +33,23 @@ export {
   OpenClaimError,
   openClaimContext,
   openClaimSignatureAbi,
+  planOpenClaimFunding,
+  prepareOpenClaimFunding,
 } from "./open-claim/index.ts";
-export type { OpenClaimContextInput, OpenClaimErrorCode } from "./open-claim/index.ts";
+export type {
+  OpenClaimApproval,
+  OpenClaimCompiledImage,
+  OpenClaimContextInput,
+  OpenClaimDeployment,
+  OpenClaimErrorCode,
+  OpenClaimFundingPlan,
+  OpenClaimFundingProgress,
+  OpenClaimFundingStep,
+  OpenClaimImageCompiler,
+  OpenClaimLog,
+  OpenClaimObservation,
+  OpenClaimPlanInput,
+  OpenClaimPrepareInput,
+  OpenClaimReceipt,
+  OpenClaimSignableTransaction,
+} from "./open-claim/index.ts";

@@ -39,7 +39,8 @@ describe("open-claim public vector", () => {
   it("keeps the adapter ABI at the published signature checkpoint", () => {
     expect(OPEN_CLAIM_INTERFACE_REVISION).toBe("43b4fca");
     expect(OPEN_CLAIM_ABI_STATUS).toBe("signature-fixture");
-    expect(openClaimSignatureAbi.some((item) => item.type === "event" || item.type === "error")).toBe(false);
+    const entries = openClaimSignatureAbi as readonly { type: string; name?: string }[];
+    expect(entries.some((item) => item.type === "event" || item.type === "error")).toBe(false);
     expect(openClaimSignatureAbi.map((item) => (item.type === "function" ? item.name : item.type))).toEqual([
       "register",
       "claim",
