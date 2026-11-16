@@ -62,7 +62,7 @@ export function referenceText(content: Uint8Array): string {
 }
 const MAX_CLARIFICATION_ROUNDS = 2;
 
-export function registerAuthoringRoutes(ctx: RouteContext): void {
+export function registerAuthoringRoutes(ctx: RouteContext): ReturnType<typeof authoringHandlers> {
   const { app, buyer, idem } = ctx;
   const h = authoringHandlers(ctx.deps, idem.commit, ctx.newId);
   app.post("/v1/drafts", readBody, buyer, parseJson, idem.middleware, h.draft);
@@ -72,6 +72,7 @@ export function registerAuthoringRoutes(ctx: RouteContext): void {
   app.get("/v1/jobs/:id/package", readBody, requireJobId, h.packageListing);
   app.get("/v1/jobs/:id/package/file", readBody, requireJobId, h.packageFile);
   app.get("/v1/jobs/:id/references", readBody, requireJobId, h.references);
+  return h;
 }
 
 interface DraftBody {
@@ -500,5 +501,5 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     });
   };
 
-  return { draft, revise, compile, packageListing, packageFile, references };
+  return { draft, revise, compile, compileGate, packageListing, packageFile, references };
 }

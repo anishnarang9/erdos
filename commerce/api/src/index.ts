@@ -1,5 +1,7 @@
 // @ubc26/api public entry. See ../CONTRACT.md.
 export { createApp, type CreateAppOptions, type CreatedApp } from "./app.ts";
+export { httpX402Facilitator, type X402Config, type X402Facilitator, type PaymentRequirements, type PaymentPayload, type SettlementResponse } from "./x402.ts";
+export { type OpenClaimConfig, type OpenClaimReader, type OpenClaimReceipt, type OpenClaimSnapshot } from "./open-claim.ts";
 export {
   simulatedValidatePlan,
   revisionHash,
