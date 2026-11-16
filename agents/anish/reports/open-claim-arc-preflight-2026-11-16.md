@@ -1,6 +1,6 @@
 # Open-claim Arc Testnet deployment preflight
 
-2026-11-16 08:54 -05:00 — Read-only. No wallet, signature, transaction, or live adapter deployment.
+2026-11-16 08:54 -05:00 — This report began as a read-only preflight. The adapter was [subsequently deployed and verified](open-claim-arc-deployment-2026-11-16.md).
 
 ## Fixed block and contract state
 
@@ -65,6 +65,6 @@ With the user's explicit approval, [Circle's public faucet](https://faucet.circl
 
 The later pinned block was `72563030`, hash `0x0d1781fd9a266bef92fd9bfc2066d35a0a9c099a24668a1e74ea2f634a0e3965`, base fee 20 gwei. At that block, the proxy, implementation and verifier runtime hashes, ERC-1967 implementation slot, core payment token, both zero fees, verifier version/selector, USDC decimals, and exact creation data hash still matched the earlier preflight. The funded signer had nonce 0 and a 20-USDC balance. `eth_estimateGas` from that signer, with value zero and exact creation bytes, returned **2,560,164 gas**. A single `eth_getLogs` call for the four privilege and upgrade topics from block `72554684` through `72563030` returned zero events, joining the completed earlier role replay to this new block. The read-only call batch and log query both exited 0 with `curl --retry 0`; no transaction was sent.
 
-## Operator gate
+## Predeployment operator gate, now resolved
 
-The adapter remains undeployed, so the template's adapter address, transaction hash, block, and runtime hash are JSON null. The dedicated signer is ready and funded, but the user's wallet-creation reply did not explicitly approve the proposed gas limit or maximum fee for a live broadcast. The precise remaining authorization is one adapter creation from `0xA2416Eb8159606C133298fF113a472608E6F9Fb7` with gas limit at most 3,000,000 and max fee at most 25 gwei (maximum 0.075 testnet USDC). After approval, recheck current state and estimate once more, broadcast once, then independently read the receipt, deployed runtime and constructor immutables. Record their actual values in a new `deployed-verified` manifest.
+At this predeployment checkpoint, the template's adapter fields were null. The user then explicitly approved one creation from `0xA2416Eb8159606C133298fF113a472608E6F9Fb7` with gas limit at most 3,000,000 and max fee at most 25 gwei (maximum 0.075 testnet USDC). A fresh read-only check at block 72563220 preceded the single broadcast. The [deployment report](open-claim-arc-deployment-2026-11-16.md) and [deployed manifest](../../../contracts/deployments/open-claim-arc-testnet.json) record the confirmed receipt, runtime and constructor values. The template remains null by design.

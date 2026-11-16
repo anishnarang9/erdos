@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 09:07 -05:00 — Anish — Arc open-claim adapter deployed and source verified
+
+- The user approved one Arc Testnet deployment with a 3,000,000-gas limit and 25-gwei max fee. A final fixed-block preflight at 72563220 checked pinned code, proxy slot, zero fees, signer balance/nonce, 2,560,164-gas estimate and no new core privilege events. The single `forge create --broadcast` exited 0. [Transaction `0x30a8bc27…72e14`](https://explorer.testnet.arc.io/tx/0x30a8bc27f9cecf068eeaf5c822196c5149f825671c4e65013d559de353572e14) succeeded in block 72563239, deploying [adapter `0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8`](https://explorer.testnet.arc.io/address/0x1fed5e532a1405facd45b4096ad1abf25bba0cb8). It used 2,538,847 gas and paid 0.063471175 testnet USDC, below the approved 0.075 cap.
+- Independent receipt, creation-input, getter and runtime reads passed. The 11,311-byte runtime hash is `0x469a337cfb28530e01426274e353792fee03ea8cc7f9663a63c5f9c2a4e13f20`; every runtime byte matches the compiled artifact after substituting all 18 immutable references. Blockscout source verification passed and its published source SHA-256 equals the local file. The [deployment report](reports/open-claim-arc-deployment-2026-11-16.md) gives exact commands/results; the new [deployed manifest](../../contracts/deployments/open-claim-arc-testnet.json) records address, transaction, block, runtime, constructor values and gas.
+- No fresh funded proof, live buyer/solver exchange or Circle Gateway payment occurred. The contract and deployment handoff is ready for the “Complete UBC-26 proof commerce” chat, which owns PR #7 integration and final CI. Next: push this deployment checkpoint and send its SHA/address/interface to that chat. No commerce code changed here.
+
 ## 2026-11-16 09:01 -05:00 — Anish — Dedicated Arc deployer funded; broadcast cap pending
 
 - The user asked for a reusable CLI wallet. A dedicated encrypted Foundry keystore was created locally, its password stored in macOS Keychain, and an unlock check passed without printing a secret. The public deployer is `0xA2416Eb8159606C133298fF113a472608E6F9Fb7`. After explicit faucet approval, Circle sent 20 Arc Testnet USDC; [the transaction](https://testnet.arcscan.app/tx/0x07dc82fda622993c71cce5d389f2e2aa141945e39ef5f1a87569055ed120e292) succeeded in block 72562912. No wallet transaction was signed here.

@@ -2,6 +2,11 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 09:07 -05:00 — Anish — Arc adapter deployed and verified; PR #7 integration next
+
+- After explicit user approval, one Arc Testnet creation deployed the [open-claim adapter](https://explorer.testnet.arc.io/address/0x1fed5e532a1405facd45b4096ad1abf25bba0cb8) in [transaction `0x30a8bc27…72e14`](https://explorer.testnet.arc.io/tx/0x30a8bc27f9cecf068eeaf5c822196c5149f825671c4e65013d559de353572e14), block 72563239. The actual fee was 0.063471175 testnet USDC, within the approved 0.075 ceiling. Receipt, creation bytes, constructor getters, compiler-listed immutables and complete runtime matched. Blockscout source verification passed. The [deployment report](../anish/reports/open-claim-arc-deployment-2026-11-16.md) and [manifest](../../contracts/deployments/open-claim-arc-testnet.json) contain the exact evidence.
+- The contract handoff remains on `codex/overnight-open-escrow`. “Complete UBC-26 proof commerce” owns PR #7 integration and final CI. Fresh funded Arc proof, buyer/solver policies, live claim/release and Circle Gateway payment are separate gates; they are not established by the adapter deployment. Preserve the selected-provider deployment. No commerce code changed in this worktree checkpoint.
+
 ## 2026-11-16 09:01 -05:00 — Anish — Arc deployer ready; one spending decision remains
 
 - The user authorized creation of a reusable CLI wallet and use of Circle's public faucet. The new encrypted Foundry keystore unlocked successfully; the faucet transaction confirmed 20 Arc Testnet USDC for its public address. [Updated preflight](../anish/reports/open-claim-arc-preflight-2026-11-16.md) verifies the actual signer at block 72563030 with nonce 0, 2,560,164-gas estimate, unchanged code/fee pins and no new privilege events.
