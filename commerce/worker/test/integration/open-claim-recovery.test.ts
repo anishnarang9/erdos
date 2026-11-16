@@ -27,6 +27,8 @@ it("recovers exact files from public claim/release receipts and checks gas-adjus
   try {
     const result=await recoverOpenClaimFromChain(options);
     expect(result.gasAdjustedPayoutExact).toBe(true);expect(result.amountAtomic).toBe("1000000");
+    const repeated=await recoverOpenClaimFromChain(options);
+    expect(repeated.status).toBe("recovered-exact");
     expect(result.files[0]!.sha256).toBe("0x"+r.workload.candidateSha256);
     await expect(recoverOpenClaimFromChain({...options,directory:join(root,"wrong"),expectedOutputs:[{name:"schedule.json",content:new Uint8Array([1])}]})).rejects.toThrow();
   } finally {rmSync(root,{recursive:true,force:true});}
