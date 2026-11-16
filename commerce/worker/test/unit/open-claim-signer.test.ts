@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { mkdtemp, realpath, readFile, mkdir, unlink, writeFile, rm } from "node:fs/promises";
+import { mkdtemp, realpath, readFile, mkdir, rm, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { encodeFunctionData, keccak256, parseTransaction, sha256, type Hex } from "viem";
@@ -15,7 +15,7 @@ const core = "0x1111111111111111111111111111111111111111";
 const adapter = "0x2222222222222222222222222222222222222222";
 const close: (() => Promise<void>)[] = [];
 afterEach(async () => { for (const f of close.splice(0)) await f(); });
-async function fixture(journalBase = tmpdir()) {
+async function fixture() {
   const authorization = { kind: "claim" as const, jobId: 7n, envelope: "0xab" as Hex,
     seal: "0xe71e6620aabb" as Hex, keyCommitment: sha256("0xab"), gas: 100_000n, caller: account.address };
   const tx = { chainId: 5042002, to: adapter, from: account.address,
@@ -33,7 +33,7 @@ async function fixture(journalBase = tmpdir()) {
     validUntil: 1000n, maxGas: 200_000n, maxFeePerGas: ARC_MIN_FEE, maxPriorityFeePerGas: 0n,
     totalBudget: 300_000n * ARC_MIN_FEE, releaseGas: 100_000n,
     authorizations: [authorization], public: publicClient, rawSend, now: () => 100n,
-    journalRoot: await realpath(await mkdtemp(join(journalBase, "open-claim-signer-"))) };
+    journalRoot: await realpath(await mkdtemp(join(tmpdir(), "open-claim-signer-"))) };
   return { cfg, tx, rawSend };
 }
 it("restricts a local signer to the exact adapter claim and reserves release gas", async () => {
@@ -89,17 +89,22 @@ it("opens a refund journal after buyer funding created the account directory, th
   await expect(createOpenClaimRefundBroadcaster(config)).rejects.toThrow();
 });
 it("blocks unresolved funding and reserves sibling funding nonces before a refund", async () => {
-  // Sibling journals follow the operator path policy. Linux /tmp is world-writable.
-  const f=await fixture(process.cwd());
-  const b=await createOpenClaimRefundBroadcaster({...f.cfg,expiresAt:100n,validUntil:200n});
+  const f=await fixture();
+  // readSafeFile rejects world-writable /tmp ancestors on Linux.
+  f.cfg.journalRoot=await realpath(await mkdtemp(join(process.cwd(),".open-claim-sibling-")));
+  let b: Awaited<ReturnType<typeof createOpenClaimRefundBroadcaster>> | undefined;
   try {
-  const path=join(b.directory,"poster-funding.json");
-  const sibling={version:1,buyer:account.address,runs:{job:{entries:[{nonce:5,stage:"signed"}]}}};
-  await writeFile(path,JSON.stringify(sibling),{mode:0o600});
-  const tx={...f.tx,to:core,data:encodeFunctionData({abi:arcCoreAbi,functionName:"claimRefund",args:[7n]})} as const;
-  await expect(b.broadcast(tx)).rejects.toThrow();expect(f.rawSend).not.toHaveBeenCalled();
-  sibling.runs.job.entries[0]!.stage="confirmed";await writeFile(path,JSON.stringify(sibling));
-  await b.broadcast(tx);
-  expect(parseTransaction(f.rawSend.mock.calls[0]![0].params[0]).nonce).toBe(6);
-  } finally {await b.close();await rm(f.cfg.journalRoot,{recursive:true,force:true});}
+    b=await createOpenClaimRefundBroadcaster({...f.cfg,expiresAt:100n,validUntil:200n});
+    const path=join(b.directory,"poster-funding.json");
+    const sibling={version:1,buyer:account.address,runs:{job:{entries:[{nonce:5,stage:"signed"}]}}};
+    await writeFile(path,JSON.stringify(sibling),{mode:0o600});
+    const tx={...f.tx,to:core,data:encodeFunctionData({abi:arcCoreAbi,functionName:"claimRefund",args:[7n]})} as const;
+    await expect(b.broadcast(tx)).rejects.toThrow();expect(f.rawSend).not.toHaveBeenCalled();
+    sibling.runs.job.entries[0]!.stage="confirmed";await writeFile(path,JSON.stringify(sibling));
+    await b.broadcast(tx);
+    expect(parseTransaction(f.rawSend.mock.calls[0]![0].params[0]).nonce).toBe(6);
+  } finally {
+    await b?.close();
+    await rm(f.cfg.journalRoot,{recursive:true,force:true});
+  }
 });
