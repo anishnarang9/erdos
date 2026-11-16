@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 07:25 -05:00 — Anish — Protected solver signing and RPC recovery
+
+- Branch `codex/open-escrow-rescue`, PR #7. Added an adapter-only local signer over the existing protected account journal. It checks exact claim/release calldata, reserves release gas, caps fees, and dispatches raw transactions once with retries disabled.
+- The worker can recover its exact hash from the signer's durable journal after a dropped response. It then reads receipts without another signature or send. A missing journal hash still requires manual reconciliation. Fixed zero-priority EIP-1559 parsing, which viem represents by an absent field.
+- Checks: 62 focused worker tests and worker typecheck pass. Before edits, the workspace baseline passed SDK 342, API 777, worker 863 tests and all typechecks. New tests failed before implementation.
+- The current Goal assigns contracts/deployment to the separate escrow chat. Continue from its published commits after `8b9589d` only. Buyer execution, operator commands, Circle Gateway preparation, combined-head checks and live evidence remain pending. No signer, spending limits, deployed adapter, or Circle configuration was supplied.
+
 ## 2026-11-16 07:22 -05:00 — Anish — Open-claim contract correction and local verification
 
 - Branch `codex/overnight-open-escrow` imported the tested rescue source at `8b9589d`. Constructor now rejects nonzero core fees. Local deploy script checks the active Arc Anvil RPC and rejects a fork or another client before broadcast. It writes a simulated manifest with no invented receipt fields.

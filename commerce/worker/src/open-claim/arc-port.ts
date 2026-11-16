@@ -34,6 +34,7 @@ export interface ArcOpenClaimPortOptions {
   confirmations?: bigint;
   /** One send only. The injected signer must disable transport retries and persist its own nonce policy. */
   send(tx: OpenClaimRestrictedTx): Promise<Hex>;
+  recoverBroadcast?(tx: OpenClaimRestrictedTx): Promise<Hex | null>;
 }
 
 /** Actual Arc reads and receipts for the worker. Signing remains an injected capability. */
@@ -240,5 +241,6 @@ export function createArcOpenClaimPort(options: ArcOpenClaimPortOptions): OpenCl
     return options.send(tx);
   }
 
-  return { verifyDeployment, snapshot, signer: () => signer, broadcast, receipt };
+  return { verifyDeployment, snapshot, signer: () => signer, broadcast, receipt,
+    ...(options.recoverBroadcast ? { recoverBroadcast: options.recoverBroadcast } : {}) };
 }

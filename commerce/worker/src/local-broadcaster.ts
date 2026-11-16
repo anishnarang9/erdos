@@ -8,6 +8,7 @@ import {
 } from "viem";
 import type { ArcBroadcastCapability } from "./arc-port.ts";
 import { ARC_MIN_FEE, checkPolicy, type OutgoingTx, type WriteAuthorization } from "./policy.ts";
+import { checkOpenClaimPolicy, type OpenClaimAuthorization } from "./open-claim/policy.ts";
 
 type Block = { number: bigint | null; hash: Hex | null; timestamp: bigint };
 export interface LocalBroadcasterPublic {
@@ -61,10 +62,19 @@ export interface LocalBroadcaster extends ArcBroadcastCapability {
   /** Reports observed receipt cost, not finality. Maximum reservations remain charged permanently.
    * No reconciliation path signs, dispatches, or releases budget for reuse. */
   reconcile(hash: Hex): Promise<{ status: "success" | "reverted"; spent: bigint }>;
+  /** Recover a durable dispatch intent. This method never signs or sends. */
+  transactionHash(transaction: OutgoingTx): Promise<Hex | null>;
   close(): Promise<void>;
 }
+export interface OpenClaimBroadcasterConfig extends Omit<LocalBroadcasterConfig, "hook" | "authorizations"> {
+  adapter: Address;
+  authorizations: OpenClaimAuthorization[];
+}
+export function createOpenClaimBroadcaster(input: OpenClaimBroadcasterConfig): Promise<LocalBroadcaster> {
+  return createBroadcaster({ ...input, hook: input.adapter, authorizations: [] }, input.authorizations);
+}
 type Entry = {
-  id: Hex; chainId: number; jobId: string; kind: "submit" | "release"; digest: Hex; to: Address;
+  id: Hex; chainId: number; jobId: string; kind: "submit" | "claim" | "release"; digest: Hex; to: Address;
   nonce: number; gas: string; fee: string; priority: string; maximum: string; charged: string; observedSpent?: string;
   stage: "reserved" | "signed" | "intent" | "confirmed"; hash?: Hex; potentiallyPublic: boolean;
 };
@@ -77,10 +87,14 @@ const digest = (text: string) => keccak256(stringToHex(text));
 
 /** Constructs no wallet and opens no network connection. The caller injects an already approved local account. */
 export async function createLocalBroadcaster(input: LocalBroadcasterConfig): Promise<LocalBroadcaster> {
+  return createBroadcaster(input);
+}
+async function createBroadcaster(input: LocalBroadcasterConfig, openClaim?: OpenClaimAuthorization[]): Promise<LocalBroadcaster> {
   let releaseLock: (() => Promise<void>) | undefined;
   try {
     // Capture every method and all approval data synchronously, before the first filesystem await.
     const cfg = Object.freeze({
+      mode: openClaim ? "open-claim" : "selected-provider",
       provider: getAddress(input.provider), chainId: input.chainId, core: getAddress(input.core), hook: getAddress(input.hook),
       jobId: input.jobId, expiresAt: input.expiresAt, submitDeadline: input.submitDeadline, releaseDeadline: input.releaseDeadline,
       validUntil: input.validUntil, maxGas: input.maxGas, maxFeePerGas: input.maxFeePerGas,
@@ -103,16 +117,23 @@ export async function createLocalBroadcaster(input: LocalBroadcasterConfig): Pro
       receipt: input.public.getTransactionReceipt.bind(input.public),
       transaction: input.public.getTransaction.bind(input.public),
     });
-    const authorizations = input.authorizations.map(a => {
+    const authorizations: (WriteAuthorization | OpenClaimAuthorization)[] = (openClaim ?? input.authorizations).map(a => {
       ensure(a.jobId === cfg.jobId);
+      if (openClaim) {
+        ensure(a.kind === "claim" || a.kind === "release");
+        const item = a as OpenClaimAuthorization;
+        return Object.freeze(item.kind === "claim" ? { ...item } : { ...item, context: new Uint8Array(item.context) });
+      }
       if (a.kind === "submit") return Object.freeze({ kind: a.kind, jobId: a.jobId, envelope: a.envelope,
         envelopeHash: a.envelopeHash, seal: a.seal, keyCommitment: a.keyCommitment });
       ensure(a.kind === "release");
       return Object.freeze({ kind: a.kind, jobId: a.jobId, key: a.key, keyCommitment: a.keyCommitment, context: new Uint8Array(a.context) });
     });
     ensure(authorizations.length > 0 && authorizations.length <= 2 && new Set(authorizations.map(a => a.kind)).size === authorizations.length);
-    const scope = `${cfg.chainId}/${account.toLowerCase()}/${cfg.jobId}`;
-    const approvalDigest = digest(JSON.stringify({ cfg, authorizations: [...authorizations].sort((a, b) => a.kind.localeCompare(b.kind)) },
+    const scope = `${cfg.chainId}/${account.toLowerCase()}/${cfg.jobId}${openClaim ? `/open-claim/${cfg.hook.toLowerCase()}` : ""}`;
+    // Preserve the legacy approval digest for existing selected-provider journals.
+    const { mode: _mode, ...legacyCfg } = cfg;
+    const approvalDigest = digest(JSON.stringify({ cfg: openClaim ? cfg : legacyCfg, authorizations: [...authorizations].sort((a, b) => a.kind.localeCompare(b.kind)) },
       (_, value: unknown) => typeof value === "bigint" ? value.toString() : typeof value === "string" ? value.toLowerCase() : value));
     const root = resolve(input.journalRoot);
     async function privatePath(path: string, directory: boolean) {
@@ -216,12 +237,12 @@ export async function createLocalBroadcaster(input: LocalBroadcasterConfig): Pro
       try { return await action(); } catch { throw fail(); } finally { busy = false; }
     }
     async function chain() { ensure(await pub.chain() === cfg.chainId); }
-    async function deadline(kind: "submit" | "release") {
+    async function deadline(kind: "submit" | "claim" | "release") {
       await chain();
       const block = await pub.block({ blockTag: "latest" });
       const wall = now();
       ensure(typeof wall === "bigint" && wall >= 0n && wall < cfg.validUntil);
-      const limit = kind === "submit" ? cfg.submitDeadline : cfg.releaseDeadline;
+      const limit = kind !== "release" ? cfg.submitDeadline : cfg.releaseDeadline;
       ensure(block.number !== null && block.hash && block.timestamp >= 0n && block.timestamp < limit &&
         block.timestamp < cfg.expiresAt && wall < limit && wall < cfg.expiresAt);
     }
@@ -262,9 +283,14 @@ export async function createLocalBroadcaster(input: LocalBroadcasterConfig): Pro
         const tx = Object.freeze({ chainId: transaction.chainId, to: getAddress(transaction.to), data: transaction.data,
           value: transaction.value, gas: transaction.gas, maxFeePerGas: transaction.maxFeePerGas,
           maxPriorityFeePerGas: transaction.maxPriorityFeePerGas });
-        const auth = authorizations.find(a => a.kind === (isAddressEqual(tx.to, cfg.core) ? "submit" : "release"));
+        const auth = authorizations.find(a => a.kind === (openClaim
+          ? tx.data.slice(0, 10).toLowerCase() === "0xdbadcda7" ? "claim" : "release"
+          : isAddressEqual(tx.to, cfg.core) ? "submit" : "release"));
         ensure(auth);
-        checkPolicy(cfg, tx, auth);
+        if (openClaim) {
+          checkOpenClaimPolicy({ chainId: cfg.chainId, adapter: cfg.hook, solver: account,
+            maxGas: cfg.maxGas, maxFeePerGas: cfg.maxFeePerGas }, { ...tx, from: account }, auth as OpenClaimAuthorization);
+        } else checkPolicy(cfg, tx, auth as WriteAuthorization);
         ensure(tx.maxPriorityFeePerGas <= cfg.maxPriorityFeePerGas);
         if (auth.kind === "release") ensure(tx.gas <= cfg.releaseGas);
         const calldataDigest = keccak256(tx.data);
@@ -282,7 +308,7 @@ export async function createLocalBroadcaster(input: LocalBroadcasterConfig): Pro
         await deadline(auth.kind);
         const maximum = tx.gas * tx.maxFeePerGas;
         const previousHold = BigInt(journal.releaseHolds[scope] ?? "0");
-        const releaseHold = auth.kind === "submit" ? cfg.releaseGas * cfg.maxFeePerGas : 0n;
+        const releaseHold = auth.kind !== "release" ? cfg.releaseGas * cfg.maxFeePerGas : 0n;
         ensure(usage() - previousHold + releaseHold + maximum <= cfg.totalBudget);
         journal.releaseHolds[scope] = String(releaseHold);
         const entry: Entry = { id, chainId: cfg.chainId, jobId: String(cfg.jobId), kind: auth.kind, digest: calldataDigest,
@@ -295,7 +321,7 @@ export async function createLocalBroadcaster(input: LocalBroadcasterConfig): Pro
         const parsed = parseTransaction(serialized);
         ensure(parsed.type === "eip1559" && parsed.chainId === fields.chainId && parsed.nonce === nonce && parsed.to &&
           isAddressEqual(parsed.to, fields.to) && same(parsed.data ?? "0x", fields.data) && (parsed.value ?? 0n) === fields.value &&
-          parsed.gas === fields.gas && parsed.maxFeePerGas === fields.maxFeePerGas && parsed.maxPriorityFeePerGas === fields.maxPriorityFeePerGas &&
+          parsed.gas === fields.gas && parsed.maxFeePerGas === fields.maxFeePerGas && (parsed.maxPriorityFeePerGas ?? 0n) === fields.maxPriorityFeePerGas &&
           (!parsed.accessList || parsed.accessList.length === 0) && same(serializeTransaction(parsed), serialized));
         ensure(isAddressEqual(await recoverTransactionAddress({ serializedTransaction: serialized as TransactionSerialized }), account));
         const hash = keccak256(serialized);
@@ -304,7 +330,7 @@ export async function createLocalBroadcaster(input: LocalBroadcasterConfig): Pro
         entry.stage = "intent"; entry.potentiallyPublic = auth.kind === "release"; await save();
         await deadline(auth.kind);
         // No awaits between the final deadline result and the single raw dispatch.
-        ensure(now() < cfg.validUntil && now() < (auth.kind === "submit" ? cfg.submitDeadline : cfg.releaseDeadline));
+        ensure(now() < cfg.validUntil && now() < (auth.kind !== "release" ? cfg.submitDeadline : cfg.releaseDeadline));
         const returned = await rawSend({ method: "eth_sendRawTransaction", params: [serialized] }, { retryCount: 0 });
         ensure(typeof returned === "string" && same(returned, hash));
         return hash;
@@ -313,6 +339,16 @@ export async function createLocalBroadcaster(input: LocalBroadcasterConfig): Pro
         ensure(hashPattern.test(hash));
         const e = journal.entries.find(e => e.hash && same(e.hash, hash));
         ensure(e); return reconcileEntry(e);
+      }),
+      transactionHash: transaction => exclusive(async () => {
+        await privateFile(lockPath, lock, lockStat);
+        await checkJournal();
+        const e = journal.entries.find(e => e.chainId === cfg.chainId && e.jobId === String(cfg.jobId) &&
+          same(e.to, transaction.to) && same(e.digest, keccak256(transaction.data)) &&
+          transaction.chainId === cfg.chainId && transaction.value === 0n &&
+          e.gas === String(transaction.gas) && e.fee === String(transaction.maxFeePerGas) &&
+          e.priority === String(transaction.maxPriorityFeePerGas));
+        return e?.hash && (e.stage === "intent" || e.stage === "confirmed") ? e.hash : null;
       }),
       close: async () => {
         if (closed) return;

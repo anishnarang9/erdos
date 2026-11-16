@@ -107,6 +107,8 @@ export interface OpenClaimAdapterPort {
   snapshot(jobId: bigint): Promise<OpenClaimSnapshot>;
   signer(): OpenClaimSigner;
   broadcast(tx: OpenClaimRestrictedTx): Promise<Hex>;
+  /** Read an exact transaction hash from the protected signer's durable journal. Never sends. */
+  recoverBroadcast?(tx: OpenClaimRestrictedTx): Promise<Hex | null>;
   /** Null means the hash is still unknown. Throwing is also unresolved. Neither result may be retried as a new send. */
   receipt(hash: Hex): Promise<OpenClaimChainReceipt | null>;
 }

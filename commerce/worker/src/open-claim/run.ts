@@ -199,7 +199,7 @@ export async function runOpenClaim(o: OpenClaimRunOptions): Promise<OpenClaimSta
     };
     if (!resume) save();
     if (resume) {
-      if (state.phase === "claim_broadcasting" || state.phase === "release_broadcasting") {
+      if ((state.phase === "claim_broadcasting" || state.phase === "release_broadcasting") && !o.port.recoverBroadcast) {
         throw new WorkerCheckError("broadcast_uncertain", "broadcast intent has no durable hash; manual reconciliation required, no automatic resend");
       }
       if (state.phase === "lost" || state.phase === "rejected" || state.phase === "abandoned") return state;
@@ -310,6 +310,20 @@ export async function runOpenClaim(o: OpenClaimRunOptions): Promise<OpenClaimSta
         throw error;
       }
     };
+
+    if (state.phase === "claim_broadcasting" || state.phase === "release_broadcasting") {
+      const claim = state.phase === "claim_broadcasting";
+      const tx = claim
+        ? txBase(encodeOpenClaimClaim({ jobId: o.job.jobId, envelope: bytesToHex(pkg!.envelope), seal: pkg!.seal,
+          keyCommitment: pkg!.keyCommitment }), o.claimGas)
+        : txBase(encodeOpenClaimRelease({ jobId: o.job.jobId, key: key! }), o.releaseGas);
+      const hash = await o.port.recoverBroadcast!(tx);
+      must(hash && /^0x[0-9a-fA-F]{64}$/.test(hash), "broadcast_uncertain",
+        "no durable dispatch hash; manual reconciliation required, no automatic resend");
+      if (claim) state.claimTx = hash;
+      else state.releaseTx = hash;
+      phase(claim ? "claim_sent" : "release_sent", "recovered durable hash without signing or sending");
+    }
 
     if (state.phase === "proved") {
       const snap = await gate();

@@ -509,6 +509,25 @@ describe("runOpenClaimAcceptance", () => {
     expect(port.releases).toBe(0);
   });
 
+  it.each(["claim", "release"] as const)("recovers a durable %s hash after a lost RPC response", async kind => {
+    const f = setup();
+    const original = f.port.broadcast.bind(f.port);
+    let durable: Hex | undefined;
+    f.port.broadcast = async tx => {
+      const hash = await original(tx);
+      const target = kind === "claim" ? OPEN_CLAIM_CLAIM_SELECTOR : OPEN_CLAIM_RELEASE_SELECTOR;
+      if (tx.data.startsWith(target)) { durable = hash; throw Error("response dropped"); }
+      return hash;
+    };
+    await checkFails(runOpenClaimAcceptance(f.options), "broadcast_uncertain");
+    const port = { ...f.options.port, recoverBroadcast: async () => durable ?? null };
+    const state = await runOpenClaimAcceptance({ ...f.options, port });
+    expect(state.phase).toBe("released");
+    expect(f.port.claims).toBe(1);
+    expect(f.port.releases).toBe(1);
+    expect(f.runner.calls.filter(call => call[0] === "prove")).toHaveLength(1);
+  });
+
   it("restarts a confirmed attempt without a second claim or release", async () => {
     const { port, runner, options } = setup();
     expect((await runOpenClaimAcceptance(options)).phase).toBe("released");
