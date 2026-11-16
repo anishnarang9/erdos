@@ -206,30 +206,38 @@ export async function runFunded(o: FundedOptions): Promise<FundedState> {
     writeFilesInto(at("deliverables"), deliverables);
     writeFileSync(at("job.json"), JSON.stringify({ context: hex(contextBytes), imageId: lower(terms.imageId) }));
     const out = await prove(o.runner, { packageDir: at("package"), jobFile: at("job.json"), deliverablesDir: at("deliverables"), referenceDir: at("reference"), outDir: at("attempt") });
-    const pkg = parseProofJson(readFileSync(at("attempt/proof.json"), "utf8"));
-    must(Buffer.from(pkg.contextBytes).equals(Buffer.from(contextBytes)), "proof_context", "proof context differs from the chain context");
-    must(lower(pkg.imageId) === lower(terms.imageId), "proof_image", "proof imageId differs from the frozen imageId");
-    Object.assign(state, { verdict: pkg.verdict, proveMillis: out.proveMillis, userCycles: out.userCycles, envelopeHash: pkg.envelopeHash, keyCommitment: pkg.keyCommitment });
-    note("proved", `verdict ${pkg.verdict}`);
-
-    if (pkg.verdict === 0) {
-      // Never submit or release a failing proof. The preflight records that the chain would reject it too.
-      if (o.preflightRejected ?? true) {
-        const pf = await port.preflightSubmit(id, pkg);
-        must(!pf.ok, "verdict0_preflight", "the chain would accept a verdict-0 proof");
-        state.rejectedPreflight = pf.reason;
-      }
-      state.phase = "rejected";
-      note("rejected", state.rejectedPreflight);
-      return state;
-    }
-    const key = readKey(at("attempt/release-key.hex"));
-    must(lower(keyCommitment(contextBytes, hexToBytes(key))) === lower(pkg.keyCommitment), "key", "release key does not open the key commitment");
+    const proved = parseProofJson(readFileSync(at("attempt/proof.json"), "utf8"));
+    must(proved.verdict === out.verdict, "verdict_stdout", "engine stdout verdict differs from proof.json");
+    Object.assign(state, { verdict: proved.verdict, proveMillis: out.proveMillis, userCycles: out.userCycles, envelopeHash: proved.envelopeHash, keyCommitment: proved.keyCommitment });
+    note("proved", `verdict ${proved.verdict}`);
   }
 
   if (state.phase === "rejected" || state.phase === "released" || state.phase === "abandoned") return state;
+
+  // ---- 2. Checks that run on EVERY invocation, fresh or resumed, before anything is sent. ----
   const pkg = parseProofJson(readFileSync(at("attempt/proof.json"), "utf8"));
+  const chainContext = await port.contextOf(id);
+  must(Buffer.from(pkg.contextBytes).equals(Buffer.from(chainContext)), "proof_context", "proof context differs from the chain context");
+  must(lower(pkg.imageId) === lower(terms.imageId), "proof_image", "proof imageId differs from the frozen imageId");
+  if (pkg.verdict !== 1 || state.verdict === 0) {
+    // Never submit or release a failing proof. The preflight records that the chain would reject it too; it is
+    // evidence only, so an RPC failure there does not block reaching "rejected".
+    if (o.preflightRejected ?? true) {
+      try {
+        const pf = await port.preflightSubmit(id, pkg);
+        must(!pf.ok, "verdict0_preflight", "the chain would accept a verdict-0 proof");
+        state.rejectedPreflight = pf.reason;
+      } catch (err) {
+        if (err instanceof WorkerCheckError) throw err;
+        state.rejectedPreflight = "preflight_unavailable";
+      }
+    }
+    state.phase = "rejected";
+    note("rejected", state.rejectedPreflight);
+    return state;
+  }
   const key = readKey(at("attempt/release-key.hex"));
+  must(lower(keyCommitment(chainContext, hexToBytes(key))) === lower(pkg.keyCommitment), "key", "release key does not open the key commitment");
 
   // ---- 2. Submit (exactly once). ----
   if (state.phase === "submit_sent" && state.submitTx) {
@@ -287,6 +295,10 @@ export async function runFunded(o: FundedOptions): Promise<FundedState> {
       note("abandoned", state.abandonReason);
       return state;
     }
+    // Never broadcast our key against a commitment that is not ours.
+    const sub = await port.submission(id);
+    must(sub.accepted, "not_accepted", "no accepted submission to release");
+    must(lower(sub.envelopeHash) === lower(pkg.envelopeHash) && lower(sub.keyCommitment) === lower(pkg.keyCommitment), "foreign_submission", "the accepted submission is not ours");
     const pf = await port.preflightRelease(id);
     must(pf.ok, "release_preflight", `release preflight failed: ${pf.ok ? "" : pf.reason}`);
     state.phase = "release_sent";
