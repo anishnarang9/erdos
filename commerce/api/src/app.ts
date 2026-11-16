@@ -12,6 +12,7 @@ import type { DraftModel } from "./grok.ts";
 import { assertChainEngine, type ApiChain } from "./chain.ts";
 import { registerAuthoringRoutes } from "./authoring.ts";
 import { registerMarketRoutes } from "./market.ts";
+import { registerX402Routes, type X402Config } from "./x402.ts";
 
 export interface CreateAppOptions {
   dbPath: string;
@@ -24,6 +25,8 @@ export interface CreateAppOptions {
   chain?: ApiChain;
   /** Keep compiled packages here (see Deps.packagesDir). */
   packagesDir?: string;
+  /** Optional x402 service charge for the separate paid compile route. */
+  x402?: X402Config;
 }
 
 export interface CreatedApp {
@@ -88,7 +91,8 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   // Route modules (one owner each): authoring.ts (T5/T6), market.ts (T7/T8). Register literal paths such as
   // GET /v1/jobs before the parameterised GET /v1/jobs/:id below.
   const ctx = { app, deps, buyer, provider, idem, notImplemented, newId };
-  registerAuthoringRoutes(ctx);
+  const authoring = registerAuthoringRoutes(ctx);
+  registerX402Routes(ctx, authoring, opts.x402);
   registerMarketRoutes(ctx);
 
   app.get("/v1/jobs/:id", readBody, requireJobId, jobs.get);

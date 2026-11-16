@@ -7,6 +7,7 @@ import { createIndexer } from "./indexer.ts";
 import { assertChainEngine, createApiArcChain, type ApiChain } from "./chain.ts";
 import { engineConfigFromEnv, engineFromConfig, simulatedEngine, type Engine } from "./engine.ts";
 import { grokDraftModel, recordingDraftModel, replayDraftModel, type DraftModel } from "./grok.ts";
+import { httpX402Facilitator, type X402Config } from "./x402.ts";
 
 // Secrets live in a gitignored .env next to where the server starts. Real environment variables win.
 if (existsSync(".env")) process.loadEnvFile(".env");
@@ -76,11 +77,41 @@ function draftModelFromEnv(): { model?: DraftModel; label: string } {
   return { model: dir ? recordingDraftModel(live, dir) : live, label: `grok:${model}${dir ? ` (recording to ${dir})` : ""}` };
 }
 
+/** x402 charges for API compilation only; it does not fund the escrow bounty. */
+function x402FromEnv(): X402Config | undefined {
+  const url = process.env.X402_FACILITATOR_URL;
+  if (!url) return undefined;
+  const need = (name: string): string => {
+    const value = process.env[name];
+    if (!value) throw new Error(`${name} is required when X402_FACILITATOR_URL is set`);
+    return value;
+  };
+  let extra: unknown;
+  try {
+    extra = JSON.parse(need("X402_EXTRA_JSON")) as unknown;
+  } catch {
+    throw new Error("X402_EXTRA_JSON must be valid JSON");
+  }
+  if (!extra || typeof extra !== "object" || Array.isArray(extra)) {
+    throw new Error("X402_EXTRA_JSON must be an object");
+  }
+  return {
+    resourceBaseUrl: need("X402_RESOURCE_BASE_URL"),
+    network: process.env.X402_NETWORK ?? "eip155:5042002",
+    asset: (process.env.X402_ASSET ?? "0x3600000000000000000000000000000000000000") as `0x${string}`,
+    payTo: need("X402_PAY_TO") as `0x${string}`,
+    amount: need("X402_AMOUNT"),
+    extra: extra as Record<string, unknown>,
+    facilitator: httpX402Facilitator({ url, ...(process.env.X402_FACILITATOR_TOKEN ? { token: process.env.X402_FACILITATOR_TOKEN } : {}) }),
+  };
+}
+
 const chain = chainFromEnv();
 const { engine, label: engineLabel } = engineFromEnv();
 // Must precede createApp/openDb, indexer construction, and listen. Labels are informational only.
 assertChainEngine(chain, engine);
 const { model: draftModel, label: modelLabel } = draftModelFromEnv();
+const x402 = x402FromEnv();
 const packagesDir = process.env.PACKAGES_DIR;
 const { app, close } = createApp({
   dbPath,
@@ -89,6 +120,7 @@ const { app, close } = createApp({
   ...(draftModel ? { draftModel } : {}),
   ...(packagesDir ? { packagesDir } : {}),
   ...(chain ? { chain } : {}),
+  ...(x402 ? { x402 } : {}),
 });
 
 // Indexer (§6): ticks every 5 s when a chain is configured. It uses its own connection to the same database
@@ -114,6 +146,7 @@ if (chain) {
 const server = serve({ fetch: app.fetch, port }, (info) => {
   console.log(`[api] listening on http://localhost:${info.port} (db: ${dbPath}, chain: ${chain ? chain.config.chainId : "none"})`);
   console.log(`[api] engine: ${engineLabel}; draft model: ${modelLabel}; packages: ${packagesDir ?? "not kept"}`);
+  console.log(`[api] x402: ${x402 ? `${x402.network} ${x402.amount} units` : "off"}`);
 });
 
 function shutdown(): void {
