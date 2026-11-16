@@ -70,6 +70,8 @@ it("publishes only after exact funded registration is confirmed", async () => {
   const body = await json(terms);
   expect(body.fundingTerms.budget).toBe("1000000");
   expect(body.fundingTerms.adapter).toBe(ADAPTER);
+  expect(body.fundingTerms.description).toBe(`UBC26 open claim ${j.jobId}`);
+  expect(body.order).toEqual(["createJob", "setBudget", "approve", "fund", "register"]);
   expect(body.txRequests[0].to).toBe(CORE);
   expect((await json(await s.app.request(`/v1/jobs/${j.jobId}`))).state).toBe("open_prepared");
   expect((await json(await s.app.request("/v1/jobs"))).jobs).toEqual([]);

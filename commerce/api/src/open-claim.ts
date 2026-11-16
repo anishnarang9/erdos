@@ -190,7 +190,8 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     const response = { state: "open_prepared", fundingTerms: { chainId: config.chainId, core: config.core,
       adapter: config.adapter, usdc: config.usdc, verifier: config.verifier, buyer: buyerAddress,
       budget: String(budget), expiry: String(expiry), imageId: manifest.image_id,
-      rulesHash: manifest.rules_hash, referenceHash: manifest.reference_hash },
+      rulesHash: manifest.rules_hash, referenceHash: manifest.reference_hash, description },
+      order: ["createJob", "setBudget", "approve", "fund", "register"],
       txRequests, afterCreate: [
         { kind: "setBudget", to: config.core, signature: "setBudget(uint256,uint256,bytes)", args: { amount: String(budget), optParams: "0x" } },
         { kind: "fund", to: config.core, signature: "fund(uint256,bytes)", args: { optParams: "0x" } },
