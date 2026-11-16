@@ -42,6 +42,7 @@ const agent = createAgent({
   priceFor: () => price,
   dataDir: process.env.WORKER_DATA_DIR ?? join(config.workDir ?? ".", "agent"),
   proveBudgetSec: 600,
+  ...(process.env.RUN_EVENTS_DIR ? { eventsDir: process.env.RUN_EVENTS_DIR } : {}),
 });
 
 console.error(`[agent] solver ${account.address} on ${apiUrl}; price ${price} units; Arc core ${d.core}`);

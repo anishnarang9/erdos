@@ -6,7 +6,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Hex, LocalAccount } from "viem";
-import { providerAuthMessage, QUOTE_TYPES, quoteDomain } from "@ubc26/api";
+import { providerAuthMessage, QUOTE_TYPES, quoteDomain, runEventLog } from "@ubc26/api";
 import type { ApiClient } from "./client.ts";
 import type { EngineRunner } from "./engine.ts";
 import { runFunded, type FundedState, type SettlementPort } from "./funded.ts";
@@ -37,6 +37,8 @@ export interface AgentOptions {
   /** Price in USDC units (6 decimals) for a job, or null to not quote it. */
   priceFor(job: FeedJob): bigint | null;
   dataDir: string;
+  /** Write demo run events here (<jobId>.jsonl); the API serves them with RUN_EVENTS_DIR. */
+  eventsDir?: string;
   proveBudgetSec: number;
   quoteValiditySec?: number;
   log?: (msg: string) => void;
@@ -106,6 +108,7 @@ export function createAgent(o: AgentOptions) {
       solvers.set(job.jobId, solver);
       save();
       log(`quoted ${job.jobId} at ${price} units with ${solver.name}`);
+      if (o.eventsDir) runEventLog(o.eventsDir, job.jobId, { jobId: job.jobId })("quote.created", { quoteId: r.quoteId, price, provider: o.account.address, validUntil });
       n++;
     }
     return n;
@@ -135,6 +138,7 @@ export function createAgent(o: AgentOptions) {
         solver,
         attemptDir: join(o.dataDir, `attempt-${a.jobId}-${a.chainJob.jobId}`),
         proveBudgetSec: o.proveBudgetSec,
+        ...(o.eventsDir ? { emit: runEventLog(o.eventsDir, a.jobId, { jobId: a.jobId, chainJobId: BigInt(a.chainJob.jobId) }) } : {}),
       });
       log(`job ${a.jobId}: ${state.phase}${state.verdict !== undefined ? ` (verdict ${state.verdict})` : ""}`);
       if (state.phase === "released" || state.phase === "rejected" || state.phase === "abandoned") {

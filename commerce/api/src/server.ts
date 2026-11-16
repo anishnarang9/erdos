@@ -90,6 +90,7 @@ const { app, close } = createApp({
   engine,
   ...(draftModel ? { draftModel } : {}),
   ...(packagesDir ? { packagesDir } : {}),
+  ...(process.env.RUN_EVENTS_DIR ? { runEventsDir: process.env.RUN_EVENTS_DIR } : {}),
   ...(chain ? { chain } : {}),
 });
 

@@ -284,3 +284,30 @@ describe("runFunded: crash and resume (exactly-once payout)", () => {
     await checkFails(runFunded(o), "attempt_dir");
   });
 });
+
+describe("runFunded: demo run events", () => {
+  it("a paid run emits the milestones in order, with public fields only (never the key)", async () => {
+    const { o, runner } = setup();
+    const events: { type: string; data: Record<string, unknown> }[] = [];
+    await runFunded({ ...o, emit: (type, data = {}) => events.push({ type, data }) });
+    expect(events.map((e) => e.type)).toEqual([
+      "solver.started",
+      "proof.started",
+      "proof.finished",
+      "submission.broadcast",
+      "submission.confirmed",
+      "release.broadcast",
+      "release.confirmed",
+    ]);
+    const fin = events.find((e) => e.type === "proof.finished")!.data;
+    expect(fin).toMatchObject({ verdict: 1, proveMillis: 5, userCycles: 7 });
+    expect(JSON.stringify(events, (_k, v) => (typeof v === "bigint" ? v.toString() : v))).not.toContain(runner.key!.slice(2));
+  });
+
+  it("a verdict-0 run ends with submission.preflight_rejected and no broadcast", async () => {
+    const { o } = setup({}, { verdict: 0 });
+    const types: string[] = [];
+    await runFunded({ ...o, emit: (t) => types.push(t) });
+    expect(types).toEqual(["solver.started", "proof.started", "proof.finished", "submission.preflight_rejected"]);
+  });
+});

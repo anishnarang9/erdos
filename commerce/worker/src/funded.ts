@@ -18,6 +18,7 @@ import type { ApiClient } from "./client.ts";
 import { prove, type EngineRunner } from "./engine.ts";
 import { downloadPackage, WorkerCheckError } from "./run.ts";
 import type { Solver } from "./solvers/index.ts";
+import type { Emit } from "@ubc26/api";
 
 const SAFE_NAME = /^[A-Za-z0-9._-]{1,128}$/;
 const lower = (h: string) => h.toLowerCase();
@@ -91,6 +92,8 @@ export interface FundedOptions {
   submitBudgetSec?: number;
   /** Verdict 0: also run the submit preflight to record the on-chain rejection (never sends). Default true. */
   preflightRejected?: boolean;
+  /** Demo run events (allowlisted, public fields only). */
+  emit?: Emit;
 }
 
 export type Phase = "proved" | "submit_sent" | "submitted" | "release_sent" | "released" | "rejected" | "abandoned";
@@ -134,6 +137,7 @@ export function checkJobAndTerms(port: SettlementPort, job: ChainJob, terms: Cha
 
 export async function runFunded(o: FundedOptions): Promise<FundedState> {
   const { port } = o;
+  const emit: Emit = o.emit ?? (() => {});
   const releaseMargin = BigInt(o.releaseMarginSec ?? 120);
   const submitBudget = BigInt(o.submitBudgetSec ?? 60);
   const at = (p: string) => join(o.attemptDir, p);
@@ -171,6 +175,7 @@ export async function runFunded(o: FundedOptions): Promise<FundedState> {
         state.phase = "abandoned";
         state.abandonReason = `job is ${job.status} on chain`;
         note("abandoned", state.abandonReason);
+      emit("run.abandoned", { reason: state.abandonReason });
         return state;
       }
     }
@@ -201,15 +206,31 @@ export async function runFunded(o: FundedOptions): Promise<FundedState> {
     // SettlementHook.contextOf: SettlementCodec.context(block.chainid, address(core), jobId, provider, rulesHash, referenceHash)
     must(lower(ctx.escrow) === lower(port.core), "context", "context escrow is not the core");
 
+    emit("solver.started", { solver: o.solver.name, provider: port.self, chainJobId: id });
     const view = await o.client.job(o.jobId);
     const deliverables = await o.solver.solve({ plan: view.revision.revision.plan, references: refs.files });
     writeFilesInto(at("deliverables"), deliverables);
     writeFileSync(at("job.json"), JSON.stringify({ context: hex(contextBytes), imageId: lower(terms.imageId) }));
-    const out = await prove(o.runner, { packageDir: at("package"), jobFile: at("job.json"), deliverablesDir: at("deliverables"), referenceDir: at("reference"), outDir: at("attempt") });
+    emit("proof.started", { imageId: terms.imageId, proveBudgetSec: o.proveBudgetSec });
+    let out: Awaited<ReturnType<typeof prove>>;
+    try {
+      out = await prove(o.runner, { packageDir: at("package"), jobFile: at("job.json"), deliverablesDir: at("deliverables"), referenceDir: at("reference"), outDir: at("attempt") });
+    } catch (err) {
+      emit("proof.failed", { code: (err as { code?: string }).code ?? "error", message: (err as Error).message });
+      throw err;
+    }
     const proved = parseProofJson(readFileSync(at("attempt/proof.json"), "utf8"));
     must(proved.verdict === out.verdict, "verdict_stdout", "engine stdout verdict differs from proof.json");
     Object.assign(state, { verdict: proved.verdict, proveMillis: out.proveMillis, userCycles: out.userCycles, envelopeHash: proved.envelopeHash, keyCommitment: proved.keyCommitment });
     note("proved", `verdict ${proved.verdict}`);
+    emit("proof.finished", {
+      verdict: proved.verdict,
+      proveMillis: out.proveMillis,
+      userCycles: out.userCycles,
+      sealBytes: (proved.seal.length - 2) / 2,
+      envelopeHash: proved.envelopeHash,
+      keyCommitment: proved.keyCommitment,
+    });
   }
 
   if (state.phase === "rejected" || state.phase === "released" || state.phase === "abandoned") return state;
@@ -234,6 +255,7 @@ export async function runFunded(o: FundedOptions): Promise<FundedState> {
     }
     state.phase = "rejected";
     note("rejected", state.rejectedPreflight);
+    emit("submission.preflight_rejected", { reason: state.rejectedPreflight ?? "not_submitted" });
     return state;
   }
   const key = readKey(at("attempt/release-key.hex"));
@@ -266,11 +288,13 @@ export async function runFunded(o: FundedOptions): Promise<FundedState> {
       state.submitTx = sent.hash;
       state.phase = "submit_sent";
       note("submit_sent", sent.hash);
+      emit("submission.broadcast", { txHash: sent.hash });
       const accepted = sent.events.find((e) => e.name === "ProofAccepted");
       must(accepted !== undefined, "proof_accepted", "submit receipt has no ProofAccepted event");
       must(lower(String(accepted.args.envelopeHash)) === lower(pkg.envelopeHash) && lower(String(accepted.args.keyCommitment)) === lower(pkg.keyCommitment), "proof_accepted", "ProofAccepted does not match our proof");
       state.phase = "submitted";
       note("submitted", sent.hash);
+      emit("submission.confirmed", { txHash: sent.hash, envelopeHash: pkg.envelopeHash, keyCommitment: pkg.keyCommitment });
     }
   }
 
@@ -293,6 +317,7 @@ export async function runFunded(o: FundedOptions): Promise<FundedState> {
       state.phase = "abandoned";
       state.abandonReason = `only ${job.expiredAt - now} s before expiry (margin ${releaseMargin} s); the buyer can claim a refund`;
       note("abandoned", state.abandonReason);
+      emit("run.abandoned", { reason: state.abandonReason });
       return state;
     }
     // Never broadcast our key against a commitment that is not ours.
@@ -306,10 +331,12 @@ export async function runFunded(o: FundedOptions): Promise<FundedState> {
     const sent = await port.release(id, key);
     state.releaseTx = sent.hash;
     note("release_sent", sent.hash);
+    emit("release.broadcast", { txHash: sent.hash });
     const released = sent.events.find((e) => e.name === "KeyReleased");
     must(released !== undefined && lower(String(released.args.key)) === lower(key), "key_released", "release receipt has no matching KeyReleased event");
     state.phase = "released";
     note("released", sent.hash);
+    emit("release.confirmed", { txHash: sent.hash });
   }
   return state;
 }

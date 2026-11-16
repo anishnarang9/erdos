@@ -12,6 +12,7 @@ import type { DraftModel } from "./grok.ts";
 import type { ApiChain } from "./chain.ts";
 import { registerAuthoringRoutes } from "./authoring.ts";
 import { registerMarketRoutes } from "./market.ts";
+import { registerDemoRoutes } from "./demo.ts";
 
 export interface CreateAppOptions {
   dbPath: string;
@@ -24,6 +25,8 @@ export interface CreateAppOptions {
   chain?: ApiChain;
   /** Keep compiled packages here (see Deps.packagesDir). */
   packagesDir?: string;
+  /** Serve worker run events from here (demo routes). */
+  runEventsDir?: string;
 }
 
 export interface CreatedApp {
@@ -48,6 +51,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     ...(opts.draftModel ? { draftModel: opts.draftModel } : {}),
     ...(opts.chain ? { chain: opts.chain } : {}),
     ...(opts.packagesDir ? { packagesDir: opts.packagesDir } : {}),
+    ...(opts.runEventsDir ? { runEventsDir: opts.runEventsDir } : {}),
   };
 
   const app = new Hono<AppEnv>();
@@ -85,6 +89,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   const ctx = { app, deps, buyer, provider, idem, notImplemented, newId };
   registerAuthoringRoutes(ctx);
   registerMarketRoutes(ctx);
+  registerDemoRoutes(ctx);
 
   app.get("/v1/jobs/:id", readBody, requireJobId, jobs.get);
 

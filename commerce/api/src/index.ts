@@ -76,3 +76,4 @@ export { PLAN_SCHEMA, ENGINE_CATALOG } from "./authoring.ts";
 export { checkPlanFiles, FORMAT_PARSER } from "./revision.ts";
 export { arcReader, arcChain } from "./arc.ts";
 export { readChain, type ChainReader } from "./chain.ts";
+export { runEventLog, readRunEvents, type RunEvent, type RunEventType, type Emit } from "./run-events.ts";
