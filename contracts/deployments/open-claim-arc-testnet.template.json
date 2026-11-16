@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "interfaceVersion": "open-claim-v1",
+  "network": "arc-testnet",
+  "status": "proposed-not-deployed",
+  "chainId": 5042002,
+  "usdc": {
+    "address": "0x3600000000000000000000000000000000000000",
+    "decimals": 6
+  },
+  "core": {
+    "address": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
+    "implementation": "0x55A3C9319EEe607579855880b5651766eBF103d7",
+    "runtimeCodeHash": "0xdac3085f81cca92bb363b27a29074c33a338ba3c89cc395dc097ba20fac576d7",
+    "deployBlock": 72393888,
+    "frozen": true
+  },
+  "coreImplementationRuntimeCodeHash": "0x7bdd6ba79fb1560523b2228edf03bef923f33edf41de728044de5ccae4037d13",
+  "verifier": {
+    "address": "0xCf8D70A203b40D3A17d023c0CDDF752870BC3992",
+    "runtimeCodeHash": "0x0b496507a375b268f944877d4057cb475d412ea3f9376d406ae40a13fea49012",
+    "version": "3.1.0",
+    "selector": "0xe71e6620"
+  },
+  "adapter": {
+    "address": null,
+    "runtimeCodeHash": null,
+    "deployTx": null,
+    "deployBlock": null,
+    "contract": "src/OpenClaimAdapter.sol:OpenClaimAdapter",
+    "abi": "abi/OpenClaimAdapter.json"
+  },
+  "policy": {
+    "provider": "adapter",
+    "evaluator": "adapter",
+    "hook": "0x0000000000000000000000000000000000000000",
+    "platformFeeBP": 0,
+    "evaluatorFeeBP": 0,
+    "minRegistrationExpiryMarginSeconds": 600,
+    "maxEnvelopeBytes": 16412,
+    "contextEscrow": "adapter",
+    "contextProvider": "actual solver and payout address",
+    "wireVersion": 1,
+    "releaseBeforeExpiry": true,
+    "refundAtOrAfterExpiry": true,
+    "bountyFunding": "buyer approves and funds authentic core directly",
+    "x402": "separate API operation fee; direct bounty funding unproven"
+  },
+  "abis": {
+    "core": "abi/AgenticCommerce.json",
+    "adapter": "abi/OpenClaimAdapter.json",
+    "verifier": "abi/IRiscZeroVerifier.json"
+  },
+  "evidence": {
+    "adapterDeployed": false,
+    "freshFundedProof": false,
+    "liveArcExchange": false,
+    "note": "Historical core/verifier pins copied from frozen selected-provider manifest. Reverify at a fixed block before live use. Null adapter fields are mandatory until an authorized deployment confirms them."
+  }
+}

@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 01:34 -05:00 — Anish — Interface vectors and deployment policy
+
+- Expanded [open-claim v1](../../docs/overnight/open-claim-v1.md) with computed function selectors, public event declarations and exact synthetic context/journal bytes. Added a proposed testnet template and its schema. Adapter deployment fields stay null.
+- Parent pinned Arc baseline passed 120 tests, zero failures and one fork-only skip. Existing TypeScript examples passed 13 tests and typecheck. Existing four exported ABIs match compiled artifacts.
+- Added new ABI/fixture/manifest checks. The adapter ABI test currently fails because implementation/export is pending. The separate real scalar-receipt suite also fails compilation until the adapter exists. These are explicit pending checks.
+- Grok standards and test workers exited cancelled without edits. Native fallbacks own those tracks. One Grok implementation worker remains. The user requested avoiding rate limits, so no parallel new Grok workers or direct model API calls are planned.
+- A separate forkless Arc node is ready for local-only deployment verification with native USDC. No live RPC or operator wallet is configured. Next: integrate the scoped source/tests, run full acceptance and hand source to Chat 1.
+
 ## 2026-11-16 01:24 -05:00 — Anish — Open-claim interface
 
 - Branch `codex/overnight-open-escrow` starts at reviewed integration `ae1295a`, including Nick `57c387f`. Active proof worktrees remain intact.

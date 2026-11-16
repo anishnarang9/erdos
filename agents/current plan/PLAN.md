@@ -2,6 +2,14 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 01:33 -05:00 — Anish — Open-claim overnight extension
+
+- The user approved the [open-claim plan](../../docs/overnight/open-claim-plan.md). Branch `codex/overnight-open-escrow` starts at reviewed integration `ae1295a`, including Nick `57c387f`. The separate proof and commerce chat owns shared proving resources.
+- [Interface checkpoint `43b4fca`](../../docs/overnight/open-claim-v1.md) freezes the buyer registration, candidate claim, winning key release and funded reads. The new adapter uses the frozen core with provider and evaluator set to the adapter and hook zero. Preserve the selected-provider path.
+- Actual solver identity replaces selected provider in the v1 journal. The adapter address supplies its domain. The proof image remains separately bound by verification. First accepted proof reserves one winner. Core expiry refunds continue to pay the original buyer.
+- Keep x402 API payment separate from bounty funding. Current Circle Gateway exact support does not establish a direct `core.fund` path. No direct-bounty claim follows from an API payment.
+- Limit external Grok concurrency after the user's rate-limit instruction. Use native fallback after worker cancellation. Contract acceptance, independent reviews, ABI parity, local deploy checks and Chat 1 fresh-proof exchange remain pending. No live spending or deployment is authorized.
+
 ## 2026-11-16 00:59 -05:00 — Anish — Resumed local exchange passed; clean fresh rerun next
 
 - The initial new-workload run produced two real proofs but exited 1 at the separate refund job's receipt read. Its [immutable failure record](../anish/reports/fresh-exchange-failed-attempt-2026-11-16.json) remains separate from later attempts.

@@ -42,6 +42,30 @@ function expectedJournal(uint256 jobId, address solver, bytes32 envelopeHash,
 
 `terms` and `submissions` return fields in the declared struct order. This API uses `msg.sender` as both proof identity and payout identity. It has no alternate payout address or relayer identity.
 
+## Function selectors and events
+
+| Call | Selector |
+| --- | --- |
+| `register(uint256,bytes32,bytes32,bytes32,uint256,uint64)` | `0x22c1d372` |
+| `claim(uint256,bytes,bytes,bytes32)` | `0xdbadcda7` |
+| `release(uint256,bytes32)` | `0xdd20edf9` |
+| `contextOf(uint256,address)` | `0xd19aca07` |
+| `expectedJournal(uint256,address,bytes32,bytes32)` | `0x981fa9ee` |
+| `terms(uint256)` | `0xc0aa0e8a` |
+| `submissions(uint256)` | `0xad73349e` |
+| `released(uint256)` | `0xa94d373b` |
+
+```solidity
+event TermsRegistered(uint256 indexed jobId, address indexed buyer,
+    bytes32 imageId, bytes32 rulesHash, bytes32 referenceHash, uint256 budget, uint64 expiry);
+event ClaimAccepted(uint256 indexed jobId, address indexed solver,
+    bytes32 envelopeHash, bytes32 keyCommitment, bytes envelope);
+event KeyReleased(uint256 indexed jobId, address indexed solver,
+    bytes32 key, bytes32 envelopeHash, uint256 amount);
+```
+
+The core emits `JobSubmitted` and `PaymentReleased` with the adapter as provider. Use adapter events and token transfers to identify the winning solver and final payment. The public claim event contains the exact encrypted envelope.
+
 ## Approval, funding and registration
 
 1. Buyer approves the compiled image, rules, references, exact budget and expiry offchain.
@@ -79,8 +103,15 @@ Integers use unsigned big-endian encoding. The verifier separately binds the app
 
 Synthetic vector: chain 5042002, adapter `0x1111111111111111111111111111111111111111`, job 7, solver `0x2222222222222222222222222222222222222222`, rules `0x33` repeated 32 bytes, references `0x44` repeated 32 bytes, key `0x55` repeated 32 bytes. Envelope hash: `0xad46cb7372002d8ee22d8a082781a89ffde85198d5257c2643912ca3898012e6`. Expected key commitment: `0x3bbc3bf1185df5265d974732502dfffca6037592208f145b6fc143f9cec9c99d`. Expected journal digest: `0x9ae8cca7c5828cc27a19039df5593a21e37cc1f05fcf99f32e118d233f4d115e`.
 
+Exact synthetic context and journal:
+
+```text
+context = 0x0100000000000000000000000000000000000000000000000000000000004cef5211111111111111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000007222222222222222222222222222222222222222233333333333333333333333333333333333333333333333333333333333333334444444444444444444444444444444444444444444444444444444444444444
+journal = 0x0100000000000000000000000000000000000000000000000000000000004cef521111111111111111111111111111111111111111000000000000000000000000000000000000000000000000000000000000000722222222222222222222222222222222222222223333333333333333333333333333333333333333333333333333333333333333444444444444444444444444444444444444444444444444444444444444444401ad46cb7372002d8ee22d8a082781a89ffde85198d5257c2643912ca3898012e63bbc3bf1185df5265d974732502dfffca6037592208f145b6fc143f9cec9c99d
+```
+
 ## Artifacts and remaining checks
 
 ABI: `contracts/abi/OpenClaimAdapter.json`. Local deploy script: `contracts/script/09_DeployOpenClaimLocal.s.sol`. Manifest template: `contracts/deployments/open-claim-arc-testnet.template.json`. Manifest schema: `contracts/deployments/OPEN-CLAIM-SCHEMA.md`.
 
-Selectors, complete error/event declarations, compatibility notes and tested commands will follow in the next checkpoint. This checkpoint freezes the function and struct signatures above so Chat 1 can implement clients now. State-machine fixtures, real-verifier receipt checks, fresh actual-contract exchange and live Arc exchange must remain separate evidence categories. x402 pays for an API operation initially. Direct x402 bounty funding remains unproven.
+Complete error declarations and tested commands will follow after implementation. Selectors use viem and the published signatures. Standards notes appear in `erc8183-compatibility.md` when its independent review completes. This checkpoint freezes the function and struct signatures above so Chat 1 can implement clients now. State-machine fixtures, real-verifier receipt checks, fresh actual-contract exchange and live Arc exchange must remain separate evidence categories. x402 pays for an API operation initially. Direct x402 bounty funding remains unproven.
