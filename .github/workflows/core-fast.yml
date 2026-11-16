@@ -68,6 +68,8 @@ jobs:
       # foundry.toml pins solc 0.8.28, which Foundry downloads as needed.
       - name: Test contracts and deployment scripts on local Arc
         run: '"$ARC_FOUNDRY_BIN/forge" test --network arc'
+      - name: Check exported ABI parity
+        run: node script/check-abi.mjs
       - name: Install locked example dependencies without lifecycle scripts
         working-directory: contracts/examples
         run: npm ci --ignore-scripts

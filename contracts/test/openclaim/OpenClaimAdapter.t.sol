@@ -347,6 +347,20 @@ contract OpenClaimAdapterTest is Test {
         new OpenClaimAdapter(address(core), outsider, address(token));
     }
 
+    function test_constructorRejectsInitialPlatformFee() public {
+        _deploy(false);
+        core.setPlatformFee(1, treasury);
+        vm.expectRevert(OpenClaimAdapter.FeesEnabled.selector);
+        new OpenClaimAdapter(address(core), address(verifier), address(token));
+    }
+
+    function test_constructorRejectsInitialEvaluatorFee() public {
+        _deploy(false);
+        core.setEvaluatorFee(1);
+        vm.expectRevert(OpenClaimAdapter.FeesEnabled.selector);
+        new OpenClaimAdapter(address(core), address(verifier), address(token));
+    }
+
     function test_independentSyntheticWireVector() public pure {
         bytes memory context = _context(
             CHAIN,
@@ -791,6 +805,33 @@ contract OpenClaimAdapterTest is Test {
         _assertSubmitted(id, solver);
         assertEq(token.balanceOf(address(core)), BUDGET * 2);
         assertEq(token.balanceOf(address(adapter)), BUDGET * 4);
+    }
+
+    function test_shortOrExcessSolverPaymentRollsBackDespiteAdapterTopUp() public {
+        uint256 id = _job();
+        uint256 otherBudget = BUDGET + 7;
+        uint256 otherId = _funded(otherBudget, EXPIRY);
+        _register(otherId, otherBudget, EXPIRY);
+        _claim(id, solver);
+        token.mint(address(adapter), BUDGET * 4);
+        token.setDelta(address(adapter), solver, -1);
+        vm.expectRevert(OpenClaimAdapter.WrongPaymentAmount.selector);
+        vm.prank(solver);
+        adapter.release(id, KEY);
+        _assertSubmitted(id, solver);
+        _assertUnreserved(otherId);
+        assertEq(token.balanceOf(address(core)), BUDGET + otherBudget);
+        assertEq(token.balanceOf(address(adapter)), BUDGET * 4);
+        assertEq(token.balanceOf(solver), 0);
+        token.setDelta(address(adapter), solver, 1);
+        vm.expectRevert(OpenClaimAdapter.WrongPaymentAmount.selector);
+        vm.prank(solver);
+        adapter.release(id, KEY);
+        _assertSubmitted(id, solver);
+        _assertUnreserved(otherId);
+        assertEq(token.balanceOf(address(core)), BUDGET + otherBudget);
+        assertEq(token.balanceOf(address(adapter)), BUDGET * 4);
+        assertEq(token.balanceOf(solver), 0);
     }
 
     function test_topUpAndUnrelatedJobRemainIntactAfterExactRelease() public {

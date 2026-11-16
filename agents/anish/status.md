@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 07:22 -05:00 — Anish — Open-claim contract correction and local verification
+
+- Branch `codex/overnight-open-escrow` imported the tested rescue source at `8b9589d`. Constructor now rejects nonzero core fees. Local deploy script checks the active Arc Anvil RPC and rejects a fork or another client before broadcast. It writes a simulated manifest with no invented receipt fields.
+- Pinned Arc Foundry `3e95efaeaaaca64d6ac9c1ee988968683dbd0d22`: 42 adversarial adapter tests, six checked-in real-receipt tests, and full local `forge test --network arc` passed 168, failed 0, skipped one fork-only test. Three fuzz cases ran 256 inputs each. Scoped format, ABI parity, 16 TypeScript examples/typecheck and safe local deploy simulation passed. The real-receipt suite uses checked-in proofs; the separate combined fresh-proof local run is recorded at `agents/anish/reports/open-claim-local-acceptance-2026-11-16.json`.
+- The full read-only Arc `06_Verify` rechecked verifier, core implementation, proxy and hook but hit RPC HTTP 429 during historical role-log replay. A complete current freeze claim is pending fixed-block evidence. No live adapter transaction, wallet or key was used. External live deployment signer and exact spending limits remain unapproved.
+- Standards review records pinned ERC-8183 draft gaps and confirms Circle Gateway x402 does not directly fund the core. Next: independent final source review, fixed-block Arc read, gas preview, contract handoff to Chat 1 and exact live operator blocker.
+
 ## 2026-11-16 04:08 -05:00 — Anish — Final local open-claim handoff
 
 - Branch `codex/open-escrow-rescue` is pushed at code head `015996b`. [Draft PR #7](https://github.com/anishnarang9/UBC-26/pull/7) targets `codex/engine-commerce`; it is mergeable and unmerged. At that exact head, the [commerce run](https://github.com/anishnarang9/UBC-26/actions/runs/43835708063) and [core-fast run](https://github.com/anishnarang9/UBC-26/actions/runs/43835708011) passed. The local `pnpm check` and 15/15 real-engine API suite also passed after the final server edit. The checkout is clean before this status-only commit.
