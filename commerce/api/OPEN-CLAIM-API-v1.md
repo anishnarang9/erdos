@@ -21,7 +21,7 @@ The response has `fundingTerms`, unsigned `txRequests` for `createJob` and exact
 
 ## Confirm funding and registration
 
-After the buyer has confirmed both transactions, call `POST /v1/jobs/:id/open-claim-link` with the buyer token and an `Idempotency-Key`:
+After the buyer has confirmed all five transactions, call `POST /v1/jobs/:id/open-claim-link` with the buyer token and an `Idempotency-Key`:
 
 ```json
 {
@@ -38,4 +38,4 @@ The API requires successful receipts addressed to the pinned core and adapter, w
 
 The `OpenClaimReader` is a read-only dependency in `createApp`. `mode: "arc"` requires a real engine and real compiled artifact binding. `mode: "fixture"` exists for local API tests and returns `evidenceMode: "fixture"`. The Arc reader now uses the compiled adapter JSON ABI. It pins every job snapshot to one confirmed block and ignores receipts inside the three-block confirmation margin. It reads the live core job, registered terms, winner, token, fees and adapter wiring. The server enables it only when `OPEN_CLAIM_RPC_URL`, `OPEN_CLAIM_CHAIN_ID`, `OPEN_CLAIM_CORE`, `OPEN_CLAIM_ADAPTER`, `OPEN_CLAIM_USDC` and `OPEN_CLAIM_VERIFIER` are set. `OPEN_CLAIM_CONFIRMATIONS` defaults to `3`.
 
-The forkless local Arc check in `agents/anish/reports/open-claim-local-funded-2026-11-16.json` records five confirmed buyer transactions and a read-only API snapshot at block 11. It confirms `JobFunded` and `TermsRegistered` through the real ABIs. No fresh adapter proof, claim, release or live Arc deployment is recorded by that check. The local addresses are not testnet deployment pins; the testnet adapter address remains null in the template.
+The [local funding report](../../agents/anish/reports/open-claim-local-funding-api-2026-11-16.json) records five confirmed buyer transactions and an API snapshot after registration. The [combined local acceptance report](../../agents/anish/reports/open-claim-local-acceptance-2026-11-16.json) records a fresh adapter-domain proof, claim, exact payout, recovery and a separate refund. Both use synthetic unlocked accounts on forkless local Arc. The local addresses are not testnet deployment pins; the testnet adapter address remains null in the template. The [current route contract](OPEN-CLAIM-v1.md) names the HTTP setup and response fields.

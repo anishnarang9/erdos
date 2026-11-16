@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 03:40 -05:00 — Anish — Open-claim local gate complete
+
+- The [combined local acceptance report](../anish/reports/open-claim-local-acceptance-2026-11-16.json) records exit 0 on forkless Arc Anvil with the released RISC Zero 3.1.0 verifier. A fresh funded-context proof won the claim, the adapter paid exactly 1,000,000 local USDC units to that solver, the second solver sent no key or claim after losing, both recovery paths matched the original bytes and independent oracle, and another funded job refunded exactly 1,000,000 units. An independent receipt audit confirmed the chain and API outcomes.
+- This closes the local combined gate from the 01:27 plan. The selected-provider Meridian baseline also exited 0. A separate [local x402 report](../anish/reports/open-claim-x402-local-2026-11-16.json) covers paid compile with a test facilitator. Final report publication, documentation checks and final pushed-head CI remain in progress.
+- The live testnet gate still needs the operator's approved adapter deployment, wallet and exact spending authority, and Circle Gateway configuration. Local synthetic accounts and local USDC do not supply those inputs. Continue the prepared operator handoff without live writes.
+
 ## 2026-11-16 01:33 -05:00 — Anish — Open-claim overnight extension
 
 - The user approved the [open-claim plan](../../docs/overnight/open-claim-plan.md). Branch `codex/overnight-open-escrow` starts at reviewed integration `ae1295a`, including Nick `57c387f`. The separate proof and commerce chat owns shared proving resources.

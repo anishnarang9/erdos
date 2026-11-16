@@ -1,6 +1,6 @@
 # Arc Testnet open-claim operator handoff
 
-2026-11-16 — Anish. These are prepared inputs and commands. No live adapter was deployed, and no live wallet or Circle Gateway payment was used in the local run.
+2026-11-16 — Anish. The [combined local run](../../agents/anish/reports/open-claim-local-acceptance-2026-11-16.json) passed with a fresh real proof, exact payout, recovery and refund. These are prepared testnet inputs and commands. No live adapter was deployed, and no live wallet or Circle Gateway payment was used.
 
 ## Fixed inputs
 

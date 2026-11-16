@@ -1,8 +1,9 @@
 // Real Groth16 and real verifier, on a forkless loopback Arc Anvil node only.
-// This test consumes separately funded jobs 2 (refund) and 3 (two solver race).
+// This test consumes a separately funded refund job and a two-solver race job.
 // Required: UBC26_OPEN_CLAIM_LOCAL_RPC, UBC26_OPEN_CLAIM_API_URL, UBC26_OPEN_CLAIM_SCRATCH,
 // UBC26_OPEN_CLAIM_ENGINE_BIN, UBC26_OPEN_CLAIM_LOSER_PROOF_DIR.
-// The loser proof must be a fresh, independently generated job-3/solver-2 proof.
+// Optional: UBC26_OPEN_CLAIM_DEPLOYMENT_REPORT, UBC26_OPEN_CLAIM_FUNDING_REPORT.
+// The loser proof must be an independently generated exchange-job/solver-2 proof.
 // The worker generates the winner proof itself in its private attempt directory.
 // Run with the pinned RISC Zero 3.1.0 runtime and low-memory Docker wrapper.
 import { createHash } from "node:crypto";
@@ -35,10 +36,12 @@ const apiUrl = process.env.UBC26_OPEN_CLAIM_API_URL;
 const scratch = process.env.UBC26_OPEN_CLAIM_SCRATCH;
 const engineBin = process.env.UBC26_OPEN_CLAIM_ENGINE_BIN;
 const loserProofDir = process.env.UBC26_OPEN_CLAIM_LOSER_PROOF_DIR;
-const deploymentReport = JSON.parse(readFileSync(join(repo, "agents/anish/reports/open-claim-local-deployment-2026-11-16.json"), "utf8")) as {
+const deploymentReport = JSON.parse(readFileSync(process.env.UBC26_OPEN_CLAIM_DEPLOYMENT_REPORT ??
+  join(repo, "agents/anish/reports/open-claim-local-deployment-2026-11-16.json"), "utf8")) as {
   contracts: Record<string, Address>; runtimeCodeHashes: Record<string, Hex>; receipts: { block: number }[];
 };
-const fundingReport = JSON.parse(readFileSync(join(repo, "agents/anish/reports/open-claim-local-funding-api-2026-11-16.json"), "utf8")) as {
+const fundingReport = JSON.parse(readFileSync(process.env.UBC26_OPEN_CLAIM_FUNDING_REPORT ??
+  join(repo, "agents/anish/reports/open-claim-local-funding-api-2026-11-16.json"), "utf8")) as {
   workload: { imageId: Hex; rulesHash: Hex; referenceHash: Hex; candidateSha256: string };
   apiJob: { apiJobId: string; chainJobId: string; revisionHash: string; budget: string; expiry: string; txs: { register: { hash: Hex } } };
   directFundedJob: { jobId: string; budget: string; expiry: string };
@@ -51,6 +54,7 @@ const core = deploymentReport.contracts.core!;
 const adapter = deploymentReport.contracts.adapter!;
 const verifier = deploymentReport.contracts.verifier!;
 const jobId = BigInt(fundingReport.apiJob.chainJobId);
+const refundJob = BigInt(fundingReport.directFundedJob.jobId);
 const budget = BigInt(fundingReport.apiJob.budget);
 const expiry = BigInt(fundingReport.apiJob.expiry);
 const deployment = { mode: "open-claim" as const, chainId: 5042002, core, adapter, verifier, usdc };
@@ -158,8 +162,9 @@ describe("fresh open-claim exchange on forkless local Arc", () => {
     expect(engineBin && existsSync(engineBin)).toBeTruthy();
     expect(loserProofDir && existsSync(loserProofDir)).toBeTruthy();
     expect(await publicClient.getChainId()).toBe(5042002);
-    expect(jobId).toBe(3n);
-    expect(BigInt(fundingReport.directFundedJob.jobId)).toBe(2n);
+    expect(jobId).toBeGreaterThan(0n);
+    expect(refundJob).toBeGreaterThan(0n);
+    expect(refundJob).not.toBe(jobId);
     const before = await port(solver1).snapshot(jobId);
     expect(before.job.status).toBe("Funded");
     expect(before.terms.registered).toBe(true);
@@ -189,7 +194,7 @@ describe("fresh open-claim exchange on forkless local Arc", () => {
     await rawRpc<Hex>("eth_call", [{ from: solver2, to: adapter, data: loserClaim,
       gas: "0x2dc6c0" }, "latest"]);
 
-    // A proof for job 2 cannot claim job 3, even from its rightful solver.
+    // A proof for the refund job cannot claim the exchange job, even from its rightful solver.
     const other = parseProofJson(JSON.parse(readFileSync(join(scratch!, "attempt/proof.json"), "utf8")));
     const wrongJob = encodeOpenClaimClaim({ jobId, envelope: bytesToHex(other.envelope),
       seal: other.seal, keyCommitment: other.keyCommitment });
@@ -353,8 +358,7 @@ describe("fresh open-claim exchange on forkless local Arc", () => {
       { encoding: "utf8" })) as { accepted: boolean; errors: string[] };
     expect(oracle).toEqual(expect.objectContaining({ accepted: true, errors: [] }));
 
-    // Refund the separate, still funded job only after job 3 is complete.
-    const refundJob = BigInt(fundingReport.directFundedJob.jobId);
+    // Refund the separate, still funded job only after the exchange job is complete.
     const refundBefore = await port(solver1).snapshot(refundJob);
     expect(refundBefore.job.status).toBe("Funded");
     const refundExpiry = BigInt(fundingReport.directFundedJob.expiry);
