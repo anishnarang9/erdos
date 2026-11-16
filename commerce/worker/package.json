@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:engine": "vitest run --config vitest.engine.config.ts",
     "typecheck": "tsc -p tsconfig.json",
-    "prove-synthetic": "tsx src/cli.ts"
+    "prove-synthetic": "tsx src/cli.ts",
+    "test:arc": "vitest run --config vitest.arc.config.ts"
   },
   "dependencies": {
     "@ubc26/api": "workspace:*",

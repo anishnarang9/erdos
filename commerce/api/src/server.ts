@@ -5,6 +5,8 @@ import { createApp } from "./app.ts";
 import { openDb } from "./db.ts";
 import { createIndexer } from "./indexer.ts";
 import type { ApiChain } from "./chain.ts";
+import { arc } from "@ubc26/sdk";
+import { arcChain } from "./arc.ts";
 import { engineConfigFromEnv, engineFromConfig, simulatedEngine, type Engine } from "./engine.ts";
 import { grokDraftModel, recordingDraftModel, replayDraftModel, type DraftModel } from "./grok.ts";
 
@@ -24,6 +26,8 @@ if (!buyerToken) {
  * Absent CHAIN_RPC_URL means no chain: chain routes return 503 and no indexer runs.
  */
 function chainFromEnv(): ApiChain | undefined {
+  // CHAIN_MODE=arc: Nick's deployed contracts on Arc testnet (manifest in @ubc26/sdk arc). CHAIN_RPC_URL overrides the RPC.
+  if (process.env.CHAIN_MODE === "arc") return arcChain(arc.ARC_TESTNET, process.env.CHAIN_RPC_URL ?? arc.ARC_TESTNET.rpcUrl);
   const rpcUrl = process.env.CHAIN_RPC_URL;
   if (!rpcUrl) return undefined;
   const need = (name: string): string => {
@@ -99,7 +103,9 @@ if (chain) {
   const indexer = createIndexer({
     db: indexDb,
     chain,
-    cursorStart: BigInt(process.env.INDEX_FROM_BLOCK ?? "0"),
+    cursorStart: BigInt(process.env.INDEX_FROM_BLOCK ?? (process.env.CHAIN_MODE === "arc" ? arc.ARC_TESTNET.deployBlock.toString() : "0")),
+    // Arc RPCs reject eth_getLogs over more than 10,000 blocks.
+    maxRange: arc.MAX_LOG_WINDOW,
   });
   indexTimer = setInterval(() => {
     indexer.tick().catch((err: unknown) => console.error("[indexer] tick failed", err));

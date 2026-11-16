@@ -74,3 +74,5 @@ export { DEFAULT_QUOTE_CHAIN_ID, fundingTxRequests, type ApiChain, type FundingT
 export { createIndexer, type Indexer, type IndexerOptions } from "./indexer.ts";
 export { PLAN_SCHEMA, ENGINE_CATALOG } from "./authoring.ts";
 export { checkPlanFiles, FORMAT_PARSER } from "./revision.ts";
+export { arcReader, arcChain } from "./arc.ts";
+export { readChain, type ChainReader } from "./chain.ts";
