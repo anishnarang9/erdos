@@ -2,6 +2,15 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 23:50 -05:00 — Anish
+
+- Publishing the sanitized [fast checks](reports/localnet-fast-verification-2026-11-15.json), [commerce delta review](reports/localnet-commerce-delta-review-2026-11-15.json) and [Meridian guest gate](reports/localnet-meridian-guest-2026-11-15.json). Parent parsed all three reports, checked public paths and matched the recorded guest input hashes to current files.
+- The exact pinned amd64 guest-builder image was absent. Authorized retrieval of that digest only succeeded. A subsequent real compile took 16 seconds. Actual guest executions returned verdicts 1, 1 and 0 with matching complete host journals and about 7.05 million cycles. No Groth16 proof was generated.
+- The guest report preserves an engine-binary hash change during host builds. Parent rebuilt the final native engine with locked Rust 1.98.1; its SHA-256 is `abb34d8156cbe8c38984c53b8bc146745c53958e6752d5a667f01d98d8ccac9d`. The full rehearsal must stamp its own actual binary and source. Guest cycles do not establish a proving SLA.
+- The delta review found the missing Arc indexer confirmation margin. Its minimal correction and regression pass are under independent specification review. No signer, recovery or upstream broadcaster replacement is needed. Existing skipped history needs deliberate reindexing, not an automatic cursor reset.
+- Approved local fixture configuration: legacy retains a 900-second proving allowance and 3,600-second expiry. Meridian uses 1,800 and 7,200 seconds respectively, based on observed workload size and earlier proof timings. Production signing/expiry guards, suite timeout and retry policy stay unchanged.
+- Next: finish suite source, obtain specification and quality review, publish it, then run the sequential fresh local proof/settlement gate. No live action or credential access occurred.
+
 ## 2026-11-15 23:25 -05:00 — Anish
 
 - Meridian semantic checkpoint on `codex/engine-commerce`, base `2d9f2fd`. Independent Grok 4.7 High review mapped all 13 requirements to 19 predicates. Its [report](reports/localnet-semantic-review-2026-11-15.json) records 34 oracle tests, 53 agreeing engine/oracle cases, both passing solutions and a complete 19,609-visit enumeration with 3,200 accepted assignments.

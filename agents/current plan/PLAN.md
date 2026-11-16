@@ -2,6 +2,13 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-15 23:50 -05:00 — Anish — Local guest gate and measured rehearsal budgets
+
+- Meridian's real guest returned verdicts 1, 1 and 0 for the two valid solutions and a well-formed mass violation. Complete guest/host journals matched. The [guest report](../anish/reports/localnet-meridian-guest-2026-11-15.json) records about 7.05 million cycles and exact image/input commitments. No new Groth16 proof or funded exchange is established by execution alone.
+- Set local fixture timing from the observed workload: Meridian gets a 1,800-second proving allowance and a 7,200-second synthetic expiry. Legacy stays at 900/3,600. This is a bounded local allowance, not a latency guarantee or a change to production signing/expiry controls.
+- The [commerce delta review](../anish/reports/localnet-commerce-delta-review-2026-11-15.json) identified a missing Arc indexer lag setting. The minimal candidate forwards confirmations and passes three at Arc startup. It is under independent review. Keep a fresh database for local acceptance. Existing skipped log history requires deliberate approved reindexing.
+- Integration retains one owner for guest/proof resources and separate owners for non-overlapping code/reviews. Require final source publication before proving. Protected live identities and exact spending approval remain separate.
+
 ## 2026-11-15 23:10 -05:00 — Anish — Execute the local-first acceptance gate
 
 - The user approved execution of the local-first readiness actions and requested parallel Grok 4.7 High work. Finish the new Meridian workload locally before another live Arc run for it. Integration owns completion and reviewed checkpoint publication.
