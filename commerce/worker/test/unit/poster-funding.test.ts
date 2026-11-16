@@ -97,6 +97,14 @@ async function run(f: Awaited<ReturnType<typeof fixture>>) {
   try { return await helper.run(); } finally { await helper.close(); }
 }
 describe("Poster funding", () => {
+  it("refuses an open-claim buyer signer without a deployment-pin check", async () => {
+    const f = await fixture(true);
+    const { hook: adapter, provider: _provider, ...terms } = f.cfg.terms;
+    const result = await createOpenClaimBuyerFunding({ ...f.cfg, terms: { ...terms, adapter }, confirmations: 0n })
+      .then(async helper => { await helper.close(); return "created"; }, () => "denied");
+    expect(result).toBe("denied");
+    expect(f.rawSend).not.toHaveBeenCalled();
+  });
   it.each([0, 1, 3, 5])("confirms all five open-claim calls and safely resumes a dropped response at step %s", async dropped => {
     const f = await fixture(true), send = f.rawSend.getMockImplementation()!;
     f.rawSend.mockImplementation(async (...args: any[]) => {
@@ -106,7 +114,8 @@ describe("Poster funding", () => {
     });
     const runOpen = async () => {
       const { hook: adapter, provider: _provider, ...terms } = f.cfg.terms;
-      const h = await createOpenClaimBuyerFunding({ ...f.cfg, terms: { ...terms, adapter }, confirmations: 0n });
+      const h = await createOpenClaimBuyerFunding({ ...f.cfg, terms: { ...terms, adapter }, confirmations: 0n,
+        verifyDeployment: async () => {} });
       try { return await h.run(); } finally { await h.close(); }
     };
     if (dropped) await expect(runOpen()).rejects.toThrow();
