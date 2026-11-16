@@ -287,9 +287,30 @@ export async function startRealChain(repo: string, root: string, arcAnvil: strin
 export async function stopOwned(child: ChildProcess) {
   if (child.pid === undefined) return; // Spawn failed. No owned OS process exists to signal.
   if (child.exitCode !== null || child.signalCode !== null) return;
-  await new Promise<void>(resolve => {
-    const timer = setTimeout(() => { child.kill("SIGKILL"); }, 5000);
-    child.once("exit", () => { clearTimeout(timer); resolve(); });
-    child.kill("SIGTERM");
+  await new Promise<void>((resolve, reject) => {
+    let settled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const finish = (error?: unknown) => {
+      if (settled) return;
+      settled = true;
+      if (timer !== undefined) clearTimeout(timer);
+      child.removeListener("exit", onExit);
+      if (error === undefined) resolve();
+      else reject(error);
+    };
+    const onExit = () => finish();
+    timer = setTimeout(() => {
+      try {
+        child.kill("SIGKILL");
+      } catch (error) {
+        finish(error);
+      }
+    }, 5000);
+    child.once("exit", onExit);
+    try {
+      child.kill("SIGTERM");
+    } catch (error) {
+      finish(error);
+    }
   });
 }

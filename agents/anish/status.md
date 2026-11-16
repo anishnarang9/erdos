@@ -2,6 +2,15 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-15 19:28 -05:00 — Anish
+
+- Source `9458a81` completed a fresh local lifecycle: proof `583188` ms, `3313169` cycles, exact `1000000`-unit payment, dual exact recovery, independent oracle, nine negative calls and a separate Funded-job refund. The source-stamped report preserves two previous attempts.
+- The overall suite exited 1 after all 25 test assertions passed. A fake child's synchronous kill error left a timer armed, which later threw. The report now says `partial` with `lifecycleStatus: passed` and an explicit process failure. This is not a clean suite result or live Arc evidence.
+- Grok reproduced two cleanup regressions before correcting timer/listener disposal and explicit error rejection. Parent reviewed the diff and passed all 26 preflight cases. The worker also passed all 844 default worker tests and typecheck. No repeat proof was needed for this isolated cleanup correction.
+- CI is green at pushed `9458a81`: commerce runs `43778341479` and `43778335123`, core-fast run `43778341417`. These checks precede the timer fix.
+- The user delegated a fresh English-to-constraint challenge. A high-effort Grok designer published Meridian Kiln: 13 requirements, 37 reference records. Grok Build Fast low-effort authoring and a separate high-effort solver are active. Neither authoring nor solving grants live signing authority.
+- Next: publish the cleanup checkpoint. Complete independent semantic checks and generalize the local fixture selector before the new challenge's full rehearsal. Protected live signing and exact authorization remain absent.
+
 ## 2026-11-15 19:07 -05:00 — Anish
 
 - Published oracle checkpoint `22c1a3b` to `origin/codex/engine-commerce`. Parent checks passed 56 runner/CLI/composed tests, worker typecheck and 15 real-engine API tests.

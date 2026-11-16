@@ -320,6 +320,75 @@ describe("portable funded preflight", () => {
       f.close();
     }
   });
+  it("drops the kill timer when the initial signal throws", async () => {
+    vi.useFakeTimers();
+    const leaks: unknown[] = [];
+    const onRejection = (error: unknown) => { leaks.push(error); };
+    const onException = (error: unknown) => { leaks.push(error); };
+    process.on("unhandledRejection", onRejection);
+    process.on("uncaughtException", onException);
+    try {
+      const kill = vi.fn(() => { throw new Error("kill failed"); });
+      const child = Object.assign(new EventEmitter(), {
+        pid: 9, exitCode: null as number | null, signalCode: null as NodeJS.Signals | null,
+        kill,
+      });
+      await expect(stopOwned(child as never)).rejects.toThrow("kill failed");
+      await vi.advanceTimersByTimeAsync(5_000);
+      expect(leaks).toEqual([]);
+      expect(kill).toHaveBeenCalledTimes(1);
+      expect(kill).toHaveBeenCalledWith("SIGTERM");
+      expect(child.listenerCount("exit")).toBe(0);
+      expect(child.exitCode).toBeNull();
+      expect(child.signalCode).toBeNull();
+    } finally {
+      process.off("unhandledRejection", onRejection);
+      process.off("uncaughtException", onException);
+      vi.useRealTimers();
+    }
+  });
+  it("rejects a SIGKILL callback error without claiming the child exited", async () => {
+    vi.useFakeTimers();
+    const leaks: unknown[] = [];
+    const onRejection = (error: unknown) => { leaks.push(error); };
+    const onException = (error: unknown) => { leaks.push(error); };
+    process.on("unhandledRejection", onRejection);
+    process.on("uncaughtException", onException);
+    try {
+      const kill = vi.fn((signal?: NodeJS.Signals) => {
+        if (signal === "SIGKILL") throw new Error("sigkill failed");
+        return true;
+      });
+      const child = Object.assign(new EventEmitter(), {
+        pid: 11, exitCode: null as number | null, signalCode: null as NodeJS.Signals | null,
+        kill,
+      });
+      const captured: unknown[] = [];
+      const pending = stopOwned(child as never).then(
+        () => { captured.push("resolved"); },
+        (error: unknown) => { captured.push(error); },
+      );
+      await Promise.resolve();
+      expect(kill).toHaveBeenCalledTimes(1);
+      expect(kill).toHaveBeenCalledWith("SIGTERM");
+      expect(captured).toEqual([]);
+      let timerLeak: unknown;
+      try { await vi.advanceTimersByTimeAsync(5_000); } catch (error) { timerLeak = error; }
+      await Promise.resolve();
+      expect(timerLeak).toBeUndefined();
+      expect(leaks).toEqual([]);
+      expect(captured).toHaveLength(1);
+      expect(captured[0]).toBeInstanceOf(Error);
+      expect((captured[0] as Error).message).toBe("sigkill failed");
+      expect(child.exitCode).toBeNull();
+      expect(child.signalCode).toBeNull();
+      expect(child.listenerCount("exit")).toBe(0);
+    } finally {
+      process.off("unhandledRejection", onRejection);
+      process.off("uncaughtException", onException);
+      vi.useRealTimers();
+    }
+  });
   it("returns immediately for a real child that has already exited", async () => {
     const child = spawn(process.execPath, ["-e", "process.exit(0)"], { stdio: "ignore" });
     await new Promise<void>((resolve, reject) => { child.once("exit", () => resolve()); child.once("error", reject); });
