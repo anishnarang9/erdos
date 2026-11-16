@@ -7,6 +7,8 @@ import { store, useDemo } from "../lib/store";
 export function TopBar() {
   const mode = useDemo((s) => s.mode);
   const recordedAt = useDemo((s) => s.recordedAt);
+  const speed = useDemo((s) => s.replaySpeed);
+  const realMs = useDemo((s) => s.replayRealMs);
   const signer = useDemo((s) => s.signer);
   const muted = useDemo((s) => s.muted);
   const focus = useDemo((s) => s.focus);
@@ -28,6 +30,9 @@ export function TopBar() {
         <span className="mode-flag live">● LIVE · ARC TESTNET</span>
       ) : (
         <span className="mode-flag replay">⟲ RECORDED RUN · {recordedAt ? new Date(recordedAt).toLocaleString() : ""}</span>
+      )}
+      {mode === "replay" && speed && speed > 1 && realMs !== undefined && (
+        <span className="badge locked">⏩ time-lapse {speed}× · real time {Math.floor(realMs / 60000)}:{String(Math.round((realMs % 60000) / 1000)).padStart(2, "0")}</span>
       )}
       {focus === "act2" && <span className="badge rejected">Act two · tampered delivery</span>}
       <span className="spacer" />

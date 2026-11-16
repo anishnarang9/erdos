@@ -44,6 +44,9 @@ export interface DemoState {
   signer: "demo" | "wallet";
   captionIndex: number;
   recordedAt?: string;
+  /** Replay only: playback speed and the run's real duration (ms), for the time-lapse label. */
+  replaySpeed?: number;
+  replayRealMs?: number;
   /** The funded job's expiredAt (unix seconds), read from the chain once the job is linked. */
   chainExpiredAt?: string;
 }

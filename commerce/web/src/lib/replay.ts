@@ -72,7 +72,7 @@ export function playRecording(r: Recording, speed = 1) {
   if (r.version !== RECORDING_VERSION) throw new Error(`Unsupported recording version ${r.version}`);
   stopLive();
   stopReplay();
-  store.reset({ mode: "replay", recordedAt: r.capturedAt });
+  store.reset({ mode: "replay", recordedAt: r.capturedAt, replaySpeed: speed, replayRealMs: r.durationMs });
   for (const f of r.frames) {
     timers.push(setTimeout(() => store.set({ ...f.state, mode: "replay" }), f.t / speed));
   }
