@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 02:32 -05:00 — Anish — Confirmed local Arc worker port
+
+- Branch `codex/open-escrow-rescue`. Added a read-only confirmed-block worker port with injected restricted sending. It checks pinned contract code, the proxy slot, verifier version, adapter wiring, zero fees, core role history, registered terms, and solver context before an attempt. It decodes confirmed claim and payout receipts.
+- The local Arc port test passed against funded job 3 and rejected a wrong adapter runtime pin. All 17 focused worker tests and worker typecheck passed. This port has not sent a claim yet.
+- Job 2's fresh adapter-domain Groth16 proof completed with verdict 1 in 1,024,044 ms at 7,053,898 user cycles. A second proof for job 3 and solver 2 started only after the first process exited. The first proof has not been submitted. Next: run the combined real claim and release, prove a competing solver, test losing-key abstention, recover bytes and refund a separate job.
+
 ## 2026-11-16 02:27 -05:00 — Anish — Worker adopted exported adapter ABI
 
 - The worker now takes its claim and release ABI from the SDK's compiled `OpenClaimAdapter.json` export. It checks the published selectors against that ABI and retains the independent synthetic context and journal vector. A resumed attempt must match the current ABI status and interface revision before any chain action.

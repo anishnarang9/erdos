@@ -18,6 +18,8 @@ export { assertOpenClaimDeployment, observedOpenClaimDeployment } from "./deploy
 export type { OpenClaimDeploymentReport, OpenClaimDeploymentWitness } from "./deployment.ts";
 export { encodeOpenClaimClaim, encodeOpenClaimRelease } from "./encode.ts";
 export { createOpenClaimMemoryPort } from "./memory-port.ts";
+export { createArcOpenClaimPort } from "./arc-port.ts";
+export type { ArcOpenClaimPortOptions } from "./arc-port.ts";
 export type { OpenClaimMemoryControl, OpenClaimMemoryPort } from "./memory-port.ts";
 export { observeClaimOutcome, observeReleasePayout } from "./observe.ts";
 export type { OpenClaimWinnerObservation } from "./observe.ts";
