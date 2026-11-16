@@ -2,6 +2,13 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 00:59 -05:00 — Anish — Resumed local exchange passed; clean fresh rerun next
+
+- The initial new-workload run produced two real proofs but exited 1 at the separate refund job's receipt read. Its [immutable failure record](../anish/reports/fresh-exchange-failed-attempt-2026-11-16.json) remains separate from later attempts.
+- The [same-job continuation](../anish/reports/fresh-exchange-continuation-2026-11-16.json) restored the exact chain and reused those proofs. It exited 0 in 2.095 seconds with accepted proof, exact payout, key release, indexed delivery, dual recovery/oracle, pending restart and both refund paths. A resumed exchange is not a clean fresh-suite pass.
+- The local fixture now handles delayed receipt visibility with bounded read-only waits. It never resends to obtain a receipt. Refund helper cleanup runs on failure. Parent repeated 32 preflight tests and worker typecheck. Production contracts, engine, signing and funding guards remain unchanged.
+- Run the corrected full fresh suite immediately after this source checkpoint. Defer extra recorded regression work. Final fresh-process evidence, final-head CI and clean-checkout verification still precede the live-workload phase.
+
 ## 2026-11-16 00:10 -05:00 — Anish — Execute now; defer extra replay
 
 - The user requested immediate local execution after preparation took too long. Started the actual full Meridian acceptance suite after its 31 cheap preflight tests and worker typecheck passed. Run independent read-only review concurrently, rather than delaying this local-only run further. Do not weaken guards or claim final acceptance before review and process completion.

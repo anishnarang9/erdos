@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 00:59 -05:00 — Anish
+
+- The first fresh Meridian run generated both Groth16 proofs, rejected verdict zero and completed the passing proof in 1,005,152 ms. It then exited 1 after a local receipt-visibility race while creating the separate refund-test job. The immutable [failure snapshot](reports/fresh-exchange-failed-attempt-2026-11-16.json) preserves the whole 2,056.599-second process result.
+- Restored the exact full local chain dump, confirmed the recorded second creation succeeded, and manually reviewed the stale synthetic-test lock. Old owners were absent or exited zombies. Preserved the lock under a new name, left the journal unchanged and reconciled the original hash without another creation transaction.
+- The [retained continuation](reports/fresh-exchange-continuation-2026-11-16.json) exited 0 in 2.095 seconds without new proving. It checked accepted proof, exact 1-USDC payment, key release, Completed indexed API readout, exact SDK/engine recovery, semantic oracle, actual pending/uncertain restart, Submitted snapshot refund and separate Funded refund. This is not a clean fresh-suite rerun. [Derivation and limits](reports/localnet-retained-run-provenance-2026-11-16.json).
+- Grok fixed only the local test fixture's receipt read and refund-helper cleanup. Its regression first timed out, then passed with bounded receipt re-reads and zero sends. Production funding and signing are unchanged. Parent repeated all 32 preflight checks and worker typecheck successfully, with the full integration explicitly skipped.
+- Publishing the correction and preserved evidence before immediately starting a new clean full run. No additional preparation/replay blocks that run. Independent receipt/evidence audit may continue read-only. No live Arc action or operator-wallet access occurred.
+
 ## 2026-11-16 00:29 -05:00 — Anish
 
 - The exact frozen two-file suite candidate passed independent [specification](reports/localnet-suite-spec-review-2026-11-16.json) and [quality](reports/localnet-suite-quality-review-2026-11-16.json) review. Parent matched both reports' hashes to the current source. Specification reran 31 portable checks and worker typecheck successfully, with the expensive integration explicitly skipped.

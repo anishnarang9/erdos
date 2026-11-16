@@ -8,7 +8,7 @@ import { tmpdir } from "node:os";
 import { promisify } from "node:util";
 import {
   createPublicClient, defineChain, encodeDeployData, encodeFunctionData, getAddress,
-  http, keccak256, stringToHex, toHex, zeroHash,
+  http, keccak256, stringToHex, toHex, WaitForTransactionReceiptTimeoutError, zeroHash,
   type Abi, type Address, type Hex, type LocalAccount,
 } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
@@ -138,6 +138,42 @@ export const localArc = defineChain({
 // Forkless Anvil starts with a tiny base fee. A 20 Gwei priority fee preserves the
 // production helpers' effective-price floor without weakening their receipt checks.
 export const FEES = { maxFeePerGas: 40_000_000_000n, maxPriorityFeePerGas: 20_000_000_000n };
+export const LOCAL_RECEIPT_TIMEOUT_MS = 30_000;
+
+/**
+ * Re-read one hash that was already submitted to this owned node.
+ * One wait stops requesting receipts while the block number is unchanged, so a
+ * receipt that becomes visible in the current block needs another bounded wait.
+ * No call here signs or submits a transaction.
+ */
+export async function readOwnedLocalReceipt<TReceipt>(
+  pub: {
+    waitForTransactionReceipt(args: {
+      hash: Hex;
+      confirmations: 1;
+      pollingInterval: number;
+      retryCount: 0;
+      timeout: number;
+    }): Promise<TReceipt>;
+  },
+  hash: Hex,
+  timeoutMs = LOCAL_RECEIPT_TIMEOUT_MS,
+): Promise<TReceipt> {
+  const deadline = Date.now() + timeoutMs;
+  let failure: unknown;
+  while (Date.now() <= deadline) {
+    try {
+      return await pub.waitForTransactionReceipt({
+        hash, confirmations: 1, pollingInterval: 50, retryCount: 0,
+        timeout: Math.max(1, Math.min(200, deadline - Date.now())),
+      });
+    } catch (error) {
+      failure = error;
+      if (!(error instanceof WaitForTransactionReceiptTimeoutError)) throw error;
+    }
+  }
+  throw failure;
+}
 
 export async function startRealChain(repo: string, root: string, arcAnvil: string,
   dependencies: { spawnNode?: typeof spawn; makeClient?: typeof createPublicClient } = {}) {
@@ -254,7 +290,7 @@ export async function startRealChain(repo: string, root: string, arcAnvil: strin
       signerPublic: {
         ...pub,
         getTransactionReceipt: async (args: { hash: Hex }) => {
-          const receipt = await pub.getTransactionReceipt(args);
+          const receipt = await readOwnedLocalReceipt(pub, args.hash);
           writeFileSync(join(root, `receipt-${args.hash}.private.json`),
             JSON.stringify(receipt, (_, v: unknown) => typeof v === "bigint" ? String(v) : v), { mode: 0o600 });
           return receipt;

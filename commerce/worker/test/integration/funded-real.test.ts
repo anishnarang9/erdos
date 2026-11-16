@@ -28,7 +28,8 @@ import { inspect, promisify } from "node:util";
 import { serve, type ServerType } from "@hono/node-server";
 import { describe, expect, it, vi } from "vitest";
 import {
-  bytesToHex, decodeErrorResult, decodeEventLog, encodeAbiParameters, encodeFunctionData, hexToBytes, sha256, zeroHash,
+  bytesToHex, createPublicClient, custom, decodeErrorResult, decodeEventLog, encodeAbiParameters,
+  encodeFunctionData, hexToBytes, sha256, toHex, zeroHash,
   type Abi, type Hex,
 } from "viem";
 import { arcCoreAbi, arcHookAbi, arcErc20Abi, encodeJournal, extractRevertData, parseProofJson } from "@ubc26/sdk";
@@ -735,6 +736,54 @@ describe("portable funded preflight", () => {
     expect(parsed.charges[1]!.lot_id).toBe(parsed.charges[0]!.lot_id);
     expect(parsed.charges[0]!.lot_id).not.toBe("L-KA-03");
   });
+
+  it("reads a local receipt that appears after the first lookup without sending again", async () => {
+    const hash = `0x${"ab".repeat(32)}` as Hex;
+    const blockHash = `0x${"cd".repeat(32)}` as Hex;
+    let reads = 0;
+    let sends = 0;
+    const block = {
+      number: "0xc", hash: blockHash, parentHash: `0x${"11".repeat(32)}`,
+      nonce: "0x0", sha3Uncles: `0x${"00".repeat(32)}`, logsBloom: `0x${"00".repeat(256)}`,
+      transactionsRoot: `0x${"00".repeat(32)}`, stateRoot: `0x${"00".repeat(32)}`,
+      receiptsRoot: `0x${"00".repeat(32)}`, miner: "0x2222222222222222222222222222222222222222",
+      difficulty: "0x0", totalDifficulty: "0x0", extraData: "0x", size: "0x1", gasLimit: "0x1",
+      gasUsed: "0x1", timestamp: "0x1", transactions: [], uncles: [],
+    };
+    const client = createPublicClient({
+      chain: chainSupport.localArc, pollingInterval: 20,
+      transport: custom({
+        request: async ({ method }) => {
+          if (method === "eth_sendRawTransaction") {
+            sends += 1;
+            throw new Error("local receipt wait must not send");
+          }
+          if (method === "eth_chainId") return toHex(chainSupport.localArc.id);
+          if (method === "eth_blockNumber") return "0xc";
+          if (method === "eth_getTransactionByHash") return null;
+          if (method === "eth_getBlockByNumber" || method === "eth_getBlockByHash") return block;
+          if (method === "eth_getTransactionReceipt") {
+            reads += 1;
+            if (reads < 3) return null;
+            return {
+              transactionHash: hash, transactionIndex: "0x0", blockHash, blockNumber: "0xc",
+              from: "0x1111111111111111111111111111111111111111",
+              to: "0x2222222222222222222222222222222222222222",
+              cumulativeGasUsed: "0x1", gasUsed: "0x1", contractAddress: null, logs: [],
+              logsBloom: `0x${"00".repeat(256)}`, status: "0x1", effectiveGasPrice: "0x1", type: "0x2",
+            };
+          }
+          throw new Error(`unexpected local receipt method ${method}`);
+        },
+      }),
+    });
+    const found = await chainSupport.readOwnedLocalReceipt(client, hash, 1_500);
+    expect(found.transactionHash).toBe(hash);
+    expect(found.status).toBe("success");
+    expect(found.blockNumber).toBe(12n);
+    expect(reads).toBeGreaterThanOrEqual(3);
+    expect(sends).toBe(0);
+  });
 });
 
 it("fresh real-context funded local integration", async () => {
@@ -773,6 +822,7 @@ it("fresh real-context funded local integration", async () => {
   let closeApp: (() => void) | undefined;
   let indexDb: ReturnType<typeof openDb> | undefined;
   let funding: Awaited<ReturnType<typeof createPosterFunding>> | undefined;
+  let replayFunding: Awaited<ReturnType<typeof createPosterFunding>> | undefined;
   let broadcaster: Awaited<ReturnType<typeof createLocalBroadcaster>> | undefined;
   let proofCompleted = false;
   let allChecksCompleted = false;
@@ -1026,7 +1076,7 @@ child.on("exit", code => { fs.closeSync(out); fs.closeSync(err); process.exit(co
     }));
     // Create a second actual funded job for cross-job replay/refund without generating another proof.
     let refundId = 0n;
-    const replayFunding = await createPosterFunding({
+    replayFunding = await createPosterFunding({
       terms: { ...terms, description: terms.description + "-local-refund" }, buyer: buyer.address,
       apiJobId: jobId + "-local-refund", revisionHash, account: buyer, public: signerPublic, rawSend,
       journalRoot: join(root, "poster-journal"), maxGas: 1_500_000n, ...FEES,
@@ -1304,7 +1354,8 @@ child.on("exit", code => { fs.closeSync(out); fs.closeSync(err); process.exit(co
     throw new Error(`Local funded integration failed at stage: ${stage}. Diagnostics remain private.`);
   } finally {
     await broadcaster?.close();
-    await funding?.close();
+    try { await replayFunding?.close(); }
+    finally { await funding?.close(); }
     if (server) await new Promise<void>(resolve => server!.close(() => resolve()));
     if (indexDb?.isOpen) indexDb.close();
     closeApp?.();
