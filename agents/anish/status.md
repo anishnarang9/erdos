@@ -2,6 +2,11 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 10:25 -05:00 — Anish — Real low-memory Groth16 smoke passed
+
+- The [diagnostic proof](reports/open-claim-low-memory-groth16-smoke-2026-11-16.json) passed with the pinned backend and reviewed low-memory wrapper: 2,792 cycles, 141,558 ms, a real 260-byte Groth16 seal. The guest is the published smoke guest, not the funded workload. No live acceptance is claimed by this diagnostic.
+- Code `cb1a67a` passed commerce CI. Core CI's path filter omits worker-only changes, so added a manual dispatch trigger. This workflow edit triggers engine/contract CI at the new exact head. Runtime worker/API/SDK source is otherwise unchanged from the checked recovery checkpoint. Publish this checkpoint, verify all groups at its SHA, then use a fresh absolute expiry for the new positive job. Job 5 is now eligible for the separately planned cleanup refund.
+
 ## 2026-11-16 10:20 -05:00 — Anish — Exact refund passed; Docker OOM repaired for fresh retry
 
 - Combined code `fb8a52a` passed every CI group. Both jobs completed all five protected buyer calls with exact receipt/native-balance checks and zero allowance. [Job 6 evidence](reports/open-claim-arc-refund-2026-11-16.json) confirms one reverted invalid claim, no payout, and the separate exact 10,000-atomic expiry refund in tx `4e030f22…75434d`.

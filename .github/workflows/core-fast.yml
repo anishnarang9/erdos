@@ -1,6 +1,7 @@
 name: core-fast
 
 on:
+  workflow_dispatch:
   push:
     paths: ["engine/**", "contracts/**", "docs/core-sprint-input/**", ".github/workflows/core-fast.yml"]
   pull_request:
