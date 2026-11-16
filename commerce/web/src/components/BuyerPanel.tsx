@@ -6,6 +6,7 @@ import { stageOf, useDemo } from "../lib/store";
 import { DeliveryCard } from "./DeliveryCard";
 import { Clarification, Unsupported } from "./DraftOutcome";
 import { FundCard } from "./FundCard";
+import { Hash } from "./Hash";
 import { RequestCard } from "./RequestCard";
 import { RulesCard } from "./RulesCard";
 
@@ -21,6 +22,16 @@ function RefundCard() {
   const expiredAt = Number(useDemo((s) => s.chainExpiredAt ?? s.fundingTerms?.expiredAt ?? "0"));
   const left = Math.max(0, Math.round(expiredAt - now));
   if (!job?.chain) return null;
+  const refundTx = refundOp?.status === "confirmed" ? refundOp.steps[0]?.txHash : undefined;
+  if (refundTx || job.chain.status === "Expired") {
+    return (
+      <motion.section className="card" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ borderColor: "var(--money)" }}>
+        <h2>Refunded to the buyer</h2>
+        <p className="dim">The proof failed the approved rules, so the solver was never paid. After the deadline the budget went back to the buyer.</p>
+        {refundTx && <Hash label="refund tx" value={refundTx} tx />}
+      </motion.section>
+    );
+  }
   return (
     <motion.section className="card" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ borderColor: "var(--locked)" }}>
       <h2>Escrow stays locked</h2>
