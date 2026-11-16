@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 01:27 -05:00 — Anish
+
+- Started the supplied overnight proof-commerce plan on `codex/overnight-proof-commerce`, based on `ae1295a`. The original integration checkout and active Meridian rerun remain untouched.
+- Dispatched three Grok 4.7 High tracks in separate worktrees. Scopes are worker, API/x402 and SDK/buyer. Each returns scoped commits and checks for independent integration review.
+- Read Chat 2 interface checkpoint `43b4fca`. Open proofs bind the adapter escrow domain and actual solver address. Exact ABI adoption and byte comparison remain pending.
+- The active Meridian process owns the proving slot. No second prover, live wallet access or live signing started.
+- [Execution tracker](../../docs/overnight/proof-commerce-plan.md) records remaining acceptance gates. Next: public vector comparison, worker review and baseline evidence.
+
 ## 2026-11-16 00:59 -05:00 — Anish
 
 - The first fresh Meridian run generated both Groth16 proofs, rejected verdict zero and completed the passing proof in 1,005,152 ms. It then exited 1 after a local receipt-visibility race while creating the separate refund-test job. The immutable [failure snapshot](reports/fresh-exchange-failed-attempt-2026-11-16.json) preserves the whole 2,056.599-second process result.

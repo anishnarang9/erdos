@@ -2,6 +2,14 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 01:27 -05:00 — Anish — Overnight proof commerce execution
+
+- The user supplied and authorized the [overnight execution plan](../../docs/overnight/proof-commerce-plan.md). Integration runs on `codex/overnight-proof-commerce` with separate Grok 4.7 High worker, API/x402 and SDK/buyer tracks.
+- Chat 2 owns the new open-claim adapter on `codex/overnight-open-escrow`. Interface checkpoint `43b4fca` binds the existing v1 proof domain to adapter and actual solver. Funding remains direct ERC-8183 USDC. x402 pays a separate API operation in the first run.
+- Preserve the original Meridian run and its source/scratch. It owns the single proving slot until completion. Integration owns the first combined real open-claim run afterward.
+- Require actual-contract proof acceptance, two solver identities with one paid winner, autonomous release, byte-exact dual recovery/oracle and separate refund evidence. Local fixture and test-facilitator results do not establish live acceptance.
+- Handoff target: 2026-11-16 08:00 Eastern. Live deployment/wallet authorization remains external. Continue authorized local work if that gate remains absent.
+
 ## 2026-11-16 00:59 -05:00 — Anish — Resumed local exchange passed; clean fresh rerun next
 
 - The initial new-workload run produced two real proofs but exited 1 at the separate refund job's receipt read. Its [immutable failure record](../anish/reports/fresh-exchange-failed-attempt-2026-11-16.json) remains separate from later attempts.
