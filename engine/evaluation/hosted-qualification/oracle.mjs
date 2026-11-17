@@ -294,6 +294,37 @@ function checkedSum(values) {
   return values.reduce((total, value) => checked('add', total, value), 0n);
 }
 
+function drawerVariance(delivery, reference) {
+  const rows = delivery.values['drawers.json'].rows;
+  const floats = keyed(reference.values['floats.json'].rows, 'drawerId');
+  const matched = rows.map((row) => checked('sub', checked('add', row.sealedCents, row.countedCents), member(floats, row.drawerId).expectedCents) === 0n);
+  return violations([
+    ['unique-drawer', distinct(rows, 'drawerId')],
+    ['drawer-count', rows.length === floats.size],
+    ['variance', matched.every(Boolean)],
+  ]);
+}
+
+function tenderSplit(delivery, reference) {
+  const cash = delivery.values['cash.json'].rows;
+  const checks = delivery.values['checks.json'].rows;
+  const total = checked('add', checkedSum(cash.map((row) => row.amountCents)), checkedSum(checks.map((row) => row.amountCents)));
+  return violations([
+    ['unique-cash', distinct(cash, 'slipId')],
+    ['unique-check', distinct(checks, 'slipId')],
+    ['tender-total', total === reference.values['settlement.json'].totalCents],
+  ]);
+}
+
+function voyageFee(delivery, spec) {
+  const fee = delivery.values['fee.json'];
+  return violations([
+    ['fee-identity', checked('sub', fee.tenderCents, fee.settledCents) === fee.feeCents],
+    ['nonnegative-fee', fee.feeCents >= 0n],
+    ['receipt-text', delivery.values['receipt.txt'] === spec.text],
+  ]);
+}
+
 function drawerExact(delivery, reference, spec) {
   const rows = delivery.values['drawers.json'].rows;
   const floats = keyed(reference.values['floats.json'].rows, 'drawerId');
@@ -321,6 +352,15 @@ export async function evaluateCandidate(challenge, candidateDirectory, {referenc
     switch (challenge.spec.kind) {
       case 'drawer-exact':
         violated = drawerExact(delivery, reference, challenge.spec);
+        break;
+      case 'drawer-variance':
+        violated = drawerVariance(delivery, reference);
+        break;
+      case 'tender-split':
+        violated = tenderSplit(delivery, reference);
+        break;
+      case 'voyage-fee':
+        violated = voyageFee(delivery, challenge.spec);
         break;
       default:
         throw Error(`No independent domain oracle for ${challenge.spec.kind}`);

@@ -171,3 +171,43 @@ test('pier drawer family has an independent oracle and isolated failures', async
     await rm(directory, {recursive: true, force: true});
   }
 });
+
+test('supported candidates match the independent oracle', async () => {
+  const {corpus, oracle} = await load();
+  const challenges = corpus.buildCorpus().filter((item) => item.classification === 'supported');
+  assert.deepEqual(challenges.map((item) => item.id), ['pier-drawers', 'pier-variance', 'tender-split', 'voyage-fee']);
+  const directory = await mkdtemp(join(tmpdir(), 'ubc26-corpus-'));
+  try {
+    for (const challenge of challenges) {
+      assert.ok(challenge.candidates.some((item) => item.expected.status === 'pass'), challenge.id);
+      assert.ok(challenge.candidates.some((item) => item.expected.status === 'reject'), challenge.id);
+      for (const requirement of challenge.requirements) {
+        assert.ok(
+          challenge.candidates.some((item) => item.expected.violatedRequirements.length === 1
+            && item.expected.violatedRequirements[0] === requirement.id),
+          `${challenge.id}:${requirement.id}`,
+        );
+      }
+      const written = await corpus.writeChallenge(challenge, directory);
+      for (const candidate of written.candidates) {
+        const actual = await oracle.evaluateCandidate(challenge, join(directory, candidate.path), {
+          referenceDirectory: join(directory, written.referencePath),
+          contextHex: context,
+        });
+        assert.equal(actual.status, candidate.expected.status, `${challenge.id}/${candidate.id}`);
+        assert.deepEqual(actual.violatedRequirements, candidate.expected.violatedRequirements, `${challenge.id}/${candidate.id}`);
+      }
+      const rules = challenge.plan.rules;
+      challenge.plan.rules = [{op: 'literal', type: 'bool', value: true}];
+      const failed = written.candidates.find((item) => item.expected.status === 'fail');
+      const ignored = await oracle.evaluateCandidate(challenge, join(directory, failed.path), {
+        referenceDirectory: join(directory, written.referencePath),
+        contextHex: context,
+      });
+      challenge.plan.rules = rules;
+      assert.equal(ignored.status, 'fail', challenge.id);
+    }
+  } finally {
+    await rm(directory, {recursive: true, force: true});
+  }
+});
