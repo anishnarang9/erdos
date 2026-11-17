@@ -33,11 +33,14 @@ Authoring budget is not in the coordinator contract. It is a service charge. It 
 
 The current draft handler does not return token usage. A completed draft therefore leaves the reservation `uncertain` at the full ceiling. The cost is not recorded as zero. These codes release the reservation: `validation_failed`, `model_unavailable`, `not_found`, `unauthorized`, `forbidden`, `payload_too_large`, `approval_required`, `wrong_state`, `revision_conflict`. `model_failed` and other handler failures keep the ceiling in state `uncertain`. A budget number that is not a positive safe integer throws at `createApp` before the database opens. Prices are operator configuration. This checkpoint does not permit spend.
 
+`EXPENSIVE_OPS_DISABLED=1` sets `expensiveDisabled`. A new expensive accept returns 503 `service_disabled`. The runner also does not dispatch a task that is already `queued`. That task stays `queued`. The model is not called. Reconcile still marks a running draft `uncertain`. Reconcile still returns a running compile to `queued`. That compile stays queued while dispatch is paused.
+
 ## Checkpoints
 
 - `094a210` Add wallet API keys and job ownership.
 - `9237298` Bind selected funding to the authenticated wallet.
 - `7c6b3c9` Queue durable draft and compile tasks.
+- `5cf64a4` Pause queued work when expensive operations are disabled.
 
 ## Commands
 
@@ -55,6 +58,11 @@ From `commerce/api` after `7c6b3c9`:
 
 - `pnpm exec tsc -p tsconfig.json --noEmit` exited 0.
 - `pnpm exec vitest run` exited 0. 796 tests passed.
+
+From `commerce/api` after `5cf64a4`:
+
+- `pnpm exec tsc -p tsconfig.json --noEmit` exited 0.
+- `pnpm exec vitest run` exited 0. 797 tests passed.
 
 ## Gaps
 
