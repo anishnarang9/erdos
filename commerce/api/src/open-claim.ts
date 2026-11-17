@@ -2,6 +2,7 @@ import { encodeFunctionData, isAddressEqual, type Address, type Hex } from "viem
 import { arcCoreAbi, arcErc20Abi } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { isoAt, parseJson, readBody, requireJobId, type AppEnv } from "./context.ts";
+import { assertFundingBuyer, requireOwnedJob } from "./ownership.ts";
 import { requireRealArtifact } from "./artifact.ts";
 import { isPlainObject } from "./revision.ts";
 import type { RouteContext } from "./routes.ts";
@@ -129,6 +130,7 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     }
   }
   const { app, deps, buyer, idem } = ctx;
+  const owned = requireOwnedJob(deps);
   const { db } = deps;
   const q = {
     job: db.prepare("SELECT id, state, current_revision_id FROM jobs WHERE id = ?"),
@@ -154,7 +156,13 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     return { job, revision, manifest };
   };
 
-  app.post("/v1/jobs/:id/open-claim-terms", readBody, buyer, parseJson, requireJobId, idem.middleware, async c => {
+  app.post("/v1/jobs/:id/open-claim-terms", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, async c => {
+    const principal = c.get("principal");
+    if (principal?.kind === "wallet") {
+      const named = c.get("json");
+      const buyerName = isPlainObject(named) && typeof named.buyer === "string" ? named.buyer : "";
+      assertFundingBuyer(principal, buyerName);
+    }
     if (!config) throw new ApiError("chain_unavailable", "Open-claim chain is not configured");
     const body = c.get("json");
     if (!isPlainObject(body) || Object.keys(body).some(k => !["revisionHash", "buyer", "budget", "expiry"].includes(k))) {
@@ -211,7 +219,7 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     });
   });
 
-  app.post("/v1/jobs/:id/open-claim-link", readBody, buyer, parseJson, requireJobId, idem.middleware, async c => {
+  app.post("/v1/jobs/:id/open-claim-link", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, async c => {
     if (!config) throw new ApiError("chain_unavailable", "Open-claim chain is not configured");
     const body = c.get("json");
     if (!isPlainObject(body) || Object.keys(body).some(k => !["revisionHash", "chainJobId", "fundingTx", "registrationTx"].includes(k))) {

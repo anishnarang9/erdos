@@ -2,6 +2,8 @@ import canonicalize from "canonicalize";
 import type { Address } from "viem";
 import { ApiError } from "./errors.ts";
 import { isoAt, parseJson, readBody, requireJobId, sha256hex0x, type AppContext, type AppEnv, type Deps } from "./context.ts";
+import { requireOwnedJob } from "./ownership.ts";
+import { expensiveGuard } from "./limits.ts";
 import { tx } from "./db.ts";
 import { isPlainObject } from "./revision.ts";
 import type { RouteContext } from "./routes.ts";
@@ -150,7 +152,7 @@ export function registerX402Routes(
   const settled = deps.db.prepare("UPDATE x402_payments SET state = 'settled', settlement_json = ?, updated_at = ? WHERE payment_id = ? AND state = 'settling'");
   const complete = deps.db.prepare("UPDATE x402_payments SET state = 'complete', response_status = ?, response_json = ?, updated_at = ? WHERE payment_id = ? AND state = 'settled'");
 
-  app.post("/v1/jobs/:id/paid-compile", readBody, buyer, parseJson, requireJobId, async (c) => {
+  app.post("/v1/jobs/:id/paid-compile", readBody, buyer, parseJson, requireJobId, requireOwnedJob(deps), expensiveGuard(deps), async (c) => {
     if (!config) throw new ApiError("payment_unavailable", "x402 is not configured");
     const body = c.get("json");
     if (!isPlainObject(body) || Object.keys(body).length !== 1 || typeof body.revisionHash !== "string") {

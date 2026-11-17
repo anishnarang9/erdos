@@ -20,7 +20,9 @@ export type ErrorCode =
   | "chain_unavailable"
   | "payment_pending"
   | "payment_conflict"
-  | "payment_unavailable";
+  | "payment_unavailable"
+  | "forbidden"
+  | "service_disabled";
 
 export const ERROR_STATUS: Record<ErrorCode, number> = {
   validation_failed: 400,
@@ -45,6 +47,8 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   payment_pending: 409,
   payment_conflict: 409,
   payment_unavailable: 503,
+  forbidden: 403,
+  service_disabled: 503,
 };
 
 export interface ErrorBody {

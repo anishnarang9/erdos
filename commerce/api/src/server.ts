@@ -149,6 +149,15 @@ const { model: draftModel, label: modelLabel } = draftModelFromEnv();
 const x402 = x402FromEnv();
 const openClaim = openClaimFromEnv();
 const packagesDir = process.env.PACKAGES_DIR;
+const deploymentMode = process.env.DEPLOYMENT_MODE === "public" ? "public" : "local";
+const principalLimit = process.env.RATE_LIMIT_PRINCIPAL;
+const ipLimit = process.env.RATE_LIMIT_IP;
+const rateLimit = principalLimit === undefined && ipLimit === undefined
+  ? undefined
+  : {
+      expensivePerPrincipal: principalLimit === undefined ? 0 : Number(principalLimit),
+      expensivePerIp: ipLimit === undefined ? 0 : Number(ipLimit),
+    };
 const { app, close } = createApp({
   dbPath,
   buyerToken,
@@ -158,6 +167,13 @@ const { app, close } = createApp({
   ...(chain ? { chain } : {}),
   ...(x402 ? { x402 } : {}),
   ...(openClaim ? { openClaim } : {}),
+  deployment: {
+    mode: deploymentMode,
+    serviceOrigin: process.env.SERVICE_ORIGIN ?? "http://localhost",
+    trustProxy: process.env.TRUST_PROXY === "1",
+  },
+  ...(rateLimit ? { rateLimit } : {}),
+  expensiveDisabled: process.env.EXPENSIVE_OPS_DISABLED === "1",
 });
 
 // Indexer (§6): ticks every 5 s when a chain is configured. It uses its own connection to the same database

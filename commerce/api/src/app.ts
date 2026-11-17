@@ -14,6 +14,9 @@ import { registerAuthoringRoutes } from "./authoring.ts";
 import { registerMarketRoutes } from "./market.ts";
 import { registerX402Routes, type X402Config } from "./x402.ts";
 import { registerOpenClaimRoutes, type OpenClaimConfig } from "./open-claim.ts";
+import { registerIdentityRoutes } from "./identity.ts";
+import { requireOwnedJob } from "./ownership.ts";
+import type { DeploymentConfig, RateLimitConfig } from "./context.ts";
 
 export interface CreateAppOptions {
   dbPath: string;
@@ -30,6 +33,16 @@ export interface CreateAppOptions {
   x402?: X402Config;
   /** Optional open-claim registration and public discovery reader. */
   openClaim?: OpenClaimConfig;
+  /** Local mode keeps the shared buyer token. Public mode accepts only wallet API keys. */
+  deployment?: {
+    mode: "local" | "public";
+    serviceOrigin: string;
+    trustProxy?: boolean;
+  };
+  /** Absent means expensive routes are not counted. */
+  rateLimit?: RateLimitConfig;
+  /** When true, model and compiler routes return 503. */
+  expensiveDisabled?: boolean;
 }
 
 export interface CreatedApp {
@@ -49,6 +62,11 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   const now = opts.now ?? (() => Date.now());
   const db = openDb(opts.dbPath, now);
   const validatePlan = opts.validatePlan ?? simulatedValidatePlan;
+  const deployment: DeploymentConfig = {
+    mode: opts.deployment?.mode ?? "local",
+    serviceOrigin: opts.deployment?.serviceOrigin ?? "http://localhost",
+    trustProxy: opts.deployment?.trustProxy ?? false,
+  };
   const deps: Deps = {
     db,
     buyerToken: opts.buyerToken,
@@ -59,6 +77,9 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     ...(opts.draftModel ? { draftModel: opts.draftModel } : {}),
     ...(opts.chain ? { chain: opts.chain } : {}),
     ...(opts.packagesDir ? { packagesDir: opts.packagesDir } : {}),
+    deployment,
+    ...(opts.rateLimit ? { rateLimit: opts.rateLimit } : {}),
+    expensiveDisabled: opts.expensiveDisabled ?? false,
   };
 
   const app = new Hono<AppEnv>();
@@ -79,6 +100,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   const buyer = buyerAuth(deps);
   const provider = providerAuth(deps);
   const idem = idempotency(deps);
+  const owned = requireOwnedJob(deps);
   const notImplemented: MiddlewareHandler<AppEnv> = async () => {
     throw new ApiError("not_implemented", "Not implemented yet");
   };
@@ -87,9 +109,11 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
 
   const ulid = monotonicFactory();
   const newId = () => ulid();
+  // Key issuance is not idempotent. A replay must not return the raw key again.
+  registerIdentityRoutes(app, deps, newId);
   const jobs = jobRoutes(deps, idem.commit, ulid);
   app.post("/v1/jobs", readBody, buyer, parseJson, idem.middleware, jobs.create);
-  app.post("/v1/jobs/:id/approve", readBody, buyer, parseJson, requireJobId, idem.middleware, jobs.approve);
+  app.post("/v1/jobs/:id/approve", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, jobs.approve);
 
   // Route modules (one owner each): authoring.ts (T5/T6), market.ts (T7/T8). Register literal paths such as
   // GET /v1/jobs before the parameterised GET /v1/jobs/:id below.
