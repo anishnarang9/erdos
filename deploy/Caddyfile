@@ -21,7 +21,24 @@
 		Referrer-Policy no-referrer
 		-Server
 	}
-	# Only the authenticated result endpoint may bootstrap while authoring is disabled.
+	# The operator publishes only verified standalone runner assets in this mount.
+	@runner_downloads path /downloads/runner /downloads/runner/*
+	handle @runner_downloads {
+		@runner_asset {
+			path_regexp runner_asset "^/downloads/runner/[0-9a-f]{40}/(ubc26-runner-0[.]2[.]0[.]tgz|SHA256SUMS|release[.]json|ubc26-release[.]json)$"
+			method GET HEAD
+		}
+		header Cache-Control "public, max-age=0, must-revalidate"
+		handle @runner_asset {
+			root * /srv/ubc26-downloads
+			uri strip_prefix /downloads/runner
+			file_server
+		}
+		handle {
+			respond 404
+		}
+	}
+	# The authenticated result endpoint uses its own liveness upstream.
 	handle /integrations/grok-bot/mcp {
 		reverse_proxy bot-review-ingress:8080 {
 			health_uri /healthz

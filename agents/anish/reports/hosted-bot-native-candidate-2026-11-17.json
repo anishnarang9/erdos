@@ -264,9 +264,11 @@
     "linuxEngineBuild": "CI debug engine",
     "linuxEngineSha256": "a7d0cec0285258eda3debf9421e4ee8132fcaf784a4840fae0e86a822aed70ad",
     "nativeVpsReleaseEngineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
-    "limit": "Current runner signed checks ran on native Linux CI. Prior 4a6a320 VPS signed checks used the byte-identical VPS release engine. No fresh twelve-case VPS run is claimed.",
+    "limit": "Current runner passes twelve signed cases on native Linux CI and the current native VPS release engine. The two environments retain their different debug/release engine digests. No proof or chain action ran.",
     "publicDownloadPublished": false,
-    "publicationDependency": "The source GitHub repository is private. A release there cannot provide anonymous downloads. Repository visibility remains unchanged. Publish only reviewed standalone assets through a separately prepared artifact route."
+    "publicationDependency": "The source GitHub repository is private. A release there cannot provide anonymous downloads. Repository visibility remains unchanged. Publish only reviewed standalone assets through a separately prepared artifact route.",
+    "nativeVpsSignedChecks": 12,
+    "nativeVpsReport": "hosted-runner-native-digitalocean-fb45033-2026-11-17.json"
   },
   "ci": {
     "head": "fb450331c014b59d037fb692496bdc4f72b11a9c",

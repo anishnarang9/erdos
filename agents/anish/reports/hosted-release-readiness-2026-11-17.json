@@ -243,13 +243,15 @@
     "linuxEngineBuild": "CI debug engine",
     "linuxEngineSha256": "a7d0cec0285258eda3debf9421e4ee8132fcaf784a4840fae0e86a822aed70ad",
     "nativeVpsReleaseEngineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
-    "limit": "Current runner signed checks ran on native Linux CI. Prior 4a6a320 VPS signed checks used the byte-identical VPS release engine. No fresh twelve-case VPS run is claimed.",
+    "limit": "The current canonical runner passes native Linux CI and twelve signed cases on the deployed native VPS release engine. Public artifact hosting remains pending.",
     "publicDownloadPublished": false,
     "image": "sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8",
     "reports": [
       "hosted-bot-native-candidate-2026-11-17.json"
     ],
-    "publicAuthoringReady": false
+    "publicAuthoringReady": false,
+    "nativeVpsSignedChecks": 12,
+    "nativeVpsReport": "hosted-runner-native-digitalocean-fb45033-2026-11-17.json"
   },
   "developmentWorkerPolicy": "No further Grok CLI calls, per user reply. Both original sessions remain stopped.",
   "remainingWork": [

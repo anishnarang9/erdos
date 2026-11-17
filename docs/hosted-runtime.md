@@ -108,3 +108,11 @@ Candidate code `ae8f13f` passes exact-source Linux CI. Its image, prewarm, compl
 
 
 Current candidate code is `20b0dc2`. Its fresh startup and prewarm pass. All 60 checked runtime files match the fully exercised `ae8f13f` image, excluding the source-identity file. The full workflow and restore results retain their original labels. See [runtime identity](../agents/anish/reports/hosted-runtime-payload-identity-2026-11-17.json), [candidate evidence](../agents/anish/reports/hosted-release-candidate-2026-11-17.json) and the [unapproved deployment/spending preflight](../agents/anish/reports/hosted-spending-preflight-2026-11-17.json). Final external review, public host/access, actual provider access and current live authority remain required.
+
+## Versioned standalone runner downloads
+
+The runner download route serves only four reviewed files under `/downloads/runner/SOURCE_SHA/`: `ubc26-runner-0.2.0.tgz`, `SHA256SUMS`, `release.json` and `ubc26-release.json`. `SOURCE_SHA` must contain forty lowercase hexadecimal characters. GET and HEAD are allowed. Other names, directory listings and mutations return 404. The route does not use API readiness. Buyer routes keep their existing readiness checks.
+
+Set `UBC26_RUNNER_DIR` in the protected host configuration before applying the new Compose file. Use a separate root-owned directory, such as `/opt/ubc26-release/public-runner`. Do not point it at API state, backups, environment files or a repository checkout. Populate each source directory from the verified canonical CI assets. Check all hashes, source pins and exact file membership before publication. Directories use mode 0555 and files use mode 0444. Caddy receives this directory through a read-only mount. The API receives no download mount.
+
+Preserve published bytes at each source URL. Publish a new source directory for a new release. Check actual HTTPS downloads, full hashes, HEAD and Range responses, rejected paths, normal buyer readiness and callback authentication after promotion. A downloadable prerelease does not establish public authoring readiness or genuine Bot qualification. The source repository stays private.

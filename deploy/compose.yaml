@@ -54,6 +54,7 @@ services:
     ports: ['80:80', '443:443', '443:443/udp']
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${UBC26_RUNNER_DIR:?Set the root-owned verified runner asset directory}:/srv/ubc26-downloads:ro
       - caddy-data:/data
       - caddy-config:/config
     read_only: true
