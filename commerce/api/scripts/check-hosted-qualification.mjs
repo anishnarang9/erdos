@@ -39,6 +39,7 @@ async function main() {
   const ledgerPath=join(directory,'ledger.json');
   const first=await runBenchmark({challenges,config,ledgerPath,fetchImpl});
   assert.equal(first.freshTrials,3,JSON.stringify({reason:first.reason,trials:first.trials}));assert.equal(modelCalls,3);assert.equal(taskPosts,3);
+  for(const trial of first.trials){assert.equal(trial.qualification.model,'controlled-fixture');assert.match(trial.qualification.promptVersion,/^[a-f0-9]{64}$/);assert.match(trial.qualification.catalogVersion,/^[a-f0-9]{64}$/);assert.ok(trial.qualification.latencyMs>=0);}
   const resumed=await runBenchmark({challenges,config,ledgerPath,fetchImpl});
   assert.equal(resumed.freshTrials,3);assert.equal(resumed.paidTrialsRan,false);assert.equal(modelCalls,3);assert.equal(taskPosts,3);
   now+=10000;
@@ -50,7 +51,7 @@ async function main() {
   assert.equal(duplicated.reason,'duplicate-wallet-principals');assert.equal(taskPosts,before);assert.equal(modelCalls,3);
   const report={version:1,status:'passed-controlled-api-integration',source,platform:process.platform,node:process.version,
    genuineModelCalls:0,controlledModelCalls:modelCalls,externalRequests:0,compilerCalls:0,proofs:0,chainTransactions:0,
-   firstCampaign:{freshControlledTrials:first.freshTrials,taskPosts:3,distinctWallets:3},resume:{freshOriginalTrials:resumed.freshTrials,additionalTaskPosts:0,additionalControlledModelCalls:0},
+   firstCampaign:{freshControlledTrials:first.freshTrials,taskPosts:3,distinctWallets:3,qualification:first.trials.map(trial=>trial.qualification)},resume:{freshOriginalTrials:resumed.freshTrials,additionalTaskPosts:0,additionalControlledModelCalls:0},
    newLedger:{reason:stale.reason,additionalControlledModelCalls:0},duplicateWalletKeys:{reason:duplicated.reason,additionalTaskPosts:0},
    total:{taskPosts,taskReads,authReads},qualificationPassed:false,
    limits:['In-process Hono and SQLite with synthetic wallet accounts and a controlled model. No public host or genuine application inference was tested.','The harness paidTrialsRan flag means a task POST was attempted. It does not establish a provider charge.']};

@@ -1,6 +1,6 @@
 # Hosted qualification
 
-Current coordinator state: the source harness passes 57 offline/native checks. Actual-API integration uses three synthetic wallets and a controlled model. It verifies task acceptance, unchanged results on resume, stale semantic-cache rejection and same-wallet credential rejection. Genuine application trials remain zero. Later sections retain historical worker probes at their stated source checkpoints.
+Current coordinator state: the source harness passes 63 offline/native checks. Actual-API integration uses three synthetic wallets and a controlled model. It verifies task acceptance, unchanged results on resume, stale semantic-cache rejection and same-wallet credential rejection. Genuine application trials remain zero. Later sections retain historical worker probes at their stated source checkpoints.
 
 Worker B owns `engine/` and this report on branch `codex/hosted-qualification`. The source base is `c21ec6e`. The reviewed main is `6ed9d2d`. Qualification is not complete.
 
@@ -234,3 +234,14 @@ The ledger lock never deletes another writer's lock automatically. A crashed pro
 `qualificationPassed` also requires the complete pinned corpus and three trials per request. A passing partial score cannot claim the 180-trial gate. Controlled fixtures and API integration remain separate from genuine provider trials and live spending authority.
 
 Run `pnpm exec tsx scripts/check-hosted-qualification.mjs <full-source-sha> <report-path>` from `commerce/api` for controlled API integration. Commerce CI runs it with the checked source SHA and uploads its report. The `paidTrialsRan` result field means a task POST was attempted. It does not establish a provider charge. See [the controlled report](../agents/anish/reports/hosted-campaign-api-integration-2026-11-17.json).
+
+
+## Bound live qualification before dispatch
+
+Campaign schema version 2 binds `live` and the reviewed model identity before any dispatch. A controlled campaign cannot become live on resume. Older ledgers cannot silently acquire that provenance. Preserve old reservations and reconcile unknown outcomes before a separate campaign. No genuine application campaign ran before this schema change.
+
+A live configuration must name exact reviewed model `grok-4.20-0309-non-reasoning` through `UBC26_BENCHMARK_MODEL`. Its attempt reservation must cover at least the reviewed 2,540,960 micro-USD bound. Lower prices and unreviewed models reject before credential inspection or task requests. Recheck the provider contract and prices before live enablement. This minimum does not authorize spending.
+
+Every live terminal result must report the selected model for each provider attempt. Missing or different model identities halt further dispatch. Live results also need prompt and catalog SHA-256 identities. Trial records retain those identities, measured latency, and separate initial/repair model, trace and usage data. Unknown metadata remains null. The actual-API CI check verifies these fields against the current route response.
+
+Six added offline cases and the actual-API regression protect these boundaries. All 63 qualification checks and controlled API integration pass. Genuine application trials remain zero.

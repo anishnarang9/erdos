@@ -24,14 +24,15 @@ export function principal(value) {
 export function bindCampaign(ledger, {config, origin, principals, startedAt}) {
   if (!ledger.campaign) {
     if (Object.keys(ledger.entries).length > 0) throw campaignError('campaign-provenance-missing');
-    ledger.campaign = {version: 1, id: randomUUID(), startedAt, origin, corpusId: config.corpusId,
-      corpusDigest: CORPUS_DIGEST, principals, halted: null, lastDispatchAt: null};
+    ledger.campaign = {version: 2, id: randomUUID(), startedAt, origin, corpusId: config.corpusId,
+      corpusDigest: CORPUS_DIGEST, live: config.live === true, model: config.live === true ? config.model : null, principals, halted: null, lastDispatchAt: null};
   }
   const stored = ledger.campaign;
-  if (stored.version !== 1 || typeof stored.id !== 'string' || !/^[a-f0-9-]{36}$/.test(stored.id) || timestamp(stored.startedAt) === null ||
+  if (stored.version !== 2 || typeof stored.id !== 'string' || !/^[a-f0-9-]{36}$/.test(stored.id) || timestamp(stored.startedAt) === null ||
       stored.origin !== origin || stored.corpusId !== config.corpusId || stored.corpusDigest !== CORPUS_DIGEST) {
     throw campaignError('campaign-binding-changed');
   }
+  if (stored.live !== (config.live === true) || stored.model !== (config.live === true ? config.model : null)) throw campaignError('campaign-mode-changed');
   if (JSON.stringify(stored.principals) !== JSON.stringify(principals)) throw campaignError('campaign-principals-changed');
   if (stored.startedAt > new Date(clock(config)).toISOString()) throw campaignError('campaign-clock-moved-backwards');
   if (stored.halted) throw campaignError(stored.halted);

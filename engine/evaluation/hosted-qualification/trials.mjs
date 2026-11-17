@@ -6,6 +6,10 @@ import {applyTaskView, committedMicroUsd, dispatchDecision, newLedger, persistLe
 
 import {bindCampaign, bindTrial, campaignError, clock, failCampaign, fingerprint, principal, validateGlobalEvidence, validateTaskBinding} from './campaign.mjs';
 
+// Reviewed provider bound in docs/hosted-model-costs.md. Recheck it before live enablement.
+const REVIEWED_LIVE_MODEL = 'grok-4.20-0309-non-reasoning';
+const REVIEWED_LIVE_ATTEMPT_MICRO_USD = 2_540_960;
+
 const MAX_BYTES = 4_194_304;
 const TERMINAL = new Set(['succeeded', 'failed', 'uncertain']);
 const KNOWN_CODES = new Set([
@@ -36,6 +40,7 @@ export function loadDeployment(env = process.env) {
     capMicroUsd: cap == null || cap === '' ? null : Number(cap),
     attemptPriceMicroUsd: price == null || price === '' ? null : Number(price),
     corpusId: CORPUS_ID,
+    model: env.UBC26_BENCHMARK_MODEL || null,
     dispatch: false,
     live: false,
   };
@@ -140,6 +145,14 @@ export function collectTraceIds(view) {
   return [...ids];
 }
 
+function qualificationMetadata(view) {
+  const qualification = terminalData(view)?.qualification;
+  const model = typeof qualification?.model === 'string' && /^[A-Za-z0-9._-]{1,128}$/.test(qualification.model) ? qualification.model : null;
+  const digest = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value) ? value : null;
+  return {model, promptVersion: digest(qualification?.promptVersion), catalogVersion: digest(qualification?.catalogVersion),
+    latencyMs: Number.isSafeInteger(qualification?.latencyMs) && qualification.latencyMs >= 0 ? qualification.latencyMs : null};
+}
+
 function artifactPair(view) {
   const result = terminalData(view);
   const usage = Array.isArray(result?.qualification?.usage) ? result.qualification.usage : [];
@@ -147,8 +160,8 @@ function artifactPair(view) {
   const initialUsage = attempts[0]?.usage ?? usage[0] ?? null;
   const repairUsage = attempts[1]?.usage ?? usage[1] ?? null;
   return {
-    initial: {traceId: attempts[0]?.traceId ?? null, usage: initialUsage},
-    repair: attempts[1] || usage[1] ? {traceId: attempts[1]?.traceId ?? null, usage: repairUsage} : null,
+    initial: {model: attempts[0]?.model ?? null, traceId: attempts[0]?.traceId ?? null, usage: initialUsage},
+    repair: attempts[1] || usage[1] ? {model: attempts[1]?.model ?? null, traceId: attempts[1]?.traceId ?? null, usage: repairUsage} : null,
   };
 }
 
@@ -365,6 +378,12 @@ export async function runBenchmark({challenges, config, ledgerPath, fetchImpl, t
   const reason = deploymentReason(config, trialsPerRequest);
   if (reason) return closedResult(reason, config?.ledger ?? null);
   if (!Number.isSafeInteger(trialsPerRequest) || trialsPerRequest < 1 || challenges.length === 0) return closedResult('no-trials', config.ledger ?? null);
+  if (config.live === true) {
+    if (config.model !== REVIEWED_LIVE_MODEL) return closedResult('unreviewed-live-model', config.ledger ?? null);
+    if (!Number.isSafeInteger(config.attemptPriceMicroUsd) || config.attemptPriceMicroUsd < REVIEWED_LIVE_ATTEMPT_MICRO_USD) {
+      return closedResult('live-price-below-reviewed-bound', config.ledger ?? null);
+    }
+  }
   const origin = checkOrigin(config.baseUrl).origin;
   const keys = principalKeys(config, trialsPerRequest).keys.slice(0, trialsPerRequest);
   const ledger = config.ledger ?? newLedger(config);
@@ -399,6 +418,8 @@ export async function runBenchmark({challenges, config, ledgerPath, fetchImpl, t
       if (ledger.campaign && (ledger.campaign.origin !== origin || ledger.campaign.corpusId !== config.corpusId || ledger.campaign.corpusDigest !== CORPUS_DIGEST)) return 'campaign-binding-changed';
       if (!ledger.campaign && Object.keys(ledger.entries).length > 0) return 'campaign-provenance-missing';
       if (ledger.campaign?.halted) return ledger.campaign.halted;
+      if (ledger.campaign && ledger.campaign.version !== 2) return 'campaign-version-unsupported';
+      if (ledger.campaign && (ledger.campaign.live !== (config.live === true) || ledger.campaign.model !== (config.live === true ? config.model : null))) return 'campaign-mode-changed';
       // Reject invalid prices/scope/caps before sending even a credential inspection request.
       const decision = dispatchDecision(ledger);
       if (!decision.ok && (decision.reason !== 'cap-exhausted' || !ledger.entries[firstKey])) return decision.reason;
@@ -525,7 +546,12 @@ export async function runBenchmark({challenges, config, ledgerPath, fetchImpl, t
       }
       const repairCount = readRepairCount(view);
       const traceIds = collectTraceIds(view);
-      const metadataDependency = repairCount == null ? 'qualification-metadata-missing' : repairCount > 1 ? 'repair-limit' : traceIds.length === 0 ? 'provider-trace-missing' : null;
+      const data = terminalData(view);
+      const wrongLiveModel = config.live === true && (data?.qualification?.model !== config.model ||
+        !Array.isArray(data?.attempts) || data.attempts.some(attempt => attempt?.model !== config.model));
+      const qualification = qualificationMetadata(view);
+      const missingLiveVersion = config.live === true && (!qualification.promptVersion || !qualification.catalogVersion);
+      const metadataDependency = wrongLiveModel ? 'live-model-mismatch' : missingLiveVersion ? 'qualification-metadata-missing' : repairCount == null ? 'qualification-metadata-missing' : repairCount > 1 ? 'repair-limit' : traceIds.length === 0 ? 'provider-trace-missing' : null;
       let assessment = {engineValid: null, candidateResults: []};
       try {
         if (view.state === 'succeeded' && view.result?.kind === 'draft' && challenge.classification === 'supported') assessment = config.assessImpl ? await config.assessImpl(challenge, view.result) : await assessSupportedDraft(challenge, view.result.plan);
@@ -534,7 +560,7 @@ export async function runBenchmark({challenges, config, ledgerPath, fetchImpl, t
         latencyMs: Number.isSafeInteger(view.result?.qualification?.latencyMs) ? view.result.qualification.latencyMs : null, live: config.live === true});
       trials.push({...base, dispatched: true, method: outcome.method, state: entry.state, taskState: view.state, taskId: entry.taskId, attempt: entry.attempt,
         statusCode: outcome.status ?? null, replayed: entry.replayed === true, provenanceAccepted: entry.provenance.accepted,
-        terminal: true, repairCount, traceIds, artifacts: artifactPair(view), cost: entry.cost,
+        terminal: true, repairCount, traceIds, qualification, artifacts: artifactPair(view), cost: entry.cost,
         actualCostMicroUsd: entry.costSource === 'actual-ticks' ? entry.costMicroUsd : null, costInUsdTicks: entry.costInUsdTicks,
         tariffMicroUsd: entry.tariffMicroUsd, metadataDependency, engineValid: assessment.engineValid, score, fresh: false});
       if (metadataDependency) {

@@ -122,12 +122,20 @@
       "offlineNativeChecks": 57,
       "genuineApplicationTrials": 0,
       "limit": "Synthetic wallets and controlled model. Exact-source CI, final artifacts/image and independent review remain pending."
+    },
+    {
+      "gate": "live qualification reservation and identity binding",
+      "status": "passed-source-checks",
+      "source": "checkpoint containing this entry",
+      "offlineNativeChecks": 63,
+      "genuineApplicationTrials": 0,
+      "limit": "No genuine inference occurred. Provider-price revalidation and explicit approved budgets remain required."
     }
   ],
   "activeImplementation": [
     {
       "owner": "coordinator",
-      "work": "Finish spending/model binding audit, then refresh candidate evidence and handoff if source changes."
+      "work": "Live model/price/mode guards and complete qualification metadata pass 63 offline/native checks and controlled API integration. Finish exact-source CI and candidate artifact identity checks, then final handoff."
     },
     {
       "owner": "external final reviewer pending",

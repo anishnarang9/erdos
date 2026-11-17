@@ -1,5 +1,12 @@
 # Current plan
 
+## 2026-11-17 02:58 -05:00 — Anish — Enforce live qualification price, model and campaign mode
+
+- The spending audit reproduced three gaps: live qualification accepted an understated reservation, accepted an unreviewed model and continued after a different returned model. A fourth regression allowed a controlled campaign to change its live flag on resume. A repaired response could also omit per-attempt model identity. Those regressions failed before the guards.
+- Live preflight now requires the exact reviewed model and at least its reviewed per-call reservation. It rejects before any credential or task request. Campaign v2 persists live mode and model. Older campaigns cannot silently upgrade. Every live provider attempt must report the selected model. Live results require prompt/catalog identities. Trial summaries retain those fields, latency and initial/repair metadata.
+- The actual-API regression first failed because trial summaries dropped model/prompt/catalog fields. It now passes all three controlled wallets and GET resume with the real Hono/SQLite response shape. All 63 qualification Node checks pass with the native engine and unchanged corpus digest. The CLI entrypoint remains dispatch-disabled. No Grok CLI call, genuine application inference or chain action occurred.
+- Next: exact-source commerce/core CI and candidate artifact identity checks. API runtime source did not change in this checkpoint. Reuse the verified runtime behavior only after comparing immutable image payloads and checking startup/prewarm identities. Final external review and host/model/budget/live inputs remain required. Push this checkpoint and keep the goal active.
+
 ## 2026-11-17 02:51 -05:00 — Anish — Verify candidate artifacts, runtime, restore and exact-source CI
 
 - Candidate code `ae8f13f` is pushed and passes exact-source commerce/core CI. API 939, SDK 365 plus 13 wire, worker 945, qualification 57, native host/oracle 326 with zero disagreements, and twelve native Linux installed signed cases pass. Rust passes 51 with three prepared-guest tests ignored. Arc Foundry passes 168 with one fork-only skip. Contract examples and Python oracle checks pass.

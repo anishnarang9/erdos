@@ -233,11 +233,80 @@ test('an incomplete lock file cannot be removed to enter a second writer', () =>
 
 test('a passing partial score cannot claim the full frozen qualification', () => fixture(async ledgerPath => {
   const supported = {...request, classification: 'supported'};
-  const view = task(); view.result = {...view.result, kind: 'draft', plan: {version: 1}, sourceQuotes: [{quote: 'Which fee table?'}]};
+  const view = task(); view.result.qualification.model = 'grok-4.20-0309-non-reasoning';
+  view.result.qualification.promptVersion = 'a'.repeat(64); view.result.qualification.catalogVersion = 'b'.repeat(64);
+  for (const attempt of view.result.attempts) attempt.model = 'grok-4.20-0309-non-reasoning';
+  view.result = {...view.result, kind: 'draft', plan: {version: 1}, sourceQuotes: [{quote: 'Which fee table?'}]};
   const result = await run(ledgerPath, async url => isAuth(url) ? Response.json(identity()) : Response.json(view), {
-    challenges: [supported], config: config({live: true, assessImpl: async () => ({engineValid: true, candidateResults: [{id: 'pass', engine: 'pass', oracle: 'pass'}]})}),
+    challenges: [supported], config: config({live: true, model: 'grok-4.20-0309-non-reasoning', attemptPriceMicroUsd: 2_540_960, capMicroUsd: 10_000_000, assessImpl: async () => ({engineValid: true, candidateResults: [{id: 'pass', engine: 'pass', oracle: 'pass'}]})}),
   });
   assert.equal(result.aggregate.passed, true);
   assert.equal(result.qualificationPassed, false);
   assert.equal(result.reason, 'incomplete-corpus');
+}));
+
+test('live qualification cannot understate the reviewed per-call reservation', () => fixture(async ledgerPath => {
+  let calls = 0;
+  const result = await run(ledgerPath, async url => { calls++; return isAuth(url) ? Response.json(identity()) : Response.json(task()); }, {
+    config: config({live: true, model: 'grok-4.20-0309-non-reasoning', attemptPriceMicroUsd: 40_000, capMicroUsd: 10_000_000}),
+  });
+  assert.equal(calls, 0);
+  assert.equal(result.reason, 'live-price-below-reviewed-bound');
+  assert.equal(result.paidTrialsRan, false);
+}));
+
+test('an unreviewed live model rejects before credential or task requests', () => fixture(async ledgerPath => {
+  let calls = 0;
+  const result = await run(ledgerPath, async url => { calls++; return isAuth(url) ? Response.json(identity()) : Response.json(task()); }, {
+    config: config({live: true, model: 'unreviewed-model', attemptPriceMicroUsd: 2_540_960, capMicroUsd: 10_000_000}),
+  });
+  assert.equal(calls, 0);
+  assert.equal(result.reason, 'unreviewed-live-model');
+}));
+
+test('a different returned model halts further live qualification work', () => fixture(async ledgerPath => {
+  let posts = 0;
+  const view = task(); view.result.qualification.model = 'different-provider-model';
+  const result = await run(ledgerPath, async url => { if (isAuth(url)) return Response.json(identity()); posts++; return Response.json(view); }, {
+    challenges: [request, second],
+    config: config({live: true, model: 'grok-4.20-0309-non-reasoning', attemptPriceMicroUsd: 2_540_960, capMicroUsd: 20_000_000}),
+  });
+  assert.equal(posts, 1);
+  assert.equal(result.reason, 'live-model-mismatch');
+  assert.equal(result.freshTrials, 0);
+  assert.equal(committedMicroUsd(result.ledger), 2);
+}));
+
+test('a controlled campaign cannot become live by changing its resume flag', () => fixture(async ledgerPath => {
+  const cfg = config({model: 'grok-4.20-0309-non-reasoning', attemptPriceMicroUsd: 2_540_960, capMicroUsd: 10_000_000});
+  const view = task(); view.result.qualification.model = cfg.model;
+  for (const attempt of view.result.attempts) attempt.model = cfg.model;
+  await run(ledgerPath, async url => isAuth(url) ? Response.json(identity()) : Response.json(view), {config: cfg});
+  let calls = 0;
+  const result = await run(ledgerPath, async url => { calls++; return isAuth(url) ? Response.json(identity()) : Response.json(view); }, {config: {...cfg, live: true}});
+  assert.equal(calls, 0);
+  assert.equal(result.reason, 'campaign-mode-changed');
+  assert.equal(result.freshTrials, 0);
+}));
+
+test('a repaired live result needs model identity for both provider attempts', () => fixture(async ledgerPath => {
+  const view = task();
+  view.result.qualification = {...view.result.qualification, model: 'grok-4.20-0309-non-reasoning', repairCount: 1,
+    traceId: 'repair', traceIds: ['initial', 'repair'], usage: [{costInUsdTicks: 10_001}, {costInUsdTicks: 10_001}]};
+  delete view.result.attempts;
+  const result = await run(ledgerPath, async url => isAuth(url) ? Response.json(identity()) : Response.json(view), {
+    config: config({live: true, model: 'grok-4.20-0309-non-reasoning', attemptPriceMicroUsd: 2_540_960, capMicroUsd: 10_000_000}),
+  });
+  assert.equal(result.freshTrials, 0);
+  assert.equal(result.reason, 'live-model-mismatch');
+}));
+
+test('an older ledger without a bound live mode cannot be promoted or silently upgraded', () => fixture(async ledgerPath => {
+  await run(ledgerPath, async url => isAuth(url) ? Response.json(identity()) : Response.json(task()));
+  const ledger = JSON.parse(await readFile(ledgerPath, 'utf8')); ledger.campaign.version = 1; delete ledger.campaign.live; delete ledger.campaign.model;
+  await writeFile(ledgerPath, JSON.stringify(ledger));
+  let calls = 0;
+  const result = await run(ledgerPath, async url => { calls++; return isAuth(url) ? Response.json(identity()) : Response.json(task()); });
+  assert.equal(calls, 0);
+  assert.equal(result.reason, 'campaign-version-unsupported');
 }));
