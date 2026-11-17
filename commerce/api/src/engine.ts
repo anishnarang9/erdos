@@ -60,14 +60,31 @@ export interface CompileInput {
    * Omitted: the package is compiled in a temporary directory and deleted after the manifest is read.
    */
   packageDir?: string;
+  /** Cancels the owned compiler process group. Omitted calls keep the previous behavior. */
+  signal?: AbortSignal;
+}
+
+export interface ValidateOptions {
+  signal?: AbortSignal;
+}
+
+/** Host-side `engine eval` input. Evidence and context are optional and omitted flags stay omitted. */
+export interface EvalInput {
+  plan: unknown;
+  deliverables: BundleFile[];
+  reference: BundleFile[];
+  evidence?: BundleFile[];
+  /** Exact funded context: `0x01` plus 336 hex characters. The guest still checks rules and reference bindings. */
+  context?: string;
+  signal?: AbortSignal;
 }
 
 export interface Engine {
   /** Explicit execution provenance. Unidentified embedded engines are allowed only off real chains. */
   readonly mode?: "real" | "simulated";
-  validate(plan: unknown): Promise<ValidateResult>;
+  validate(plan: unknown, options?: ValidateOptions): Promise<ValidateResult>;
   /** Host-side check of example deliverables (`engine eval`). Optional: absent means examples stay unlabelled. */
-  eval?(input: { plan: unknown; deliverables: BundleFile[]; reference: BundleFile[] }): Promise<EvalResult>;
+  eval?(input: EvalInput): Promise<EvalResult>;
   /** Throws EngineError on a crash, a timeout, or a build failure. */
   compile(input: CompileInput): Promise<CompileResult>;
 }
@@ -182,6 +199,9 @@ const WSL_GUEST_PATH = "/usr/local/bin:/usr/bin:/bin";
 const WSL_ENV_BIN = "/usr/bin/env";
 const ENGINE_MAX_BUFFER = 16 * 1024 * 1024;
 const ENGINE_KILL_GRACE_MS = 200;
+const MAX_EVAL_EVIDENCE_FILES = 16;
+const MAX_EVAL_EVIDENCE_BYTES = 32 * 1024;
+const FUNDED_CONTEXT = /^0x01[0-9a-fA-F]{336}$/;
 const SSL_ENV_KEYS = ["SSL_CERT_FILE", "SSL_CERT_DIR", "REQUESTS_CA_BUNDLE", "CURL_CA_BUNDLE", "NODE_EXTRA_CA_CERTS"] as const;
 export type SslEnvKey = (typeof SSL_ENV_KEYS)[number];
 
@@ -296,7 +316,41 @@ function trackChild(child: ChildProcess): void {
   });
 }
 
-function spawnEngine(command: string, args: string[], timeout: number, env: Record<string, string>, label: string): Promise<RunResult> {
+function killedEngine(label: string): EngineError {
+  return new EngineError("timeout", `Engine ${label} timed out or was killed`);
+}
+
+function waitForClose(child: ChildProcess, ms: number): Promise<void> {
+  if (!liveChildren.has(child)) return Promise.resolve();
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, ms);
+    child.once("close", () => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+}
+
+/** SIGTERM every owned compiler group, then SIGKILL after the grace period. */
+export async function cancelEngineChildren(): Promise<void> {
+  const children = [...liveChildren];
+  for (const child of children) killProcessGroup(child, "SIGTERM");
+  await Promise.all(children.map((child) => waitForClose(child, ENGINE_KILL_GRACE_MS)));
+  for (const child of children) {
+    if (liveChildren.has(child)) killProcessGroup(child, "SIGKILL");
+  }
+  await Promise.all(children.map((child) => waitForClose(child, ENGINE_KILL_GRACE_MS)));
+}
+
+function spawnEngine(
+  command: string,
+  args: string[],
+  timeout: number,
+  env: Record<string, string>,
+  label: string,
+  signal?: AbortSignal,
+): Promise<RunResult> {
+  if (signal?.aborted) return Promise.reject(killedEngine(label));
   return new Promise((resolve, reject) => {
     let stdout = "";
     let stderr = "";
@@ -310,7 +364,17 @@ function spawnEngine(command: string, args: string[], timeout: number, env: Reco
       if (settled) return;
       settled = true;
       clearTimeout(deadline);
+      signal?.removeEventListener("abort", onAbort);
       fn();
+    };
+    const armKill = () => {
+      if (killTimer) return;
+      killTimer = setTimeout(() => killProcessGroup(child, "SIGKILL"), ENGINE_KILL_GRACE_MS);
+    };
+    const onAbort = () => {
+      timedOut = true;
+      killProcessGroup(child, "SIGTERM");
+      armKill();
     };
     try {
       child = spawn(command, args, {
@@ -325,15 +389,15 @@ function spawnEngine(command: string, args: string[], timeout: number, env: Reco
       return;
     }
     trackChild(child);
-    const armKill = () => {
-      if (killTimer) return;
-      killTimer = setTimeout(() => killProcessGroup(child, "SIGKILL"), ENGINE_KILL_GRACE_MS);
-    };
     const deadline = setTimeout(() => {
       timedOut = true;
       killProcessGroup(child, "SIGTERM");
       armKill();
     }, timeout);
+    if (signal) {
+      signal.addEventListener("abort", onAbort);
+      if (signal.aborted) onAbort();
+    }
     const onChunk = (kind: "out" | "err", chunk: Buffer) => {
       if (used + chunk.length > ENGINE_MAX_BUFFER) {
         timedOut = true;
@@ -351,16 +415,13 @@ function spawnEngine(command: string, args: string[], timeout: number, env: Reco
       clearTimeout(killTimer);
       finish(() => reject(new EngineError("spawn", `Engine ${label} could not be started`)));
     });
-    child.on("close", (code, signal) => {
+    child.on("close", (code, closeSignal) => {
       stdout += stdoutDecoder.end();
       stderr += stderrDecoder.end();
       clearTimeout(deadline);
-      if (timedOut) killProcessGroup(child, "SIGKILL");
-      else {
-        clearTimeout(killTimer);
-        killProcessGroup(child, "SIGKILL");
-      }
-      if (timedOut || signal) finish(() => reject(new EngineError("timeout", `Engine ${label} timed out or was killed`)));
+      clearTimeout(killTimer);
+      killProcessGroup(child, "SIGKILL");
+      if (timedOut || closeSignal) finish(() => reject(killedEngine(label)));
       else if (typeof code === "number") finish(() => resolve({ exit: code, stdout, stderr }));
       else finish(() => reject(new EngineError("spawn", `Engine ${label} could not be started`)));
     });
@@ -509,8 +570,8 @@ export function cliEngine(opts: CliEngineOptions): Engine {
     });
   };
 
-  const run = (args: string[], timeout: number): Promise<RunResult> =>
-    spawnEngine(command, [...prefix, ...args], timeout, childEnv(), args[0] ?? "command");
+  const run = (args: string[], timeout: number, signal?: AbortSignal): Promise<RunResult> =>
+    spawnEngine(command, [...prefix, ...args], timeout, childEnv(), args[0] ?? "command", signal);
 
   const withTemp = async <T>(fn: (dir: string) => Promise<T>): Promise<T> => {
     const parent = opts.workDir ?? tmpdir();
@@ -531,29 +592,49 @@ export function cliEngine(opts: CliEngineOptions): Engine {
 
   return {
     mode: "real",
-    validate: (plan) =>
+    validate: (plan, options) =>
       withTemp(async (dir) => {
-        const r = await run(["validate", "--plan", ep(await writePlan(dir, plan))], timeoutMs);
+        const r = await run(["validate", "--plan", ep(await writePlan(dir, plan))], timeoutMs, options?.signal);
         if (r.exit !== 0) return planFailure(r, "validate");
         const o = parseStdoutObject(r.stdout, "validate");
         return { ok: true, hashes: { structureHash: hashOf(o, "structureHash"), rulesHash: hashOf(o, "rulesHash") }, preview: o.preview };
       }),
 
-    eval: ({ plan, deliverables, reference }) =>
+    eval: ({ plan, deliverables, reference, evidence, context, signal }) =>
       withTemp(async (dir) => {
+        if (context !== undefined && !FUNDED_CONTEXT.test(context)) {
+          throw new EngineError("invalid_job", "Eval context must be 0x01 followed by 336 hex characters");
+        }
+        if (evidence && evidence.length > MAX_EVAL_EVIDENCE_FILES) {
+          throw new EngineError("bad_file_name", "Eval evidence exceeds 16 files");
+        }
+        if (evidence?.some((file) => file.content.byteLength > MAX_EVAL_EVIDENCE_BYTES)) {
+          throw new EngineError("bad_file_name", "Eval evidence file exceeds 32 KiB");
+        }
         const planFile = await writePlan(dir, plan);
         const del = join(dir, "deliverables");
         const ref = join(dir, "reference");
         await writeFiles(del, deliverables);
         await writeFiles(ref, reference);
-        const r = await run(["eval", "--plan", ep(planFile), "--deliverables", ep(del), "--reference", ep(ref)], timeoutMs);
+        const args = ["eval", "--plan", ep(planFile), "--deliverables", ep(del), "--reference", ep(ref)];
+        if (evidence && evidence.length > 0) {
+          const ev = join(dir, "evidence");
+          await writeFiles(ev, evidence);
+          args.push("--evidence", ep(ev));
+        }
+        if (context !== undefined) {
+          const job = join(dir, "job.json");
+          await writeFile(job, JSON.stringify({ context }), "utf8");
+          args.push("--job", ep(job));
+        }
+        const r = await run(args, timeoutMs, signal);
         if (r.exit !== 0) return planFailure(r, "eval", "/deliverables");
         const v = parseStdoutObject(r.stdout, "eval").verdict;
         if (v !== 0 && v !== 1) throw new EngineError("bad_output", "Engine eval output has no verdict 0 or 1");
         return { ok: true, verdict: v };
       }),
 
-    compile: ({ plan, reference, packageDir }) =>
+    compile: ({ plan, reference, packageDir, signal }) =>
       withTemp(async (dir) => {
         const planFile = await writePlan(dir, plan);
         const ref = join(dir, "reference");
@@ -562,7 +643,7 @@ export function cliEngine(opts: CliEngineOptions): Engine {
         if (await stat(out).then(() => true, () => false)) {
           throw new EngineError("package_exists", "The package directory already exists");
         }
-        const r = await run(["compile", "--plan", ep(planFile), "--reference", ep(ref), "--out", ep(out)], compileTimeoutMs);
+        const r = await run(["compile", "--plan", ep(planFile), "--reference", ep(ref), "--out", ep(out)], compileTimeoutMs, signal);
         if (r.exit !== 0) return planFailure(r, "compile", "/references");
         const report = parseStdoutObject(r.stdout, "compile");
         let text: string;

@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { serve } from "@hono/node-server";
 import { createPublicClient, getAddress, http, type PublicClient } from "viem";
 import { createApp } from "./app.ts";
+import { TASK_DRAIN_MS } from "./tasks.ts";
 import { openDb } from "./db.ts";
 import { createIndexer } from "./indexer.ts";
 import { assertChainEngine, createApiArcChain, type ApiChain } from "./chain.ts";
@@ -160,7 +161,7 @@ const rateLimit = principalLimit === undefined && ipLimit === undefined
       expensivePerPrincipal: principalLimit === undefined ? 0 : Number(principalLimit),
       expensivePerIp: ipLimit === undefined ? 0 : Number(ipLimit),
     };
-const { app, close, reconcileTasks, pumpTasks } = createApp({
+const { app, close, reconcileTasks, pumpTasks, drainTasks } = createApp({
   dbPath,
   buyerToken,
   engine,
@@ -219,10 +220,17 @@ const server = serve({ fetch: app.fetch, port, ...(hostname ? { hostname } : {})
   console.log(`[api] open claim: ${openClaim ? `Arc chain ${openClaim.chainId}` : "off"}`);
 });
 
+let stopping = false;
 function shutdown(): void {
+  if (stopping) return;
+  stopping = true;
   clearInterval(taskTimer);
   if (indexTimer) clearInterval(indexTimer);
-  server.close(() => {
+  const drained = drainTasks(TASK_DRAIN_MS);
+  const closed = new Promise<void>((resolve) => {
+    server.close(() => resolve());
+  });
+  void Promise.all([drained, closed]).finally(() => {
     close();
     if (indexDb?.isOpen) indexDb.close();
     process.exit(0);

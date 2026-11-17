@@ -57,6 +57,11 @@ export interface CreatedApp {
   reconcileTasks: () => void;
   /** Runs queued work up to one compile and two drafts. Does not start a timer. */
   pumpTasks: () => Promise<void>;
+  /**
+   * Stops new claims, cancels owned compiler groups, and reconciles running work.
+   * A compile returns to queued. A dispatched draft stays uncertain. The bound defaults to 2000 ms.
+   */
+  drainTasks: (boundMs?: number) => Promise<void>;
 }
 
 export function createApp(opts: CreateAppOptions): CreatedApp {
@@ -145,5 +150,6 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     },
     reconcileTasks: tasks.reconcileTasks,
     pumpTasks: tasks.pumpTasks,
+    drainTasks: tasks.drainTasks,
   };
 }
