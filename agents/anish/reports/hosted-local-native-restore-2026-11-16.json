@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "status": "passed-local-native-task",
+  "publicHosted": false,
+  "grokApiCalled": false,
+  "chainTransactionSent": false,
+  "jobId": "01M7KNZZ4JQTH5Y3G0EXGWR0ZJ",
+  "taskId": "01M7KNZZ4RD1RFRX15DK3AWATC",
+  "attempt": 1,
+  "revisionHash": "0xb1f3d6335f2a73ef7364757f0399c4a46672995fe6220c5af7aada4a3a6db3f7",
+  "manifest": {
+    "imageId": "0x57eb5af820f9f227023577d40efc83ef67d7dc7628f35611df2efa019298d62d",
+    "rulesHash": "0x9d80733e84535cb38cc0190be30cf6438f6e2fbdbff9d7228336ae7f3e4b3457",
+    "referenceHash": "0x49a43354a7e390a36a5d0f3281e4fe32e7b2be0052b46c970dfe32de09ce07dd",
+    "structureHash": "0x5a474b90a9150289128216f73e7bcbee037c3b02ce424180532af972e7bcc021",
+    "buildFingerprint": "16bf1a013d2cf6d01a4655ad4a7a61d6d8cb309167252875c0c40d5b91dca570",
+    "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+    "guestSha256": "0xef15de0025a6abcf553e6d79ba19acdf7c5c07bacee0c0ff6ea62f9c88219eb8",
+    "inputVersion": 2,
+    "parametersSha256": "0x23af6774c21d9b6e4da9368d199405210c0f7663defebc9ca005dd75f8021a38",
+    "riscZero": "3.1.0",
+    "structureSha256": "0x5b70ae9d27b284436e6993b7c4f9fb0df951385209554aee5108316410bc469f",
+    "version": 1
+  },
+  "exactReplayTask": "01M7KNZZ4RD1RFRX15DK3AWATC",
+  "dedupTask": "01M7KNZZ4RD1RFRX15DK3AWATC",
+  "guestSha256": "ef15de0025a6abcf553e6d79ba19acdf7c5c07bacee0c0ff6ea62f9c88219eb8",
+  "restartAndRestore": {
+    "status": "passed",
+    "snapshotManifestSha256": "e34d4e85982e110435a809e41ec930258e1d913a40b37f7af4530890aa4b560b",
+    "originalStatePreserved": true,
+    "restoredAtSameLogicalPath": true,
+    "taskState": "succeeded",
+    "taskAttempt": 1,
+    "dedupTask": "01M7KNZZ4RD1RFRX15DK3AWATC",
+    "guestSha256": "ef15de0025a6abcf553e6d79ba19acdf7c5c07bacee0c0ff6ea62f9c88219eb8",
+    "crossWalletTaskDenied": true,
+    "newKeysRevoked": true
+  },
+  "runtimeSource": "4996016",
+  "scope": "Local relocated bundle, native engine, restored state. No public host, model call or chain transaction."
+}

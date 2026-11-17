@@ -1,0 +1,55 @@
+{
+  "status": "confirmed-context-lock",
+  "modelCalled": false,
+  "results": [
+    {
+      "id": "seal-1",
+      "original": {
+        "verdict": 1
+      },
+      "equivalentPlanValid": true,
+      "equivalentPlan": {
+        "code": "invalid_deliverable",
+        "message": "Rules hash differs from the funded context"
+      },
+      "exit": 2
+    },
+    {
+      "id": "crate-1",
+      "original": {
+        "verdict": 1
+      },
+      "equivalentPlanValid": true,
+      "equivalentPlan": {
+        "code": "invalid_deliverable",
+        "message": "Rules hash differs from the funded context"
+      },
+      "exit": 2
+    },
+    {
+      "id": "transfer-1",
+      "original": {
+        "verdict": 1
+      },
+      "equivalentPlanValid": true,
+      "equivalentPlan": {
+        "code": "invalid_deliverable",
+        "message": "Rules hash differs from the funded context"
+      },
+      "exit": 2
+    },
+    {
+      "id": "dual-seal-1",
+      "original": {
+        "verdict": 1
+      },
+      "equivalentPlanValid": true,
+      "equivalentPlan": {
+        "code": "invalid_deliverable",
+        "message": "Rules hash differs from the funded context"
+      },
+      "exit": 2
+    }
+  ],
+  "description": "A semantically equivalent plan with a literal true rule passes engine validate but cannot use signed preview fixtures bound to the original rules hash. No guest or signature check was bypassed."
+}

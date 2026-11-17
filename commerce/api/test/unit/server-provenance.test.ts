@@ -200,14 +200,14 @@ describe("public engine startup pin", () => {
     }
   });
 
-  it("exits before openDb when the env model id is not advertised by the model object", async () => {
+  it("exits before openDb when the configured model is not reviewed", async () => {
     const pin = await publicPin();
     try {
       stubPublic(pin);
       vi.stubEnv("ENGINE_SHA256", pin.sha256);
       vi.stubEnv("AUTHORING_REQUIRED", "1");
       vi.stubEnv("XAI_API_KEY", "synthetic-ready-secret-value");
-      vi.stubEnv("XAI_MODEL", "grok-4.20-0309-non-reasoning");
+      vi.stubEnv("XAI_MODEL", "grok-4.7");
       vi.stubEnv("AUTHORING_REQUEST_CEILING_MICRO_USD", "2540960");
       vi.stubEnv("AUTHORING_DAILY_CEILING_MICRO_USD", "2540960");
       vi.stubEnv("AUTHORING_INPUT_MICRO_USD_PER_MILLION", "2500000");

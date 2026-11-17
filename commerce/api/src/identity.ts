@@ -100,7 +100,7 @@ export function registerIdentityRoutes(app: Hono<AppEnv>, deps: Deps, newId: () 
     "INSERT INTO auth_challenges (id, wallet, nonce, message, action, origin, expires_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
   );
   const selectChallenge = deps.db.prepare(
-    "SELECT id, wallet, message, expires_at, consumed_at FROM auth_challenges WHERE id = ?",
+    "SELECT id, wallet, message, action, origin, expires_at, consumed_at FROM auth_challenges WHERE id = ?",
   );
   const consumeChallenge = deps.db.prepare(
     "UPDATE auth_challenges SET consumed_at = ? WHERE id = ? AND consumed_at IS NULL AND expires_at > ?",
@@ -145,9 +145,10 @@ export function registerIdentityRoutes(app: Hono<AppEnv>, deps: Deps, newId: () 
     if (typeof body.challengeId !== "string" || body.challengeId === "") throw validation("required string", "/challengeId");
     if (typeof body.signature !== "string" || !SIG_RE.test(body.signature)) throw validation("malformed signature", "/signature");
     const row = selectChallenge.get(body.challengeId) as
-      | { id: string; wallet: string; message: string; expires_at: number; consumed_at: string | null }
+      | { id: string; wallet: string; message: string; action: string; origin: string; expires_at: number; consumed_at: string | null }
       | undefined;
-    if (!row || row.consumed_at || row.expires_at <= deps.now()) throw unauthorized("Challenge is invalid");
+    if (!row || row.consumed_at || row.expires_at <= deps.now() ||
+        row.origin !== deps.deployment.serviceOrigin || row.action !== ACTION) throw unauthorized("Challenge is invalid");
     let valid = false;
     try {
       valid = await verifyMessage({

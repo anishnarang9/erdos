@@ -602,7 +602,7 @@ describe("6. drafts: examples labelled by engine.eval", () => {
     });
     const r = await api.post("/v1/drafts", DRAFT);
     expect(r.status, r.text).toBe(200);
-    expect(r.body.examples[0]).toMatchObject({ checkerVerdict: null, agrees: null, checkerError: "Engine eval timed out" });
+    expect(r.body.examples[0]).toMatchObject({ checkerVerdict: null, agrees: null, checkerError: "Engine example check failed" });
 
     const { eval: _e, ...noEval } = fake();
     const api2 = mk({ engine: noEval as Engine, draftModel: model(PLAN, [{ name: "a", files: [], predictedVerdict: 1 }]) });

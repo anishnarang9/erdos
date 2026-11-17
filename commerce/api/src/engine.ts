@@ -354,8 +354,7 @@ function spawnEngine(
   return new Promise((resolve, reject) => {
     let stdout = "";
     let stderr = "";
-    const stdoutDecoder = new StringDecoder("utf8");
-    const stderrDecoder = new StringDecoder("utf8");
+    const stdoutDecoder = new StringDecoder("utf8"), stderrDecoder = new StringDecoder("utf8");
     let used = 0;
     let settled = false;
     let timedOut = false;

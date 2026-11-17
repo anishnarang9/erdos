@@ -1,0 +1,107 @@
+{
+  "status": "passed-installed-linux-signed-checks",
+  "sourceCommit": "9eb89f7e8dc58650e9d17b0f9078fd4815734327",
+  "tarSha256": "124c3fe6e00fef621aaad02858fc16136a0c7cd6794cebe5e303fdecedd262ad",
+  "releaseManifestSha256": "14a091b31930a34cf51d4117be48694e400b4e9c79ec64122e5f249c3db51df4",
+  "engineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+  "node": "v24.22.3",
+  "platform": "linux",
+  "architecture": "x64",
+  "emulatedOn": "arm64 macOS Docker Desktop",
+  "checks": 12,
+  "proofs": 0,
+  "chainTransactions": 0,
+  "realModelCalls": 0,
+  "rows": [
+    {
+      "id": "seal-1",
+      "candidate": "valid",
+      "expected": "pass",
+      "exit": 0,
+      "verdict": 1
+    },
+    {
+      "id": "seal-1",
+      "candidate": "low-seal",
+      "expected": "fail",
+      "exit": 0,
+      "verdict": 0
+    },
+    {
+      "id": "seal-1",
+      "candidate": "invalid-signature",
+      "expected": "reject",
+      "exit": 1,
+      "status": "check-rejected",
+      "reason": "invalid_deliverable"
+    },
+    {
+      "id": "crate-1",
+      "candidate": "valid",
+      "expected": "pass",
+      "exit": 0,
+      "verdict": 1
+    },
+    {
+      "id": "crate-1",
+      "candidate": "low-seal",
+      "expected": "fail",
+      "exit": 0,
+      "verdict": 0
+    },
+    {
+      "id": "crate-1",
+      "candidate": "invalid-signature",
+      "expected": "reject",
+      "exit": 1,
+      "status": "check-rejected",
+      "reason": "invalid_deliverable"
+    },
+    {
+      "id": "transfer-1",
+      "candidate": "valid",
+      "expected": "pass",
+      "exit": 0,
+      "verdict": 1
+    },
+    {
+      "id": "transfer-1",
+      "candidate": "low-seal",
+      "expected": "fail",
+      "exit": 0,
+      "verdict": 0
+    },
+    {
+      "id": "transfer-1",
+      "candidate": "invalid-signature",
+      "expected": "reject",
+      "exit": 1,
+      "status": "check-rejected",
+      "reason": "invalid_deliverable"
+    },
+    {
+      "id": "dual-seal-1",
+      "candidate": "valid",
+      "expected": "pass",
+      "exit": 0,
+      "verdict": 1
+    },
+    {
+      "id": "dual-seal-1",
+      "candidate": "low-seal",
+      "expected": "fail",
+      "exit": 0,
+      "verdict": 0
+    },
+    {
+      "id": "dual-seal-1",
+      "candidate": "invalid-signature",
+      "expected": "reject",
+      "exit": 1,
+      "status": "check-rejected",
+      "reason": "invalid_deliverable"
+    }
+  ],
+  "runtimeImage": "sha256:f1da5dd1427fcd6d328cbcc47c9492285e614fdfdf424b39aa5acde1fde61cc2",
+  "scope": "Fresh independent installed package, actual native Linux engine under amd64 emulation on arm64 macOS. Read-only root, non-root, no network, no Docker socket or wallet/API credentials. Not hosted/Grok/funded acceptance."
+}

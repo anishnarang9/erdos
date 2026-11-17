@@ -7,6 +7,9 @@ import type { Handler } from "hono";
 import canonicalize from "canonicalize";
 import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
+import { assessCoverage } from "./coverage.ts";
+import { withinDraftDeadline, registerDraftDeadline } from "./draft-deadline.ts";
+import { appendExampleCheck, exampleCheckView } from "./example-checks.ts";
 import { tx } from "./db.ts";
 import { isoAt, readBody, parseJson, requireJobId, type AppEnv, type Deps } from "./context.ts";
 import { expensiveGuard } from "./limits.ts";
@@ -17,6 +20,7 @@ import { DRAFT_MAX_COMPLETION_TOKENS, DRAFT_TIMEOUT_MS, ModelError, draftCallTok
 import { authoringCharge, maxCallMicroUsd, noteDraftDispatch, noteDraftUsage, usageComplete } from "./tasks.ts";
 import { parseManifest, EngineError, isCliCompileResult, type Manifest } from "./engine.ts";
 import { artifactBinding, requireRealArtifact } from "./artifact.ts";
+import { parseExampleFixtures, resolveExample, exampleFiles, usableExamples, exampleReviewInputs, type ExampleFixture, type ExampleLabel } from "./authoring-examples.ts";
 import {
   assertDraftOwner,
   engineFailure,
@@ -49,7 +53,7 @@ export const ENGINE_CATALOG: Record<string, unknown> = contractFile("capabilitie
 /** At most this many model examples are run through `engine eval` per draft. */
 export const MAX_EVAL_EXAMPLES = 8;
 
-const DRAFT_KEYS = ["request", "outputs", "references", "clarifications", "expirySeconds", "maxBudget"];
+const DRAFT_KEYS = ["request", "outputs", "references", "clarifications", "expirySeconds", "maxBudget", "exampleFixtures"];
 const MAX_REQUEST_CHARS = 8000;
 const CATALOG_VERSION = createHash("sha256").update(canonicalize(ENGINE_CATALOG) ?? "", "utf8").digest("hex");
 
@@ -86,6 +90,7 @@ export function registerAuthoringRoutes(ctx: RouteContext): ReturnType<typeof au
     await next();
   };
   app.post("/v1/drafts", readBody, buyer, parseJson, rejectPublicSync, expensive, idem.middleware, h.draft);
+  app.post("/v1/drafts/:draftId/example-checks", readBody, buyer, parseJson, expensive, idem.middleware, h.checkExamples);
   app.post("/v1/jobs/:id/revisions", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, h.revise);
   app.post("/v1/jobs/:id/compile", readBody, buyer, parseJson, requireJobId, owned, rejectPublicSync, expensive, idem.middleware, h.compile);
   // Public: the package and reference files are the job's public commitments, which any solver needs.
@@ -99,6 +104,7 @@ interface DraftBody {
   request: string;
   outputs: DraftOutput[];
   references: BundleFile[];
+  exampleFixtures: ExampleFixture[];
   clarifications: { question: string; answer: string }[];
   expirySeconds: number;
   maxBudget: string;
@@ -158,11 +164,13 @@ function parseDraftBody(body: unknown): DraftBody {
       });
     }
   }
+  const exampleFixtures = parseExampleFixtures(body.exampleFixtures);
   if (errors.length > 0 || !probe.ok) throw invalid(errors);
   return {
     request: request as string,
     outputs: probe.revision.outputs,
     references,
+    exampleFixtures,
     clarifications,
     expirySeconds: probe.revision.expirySeconds,
     maxBudget: probe.revision.maxBudget,
@@ -173,10 +181,10 @@ function modelFailure(reason: string, billing?: Record<string, unknown>): ApiErr
   return new ApiError("model_failed", "The draft model failed", billing ? { reason, billing } : { reason });
 }
 
-/** Documented `max_tokens` cap when the adapter publishes one. Otherwise the service maximum, which is not a provider guarantee. */
+/** Reviewed total billable-token cap. Otherwise the service maximum is only a local estimate. */
 function outputLimit(model: DraftModel): { reliable: boolean; maxTokens: number } {
   const bound = model.outputTokenBound;
-  if (bound?.parameter === "max_tokens" && Number.isSafeInteger(bound.maxTokens) && bound.maxTokens > 0) {
+  if ((bound?.parameter === "max_tokens" || bound?.parameter === "max_completion_tokens") && Number.isSafeInteger(bound.maxTokens) && bound.maxTokens > 0) {
     return { reliable: true, maxTokens: Math.min(bound.maxTokens, DRAFT_MAX_COMPLETION_TOKENS) };
   }
   return { reliable: false, maxTokens: DRAFT_MAX_COMPLETION_TOKENS };
@@ -184,12 +192,16 @@ function outputLimit(model: DraftModel): { reliable: boolean; maxTokens: number 
 
 /** True when the serialized provider payload plus the supported completion maximum fits the ceiling. */
 function supportedCallFits(
+  model: DraftModel,
   input: DraftModelInput,
   completionTokens: number,
   ceiling: number,
   budget: NonNullable<Deps["budget"]>,
 ): boolean {
-  const cost = maxCallMicroUsd(draftCallTokenBound(input, completionTokens), completionTokens, budget);
+  const provider = model.providerCostBound;
+  if (provider && (budget.inputMicroUsdPerMillion < provider.inputMicroUsdPerMillion || budget.outputMicroUsdPerMillion < provider.outputMicroUsdPerMillion)) return false;
+  const promptTokens = Math.max(draftCallTokenBound(input, completionTokens), provider?.maxPromptTokens ?? 0);
+  const cost = maxCallMicroUsd(promptTokens, completionTokens, budget);
   return cost !== null && cost <= ceiling;
 }
 
@@ -218,6 +230,13 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
   const openHalt = deps.db.prepare("SELECT id FROM spend_halts WHERE resolved_at IS NULL LIMIT 1");
 
   const draft: Handler<AppEnv> = async (c) => {
+    const deadline = new AbortController();
+    const timer = setTimeout(() => deadline.abort(), DRAFT_TIMEOUT_MS);
+    timer.unref?.();
+    const signal = deadline.signal;
+    const unregister = registerDraftDeadline(deps, deadline);
+    let terminalMetadata: (() => Record<string, unknown>) | undefined;
+    const execute = async () => {
     const model = deps.draftModel;
     const owner = ownerWallet(c);
     if (!model) throw new ApiError("model_unavailable", "No draft model configured");
@@ -228,28 +247,42 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     const body = parseDraftBody(c.get("json"));
     const requestJson = JSON.stringify(c.get("json"));
     const draftId = newId();
-    const referenceFiles: { name: string; text: string }[] = [];
-    const refErrors: FieldError[] = [];
-    body.references.forEach((file, index) => {
-      try {
-        referenceFiles.push({ name: file.name, text: referenceText(file.content) });
-      } catch {
-        refErrors.push({ path: `/references/${index}`, message: "file is not UTF-8 text" });
+    const referenceFiles: NonNullable<DraftModelInput["referenceFiles"]> = body.references.map(file => {
+      try { return { name: file.name, text: referenceText(file.content) }; }
+      catch {
+        return { name: file.name, encoding: "base64" as const, contentBase64: Buffer.from(file.content).toString("base64"),
+          byteLength: file.content.byteLength, sha256: createHash("sha256").update(file.content).digest("hex") };
       }
     });
-    if (refErrors.length > 0) throw invalid(refErrors);
+    const textReferences = referenceFiles.filter((file): file is { name: string; text: string } => "text" in file);
     const baseInput: DraftModelInput = {
       request: body.request,
       outputs: body.outputs,
       referenceNames: body.references.map((file) => file.name),
       referenceFiles,
+      ...(body.exampleFixtures.length ? { exampleFixtures: body.exampleFixtures } : {}),
       clarifications: body.clarifications,
       schema: PLAN_SCHEMA,
       catalog: ENGINE_CATALOG,
     };
     const taskId = c.get("taskId") ?? "";
     const started = deps.now();
-    const attempts: { reply: DraftModelResult; result: ModelDraft }[] = [];
+    const attempts: { reply: DraftModelResult; result: ModelDraft; failureReason?: string }[] = [];
+    const attemptViews = () => attempts.map(item => ({ kind: item.failureReason ? "model_failed" : item.result.kind, model: item.reply.model || null, traceId: item.reply.traceId || null, usage: item.reply.usage ?? null, ...(item.failureReason ? { reason: item.failureReason } : {}) }));
+    terminalMetadata = () => {
+      const last = attempts.at(-1)?.reply;
+      return { qualification: {
+        model: last?.model || null, promptVersion: draftPromptVersion(), catalogVersion: CATALOG_VERSION,
+        latencyMs: Math.max(0, deps.now() - started), repairCount: Math.max(0, attempts.length - 1),
+        traceId: last?.traceId || null, traceIds: attempts.map(item => item.reply.traceId).filter(Boolean),
+        usage: attempts.map(item => item.reply.usage ?? null),
+      }, attempts: attemptViews() };
+    };
+    const failedAttempt = (err: unknown) => {
+      const failure = err instanceof ModelError ? err : new ModelError("error");
+      const result: ModelDraft = { kind: "unsupported", reason: "model_failed" };
+      return { result, failureReason: failure.reason, reply: { result, model: failure.model ?? "", traceId: failure.traceId ?? "", ...(failure.usage ? { usage: failure.usage } : {}) } };
+    };
 
     const persistUsage = (): void => {
       if (taskId === "" || !deps.budget) return;
@@ -257,9 +290,16 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     };
     const callModel = async (input: DraftModelInput): Promise<{ reply: DraftModelResult; result: ModelDraft }> => {
       if (taskId !== "" && deps.budget) noteDraftDispatch(deps.db, taskId, isoAt(deps.now()));
-      const reply = await model.draft(input);
-      if (typeof reply?.model !== "string" || typeof reply.traceId !== "string") throw new ModelError("invalid_reply");
-      return { reply: { ...reply, result: parseModelDraft(reply.result) }, result: parseModelDraft(reply.result) };
+      signal.throwIfAborted();
+      const reply = await withinDraftDeadline(model.draft({ ...input, signal }), signal);
+      try {
+        if (typeof reply?.model !== "string" || typeof reply.traceId !== "string") throw new ModelError("invalid_reply");
+        const result = parseModelDraft(reply.result);
+        return { reply: { ...reply, result }, result };
+      } catch (err) {
+        if (err instanceof ModelError) { err.model = typeof reply?.model === "string" ? reply.model : undefined; err.traceId = typeof reply?.traceId === "string" ? reply.traceId : undefined; err.usage = reply?.usage; }
+        throw err;
+      }
     };
     const chargedUsage = (err: unknown): ModelUsage | undefined => {
       if (!(err instanceof ModelError) || !err.usage || !usageComplete(err.usage)) return undefined;
@@ -268,9 +308,10 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     const failCall = (err: unknown): never => {
       const reason = err instanceof ModelError ? err.reason : "error";
       const usage = chargedUsage(err);
+      attempts.push(failedAttempt(err));
       const at = isoAt(deps.now());
       tx(deps.db, () => {
-        insertDraft.run(draftId, requestJson, JSON.stringify({ error: { code: "model_failed", reason } }), null, null, null, at, owner);
+        insertDraft.run(draftId, requestJson, JSON.stringify({ error: { code: "model_failed", reason }, ...terminalMetadata?.() }), null, null, null, at, owner);
         if (usage && taskId !== "" && deps.budget) noteDraftUsage(deps.db, taskId, JSON.stringify([usage]), at);
       });
       const billing = usage && deps.budget ? chargeBilling(usage, deps.budget) : undefined;
@@ -284,7 +325,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       if (deps.deployment.mode === "public" && !limit.reliable) {
         throw new ApiError("model_unavailable", "Authoring output is not bounded");
       }
-      if (!supportedCallFits(baseInput, limit.maxTokens, deps.budget.requestCeilingMicroUsd, deps.budget)) {
+      if (!supportedCallFits(model, baseInput, limit.maxTokens, deps.budget.requestCeilingMicroUsd, deps.budget)) {
         throw new ApiError("model_unavailable", "Authoring budget cannot fund a model call");
       }
       firstInput = { ...baseInput, maxCompletionTokens: limit.maxTokens };
@@ -328,7 +369,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       }
       let verdict: Awaited<ReturnType<Deps["engine"]["validate"]>>;
       try {
-        verdict = await deps.engine.validate(result.plan);
+        verdict = await withinDraftDeadline(deps.engine.validate(result.plan, { signal }), signal);
       } catch (err) {
         engineFailure(err);
       }
@@ -359,8 +400,11 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
           feedback: { attempt: 1, reason: "file_errors", errors: fileErrors, counterexamples: [] },
         };
       }
-      const examples = await labelExamples(result, body.references);
-      const counts = exampleCounts(result.examples);
+      const quoteVerification = result.sourceQuotes.map(item => ({ ...item, found: quoteFound(item.path, item.quote, body.request, textReferences) }));
+      const rules = isPlainObject(result.plan) && Array.isArray(result.plan.rules) ? result.plan.rules.length : 0;
+      const coverage = assessCoverage(rules, result.coverage, quoteVerification);
+      const examples = await labelExamples(result, body.references, body.exampleFixtures, signal);
+      const counts = usableExamples(examples);
       const revision: Revision = {
         plan: result.plan,
         referenceDigest: referenceDigestOf(body.references),
@@ -379,14 +423,23 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
           : null,
         preview: verdict.preview ?? null,
         examples,
+        exampleInputs: exampleReviewInputs(result.examples, body.exampleFixtures),
+        exampleApprovalReady: counts.positive > 0 && counts.negative > 0 && !counts.blocked,
         sourceQuotes: result.sourceQuotes,
+        quoteVerification,
+        coverage,
         model: reply.model,
         traceId: reply.traceId,
       };
-      if (counts.positive > 0 && counts.negative > 0) return { attempt, response, hash, fatal: false };
+      if (counts.positive > 0 && counts.negative > 0 && !counts.blocked) {
+        if (!coverage.ruleCoverageComplete && (result.coverage !== undefined || deps.deployment.mode === "public")) {
+          return { attempt, response, hash, fatal: false, feedback: { attempt: 1, reason: "coverage", errors: coverage.omissions.map(message => ({ path: "/coverage", message })), counterexamples: [] } };
+        }
+        return { attempt, response, hash, fatal: false };
+      }
       const errors: FieldError[] = [];
-      if (counts.positive === 0) errors.push({ path: "/examples", message: "A positive example is required" });
-      if (counts.negative === 0) errors.push({ path: "/examples", message: "A negative example is required" });
+      if (counts.positive === 0) errors.push({ path: "/examples", message: "An engine-checked passing example is required" });
+      if (counts.negative === 0) errors.push({ path: "/examples", message: "An engine-checked verdict-0 example is required" });
       const counterexamples = examples.flatMap((item) => {
         const name = item.name;
         const predicted = item.predictedVerdict;
@@ -420,7 +473,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       const charge = authoringCharge(usage, deps.budget);
       if (!charge || charge.microUsd > deps.budget.requestCeilingMicroUsd) return false;
       const remaining = deps.budget.requestCeilingMicroUsd - charge.microUsd;
-      return supportedCallFits({ ...baseInput, repair: feedback }, limit.maxTokens, remaining, deps.budget);
+      return supportedCallFits(model, { ...baseInput, repair: feedback }, limit.maxTokens, remaining, deps.budget);
     };
     const canRepair = chosen.feedback !== undefined && usageComplete(first.reply.usage) && deps.now() - started < DRAFT_TIMEOUT_MS && repairFits(chosen.feedback);
     if (chosen.fatal && !canRepair) throw modelFailure("plan_not_hashable");
@@ -437,13 +490,10 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         chosen = await assess(second);
       } catch (err) {
         const usage = chargedUsage(err);
-        if (usage) {
-          attempts.push({
-            reply: { result: { kind: "unsupported", reason: "model_failed" }, model: "", traceId: "", usage },
-            result: { kind: "unsupported", reason: "model_failed" },
-          });
-          persistUsage();
-        } else repairUnpriced = true;
+        attempts.push(failedAttempt(err));
+        persistUsage();
+        if (signal.aborted) throw new ModelError("timeout");
+        if (!usage) repairUnpriced = true;
       }
     }
     if (chosen.fatal) throw modelFailure("plan_not_hashable");
@@ -475,68 +525,102 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       };
     }
     if (response.kind === "draft" && result.kind === "draft") {
-      const quoteVerification = result.sourceQuotes.map((item) => ({
-        path: item.path,
-        quote: item.quote,
-        found: quoteFound(item.path, item.quote, body.request, referenceFiles),
-      }));
+      const quoteVerification = result.sourceQuotes.map(item => ({ ...item, found: quoteFound(item.path, item.quote, body.request, textReferences) }));
       const rules = isPlainObject(result.plan) && Array.isArray(result.plan.rules) ? result.plan.rules.length : 0;
+      const coverage = assessCoverage(rules, result.coverage, quoteVerification);
       const counts = exampleCounts(result.examples);
-      const omissions: string[] = [];
+      const evaluated = response.examples as ExampleLabel[];
+      const usable = usableExamples(evaluated);
+      const omissions: string[] = [...coverage.omissions];
       if (quoteVerification.some((item) => !item.found)) omissions.push("A source quote was not found in the supplied text.");
       if (counts.positive === 0) omissions.push("No positive example is present.");
       if (counts.negative === 0) omissions.push("No negative example is present.");
       if (rules === 0) omissions.push("The plan has no rules.");
+      if (usable.positive === 0) omissions.push("No engine-checked passing example is present.");
+      if (usable.negative === 0) omissions.push("No engine-checked verdict-0 example is present.");
+      if (usable.blocked) omissions.push("An example is rejected, unevaluated or disagrees with its predicted verdict.");
       response = {
         ...response,
         quoteVerification,
         coverage: {
-          ruleCount: rules,
+          ...coverage,
           positiveExamples: counts.positive,
           negativeExamples: counts.negative,
+          usablePositiveExamples: usable.positive,
+          usableNegativeExamples: usable.negative,
           omissions,
-          assumptions: rules > 0 ? ["The service does not map each rule to one requirement."] : [],
+
         },
-        qualification: {
-          model: reply.model,
-          promptVersion: draftPromptVersion(),
-          catalogVersion: CATALOG_VERSION,
-          latencyMs: Math.max(0, deps.now() - started),
-          repairCount: repairAttempted ? 1 : Math.max(0, attempts.length - 1),
-          usage: attempts.map((item) => item.reply.usage ?? null),
-        },
+
       };
     }
+    response = {
+      ...response,
+      qualification: {
+        model: reply.model, promptVersion: draftPromptVersion(), catalogVersion: CATALOG_VERSION,
+        latencyMs: Math.max(0, deps.now() - started), repairCount: repairAttempted ? 1 : Math.max(0, attempts.length - 1),
+        traceId: reply.traceId, traceIds: attempts.map(item => item.reply.traceId).filter(id => id.length > 0),
+        usage: attempts.map(item => item.reply.usage ?? null),
+      },
+      attempts: attemptViews(),
+    };
     const at = isoAt(deps.now());
+    const initialCheckId = owner && response.kind === "draft" && chosen.hash ? newId() : null;
+    if (initialCheckId) response = { ...response, exampleCheckId: initialCheckId };
     const stored = JSON.stringify({
       response,
       modelResult: result,
       attempts: attempts.map((item) => ({ result: item.result, model: item.reply.model, traceId: item.reply.traceId, usage: item.reply.usage ?? null })),
     });
+    signal.throwIfAborted();
     return commit(c, 200, response, () => {
       insertDraft.run(draftId, requestJson, stored, reply.model, reply.traceId, chosen.hash, at, owner);
+      if (initialCheckId && owner && chosen.hash && result.kind === "draft") {
+        const view = exampleCheckView(initialCheckId, draftId, chosen.hash, response.examples as ExampleLabel[], at);
+        // Preserve the exact selected fixtures and generated examples, including rejected selections.
+        const fixtures = result.examples.map(example => {
+          try { return resolveExample(example, body.exampleFixtures); }
+          catch { return { rejectedSelection: example }; }
+        });
+        appendExampleCheck(deps.db, { id: initialCheckId, draftId, revisionHash: chosen.hash, owner, origin: "initial", fixtures, result: view, createdAt: at });
+      }
     });
+    };
+    try { return await execute(); }
+    catch (err) {
+      const metadata = terminalMetadata?.();
+      if (signal.aborted || (err instanceof ModelError && err.reason === "timeout")) throw new ApiError("model_failed", "The draft model failed", { reason: "timeout", ...metadata });
+      if (err instanceof ApiError && metadata) throw new ApiError(err.code, err.message, { ...err.details, ...metadata });
+      if (metadata) throw new ApiError("internal", "Internal server error", metadata);
+      throw err;
+    } finally { clearTimeout(timer); unregister(); }
   };
 
   /**
    * Labels the model's examples with the checker (`engine eval`), never with the model. An example whose
    * files the engine cannot read gets checkerVerdict null and the engine's message.
    */
-  const labelExamples = async (result: Extract<ModelDraft, { kind: "draft" }>, references: BundleFile[]) => {
-    const out: Record<string, unknown>[] = [];
+  const labelExamples = async (result: Extract<ModelDraft, { kind: "draft" }>, references: BundleFile[], fixtures: ExampleFixture[] = [], signal?: AbortSignal) => {
+    const out: ExampleLabel[] = [];
     for (const [i, e] of result.examples.entries()) {
       const base = { name: e.name, predictedVerdict: e.predictedVerdict };
       if (!deps.engine.eval || i >= MAX_EVAL_EXAMPLES) {
         out.push({ ...base, checkerVerdict: null, agrees: null });
         continue;
       }
-      const deliverables = e.files.map((f) => ({ name: f.name, content: new Uint8Array(Buffer.from(f.content, "utf8")) }));
       let r: Awaited<ReturnType<NonNullable<Deps["engine"]["eval"]>>>;
       try {
-        r = await deps.engine.eval({ plan: result.plan, deliverables, reference: references });
+        signal?.throwIfAborted();
+        const resolved = resolveExample(e, fixtures);
+        const input = { plan: result.plan, ...(signal ? { signal } : {}), deliverables: exampleFiles(resolved.files, 16_384, "/examples/files"), reference: references,
+          ...(resolved.evidence ? { evidence: exampleFiles(resolved.evidence, 32_768, "/examples/evidence") } : {}),
+          ...(resolved.context ? { context: resolved.context } : {}) };
+        const work = deps.engine.eval(input);
+        r = signal ? await withinDraftDeadline(work, signal) : await work;
       } catch (err) {
-        if (err instanceof EngineError) {
-          out.push({ ...base, checkerVerdict: null, agrees: null, checkerError: err.message });
+        if (signal?.aborted) throw new ModelError("timeout");
+        if (err instanceof EngineError || err instanceof ApiError) {
+          out.push({ ...base, checkerVerdict: null, agrees: null, checkerError: err instanceof ApiError ? "Invalid example input" : "Engine example check failed" });
           continue;
         }
         throw err;
@@ -548,6 +632,43 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       }
     }
     return out;
+  };
+
+  /** Buyer witnesses qualify the exact immutable draft. They never replace the original authoring result. */
+  const checkExamples: Handler<AppEnv> = async c => {
+    const owner = ownerWallet(c), draftId = c.req.param("draftId") ?? "";
+    const row = deps.db.prepare("SELECT owner_wallet,revision_hash,request_json,result_json FROM drafts WHERE id = ?").get(draftId) as
+      { owner_wallet: string | null; revision_hash: string | null; request_json: string; result_json: string } | undefined;
+    if (!owner || !row || row.owner_wallet !== owner) throw new ApiError("not_found", "Draft not found");
+    const body = c.get("json");
+    if (!isPlainObject(body) || Object.keys(body).some(key => !["draftId", "revisionHash", "examples"].includes(key))) throw invalid([{ path: "", message: "expected draftId, revisionHash and examples" }]);
+    if (body.draftId !== draftId || typeof body.revisionHash !== "string" || body.revisionHash !== row.revision_hash || normalizeIfMatch(c.req.header("if-match") ?? "") !== row.revision_hash) {
+      throw new ApiError("revision_conflict", "Example checks must match the exact draft revision");
+    }
+    const fixtures = parseExampleFixtures(body.examples, "/examples");
+    if (fixtures.length === 0) throw invalid([{ path: "/examples", message: "at least one complete example is required" }]);
+    const stored: unknown = JSON.parse(row.result_json), request: unknown = JSON.parse(row.request_json);
+    if (!isPlainObject(stored) || !isPlainObject(stored.response) || stored.response.kind !== "draft" || !isPlainObject(request)) throw new ApiError("approval_required", "Draft has no checker revision");
+    const shape = validateRevisionShape(stored.response.revision);
+    const refs = validateReferences(request.references ?? []);
+    if (!shape.ok || !refs.ok || revisionHash(shape.revision) !== row.revision_hash || referenceDigestOf(refs.files) !== shape.revision.referenceDigest) throw new ApiError("revision_conflict", "Stored draft bindings are invalid");
+    const controller = new AbortController(), timer = setTimeout(() => controller.abort(), DRAFT_TIMEOUT_MS);
+    timer.unref?.();
+    const unregister = registerDraftDeadline(deps, controller);
+    try {
+      const examples = await labelExamples({ kind: "draft", plan: shape.revision.plan, examples: fixtures, sourceQuotes: [] }, refs.files, [], controller.signal);
+      controller.signal.throwIfAborted();
+      const id = newId(), at = isoAt(deps.now()), view = exampleCheckView(id, draftId, row.revision_hash!, examples, at);
+      return commit(c, 201, view, () => appendExampleCheck(deps.db, { id, draftId, revisionHash: row.revision_hash!, owner, origin: "buyer", fixtures, result: view, createdAt: at }));
+    } catch (err) {
+      if (controller.signal.aborted || (err instanceof ModelError && err.reason === "timeout")) {
+        const id = newId(), at = isoAt(deps.now());
+        const examples = fixtures.map(example => ({ name: example.name, predictedVerdict: example.predictedVerdict, checkerVerdict: null, agrees: null, checkerError: "Example checks timed out" }));
+        const view = { ...exampleCheckView(id, draftId, row.revision_hash!, examples, at), failure: { reason: "timeout" } };
+        return commit(c, 201, view, () => appendExampleCheck(deps.db, { id, draftId, revisionHash: row.revision_hash!, owner, origin: "buyer", fixtures, result: view, createdAt: at }));
+      }
+      throw err;
+    } finally { clearTimeout(timer); unregister(); }
   };
 
   /** POST /v1/jobs/:id/revisions (§4) */
@@ -768,5 +889,5 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     });
   };
 
-  return { draft, revise, compile, compileGate, packageListing, packageFile, references };
+  return { draft, checkExamples, revise, compile, compileGate, packageListing, packageFile, references };
 }

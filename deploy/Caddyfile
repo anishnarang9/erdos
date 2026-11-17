@@ -1,0 +1,32 @@
+{
+	log default {
+		format filter {
+			wrap json
+			fields {
+				request delete
+			}
+		}
+	}
+	admin off
+	email {$UBC26_TLS_EMAIL}
+}
+{$UBC26_HOSTNAME} {
+	encode zstd gzip
+	request_body {
+		max_size 1MB
+	}
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		-Server
+	}
+	reverse_proxy api:8080 {
+		health_uri /readyz
+		health_interval 5s
+		health_timeout 3s
+		health_status 2xx
+		health_fails 1
+		health_passes 1
+	}
+}

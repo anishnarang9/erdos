@@ -1,0 +1,952 @@
+// Domain oracle. It reads file bytes and challenge.spec. It does not evaluate plan.rules.
+import {createHash, createPublicKey, verify} from 'node:crypto';
+import {readFile, readdir} from 'node:fs/promises';
+import {join} from 'node:path';
+
+const sha = (bytes) => `0x${createHash('sha256').update(bytes).digest('hex')}`;
+const decoder = new TextDecoder('utf-8', {fatal: true});
+const minimum = -(1n << 63n);
+const maximum = (1n << 63n) - 1n;
+
+class Rejected extends Error {
+  constructor(requirement, message) {
+    super(message);
+    this.requirement = requirement;
+  }
+}
+
+const reject = (requirement, message) => {
+  throw new Rejected(requirement, message);
+};
+
+function integer(value) {
+  if (typeof value !== 'string' || !/^(?:0|-?[1-9][0-9]*)$/.test(value)) {
+    reject('input-types', 'Expected a normalized decimal i64 string');
+  }
+  const number = BigInt(value);
+  if (number < minimum || number > maximum) reject('input-types', 'Integer exceeds i64 range');
+  return number;
+}
+
+function scalar(value, type) {
+  if (type === 'i64') return integer(value);
+  if (type === 'bool') {
+    if (typeof value !== 'boolean') reject('input-types', 'Expected a Boolean');
+    return value;
+  }
+  if (typeof value !== 'string') reject('input-types', 'Expected a string');
+  return value;
+}
+
+function strictParse(bytes) {
+  let text;
+  try {
+    text = decoder.decode(bytes);
+  } catch {
+    reject('input-types', 'Expected UTF-8 JSON');
+  }
+  let index = 0;
+  let depth = 0;
+  const fail = () => reject('input-types', 'Expected strict JSON');
+  const skip = () => {
+    while (text[index] === ' ' || text[index] === '\n' || text[index] === '\r' || text[index] === '\t') index += 1;
+  };
+  const hexUnit = () => {
+    const hex = text.slice(index, index + 4);
+    if (!/^[0-9a-fA-F]{4}$/.test(hex)) fail();
+    index += 4;
+    return Number.parseInt(hex, 16);
+  };
+  const parseString = () => {
+    if (text[index] !== '"') fail();
+    index += 1;
+    let value = '';
+    while (index < text.length) {
+      const char = text[index];
+      index += 1;
+      if (char === '"') return value;
+      if (char === '\\') {
+        const next = text[index];
+        index += 1;
+        if (next === '"' || next === '\\' || next === '/') value += next;
+        else if (next === 'b') value += '\b';
+        else if (next === 'f') value += '\f';
+        else if (next === 'n') value += '\n';
+        else if (next === 'r') value += '\r';
+        else if (next === 't') value += '\t';
+        else if (next === 'u') {
+          const unit = hexUnit();
+          if (unit >= 0xD800 && unit <= 0xDBFF) {
+            if (text[index] !== '\\' || text[index + 1] !== 'u') reject('input-types', 'Lone UTF-16 surrogate');
+            index += 2;
+            const low = hexUnit();
+            if (low < 0xDC00 || low > 0xDFFF) reject('input-types', 'Lone UTF-16 surrogate');
+            value += String.fromCharCode(unit, low);
+          } else if (unit >= 0xDC00 && unit <= 0xDFFF) {
+            reject('input-types', 'Lone UTF-16 surrogate');
+          } else value += String.fromCharCode(unit);
+        } else fail();
+      } else if (char >= '\u0000' && char <= '\u001f') fail();
+      else value += char;
+    }
+    fail();
+  };
+  const parseNumber = () => {
+    const start = index;
+    if (text[index] === '-') index += 1;
+    if (text[index] === '0') index += 1;
+    else if (text[index] >= '1' && text[index] <= '9') {
+      while (text[index] >= '0' && text[index] <= '9') index += 1;
+    } else fail();
+    if (text[index] === '.') {
+      index += 1;
+      if (!(text[index] >= '0' && text[index] <= '9')) fail();
+      while (text[index] >= '0' && text[index] <= '9') index += 1;
+    }
+    if (text[index] === 'e' || text[index] === 'E') {
+      index += 1;
+      if (text[index] === '+' || text[index] === '-') index += 1;
+      if (!(text[index] >= '0' && text[index] <= '9')) fail();
+      while (text[index] >= '0' && text[index] <= '9') index += 1;
+    }
+    const number = Number(text.slice(start, index));
+    if (!Number.isFinite(number)) reject('input-types', 'Expected a finite JSON number');
+    return number;
+  };
+  const parseValue = () => {
+    depth += 1;
+    if (depth > 32) reject('input-types', 'JSON nesting exceeds 32');
+    try {
+      return parseOne();
+    } finally {
+      depth -= 1;
+    }
+  };
+  const parseOne = () => {
+    skip();
+    const char = text[index];
+    if (char === '{') return parseObject();
+    if (char === '[') return parseArray();
+    if (char === '"') return parseString();
+    if (text.startsWith('true', index)) {
+      index += 4;
+      return true;
+    }
+    if (text.startsWith('false', index)) {
+      index += 5;
+      return false;
+    }
+    if (text.startsWith('null', index)) {
+      index += 4;
+      return null;
+    }
+    if (char === '-' || (char >= '0' && char <= '9')) return parseNumber();
+    fail();
+  };
+  const parseObject = () => {
+    index += 1;
+    skip();
+    const object = Object.create(null);
+    if (text[index] === '}') {
+      index += 1;
+      return object;
+    }
+    while (index < text.length) {
+      skip();
+      const key = parseString();
+      if (Object.hasOwn(object, key)) reject('duplicate-key', `Duplicate object key ${key}`);
+      skip();
+      if (text[index] !== ':') fail();
+      index += 1;
+      const member = parseValue();
+      Object.defineProperty(object, key, {value: member, enumerable: true, writable: true, configurable: true});
+      skip();
+      if (text[index] === ',') {
+        index += 1;
+        continue;
+      }
+      if (text[index] === '}') {
+        index += 1;
+        return object;
+      }
+      fail();
+    }
+    fail();
+  };
+  const parseArray = () => {
+    index += 1;
+    skip();
+    const values = [];
+    if (text[index] === ']') {
+      index += 1;
+      return values;
+    }
+    while (index < text.length) {
+      values.push(parseValue());
+      skip();
+      if (text[index] === ',') {
+        index += 1;
+        continue;
+      }
+      if (text[index] === ']') {
+        index += 1;
+        return values;
+      }
+      fail();
+    }
+    fail();
+  };
+  const value = parseValue();
+  skip();
+  if (index !== text.length) fail();
+  return value;
+}
+
+function checkDepth(value, depth = 1) {
+  if (depth > 32) reject('input-types', 'JSON nesting exceeds 32');
+  if (Array.isArray(value)) {
+    if (value.length > 256) reject('input-types', 'Array exceeds 256 items');
+    for (const child of value) checkDepth(child, depth + 1);
+  } else if (value && typeof value === 'object') {
+    for (const child of Object.values(value)) checkDepth(child, depth + 1);
+  }
+}
+
+function parseFile(declaration, bytes) {
+  if (declaration.parser === 'opaque/v1') return bytes;
+  if (declaration.parser === 'text/v1') {
+    try {
+      return decoder.decode(bytes);
+    } catch {
+      reject('input-types', 'Expected UTF-8 text');
+    }
+  }
+  const value = strictParse(bytes);
+  checkDepth(value);
+  if (!value || Array.isArray(value) || typeof value !== 'object') reject('input-types', 'Expected a JSON object');
+  const parsed = {};
+  for (const field of declaration.fields ?? []) {
+    if (!Object.hasOwn(value, field.name)) reject('input-types', `Missing ${field.name}`);
+    parsed[field.name] = scalar(value[field.name], field.type);
+  }
+  for (const collection of declaration.collections ?? []) {
+    const rows = value[collection.name];
+    if (!Array.isArray(rows) || rows.length > 256) reject('input-types', 'Expected at most 256 records');
+    parsed[collection.name] = rows.map((row) => {
+      if (!row || Array.isArray(row) || typeof row !== 'object') reject('input-types', 'Expected a record');
+      return Object.fromEntries(collection.fields.map((field) => {
+        if (!Object.hasOwn(row, field.name)) reject('input-types', `Missing ${field.name}`);
+        return [field.name, scalar(row[field.name], field.type)];
+      }));
+    });
+  }
+  return parsed;
+}
+
+async function readDeclared(directory, declarations, maxBytes) {
+  let names;
+  try {
+    names = await readdir(directory);
+  } catch {
+    reject('file-set', 'The candidate directory is missing');
+  }
+  if (names.length !== declarations.length || declarations.some((item) => !names.includes(item.name))) {
+    reject('file-set', 'The actual files differ from the declared file set');
+  }
+  const values = {};
+  const raw = {};
+  let size = 3;
+  for (const declaration of declarations) {
+    const bytes = await readFile(join(directory, declaration.name));
+    size += 6 + Buffer.byteLength(declaration.name) + bytes.length;
+    if (size > maxBytes) reject('input-types', 'Bundle exceeds its byte limit');
+    raw[declaration.name] = bytes;
+    values[declaration.name] = parseFile(declaration, bytes);
+  }
+  return {values, raw};
+}
+
+function keyed(rows, key) {
+  const map = new Map();
+  for (const row of rows) {
+    if (map.has(row[key])) reject('reference-membership', 'Reference keys must be unique');
+    map.set(row[key], row);
+  }
+  return map;
+}
+
+function member(map, key) {
+  const found = map.get(key);
+  if (!found) reject('reference-membership', 'Candidate key has no reference row');
+  return found;
+}
+
+const distinct = (rows, key) => new Set(rows.map((row) => row[key])).size === rows.length;
+const violations = (pairs) => pairs.filter(([, ok]) => !ok).map(([id]) => id);
+
+function checked(op, left, right) {
+  const value = op === 'add' ? left + right : op === 'sub' ? left - right : left * right;
+  if (value < minimum || value > maximum) reject('arithmetic-overflow', 'Arithmetic exceeds i64');
+  return value;
+}
+
+function checkedSum(values) {
+  return values.reduce((total, value) => checked('add', total, value), 0n);
+}
+
+function drawerVariance(delivery, reference) {
+  const rows = delivery.values['drawers.json'].rows;
+  const floats = keyed(reference.values['floats.json'].rows, 'drawerId');
+  const matched = rows.map((row) => checked('sub', checked('add', row.sealedCents, row.countedCents), member(floats, row.drawerId).expectedCents) === 0n);
+  return violations([
+    ['unique-drawer', distinct(rows, 'drawerId')],
+    ['drawer-count', rows.length === floats.size],
+    ['variance', matched.every(Boolean)],
+  ]);
+}
+
+function tenderSplit(delivery, reference) {
+  const cash = delivery.values['cash.json'].rows;
+  const checks = delivery.values['checks.json'].rows;
+  const total = checked('add', checkedSum(cash.map((row) => row.amountCents)), checkedSum(checks.map((row) => row.amountCents)));
+  return violations([
+    ['unique-cash', distinct(cash, 'slipId')],
+    ['unique-check', distinct(checks, 'slipId')],
+    ['tender-total', total === reference.values['settlement.json'].totalCents],
+  ]);
+}
+
+function voyageFee(delivery, spec) {
+  const fee = delivery.values['fee.json'];
+  return violations([
+    ['fee-identity', checked('sub', fee.tenderCents, fee.settledCents) === fee.feeCents],
+    ['nonnegative-fee', fee.feeCents >= 0n],
+    ['receipt-text', delivery.values['receipt.txt'] === spec.text],
+  ]);
+}
+
+function lotRange(delivery, reference) {
+  const rows = delivery.values['vials.json'].rows;
+  const lots = keyed(reference.values['lots.json'].rows, 'lotId');
+  const paired = rows.map((row) => ({row, lot: member(lots, row.lotId)}));
+  return violations([
+    ['unique-lot', distinct(rows, 'lotId')],
+    ['floor', paired.every(({row, lot}) => row.vials >= lot.floor)],
+    ['ceiling', paired.every(({row, lot}) => row.vials <= lot.ceiling)],
+    ['cold-chain', paired.every(({row, lot}) => row.coldOk === lot.cold)],
+    ['capacity', checkedSum(rows.map((row) => row.vials)) <= reference.values['capacity.json'].capacity],
+  ]);
+}
+
+function lotExpiry(delivery, reference) {
+  const rows = delivery.values['expiry.json'].rows;
+  const lots = keyed(reference.values['lots.json'].rows, 'lotId');
+  const paired = rows.map((row) => ({row, lot: member(lots, row.lotId)}));
+  return violations([
+    ['unique-lot', distinct(rows, 'lotId')],
+    ['lot-count', rows.length === reference.values['lots.json'].rows.length],
+    ['expiry', paired.every(({row, lot}) => row.expiryDay <= lot.maxDay)],
+  ]);
+}
+
+function lotSites(delivery, reference) {
+  const north = delivery.values['north.json'].rows;
+  const south = delivery.values['south.json'].rows;
+  const total = checked('add', checkedSum(north.map((row) => row.vials)), checkedSum(south.map((row) => row.vials)));
+  return violations([
+    ['unique-north', distinct(north, 'lotId')],
+    ['unique-south', distinct(south, 'lotId')],
+    ['site-total', total === checkedSum(reference.values['catalog.json'].rows.map((row) => row.total))],
+  ]);
+}
+
+function lotSensor(delivery, reference) {
+  const rows = delivery.values['readings.json'].rows;
+  const sensors = keyed(reference.values['sensors.json'].rows, 'sensorId');
+  const paired = rows.map((row) => ({row, sensor: member(sensors, row.sensorId)}));
+  return violations([
+    ['unique-sensor', distinct(rows, 'sensorId')],
+    ['low', paired.every(({row, sensor}) => row.celsius >= sensor.low)],
+    ['high', paired.every(({row, sensor}) => row.celsius <= sensor.high)],
+  ]);
+}
+
+function categoryCap(delivery, reference) {
+  const rows = delivery.values['lines.json'].rows;
+  const categories = keyed(reference.values['categories.json'].rows, 'category');
+  const paired = rows.map((row) => ({row, cap: member(categories, row.category)}));
+  return violations([
+    ['unique-line', distinct(rows, 'lineId')],
+    ['item-cap', paired.every(({row, cap}) => row.spentCents <= cap.capCents)],
+    ['total-cap', checkedSum(rows.map((row) => row.spentCents)) <= reference.values['budget.json'].totalCents],
+  ]);
+}
+
+function indirectRate(delivery, reference, spec) {
+  const project = delivery.values['project.json'];
+  const allowed = checked('mul', project.directCents, reference.values['rate.json'].rateBps);
+  const claimed = checked('mul', project.indirectCents, BigInt(spec.scale));
+  return violations([
+    ['indirect-rate', claimed <= allowed],
+    ['memo-text', delivery.values['memo.txt'] === spec.text],
+  ]);
+}
+
+function crewGear(delivery, reference) {
+  const people = delivery.values['personnel.json'].rows;
+  const gear = delivery.values['equipment.json'].rows;
+  const total = checked('add', checkedSum(people.map((row) => row.cents)), checkedSum(gear.map((row) => row.cents)));
+  return violations([
+    ['unique-person', distinct(people, 'personId')],
+    ['unique-gear', distinct(gear, 'gearId')],
+    ['crew-total', total <= reference.values['budget.json'].totalCents],
+  ]);
+}
+
+function coverNote(delivery, spec) {
+  const rows = delivery.values['lines.json'].rows;
+  return violations([
+    ['unique-line', distinct(rows, 'lineId')],
+    ['cover-total', checkedSum(rows.map((row) => row.spentCents)) <= BigInt(spec.totalCents)],
+    ['cover-text', delivery.values['cover.txt'] === spec.text],
+  ]);
+}
+
+function withMembers(rows, table, key) {
+  return rows.map((row) => ({row, found: member(table, row[key])}));
+}
+
+function badgeZone(delivery, reference) {
+  const rows = delivery.values['scans.json'].rows;
+  const badges = keyed(reference.values['badges.json'].rows, 'badgeId');
+  const window = reference.values['window.json'];
+  const paired = withMembers(rows, badges, 'badgeId');
+  return violations([
+    ['unique-badge', distinct(rows, 'badgeId')],
+    ['zone-match', paired.every(({row, found}) => row.zone === found.zone)],
+    ['entry-window', paired.every(({row}) => row.minute >= window.minMinute && row.minute <= window.maxMinute)],
+  ]);
+}
+
+function clearanceLevel(delivery, reference) {
+  const rows = delivery.values['grants.json'].rows;
+  const posts = keyed(reference.values['posts.json'].rows, 'postId');
+  const paired = withMembers(rows, posts, 'postId');
+  return violations([
+    ['unique-post', distinct(rows, 'postId')],
+    ['post-count', rows.length === reference.values['posts.json'].rows.length],
+    ['clearance', paired.every(({row, found}) => row.level >= found.required)],
+  ]);
+}
+
+function queueCap(delivery, reference) {
+  const rows = delivery.values['tickets.json'].rows;
+  const desks = keyed(reference.values['desks.json'].rows, 'deskId');
+  const paired = withMembers(rows, desks, 'deskId');
+  return violations([
+    ['unique-ticket', distinct(rows, 'ticketId')],
+    ['queue-cap', BigInt(rows.length) <= reference.values['queue.json'].cap],
+    ['desk-open', paired.every(({found}) => found.open === true)],
+  ]);
+}
+
+function purposeAllow(delivery, reference) {
+  const rows = delivery.values['visits.json'].rows;
+  const purposes = keyed(reference.values['purposes.json'].rows, 'purpose');
+  const paired = withMembers(rows, purposes, 'purpose');
+  return violations([
+    ['unique-visit', distinct(rows, 'visitId')],
+    ['purpose-allowed', paired.every(({found}) => found.allowed === true)],
+  ]);
+}
+
+function programRows(delivery, reference) {
+  const rows = delivery.values['blocks.json'].rows;
+  const programs = keyed(reference.values['programs.json'].rows, 'programId');
+  return {rows, programs, paired: withMembers(rows, programs, 'programId')};
+}
+
+const inNights = (rows) => rows.every((row) => row.night >= 1n && row.night <= 2n);
+const hasNight = (rows, night) => rows.some((row) => row.night === night);
+
+function nightCover(delivery, reference) {
+  const {rows, programs} = programRows(delivery, reference);
+  return violations([
+    ['unique-program', distinct(rows, 'programId')],
+    ['program-count', rows.length === programs.size],
+    ['night-domain', inNights(rows)],
+    ['cover-night-1', hasNight(rows, 1n)],
+    ['cover-night-2', hasNight(rows, 2n)],
+  ]);
+}
+
+function instrumentMatch(delivery, reference) {
+  const {rows, programs, paired} = programRows(delivery, reference);
+  return violations([
+    ['unique-program', distinct(rows, 'programId')],
+    ['program-count', rows.length === programs.size],
+    ['night-domain', inNights(rows)],
+    ['instrument', paired.every(({row, found}) => row.instrument === found.instrument)],
+  ]);
+}
+
+function usableNight(delivery, reference) {
+  const {rows, paired} = programRows(delivery, reference);
+  return violations([
+    ['unique-program', distinct(rows, 'programId')],
+    ['night-domain', inNights(rows)],
+    ['usable', paired.every(({found}) => found.usable === true)],
+    ['cover-night-1', hasNight(rows, 1n)],
+    ['cover-night-2', hasNight(rows, 2n)],
+  ]);
+}
+
+function programBudget(delivery, reference) {
+  const {rows, paired} = programRows(delivery, reference);
+  const cost = checkedSum(paired.map(({found}) => found.costCents));
+  return violations([
+    ['unique-program', distinct(rows, 'programId')],
+    ['night-domain', inNights(rows)],
+    ['cover-night-1', hasNight(rows, 1n)],
+    ['cover-night-2', hasNight(rows, 2n)],
+    ['program-cost', cost <= reference.values['budget.json'].totalCents],
+  ]);
+}
+
+function berthRows(delivery, reference) {
+  const rows = delivery.values['allocations.json'].rows;
+  const vessels = keyed(reference.values['vessels.json'].rows, 'vesselId');
+  const berths = keyed(reference.values['berths.json'].rows, 'berthId');
+  const paired = rows.map((row) => ({
+    row,
+    vessel: member(vessels, row.vesselId),
+    berth: member(berths, row.berthId),
+  }));
+  return {rows, vessels, paired};
+}
+
+function berthShared(rows, vessels) {
+  return [
+    ['unique-vessel', distinct(rows, 'vesselId')],
+    ['unique-berth', distinct(rows, 'berthId')],
+    ['vessel-count', rows.length === vessels.size],
+  ];
+}
+
+function berthFit(delivery, reference) {
+  const {rows, vessels, paired} = berthRows(delivery, reference);
+  return violations([
+    ...berthShared(rows, vessels),
+    ['fit', paired.every(({vessel, berth}) => vessel.length <= berth.length)],
+  ]);
+}
+
+function berthFee(delivery, reference) {
+  const {rows, vessels, paired} = berthRows(delivery, reference);
+  return violations([
+    ...berthShared(rows, vessels),
+    ['fee-cap', checkedSum(paired.map(({berth}) => berth.fee)) <= reference.values['budget.json'].capCents],
+  ]);
+}
+
+function berthOpen(delivery, reference) {
+  const {rows, vessels, paired} = berthRows(delivery, reference);
+  return violations([
+    ...berthShared(rows, vessels),
+    ['berth-open', paired.every(({berth}) => berth.open === true)],
+  ]);
+}
+
+function berthChoice(delivery, reference) {
+  const {rows, vessels, paired} = berthRows(delivery, reference);
+  return violations([
+    ...berthShared(rows, vessels),
+    ['fit', paired.every(({vessel, berth}) => vessel.length <= berth.length)],
+    ['fee-cap', checkedSum(paired.map(({berth}) => berth.fee)) <= reference.values['budget.json'].capCents],
+  ]);
+}
+
+function parseAuthenticated(bytes) {
+  try {
+    return strictParse(bytes);
+  } catch (error) {
+    if (error instanceof Rejected) reject('signature', error.message);
+    throw error;
+  }
+}
+
+function decodeHex(value) {
+  if (typeof value !== 'string' || !/^0x(?:[0-9a-fA-F]{2})+$/.test(value)) reject('signature', 'Expected hex');
+  return Buffer.from(value.slice(2), 'hex');
+}
+
+async function authenticateEvidence(challenge, candidateDirectory, delivery, contextHex) {
+  const declarations = challenge.schema.evidence ?? [];
+  if (!/^0x01[0-9a-fA-F]{336}$/.test(contextHex ?? '')) reject('signature', 'Expected a version-1 context');
+  const directory = join(candidateDirectory, 'evidence');
+  let names;
+  try {
+    names = await readdir(directory);
+  } catch {
+    reject('signature', 'The evidence directory is missing');
+  }
+  if (names.length !== declarations.length || declarations.some((item) => !names.includes(item.name))) {
+    reject('signature', 'The evidence files differ from the declaration');
+  }
+  const payloads = {};
+  for (const declaration of declarations) {
+    const envelope = parseAuthenticated(await readFile(join(directory, declaration.name)));
+    const keys = Object.keys(envelope);
+    if (keys.length !== 2 || !Object.hasOwn(envelope, 'payload') || !Object.hasOwn(envelope, 'signature')) {
+      reject('signature', 'The evidence envelope keys differ');
+    }
+    const payloadBytes = decodeHex(envelope.payload);
+    const signature = decodeHex(envelope.signature);
+    const payload = parseAuthenticated(payloadBytes);
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) reject('signature', 'Expected a payload object');
+    const payloadText = decoder.decode(payloadBytes);
+    if (JSON.stringify(payload, Object.keys(payload).sort()) !== payloadText) reject('signature', 'Payload bytes are not canonical');
+    const signer = declaration.signer ?? challenge.plan.evidence.find((item) => item.name === declaration.name)?.signer;
+    let publicKey;
+    try {
+      publicKey = createPublicKey({
+        key: Buffer.concat([Buffer.from('302a300506032b6570032100', 'hex'), Buffer.from(String(signer).slice(2), 'hex')]),
+        format: 'der',
+        type: 'spki',
+      });
+    } catch {
+      reject('signature', 'The signer is not an Ed25519 key');
+    }
+    const message = Buffer.concat([Buffer.from('UBC26/evidence/v1'), payloadBytes]);
+    if (!verify(null, message, publicKey, signature)) reject('signature', 'The signature does not verify');
+    for (const binding of declaration.bindings ?? []) {
+      const actual = `0x${createHash('sha256').update(delivery.raw[binding.file]).digest('hex')}`;
+      if (payload[binding.field] !== actual) {
+        reject(binding.field === 'artifactHash' ? 'artifact-binding' : 'second-binding', 'The signed hash does not bind the file');
+      }
+    }
+    const contextField = declaration.contextField;
+    if (contextField) {
+      const expected = `0x${createHash('sha256').update(Buffer.from(contextHex.slice(2), 'hex')).digest('hex')}`;
+      if (payload[contextField] !== expected) reject('context-binding', 'The payload binds a different context');
+    }
+    payloads[declaration.name] = payload;
+  }
+  return payloads;
+}
+
+function custodySeal(evidence, spec) {
+  const payload = evidence['custody.json'];
+  return violations([
+    ['seal-day', integer(payload.sealDay) >= BigInt(spec.minSealDay)],
+    ['custodian', payload.custodian === spec.approvedCustodian],
+    ['released', payload.released === true],
+  ]);
+}
+
+function custodyCrate(evidence, reference, spec) {
+  const payload = evidence['custody.json'];
+  const release = reference.values['release.json'];
+  return violations([
+    ['seal-day', integer(payload.sealDay) >= release.minSealDay],
+    ['custodian', payload.custodian === spec.approvedCustodian],
+    ['crate-id', payload.crateId === release.crateId],
+  ]);
+}
+
+function custodyTransfer(evidence, spec) {
+  const payload = evidence['custody.json'];
+  return violations([
+    ['seal-day', integer(payload.sealDay) >= BigInt(spec.minSealDay)],
+    ['custodian', payload.custodian === spec.approvedCustodian],
+    ['released', payload.released === true],
+    ['quantity', integer(payload.quantity) >= 1n],
+  ]);
+}
+
+function custodyDual(evidence, spec) {
+  const payload = evidence['custody.json'];
+  return violations([
+    ['seal-day', integer(payload.sealDay) >= BigInt(spec.minSealDay)],
+    ['custodian', payload.custodian === spec.approvedCustodian],
+    ['released', payload.released === true],
+  ]);
+}
+
+const digest = (bytes) => createHash('sha256').update(bytes).digest('hex');
+
+function firmwareImage(delivery, reference, spec) {
+  const appendix = delivery.raw[spec.file].length;
+  return violations([
+    ['image-hash', digest(delivery.raw['image.bin']) === digest(reference.raw['image.bin'])],
+    ['min-size', appendix >= spec.minSize],
+    ['max-size', appendix <= spec.maxSize],
+    ['build-label', delivery.values['meta.json'].build === reference.values['channel.json'].build],
+  ]);
+}
+
+function firmwarePair(delivery, reference, spec) {
+  const slot = delivery.values['slot.json'].slot;
+  return violations([
+    ['boot-hash', digest(delivery.raw['boot.bin']) === digest(reference.raw['boot.bin'])],
+    ['app-hash', digest(delivery.raw['app.bin']) === digest(reference.raw['app.bin'])],
+    ['slot-domain', slot >= BigInt(spec.minSlot) && slot <= BigInt(spec.maxSlot)],
+  ]);
+}
+
+function firmwareNote(delivery, spec) {
+  const pad = delivery.raw[spec.file].length;
+  return violations([
+    ['note-text', delivery.values['notice.txt'] === spec.text],
+    ['min-size', pad >= spec.minSize],
+    ['max-size', pad <= spec.maxSize],
+  ]);
+}
+
+function firmwareOpaque(delivery, reference, spec) {
+  const pad = delivery.raw[spec.file].length;
+  return violations([
+    ['image-hash', digest(delivery.raw['blob.bin']) === digest(reference.raw['blob.bin'])],
+    ['min-size', pad >= spec.minSize],
+    ['max-size', pad <= spec.maxSize],
+    ['build-label', delivery.values['meta.json'].build === reference.values['channel.json'].build],
+  ]);
+}
+
+function massProduct(delivery) {
+  const row = delivery.values['product.json'];
+  return violations([
+    ['mass-identity', checked('mul', row.concentration, row.volume) === row.mass],
+  ]);
+}
+
+function yieldRatio(delivery, reference) {
+  const rows = delivery.values['yields.json'].rows;
+  const batches = keyed(reference.values['batches.json'].rows, 'batchId');
+  const paired = rows.map((row) => ({row, batch: member(batches, row.batchId)}));
+  return violations([
+    ['unique-batch', distinct(rows, 'batchId')],
+    ['batch-count', rows.length === batches.size],
+    ['mass-bound', paired.every(({row, batch}) => row.output <= batch.input)],
+    ['yield-ratio', paired.every(({row, batch}) => checked('mul', row.output, 100n) <= checked('mul', batch.input, batch.percent))],
+  ]);
+}
+
+function mixtureSplit(delivery, reference) {
+  const rows = delivery.values['parts.json'].rows;
+  const policy = reference.values['policy.json'];
+  return violations([
+    ['unique-part', distinct(rows, 'partId')],
+    ['part-cap', rows.every((row) => row.share <= policy.cap)],
+    ['part-sum', checkedSum(rows.map((row) => row.share)) === policy.total],
+  ]);
+}
+
+function dilutionLimit(delivery, reference) {
+  const rows = delivery.values['takes.json'].rows;
+  const samples = keyed(reference.values['samples.json'].rows, 'sampleId');
+  const paired = rows.map((row) => ({row, sample: member(samples, row.sampleId)}));
+  return violations([
+    ['unique-sample', distinct(rows, 'sampleId')],
+    ['sample-count', rows.length === samples.size],
+    ['dilution-limit', paired.every(({row, sample}) => checked('mul', sample.stock, row.take) <= checked('mul', sample.limit, sample.final))],
+  ]);
+}
+
+function routePairs(delivery, reference) {
+  const rows = delivery.values['hops.json'].rows;
+  const edges = keyed(reference.values['edges.json'].rows, 'edgeId');
+  const paired = rows.map((row) => ({row, edge: member(edges, row.edgeId)}));
+  return {rows, paired, limits: reference.values['limits.json'], count: BigInt(rows.length)};
+}
+
+function routeViolations(delivery, reference, extras) {
+  const {rows, paired, limits, count} = routePairs(delivery, reference);
+  const continuous = paired.every((inner) => paired.every((outer) => inner.row.seq !== checked('add', outer.row.seq, 1n)
+    || inner.edge.fromStop === outer.edge.toStop));
+  return violations([
+    ['unique-seq', distinct(rows, 'seq')],
+    ['seq-domain', paired.every(({row}) => row.seq >= 1n && row.seq <= count)],
+    ['origin', paired.every(({row, edge}) => row.seq !== 1n || edge.fromStop === limits.origin)],
+    ['destination', paired.every(({row, edge}) => row.seq !== count || edge.toStop === limits.destination)],
+    ['continuity', continuous],
+    ['hop-bounds', count >= limits.minHops && count <= limits.maxHops],
+    ...extras(paired, limits, count),
+  ]);
+}
+
+function routeDistance(delivery, reference) {
+  return routeViolations(delivery, reference, (paired, limits) => [
+    ['distance', checkedSum(paired.map(({edge}) => edge.meters)) <= limits.maxMeters],
+  ]);
+}
+
+function routeHarbor(delivery, reference) {
+  return routeViolations(delivery, reference, (paired, limits) => [
+    ['distance', checkedSum(paired.map(({edge}) => edge.meters)) <= limits.maxMeters],
+    ['edge-open', paired.every(({edge}) => edge.open === true)],
+  ]);
+}
+
+function routeWarehouse(delivery, reference) {
+  return routeViolations(delivery, reference, (paired, limits, count) => {
+    const score = checked('add', checkedSum(paired.map(({edge}) => edge.meters)), checked('mul', limits.penalty, count));
+    return [['route-score', score <= limits.cap]];
+  });
+}
+
+function drawerExact(delivery, reference, spec) {
+  const rows = delivery.values['drawers.json'].rows;
+  const floats = keyed(reference.values['floats.json'].rows, 'drawerId');
+  const matched = rows.map((row) => row.countedCents === member(floats, row.drawerId).expectedCents);
+  return violations([
+    ['unique-drawer', distinct(rows, 'drawerId')],
+    ['drawer-count', rows.length === reference.values['floats.json'].rows.length],
+    ['exact-count', matched.every(Boolean)],
+    ['closeout-text', delivery.values['closeout.txt'] === spec.text],
+  ]);
+}
+
+/** Read the candidate files and return pass, fail, or rejection. */
+export async function evaluateCandidate(challenge, candidateDirectory, {referenceDirectory, contextHex} = {}) {
+  if (challenge.classification !== 'supported') throw Error('The oracle accepts only supported challenges');
+  try {
+    const schema = challenge.schema;
+    const delivery = await readDeclared(join(candidateDirectory, 'delivery'), schema.deliverables, 16384);
+    const reference = await readDeclared(
+      referenceDirectory ?? join(candidateDirectory, '..', '..', 'reference'),
+      schema.references,
+      32768,
+    );
+    const evidence = schema.evidence?.length
+      ? await authenticateEvidence(challenge, candidateDirectory, delivery, contextHex)
+      : {};
+    let violated;
+    switch (challenge.spec.kind) {
+      case 'drawer-exact':
+        violated = drawerExact(delivery, reference, challenge.spec);
+        break;
+      case 'drawer-variance':
+        violated = drawerVariance(delivery, reference);
+        break;
+      case 'tender-split':
+        violated = tenderSplit(delivery, reference);
+        break;
+      case 'voyage-fee':
+        violated = voyageFee(delivery, challenge.spec);
+        break;
+      case 'lot-range':
+        violated = lotRange(delivery, reference);
+        break;
+      case 'lot-expiry':
+        violated = lotExpiry(delivery, reference);
+        break;
+      case 'lot-sites':
+        violated = lotSites(delivery, reference);
+        break;
+      case 'lot-sensor':
+        violated = lotSensor(delivery, reference);
+        break;
+      case 'category-cap':
+        violated = categoryCap(delivery, reference);
+        break;
+      case 'indirect-rate':
+        violated = indirectRate(delivery, reference, challenge.spec);
+        break;
+      case 'crew-gear':
+        violated = crewGear(delivery, reference);
+        break;
+      case 'cover-note':
+        violated = coverNote(delivery, challenge.spec);
+        break;
+      case 'badge-zone':
+        violated = badgeZone(delivery, reference);
+        break;
+      case 'clearance-level':
+        violated = clearanceLevel(delivery, reference);
+        break;
+      case 'queue-cap':
+        violated = queueCap(delivery, reference);
+        break;
+      case 'purpose-allow':
+        violated = purposeAllow(delivery, reference);
+        break;
+      case 'night-cover':
+        violated = nightCover(delivery, reference);
+        break;
+      case 'instrument-match':
+        violated = instrumentMatch(delivery, reference);
+        break;
+      case 'usable-night':
+        violated = usableNight(delivery, reference);
+        break;
+      case 'program-budget':
+        violated = programBudget(delivery, reference);
+        break;
+      case 'berth-fit':
+        violated = berthFit(delivery, reference);
+        break;
+      case 'berth-fee':
+        violated = berthFee(delivery, reference);
+        break;
+      case 'berth-open':
+        violated = berthOpen(delivery, reference);
+        break;
+      case 'berth-choice':
+        violated = berthChoice(delivery, reference);
+        break;
+      case 'route-campus':
+      case 'route-clinic':
+        violated = routeDistance(delivery, reference);
+        break;
+      case 'route-harbor':
+        violated = routeHarbor(delivery, reference);
+        break;
+      case 'route-warehouse':
+        violated = routeWarehouse(delivery, reference);
+        break;
+      case 'mass-product':
+        violated = massProduct(delivery);
+        break;
+      case 'yield-ratio':
+        violated = yieldRatio(delivery, reference);
+        break;
+      case 'mixture-split':
+        violated = mixtureSplit(delivery, reference);
+        break;
+      case 'dilution-limit':
+        violated = dilutionLimit(delivery, reference);
+        break;
+      case 'custody-seal':
+        violated = custodySeal(evidence, challenge.spec);
+        break;
+      case 'custody-crate':
+        violated = custodyCrate(evidence, reference, challenge.spec);
+        break;
+      case 'custody-transfer':
+        violated = custodyTransfer(evidence, challenge.spec);
+        break;
+      case 'custody-dual':
+        violated = custodyDual(evidence, challenge.spec);
+        break;
+      case 'firmware-image':
+        violated = firmwareImage(delivery, reference, challenge.spec);
+        break;
+      case 'firmware-pair':
+        violated = firmwarePair(delivery, reference, challenge.spec);
+        break;
+      case 'firmware-note':
+        violated = firmwareNote(delivery, challenge.spec);
+        break;
+      case 'firmware-opaque':
+        violated = firmwareOpaque(delivery, reference, challenge.spec);
+        break;
+      default:
+        throw Error(`No independent domain oracle for ${challenge.spec.kind}`);
+    }
+    return {status: violated.length ? 'fail' : 'pass', verdict: violated.length ? 0 : 1, violatedRequirements: violated};
+  } catch (error) {
+    if (!(error instanceof Rejected)) throw error;
+    return {status: 'reject', verdict: null, violatedRequirements: [error.requirement], reason: error.message};
+  }
+}

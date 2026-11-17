@@ -159,6 +159,7 @@ describe("graceful task drain", () => {
       release = resolve;
     });
     let calls = 0;
+    let modelSignal: AbortSignal | undefined;
     const created = createApp({
       dbPath,
       buyerToken: BUYER_TOKEN,
@@ -171,7 +172,8 @@ describe("graceful task drain", () => {
         outputMicroUsdPerMillion: 2_500_000,
       },
       draftModel: {
-        async draft() {
+        async draft(input) {
+          modelSignal = input.signal;
           calls += 1;
           await gate;
           return { result: { kind: "clarification" as const, questions: ["Which file?"] }, model: "spec", traceId: "drain" };
@@ -202,6 +204,7 @@ describe("graceful task drain", () => {
     expect(dispatched).toBe(true);
     expect(calls).toBe(1);
     await created.drainTasks(200);
+    expect(modelSignal?.aborted).toBe(true);
     await created.pumpTasks();
     expect(calls).toBe(1);
     release();

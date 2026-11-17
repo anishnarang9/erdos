@@ -90,7 +90,7 @@ function reservation(dbPath: string) {
 }
 
 describe("reference text", () => {
-  it("sends the full UTF-8 reference and rejects binary without a model call", async () => {
+  it("sends full UTF-8 references and explicit base64 for binary bytes", async () => {
     const model = fakeModel(draftReply());
     const s = makeApp56({ draftModel: model });
     const long = "x".repeat(9000);
@@ -102,10 +102,11 @@ describe("reference text", () => {
     const before = model.calls.length;
     const bad = await req(s, "POST", "/v1/drafts", { ...DRAFT_BODY, references: refsPayload([file("blob.bin", new Uint8Array([0xff, 0xfe]))]) });
     const text = await bad.text();
-    expect(bad.status, text).toBe(400);
+    expect(bad.status, text).toBe(200);
     expect(text).not.toContain("binary file");
     expect(text).not.toContain("<truncated");
-    expect(model.calls).toHaveLength(before);
+    expect(model.calls).toHaveLength(before + 1);
+    expect((model.calls.at(-1) as unknown as { referenceFiles: unknown[] }).referenceFiles[0]).toMatchObject({ name: "blob.bin", encoding: "base64", contentBase64: "//4=", byteLength: 2 });
     s.close();
   });
 
@@ -233,7 +234,7 @@ describe("dispatch billing", () => {
       draftModel: {
         async draft() {
           repairCalls += 1;
-          return { ...draftReply(repairCalls === 1 ? { version: 1 } : { version: 2 }), usage: { ...usage, costInUsdTicks: null } };
+          return { ...draftReply(repairCalls === 1 ? { version: 1 } : { version: 2 }), usage: { ...usage, reasoningTokens: 0, costInUsdTicks: null } };
         },
       },
     }, repairPath);
@@ -250,7 +251,7 @@ describe("dispatch billing", () => {
     expect(settled.usage_json).toContain("1000");
   });
 
-  it("retains the actual cost when it exceeds the ceiling", async () => {
+  it("retains the full known tariff when it exceeds the ceiling", async () => {
     const dir = mkdtempSync(join(tmpdir(), "ubc26-over-"));
     const dbPath = join(dir, "api.db");
     const created = appWith({
@@ -262,7 +263,7 @@ describe("dispatch billing", () => {
             result: { kind: "clarification" as const, questions: ["Which file?"] },
             model: "spec",
             traceId: "t",
-            usage: { promptTokens: 10_000_000, completionTokens: 0, cachedTokens: 0, reasoningTokens: null, costInUsdTicks: null },
+            usage: { promptTokens: 10_000_000, completionTokens: 0, cachedTokens: 0, reasoningTokens: 0, costInUsdTicks: null },
           };
         },
       },
@@ -416,7 +417,7 @@ describe("dispatch billing", () => {
 });
 
 describe("grok request bounds", () => {
-  it("sends max_tokens, refuses a length stop, and keeps token prices separate from ticks", async () => {
+  it("sends the visible max_completion_tokens cap and keeps token prices separate from ticks", async () => {
     const seen: { body?: Record<string, unknown>; signal?: AbortSignal } = {};
     const fetch = (async (_url: unknown, init?: RequestInit) => {
       seen.body = JSON.parse(String(init?.body)) as Record<string, unknown>;
@@ -429,6 +430,7 @@ describe("grok request bounds", () => {
           prompt_tokens: 1_000_000,
           completion_tokens: 0,
           prompt_tokens_details: { cached_tokens: 400_000 },
+          completion_tokens_details: { reasoning_tokens: 0 },
           cost_in_usd_ticks: 12345,
         },
       }), { status: 200 });
@@ -442,8 +444,8 @@ describe("grok request bounds", () => {
       schema: { type: "object" },
     };
     const out = await model.draft(grokInput);
-    expect(seen.body?.max_tokens).toBe(8192);
-    expect(seen.body?.max_completion_tokens).toBeUndefined();
+    expect(seen.body?.max_completion_tokens).toBe(8192);
+    expect(seen.body?.max_tokens).toBeUndefined();
     expect(seen.body?.presence_penalty).toBeUndefined();
     expect(seen.body?.frequency_penalty).toBeUndefined();
     expect(seen.body?.stop).toBeUndefined();

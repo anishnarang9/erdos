@@ -85,7 +85,7 @@ describe("historical spend halt backfill", () => {
       breach: number;
       usage_json: string;
     };
-    const versions = raw.prepare("SELECT version FROM schema_migrations WHERE version LIKE '016%' OR version LIKE '017%'").all();
+    const versions = raw.prepare("SELECT version FROM schema_migrations WHERE version LIKE '016%'").all();
     raw.close();
     const names = (versions as { version: string }[]).map((row) => row.version);
     expect(names).toContain("016_spend_halt_backfill.sql");

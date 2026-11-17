@@ -2,7 +2,7 @@
 
 > **For the future implementation chat:** Use the executing-plans workflow. Execute the checked work packages below. Use at most two Grok 4.7 CLI workers. The coordinator owns integration and verification.
 >
-> **Current status: PLAN ONLY.** This document does not resume the paused goal in the planning chat. Start execution only when the user asks a separate chat to implement this document.
+> **Current status: EXECUTING.** The user started this sprint in a separate implementation chat on 2026-11-16. The planning chat remains separate.
 
 **Goal:** Ship a publicly hosted open-bounty service that outside agents can use to author, fund, discover, solve, prove, settle, and recover supported work.
 
@@ -123,15 +123,15 @@ Worker B and the coordinator share the single prover slot. Never let a restarted
 
 ### Startup checklist
 
-- [ ] Read applicable `AGENTS.md`, including `agents/AGENTS.md` and `agents/current plan/AGENTS.md`.
-- [ ] Read the latest shared plan and relevant owner status from current main and owner branches.
-- [ ] Inspect existing attached worktrees, dirty files, running compilation, and prover processes.
-- [ ] Use the app's managed worktree tool for new worktrees. Use a `codex/` branch based on current reviewed main.
-- [ ] Preserve all unrelated edits, private scratch data, wallets, and existing process ownership.
-- [ ] Establish baseline commerce, engine, and contract checks using pinned repository tools.
-- [ ] Record baseline failures separately from sprint regressions.
-- [ ] Add the active sprint scope and work ownership to the shared plan and Anish's status.
-- [ ] Copy this plan into the implementation worktree's documentation and link it from the shared plan.
+- [x] Read applicable `AGENTS.md`, including `agents/AGENTS.md` and `agents/current plan/AGENTS.md`.
+- [x] Read the latest shared plan and relevant owner status from current main and owner branches.
+- [x] Inspect existing attached worktrees, dirty files, running compilation, and prover processes.
+- [x] Use the app's managed worktree tool for new worktrees. Use a `codex/` branch based on current reviewed main.
+- [x] Preserve all unrelated edits, private scratch data, wallets, and existing process ownership.
+- [x] Establish baseline commerce, engine, and contract checks using pinned repository tools.
+- [x] Record baseline failures separately from sprint regressions.
+- [x] Add the active sprint scope and work ownership to the shared plan and Anish's status.
+- [x] Copy this plan into the implementation worktree's documentation and link it from the shared plan.
 
 ### Hosting access discovery
 
@@ -160,24 +160,26 @@ For research/review, use the CLI's read-only mode and disable write, shell, and 
 
 Keep one prover active on each machine. Fast tests and model calls may run concurrently within measured resource limits.
 
+Implementation evidence as of 2026-11-16: [identity/task checks and checkpoints](../../../agents/anish/status.md), [runner installation](../../../agents/anish/reports/hosted-runner-install-2026-11-16.json), [local native restore](../../../agents/anish/reports/hosted-local-native-restore-2026-11-16.json), and [finite real-proof subset](../../../agents/anish/reports/hosted-engine-proof-subset-2026-11-16.json). Checked work-package items describe source and local verification. They do not imply the final public or live acceptance checklists passed.
+
 ## 4. Ordered work packages
 
 ### Package 1 — Public identity and ownership
 
 **Primary areas:** API authentication, database migrations, route context, idempotency, job/revision/approval/funding handlers.
 
-- [ ] Add wallet-signed, expiring, single-use authentication challenges for self-service API-key issuance.
-- [ ] Bind challenges to this service, the wallet, action, nonce, and expiry. Reject replay and wrong-domain signatures.
-- [ ] Issue high-entropy API keys once. Store only a digest, key identifier, wallet owner, creation time, revocation state, and allowed scopes.
-- [ ] Support key inspection and revocation. Never log raw keys.
-- [ ] Use the authenticated wallet as the principal for ownership and idempotency.
-- [ ] Bind each new job, draft, approval, and expensive task to its owner.
-- [ ] Require that funding terms name the authenticated buyer wallet.
-- [ ] Enforce ownership on all mutation routes, including compilation, linking, paid compilation, and revision operations.
-- [ ] Keep public discovery, committed packages, references, and chain status readable as required by the protocol.
-- [ ] Disable the shared legacy buyer token in public deployment mode.
-- [ ] Preserve old data without assigning legacy jobs to new users. Legacy ownerless records remain non-mutable through public credentials.
-- [ ] Add configurable per-principal/IP limits and a global emergency disable for expensive operations.
+- [x] Add wallet-signed, expiring, single-use authentication challenges for self-service API-key issuance.
+- [x] Bind challenges to this service, the wallet, action, nonce, and expiry. Reject replay and wrong-domain signatures.
+- [x] Issue high-entropy API keys once. Store only a digest, key identifier, wallet owner, creation time, revocation state, and allowed scopes.
+- [x] Support key inspection and revocation. Never log raw keys.
+- [x] Use the authenticated wallet as the principal for ownership and idempotency.
+- [x] Bind each new job, draft, approval, and expensive task to its owner.
+- [x] Require that funding terms name the authenticated buyer wallet.
+- [x] Enforce ownership on all mutation routes, including compilation, linking, paid compilation, and revision operations.
+- [x] Keep public discovery, committed packages, references, and chain status readable as required by the protocol.
+- [x] Disable the shared legacy buyer token in public deployment mode.
+- [x] Preserve old data without assigning legacy jobs to new users. Legacy ownerless records remain non-mutable through public credentials.
+- [x] Add configurable per-principal/IP limits and a global emergency disable for expensive operations.
 
 **Acceptance:** two independently issued keys can create separate jobs. Neither can alter, approve, compile, fund-link, revoke, or retrieve private account records belonging to the other. A revoked key stops working immediately.
 
@@ -185,13 +187,13 @@ Keep one prover active on each machine. Fast tests and model calls may run concu
 
 **Primary areas:** API task service, migrations, server configuration, checker subprocess boundary, deployment scripts.
 
-- [ ] Add durable tasks for slow authoring and compilation. New clients start a task and poll its status.
-- [ ] Persist task owner, operation, input/revision binding, state, attempt, output reference, and sanitized error.
-- [ ] Return task identifiers promptly. Do not keep a request open for an entire cold compilation.
-- [ ] Deduplicate expensive work before dispatch. Concurrent identical idempotent requests must not create duplicate model calls or builds.
-- [ ] Initially run one compiler task at a time and at most two authoring calls at a time.
-- [ ] Preserve completed outputs and distinguish queued, running, succeeded, failed, and uncertain outcomes.
-- [ ] Resume queued work after restart. Reconcile interrupted running work without blindly repeating paid requests.
+- [x] Add durable tasks for slow authoring and compilation. New clients start a task and poll its status.
+- [x] Persist task owner, operation, input/revision binding, state, attempt, output reference, and sanitized error.
+- [x] Return task identifiers promptly. Do not keep a request open for an entire cold compilation.
+- [x] Deduplicate expensive work before dispatch. Concurrent identical idempotent requests must not create duplicate model calls or builds.
+- [x] Initially run one compiler task at a time and at most two authoring calls at a time.
+- [x] Preserve completed outputs and distinguish queued, running, succeeded, failed, and uncertain outcomes.
+- [x] Resume queued work after restart. Reconcile interrupted running work without blindly repeating paid requests.
 - [ ] Keep engine invocation shell-free with bounded arguments, environment, time, output, memory, and disk use.
 - [ ] Keep compiler workers isolated from wallet secrets and API administration credentials.
 - [ ] Persist SQLite/WAL state, packages, task state, and compiler cache on durable storage.
@@ -208,23 +210,25 @@ Preserve existing library interfaces or explicit compatibility adapters where us
 
 **Primary areas:** `commerce/api/src/grok.ts`, `authoring.ts`, engine-contract copies, qualification records.
 
+Implementation controls pass local API/native checks through `4f3ae05` and subsequent metadata/drain fixes. Checked items below describe code and finite local evidence. Real hosted Grok acceptance and the cost/semantic qualification gates remain open.
+
 - [ ] Use the configured Grok API from the hosted service. Development CLI access is not a substitute for deployed API access.
-- [ ] Supply the current engine schema/catalog, full permitted reference contents, requested outputs, and clarification answers.
-- [ ] Do not silently truncate material used to draft paid requirements. Reject or request clarification when the model cannot inspect necessary input.
-- [ ] Return a draft, focused clarification, or specific unsupported-capability explanation.
-- [ ] Add a request-wide timeout, supported output-token limit, output-size bound, and finish-reason checks.
-- [ ] Validate every generated plan with the real engine.
-- [ ] Allow one automatic repair using exact validation/counterexample feedback. Keep initial and repaired attempts separate.
-- [ ] Require usable positive and negative examples. Evaluate them with the engine and preserve invalid-input versus verdict-0 distinctions.
-- [ ] Check source quotes against the supplied request/reference text.
-- [ ] Preserve requirement-to-rule coverage metadata and show omissions or unresolved assumptions before approval.
-- [ ] Keep approval explicit and bound to the current rules, structure, references, outputs, expiry policy, and budget.
-- [ ] Any material revision voids approval. Compilation must reproduce the approved commitments.
-- [ ] Give the model no wallet, spending, arbitrary shell, or contract-changing authority.
-- [ ] Record model ID, prompt/catalog version, latency, billable usage, retries, and cost.
-- [ ] Reserve spend before calls. Apply a request-wide ceiling across repairs and a configurable global daily limit.
-- [ ] Unknown pricing/usage or uncertain billing must not silently count as zero cost or trigger unlimited retries.
-- [ ] Keep API service charges separate from escrow bounties. Preserve x402's existing pending-payment and exact-replay protections.
+- [x] Supply the current engine schema/catalog, full permitted reference contents, requested outputs, and clarification answers.
+- [x] Do not silently truncate material used to draft paid requirements. Reject or request clarification when the model cannot inspect necessary input.
+- [x] Return a draft, focused clarification, or specific unsupported-capability explanation.
+- [x] Add a request-wide timeout, supported output-token limit, output-size bound, and finish-reason checks.
+- [x] Validate every generated plan with the real engine.
+- [x] Allow one automatic repair using exact validation/counterexample feedback. Keep initial and repaired attempts separate.
+- [x] Require usable positive and negative examples. Evaluate them with the engine and preserve invalid-input versus verdict-0 distinctions.
+- [x] Check source quotes against the supplied request/reference text.
+- [x] Preserve requirement-to-rule coverage metadata and show omissions or unresolved assumptions before approval.
+- [x] Keep approval explicit and bound to the current rules, structure, references, outputs, expiry policy, and budget.
+- [x] Any material revision voids approval. Compilation must reproduce the approved commitments.
+- [x] Give the model no wallet, spending, arbitrary shell, or contract-changing authority.
+- [x] Record model ID, prompt/catalog version, latency, billable usage, retries, and cost.
+- [x] Reserve spend before calls. Apply a request-wide ceiling across repairs and a configurable global daily limit.
+- [x] Unknown pricing/usage or uncertain billing must not silently count as zero cost or trigger unlimited retries.
+- [x] Keep API service charges separate from escrow bounties. Preserve x402's existing pending-payment and exact-replay protections.
 
 **Cost gate:** target mean authoring cost below $0.10, including failed attempts and repairs, across the frozen qualification corpus. Report first-pass and repaired costs separately. Proposed caps are configuration, not permission to incur charges without applicable account authority.
 
@@ -234,19 +238,19 @@ Preserve existing library interfaces or explicit compatibility adapters where us
 
 **Primary areas:** existing engine evaluation harness, independent oracles, compiler/runtime tests, real Grok harness.
 
-- [ ] Reuse the existing 10,000-case seeded suite, archived guest/proof checks, commitment mutations, and semantic controls.
-- [ ] Create a new frozen set of 60 realistic requests: 40 supported, 10 ambiguous, and 10 unsupported.
-- [ ] Spread supported requests across at least 10 task families or distinct constraint combinations.
+- [x] Reuse the existing 10,000-case seeded suite, archived guest/proof checks, commitment mutations, and semantic controls.
+- [x] Create a new frozen set of 60 realistic requests: 40 supported, 10 ambiguous, and 10 unsupported.
+- [x] Spread supported requests across at least 10 task families or distinct constraint combinations.
 - [ ] Include reconciliation, inventory, budgets, policy checks, scheduling, allocation, bounded routing feasibility, quantitative calculations, signed evidence, and file requirements.
-- [ ] Use new schemas/data/conditions. Do not merely rename historical fixtures.
-- [ ] Include tasks with multiple valid solutions. Do not reduce acceptance to a supplied expected-answer hash.
-- [ ] Write deterministic expected-result oracles independently from generated plans.
-- [ ] Give supported tasks valid outputs, isolated requirement violations, and malformed inputs.
+- [x] Use new schemas/data/conditions. Do not merely rename historical fixtures.
+- [x] Include tasks with multiple valid solutions. Do not reduce acceptance to a supplied expected-answer hash.
+- [x] Write deterministic expected-result oracles independently from generated plans.
+- [x] Give supported tasks valid outputs, isolated requirement violations, and malformed inputs.
 - [ ] Run three fresh Grok API trials per request through the actual authoring path. Do not share hidden answers or batch scratchpads.
 - [ ] Score semantic agreement, missing requirements, invented conditions, clarification facets, unsupported explanations, quote fidelity, repair count, cost, and latency.
 - [ ] Keep benchmark budget separate from public-service budget. Stop expensive dispatch if its authorized cap is exhausted.
-- [ ] Add meaningful regressions before fixing confirmed failures.
-- [ ] Exercise integer boundaries, duplicate/missing keys, malformed encodings, nesting/visit bounds, resource limits, source injection, reference changes, and commitment substitution.
+- [x] Add meaningful regressions before fixing confirmed failures.
+- [x] Exercise integer boundaries, duplicate/missing keys, malformed encodings, nesting/visit bounds, resource limits, source injection, reference changes, and commitment substitution.
 - [ ] Compare independent oracles, host evaluation, generated guest execution, and proof-backed outcomes.
 - [ ] Any new capability must update catalog/schema, compiler, guest, API contract copies, client behavior, and qualification together.
 - [ ] Add only small general capabilities needed by concrete workloads. Separate larger parser/runtime/verifier projects from this sprint.
@@ -273,24 +277,24 @@ If a gate fails, repair and rerun. Do not lower the threshold to declare success
 
 **Primary areas:** `commerce/worker/`, shared SDK, versioned API client, developer guide.
 
-- [ ] Add an installed-package workflow that does not depend on the coordinator's personal paths or private operator JSON.
-- [ ] Support authentication/key setup, job authoring/import, approval, compilation-task polling, funding preview, and confirmed funding linkage.
+- [x] Add an installed-package workflow that does not depend on the coordinator's personal paths or private operator JSON.
+- [x] Support authentication/key setup, job authoring/import, approval, compilation-task polling, funding preview, and confirmed funding linkage.
 - [ ] Support open-job discovery, pagination, exact job inspection, package download, and package/reference integrity checks.
 - [ ] Exclude expired-but-unrefunded jobs from the open feed using confirmed chain time.
-- [ ] Let a solver provide a local deliverable directory or its own solver command/adapter.
-- [ ] Keep arbitrary solver execution outside the hosted API/compiler service.
-- [ ] Provide check-only and prepare-only commands before signing.
-- [ ] Run evaluation and proving locally against the actual funded context and solver identity.
-- [ ] Preview exact contract destinations, calls, gas limits, bounty, deadlines, and allowed spending.
-- [ ] Reuse protected signing, durable send journals, nonce reservations, deployment pins, and receipt reconciliation.
-- [ ] Do not remove the current operator's protections to make a packaged runner work.
-- [ ] Replace checkout-only assumptions with verified release/binary/artifact provenance in the packaged path.
-- [ ] Observe the winner before release. Losing workers release no key.
-- [ ] Support recovery, refund, interruption, pending sends, and uncertain receipts without duplicate funding or payout.
-- [ ] Keep real release keys out of RPC simulation and gas estimation.
+- [x] Let a solver provide a local deliverable directory or its own solver command/adapter.
+- [x] Keep arbitrary solver execution outside the hosted API/compiler service.
+- [x] Provide check-only and prepare-only commands before signing.
+- [x] Run evaluation and proving locally against the actual funded context and solver identity.
+- [x] Preview exact contract destinations, calls, gas limits, bounty, deadlines, and allowed spending.
+- [x] Reuse protected signing, durable send journals, nonce reservations, deployment pins, and receipt reconciliation.
+- [x] Do not remove the current operator's protections to make a packaged runner work.
+- [x] Replace checkout-only assumptions with verified release/binary/artifact provenance in the packaged path.
+- [x] Observe the winner before release. Losing workers release no key.
+- [x] Support recovery, refund, interruption, pending sends, and uncertain receipts without duplicate funding or payout.
+- [x] Keep real release keys out of RPC simulation and gas estimation.
 - [ ] Publish checksums and supported platform/tool requirements. Validate native Linux first.
-- [ ] Supply a TypeScript example and language-independent HTTP examples.
-- [ ] Document honest hardware, timing, file-size, public-result, and unsupported-capability limits.
+- [x] Supply a TypeScript example and language-independent HTTP examples.
+- [x] Document honest hardware, timing, file-size, public-result, and unsupported-capability limits.
 
 The runner proves and settles files. It does not claim to solve arbitrary work automatically. Both humans and agents may produce the files.
 
@@ -302,13 +306,13 @@ The runner proves and settles files. It does not claim to solve arbitrary work a
 
 - [ ] Publish authentication, ownership, tasks, authoring, approval, compilation, open-bounty funding, discovery, and recovery contracts.
 - [ ] Publish representative success, pending, rejected, unsupported, expired, and error responses.
-- [ ] Expose per-job and per-solver attempt identifiers. A failed attempt does not mark the whole bounty rejected.
-- [ ] Reuse sanitized telemetry where useful. Prevent secret, plaintext, password, and filesystem-path disclosure.
-- [ ] Use one authoritative event order or explicit per-attempt cursors. Do not collide independent solver sequence numbers.
-- [ ] Define confirmed chain state as authoritative for winner, payment, expiry, and refund.
+- [x] Expose per-job and per-solver attempt identifiers. A failed attempt does not mark the whole bounty rejected.
+- [x] Reuse sanitized telemetry where useful. Prevent secret, plaintext, password, and filesystem-path disclosure.
+- [x] Use one authoritative event order or explicit per-attempt cursors. Do not collide independent solver sequence numbers.
+- [x] Define confirmed chain state as authoritative for winner, payment, expiry, and refund.
 - [ ] Document the five funding steps: create, set budget, approve, fund, register.
-- [ ] Keep demo signers and presenter-only routes disabled on the public service.
-- [ ] Do not edit or merge Neil's UI wholesale. It still needs separate open-bounty adaptation.
+- [x] Keep demo signers and presenter-only routes disabled on the public service.
+- [x] Do not edit or merge Neil's UI wholesale. It still needs separate open-bounty adaptation.
 - [ ] Publish a concise UI handoff for Neil with final endpoints, examples, backend limitations, and the exact integration SHA.
 
 **Acceptance:** Neil can implement the UI against the documented backend without another backend redesign. No UI completion is needed to close this sprint.
@@ -316,7 +320,7 @@ The runner proves and settles files. It does not claim to solve arbitrary work a
 ### Package 7 — Security, operations, and deployment
 
 - [ ] Run independent review of auth/ownership, paid inference replay, task recovery, signer boundaries, and package handling.
-- [ ] Check dependency advisories for actual reachable exposure. Fix relevant issues without uncontrolled toolchain upgrades.
+- [x] Check dependency advisories for actual reachable exposure. Fix relevant issues without uncontrolled toolchain upgrades.
 - [ ] Test concurrent identical requests and different users requesting the same expensive operation.
 - [ ] Test global/per-user quotas, malformed bodies, path traversal, symlinks, oversize artifacts, and unavailable dependencies.
 - [ ] Bind public CORS and proxy settings to the deployed hostname. Do not depend on localhost development proxies.
@@ -345,7 +349,7 @@ No hosted prover is required. The local proving machine may remain active only f
 - [ ] Preserve and exercise genuine Circle paid compilation through the deployed service, including its 402 challenge, payment, real compilation, and exact replay. Preserve payment/bounty separation.
 - [ ] Run every final CI group at the actual release SHA.
 - [ ] Publish versioned client/runner artifacts, source, setup, API contract, supported-capability matrix, reports, operational runbook, and Neil's handoff.
-- [ ] Commit and push coherent checkpoints under repository shipping rules. Preserve unrelated work.
+- [x] Commit and push coherent checkpoints under repository shipping rules. Preserve unrelated work.
 - [ ] Report exact tests, failures, skips, proof timings, costs, receipts, recovery hashes, deployment URL, and release SHA.
 
 Old wallet/spending approvals may be scoped to completed runs. Prepare a concrete preview for any new live action. Use only current applicable authority. Do not expose wallets or authorization material to workers.
