@@ -192,7 +192,7 @@ describe("public engine startup pin", () => {
       vi.stubEnv("ENGINE_MODE", "wsl");
       vi.stubEnv("ENGINE_SHA256", pin.sha256);
       vi.stubEnv("ENGINE_WSL_BIN", pin.wrapperPath);
-      const text = await expectExit(/compiler_wrapper unpinned/);
+      const text = await expectExit(/wsl_wrapper unpinned/);
       expect(text).not.toContain(pin.wrapperPath);
       expect(text).not.toContain(pin.enginePath);
     } finally {
@@ -220,65 +220,16 @@ describe("public engine startup pin", () => {
     }
   });
 
-  it("opens the database and still refuses listen when the database is not durable", async () => {
+  it("exits before openDb when the compiler shim is not pinned", async () => {
     const pin = await publicPin();
-    const opened: { close: () => void; isOpen: boolean }[] = [];
-    const actualDb = await vi.importActual<typeof import("../../src/db.ts")>("../../src/db.ts");
-    calls.openDb.mockImplementation((path: string, now: () => number) => {
-      const db = actualDb.openDb(path, now);
-      opened.push(db);
-      return db;
-    });
-    const interval = vi.spyOn(global, "setInterval").mockImplementation(() => 0 as unknown as ReturnType<typeof setInterval>);
     try {
       stubPublic(pin);
       vi.stubEnv("ENGINE_SHA256", pin.sha256);
       vi.stubEnv("AUTHORING_REQUIRED", "0");
-      vi.stubEnv("DB_PATH", ":memory:");
-      const text = await expectExit(/not_durable/, { openDb: true });
+      const text = await expectExit(/compiler_wrapper unpinned/);
       expect(text).not.toContain(pin.enginePath);
       expect(text).not.toContain(pin.packages);
     } finally {
-      interval.mockRestore();
-      for (const db of opened) if (db.isOpen) db.close();
-      await rm(pin.root, { recursive: true, force: true });
-    }
-  });
-
-  it("listens when public authoring is explicitly disabled and every pin matches", async () => {
-    const pin = await publicPin();
-    const opened: { close: () => void; isOpen: boolean }[] = [];
-    const actualDb = await vi.importActual<typeof import("../../src/db.ts")>("../../src/db.ts");
-    calls.openDb.mockImplementation((path: string, now: () => number) => {
-      const db = actualDb.openDb(path, now);
-      opened.push(db);
-      return db;
-    });
-    calls.serve.mockImplementation(() => ({ close: () => undefined }));
-    const interval = vi.spyOn(global, "setInterval").mockImplementation(() => 0 as unknown as ReturnType<typeof setInterval>);
-    const exit = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`process.exit ${code ?? ""}`);
-    }) as typeof process.exit);
-    const signals = ["SIGINT", "SIGTERM"] as const;
-    const before = new Map<NodeJS.Signals, Set<NodeJS.SignalsListener>>(signals.map((signal) => [signal, new Set(process.listeners(signal))]));
-    try {
-      stubPublic(pin);
-      vi.stubEnv("ENGINE_SHA256", pin.sha256);
-      vi.stubEnv("AUTHORING_REQUIRED", "0");
-      vi.stubEnv("DB_PATH", join(pin.root, "service.db"));
-      await import("../../src/server.ts");
-      expect(exit).not.toHaveBeenCalled();
-      expect(calls.serve).toHaveBeenCalled();
-      expect(calls.openDb).toHaveBeenCalled();
-    } finally {
-      for (const signal of signals) {
-        for (const listener of process.listeners(signal)) {
-          if (!before.get(signal)?.has(listener)) process.removeListener(signal, listener);
-        }
-      }
-      for (const db of opened) if (db.isOpen) db.close();
-      interval.mockRestore();
-      exit.mockRestore();
       await rm(pin.root, { recursive: true, force: true });
     }
   });

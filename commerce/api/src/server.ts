@@ -6,7 +6,7 @@ import { TASK_DRAIN_MS } from "./tasks.ts";
 import { migrationVersions, openDb, type Db } from "./db.ts";
 import { createIndexer } from "./indexer.ts";
 import { assertChainEngine, createApiArcChain, type ApiChain } from "./chain.ts";
-import { engineConfigFromEnv, engineFromConfig, simulatedEngine, type Engine } from "./engine.ts";
+import { COMPILER_PATH, engineConfigFromEnv, engineFromConfig, simulatedEngine, type Engine } from "./engine.ts";
 import { grokDraftModel, recordingDraftModel, replayDraftModel, type DraftModel } from "./grok.ts";
 import { httpX402Facilitator, type X402Config } from "./x402.ts";
 import { createViemOpenClaimReader } from "./open-claim-reader.ts";
@@ -14,11 +14,13 @@ import type { OpenClaimConfig } from "./open-claim.ts";
 import type { AuthoringBudget } from "./context.ts";
 import {
   blocksPublicListen,
+  createReadyCache,
   evaluateReady,
   formatReadyFailure,
   probeDatabase,
   type ProviderCostBound,
   type ReadyInput,
+  type ReadyOutputBound,
 } from "./ready.ts";
 
 // Secrets live in a gitignored .env next to where the server starts. Real environment variables win.
@@ -184,7 +186,11 @@ function modelReadyInput(model: DraftModel | undefined): ReadyInput["model"] {
   if (process.env.GROK_REPLAY_DIR) return { state: "replay" };
   if (process.env.GROK_RECORD_DIR) return { state: "recording" };
   if (!model) return { state: "absent" };
-  const advertised = model as DraftModel & { id?: string; providerCostBound?: ProviderCostBound };
+  const advertised = model as DraftModel & {
+    id?: string;
+    outputTokenBound?: ReadyOutputBound;
+    providerCostBound?: ProviderCostBound;
+  };
   return {
     state: "live",
     ...(typeof advertised.id === "string" ? { id: advertised.id } : {}),
@@ -200,17 +206,23 @@ function engineReadyInput(): ReadyInput["engine"] {
     path: config.enginePath,
     ...(process.env.ENGINE_SHA256 ? { sha256: process.env.ENGINE_SHA256 } : {}),
   };
+  const compilerWrapper = {
+    path: process.env.COMPILER_WRAPPER_PATH ?? "",
+    ...(process.env.COMPILER_WRAPPER_SHA256 ? { sha256: process.env.COMPILER_WRAPPER_SHA256 } : {}),
+  };
   if (config.mode === "wsl") {
     return {
       mode: "real",
       executable,
-      wrapper: {
+      compilerPath: COMPILER_PATH,
+      compilerWrapper,
+      wslWrapper: {
         path: config.wslBin ?? "",
         ...(process.env.ENGINE_WRAPPER_SHA256 ? { sha256: process.env.ENGINE_WRAPPER_SHA256 } : {}),
       },
     };
   }
-  return { mode: "real", executable };
+  return { mode: "real", executable, compilerPath: COMPILER_PATH, compilerWrapper };
 }
 
 const chain = chainFromEnv();
@@ -240,6 +252,13 @@ function readyInput(db?: Db): ReadyInput {
     authoring,
     origin: process.env.SERVICE_ORIGIN ?? "http://localhost",
     engine: engineReadyInput(),
+    compiler: {
+      ...(process.env.SOURCE_SHA ? { sourceSha: process.env.SOURCE_SHA } : {}),
+      ...(process.env.DOCKERFILE_FRONTEND ? { dockerfileFrontend: process.env.DOCKERFILE_FRONTEND } : {}),
+      ...(process.env.GUEST_BUILDER_IMAGE ? { guestBuilder: process.env.GUEST_BUILDER_IMAGE } : {}),
+      ...(process.env.COMPILER_READY_PATH ? { readyPath: process.env.COMPILER_READY_PATH } : {}),
+      ...(process.env.ENGINE_SHA256 ? { engineSha256: process.env.ENGINE_SHA256 } : {}),
+    },
     model: modelReadyInput(draftModel),
     ...(budget ? { budget } : {}),
     chain: chain?.mode ?? "absent",
@@ -258,6 +277,7 @@ if (budgetFailed || (deploymentMode === "public" && blocksPublicListen(configRep
   console.error(formatReadyFailure(configReport));
   process.exit(1);
 }
+let readyCache: ReturnType<typeof createReadyCache> | undefined;
 const { app, close, reconcileTasks, pumpTasks, drainTasks, checkReady } = createApp({
   dbPath,
   buyerToken,
@@ -276,7 +296,10 @@ const { app, close, reconcileTasks, pumpTasks, drainTasks, checkReady } = create
   expensiveDisabled: process.env.EXPENSIVE_OPS_DISABLED === "1",
   ...(budget ? { budget } : {}),
   ...(process.env.OPERATOR_TOKEN ? { operatorToken: process.env.OPERATOR_TOKEN } : {}),
-  ready: (deps) => evaluateReady(readyInput(deps.db)),
+  ready: (deps) => {
+    readyCache ??= createReadyCache(() => evaluateReady(readyInput(deps.db)));
+    return readyCache.current(runtime.worker, runtime.route);
+  },
 });
 const liveReport = await checkReady();
 if (deploymentMode === "public" && blocksPublicListen(liveReport)) {

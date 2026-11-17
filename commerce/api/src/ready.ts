@@ -1,11 +1,10 @@
 // Public production readiness. File checks read bytes. They do not execute the compiler or call a model.
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { mkdtemp, rm, stat, writeFile } from "node:fs/promises";
+import { lstat, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import type { AuthoringBudget } from "./context.ts";
-import type { OutputTokenBound } from "./grok.ts";
 
 /** The only live model that advertises a total output bound. Reasoning models are not in this set. */
 export const REVIEWED_MODEL_ID = "grok-4.20-0309-non-reasoning";
@@ -15,6 +14,13 @@ export const REVIEWED_INPUT_MICRO_USD_PER_MILLION = 2_500_000;
 export const REVIEWED_OUTPUT_MICRO_USD_PER_MILLION = 5_000_000;
 /** 1_000_000 input tokens at $2.50 per million plus 8192 output tokens at $5 per million. */
 export const REVIEWED_CALL_MICRO_USD = 2_540_960;
+/** Reviewed BuildKit frontend. A different pin is not this compiler image. */
+export const REVIEWED_DOCKERFILE_FRONTEND = "docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e";
+/** Reviewed RISC Zero guest builder. A different pin is not this compiler image. */
+export const REVIEWED_GUEST_BUILDER = "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb";
+/** Bounds how long a public readiness result may be reused. Draining does not wait for this. */
+export const READY_CACHE_MS = 5_000;
+const MAX_READY_BYTES = 65_536;
 
 export interface ProviderCostBound {
   maxPromptTokens: number;
@@ -49,6 +55,12 @@ export interface FilePin {
   sha256?: string;
 }
 
+/** Visible cap advertised by the live adapter. `max_tokens` remains only for the reviewed model. */
+export interface ReadyOutputBound {
+  parameter: "max_tokens" | "max_completion_tokens";
+  maxTokens: number;
+}
+
 export interface ReadyInput {
   mode: "local" | "public";
   authoring: "required" | "disabled";
@@ -56,13 +68,26 @@ export interface ReadyInput {
   engine: {
     mode?: "real" | "simulated";
     executable?: FilePin;
-    /** Present when public mode starts the compiler through a wrapper. */
-    wrapper?: FilePin;
+    /** Host `wsl.exe` when the engine mode is wsl. */
+    wslWrapper?: FilePin;
+    /** PATH the compiler child receives. The first directory must hold the wrapper. */
+    compilerPath?: string;
+    /** Docker shim selected by that PATH. An unrelated file is not a pin. */
+    compilerWrapper?: FilePin;
+  };
+  compiler?: {
+    sourceSha?: string;
+    dockerfileFrontend?: string;
+    guestBuilder?: string;
+    /** Configured compiler-ready manifest. Missing file means not warmed yet. */
+    readyPath?: string;
+    /** Engine digest the warm record must repeat. */
+    engineSha256?: string;
   };
   model: {
     state: "absent" | "replay" | "recording" | "live";
     id?: string;
-    outputTokenBound?: OutputTokenBound;
+    outputTokenBound?: ReadyOutputBound;
     providerCostBound?: ProviderCostBound;
   };
   budget?: AuthoringBudget;
@@ -226,6 +251,7 @@ export function probeDatabase(db: ProbeDb, path: string): { durable: boolean; wr
   try {
     db.exec("BEGIN IMMEDIATE");
     began = true;
+    db.exec("CREATE TABLE main.ready_write_probe (id INTEGER)");
     db.exec("ROLLBACK");
     writable = true;
   } catch {
@@ -265,7 +291,9 @@ function modelCheck(input: ReadyInput): ReadyCheck {
   }
   if (model.id !== REVIEWED_MODEL_ID) return check("model", false, "unreviewed_model", true);
   const output = model.outputTokenBound;
-  if (!output || output.parameter !== "max_tokens" || output.maxTokens !== REVIEWED_OUTPUT_TOKENS) {
+  const reviewedParameter = output?.parameter === "max_completion_tokens"
+    || (output?.parameter === "max_tokens" && model.id === REVIEWED_MODEL_ID);
+  if (!output || !reviewedParameter || output.maxTokens !== REVIEWED_OUTPUT_TOKENS) {
     return check("model", false, "output_bound_unreliable", true);
   }
   const cost = model.providerCostBound;
@@ -293,19 +321,163 @@ function databaseCheck(input: ReadyInput): ReadyCheck[] {
   return [durable, writable, migrations];
 }
 
-/** Reads pinned files and the package directory. It does not spawn a compiler or call a model. Disk quotas are not judged. */
+function sameHex(left: string | undefined, right: string | undefined): boolean {
+  return typeof left === "string" && typeof right === "string" && left.toLowerCase() === right.toLowerCase();
+}
+
+function compilerIdentity(input: ReadyInput): ReadyCheck {
+  const required = input.mode === "public" && input.engine.mode === "real";
+  const source = input.compiler?.sourceSha;
+  const frontend = input.compiler?.dockerfileFrontend;
+  const builder = input.compiler?.guestBuilder;
+  if (!source && !frontend && !builder) {
+    return required
+      ? check("compiler_identity", false, "missing", true)
+      : check("compiler_identity", true, undefined, false, "not_required");
+  }
+  const sourceOk = typeof source === "string" && /^[0-9a-fA-F]{40}$/.test(source);
+  if (!sourceOk || frontend !== REVIEWED_DOCKERFILE_FRONTEND || builder !== REVIEWED_GUEST_BUILDER) {
+    return check("compiler_identity", false, "identity_mismatch", true);
+  }
+  return check("compiler_identity", true, undefined, false);
+}
+
+function wrapperSelected(wrapperPath: string, compilerPath: string | undefined): boolean {
+  const first = compilerPath?.split(":")[0] ?? "";
+  return first.length > 0 && first === dirname(wrapperPath) && basename(wrapperPath) === "docker";
+}
+
+async function compilerWrapperCheck(input: ReadyInput): Promise<ReadyCheck> {
+  const required = input.mode === "public" && input.engine.mode === "real";
+  const pin = input.engine.compilerWrapper;
+  if (!pin?.path) {
+    return required
+      ? check("compiler_wrapper", false, "unpinned", true)
+      : check("compiler_wrapper", true, undefined, false, "not_used");
+  }
+  if (!ABSOLUTE.test(pin.path) || pin.path.includes("\0")) return check("compiler_wrapper", false, "not_absolute", true);
+  if (!wrapperSelected(pin.path, input.engine.compilerPath)) return check("compiler_wrapper", false, "not_selected", true);
+  if (!pin.sha256 || !SHA256_HEX.test(pin.sha256)) return check("compiler_wrapper", false, "unpinned", true);
+  try {
+    const info = await lstat(pin.path);
+    if (info.isSymbolicLink() || !info.isFile()) return check("compiler_wrapper", false, "unreadable", true);
+    const actual = await hashFile(pin.path);
+    if (actual.toLowerCase() !== pin.sha256.toLowerCase()) return check("compiler_wrapper", false, "digest_mismatch", true);
+    return check("compiler_wrapper", true, undefined, false);
+  } catch {
+    return check("compiler_wrapper", false, "unreadable", true);
+  }
+}
+
+async function compilerReadyCheck(input: ReadyInput): Promise<ReadyCheck> {
+  const required = input.mode === "public" && input.engine.mode === "real";
+  const path = input.compiler?.readyPath;
+  if (!path) {
+    return required
+      ? check("compiler_ready", false, "unconfigured", true)
+      : check("compiler_ready", true, undefined, false, "not_required");
+  }
+  if (!ABSOLUTE.test(path) || path.includes("\0")) return check("compiler_ready", false, "not_absolute", true);
+  let text: string;
+  try {
+    const info = await lstat(path);
+    if (info.isSymbolicLink() || !info.isFile() || info.size < 2 || info.size > MAX_READY_BYTES) {
+      return check("compiler_ready", false, "corrupt", false);
+    }
+    text = await readFile(path, "utf8");
+  } catch (err) {
+    const code = err && typeof err === "object" && "code" in err ? String(err.code) : "";
+    return check("compiler_ready", false, code === "ENOENT" ? "not_warmed" : "corrupt", false);
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text) as unknown;
+  } catch {
+    return check("compiler_ready", false, "corrupt", false);
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return check("compiler_ready", false, "corrupt", false);
+  const record = parsed as Record<string, unknown>;
+  if (record.status === "warming") return check("compiler_ready", false, "warming", false);
+  const warmed = record.version === 1
+    && record.status === "compiler-warmed"
+    && record.passingVerdict === 1
+    && record.failingVerdict === 0
+    && record.proofGenerated === false
+    && record.chainTransactionSent === false
+    && typeof record.imageId === "string"
+    && record.imageId.length > 0
+    && record.imageId.length <= 200
+    && typeof record.guestSha256 === "string"
+    && SHA256_HEX.test(record.guestSha256);
+  if (!warmed) return check("compiler_ready", false, "corrupt", false);
+  const sameSource = typeof record.sourceSha === "string" && sameHex(record.sourceSha, input.compiler?.sourceSha);
+  const sameEngine = typeof record.engineSha256 === "string" && sameHex(record.engineSha256, input.compiler?.engineSha256);
+  const sameFrontend = record.dockerfileFrontend === input.compiler?.dockerfileFrontend;
+  const sameBuilder = record.guestBuilder === input.compiler?.guestBuilder;
+  if (!sameSource || !sameEngine || !sameFrontend || !sameBuilder) {
+    return check("compiler_ready", false, "identity_mismatch", false);
+  }
+  return check("compiler_ready", true, undefined, false);
+}
+
+function withWorker(report: ReadyReport | undefined, worker: ReadyInput["worker"], requireWorker: boolean): ReadyReport {
+  const failed = worker === "draining" || (requireWorker && worker !== "running");
+  const workerCheck = failed
+    ? check("worker", false, worker === "draining" ? "draining" : "stopped", false)
+    : check("worker", true, undefined, false, worker === "running" ? undefined : "not_required");
+  if (!report) return { ready: false, authoring: "required", checks: [workerCheck] };
+  const checks = report.checks.some((item) => item.name === "worker")
+    ? report.checks.map((item) => item.name === "worker" ? workerCheck : item)
+    : [...report.checks, workerCheck];
+  return { ready: checks.every((item) => item.ok), authoring: report.authoring, checks };
+}
+
+/**
+ * Shares one readiness evaluation across concurrent callers and reuses it until the bound.
+ * A draining worker does not wait for a hash or a cached success.
+ */
+export function createReadyCache(load: () => Promise<ReadyReport>, ttlMs = READY_CACHE_MS) {
+  let cached: { at: number; report: ReadyReport } | undefined;
+  let flight: Promise<ReadyReport> | undefined;
+  return {
+    async current(worker: ReadyInput["worker"], requireWorker: boolean): Promise<ReadyReport> {
+      if (worker === "draining") return withWorker(cached?.report, worker, true);
+      const now = Date.now();
+      if (cached && now - cached.at < ttlMs) return withWorker(cached.report, worker, requireWorker);
+      if (!flight) {
+        const pending = load().then((report) => {
+          cached = { at: Date.now(), report };
+          return report;
+        });
+        flight = pending;
+        void pending.finally(() => {
+          if (flight === pending) flight = undefined;
+        });
+      }
+      return withWorker(await flight, worker, requireWorker);
+    },
+  };
+}
+
+/** Reads pinned files and the package directory. It does not spawn a compiler or call a model. Disk quotas are not judged. A warm record is not a cold-cache or quota proof. */
 export async function evaluateReady(input: ReadyInput): Promise<ReadyReport> {
   const publicMode = input.mode === "public";
   const engineMode = input.engine.mode === "real"
     ? check("engine", true, undefined, false)
     : check("engine", false, "simulated_engine", true);
   const executable = await pinFile("engine_executable", input.engine.executable, publicMode && input.engine.mode === "real");
-  const wrapper = await pinFile("compiler_wrapper", input.engine.wrapper, publicMode && input.engine.wrapper !== undefined);
+  const wslWrapper = await pinFile("wsl_wrapper", input.engine.wslWrapper, publicMode && input.engine.wslWrapper !== undefined);
+  const compilerWrapper = await compilerWrapperCheck(input);
+  const identity = compilerIdentity(input);
+  const warmed = await compilerReadyCheck(input);
   const origin = originCheck(input.origin);
   const chain = input.chain === "arc"
     ? check("chain", true, undefined, false)
     : check("chain", false, input.chain === "simulated" ? "simulated_chain" : "missing", true);
   const model = modelCheck(input);
+  const release = input.authoring === "disabled"
+    ? check("authoring_release", false, "disabled", false)
+    : check("authoring_release", true, undefined, false);
   const budget = budgetCheck(input.budget, input.authoring === "required");
   const rates = input.rateLimit && positiveInt(input.rateLimit.expensivePerPrincipal) && positiveInt(input.rateLimit.expensivePerIp)
     ? check("rate_limit", true, undefined, false)
@@ -320,10 +492,14 @@ export async function evaluateReady(input: ReadyInput): Promise<ReadyReport> {
   const checks = [
     engineMode,
     executable,
-    wrapper,
+    wslWrapper,
+    compilerWrapper,
+    identity,
+    warmed,
     origin,
     chain,
     model,
+    release,
     budget,
     rates,
     packages,

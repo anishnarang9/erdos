@@ -1,12 +1,15 @@
 import { createHash } from "node:crypto";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { afterEach, describe, expect, it } from "vitest";
 import { createApp } from "../../src/app.ts";
 import { migrationVersions, openDb } from "../../src/db.ts";
 import {
   REVIEWED_CALL_MICRO_USD,
+  REVIEWED_DOCKERFILE_FRONTEND,
+  REVIEWED_GUEST_BUILDER,
   REVIEWED_INPUT_MICRO_USD_PER_MILLION,
   REVIEWED_MODEL_ID,
   REVIEWED_OUTPUT_MICRO_USD_PER_MILLION,
@@ -14,10 +17,12 @@ import {
   REVIEWED_PROVIDER_COST,
   blocksPublicListen,
   callMicroUsd,
+  createReadyCache,
   evaluateReady,
   probeDatabase,
   scratchFile,
   type ReadyInput,
+  type ReadyReport,
 } from "../../src/ready.ts";
 
 const reviewedBudget = {
@@ -33,15 +38,52 @@ afterEach(async () => {
   await Promise.all(dirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
 });
 
+const SOURCE_SHA = "a".repeat(40);
+
 async function reviewedInput(overrides: Partial<ReadyInput> = {}): Promise<ReadyInput> {
   const file = await scratchFile(Buffer.from("reviewed-engine"));
-  const packages = await mkdtemp(join(tmpdir(), "ubc26-ready-packages-"));
-  dirs.push(file.dir, packages);
+  const root = await mkdtemp(join(tmpdir(), "ubc26-ready-compiler-"));
+  const bin = join(root, "docker-bin");
+  const packages = join(root, "packages");
+  await mkdir(bin);
+  await mkdir(packages);
+  const wrapperPath = join(bin, "docker");
+  const wrapperBytes = Buffer.from("#!/bin/sh\nexit 0\n");
+  await writeFile(wrapperPath, wrapperBytes);
+  const wrapperSha = createHash("sha256").update(wrapperBytes).digest("hex");
+  const readyPath = join(root, "compiler-ready.json");
+  await writeFile(readyPath, JSON.stringify({
+    version: 1,
+    status: "compiler-warmed",
+    sourceSha: SOURCE_SHA,
+    engineSha256: file.sha256,
+    dockerfileFrontend: REVIEWED_DOCKERFILE_FRONTEND,
+    guestBuilder: REVIEWED_GUEST_BUILDER,
+    imageId: "img-reviewed",
+    guestSha256: "e".repeat(64),
+    passingVerdict: 1,
+    failingVerdict: 0,
+    proofGenerated: false,
+    chainTransactionSent: false,
+  }));
+  dirs.push(file.dir, root);
   return {
     mode: "public",
     authoring: "required",
     origin: "https://api.example.test",
-    engine: { mode: "real", executable: { path: file.path, sha256: file.sha256 } },
+    engine: {
+      mode: "real",
+      executable: { path: file.path, sha256: file.sha256 },
+      compilerPath: `${bin}:/usr/bin:/bin`,
+      compilerWrapper: { path: wrapperPath, sha256: wrapperSha },
+    },
+    compiler: {
+      sourceSha: SOURCE_SHA,
+      dockerfileFrontend: REVIEWED_DOCKERFILE_FRONTEND,
+      guestBuilder: REVIEWED_GUEST_BUILDER,
+      readyPath,
+      engineSha256: file.sha256,
+    },
     model: {
       state: "live",
       id: REVIEWED_MODEL_ID,
@@ -94,8 +136,10 @@ describe("production readiness evidence", () => {
       budget: undefined,
     });
     const report = await evaluateReady(input);
-    expect(report.ready).toBe(true);
+    expect(report.ready).toBe(false);
+    expect(blocksPublicListen(report)).toBe(false);
     expect(report.authoring).toBe("disabled");
+    expect(reason(report, "authoring_release")).toBe("disabled");
     expect(report.checks.find((check) => check.name === "model")).toMatchObject({ ok: true, state: "disabled" });
     expect(report.checks.find((check) => check.name === "budget")).toMatchObject({ ok: true, state: "not_required" });
   });
@@ -126,25 +170,64 @@ describe("production readiness evidence", () => {
     expect(upper.checks.find((check) => check.name === "engine_executable")?.ok).toBe(true);
   });
 
-  it("rejects a wrapper whose digest is absent or different and skips the wrapper when native mode has none", async () => {
+  it("accepts the dated visible cap and keeps max_tokens only for the reviewed model", async () => {
     const input = await reviewedInput();
-    const native = await evaluateReady(input);
-    expect(native.checks.find((check) => check.name === "compiler_wrapper")).toMatchObject({ ok: true, state: "not_used" });
-
-    const wrapper = await scratchFile(Buffer.from("wsl-host-bin"));
-    dirs.push(wrapper.dir);
-    const unpinned = await evaluateReady({
+    const dated = await evaluateReady({
       ...input,
-      engine: { ...input.engine, wrapper: { path: wrapper.path } },
+      model: {
+        ...input.model,
+        outputTokenBound: { parameter: "max_completion_tokens", maxTokens: REVIEWED_OUTPUT_TOKENS },
+      },
     });
-    expect(reason(unpinned, "compiler_wrapper")).toBe("unpinned");
-    expect(JSON.stringify(unpinned)).not.toContain(wrapper.path);
-
-    const wrong = await evaluateReady({
+    expect(dated.ready).toBe(true);
+    const other = await evaluateReady({
       ...input,
-      engine: { ...input.engine, wrapper: { path: wrapper.path, sha256: "cd".repeat(32) } },
+      model: {
+        ...input.model,
+        outputTokenBound: { parameter: "max_output_tokens", maxTokens: REVIEWED_OUTPUT_TOKENS } as unknown as ReadyInput["model"]["outputTokenBound"],
+      },
     });
-    expect(reason(wrong, "compiler_wrapper")).toBe("digest_mismatch");
+    expect(reason(other, "model")).toBe("output_bound_unreliable");
+  });
+
+  it("pins the docker shim only when the child PATH selects that file", async () => {
+    const input = await reviewedInput();
+    expect(await evaluateReady(input)).toMatchObject({ ready: true });
+    const unrelated = await scratchFile(Buffer.from("other-docker"));
+    dirs.push(unrelated.dir);
+    const missed = await evaluateReady({
+      ...input,
+      engine: {
+        ...input.engine,
+        compilerWrapper: { path: join(unrelated.dir, "docker"), sha256: unrelated.sha256 },
+      },
+    });
+    expect(reason(missed, "compiler_wrapper")).toBe("not_selected");
+    expect(blocksPublicListen(missed)).toBe(true);
+    expect(JSON.stringify(missed)).not.toContain(unrelated.path);
+
+    const selected = input.engine.compilerWrapper?.path ?? "";
+    const mismatch = await evaluateReady({
+      ...input,
+      engine: { ...input.engine, compilerWrapper: { path: selected, sha256: "cd".repeat(32) } },
+    });
+    expect(reason(mismatch, "compiler_wrapper")).toBe("digest_mismatch");
+    expect(JSON.stringify(mismatch)).not.toContain(selected);
+
+    const linkDir = await mkdtemp(join(tmpdir(), "ubc26-ready-link-"));
+    dirs.push(linkDir);
+    const link = join(linkDir, "docker");
+    await symlink(selected, link);
+    const linked = await evaluateReady({
+      ...input,
+      engine: {
+        ...input.engine,
+        compilerPath: `${linkDir}:/usr/bin:/bin`,
+        compilerWrapper: { path: link, sha256: input.engine.compilerWrapper?.sha256 },
+      },
+    });
+    expect(reason(linked, "compiler_wrapper")).toBe("unreadable");
+    expect(JSON.stringify(linked)).not.toContain(link);
   });
 
   it("rejects replay, recording, and an unreviewed live model even when authoring is disabled", async () => {
@@ -266,6 +349,98 @@ describe("production readiness evidence", () => {
     expect(reason(report, "engine")).toBe("simulated_engine");
     expect(blocksPublicListen(report)).toBe(false);
     expect(report.checks.every((check) => check.blocksListen === false)).toBe(true);
+  });
+
+  it("keeps a missing or warming compiler record not ready without blocking listen", async () => {
+    const input = await reviewedInput();
+    const missing = await evaluateReady({ ...input, compiler: { ...input.compiler, readyPath: `${input.compiler?.readyPath ?? ""}.missing` } });
+    expect(reason(missing, "compiler_ready")).toBe("not_warmed");
+    expect(blocksPublicListen(missing)).toBe(false);
+    expect(missing.ready).toBe(false);
+    await writeFile(input.compiler?.readyPath ?? "", JSON.stringify({ version: 1, status: "warming", sourceSha: SOURCE_SHA }));
+    const warming = await evaluateReady(input);
+    expect(reason(warming, "compiler_ready")).toBe("warming");
+    expect(blocksPublicListen(warming)).toBe(false);
+    await writeFile(input.compiler?.readyPath ?? "", JSON.stringify({
+      version: 1, status: "compiler-warmed", sourceSha: "b".repeat(40), engineSha256: input.compiler?.engineSha256,
+      dockerfileFrontend: REVIEWED_DOCKERFILE_FRONTEND, guestBuilder: REVIEWED_GUEST_BUILDER,
+      imageId: "img", guestSha256: "e".repeat(64), passingVerdict: 1, failingVerdict: 0,
+      proofGenerated: false, chainTransactionSent: false,
+    }));
+    const wrong = await evaluateReady(input);
+    expect(reason(wrong, "compiler_ready")).toBe("identity_mismatch");
+    expect(blocksPublicListen(wrong)).toBe(false);
+    expect(JSON.stringify(wrong)).not.toContain("b".repeat(40));
+
+    const link = `${input.compiler?.readyPath}.link`;
+    await symlink(input.compiler?.readyPath ?? "", link);
+    const linked = await evaluateReady({ ...input, compiler: { ...input.compiler, readyPath: link } });
+    expect(reason(linked, "compiler_ready")).toBe("corrupt");
+    expect(blocksPublicListen(linked)).toBe(false);
+    expect(JSON.stringify(linked)).not.toContain(link);
+
+    const huge = `${input.compiler?.readyPath}.huge`;
+    await writeFile(huge, Buffer.alloc(65_537, 1));
+    const oversized = await evaluateReady({ ...input, compiler: { ...input.compiler, readyPath: huge } });
+    expect(reason(oversized, "compiler_ready")).toBe("corrupt");
+    expect(blocksPublicListen(oversized)).toBe(false);
+  });
+
+  it("blocks public listen when the image identity is not the reviewed pin", async () => {
+    const input = await reviewedInput({ compiler: { sourceSha: "short", dockerfileFrontend: REVIEWED_DOCKERFILE_FRONTEND, guestBuilder: REVIEWED_GUEST_BUILDER } });
+    const report = await evaluateReady(input);
+    expect(reason(report, "compiler_identity")).toBe("identity_mismatch");
+    expect(blocksPublicListen(report)).toBe(true);
+  });
+
+  it("reports a read-only database as not writable and leaves no probe table", async () => {
+    const root = await mkdtemp(join(tmpdir(), "ubc26-ready-ro-"));
+    dirs.push(root);
+    const file = join(root, "ready.db");
+    const writer = openDb(file, () => Date.now());
+    writer.close();
+    const reader = new DatabaseSync(file, { readOnly: true });
+    try {
+      expect(probeDatabase(reader, file).writable).toBe(false);
+    } finally {
+      reader.close();
+    }
+    const check = new DatabaseSync(file);
+    try {
+      expect(probeDatabase(check, file).writable).toBe(true);
+      expect(check.prepare("SELECT name FROM sqlite_master WHERE name = 'ready_write_probe'").all()).toEqual([]);
+    } finally {
+      check.close();
+    }
+  });
+
+  it("shares one readiness evaluation and drops a cached success as soon as draining starts", async () => {
+    let calls = 0;
+    let release: () => void = () => undefined;
+    const pending = new Promise<ReadyReport>((resolve) => {
+      release = () => resolve({ ready: true, authoring: "required", checks: [{ name: "worker", ok: true, blocksListen: false }] });
+    });
+    const gate = createReadyCache(() => {
+      calls += 1;
+      return pending;
+    });
+    const first = gate.current("running", true);
+    const second = gate.current("running", true);
+    expect(calls).toBe(1);
+    const drained = await gate.current("draining", true);
+    expect(drained.ready).toBe(false);
+    expect(drained.checks.find((check) => check.name === "worker")?.reason).toBe("draining");
+    expect(calls).toBe(1);
+    release();
+    expect((await first).ready).toBe(true);
+    expect((await second).ready).toBe(true);
+    const again = createReadyCache(async () => {
+      calls += 1;
+      return { ready: true, authoring: "required", checks: [] };
+    }, 0);
+    await again.current("running", true);
+    await again.current("running", true);
+    expect(calls).toBe(3);
   });
 
   it("probes database durability without putting the path in the result", () => {

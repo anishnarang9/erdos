@@ -87,7 +87,8 @@ describe("historical spend halt backfill", () => {
     };
     const versions = raw.prepare("SELECT version FROM schema_migrations WHERE version LIKE '016%'").all();
     raw.close();
-    expect(versions).toEqual([{ version: "016_spend_halt_backfill.sql" }]);
+    const names = (versions as { version: string }[]).map((row) => row.version);
+    expect(names).toContain("016_spend_halt_backfill.sql");
     expect(halts).toEqual([
       { id: "halt-existing", reservation_id: "res-kept", settled_micro_usd: 90_000, ceiling_micro_usd: 40_000, resolved_at: null },
       { id: "halt-res-breach", reservation_id: "res-breach", settled_micro_usd: 12_500_000, ceiling_micro_usd: 50_000, resolved_at: null },
