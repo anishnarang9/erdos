@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 01:15 -05:00 — Anish — Check public deployment pins before API startup
+
+- Added an image entrypoint guard for both committed Arc deployment manifests. Public startup rejects absent/wrong contract settings, unsafe RPC URL forms, mismatched manifest wiring and fewer than three open-claim confirmations before importing the API. It makes no external request. Current RPC availability, bytecode and roles remain separate checks.
+- New regressions failed before implementation. All nine deployment/startup/backup checks pass locally and in restricted Node 24/Linux. The first Linux test profile inherited an unmounted state temp path; explicitly selecting writable `/tmp` fixed that test launch. The environment template matches committed pins, keeps credentials/budget ceilings blank and leaves expensive work disabled. CI now runs the deployment guards.
+- The independent archive at `b955545` passes twelve native signed-evidence checks and five installed-client progress checks under restricted emulated Linux. Checksums/provenance pass. See [the report](reports/hosted-runner-linux-progress-2026-11-17.json). No real model call, new proof or chain transaction occurred. Combined final image and external gates remain open.
+
 ## 2026-11-17 01:12 -05:00 — Anish — Integrate hosted solver progress end to end
 
 - Integrated Worker A's attempt contract/routes/report as `e97e4c4`, `ddb1742` and `133cc7d`. Added bounded SDK publication/list/history methods and explicit CLI publication. The CLI checks that the API key wallet matches the local solver before posting. Only allowlisted progress leaves the private state file. No keys, paths, plaintext, error text or local payment claims enter the request.
