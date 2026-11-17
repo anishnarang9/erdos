@@ -2,6 +2,18 @@
 
 Reviewed 2026-11-17. The user selected Vercel and requested roughly $0.10 per user for constraint refinement. No deployment or paid request ran for this research. Code candidate remains `20b0dc2`.
 
+## Current account and hosting recommendation
+
+Update 2026-11-17: The user completed Vercel login and asked for the best hosting provider. Read-only `vercel whoami` succeeds as `anishnarang9`. The selected team is `anishnarang9s-projects`. No UBC-26 project appears in its current project list. The team domain list is empty. Existing unrelated projects remain untouched.
+
+Recommend a DigitalOcean Basic Droplet for the API, SQLite state, packages and Docker compiler. The [current regular-CPU price](https://www.digitalocean.com/pricing/droplets) is $48/month for four shared vCPUs, 8 GiB RAM, 160 GiB SSD and 5,000 GiB transfer. Compute accrues at $0.07143/hour equivalent, about $1.71 for 24 hours, up to the plan's monthly cap. These are provider list prices, not measured compiler performance.
+
+[Weekly system backups](https://docs.digitalocean.com/products/backups/details/pricing/) cost 20% of compute, giving $9.60 for a full $48 month. Combined base compute and weekly backup cost is $57.60/month before tax, model use, domain charges or usage beyond the included allowances. The service's quiesced SQLite/package backup and restore procedure remains required. Provider image backups alone do not replace that procedure.
+
+This recommendation keeps the verified persistent-host architecture. It avoids the managed-database migration and unverified Docker execution boundary on Vercel. Keep Vercel available for Neil's later frontend. The current backend can serve HTTPS directly through its prepared Caddy ingress. No proxy or UI work is required to release the API.
+
+The user has not selected or funded DigitalOcean. Neither `doctl` nor `hcloud` is installed. No paid server, backup plan, Vercel project or deployment was created. Requested approval of the concrete compute/backup budget or selection of a cheaper provider/Vercel migration. Once approved, establish the chosen provider's authenticated access before provisioning.
+
 Interpret the cost target as model spending for one complete refinement session, including clarification, repair and failed attempts. This is a proposed budget policy. Hosting, compilation, proving and chain fees need separate accounting. A session limit alone does not impose a daily or lifetime limit per person.
 
 ## Grok Bot bounty
@@ -69,6 +81,6 @@ The current backend stores SQLite state and packages locally. It also uses a hos
 
 The user's Vercel preference is confirmed. Neither topology is a completed deployment. Confirm whether a supporting host is acceptable before starting a storage migration or provisioning infrastructure. Do not deploy local SQLite on disposable container storage.
 
-Read-only access discovery found Vercel CLI 49.1.0. `vercel whoami` reported no credentials. No Vercel project was created. The account owner can run `vercel login` locally, then supply the team/project and hosting budget. Use the account's assigned hostname first if no custom domain is needed. Credentials belong in a secure local or provider configuration, not repository files or chat.
+Initial read-only access discovery found Vercel CLI 49.1.0 without credentials. The later authenticated result appears above. No Vercel project was created. Hosting provider choice and budget remain pending. Use the account's assigned hostname first if no custom domain is needed. Credentials belong in a secure local or provider configuration, not repository files or chat.
 
 Next: select the deployment topology, authenticate the intended Vercel account, verify project limits, and implement the reviewed bounded-input/session-budget design. Public deployment, genuine model trials and final independent review remain open.

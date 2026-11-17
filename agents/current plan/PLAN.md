@@ -1,5 +1,12 @@
 # Current plan
 
+## 2026-11-17 04:08 -05:00 — Anish — Verify Vercel login and propose the backend host
+
+- The user completed Vercel login and asked which provider best fits the service. `vercel whoami` succeeds as `anishnarang9`. Team `anishnarang9s-projects` is selected. Current projects contain no UBC-26 deployment. The selected team lists no custom domains. No existing project changed.
+- Recommend a DigitalOcean Basic Droplet matching the prepared host requirements: four shared vCPUs, 8 GiB RAM and 160 GiB SSD. Current official prices are $48/month compute and 20% for weekly backups, or $57.60/month combined before tax and separate usage. Compute alone is about $1.71 per 24 hours for a short run. Proving remains local. Native-host compilation performance still needs measurement.
+- Updated the [hosting recommendation](../../docs/hosted-vercel-grok-options.md) with official price sources and the authenticated Vercel result. The backend can use its existing Caddy ingress directly. Vercel remains available for the later frontend. No storage/compiler migration is necessary for this proposed route.
+- Requested a concrete provider/budget decision before paid provisioning. No server, backup subscription, project or deployment was created. No model request or chain action ran. Code candidate stays `20b0dc2`. The previous goal turn made progress through research, an offline payload profile and checkpoint `5811ce9`. This turn resolves Vercel authentication and the recommended host specification. Remaining gates still need provider access/budget, application model access, reviewed cost controls, genuine trials and final acceptance/review.
+
 ## 2026-11-17 04:03 -05:00 — Anish — Resume for Vercel and ten-cent Grok refinement research
 
 - The user selected Vercel and requested roughly $0.10 per user for constraint refinement. The goal is active again. Treat this as a product cost target, not a grant of paid inference or infrastructure authority. No further Grok CLI calls remain permitted.
