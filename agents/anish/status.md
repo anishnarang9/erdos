@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 01:27 -05:00 — Anish — Integrate paginated discovery and confirmed-time expiry
+
+- Integrated Worker B `0e790cd`, `8246a80` and `3c59be0` as `e63199c`, `c75d205` and `e6a4d57`. Discovery scans a bounded keyset window, advances past stale/filtered links and excludes confirmed expiry, accepted submissions and releases. Detail carries confirmed time/block and preserves funded-but-expired status. A failed chain dependency returns 503 instead of a false empty feed.
+- API typecheck and the initial 19 discovery/open-claim/attempt checks passed. Integration review then reproduced a detail RPC failure returning generic 500 while list returned 503. A targeted regression failed first. The common snapshot boundary now sanitizes that failure consistently. All 14 discovery/open-claim checks and API typecheck pass after the repair.
+- Updated API, runner and UI discovery contracts and the source implementation checklist. Actual public RPC, hosting and settlement remain unverified. Worker A continues paid compile admission/drain and browser ingress. Native Linux installed-runner CI is running. No model call, proof, compiler or chain action occurred in this checkpoint.
+
 ## 2026-11-17 01:26 -05:00 — Anish — Add installed-runner checks to native Linux CI
 
 - All 908 combined API checks and typecheck pass after service-control integration. Worker A's tree was refreshed by a normal merge `a4ecf01`; its tree equals coordinator `a95cad5`. The same session now owns exact browser-origin/preflight policy and bounded paid compiler admission before settlement, including drain/replay/concurrency. No new worker was created.

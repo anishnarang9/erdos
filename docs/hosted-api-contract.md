@@ -17,9 +17,9 @@ All JSON errors use the existing `{error:{code,message,details?}}` shape. Job an
 
 Task view: `{id,operation,state,attempt,createdAt,updatedAt,result?,error?}`. States: `queued`, `running`, `succeeded`, `failed`, `uncertain`. Results reuse existing draft/compile response bodies. Errors use sanitized API errors. Interrupted paid authoring becomes uncertain. Queued tasks resume. Compiler work is bounded and serialized. A task binds the owner and exact revision. Deduplicate before work starts.
 
-Existing job import, package, references and open-claim funding routes retain their documented body shapes. Public authored approval adds the review fields above. Discovery pagination is staged below. Public mutation routes require owner authorization. Funding buyer must equal the authenticated wallet. Compile approval and revision binding remain mandatory. Public results become readable according to the existing protocol.
+Existing job import, package, references and open-claim funding routes retain their documented body shapes. Public authored approval adds the review fields above. Discovery pagination is specified below. Public mutation routes require owner authorization. Funding buyer must equal the authenticated wallet. Compile approval and revision binding remain mandatory. Public results become readable according to the existing protocol.
 
-Worker A must document any necessary runtime contract correction before SDK integration. Worker A owns the API engine, server, task, identity, limits, discovery and attempt modules plus its service report. The coordinator owns `authoring.ts`, `grok.ts`, `jobs.ts`, example input/approval modules and their tests. Migration 016 is reserved for service spend-halt history. Coordinator example records start at 017. The coordinator owns `deploy/`, `docs/hosted-runtime.md`, this document, SDK exports and the runner. Worker B owns engine fixtures and reports. No worker may change shared catalog copies without coordinator agreement.
+Worker A must document any necessary runtime contract correction before SDK integration. Worker A owns service ingress, tasks, identity, limits, observation and attempt modules plus its service report. Worker B owns discovery during this phase. The coordinator owns `authoring.ts`, `grok.ts`, `jobs.ts`, example input/approval modules and their tests. Migration 016 is reserved for service spend-halt history. Coordinator example records start at 017. The coordinator owns `deploy/`, `docs/hosted-runtime.md`, this document, SDK exports and the runner. Worker B also owns engine fixtures and qualification reports. No worker may change shared catalog copies without coordinator agreement.
 
 ## Local solver attempt status
 
@@ -39,15 +39,15 @@ Task acceptance commits the durable task, spend reservation and idempotency resp
 
 Issuance checks the challenge's stored origin and action against the current service configuration. Restoring a database at another hostname does not make pending old-hostname signatures valid there. Existing credential digests remain owner records; review them as part of restore operations.
 
-## Discovery pagination — client staged, server integration pending
+## Discovery pagination
 
 The SDK accepts `openJobs({cursor?,limit?})`; the CLI accepts `discover --cursor CURSOR --limit LIMIT`. The wire request is `GET /v1/open-jobs?cursor=OPAQUE&limit=10`. Limit is an integer from 1 through 50. Treat cursors as opaque strings, URL-encode them and preserve them exactly.
 
-The paginated response is `{jobs:[...],nextCursor:string|null}`. A page may contain fewer jobs than its limit. Continue with `nextCursor` until it is null. Cursor order must be stable and advance through scanned links, including links excluded by confirmed expiry or winner state. Do not return an unchanged cursor. Bound scanning and RPC work per request.
+The paginated response is `{jobs:[...],nextCursor:string|null}`. A page may contain fewer jobs than its limit. Continue with `nextCursor` until it is null. The server orders API job IDs ascending. Its cursor advances through scanned links, including stale links and links excluded by confirmed expiry or winner state. It reads at most `limit` links and makes at most one confirmed snapshot request per scanned link. One extra SQL row determines whether another page exists; that row causes no chain read. A dependency failure returns sanitized 503 `chain_unavailable`; it does not claim an authoritative empty page. Retry the same cursor after that failure.
 
 The client rejects oversized pages, malformed or repeated cursors, and an explicit pagination request whose response omits `nextCursor`. This prevents a legacy server that ignores query arguments from appearing to return another page. A no-argument client call still reads the legacy `{jobs}` shape, which does not establish complete discovery. Wallet credentials are not sent for this public read.
 
-Worker A must implement and verify the server side, including confirmed-chain-time expiry filtering, before the discovery gate can close. Current client tests cover transport/response safety, not a completed paginated public service.
+The integrated server and client pass controlled pagination and expiry checks, including 55 open links. A confirmed snapshot must say `Funded`, with no accepted submission, no release and a timestamp strictly before its own job expiry. Both times come from that same snapshot. Detail remains readable after expiry and chain terminal outcomes while the immutable API/approval bindings remain valid. It adds `expired`, decimal `confirmedTimestamp` and decimal `confirmedBlockNumber`. An expired funded job has not necessarily been refunded. The existing indexer records logs/cursors and does not update API job state. Public RPC/host acceptance remains separate.
 
 
 ## Authoring review and failure metadata
@@ -83,3 +83,11 @@ Queued and running durable tasks default to 100 globally and 20 per wallet. A fu
 Auth challenge and key issuance share a separate 20-per-IP, 60-second window by default. `AUTH_LIMIT_IP` and `AUTH_LIMIT_WINDOW_MS` configure positive limits. Only the reviewed trusted proxy topology may supply client forwarding data. Public direct access shares a conservative fallback bucket. Expensive request limits remain separate.
 
 `GET /v1/operator/metrics` requires the operator bearer token. An absent token disables the route; buyer/solver API keys do not grant access. It returns fixed route/status/latency counts, durable queue counts, process task/auth counts and process memory/uptime. Process counters reset on restart. They do not establish historical billing or host disk quotas. Structured public logs omit request bodies, headers, query strings, identifiers and free-form error values. Routes use fixed labels. Local debug remains an explicit option.
+
+An expired, unrefunded detail can contain:
+
+```json
+{"status":"Funded","expired":true,"released":false,"winner":null,"confirmedTimestamp":"1800003600","expiry":"1800003600","confirmedBlockNumber":"73000000"}
+```
+
+This fragment omits the unchanged job, deployment and manifest fields. It deliberately makes no `refunded:true` claim. A failed list or detail dependency returns 503 with `error.code:"chain_unavailable"` and a fixed public message. Provider URLs and raw errors remain private.
