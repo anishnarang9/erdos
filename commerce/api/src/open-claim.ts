@@ -1,7 +1,7 @@
 import { encodeFunctionData, isAddressEqual, type Address, type Hex } from "viem";
 import { arcCoreAbi, arcErc20Abi } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
-import { isoAt, parseJson, readBody, requireJobId, type AppEnv } from "./context.ts";
+import { isoAt, parseJson, readBody, requireJobId, ULID_RE, type AppEnv } from "./context.ts";
 import { assertFundingBuyer, requireOwnedJob } from "./ownership.ts";
 import { requireRealArtifact } from "./artifact.ts";
 import { isPlainObject } from "./revision.ts";
@@ -90,6 +90,59 @@ function sameAddress(a: string, b: string): boolean {
 function termsMismatch(field: string): never { throw new ApiError("terms_mismatch", `Confirmed ${field} differs from buyer-approved terms`, { field }); }
 function pending(reason: string): never { throw new ApiError("chain_unconfirmed", "Open-claim transaction is not confirmed", { reason }); }
 
+const DISCOVERY_LIMIT = 50;
+const DISCOVERY_FIELDS = new Set(["cursor", "limit"]);
+const LINK_SKIP = new Set(["terms_mismatch", "not_found", "wrong_state", "approval_required"]);
+
+function discoveryValidation(message: string, path: string): ApiError {
+  return new ApiError("validation_failed", "Request validation failed", { errors: [{ path, message }] });
+}
+
+/** Opaque discovery cursor. `oc1` plus the last scanned API job id, unpadded base64url. */
+function encodeDiscoveryCursor(jobId: string): string {
+  return Buffer.from(`oc1\n${jobId}`, "utf8").toString("base64url");
+}
+
+function decodeDiscoveryCursor(cursor: string): string {
+  if (!/^[A-Za-z0-9_-]{1,512}$/.test(cursor)) throw discoveryValidation("is malformed", "/cursor");
+  const text = Buffer.from(cursor, "base64url").toString("utf8");
+  const split = text.indexOf("\n");
+  const jobId = split < 0 ? "" : text.slice(split + 1);
+  if (split < 0 || text.slice(0, split) !== "oc1" || !ULID_RE.test(jobId) || encodeDiscoveryCursor(jobId) !== cursor) {
+    throw discoveryValidation("is malformed", "/cursor");
+  }
+  return jobId;
+}
+
+function discoveryLimit(raw: string | undefined): number {
+  if (raw === undefined) return DISCOVERY_LIMIT;
+  if (!/^[1-9][0-9]*$/.test(raw)) throw discoveryValidation("must be an integer from 1 to 50", "/limit");
+  const limit = Number(raw);
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > DISCOVERY_LIMIT) {
+    throw discoveryValidation("must be an integer from 1 to 50", "/limit");
+  }
+  return limit;
+}
+
+function discoveryQuery(url: string): { after: string; limit: number } {
+  const params = new URL(url).searchParams;
+  const seen = new Set<string>();
+  for (const key of params.keys()) {
+    if (seen.has(key)) throw discoveryValidation("is repeated", `/${key}`);
+    seen.add(key);
+    if (!DISCOVERY_FIELDS.has(key)) throw discoveryValidation("is not a discovery field", `/${key}`);
+  }
+  return {
+    after: params.has("cursor") ? decodeDiscoveryCursor(params.get("cursor") ?? "") : "",
+    limit: discoveryLimit(params.has("limit") ? params.get("limit") ?? "" : undefined),
+  };
+}
+
+function chainReadFailed(error: unknown): never {
+  if (error instanceof ApiError && error.code !== "chain_unavailable" && error.code !== "chain_unconfirmed") throw error;
+  throw new ApiError("chain_unavailable", "Open-claim chain is unavailable");
+}
+
 function validateConfig(config: OpenClaimConfig): void {
   if (!Number.isSafeInteger(config.chainId) || config.chainId <= 0 ||
       ![config.core, config.adapter, config.usdc, config.verifier].every(a => ADDRESS.test(a)) ||
@@ -141,7 +194,7 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     insertIntent: db.prepare("INSERT INTO open_claim_intents (job_id, revision_id, buyer, budget, expiry, created_at) VALUES (?, ?, ?, ?, ?, ?)"),
     link: db.prepare("SELECT * FROM open_claim_links WHERE job_id = ?"),
     insertLink: db.prepare("INSERT INTO open_claim_links (job_id, chain_id, core, adapter, chain_job_id, funding_tx, registration_tx, verified_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"),
-    links: db.prepare("SELECT * FROM open_claim_links ORDER BY job_id ASC"),
+    linkPage: db.prepare("SELECT * FROM open_claim_links WHERE job_id > ? ORDER BY job_id ASC LIMIT ?"),
     setState: db.prepare("UPDATE jobs SET state = ?, updated_at = ? WHERE id = ?"),
   };
   const load = (id: string) => {
@@ -274,12 +327,15 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     if (!intent || intent.revision_id !== revision.id) termsMismatch("approval");
     const snapshot = await config.reader.current(BigInt(link.chain_job_id));
     assertSnapshot(snapshot, config, intent, manifest);
+    // Expiry uses this snapshot's confirmed timestamp and this snapshot's job expiry together.
+    const expired = snapshot.timestamp >= snapshot.job.expiry;
     return { jobId: job.id, revisionHash: revision.revision_hash, chainJobId: link.chain_job_id,
       chainId: config.chainId, core: config.core, adapter: config.adapter, status: snapshot.job.status,
       winner: snapshot.submission.accepted ? snapshot.submission.solver : null,
       envelopeHash: snapshot.submission.accepted ? snapshot.submission.envelopeHash : null,
       keyCommitment: snapshot.submission.accepted ? snapshot.submission.keyCommitment : null,
-      released: snapshot.released,
+      released: snapshot.released, expired,
+      confirmedTimestamp: snapshot.timestamp.toString(), confirmedBlockNumber: snapshot.blockNumber.toString(),
       budget: intent.budget, expiry: intent.expiry, buyer: intent.buyer,
       manifest: { imageId: manifest.image_id, rulesHash: manifest.rules_hash, referenceHash: manifest.reference_hash },
       fundingTx: link.funding_tx, registrationTx: link.registration_tx,
@@ -288,15 +344,23 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
   }
 
   app.get("/v1/open-jobs", readBody, async c => {
-    const out: Record<string, unknown>[] = [];
-    for (const link of q.links.all() as Link[]) {
-      if (out.length >= 50) break;
+    const query = discoveryQuery(c.req.url);
+    // Read one extra row so a full window can advance without a chain call for that row.
+    const rows = q.linkPage.all(query.after, query.limit + 1) as Link[];
+    const window = rows.slice(0, query.limit);
+    if (window.length > 0 && !config) throw new ApiError("chain_unavailable", "Open-claim chain is not configured");
+    const jobs: Record<string, unknown>[] = [];
+    for (const link of window) {
       try {
         const item = await view(link);
-        if (item.status === "Funded" && item.winner === null) out.push(item);
-      } catch { /* A stale or unavailable link is not advertised. */ }
+        if (item.status === "Funded" && item.winner === null && item.released === false && item.expired === false) jobs.push(item);
+      } catch (error) {
+        if (error instanceof ApiError && LINK_SKIP.has(error.code)) continue;
+        chainReadFailed(error);
+      }
     }
-    return c.json({ jobs: out });
+    const last = window[window.length - 1];
+    return c.json({ jobs, nextCursor: rows.length > query.limit && last ? encodeDiscoveryCursor(last.job_id) : null });
   });
   app.get("/v1/open-jobs/:id", readBody, requireJobId, async c => {
     const link = q.link.get(c.req.param("id") ?? "") as Link | undefined;
