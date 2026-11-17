@@ -66,6 +66,8 @@ export interface ServiceMetrics {
 
 /** Operator prices in micro-USD. Absent in local mode. Public mode must not run drafts without it. */
 export interface AuthoringBudget {
+  /** Estimated spending is an explicit local operator policy that can overrun its reservation. */
+  reservationMode?: "provider-bound" | "estimated";
   requestCeilingMicroUsd: number;
   dailyCeilingMicroUsd: number;
   inputMicroUsdPerMillion: number;

@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 16:44 -05:00 — Anish — Add estimated admission for the approved operator pilot
+
+- The user approved three complete attempts under the $0.50 planning allowance with possible in-flight overrun. Local mode can now select estimated reservations. Public mode rejects this pilot setting. All 1,002 API tests and the API typecheck pass. The tests cover default rejection, an undersized estimate, public configuration rejection, and overrun halt across restart. The runtime build and measured runs follow this checkpoint. See the [pilot record](reports/hosted-combined-authoring-pilot-proposal-2026-11-17.json).
+
 ## 2026-11-17 16:39 -05:00 — Anish — Add a switch to disable automatic authoring repair
 
 - Branch `codex/hosted-backend` accepts `AUTHORING_REPAIRS=0` for the proposed pilot. The new regression failed with two billed calls before the change. It now verifies one call, settled usage and queued replay without another call. All 995 API tests and the API typecheck pass. Estimated-spend admission and paid approval remain pending. The change awaits deployment. See the [pilot preparation](reports/hosted-combined-authoring-pilot-proposal-2026-11-17.json).

@@ -1,6 +1,6 @@
 # Complete authoring cost pilot
 
-Status — prepared for approval. On 2026-11-17, the user selected a 5–10¢ average target and requested a bounded pilot proposal. Paid execution of this proposal is pending.
+Status — the user approved this three-attempt pilot on 2026-11-17, including the $0.50 planning allowance and possible in-flight overrun. Runtime preparation is in progress.
 
 ## Scope
 
@@ -37,7 +37,7 @@ The API estimate prices text tokens plus 512 framing tokens at $2.50 per million
 
 The cost target measures incremental provider inference charges for authoring and review. Native checks use the existing VPS allocation, and the proof uses the existing local prover. Record their runtimes separately. Allocated monthly hosting cost and local electricity remain outside this inference figure. Any newly required paid compute must return for approval before provisioning.
 
-Fresh generated rules can change Bot effort. The sample does not establish a stable average, and five cents remains an unmet target. The previous strict guard reserves $2.54096 for an API request. The proposed pilot needs a separate, explicit admission mode for estimated spending. The production guard stays strict until that mode has been implemented and verified.
+Fresh generated rules can change Bot effort. The sample does not establish a stable average, and five cents remains an unmet target. The previous strict guard reserves $2.54096 for an API request. The operator pilot uses `AUTHORING_RESERVATION_MODE=estimated`, `AUTHORING_REPAIRS=0` and `GROK_MAX_COMPLETION_TOKENS=2048`. Estimated mode requires local deployment mode. It retains rate floors, payload-size estimates, durable reservations, actual usage settlement, and overrun halts. Public mode rejects this pilot policy. The default remains `provider-bound`.
 
 ## Measurement and verdict
 

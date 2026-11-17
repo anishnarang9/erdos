@@ -311,7 +311,7 @@ describe("dispatch billing", () => {
     expect(again.status).toBe(429);
   });
 
-  it("stops queued model work after an overrun until an operator resolves the halt", async () => {
+  it.each(["provider-bound", "estimated"] as const)("stops queued model work after an overrun until an operator resolves the halt (%s)", async (reservationMode) => {
     const dir = mkdtempSync(join(tmpdir(), "ubc26-halt-"));
     const dbPath = join(dir, "api.db");
     const ticks = 125_000_000_000;
@@ -347,7 +347,7 @@ describe("dispatch billing", () => {
         };
       },
     };
-    const haltBudget = { ...budget, requestCeilingMicroUsd: 50_000, dailyCeilingMicroUsd: 100_000_000 };
+    const haltBudget = { ...budget, reservationMode, requestCeilingMicroUsd: 50_000, dailyCeilingMicroUsd: 100_000_000 };
     const operatorToken = "operator-test-token-value";
     const created = appWith({ dbPath, budget: haltBudget, draftModel: model, operatorToken }, dbPath);
     const key = await issue(created.app);
@@ -444,6 +444,48 @@ describe("dispatch billing", () => {
     expect(history.resolution_note).toBe("Reviewed the provider invoice");
     expect(history.settled_micro_usd).toBe(12_500_000);
     expect(done.state).toBe("succeeded");
+  });
+});
+
+describe("estimated operator spending", () => {
+  it.each([
+    [undefined, 60_000, false],
+    ["provider-bound", 60_000, false],
+    ["estimated", 60_000, true],
+    ["estimated", 1_000, false],
+  ] as const)("checks the selected spending policy (%s, %s)", async (reservationMode, requestCeilingMicroUsd, admitted) => {
+    let calls = 0;
+    const draftModel = {
+      providerCostBound: { maxPromptTokens: 1_000_000, inputMicroUsdPerMillion: 2_500_000, outputMicroUsdPerMillion: 5_000_000 },
+      outputTokenBound: { parameter: "max_completion_tokens" as const, maxTokens: 2048 },
+      async draft() {
+        calls += 1;
+        return { result: { kind: "clarification" as const, questions: ["Which file?"] }, model: "spec", traceId: "estimated",
+          usage: { promptTokens: 3000, completionTokens: 1000, cachedTokens: 0, reasoningTokens: 0, costInUsdTicks: null } };
+      },
+    };
+    const created = appWith({ draftModel, authoringRepairs: false, budget: {
+      requestCeilingMicroUsd, dailyCeilingMicroUsd: 180_000,
+      inputMicroUsdPerMillion: 2_500_000, outputMicroUsdPerMillion: 5_000_000,
+      ...(reservationMode ? { reservationMode } : {}),
+    } });
+    const response = await post(created.app, "/v1/drafts", DRAFT_BODY, auth(BUYER_TOKEN));
+    if (admitted) {
+      expect(response.status, await response.clone().text()).toBe(200);
+      expect((await response.json() as { billing: unknown }).billing).toMatchObject({ state: "settled", microUsd: 12_500 });
+      expect(calls).toBe(1);
+    } else {
+      expect(response.status).toBe(503);
+      expect(calls).toBe(0);
+    }
+  });
+
+  it("rejects estimated spending in a public app before opening its database", () => {
+    expect(() => createApp({
+      buyerToken: BUYER_TOKEN, dbPath: "/missing-parent/operator-pilot.db",
+      deployment: { mode: "public", serviceOrigin: ORIGIN },
+      budget: { ...budget, reservationMode: "estimated" },
+    })).toThrow("Estimated authoring spending requires local mode");
   });
 });
 

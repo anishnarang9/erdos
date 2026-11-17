@@ -104,6 +104,9 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     throw new Error("createApp: buyerToken must be a string of at least 16 characters");
   }
   assertAuthoringBudget(opts.budget);
+  if (opts.budget?.reservationMode === "estimated" && opts.deployment?.mode === "public") {
+    throw new Error("Estimated authoring spending requires local mode");
+  }
   if (opts.authoringRepairs !== undefined && typeof opts.authoringRepairs !== "boolean") {
     throw new Error("authoringRepairs must be a boolean");
   }

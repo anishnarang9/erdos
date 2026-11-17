@@ -272,6 +272,16 @@ describe("production readiness evidence", () => {
     expect(reason(unbounded, "model")).toBe("context_bound_unreliable");
   });
 
+  it("labels estimated spending for local pilots and rejects it in public mode", async () => {
+    const input = await reviewedInput({
+      mode: "local",
+      budget: { ...reviewedBudget, requestCeilingMicroUsd: 60_000, reservationMode: "estimated" },
+    });
+    const local = await evaluateReady(input);
+    expect(local.checks.find((c) => c.name === "budget")).toMatchObject({ ok: true, state: "estimated" });
+    expect(reason(await evaluateReady({ ...input, mode: "public" }), "budget")).toBe("estimated_requires_local");
+  });
+
   it("requires the request ceiling to cover the operator tariff, not only the reviewed floor", async () => {
     const input = await reviewedInput({
       budget: {

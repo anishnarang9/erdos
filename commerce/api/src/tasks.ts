@@ -214,6 +214,9 @@ export function noteDraftUsage(db: Deps["db"], taskId: string, usageJson: string
 /** Accepts a positive integer price. Zero is not a price. */
 export function assertAuthoringBudget(budget: Deps["budget"]): void {
   if (!budget) return;
+  if (budget.reservationMode !== undefined && budget.reservationMode !== "provider-bound" && budget.reservationMode !== "estimated") {
+    throw new Error("createApp: budget.reservationMode must be provider-bound or estimated");
+  }
   const fields: [string, number][] = [
     ["requestCeilingMicroUsd", budget.requestCeilingMicroUsd],
     ["dailyCeilingMicroUsd", budget.dailyCeilingMicroUsd],

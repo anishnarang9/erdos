@@ -97,7 +97,11 @@ function draftModelFromEnv(): { model?: DraftModel; label: string } {
     console.error("XAI_MODEL is required when XAI_API_KEY is set (the model ID is pinned and recorded)");
     process.exit(1);
   }
-  const live = grokDraftModel({ apiKey, model });
+  const outputLimit = process.env.GROK_MAX_COMPLETION_TOKENS;
+  if (outputLimit !== undefined && (!/^[1-9][0-9]*$/.test(outputLimit) || Number(outputLimit) > 8192)) {
+    throw new Error("GROK_MAX_COMPLETION_TOKENS must be an integer from 1 to 8192");
+  }
+  const live = grokDraftModel({ apiKey, model, ...(outputLimit === undefined ? {} : { maxCompletionTokens: Number(outputLimit) }) });
   const dir = process.env.GROK_RECORD_DIR;
   return { model: dir ? recordingDraftModel(live, dir) : live, label: `grok:${model}${dir ? ` (recording to ${dir})` : ""}` };
 }
@@ -170,8 +174,13 @@ function readBudget(): AuthoringBudget | undefined {
     "AUTHORING_INPUT_MICRO_USD_PER_MILLION",
     "AUTHORING_OUTPUT_MICRO_USD_PER_MILLION",
     "AUTHORING_CACHED_INPUT_MICRO_USD_PER_MILLION",
+    "AUTHORING_RESERVATION_MODE",
   ];
   if (names.every((name) => process.env[name] === undefined)) return undefined;
+  const reservationMode = process.env.AUTHORING_RESERVATION_MODE;
+  if (reservationMode !== undefined && reservationMode !== "provider-bound" && reservationMode !== "estimated") {
+    throw new Error("AUTHORING_RESERVATION_MODE must be provider-bound or estimated");
+  }
   const read = (name: string): number => {
     const raw = process.env[name];
     if (raw === undefined || !/^[0-9]+$/.test(raw)) return Number.NaN;
@@ -179,6 +188,7 @@ function readBudget(): AuthoringBudget | undefined {
     return Number.isSafeInteger(value) ? value : Number.NaN;
   };
   return {
+    ...(reservationMode === undefined ? {} : { reservationMode }),
     requestCeilingMicroUsd: read("AUTHORING_REQUEST_CEILING_MICRO_USD"),
     dailyCeilingMicroUsd: read("AUTHORING_DAILY_CEILING_MICRO_USD"),
     inputMicroUsdPerMillion: read("AUTHORING_INPUT_MICRO_USD_PER_MILLION"),

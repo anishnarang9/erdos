@@ -39,7 +39,7 @@ export interface ReadyCheck {
   ok: boolean;
   reason?: string;
   /** Set when a passing check is an explicit exception rather than a satisfied dependency. */
-  state?: "disabled" | "not_used" | "not_required";
+  state?: "disabled" | "not_used" | "not_required" | "estimated";
   blocksListen: boolean;
 }
 
@@ -210,11 +210,17 @@ function originCheck(origin: string): ReadyCheck {
   return check("origin", true, undefined, false);
 }
 
-function budgetCheck(budget: AuthoringBudget | undefined, required: boolean): ReadyCheck {
+function budgetCheck(budget: AuthoringBudget | undefined, required: boolean, publicMode: boolean): ReadyCheck {
   if (!budget) {
     return required
       ? check("budget", false, "missing", true)
       : check("budget", true, undefined, false, "not_required");
+  }
+  if (budget.reservationMode !== undefined && budget.reservationMode !== "provider-bound" && budget.reservationMode !== "estimated") {
+    return check("budget", false, "invalid_reservation_mode", true);
+  }
+  if (budget.reservationMode === "estimated" && publicMode) {
+    return check("budget", false, "estimated_requires_local", true);
   }
   const fields = [
     budget.requestCeilingMicroUsd,
@@ -230,8 +236,9 @@ function budgetCheck(budget: AuthoringBudget | undefined, required: boolean): Re
   if (budget.inputMicroUsdPerMillion < REVIEWED_INPUT_MICRO_USD_PER_MILLION) return check("budget", false, "input_rate_below_provider", true);
   if (budget.outputMicroUsdPerMillion < REVIEWED_OUTPUT_MICRO_USD_PER_MILLION) return check("budget", false, "output_rate_below_provider", true);
   const call = callMicroUsd(budget.inputMicroUsdPerMillion, budget.outputMicroUsdPerMillion);
-  if (call === null || budget.requestCeilingMicroUsd < call) return check("budget", false, "below_call", true);
+  if (budget.reservationMode !== "estimated" && (call === null || budget.requestCeilingMicroUsd < call)) return check("budget", false, "below_call", true);
   if (budget.dailyCeilingMicroUsd < budget.requestCeilingMicroUsd) return check("budget", false, "daily_below_request", true);
+  if (budget.reservationMode === "estimated") return check("budget", true, undefined, false, "estimated");
   return required
     ? check("budget", true, undefined, false)
     : check("budget", true, undefined, false, "not_required");
@@ -478,7 +485,7 @@ export async function evaluateReady(input: ReadyInput): Promise<ReadyReport> {
   const release = input.authoring === "disabled"
     ? check("authoring_release", false, "disabled", false)
     : check("authoring_release", true, undefined, false);
-  const budget = budgetCheck(input.budget, input.authoring === "required");
+  const budget = budgetCheck(input.budget, input.authoring === "required", publicMode);
   const rates = input.rateLimit && positiveInt(input.rateLimit.expensivePerPrincipal) && positiveInt(input.rateLimit.expensivePerIp)
     ? check("rate_limit", true, undefined, false)
     : check("rate_limit", false, "invalid", true);

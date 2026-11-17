@@ -1,5 +1,5 @@
 {
-  "status": "proposal-only",
+  "status": "approved-preparing-runtime",
   "userDecision": "Target 5\u201310 cents average; prepare bounded pilot proposal",
   "cases": [
     {
@@ -36,7 +36,7 @@
   "tokenizerScope": "Text of complete serialized payload; provider framing remains estimated",
   "generationCalls": 0,
   "botRuns": 0,
-  "paidPilotApproved": false,
+  "paidPilotApproved": true,
   "planningAllowanceMicroUsd": 500000,
   "maximumApiCalls": 3,
   "maximumBotRuns": 3,
@@ -50,11 +50,24 @@
       "POST /v1/tasks with exact replay"
     ],
     "knownUsageSettlesAfterOneCall": true,
-    "apiTests": 995,
+    "apiTests": 1002,
     "focusedTests": 32,
     "apiTypecheck": "passed",
-    "estimatedSpendingAdmission": "pending",
+    "estimatedSpendingAdmission": "implemented for local operator pilot",
     "deployed": false,
-    "paidExecutionApproved": false
+    "paidExecutionApproved": true,
+    "deployment": "pending",
+    "independentReview": "Opus inspected the diff; reservation mode parsing now validates before casting. Daily ceiling still applies to estimated mode."
+  },
+  "approval": {
+    "answer": "Approve pilot with possible in-flight overrun",
+    "approvedProposalSource": "47a8a3d",
+    "planningAllowanceMicroUsd": 500000,
+    "singleAttemptStopMicroUsd": 150000,
+    "inFlightOverrunAccepted": true,
+    "maximumApiCalls": 3,
+    "maximumBotRuns": 3,
+    "purchasesAuthorized": false,
+    "chainTransactionsAuthorized": false
   }
 }

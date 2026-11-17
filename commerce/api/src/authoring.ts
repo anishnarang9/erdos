@@ -201,7 +201,8 @@ function supportedCallFits(
 ): boolean {
   const provider = model.providerCostBound;
   if (provider && (budget.inputMicroUsdPerMillion < provider.inputMicroUsdPerMillion || budget.outputMicroUsdPerMillion < provider.outputMicroUsdPerMillion)) return false;
-  const promptTokens = Math.max(draftCallTokenBound(input, completionTokens), provider?.maxPromptTokens ?? 0);
+  const providerPromptTokens = budget.reservationMode === "estimated" ? 0 : provider?.maxPromptTokens ?? 0;
+  const promptTokens = Math.max(draftCallTokenBound(input, completionTokens), providerPromptTokens);
   const cost = maxCallMicroUsd(promptTokens, completionTokens, budget);
   return cost !== null && cost <= ceiling;
 }
