@@ -52,6 +52,25 @@ try {
       }
     }
   }
+  const unsupported = buildCorpus().filter((challenge) => challenge.classification === 'unsupported'
+    && (wanted.size === 0 || wanted.has(challenge.id)));
+  for (const challenge of unsupported) {
+    await writeChallenge(challenge, directory);
+    const planPath = join(directory, challenge.classification, challenge.id, 'unsupported-plan.json');
+    const validation = runEngine(engine, ['validate', '--plan', planPath]);
+    const request = validation.value?.request;
+    const expected = challenge.capabilityRequests[0];
+    compared += 1;
+    if (validation.exitCode !== 2 || validation.value?.code !== 'unsupported_capability'
+      || request?.kind !== expected.kind || request?.name !== expected.name) {
+      failures.push({
+        id: challenge.id,
+        kind: 'unsupported_capability',
+        exitCode: validation.exitCode,
+        actual: validation.value ?? validation.stderr,
+      });
+    }
+  }
 } finally {
   await rm(directory, {recursive: true, force: true});
 }

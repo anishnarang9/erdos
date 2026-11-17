@@ -673,6 +673,46 @@ function custodyDual(evidence, spec) {
   ]);
 }
 
+const digest = (bytes) => createHash('sha256').update(bytes).digest('hex');
+
+function firmwareImage(delivery, reference, spec) {
+  const appendix = delivery.raw[spec.file].length;
+  return violations([
+    ['image-hash', digest(delivery.raw['image.bin']) === digest(reference.raw['image.bin'])],
+    ['min-size', appendix >= spec.minSize],
+    ['max-size', appendix <= spec.maxSize],
+    ['build-label', delivery.values['meta.json'].build === reference.values['channel.json'].build],
+  ]);
+}
+
+function firmwarePair(delivery, reference, spec) {
+  const slot = delivery.values['slot.json'].slot;
+  return violations([
+    ['boot-hash', digest(delivery.raw['boot.bin']) === digest(reference.raw['boot.bin'])],
+    ['app-hash', digest(delivery.raw['app.bin']) === digest(reference.raw['app.bin'])],
+    ['slot-domain', slot >= BigInt(spec.minSlot) && slot <= BigInt(spec.maxSlot)],
+  ]);
+}
+
+function firmwareNote(delivery, spec) {
+  const pad = delivery.raw[spec.file].length;
+  return violations([
+    ['note-text', delivery.values['notice.txt'] === spec.text],
+    ['min-size', pad >= spec.minSize],
+    ['max-size', pad <= spec.maxSize],
+  ]);
+}
+
+function firmwareOpaque(delivery, reference, spec) {
+  const pad = delivery.raw[spec.file].length;
+  return violations([
+    ['image-hash', digest(delivery.raw['blob.bin']) === digest(reference.raw['blob.bin'])],
+    ['min-size', pad >= spec.minSize],
+    ['max-size', pad <= spec.maxSize],
+    ['build-label', delivery.values['meta.json'].build === reference.values['channel.json'].build],
+  ]);
+}
+
 function massProduct(delivery) {
   const row = delivery.values['product.json'];
   return violations([
@@ -888,6 +928,18 @@ export async function evaluateCandidate(challenge, candidateDirectory, {referenc
         break;
       case 'custody-dual':
         violated = custodyDual(evidence, challenge.spec);
+        break;
+      case 'firmware-image':
+        violated = firmwareImage(delivery, reference, challenge.spec);
+        break;
+      case 'firmware-pair':
+        violated = firmwarePair(delivery, reference, challenge.spec);
+        break;
+      case 'firmware-note':
+        violated = firmwareNote(delivery, challenge.spec);
+        break;
+      case 'firmware-opaque':
+        violated = firmwareOpaque(delivery, reference, challenge.spec);
         break;
       default:
         throw Error(`No independent domain oracle for ${challenge.spec.kind}`);
