@@ -727,9 +727,36 @@ export function registerMarketRoutes(ctx: RouteContext): void {
     });
   };
 
+  /** GET /v1/jobs/:id/quotes (buyer): every quote for the job's current revision, newest first. */
+  const listQuotes: Handler<AppEnv> = (c) => {
+    const { job, rev } = loadJob(c.req.param("id") ?? "");
+    const now = nowSec(deps);
+    const rows = deps.db
+      .prepare(
+        `SELECT id, provider, price_units, valid_until, status, created_at FROM quotes
+         WHERE job_id = ? AND revision_hash = ? ORDER BY created_at DESC, id DESC`,
+      )
+      .all(job.id, rev.revision_hash) as { id: string; provider: string; price_units: string; valid_until: number; status: string; created_at: string }[];
+    return c.json({
+      jobId: job.id,
+      revisionHash: rev.revision_hash,
+      quotes: rows.map((r) => ({
+        quoteId: r.id,
+        provider: checksum(r.provider),
+        price: r.price_units,
+        validUntil: r.valid_until,
+        // A quote can be selected until 60 s before validUntil (select-quote's margin).
+        selectable: r.status !== "selected" && now < r.valid_until - SELECT_MARGIN_SEC,
+        status: r.status,
+        createdAt: r.created_at,
+      })),
+    });
+  };
+
   app.get("/v1/jobs", readBody, feed);
   app.get("/v1/assignments", readBody, provider, assignments);
   app.post("/v1/jobs/:id/quotes", readBody, provider, parseJson, requireJobId, idem.middleware, postQuote);
+  app.get("/v1/jobs/:id/quotes", readBody, buyer, requireJobId, listQuotes);
   app.post("/v1/jobs/:id/select-quote", readBody, buyer, parseJson, requireJobId, idem.middleware, selectQuote);
   app.post("/v1/jobs/:id/funding-receipt", readBody, buyer, parseJson, requireJobId, idem.middleware, fundingReceipt);
   app.get("/v1/jobs/:id/submission", readBody, requireJobId, submission);

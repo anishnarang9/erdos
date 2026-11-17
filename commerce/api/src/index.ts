@@ -76,3 +76,8 @@ export { DEFAULT_QUOTE_CHAIN_ID, fundingTxRequests, createApiArcChain, type ApiC
 export { createIndexer, type Indexer, type IndexerOptions } from "./indexer.ts";
 export { PLAN_SCHEMA, ENGINE_CATALOG } from "./authoring.ts";
 export { checkPlanFiles, FORMAT_PARSER } from "./revision.ts";
+export { arcReader, arcChain } from "./arc.ts";
+export { readChain } from "./chain.ts";
+export { runEventLog, readRunEvents, type RunEvent, type RunEventType, type Emit } from "./run-events.ts";
+export { registerDemoSignerRoutes, type DemoSignerOptions, type PosterChain } from "./demo-signer.ts";
+export { arcPosterChain } from "./demo-arc.ts";

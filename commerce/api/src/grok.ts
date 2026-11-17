@@ -172,6 +172,8 @@ export interface GrokOptions {
   model: string;
   fetch?: typeof globalThis.fetch;
   baseUrl?: string;
+  /** Abort a draft call after this long (ms). Default 180000. */
+  timeoutMs?: number;
 }
 
 /** Grok (xAI chat completions) draft model. The API key is only ever placed in the Authorization header. */
@@ -212,8 +214,10 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
           method: "POST",
           headers: { authorization: `Bearer ${opts.apiKey}`, "content-type": "application/json" },
           body: JSON.stringify(body),
+          signal: AbortSignal.timeout(opts.timeoutMs ?? 180_000),
         });
-      } catch {
+      } catch (err) {
+        if ((err as { name?: string }).name === "TimeoutError") throw fail("timeout", "Draft model did not answer in time");
         throw fail("network_error", "Draft model request failed");
       }
       if (!res.ok) throw fail("http_error", `Draft model returned HTTP ${res.status}`);

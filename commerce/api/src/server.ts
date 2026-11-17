@@ -1,6 +1,10 @@
 import { existsSync } from "node:fs";
 import { serve } from "@hono/node-server";
-import { createPublicClient, getAddress, http, type PublicClient } from "viem";
+import { createPublicClient, createWalletClient, getAddress, http, type PublicClient } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { arc } from "@ubc26/sdk";
+import { arcPosterChain } from "./demo-arc.ts";
+import type { DemoSignerOptions } from "./demo-signer.ts";
 import { createApp } from "./app.ts";
 import { openDb } from "./db.ts";
 import { createIndexer } from "./indexer.ts";
@@ -28,6 +32,12 @@ if (!buyerToken) {
  * Absent CHAIN_RPC_URL means no chain: chain routes return 503 and no indexer runs.
  */
 function chainFromEnv(): ApiChain | undefined {
+  // CHAIN_MODE=arc: the selected-provider deployment on Arc testnet (manifest in @ubc26/sdk arc). CHAIN_RPC_URL overrides the RPC.
+  if (process.env.CHAIN_MODE === "arc") {
+    const t = arc.ARC_TESTNET;
+    const rpc = process.env.CHAIN_RPC_URL ?? t.rpcUrl;
+    return createApiArcChain({ chainId: t.chainId, core: t.core, hook: t.hook, usdc: t.usdc }, createPublicClient({ transport: http(rpc) }) as PublicClient);
+  }
   const rpcUrl = process.env.CHAIN_RPC_URL;
   if (!rpcUrl) return undefined;
   const need = (name: string): string => {
@@ -143,6 +153,31 @@ function openClaimFromEnv(): OpenClaimConfig | undefined {
 
 const chain = chainFromEnv();
 const { engine, label: engineLabel } = engineFromEnv();
+
+/**
+ * Demo signer (presenter mode): only with DEMO_SIGNER=1, CHAIN_MODE=arc and POSTER_PRIVATE_KEY. Limits:
+ * DEMO_MAX_BUDGET_UNITS per job (default 100000 = 0.1 USDC), DEMO_SESSION_BUDGET_UNITS per process (default 1 USDC).
+ */
+function demoSignerFromEnv(): DemoSignerOptions | undefined {
+  if (process.env.DEMO_SIGNER !== "1") return undefined;
+  if (process.env.CHAIN_MODE !== "arc" || !chain) {
+    console.error("DEMO_SIGNER=1 needs CHAIN_MODE=arc");
+    process.exit(1);
+  }
+  const key = process.env.POSTER_PRIVATE_KEY;
+  if (!key || !/^0x[0-9a-fA-F]{64}$/.test(key)) {
+    console.error("DEMO_SIGNER=1 needs POSTER_PRIVATE_KEY (a testnet key) in the API's .env");
+    process.exit(1);
+  }
+  const rpc = process.env.CHAIN_RPC_URL ?? arc.ARC_TESTNET.rpcUrl;
+  const wallet = createWalletClient({ account: privateKeyToAccount(key as `0x${string}`), transport: http(rpc) });
+  return {
+    chain: arcPosterChain(chain.publicClient, wallet),
+    maxBudgetPerJob: BigInt(process.env.DEMO_MAX_BUDGET_UNITS ?? "100000"),
+    sessionBudget: BigInt(process.env.DEMO_SESSION_BUDGET_UNITS ?? "1000000"),
+  };
+}
+const demoSigner = demoSignerFromEnv();
 // Must precede createApp/openDb, indexer construction, and listen. Labels are informational only.
 assertChainEngine(chain, engine);
 const { model: draftModel, label: modelLabel } = draftModelFromEnv();
@@ -158,6 +193,8 @@ const { app, close } = createApp({
   ...(chain ? { chain } : {}),
   ...(x402 ? { x402 } : {}),
   ...(openClaim ? { openClaim } : {}),
+  ...(process.env.RUN_EVENTS_DIR ? { runEventsDir: process.env.RUN_EVENTS_DIR } : {}),
+  ...(demoSigner ? { demoSigner } : {}),
 });
 
 // Indexer (§6): ticks every 5 s when a chain is configured. It uses its own connection to the same database
@@ -184,6 +221,7 @@ const server = serve({ fetch: app.fetch, port, ...(hostname ? { hostname } : {})
   console.log(`[api] listening on ${hostname ?? "all interfaces"}:${info.port} (db: ${dbPath}, chain: ${chain ? chain.config.chainId : "none"})`);
   console.log(`[api] engine: ${engineLabel}; draft model: ${modelLabel}; packages: ${packagesDir ?? "not kept"}`);
   console.log(`[api] x402: ${x402 ? `${x402.network} ${x402.amount} units` : "off"}`);
+  console.log(`[api] demo signer: ${demoSigner ? `ON for Poster ${demoSigner.chain.poster} (testnet)` : "off"}`);
   console.log(`[api] open claim: ${openClaim ? `Arc chain ${openClaim.chainId}` : "off"}`);
 });
 

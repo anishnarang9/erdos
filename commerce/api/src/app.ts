@@ -14,6 +14,8 @@ import { registerAuthoringRoutes } from "./authoring.ts";
 import { registerMarketRoutes } from "./market.ts";
 import { registerX402Routes, type X402Config } from "./x402.ts";
 import { registerOpenClaimRoutes, type OpenClaimConfig } from "./open-claim.ts";
+import { registerDemoRoutes } from "./demo.ts";
+import { registerDemoSignerRoutes, type DemoSignerOptions } from "./demo-signer.ts";
 
 export interface CreateAppOptions {
   dbPath: string;
@@ -30,6 +32,10 @@ export interface CreateAppOptions {
   x402?: X402Config;
   /** Optional open-claim registration and public discovery reader. */
   openClaim?: OpenClaimConfig;
+  /** Serve worker run events from here (demo routes). */
+  runEventsDir?: string;
+  /** Presenter-mode Poster signer; see demo-signer.ts. */
+  demoSigner?: DemoSignerOptions;
 }
 
 export interface CreatedApp {
@@ -59,6 +65,8 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     ...(opts.draftModel ? { draftModel: opts.draftModel } : {}),
     ...(opts.chain ? { chain: opts.chain } : {}),
     ...(opts.packagesDir ? { packagesDir: opts.packagesDir } : {}),
+    ...(opts.runEventsDir ? { runEventsDir: opts.runEventsDir } : {}),
+    ...(opts.demoSigner ? { demoSigner: opts.demoSigner } : {}),
   };
 
   const app = new Hono<AppEnv>();
@@ -98,6 +106,8 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   registerX402Routes(ctx, authoring, opts.x402);
   registerOpenClaimRoutes(ctx, opts.openClaim);
   registerMarketRoutes(ctx);
+  registerDemoRoutes(ctx);
+  registerDemoSignerRoutes(ctx);
 
   app.get("/v1/jobs/:id", readBody, requireJobId, jobs.get);
 

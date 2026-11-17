@@ -391,7 +391,7 @@ export function cliEngine(opts: CliEngineOptions): Engine {
  * `/a/b`, and `C:\a\b` to `/mnt/c/a/b`. POSIX paths pass through. Anything else throws.
  */
 export function windowsToWslPath(p: string, distro: string): string {
-  if (p.startsWith("/")) return p;
+  if (p.startsWith("/") && !p.startsWith("//")) return p;
   const unc = p.replace(/\//g, "\\");
   for (const root of [`\\\\wsl.localhost\\${distro}`, `\\\\wsl$\\${distro}`]) {
     if (unc.toLowerCase() === root.toLowerCase()) return "/";
@@ -456,6 +456,11 @@ export function engineConfigFromEnv(env: Record<string, string | undefined>): En
   if (mode === "simulated") return null;
   if (mode !== "wsl" && mode !== "native") throw new Error(`ENGINE_MODE must be wsl, native or simulated, not ${mode}`);
   if (!env.ENGINE_PATH) throw new Error(`ENGINE_PATH is required when ENGINE_MODE=${mode}`);
+  const wd = env.ENGINE_WORK_DIR;
+  // A .env parser can collapse a leading "\\" to "\", which silently turns a UNC path into a drive-relative one.
+  if (wd && /^[\\/](?![\\/])wsl(\.localhost|\$)/i.test(wd)) {
+    throw new Error(`ENGINE_WORK_DIR ${wd} lost its leading UNC separator; write it as //wsl.localhost/<distro>/...`);
+  }
   return {
     mode,
     enginePath: env.ENGINE_PATH,

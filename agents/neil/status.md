@@ -2,6 +2,87 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 04:45 -05:00 — Neil
+
+- **Act two works from the UI on Arc (job 4).** A dedicated tamper solver (third testnet account) quoted 0.009 against the honest solver's 0.01; the buyer selected it. It produced a real verdict-0 proof, the preflight reported `VerificationFailed` and nothing was sent; the escrow stayed locked; the refund was claimed from the UI after expiry. Evidence: `commerce/evidence/arc-first-funded-jobs.md`.
+- **Replay tested:** Shift+R plays a recording at 4× under a `RECORDED RUN` flag plus a "time-lapse 4× · real time m:ss" badge (D1).
+- **Fixed:**
+  - Overlapping live polling loops duplicated events; a generation token and seq de-duplication stop this.
+  - The solver panel follows the selected solver.
+  - The refunded state has its own card.
+- **Note:** the machine ran low on memory with the prover, the 3D UI and four Node processes running together, and Claude Code stopped the background servers. For recording, run only the API, one agent and Vite at a time, and close other apps.
+- **Next:**
+  - Do a from-scratch recording of both acts for the video.
+  - Write the video script and do the edit.
+  - Nick: freeze the core.
+  - Anish: the lookup question.
+
+## 2026-11-16 03:40 -05:00 — Neil
+
+- **Branch:** `neil/plan-architecture` (PR #5). The plan is `agents/neil/ui-intent.md`: Decisions D1–D4 and C1–C14, reconciled with Codex's `product-plan.md`.
+- **Built:**
+  - **Run events:** the worker emits allowlisted events, served at `/v1/demo/runs/:id(/events)`.
+  - **Demo signer** (presenter mode, off by default): `/v1/demo/capabilities` and `/v1/demo/jobs/:id/fund|refund`. It resumes from chain state, has per-job and session budget caps, and accepts local origins only.
+  - **Solver agent loop** (`pnpm agent`) and buyer quote listing.
+  - **Buyer demo UI** (`commerce/web`): split screen with a React Three Fiber vault; beams; rules that fly from the request and type out from the engine preview; an honest proving grid (real elapsed time, real cycles at the end); scramble-decrypt reveal; captions; presenter keys (Space/R/D/M/F/S); recording and replay with offline re-verification.
+- **Live UI rehearsal on Arc (job 3): passed end to end.** Draft → approve → compile → agent quote → four funding transactions (demo signer) → proof (147.7 s, 937,488 cycles) → ProofAccepted → payout and key release → browser decrypt from chain data. The recording is `commerce/web/recordings/run-2026-11-16-job3-paid.json`.
+- **Found during the rehearsal:**
+  - Live Grok took 1:47 on one call and timed out at 3 min on another. The adapter now times out instead of hanging.
+  - The public Arc RPC dropped the approve transaction once; resume fixed it without a duplicate escrow.
+  - Proving is about 45 % slower while the UI renders: 147.7 s against about 103 s without the UI.
+- **Tests:** API 737, worker 151, SDK 436, web typecheck and build all pass.
+- **Next:**
+  - Act two needs a third testnet account for the tampered solver.
+  - Make a from-scratch recording, test the replay picker, and record the video.
+  - Commit the live Grok draft as a replay fallback; it must stay labelled.
+
+## 2026-11-15 14:30 -05:00 — Neil
+
+- **Checkpoint C is met on Arc testnet.** All transactions and explorer links are in `commerce/evidence/arc-first-funded-jobs.md`.
+  - **Job 1 (correct delivery):**
+    - createJob, setBudget, approve and fund ran, then a real Groth16 proof (126 s, 812,683 cycles).
+    - `submit` was accepted on chain (`ProofAccepted`), and `release` paid the Solver 0.01 USDC (`PaymentReleased`, `KeyReleased`).
+    - The buyer decrypted the delivery from public chain data, byte for byte. Final state: Completed.
+  - **Job 2 (tampered by one cent):** the proof is a real verdict 0. It was never submitted; the chain's own preflight reverts with `VerificationFailed`. The escrow stayed Funded, and after expiry `claimRefund` returned the budget. Final state: Expired.
+- **Fixes found during the live run:**
+  - A `.env` parser collapses a leading `\` in UNC paths, so we now use the `//wsl.localhost/...` form, guarded at config load.
+  - SQLite cannot lock files on the WSL share, so the API database lives on local disk.
+  - The indexer stays 3 blocks behind the head, because Arc's load-balanced RPC can lag.
+- **Tests:** API 727, SDK 436, worker 147. Live read-only and real-engine suites are as before.
+- **New scripts:** `worker/scripts/verify-delivery.ts` (buyer side) and `claim-refund.ts` (Poster).
+- **Next:** the buyer web UI (T12) and the demo script. Nick's items (core freeze, gas figures) and Anish's lookup question are still open.
+
+## 2026-11-15 12:40 -05:00 — Neil
+
+- **Branch:** `neil/plan-architecture` ([PR #5](https://github.com/anishnarang9/UBC-26/pull/5)).
+- **Connected to Nick's live contracts on Arc** (`nick-settlement` `80c8a4a`):
+  - The SDK has an `arc` client: reads, Poster and Solver transaction requests, preflights, event decoding, and `sendTx` with the Arc fee floor.
+  - `hook.contextOf` and `hook.expectedJournal` equal our encoders byte for byte. The context's escrow is the core proxy.
+- **API:**
+  - `CHAIN_MODE=arc` reads the real core and hook. The indexer starts at the deploy block and reads at most 10,000 blocks per log request.
+  - select-quote also returns the `setBudget` and `fund` steps for Nick's 4-transaction order.
+  - New `GET /v1/jobs/:id/submission` (T11) serves the submit tx, the hashes, the release tx and the released key.
+- **Worker (T9/T10):**
+  - `runFunded` takes the context from the chain, checks the job and its terms, and checks the time budget.
+  - It submits and releases at most once, keeping progress in `state.json` so it can resume after a crash. A verdict-0 proof is never submitted.
+  - A signer policy allows only `core.submit` and `hook.release`.
+  - `scripts/first-funded-job.ts` runs the whole funded flow on Arc.
+- **Checks:**
+  - Default suites: API 695, SDK 436, worker 65.
+  - Live read-only on Arc: SDK 31, API 3, worker 3.
+  - An independent tester wrote 85 black-box tests for the SDK client. The two issues it found were interface naming and are now documented.
+  - Engine drift check: `codex/engine-commerce` changes no interface we use.
+- **Live facts:**
+  - `jobCounter` is 0, so there are no jobs yet.
+  - The core is NOT frozen: the deployer still holds the admin roles, although the manifest's policy text says they were renounced.
+  - Arc rejects `eth_getLogs` over 10,000 blocks.
+- **Blocked:** the first funded job needs two Arc testnet accounts with faucet USDC. Put the keys in `commerce/worker/.env` as `POSTER_PRIVATE_KEY` and `WORKER_PRIVATE_KEY`, then run `corepack pnpm exec tsx scripts/first-funded-job.ts`, and once more with `--tamper` for the rejected case.
+- **For Nick:**
+  1. Measured gas for `submit` and `release` (we default release to 500k).
+  2. Is a zero priority fee accepted?
+  3. When will the core be frozen? Please also fix the manifest's policy text.
+- **For Anish:** are the `lookup` duplicate-key aborts intended (see `commerce/api/test/integration/fixtures/grok/README.md`)? Note that `engine/evaluation` on `codex/engine-commerce` imports commerce types from `3013d73`; `Manifest` and `packageDir` have changed since.
+
 ## 2026-11-15 10:15 -05:00 — Neil
 
 - **Branch:** `neil/plan-architecture` ([PR #5](https://github.com/anishnarang9/UBC-26/pull/5)).
