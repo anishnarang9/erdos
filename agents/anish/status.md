@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 15:51 -05:00 — Anish — Verify installed runner against the published guide
+
+- The downloaded runner, manifest and native engine match the public pins. An offline install as UID 1000 verifies its provenance and returns verdicts 1 and 0 for the guide examples. The fixture initially used a non-executable mount and then shared temporary ancestors. The successful run uses a private executable mount. See the [installed-runner check](reports/hosted-public-guide-installed-runner-2026-11-17.json). Hosted authoring and funded settlement remain open.
+
 ## 2026-11-17 15:47 -05:00 — Anish — Publish the developer documentation bundle
 
 - Branch `codex/hosted-backend`, draft PR #8. Published the [developer guide](https://ubc26-159-89-149-133.sslip.io/downloads/docs/0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b/README.md) and [API contract](https://ubc26-159-89-149-133.sslip.io/downloads/docs/0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b/api.md). Documentation and ingress source are `0b98c3b`. The live API remains `9dc289d`. Runner and engine downloads remain `fb45033`.
