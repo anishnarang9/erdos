@@ -4,7 +4,7 @@ Status: proposed cost policy. Paid authoring remains disabled.
 
 The user permits at most **$0.10 for a complete authoring run**. This includes its model repair. The compiler then handles deterministic validation and checker generation. The user deferred mass testing and rejected the proposed $20 testing and daily budgets. No generation request has run.
 
-Latest clarification: Grok Bot must perform meaningful work for the bounty. The user asks how to keep refinement around five to ten cents. The [Bot-first proposal](hosted-grok-bot-authoring.md) gives it the actual constraint-authoring step and avoids duplicate API inference. Its subscription usage is separate from API token prices. No provider switch, relaxed spending authority or genuine Bot run is implied.
+Latest clarification: Grok Bot must validate constraints in the live app workflow. Development-only or decorative Bot use was rejected. The [runtime integration](hosted-grok-bot-authoring.md) uses an authenticated Bot webhook and a restricted MCP callback tool. The complete target includes any direct API draft, Bot validation and correction. The API arithmetic below prices API calls only. It does not price Bot usage. No relaxed spending authority, provider switch or genuine Bot run is implied.
 
 ## Intended boundary
 

@@ -1,5 +1,13 @@
 # anish status
 
+
+## 2026-11-17 06:26 -05:00 — Anish — Add the live Bot review protocol contract
+
+- Branch `codex/hosted-backend`, draft PR #8. Added canonical, hash-bound Bot review inputs and strict structured results. The contract binds the original brief, exact rules, revision, references, catalog and native example verdicts. It rejects incomplete passes, invented quotes, changed hashes and approval/billing fields.
+- Focused tests pass 11/11. API typecheck passes. All 950 tests across 65 API files pass. The scoped independent review found no actionable defect on the first ten focused cases. The added aggregate UTF-8 result-limit case also passes.
+- This is a protocol foundation. Durable owner-bound storage, authenticated webhook/MCP transport and approval gating remain next. No Bot task or paid inference ran. The user requires Bot in live constraint validation, with the ten-cent complete-run ceiling preserved. Bot usage is exhausted by the user's report, and its cost remains unmeasured.
+- Native combined candidate `4a6a320` remains deployed behind public HTTP 503. Its runtime evidence remains separate from this unwired source. Continue unpaid integration and tests. No new proof, wallet action or chain transaction ran.
+
 ## 2026-11-17 06:18 -05:00 — Anish — Verify the combined native candidate and require live Bot validation
 
 - Completed the native combined candidate at code `4a6a320`: image `28649464…` builds under the pinned 4-GiB/two-CPU BuildKit worker. Sixty runtime hashes match `20b0dc2` except the intended outer prewarm helper; the source pin changes explicitly. Engine, API bundle, migrations and state helper bytes match. Current-source prewarm passes with cached artifacts and both verdicts. The real cold 240-second result retains its original baseline source.
