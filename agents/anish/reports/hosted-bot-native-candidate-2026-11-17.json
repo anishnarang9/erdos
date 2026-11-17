@@ -265,7 +265,8 @@
     "linuxEngineSha256": "a7d0cec0285258eda3debf9421e4ee8132fcaf784a4840fae0e86a822aed70ad",
     "nativeVpsReleaseEngineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
     "limit": "Current runner signed checks ran on native Linux CI. Prior 4a6a320 VPS signed checks used the byte-identical VPS release engine. No fresh twelve-case VPS run is claimed.",
-    "publicDownloadPublished": false
+    "publicDownloadPublished": false,
+    "publicationDependency": "The source GitHub repository is private. A release there cannot provide anonymous downloads. Repository visibility remains unchanged. Publish only reviewed standalone assets through a separately prepared artifact route."
   },
   "ci": {
     "head": "fb450331c014b59d037fb692496bdc4f72b11a9c",
@@ -317,5 +318,15 @@
     "Create authenticated Bot routine, run one approved measured review, retain genuine export and receipt.",
     "Review the production dispatch spending policy before enabling public authoring.",
     "Complete remaining sprint public release and live acceptance gates under their applicable authority."
-  ]
+  ],
+  "evidenceReview": {
+    "reviewedRange": "fb45033..5151b55",
+    "filesChecked": 13,
+    "jsonFilesParsed": 8,
+    "sourceHashesMatched": 48,
+    "canonicalInputHashRecomputed": true,
+    "finding": "One broken relative evidence link in the shared plan. Corrected to ../anish/reports/hosted-bot-native-candidate-2026-11-17.json.",
+    "remainingActionableFindings": 0,
+    "scope": "Documentation/report/source identity audit only. No provider, Bot or infrastructure actions."
+  }
 }

@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 08:24 -05:00 — Anish — Audit native evidence and preserve repository visibility
+
+- The read-only review of `fb45033..5151b55` checked thirteen files, eight JSON records and 48 source hashes. It recomputed the 1,185-byte native input and catalog digests. One broken shared-plan evidence link was confirmed and corrected. No other actionable discrepancy remains in that review. The review does not establish genuine Bot execution or price.
+- GitHub reports the source repository as private. A release there cannot supply anonymous runner downloads. Do not change repository visibility. All four standalone assets pass checksums and exact archive membership checks: twelve regular-file entries and 471,242 bytes across the four files. Public artifact hosting remains pending.
+- Checkpoint `5151b55` is pushed and draft PR #8 now records actual native promotion/recovery. Runtime source stays `fb45033`. Bot connector and $1 account cap remain unconfigured while window-focus assistance is pending. No Bot task, credit purchase, generation, proof or chain transaction ran. Continue the approved single-review pilot after account setup.
+
 ## 2026-11-17 08:14 -05:00 — Anish — Promote and recover the native Bot callback candidate
 
 - Branch `codex/hosted-backend`, draft PR #8. Exact source `fb45033` passes commerce CI `44079754316` and core-fast CI `44079754552`. The canonical runner archive is `148366c2…`, manifest `fbab4c2c…`, with eleven payload files. Local and Linux archives match byte for byte. Actual archive installation, normal NodeNext consumer, caller-directory reproducibility and twelve native Linux signed checks pass. These checks do not establish a new twelve-case VPS run.
