@@ -22,3 +22,21 @@ it("keeps queued model work paused after restart with emergency disable",async()
   active.reconcileTasks();await active.pumpTasks();
   expect(calls).toBe(0);expect((await client.task(task.id)).state).toBe("queued");
 });
+
+it("rejects an old service-origin challenge after a state restore at another origin",async()=>{
+  const root=mkdtempSync(join(tmpdir(),"ubc26-restored-origin-"));roots.push(root);
+  const options={dbPath:join(root,"state.db"),buyerToken:"local-compatibility-only-token"};
+  let active=createApp({...options,deployment:{mode:"local",serviceOrigin:"https://first.example.test"}});apps.push(active);
+  const signer=privateKeyToAccount(`0x${"33".repeat(32)}`);
+  const challengeResponse=await active.app.request("https://first.example.test/v1/auth/challenge",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({wallet:signer.address})});
+  const challenge=await challengeResponse.json() as {challengeId:string;message:string};
+  const signature=await signer.signMessage({message:challenge.message});
+  apps.pop();active.close();active=createApp({...options,deployment:{mode:"local",serviceOrigin:"https://restored.example.test"}});apps.push(active);
+  const response=await active.app.request("https://restored.example.test/v1/auth/keys",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({challengeId:challenge.challengeId,signature})});
+  expect(response.status).toBe(401);
+  apps.pop();active.close();active=createApp({...options,deployment:{mode:"local",serviceOrigin:"https://first.example.test"}});apps.push(active);
+  const original=await active.app.request("https://first.example.test/v1/auth/keys",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({challengeId:challenge.challengeId,signature})});
+  expect(original.status).toBe(200);
+  const replay=await active.app.request("https://first.example.test/v1/auth/keys",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({challengeId:challenge.challengeId,signature})});
+  expect(replay.status).toBe(401);
+});

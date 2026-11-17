@@ -2,7 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
-## 2026-11-16 21:53 -05:00 — Anish — Runtime package and local restore checkpoint
+## 2026-11-16 21:53 -05:00 — Anish — Bind restored challenges to the current origin
+
+- Independent restore review found that issuance accepted a challenge created under the old service origin after reopening the database with a different origin. The new two-origin regression returned 200 when it required 401. Issuance now checks the stored origin against the current configured origin and checks the issuance action before signature verification.
+- The regression now passes. Returning to the original origin still permits the valid unconsumed challenge once, then rejects its replay. Both independent task/auth safety tests, ten API identity tests and worker typecheck pass. Worker A has not yet received this coordinator-only identity repair; its authoring files remain separate and must not overwrite it during integration.
+- Current corpus integration adds route and quantity families through `6ffe692`. Six Node tests pass. A fresh native engine/oracle comparison covers 248 candidates with zero disagreement. The corpus currently has 32 supported requests across eight families. Signed evidence, file requirements, ambiguous/unsupported requests and the real API benchmark remain pending Worker B.
+- The full pinned runtime build continues. Its API build target and separate Linux Node-24 state tests pass. No public deployment, paid model call or chain transaction occurred.
+
+## 2026-11-16 21:51 -05:00 — Anish — Runtime package and local restore checkpoint
 
 - Added pinned Linux build stages, a clean committed-source image script, one bounded BuildKit compiler, HTTPS Compose ingress, backup/restore commands and [runtime instructions](../../docs/hosted-runtime.md). Compose validates with example administrative values. The pinned Linux Node-24 API build target passes. The native Linux engine release build continues; the full runtime/TLS/resource checks remain pending. No deployment occurred.
 - Four state tests pass locally and inside the pinned Linux amd64 Node-24 image. They check WAL snapshot recovery, owner/job consistency, artifact hashes, quiescence, tampering, extra files, symlinks, wrong pins and existing destinations. The real [local native restore drill](reports/hosted-local-native-restore-2026-11-16.json) preserves the original state and recovers the completed task, attempt 1, deduplication, owner isolation and exact guest bytes in a new process. Internal logical paths stay fixed. This is not public-host evidence.
