@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 00:14 -05:00 — Anish — Integrated suites and installed Linux signed checks pass
+
+- At `9eb89f7`, all API/SDK/worker typechecks pass. API 864, SDK 360, wire fixtures 13 and worker 941 checks pass. The frozen harness passes 36 Node checks with the explicit native engine. No new test failure remains in those checks.
+- Built a fresh clean-source runner package and installed it independently in the pinned Linux runtime. All checksum files, complete installed provenance and 12 signed native engine checks pass under Node 24. This container used a read-only root, non-root user, no network, no Docker socket and no wallet/API credentials. Four workloads distinguish pass, verdict 0 and invalid-signature rejection. See [the installed report](reports/hosted-runner-linux-signed-2026-11-17.json). This is amd64 emulation on macOS, not bare Linux or funded acceptance.
+- Refreshed PR #8 and Neil's working handoff. The latter names `9eb89f7` as a working code checkpoint and remains explicit about missing final origin/SHA. Clarified that live benchmark attempt reservations need the reviewed worst-case bound, not a synthetic test price. Readiness/digest pins, hosted attempts/discovery/metrics and final runtime publication remain active worker work. Public hosting, real model trials and new live spending remain pending external inputs.
+
 ## 2026-11-17 00:09 -05:00 — Anish — Return complete example inputs for buyer review
 
 - Review found that draft responses retained verdict labels but omitted generated file bytes. Added owner-only `exampleInputs` with exact bounded resolved files, evidence, context and fixture identity. Invalid selections omit unusable content. Existing verdict-label shapes stay compatible.

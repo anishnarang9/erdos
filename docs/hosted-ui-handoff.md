@@ -1,6 +1,6 @@
 # Hosted backend handoff for Neil
 
-Working integration checkpoint: [`230c3cddd2fb7ede30409c13ef1e659437c6200f`](https://github.com/anishnarang9/UBC-26/commit/230c3cddd2fb7ede30409c13ef1e659437c6200f), draft PR #8. This is not the final release SHA. Public origin, full authoring qualification, hosted attempts, production readiness and live acceptance remain pending. Update this document at the final reviewed release.
+Working integration checkpoint: [`9eb89f7`](https://github.com/anishnarang9/UBC-26/commit/9eb89f7), draft PR #8. This is not the final release SHA. Public origin, 180 real authoring trials, hosted attempts, production readiness and live acceptance remain pending. Update this document at the final reviewed release.
 
 No UI code changed in this sprint. Use the wallet-owned [API contract](hosted-api-contract.md), [installed client](hosted-client.md) and [runtime runbook](hosted-runtime.md). Keep this open-bounty flow separate from the historical selected-provider UI.
 
@@ -12,10 +12,10 @@ Keep bearer keys out of URLs, analytics, logs and bundled application configurat
 
 ## Buyer flow
 
-1. Submit authoring with `POST /v1/tasks` and `{operation:"draft",input:{request,outputs,references,clarifications,expirySeconds,maxBudget}}`. References contain their exact bytes as base64. Keep the original request and references until job creation succeeds.
-2. Poll `GET /v1/tasks/:id`. A successful task may contain a draft, clarification or unsupported result. Only a usable draft can proceed. Show the complete normalized rules, units, examples, quote checks, requirement coverage and unresolved assumptions before approval. Full public coverage enforcement remains under review at this checkpoint.
+1. Submit authoring with `POST /v1/tasks` and `{operation:"draft",input:{request,outputs,references,exampleFixtures?,clarifications,expirySeconds,maxBudget}}`. References contain their exact bytes as base64. Keep the original request and references until job creation succeeds.
+2. Poll `GET /v1/tasks/:id`. A successful task may contain a draft, clarification or unsupported result. Only a usable draft can proceed. Show the complete normalized rules, units, examples, quote checks, requirement coverage and unresolved assumptions before approval. Public approval now checks finite rule/quote links and requires the exact buyer-reviewed coverage digest. These links do not prove complete intent. `exampleInputs` shows exact bounded files, evidence and preview context.
 3. Create the unapproved job with `POST /v1/jobs` and `{source:"grok",draftId,revision,references}`. Import exact rules with `source:"import"` instead. Preserve the draft ID and reference bytes.
-4. Approve with `POST /v1/jobs/:id/approve`, the current `revisionHash` and `referenceDigest`, plus `If-Match` bound to that revision. A material revision voids approval.
+4. If needed, append buyer-supplied witnesses at `POST /v1/drafts/:draftId/example-checks`. It accepts only exact revision-bound complete examples. Keep the original task response unchanged. Approve with `POST /v1/jobs/:id/approve`, current `revisionHash`, `referenceDigest`, reviewed `coverageDigest` and exact `If-Match`. `exampleCheckId` can select a later successful record. Otherwise approval uses the immutable initial check. The service signs no witnesses. A material revision voids approval.
 5. Enqueue compilation with `POST /v1/tasks` and `{operation:"compile",jobId,revisionHash}`. Poll the returned task. Inspect the compiled package and commitments before preparing funding.
 6. Obtain `POST /v1/jobs/:id/open-claim-terms` with `{revisionHash,buyer,budget,expiry}`. The buyer must equal the authenticated wallet. Budget is a decimal string in six-decimal token units. Expiry is an absolute chain timestamp. The service requires a measured deadline margin.
 7. Execute the five funding steps below, then link confirmed funding with `POST /v1/jobs/:id/open-claim-link`. Only confirmed chain state establishes the funded open bounty.
@@ -40,7 +40,7 @@ A newly accepted task returns HTTP 202:
 {"id":"TASK_ID","operation":"compile","state":"queued","attempt":0,"createdAt":"2026-11-16T23:00:00.000Z","updatedAt":"2026-11-16T23:00:00.000Z"}
 ```
 
-`running` remains pending. `succeeded` includes the existing draft/compile body in `result`. `failed` includes a sanitized `error`. `uncertain` requires reconciliation before another paid dispatch. Task `attempt` counts queue executions; authoring repair count is separate metadata.
+`running` remains pending. `succeeded` includes the existing draft/compile body in `result`. `failed` includes a sanitized `error`. `uncertain` requires reconciliation before another paid dispatch. Task `attempt` counts queue executions. `qualification.repairCount` counts the optional model repair. All authoring terminal kinds retain model/prompt/catalog, latency, traces and usage. Rejected replies retain available metadata in sanitized error details. Unknown usage remains null. One 120-second deadline covers inference, validation, examples and repair.
 
 Terminal authoring results include these distinct branches:
 
@@ -66,4 +66,4 @@ Package/reference reads are public protocol inputs and do not need a buyer key. 
 
 The installed runner emits a sanitized UUID `attemptId` and per-attempt `cursor`. Merge events by `(attemptId,cursor)`. Never combine independent solvers' local sequence numbers as one global order. The local command is documented in the client guide. Hosted attempt publication/query remains pending; browser code must not read operator state files or filesystem paths.
 
-Before the final UI handoff, publish the final origin/SHA, complete coverage and authoring metadata, paginated expiry-safe discovery, hosted attempt endpoints, representative confirmed expiry/refund snapshots, and external acceptance evidence. Demo signers and presenter-only routes remain absent from the public API. No frontend merge or deployment is part of this handoff.
+Before the final UI handoff, publish the final origin/SHA, real authoring qualification, paginated expiry-safe discovery, hosted attempt endpoints, representative confirmed expiry/refund snapshots, and external acceptance evidence. Demo signers and presenter-only routes remain absent from the public API. No frontend merge or deployment is part of this handoff.
