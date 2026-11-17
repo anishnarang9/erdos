@@ -103,6 +103,8 @@ ubc26 operator recover --config "$WORK/operator.json"
 
 `prepare` generates a local proof for the actual funded context. `run` resumes the protected claim/release flow. A losing solver releases no key. Recovery reads confirmed public chain data and checks both SDK and engine output. Use `operator refund` with the approved buyer configuration after confirmed expiry. `operator circle` uses the existing separate paid-compilation authorization and exact-replay journal.
 
+Each new solver attempt receives a persistent UUID. `ubc26 attempt --state "$WORK/attempt/state.json" --after-cursor 0` returns a sanitized local status. Its events use `(attemptId,cursor)` pairs. Resume with the last cursor for that attempt. The view omits release keys, local paths and free-form details. A rejected attempt does not reject the entire bounty. Confirmed chain state remains authoritative for winner and payment. Hosted attempt publication remains a separate integration gate.
+
 Preserve the private state directory, nonce journals and transaction hashes after interruption. Reconcile pending or uncertain sends before retrying. The runner never sends the real release key through simulation or gas estimation. A failed attempt does not reject the entire bounty.
 
 ## Limits and client example

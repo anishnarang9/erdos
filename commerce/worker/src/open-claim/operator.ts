@@ -278,7 +278,7 @@ export async function openClaimOperator(args: string[], credentials?: { buyerTok
       solver: async () => readFilesFrom(c.deliverablesDir), packageDir: c.packageDir, references: readFilesFrom(c.referenceDir),
       attemptDir: c.attemptDir, proveBudgetSec: 1800, releaseMarginSec: 600, maxGas: claimGas > releaseGas ? claimGas : releaseGas,
       maxFeePerGas: fee, maxPriorityFeePerGas: priority, claimGas, releaseGas });
-    return { phase: state.phase, jobId: state.jobId, claimTx: state.claimTx, releaseTx: state.releaseTx,
+    return { attemptId: state.attemptId, phase: state.phase, jobId: state.jobId, claimTx: state.claimTx, releaseTx: state.releaseTx,
       paymentConfirmed: state.paymentConfirmed, winner: state.winner };
   } finally { if (broadcaster) await broadcaster.close(); closeSync(lock); unlinkSync(lockPath); }
 }

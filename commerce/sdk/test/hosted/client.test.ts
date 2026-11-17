@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { hostedClient, HostedApiError } from "../../src/hosted/client.ts";
 
 const wallet = "0x1111111111111111111111111111111111111111";
+const expiresAt = () => new Date(Date.now() + 600_000).toISOString();
+const challenge = (expiry: string) => `UBC26-HOSTED-AUTH-v1\nservice: https://bounty.example\nwallet: ${wallet}\naction: issue-api-key\nnonce: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nexpires: ${expiry}`;
 const task = { id: "task_1", operation: "compile", state: "queued", attempt: 0, createdAt: "2026-11-16T12:00:00Z", updatedAt: "2026-11-16T12:00:00Z" };
 function fixture(replies: unknown[]) {
   const calls: { url: string; init?: RequestInit }[] = [];
@@ -20,13 +22,30 @@ describe("hosted client", () => {
     expect(() => hostedClient({ baseUrl: "http://127.0.0.1:8080" })).not.toThrow();
   });
   it("keeps credentials off issuance requests and signs the exact challenge", async () => {
-    const { client, calls } = fixture([{ challengeId: "c1", message: "exact signed bytes", expiresAt: "2026-11-16T12:01:00Z" }, { id: "k1", key: "issued-once", wallet, scopes: ["buyer"], createdAt: "2026-11-16T12:00:00Z" }]);
+    const expiry = expiresAt(), message = challenge(expiry);
+    const { client, calls } = fixture([{ challengeId: "c1", message, expiresAt: expiry }, { id: "k1", key: "issued-once", wallet, scopes: ["buyer"], createdAt: "2026-11-16T12:00:00Z" }]);
     let signed = "";
     const result = await client.authenticate(wallet, async message => { signed = message; return "0xsigned"; }, "issue-1");
-    expect(signed).toBe("exact signed bytes"); expect(result.key).toBe("issued-once");
+    expect(signed).toBe(message); expect(result.key).toBe("issued-once");
     expect(new Headers(calls[0]!.init?.headers).has("authorization")).toBe(false);
     expect(JSON.parse(String(calls[1]!.init?.body))).toEqual({ challengeId: "c1", signature: "0xsigned" });
     expect(new Headers(calls[1]!.init?.headers).get("idempotency-key")).toBe("issue-1.key");
+  });
+  it("refuses to sign another origin, wallet, action or expired challenge", async () => {
+    const expiry = expiresAt();
+    const wrong = [challenge(expiry).replace("https://bounty.example", "https://evil.example"),
+      challenge(expiry).replace(wallet, "0x" + "22".repeat(20)), challenge(expiry).replace("issue-api-key", "send-funds"),
+      challenge(expiry) + "\nI authorize another action"];
+    for (const message of wrong) {
+      const { client } = fixture([{ challengeId: "c1", message, expiresAt: expiry }]);
+      let signed = false;
+      await expect(client.authenticate(wallet, async () => { signed = true; return "signature"; }, "login-1")).rejects.toThrow();
+      expect(signed).toBe(false);
+    }
+    const old = "2020-01-01T00:00:00.000Z", { client } = fixture([{ challengeId: "c1", message: challenge(old), expiresAt: old }]);
+    let signedOld = false;
+    await expect(client.authenticate(wallet, async () => { signedOld = true; return "signature"; }, "login-1")).rejects.toThrow();
+    expect(signedOld).toBe(false);
   });
   it("uses explicit idempotency and binds compile tasks to the approved revision", async () => {
     const { client, calls } = fixture([task]);

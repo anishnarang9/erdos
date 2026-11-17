@@ -43,3 +43,5 @@ export type {
   OpenClaimState,
   OpenClaimWorkerApproval,
 } from "./types.ts";
+
+export { attemptStatus, type PublicAttemptStatus } from "./attempt-status.ts";

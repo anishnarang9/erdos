@@ -132,7 +132,17 @@ export function hostedClient(options: HostedClientOptions) {
     },
     authenticate: async (wallet: string, sign: (message: string) => Promise<string>, replayKey: string): Promise<IssuedHostedKey> => {
       if (!/^[A-Za-z0-9_.:-]{1,118}$/.test(replayKey)) throw new Error("Authentication idempotency prefix is invalid");
+      if (!/^0x[0-9a-fA-F]{40}$/.test(wallet)) throw new Error("Authentication wallet is invalid");
       const challenge = await client.challenge(wallet, `${replayKey}.challenge`);
+      const expires = Date.parse(challenge.expiresAt), now = Date.now();
+      const lines = challenge.message.split("\n");
+      if (!Number.isFinite(expires) || expires <= now || expires > now + 900_000 ||
+          new Date(expires).toISOString() !== challenge.expiresAt || lines.length !== 6 ||
+          lines[0] !== "UBC26-HOSTED-AUTH-v1" || lines[1] !== `service: ${url.origin}` ||
+          lines[2] !== `wallet: ${wallet.toLowerCase()}` || lines[3] !== "action: issue-api-key" ||
+          !/^nonce: [A-Za-z0-9_-]{20,256}$/.test(lines[4] ?? "") || lines[5] !== `expires: ${challenge.expiresAt}`) {
+        throw new Error("Authentication challenge differs from the requested service, wallet, action or expiry");
+      }
       return client.issueKey(challenge.challengeId, await sign(challenge.message), `${replayKey}.key`);
     },
     currentKey: async () => keyView(await request("GET", "/v1/auth/keys/current")),

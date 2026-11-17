@@ -18,3 +18,9 @@ Task view: `{id,operation,state,attempt,createdAt,updatedAt,result?,error?}`. St
 Existing job import, approval, package, references, open-claim funding and discovery routes retain their documented body shapes. Public mutation routes require owner authorization. Funding buyer must equal the authenticated wallet. Compile approval and revision binding remain mandatory. Public results become readable according to the existing protocol.
 
 Worker A must document any necessary contract correction before SDK integration. Worker A owns `commerce/api/`, `deploy/`, `docs/hosted-runtime.md` and its API contract. The coordinator owns this document, SDK exports and the runner. Worker B owns engine fixtures and reports. No worker may change shared catalog copies without coordinator agreement.
+
+## Local solver attempt status
+
+The runner persists `attemptId` as a UUID for each attempt. Sanitized status contains `attemptId`, `job:{chainId,core,adapter,jobId}`, `solver`, `phase`, `paymentConfirmed`, `nextCursor`, and `events:[{attemptId,cursor,at,phase}]`. Optional fields are `winner`, `claimTx` and `releaseTx`. Cursors are local to an attempt. Compare `(attemptId,cursor)` pairs. Never merge two solvers' local sequence numbers into one global sequence.
+
+A rejected or lost attempt changes only that attempt. Confirmed chain state defines the bounty's winner, payout, expiry and refund. Local progress does not establish chain acceptance. This source checkpoint exposes local runner status. A hosted publication/query route remains pending service integration.

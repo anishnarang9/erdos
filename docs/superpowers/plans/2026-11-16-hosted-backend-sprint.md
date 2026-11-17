@@ -2,7 +2,7 @@
 
 > **For the future implementation chat:** Use the executing-plans workflow. Execute the checked work packages below. Use at most two Grok 4.7 CLI workers. The coordinator owns integration and verification.
 >
-> **Current status: PLAN ONLY.** This document does not resume the paused goal in the planning chat. Start execution only when the user asks a separate chat to implement this document.
+> **Current status: EXECUTING.** The user started this sprint in a separate implementation chat on 2026-11-16. The planning chat remains separate.
 
 **Goal:** Ship a publicly hosted open-bounty service that outside agents can use to author, fund, discover, solve, prove, settle, and recover supported work.
 
@@ -123,15 +123,15 @@ Worker B and the coordinator share the single prover slot. Never let a restarted
 
 ### Startup checklist
 
-- [ ] Read applicable `AGENTS.md`, including `agents/AGENTS.md` and `agents/current plan/AGENTS.md`.
-- [ ] Read the latest shared plan and relevant owner status from current main and owner branches.
-- [ ] Inspect existing attached worktrees, dirty files, running compilation, and prover processes.
-- [ ] Use the app's managed worktree tool for new worktrees. Use a `codex/` branch based on current reviewed main.
-- [ ] Preserve all unrelated edits, private scratch data, wallets, and existing process ownership.
-- [ ] Establish baseline commerce, engine, and contract checks using pinned repository tools.
-- [ ] Record baseline failures separately from sprint regressions.
-- [ ] Add the active sprint scope and work ownership to the shared plan and Anish's status.
-- [ ] Copy this plan into the implementation worktree's documentation and link it from the shared plan.
+- [x] Read applicable `AGENTS.md`, including `agents/AGENTS.md` and `agents/current plan/AGENTS.md`.
+- [x] Read the latest shared plan and relevant owner status from current main and owner branches.
+- [x] Inspect existing attached worktrees, dirty files, running compilation, and prover processes.
+- [x] Use the app's managed worktree tool for new worktrees. Use a `codex/` branch based on current reviewed main.
+- [x] Preserve all unrelated edits, private scratch data, wallets, and existing process ownership.
+- [x] Establish baseline commerce, engine, and contract checks using pinned repository tools.
+- [x] Record baseline failures separately from sprint regressions.
+- [x] Add the active sprint scope and work ownership to the shared plan and Anish's status.
+- [x] Copy this plan into the implementation worktree's documentation and link it from the shared plan.
 
 ### Hosting access discovery
 

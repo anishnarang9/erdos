@@ -3,6 +3,8 @@
 // An intent without a saved hash, or a hash without a confirmed receipt, never sends again.
 import { chmodSync, closeSync, existsSync, fsyncSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, renameSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { randomUUID } from "node:crypto";
+import { ATTEMPT_ID } from "./attempt-status.ts";
 import { bytesToHex, hexToBytes, isAddressEqual, zeroAddress, type Address, type Hex } from "viem";
 import { encodeContext, keyCommitment, parseProofJson, type BundleFile, type ProofPackage } from "@ubc26/sdk";
 import { prove } from "../engine.ts";
@@ -181,6 +183,7 @@ export async function runOpenClaim(o: OpenClaimRunOptions): Promise<OpenClaimSta
     } else {
       state = {
         version: 1,
+        attemptId: randomUUID(),
         mode: "open-claim",
         interfaceRevision: OPEN_CLAIM_INTERFACE_REVISION,
         abiStatus: OPEN_CLAIM_ABI_STATUS,
@@ -197,6 +200,8 @@ export async function runOpenClaim(o: OpenClaimRunOptions): Promise<OpenClaimSta
       state.log.push({ at: new Date().toISOString(), event: next, ...(detail ? { detail } : {}) });
       save();
     };
+    if (state.attemptId === undefined) { state.attemptId = randomUUID(); save(); }
+    must(ATTEMPT_ID.test(state.attemptId), "resume", "attempt identifier is invalid");
     if (!resume) save();
     if (resume) {
       if ((state.phase === "claim_broadcasting" || state.phase === "release_broadcasting") && !o.port.recoverBroadcast) {

@@ -165,6 +165,8 @@ export type OpenClaimPhase = typeof OPEN_CLAIM_PHASES[number];
 
 export interface OpenClaimState {
   version: 1;
+  /** Persistent UUID. Older states gain an ID when the runner resumes them. */
+  attemptId?: string;
   mode: "open-claim";
   interfaceRevision: string;
   abiStatus: "exported-json";

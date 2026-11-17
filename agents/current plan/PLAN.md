@@ -2,6 +2,13 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 20:55 -05:00 — Anish — Hosted runner published; API and qualification continue
+
+- Integration branch `codex/hosted-backend` is pushed at `2a5e44f`. The wallet-owned SDK client and installed runner are implemented. Exact-head commerce/Linux package CI passed. [Runner installation evidence](../anish/reports/hosted-runner-install-2026-11-16.json) distinguishes a fresh installed real-engine check from the historical Meridian workload. The hosted workflow remains open.
+- The [sprint plan](../../docs/superpowers/plans/2026-11-16-hosted-backend-sprint.md) remains active. Worker A owns identity, durable tasks, hosted authoring and deployment assets. Worker B owns the independent frozen corpus. Their original headless shell permissions cancelled the first invocations. The same two Grok sessions resumed with authorized tools. Worker B's first qualification family is committed at `90ce162`; it is not the completed 60-request gate.
+- The coordinator owns one sequential proof driver. A fresh synthetic-context budget proof and byte-exact engine recovery passed. Its real verdict-0 proof runs next, followed by inventory and reconciliation. This is engine qualification, not funded Arc acceptance. No hosted Grok trial or new wallet action occurred.
+- Missing dependencies remain public host/account access, hosted Grok API access and approved benchmark/service budgets, plus current authority for fresh live acceptance. Complete the concrete runtime package and local gates before the consolidated external-input request. Keep UI and new contract deployments excluded.
+
 ## 2026-11-16 20:33 -05:00 — Anish — Hosted backend sprint started
 
 - Execute [the hosted backend sprint](../../docs/superpowers/plans/2026-11-16-hosted-backend-sprint.md) from reviewed main `6ed9d2d`. Integration branch: `codex/hosted-backend`. Preserve the deployed Arc adapter and historical acceptance. UI and new deployments remain excluded.

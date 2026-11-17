@@ -540,9 +540,13 @@ describe("runOpenClaimAcceptance", () => {
 
   it("prepares one fresh proof without a signing capability, then resumes the same proof", async () => {
     const f = setup();
-    expect((await runOpenClaimAcceptance({ ...f.options, prepareOnly: true })).phase).toBe("proved");
+    const prepared = await runOpenClaimAcceptance({ ...f.options, prepareOnly: true });
+    expect(prepared.phase).toBe("proved");
+    expect(prepared.attemptId).toMatch(/^[0-9a-f-]{36}$/);
     expect(f.port.broadcasts).toHaveLength(0);
-    expect((await runOpenClaimAcceptance(f.options)).phase).toBe("released");
+    const resumed = await runOpenClaimAcceptance(f.options);
+    expect(resumed.phase).toBe("released");
+    expect(resumed.attemptId).toBe(prepared.attemptId);
     expect(f.runner.calls.filter(call => call[0] === "prove")).toHaveLength(1);
   });
 

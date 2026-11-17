@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 20:57 -05:00 — Anish — Attempts isolated and fresh proof generation advances
+
+- The runner now persists an attempt UUID and preserves it through prepare/resume. A sanitized local attempt view exposes per-attempt cursors and omits keys, paths and free-form details. Failed attempts remain separate from bounty state. Full worker suite passed 920 tests. Focused attempt/resume checks passed 25 tests. Hosted attempt publication still needs API integration.
+- The hosted SDK now checks the exact service origin, wallet, issuance action, nonce and expiry before invoking a wallet signer. Its new regression first showed that the old client signed a wrong-origin message. All 12 client tests and SDK typecheck now pass. Final interoperability with Worker A's message formatter remains pending.
+- A fresh budget verdict-1 proof and engine byte-exact recovery passed. A separate structurally valid verdict-0 proof passed. The sequential driver now proves inventory, then reconciliation. Real Solidity verifier and SDK recovery checks are pending. Independent domain oracle tests pass 4/4. No hosted Grok trial or chain transaction occurred.
+- Worker A writes identity/ownership. Worker B committed the first corpus family at `90ce162` and continues expansion. The startup checklist is recorded in the copied active sprint plan. Public hosting and external-budget gates remain open.
+
 ## 2026-11-16 20:51 -05:00 — Anish — Installed runner and resource bounds checked
 
 - The corrected archive at `f8bef2d` passes independent local npm installation, help/wrapper JSON and client import. Its installed CLI evaluated the historical Meridian candidate with the real native engine and returned verdict 1 without proof or transaction. Exact-SHA [Linux commerce CI](https://github.com/anishnarang9/UBC-26/actions/runs/43997713872) passed full tests/typechecks, archive build and independent installation. See [the installation report](reports/hosted-runner-install-2026-11-16.json).
