@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 01:26 -05:00 — Anish — Add installed-runner checks to native Linux CI
+
+- All 908 combined API checks and typecheck pass after service-control integration. Worker A's tree was refreshed by a normal merge `a4ecf01`; its tree equals coordinator `a95cad5`. The same session now owns exact browser-origin/preflight policy and bounded paid compiler admission before settlement, including drain/replay/concurrency. No new worker was created.
+- Added a reusable independent installed-runner/native-engine check. It verifies the release source/manifest, creates fresh synthetic signed fixtures from the frozen corpus, checks an independent oracle, and exercises four signed workloads with pass, valid verdict 0 and rejected signatures. Child environments include only the selected Node/system paths and HOME. No compiler, prover, API or wallet action occurs.
+- The twelve checks pass through an independently installed `b955545` archive with the actual native Mac engine. CI now repeats them with the native Linux engine and uploads its report. That Linux CI result remains pending; the prior Linux container evidence was emulated. Worker B has committed discovery changes for integration next. Public hosting, genuine Grok qualification and fresh funded acceptance remain open.
+
 ## 2026-11-17 01:22 -05:00 — Anish — Verify public-mode runtime and integrate service controls
 
 - Image `92ef0c3` passed all configured readiness checks with actual engine/wrapper bytes and its real prewarm record. Independent synthetic wallet auth, legacy-token rejection, ownership, approval, sanitized solver attempts, public reads, real warm compile, replay, restart and revocation passed. Compile took 1.792 seconds; task attempt stayed 1. The local isolated container used an unused synthetic model credential. This does not verify public hosting or genuine Grok access. See [the report](reports/hosted-public-mode-image-2026-11-17.json).
