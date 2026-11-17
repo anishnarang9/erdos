@@ -166,7 +166,7 @@ export function hostedClient(options: HostedClientOptions) {
     importJob: (revision: unknown, replayKey: string, references?: HostedReference[]) => request("POST", "/v1/jobs", { revision, source: "import", ...(references ? { references } : {}) }, replayKey),
     job: (id: string) => request("GET", `/v1/jobs/${encodeURIComponent(id)}`, undefined, undefined, false),
     revise: (id: string, body: unknown, replayKey: string, revisionHash: string) => request("POST", `/v1/jobs/${encodeURIComponent(id)}/revisions`, body, replayKey, true, { "if-match": `"${revisionHash}"` }),
-    approve: (id: string, body: { revisionHash: string; referenceDigest: string }, replayKey: string) => request("POST", `/v1/jobs/${encodeURIComponent(id)}/approve`, body, replayKey, true, { "if-match": `"${body.revisionHash}"` }),
+    approve: (id: string, body: { revisionHash: string; referenceDigest: string; coverageDigest?: string }, replayKey: string) => request("POST", `/v1/jobs/${encodeURIComponent(id)}/approve`, body, replayKey, true, { "if-match": `"${body.revisionHash}"` }),
     draft: async (input: unknown, replayKey: string) => taskView(await request("POST", "/v1/tasks", { operation: "draft", input }, replayKey)),
     compile: async (jobId: string, revisionHash: string, replayKey: string) => taskView(await request("POST", "/v1/tasks", { operation: "compile", jobId, revisionHash }, replayKey)),
     task,

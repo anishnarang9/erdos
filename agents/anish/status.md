@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-16 23:56 -05:00 — Anish — Add requirement links and explicit buyer review
+
+- Live draft schema now requires bounded requirement links. The service checks every rule and referenced source quote, rejects unresolved links and permits one cost-bounded repair. Public model-authored approval requires the exact reviewed coverage digest. SDK and runner pass that digest. See [the review contract](../../docs/hosted-authoring-coverage.md).
+- Coverage regressions and actual public API approval checks pass. Missing and changed review digests reject. Exact digest with checked examples succeeds. These are controlled model/engine tests, not semantic qualification. Typechecks pass for API. Full API 856 checks passed before the added positive approval regression. All 11 focused coverage/approval checks pass afterwards. SDK typecheck and 17 hosted client checks pass. Worker checks are recorded in the next checkpoint.
+- Requirement links do not prove complete intent. Buyer review and independent held-out qualification stay required. Immutable post-draft witnesses and one request-wide deadline remain coordinator work. No paid call or chain action occurred.
+
 ## 2026-11-16 23:54 -05:00 — Anish — Drain and signed example transport integrated
 
 - Integrated runtime `1b76ab9`, `c943cfb` and `e985a22` as `df64bfc`, `bfe6cf9` and `f225639`. Shutdown stops new work, cancels owned process groups and reconciles durable tasks before closing SQLite. Migration 016 preserves historical charges and creates missing unresolved breach halts. The engine adapter now passes bounded example evidence and exact context to the real CLI.

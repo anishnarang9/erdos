@@ -7,6 +7,7 @@ import type { Handler } from "hono";
 import canonicalize from "canonicalize";
 import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
+import { assessCoverage } from "./coverage.ts";
 import { tx } from "./db.ts";
 import { isoAt, readBody, parseJson, requireJobId, type AppEnv, type Deps } from "./context.ts";
 import { expensiveGuard } from "./limits.ts";
@@ -366,6 +367,9 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
           feedback: { attempt: 1, reason: "file_errors", errors: fileErrors, counterexamples: [] },
         };
       }
+      const quoteVerification = result.sourceQuotes.map(item => ({ ...item, found: quoteFound(item.path, item.quote, body.request, textReferences) }));
+      const rules = isPlainObject(result.plan) && Array.isArray(result.plan.rules) ? result.plan.rules.length : 0;
+      const coverage = assessCoverage(rules, result.coverage, quoteVerification);
       const examples = await labelExamples(result, body.references, body.exampleFixtures);
       const counts = usableExamples(examples);
       const revision: Revision = {
@@ -388,10 +392,17 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         examples,
         exampleApprovalReady: counts.positive > 0 && counts.negative > 0 && !counts.blocked,
         sourceQuotes: result.sourceQuotes,
+        quoteVerification,
+        coverage,
         model: reply.model,
         traceId: reply.traceId,
       };
-      if (counts.positive > 0 && counts.negative > 0 && !counts.blocked) return { attempt, response, hash, fatal: false };
+      if (counts.positive > 0 && counts.negative > 0 && !counts.blocked) {
+        if (!coverage.ruleCoverageComplete && (result.coverage !== undefined || deps.deployment.mode === "public")) {
+          return { attempt, response, hash, fatal: false, feedback: { attempt: 1, reason: "coverage", errors: coverage.omissions.map(message => ({ path: "/coverage", message })), counterexamples: [] } };
+        }
+        return { attempt, response, hash, fatal: false };
+      }
       const errors: FieldError[] = [];
       if (counts.positive === 0) errors.push({ path: "/examples", message: "An engine-checked passing example is required" });
       if (counts.negative === 0) errors.push({ path: "/examples", message: "An engine-checked verdict-0 example is required" });
@@ -483,16 +494,13 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       };
     }
     if (response.kind === "draft" && result.kind === "draft") {
-      const quoteVerification = result.sourceQuotes.map((item) => ({
-        path: item.path,
-        quote: item.quote,
-        found: quoteFound(item.path, item.quote, body.request, textReferences),
-      }));
+      const quoteVerification = result.sourceQuotes.map(item => ({ ...item, found: quoteFound(item.path, item.quote, body.request, textReferences) }));
       const rules = isPlainObject(result.plan) && Array.isArray(result.plan.rules) ? result.plan.rules.length : 0;
+      const coverage = assessCoverage(rules, result.coverage, quoteVerification);
       const counts = exampleCounts(result.examples);
       const evaluated = response.examples as ExampleLabel[];
       const usable = usableExamples(evaluated);
-      const omissions: string[] = [];
+      const omissions: string[] = [...coverage.omissions];
       if (quoteVerification.some((item) => !item.found)) omissions.push("A source quote was not found in the supplied text.");
       if (counts.positive === 0) omissions.push("No positive example is present.");
       if (counts.negative === 0) omissions.push("No negative example is present.");
@@ -504,14 +512,13 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         ...response,
         quoteVerification,
         coverage: {
-          ruleCount: rules,
-          ruleCoverageComplete: false,
+          ...coverage,
           positiveExamples: counts.positive,
           negativeExamples: counts.negative,
           usablePositiveExamples: usable.positive,
           usableNegativeExamples: usable.negative,
           omissions,
-          assumptions: rules > 0 ? ["The service does not map each rule to one requirement."] : [],
+
         },
 
       };

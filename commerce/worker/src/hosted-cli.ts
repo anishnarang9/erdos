@@ -26,7 +26,7 @@ const commandFlags: Record<string, readonly string[]> = {
   job: ["api", "job"],
   discover: ["api", "cursor", "limit"],
   "open-job": ["api", "job"],
-  approve: [...common, "job", "revision", "reference-digest", "idempotency"],
+  approve: [...common, "job", "revision", "reference-digest", "coverage-digest", "idempotency"],
   compile: [...common, "job", "revision", "idempotency"],
   task: [...common, "task", "wait-ms"],
   download: ["api", "job", "out"],
@@ -157,7 +157,7 @@ export async function hostedCli(args: string[]): Promise<unknown> {
     case "job": return client.job(need("job"));
     case "discover": return client.openJobs({ ...(f.cursor ? { cursor: f.cursor } : {}), ...(f.limit ? { limit: Number(f.limit) } : {}) });
     case "open-job": return client.openJob(need("job"));
-    case "approve": need("key-file"); return client.approve(need("job"), { revisionHash: need("revision"), referenceDigest: need("reference-digest") }, need("idempotency"));
+    case "approve": need("key-file"); return client.approve(need("job"), { revisionHash: need("revision"), referenceDigest: need("reference-digest"), ...(f["coverage-digest"] ? { coverageDigest: f["coverage-digest"] } : {}) }, need("idempotency"));
     case "compile": need("key-file"); return client.compile(need("job"), need("revision"), need("idempotency"));
     case "task": {
       need("key-file");

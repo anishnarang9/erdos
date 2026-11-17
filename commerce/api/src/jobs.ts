@@ -336,11 +336,12 @@ export function jobRoutes(deps: Deps, commit: Idempotency["commit"], newId: ULID
     if (!isPlainObject(body)) throw invalid([{ path: "", message: "body must be a JSON object" }]);
     const errors: FieldError[] = [];
     for (const k of Object.keys(body)) {
-      if (k !== "revisionHash" && k !== "referenceDigest" && k !== "rulesHash") errors.push({ path: "/" + k, message: "unknown field" });
+      if (k !== "revisionHash" && k !== "referenceDigest" && k !== "rulesHash" && k !== "coverageDigest") errors.push({ path: "/" + k, message: "unknown field" });
     }
     if (typeof body.revisionHash !== "string") errors.push({ path: "/revisionHash", message: "required string" });
     if (typeof body.referenceDigest !== "string") errors.push({ path: "/referenceDigest", message: "required string" });
     if ("rulesHash" in body && typeof body.rulesHash !== "string") errors.push({ path: "/rulesHash", message: "must be a string" });
+    if ("coverageDigest" in body && (typeof body.coverageDigest !== "string" || !/^[0-9a-f]{64}$/.test(body.coverageDigest))) errors.push({ path: "/coverageDigest", message: "must be a lowercase SHA-256 digest" });
     const ifMatchRaw = c.req.header("if-match");
     if (ifMatchRaw === undefined || ifMatchRaw.trim() === "") {
       errors.push({ path: "/headers/if-match", message: "If-Match header is required" });
@@ -364,7 +365,7 @@ export function jobRoutes(deps: Deps, commit: Idempotency["commit"], newId: ULID
     }
 
     if (deps.deployment.mode === "public" && rev.source === "grok") {
-      assertAuthoredApproval(deps, rev.draft_id, rev.revision_hash, ownerWallet(c));
+      assertAuthoredApproval(deps, rev.draft_id, rev.revision_hash, ownerWallet(c), body.coverageDigest as string | undefined);
     }
     const existing = store.approvalOf(rev.id);
     if (job.state === "approved" && existing) {
