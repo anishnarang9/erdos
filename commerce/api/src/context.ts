@@ -76,6 +76,8 @@ export interface AppEnv {
     caller: string;
     /** Set by buyer or API-key authentication. */
     principal?: Principal;
+    /** Set only by the task runner. HTTP routes leave this empty. */
+    taskId?: string;
     idem: IdempotencyScope | undefined;
   };
 }
