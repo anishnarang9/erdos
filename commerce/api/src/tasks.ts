@@ -295,7 +295,8 @@ export function registerTaskRoutes(
 
   let pumping = false;
   const pumpTasks = async (): Promise<void> => {
-    if (pumping) return;
+    // Emergency disable blocks new accepts and also blocks dispatch of work already queued.
+    if (deps.expensiveDisabled || pumping) return;
     pumping = true;
     try {
       const claimed = tx(db, () => {
