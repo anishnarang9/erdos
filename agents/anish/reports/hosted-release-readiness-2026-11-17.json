@@ -1,7 +1,7 @@
 {
   "version": 1,
   "status": "incomplete",
-  "workingSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+  "workingSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
   "finalReleaseSource": null,
   "publicUrl": null,
   "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/8",
@@ -233,9 +233,9 @@
     "apiTests": 928,
     "publicHostAcceptance": false
   },
-  "candidateCodeSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+  "candidateCodeSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
   "candidate": {
-    "source": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "source": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
     "tarSha256": "148366c2a62114a8c5d0696fa9c3ee990e06a217d815f4e50c506a856e5a793c",
     "manifestSha256": "fbab4c2c6941115a099aab3b6ab6ca2b4e436066e483f21ce73bcaec1165e447",
     "payloadFiles": 11,
@@ -246,16 +246,20 @@
     "nativeVpsReleaseEngineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
     "limit": "Canonical runner and separate native engine are public. Public-byte installation passes twelve signed Linux checks. Full public API acceptance and fresh proving through the complete hosted workflow remain incomplete.",
     "publicDownloadPublished": true,
-    "image": "sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8",
+    "image": "sha256:4a69ca09aee0495c7214bffdd7d06fa689e92c26d5aa43159d80d2cf2d1d607a",
     "reports": [
-      "hosted-bot-native-candidate-2026-11-17.json"
+      "hosted-bot-native-candidate-2026-11-17.json",
+      "hosted-bot-expiry-native-candidate-2026-11-17.json"
     ],
     "publicAuthoringReady": false,
     "nativeVpsSignedChecks": 12,
     "nativeVpsReport": "hosted-runner-native-digitalocean-fb45033-2026-11-17.json",
     "publicDownloadBase": "https://ubc26-159-89-149-133.sslip.io/downloads/runner/fb450331c014b59d037fb692496bdc4f72b11a9c",
     "publicDownloadReport": "hosted-runner-public-download-2026-11-17.json",
-    "nativeEngineDownloadPublished": true
+    "nativeEngineDownloadPublished": true,
+    "runnerSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "engineArtifactSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "evidenceScope": "The API candidate uses source/image. Published archive, manifest and engine-download pins retain their explicit artifact source fields."
   },
   "developmentWorkerPolicy": "No further Grok CLI calls, per user reply. Both original sessions remain stopped.",
   "remainingWork": [
@@ -298,10 +302,10 @@
     ]
   },
   "nativeDeployment": {
-    "runtimeSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "runtimeSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
     "outerHelperSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
     "composeSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
-    "image": "sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8",
+    "image": "sha256:4a69ca09aee0495c7214bffdd7d06fa689e92c26d5aa43159d80d2cf2d1d607a",
     "url": "https://ubc26-159-89-149-133.sslip.io",
     "publicStatus": 503,
     "tlsVerified": true,
@@ -328,17 +332,22 @@
       "hosted-bot-native-restore-2026-11-17.json",
       "hosted-native-engine-public-download-2026-11-17.json",
       "hosted-native-engine-public-install-2026-11-17.json",
-      "hosted-genuine-bot-pilot-2026-11-17.json"
+      "hosted-genuine-bot-pilot-2026-11-17.json",
+      "hosted-bot-expiry-native-candidate-2026-11-17.json",
+      "hosted-bot-expiry-native-acceptance-2026-11-17.json",
+      "hosted-bot-expiry-offline-restore-2026-11-17.json",
+      "hosted-bot-expiry-native-restart-2026-11-17.json"
     ],
     "ingressSource": "83d5b6925d26da2ad8fd56806b8d3eba572efb60",
     "ingressReport": "hosted-engine-ingress-promotion-2026-11-17.json",
     "runnerDownloadVerified": true,
     "apiContainerUnchangedDuringIngressPromotion": true,
-    "nativeEngineDownloadPublished": true
+    "nativeEngineDownloadPublished": true,
+    "currentCandidateRestartNote": "Same-container restart preserves owner expiry and the exact original completed Bot receipt."
   },
   "currentDeploymentCi": {
-    "commerceSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
-    "commerceRunId": 44079754316,
+    "commerceSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
+    "commerceRunId": 44118302280,
     "status": "success",
     "deploymentChecks": 11,
     "coreSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
@@ -347,7 +356,8 @@
     "installedArchiveTypeConsumer": true,
     "ingressSource": "83d5b6925d26da2ad8fd56806b8d3eba572efb60",
     "ingressCommerceRunId": 44098699314,
-    "ingressCommerceStatus": "success"
+    "ingressCommerceStatus": "success",
+    "coreEvidenceScope": "Engine binary unchanged from the source-labelled core baseline; API-only change triggers commerce workflow."
   },
   "historicalVerificationSections": [
     "combinedCommerce",
@@ -368,7 +378,7 @@
   },
   "runtimeBotValidation": {
     "requiredByUser": true,
-    "status": "genuine-negative-review-passed-cost-target-unqualified",
+    "status": "genuine-negative-review-preserved-through-expiry-update-cost-unqualified",
     "role": "Live semantic validation of buyer brief against exact candidate rules; development-only use was rejected.",
     "genuineReviews": 1,
     "measuredCost": null,
@@ -410,7 +420,7 @@
     "requiredByUser": true,
     "apiCheckpoint": "545b9e0c3547fab3eafa01a72b0eb0437dc9272a",
     "apiCheckpointCi": 44077508305,
-    "localApiTests": 987,
+    "localApiTests": 994,
     "localSdkTests": 373,
     "localWorkerTests": 950,
     "publicMcpNativeAcceptance": true,
@@ -420,9 +430,9 @@
     "approvedCompleteRunCeilingMicroUsd": 100000,
     "paidDispatchDisabled": true,
     "massQualificationApproved": false,
-    "currentNativeRuntime": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "currentNativeRuntime": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
     "next": "Preserve genuine conversation export and exact billing. Keep general dispatch disabled. Do not send a second paid review.",
-    "candidateSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "candidateSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
     "pilotCapApprovedMicroUsd": 1000000,
     "pilotCapConfigured": true,
     "pilotInFlightOverrunAccepted": true,
@@ -437,7 +447,8 @@
     ],
     "generalDispatcherDisabled": true,
     "paidDispatchDisabledMeaning": "General service dispatch stays disabled. One explicitly approved operator pilot trigger completed.",
-    "pilotReviewsRemainingAuthorized": 0
+    "pilotReviewsRemainingAuthorized": 0,
+    "nativeExpiryQualified": true
   },
   "previousCombinedCandidate": {
     "source": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
@@ -477,5 +488,13 @@
     "coreFastRunId": 44114999245,
     "coreFast": "success",
     "runtimeImageUnchanged": true
+  },
+  "runtimeCandidate": {
+    "source": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
+    "image": "sha256:4a69ca09aee0495c7214bffdd7d06fa689e92c26d5aa43159d80d2cf2d1d607a",
+    "report": "hosted-bot-expiry-native-candidate-2026-11-17.json",
+    "clientArtifactSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "clientWireFormatChanged": false,
+    "engineBytesChanged": false
   }
 }

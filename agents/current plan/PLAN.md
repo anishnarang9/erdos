@@ -1,5 +1,12 @@
 # Current plan
 
+## 2026-11-17 12:58 -05:00 — Anish — Deploy and recover the review expiry fix
+
+- Source `9dc289d` is pushed and commerce CI `44118302280` passes. Native image `4a69ca09…` is deployed. All 62 runtime file hashes pass. Only the API bundle and source pin differ from `fb45033`. The native engine stays `be5c06f9…`. API environment, Caddy container and disabled general dispatch remain unchanged. A protected 41-file snapshot precedes promotion. Cached prewarm passes both verdicts in one second.
+- Native owner polling now marks the earlier review expired. The exact genuine `needs_changes` receipt from `fb45033` survives replacement and a same-container restart. It still blocks approval. Separate offline restore preserves owner isolation, failed compile replay, fresh authentication/revocation and twenty prior artifact hashes. The restored container is stopped. See the [native candidate](../anish/reports/hosted-bot-expiry-native-candidate-2026-11-17.json). No new model call, proof or chain transaction ran.
+- The operator's public IP changed during verification. Updated the existing cloud firewall to the current operator IPv4 /32, verified pinned SSH and removed the prior /32. SSH is never public. No resource or account budget increased. Source-labelled runner and engine downloads remain `fb45033`; the API fix changes no client wire format.
+- The evidence review found two stale current-runtime labels. The guide and ledger now distinguish current API source/image from the original pilot and published client artifacts. Public buyer routes remain 503. Exact billing, the approximately five-cent target, runtime Bot export, production account isolation, later authorized mass qualification and fresh funded acceptance remain open. Keep the goal active and PR draft.
+
 ## 2026-11-17 10:47 -05:00 — Anish — Fix review expiry without dispatch
 
 - Branch `codex/hosted-backend`, draft PR #8. Owner polling previously returned queued, dispatching, waiting or uncertain after the callback deadline. Six new regression cases reproduced the failure. Polling now uses the service clock and persists expiry through a conditional update. Ownership checks precede mutation. Completed receipts and their exact callback replay remain valid. Expiry preserves the dispatch ticket digest and timestamp, blocks late results and never creates another dispatch. No migration or SDK wire change is required.

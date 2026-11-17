@@ -14,7 +14,11 @@ The exact `20b0dc2` OCI index imported successfully after host-side archive veri
 
 Cold compilation passed under a retained systemd unit in 240 seconds. Both expected fixture verdicts pass. The first actual Compose start also exposed an unquoted tmpfs flow-list item. Quoting it preserves one absolute mount with all three restrictions. Its real-Compose regression failed before the fix. All eleven deployment checks now pass. The native API and Caddy run from corrected external deployment files in `operator-tools`. External TLS validates, and public requests return 503 while authoring readiness remains disabled. Operator access through pinned SSH passes auth, ownership, approval, compilation, replay and twenty artifact hashes. No usable public authoring service, genuine model call or new funded acceptance is established yet. See the [provisioning report](../agents/anish/reports/hosted-digitalocean-provision-2026-11-17.json) and native report for the evidence boundary.
 
-Current runtime: source `fb45033`, image `sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8`. Native build, 62 runtime hashes, cached compiler prewarm, owner-bound review gates, restart and separate offline restore pass. The compiler prewarm took one second with cache. The original 240-second cold result retains source `20b0dc2`. The current canonical runner passes twelve signed checks on native Linux CI. Prior VPS runner checks retain source `4a6a320` and use the byte-identical release engine. See the [native Bot candidate](../agents/anish/reports/hosted-bot-native-candidate-2026-11-17.json). Public authoring remains unready.
+Current runtime: source `9dc289d`, image `sha256:4a69ca09aee0495c7214bffdd7d06fa689e92c26d5aa43159d80d2cf2d1d607a`. All 62 runtime hashes were checked. Only the API bundle and source pin differ from `fb45033`. The engine remains byte-identical. Cached compiler prewarm takes one second. The original 240-second cold result retains source `20b0dc2`.
+
+Owner polling now expires unfinished reviews at their deadline, including callback-only mode. The genuine negative review from `fb45033` retains its exact receipt and still blocks approval. A separate offline restore preserves that receipt, owner isolation, failed compile replay and twenty package hashes. The restored container is stopped. The API environment and Caddy container remain unchanged. General dispatch stays disabled and public buyer routes remain 503. See the [native update report](../agents/anish/reports/hosted-bot-expiry-native-candidate-2026-11-17.json).
+
+Published runner and engine artifacts retain their `fb45033` source and checksums. This API-only fix changes no client wire format or engine bytes. Exact-source commerce CI `44118302280` passes.
 
 ## Account and local access
 
@@ -57,7 +61,7 @@ Follow the existing [runtime runbook](hosted-runtime.md), the candidate's [relea
 - Start the API, test external auth/ownership/compilation/artifact retrieval, then exercise restart and backup/restore. Repeat external checks with the laptop API stopped.
 - Complete genuine model qualification, current live acceptance and independent review. Preserve the original sprint completion gates.
 
-Proving and signing remain on clients. The per-refinement model target is separate from server cost. Current runtime code is `fb45033`. Documentation checkpoints do not establish a public release.
+Proving and signing remain on clients. The per-refinement model target is separate from server cost. Current runtime code is `9dc289d`. Documentation checkpoints do not establish a public release.
 
 ## Prepared transfer artifact
 
