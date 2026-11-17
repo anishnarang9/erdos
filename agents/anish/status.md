@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 23:04 -05:00 — Anish — CI working-directory regression repaired
+
+- `core-fast` at `d73a963` failed in the hosted harness. A subprocess test resolved its CLI from repository root, while CI runs in `engine/`. Reproduced the failure in that directory before the fix. The test now resolves its sibling module from its own URL.
+- All four CLI checks pass from repository root. All 31 qualification Node checks pass from `engine/`, matching CI. The 326-case native comparison remains green. Updated the qualification report to distinguish the repaired prompt bound from open witness/metadata gates.
+- Public hosting, real model trials, cold-cache host setup and fresh funded acceptance remain pending. No model call, proof or chain transaction occurred. Continue the two existing Grok sessions and final checks.
+
 ## 2026-11-16 23:04 -05:00 — Anish — Compiler prewarm checked; signed preview limitation confirmed
 
 - Image `621d86d` built from clean committed source. The bounded prewarm passed in 13 seconds with the existing warm cache, non-root/read-only runtime and no API environment. It compiled the pinned guest template and returned actual verdicts 1 and 0. This does not establish cold-cache installation or public hosting. See [the runtime report](reports/hosted-linux-runtime-2026-11-16.json).

@@ -66,7 +66,7 @@ This worker read the coordinator source on 2026-11-16.
 
 `authoringCharge` uses `costInUsdTicks` when that value is a safe nonnegative integer. The conversion raises a partial micro-USD to the next micro-USD. `quoteAuthoringCost` ignores ticks. It remains the tariff fallback. Settlement can record source `actual`, `tariff`, or `mixed`.
 
-The first prompt bound uses the request text length divided by 4. That estimate omits the catalog, the references, the outputs, and the fixtures. The repair bound uses the first reply prompt-token count and the maximum completion cap. It omits the added repair prompt. `loadDeployment` keeps dispatch false.
+Coordinator checkpoint `84f4252` replaces the text-only estimate with the full serialized provider payload and the supported completion maximum. The repair bound includes its feedback. Independent model/task checks pass 6/6 and focused API checks pass 50/50 with typecheck. The spend-stop latch and request-wide deadline remain open. `loadDeployment` keeps dispatch false.
 
 The handler adds `result.qualification` only when the response kind and the model result kind are both `draft`. Clarification results and unsupported results omit repair count, usage, and trace ids. The public qualification object omits provider trace ids. The drafts table stores attempt trace ids. The task view returns the handler response.
 
@@ -90,7 +90,7 @@ All commands ran from this worktree. Set `UBC26_ENGINE` to the debug executable 
 
 Three distinct wallet-owned benchmark keys are absent. The user has not authorized a Grok call. Host, account, and benchmark caps remain pending.
 
-The API draft body still rejects `exampleFixtures`. It still rejects a non-UTF-8 reference before the model. Qualification metadata is still limited to draft results. Provider trace ids are still absent from the task result. The first and repair prompt bounds still omit part of the prompt. This harness keeps dispatch false across that gap.
+The API draft body still rejects `exampleFixtures`. It still rejects a non-UTF-8 reference before the model. Qualification metadata is still limited to draft results. Provider trace ids are still absent from the task result. The old incomplete prompt bound is repaired at `84f4252`. Signed public fixtures still bind the original checker rules hash. A valid semantically equivalent draft cannot reuse those signatures. See the coordinator signed-preview review. An immutable external witness completion step needs review. This harness keeps dispatch false across that gap.
 
 ## Remaining gaps
 
