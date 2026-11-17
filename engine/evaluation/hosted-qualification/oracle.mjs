@@ -109,7 +109,9 @@ function strictParse(bytes) {
       if (!(text[index] >= '0' && text[index] <= '9')) fail();
       while (text[index] >= '0' && text[index] <= '9') index += 1;
     }
-    return Number(text.slice(start, index));
+    const number = Number(text.slice(start, index));
+    if (!Number.isFinite(number)) reject('input-types', 'Expected a finite JSON number');
+    return number;
   };
   const parseValue = () => {
     depth += 1;

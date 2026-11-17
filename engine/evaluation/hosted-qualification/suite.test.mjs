@@ -76,6 +76,31 @@ test('duplicate __proto__ keys reject while a duplicate drawer id fails', async 
   assert.deepEqual(failed.violatedRequirements, ['unique-drawer']);
 });
 
+test('non-finite JSON numbers reject and finite unknown fields stay semantic', async () => {
+  const oracle = await import('./oracle.mjs');
+  const infinite = await evaluatePier(oracle, pierRows.replace(/}$/, ',"padding":1e999}'));
+  assert.equal(infinite.status, 'reject');
+  assert.equal(infinite.verdict, null);
+  assert.deepEqual(infinite.violatedRequirements, ['input-types']);
+
+  const negative = await evaluatePier(oracle, pierRows.replace(/}$/, ',"padding":-1e999}'));
+  assert.equal(negative.status, 'reject');
+  assert.deepEqual(negative.violatedRequirements, ['input-types']);
+
+  const finite = await evaluatePier(oracle, pierRows.replace(/}$/, ',"padding":1e2}'));
+  assert.equal(finite.status, 'pass');
+  assert.equal(finite.verdict, 1);
+
+  const semantic = pierRows.replace(
+    '"drawer-b","countedCents":"250"',
+    '"drawer-a","countedCents":"400"',
+  ).replace(/}$/, ',"padding":12}');
+  const failed = await evaluatePier(oracle, semantic);
+  assert.equal(failed.status, 'fail');
+  assert.equal(failed.verdict, 0);
+  assert.deepEqual(failed.violatedRequirements, ['unique-drawer']);
+});
+
 test('JSON depth and lone surrogates reject without leaving the oracle', async () => {
   const oracle = await import('./oracle.mjs');
   let deep = '"x"';
