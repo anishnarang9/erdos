@@ -1,6 +1,6 @@
 # Hosted candidate source review
 
-Reviewed on 2026-11-17 by one fresh-context, read-only Codex reviewer. The reviewer inspected `8c98d6b..20b0dc282482ad22d7fff49ffe86de903576f547`. Later branch commits changed documentation only. Product source still matches the candidate.
+Reviewed on 2026-11-17 by one fresh-context, read-only Codex reviewer. The reviewer inspected `8c98d6b..20b0dc282482ad22d7fff49ffe86de903576f547`. At the initial review, later branch commits changed documentation only. The deployment follow-ups below change the outer prewarm helper and Compose. API and engine implementation still match the candidate.
 
 ## Assessment
 
@@ -42,6 +42,15 @@ node --test engine/evaluation/hosted-qualification/campaign.test.mjs engine/eval
 
 The reviewer also inspected committed CI, image and archive evidence. The reviewer did not independently rebuild or execute those artifacts. No Docker, real compiler, prover, genuine model request, network, chain, wallet, operator-file or account action ran.
 
-## Remaining acceptance
+## Acceptance boundary
 
-Public API/TLS operation, native deployment resource limits, secure application model access and approved budgets, 180 genuine qualification trials and fresh authorized funded acceptance remain open. Review actual host configuration and new deployment evidence before release. Reassess affected source after a behavior change. Keep PR #8 draft until the sprint's full completion gates pass.
+At the initial review, public API/TLS, native limits, model access/budgets, genuine trials and funded acceptance remained open. Later native reports establish TLS, limits and operator-channel compiler/API/recovery checks. Public authoring readiness, its reviewed ten-cent spending boundary, later authorized genuine trials and fresh funded acceptance remain open. Review actual host configuration and new deployment evidence before release. Reassess affected source after a behavior change. Keep PR #8 draft until the sprint's full completion gates pass.
+
+
+## Native deployment follow-up reviews
+
+The same read-only reviewer inspected `cff751c` and `4a6a320`. The first changes only the outer helper's network profile. The unchanged image executes its existing inner branch, so its `20b0dc2` source identity remains accurate. The helper hash matches the native report. Ten deployment checks and shell syntax passed. No actionable source defect was found.
+
+The second quotes the HTTPS tmpfs value in Compose. Before the fix, YAML split it into four mount entries and native Docker rejected the relative paths. The real-Compose regression checks one absolute tmpfs mount and all `noexec,nosuid,nodev` restrictions. All eleven deployment checks pass. The reviewer found no Compose code defect. The reviewer did find stale documentation/evidence claims. The current runbook and native reports now reflect the completed compiler, API, TLS and restore checks.
+
+Commerce CI passes on both follow-ups: [helper checkpoint](https://github.com/anishnarang9/UBC-26/actions/runs/44062465567) and [Compose checkpoint](https://github.com/anishnarang9/UBC-26/actions/runs/44063904208). These reviews did not run Docker containers, SSH, provider or chain actions. Compose config parsing was local and needed no daemon. Public model authoring, full public API acceptance and funded release gates remain open.

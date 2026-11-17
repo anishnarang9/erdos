@@ -1,5 +1,7 @@
 # Hosted backend runtime
 
+Current native-host update (2026-11-17): DigitalOcean passes exact-image import, bounded storage, cold compilation in 240 seconds, operator-channel API auth/approval/compile/replay, quiesced restart and a separate-instance restore. External TLS validates. Public requests remain 503 while authoring readiness is disabled. The user permits $0.10 per complete authoring run and defers mass testing. The application key authenticates for non-inference model listing. No generation call ran. See [native setup](hosted-digitalocean.md), [compiler report](../agents/anish/reports/hosted-digitalocean-compiler-2026-11-17.json), [API report](../agents/anish/reports/hosted-digitalocean-api-2026-11-17.json) and [recovery report](../agents/anish/reports/hosted-digitalocean-recovery-2026-11-17.json). Earlier platform statements below retain their original source labels.
+
 Status: Linux image `4135ab4` passes the new immutable-pin startup, native import/approval and exact restart/replay checks. Earlier images establish authentication, warm compilation and compiled-package restore checks. These ran under amd64 emulation on arm64 macOS Docker Desktop. No public endpoint has been deployed. Production configuration, bounded cold compilation, real Grok access and external acceptance remain open gates. The active readiness follow-up will require another image.
 
 ## Host and trust boundary

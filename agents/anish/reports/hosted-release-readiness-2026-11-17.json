@@ -1,13 +1,13 @@
 {
   "version": 1,
   "status": "incomplete",
-  "workingSource": "20b0dc282482ad22d7fff49ffe86de903576f547",
+  "workingSource": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
   "finalReleaseSource": null,
   "publicUrl": null,
   "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/8",
   "pullRequestState": "draft",
   "goal": "active",
-  "scope": "Verified candidate code and finite source-labelled evidence. Public hosting, genuine application qualification and fresh live acceptance remain incomplete.",
+  "scope": "Native DigitalOcean compiler, operator-channel API, restart, restore, encrypted off-host copy and public TLS pass. Public API readiness, genuine model qualification and fresh funded acceptance remain incomplete.",
   "corpus": {
     "digest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
     "supported": 40,
@@ -135,62 +135,33 @@
   "activeImplementation": [],
   "externalDependencies": [
     {
-      "needed": "Persistent Linux host/account and approved resource budget",
-      "blocks": [
-        "public deployment",
-        "hard quota checks",
-        "laptop independence",
-        "external client",
-        "public backup/rollback drill"
-      ],
-      "inputStatus": "requested; no response yet"
-    },
-    {
-      "needed": "Public hostname/TLS access",
-      "blocks": [
-        "stable HTTPS origin",
-        "public CORS/ingress acceptance"
-      ],
-      "inputStatus": "requested with hosting inputs"
-    },
-    {
-      "needed": "Secure Grok API credential and approved service/benchmark ceilings",
-      "blocks": [
-        "genuine hosted authoring",
-        "180 fresh trial records and exact costs"
-      ],
-      "inputStatus": "requested; no response yet",
-      "reviewedModel": "grok-4.20-0309-non-reasoning",
-      "minimumReservedMicroUsdPerCall": 2540960,
-      "approvedRequestCeilingMicroUsd": null,
+      "needed": "Ten-cent complete authoring input/session bound",
+      "inputStatus": "Key authenticates for non-inference model listing. User permits 100000 micro-USD per complete run including repair. Current full-context reservation cannot fit. No generation ran.",
+      "approvedRunCeilingMicroUsd": 100000,
       "approvedDailyCeilingMicroUsd": null,
-      "approvedBenchmarkCeilingMicroUsd": null
+      "approvedBenchmarkCeilingMicroUsd": null,
+      "massTestingApproved": false
+    },
+    {
+      "needed": "Public authoring readiness and external API acceptance",
+      "inputStatus": "Persistent host, price, hostname, TLS and hard storage/process bounds resolved. Actual public HTTP is 503 while authoring remains disabled."
     },
     {
       "needed": "Current scoped funding/signing authority after a concrete preview",
-      "blocks": [
-        "fresh hosted funded proof",
-        "claim/release/payout/recovery",
-        "rejection/refund",
-        "genuine Circle charge/replay through deployment"
-      ],
-      "inputStatus": "not assumed from completed historical approvals; preview follows hosted/model preparation"
+      "inputStatus": "Not inferred from historical approvals. No fresh transaction ran."
     },
     {
-      "needed": "Final independent review of the latest candidate",
-      "blocks": [
-        "final release"
-      ],
-      "note": "The user directed no more Grok CLI calls. Earlier review covers only 8c98d6b."
+      "needed": "Final deployment/release review",
+      "inputStatus": "Candidate source and both deployment follow-ups reviewed; operational reports refreshed after stale documentation finding."
     }
   ],
   "releaseGatesStillOpen": [
-    "Public HTTPS and external/laptop-independent acceptance",
-    "Genuine Grok qualification at frozen corpus and thresholds",
-    "Remaining paid-waiter and benchmark integration plus later independent review",
-    "Final source CI and installed-runner verification after remaining source changes",
-    "Final combined image, public artifacts and exact UI handoff SHA",
-    "Fresh hosted Arc and Circle acceptance under current authority"
+    "Reviewed authoring input/session policy within $0.10 per run",
+    "Public authoring readiness and external API/laptop-independent acceptance",
+    "Later authorized genuine 180-trial qualification",
+    "Final combined runtime/public runner artifacts and exact handoff identities",
+    "Fresh hosted Arc/Circle acceptance under current authority",
+    "Final review of deployment evidence and later behavior changes"
   ],
   "privacy": "The protocol publishes the release key. Settled results become public. Real release keys and signing material stay outside Git.",
   "completionRule": "Keep the goal active while authorized independent work remains. Do not equate local readiness, synthetic credentials, finite proofs, prepared containers or historical live receipts with completed hosted release.",
@@ -229,13 +200,23 @@
     "finalRelease": false
   },
   "independentReview": {
-    "source": "8c98d6b",
-    "status": "no-new-material-defect-in-reviewed-paths",
-    "report": "../../../docs/hosted-integrated-security-review.md",
-    "excludes": [
-      "forthcoming browser/paid-waiter code",
-      "newly reproduced benchmark metadata mismatch"
-    ]
+    "source": "20b0dc282482ad22d7fff49ffe86de903576f547",
+    "status": "no-actionable-code-defect-in-scoped-review",
+    "report": "../../../docs/hosted-candidate-code-review-2026-11-17.md",
+    "checks": 106,
+    "deploymentFollowups": [
+      {
+        "source": "cff751c594724ea3693421060dd0478c5677f602",
+        "checks": 10,
+        "status": "no-actionable-defect"
+      },
+      {
+        "source": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+        "checks": 11,
+        "status": "no-source-defect-stale-evidence-finding-addressed"
+      }
+    ],
+    "finalReleaseApproval": false
   },
   "browserOriginPolicy": {
     "status": "implemented; unit/typecheck passed",
@@ -257,28 +238,72 @@
   "developmentWorkerPolicy": "No further Grok CLI calls, per user reply. Both original sessions remain stopped.",
   "remainingWork": [
     {
-      "gate": "Persistent public Linux host, hostname and resource budget",
-      "status": "awaiting user inputs"
+      "gate": "Ten-cent complete authoring run",
+      "status": "User approves 100000 micro-USD per complete run including repair. Current full-context guard rejects it. Review a complete-input/session bound before any generation call."
     },
     {
-      "gate": "Secure application Grok access and approved request/daily/benchmark ceilings",
-      "status": "awaiting user inputs; recheck provider terms before enablement"
+      "gate": "Usable public API and external acceptance",
+      "status": "Native compiler/API/restart/restore and TLS pass. Public HTTP remains 503 because model authoring readiness is disabled."
+    },
+    {
+      "gate": "Public runner download and final combined artifact/handoff",
+      "status": "Canonical 20b0dc2 runner remains verified in a private candidate bundle. Public release URL and final deployment identity still need completion."
     },
     {
       "gate": "180 genuine deployed qualification trials",
-      "status": "blocked by hosting/model/budget inputs"
+      "status": "Deferred pending later mass-test approval. The proposed $20 budget was rejected; do not dispatch."
     },
     {
-      "gate": "Fresh hosted funding, proof, claim/release, recovery, rejection/refund and Circle payment",
-      "status": "requires current concrete previews and live authority after authoring/compilation"
+      "gate": "Fresh hosted funded acceptance and Circle payment",
+      "status": "Prepare current concrete previews after authoring works. No new wallet or signing authority is inferred."
     },
     {
-      "gate": "Final independent review",
-      "status": "pending; no more Grok CLI calls"
-    },
-    {
-      "gate": "Public release URL and laptop independence",
-      "status": "blocked by public deployment and remaining acceptance gates"
+      "gate": "Final deployment/release review",
+      "status": "Scoped candidate and deployment source reviews pass. New operational evidence and any later cost-policy changes need final review."
     }
+  ],
+  "earlierIndependentReview": {
+    "source": "8c98d6b",
+    "status": "no-new-material-defect-in-reviewed-paths",
+    "report": "../../../docs/hosted-integrated-security-review.md",
+    "excludes": [
+      "forthcoming browser/paid-waiter code",
+      "newly reproduced benchmark metadata mismatch"
+    ]
+  },
+  "nativeDeployment": {
+    "runtimeSource": "20b0dc282482ad22d7fff49ffe86de903576f547",
+    "outerHelperSource": "cff751c594724ea3693421060dd0478c5677f602",
+    "composeSource": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+    "url": "https://ubc26-159-89-149-133.sslip.io",
+    "publicStatus": 503,
+    "tlsVerified": true,
+    "publicApiReady": false,
+    "coldCompilerSeconds": 240,
+    "nativeApiTransport": "operator pinned SSH",
+    "artifactHashesChecked": 20,
+    "snapshotFiles": 21,
+    "fullServerRebootPassed": true,
+    "reports": [
+      "hosted-digitalocean-native-2026-11-17.json",
+      "hosted-digitalocean-compiler-2026-11-17.json",
+      "hosted-digitalocean-api-2026-11-17.json",
+      "hosted-digitalocean-recovery-2026-11-17.json"
+    ]
+  },
+  "currentDeploymentCi": {
+    "commerceSource": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+    "commerceRunId": 44063904208,
+    "status": "success",
+    "deploymentChecks": 11,
+    "coreSource": "20b0dc282482ad22d7fff49ffe86de903576f547",
+    "coreRunId": 44042814682,
+    "coreStatus": "success"
+  },
+  "historicalVerificationSections": [
+    "combinedCommerce",
+    "nativeLinuxCI",
+    "sourceCI",
+    "earlierIndependentReview"
   ]
 }
