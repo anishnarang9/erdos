@@ -408,7 +408,7 @@ async function compilerReadyCheck(input: ReadyInput): Promise<ReadyCheck> {
     && record.imageId.length > 0
     && record.imageId.length <= 200
     && typeof record.guestSha256 === "string"
-    && SHA256_HEX.test(record.guestSha256);
+    && /^(?:0x)?[0-9a-fA-F]{64}$/.test(record.guestSha256);
   if (!warmed) return check("compiler_ready", false, "corrupt", false);
   const sameSource = typeof record.sourceSha === "string" && sameHex(record.sourceSha, input.compiler?.sourceSha);
   const sameEngine = typeof record.engineSha256 === "string" && sameHex(record.engineSha256, input.compiler?.engineSha256);

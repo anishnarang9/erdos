@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 01:18 -05:00 — Anish — Consume the real compiler prewarm digest
+
+- Built image `c7a8c44` from committed source and ran the fixed-template prewarm with the real compiler, pass and valid verdict-0 evaluations. Warm cache completed in one second. The first test mount selected the volume root instead of its existing `restored` subpath and failed before compilation. The corrected mount preserved state and completed. Both compiler/prover locks are released. See [the report](reports/hosted-runtime-prewarm-2026-11-17.json).
+- The actual record exposed a readiness mismatch: engine guest hashes include `0x`, while the consumer accepted only bare hex. A regression using that recorded output failed before the repair. Readiness now accepts either exact 32-byte digest form and still rejects malformed lengths/characters. API typecheck and 35 focused readiness/startup checks pass.
+- The compiler image result is finite warm-cache evidence. The parser repair still needs a new image check. Worker A's active scope does not modify `ready.ts`; preserve this coordinator fix during its next integration. Public hosting, real Grok qualification and fresh funded acceptance remain pending.
+
 ## 2026-11-17 01:15 -05:00 — Anish — Check public deployment pins before API startup
 
 - Added an image entrypoint guard for both committed Arc deployment manifests. Public startup rejects absent/wrong contract settings, unsafe RPC URL forms, mismatched manifest wiring and fewer than three open-claim confirmations before importing the API. It makes no external request. Current RPC availability, bytecode and roles remain separate checks.
