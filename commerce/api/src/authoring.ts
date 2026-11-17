@@ -13,8 +13,8 @@ import { expensiveGuard } from "./limits.ts";
 import { ownerWallet, requireOwnedJob } from "./ownership.ts";
 import type { RouteContext } from "./routes.ts";
 import type { Idempotency } from "./idempotency.ts";
-import { DRAFT_TIMEOUT_MS, ModelError, draftPromptVersion, parseModelDraft, type DraftModelInput, type DraftModelResult, type DraftOutput, type ModelDraft } from "./grok.ts";
-import { noteDraftDispatch, noteDraftUsage, quoteAuthoringCost, usageComplete } from "./tasks.ts";
+import { DRAFT_MAX_COMPLETION_TOKENS, DRAFT_TIMEOUT_MS, ModelError, draftPromptVersion, parseModelDraft, type DraftModelInput, type DraftModelResult, type DraftOutput, type ModelDraft, type ModelUsage } from "./grok.ts";
+import { authoringCharge, maxCallMicroUsd, noteDraftDispatch, noteDraftUsage, usageComplete } from "./tasks.ts";
 import { parseManifest, EngineError, isCliCompileResult, type Manifest } from "./engine.ts";
 import { artifactBinding, requireRealArtifact } from "./artifact.ts";
 import {
@@ -169,8 +169,40 @@ function parseDraftBody(body: unknown): DraftBody {
   };
 }
 
-function modelFailure(reason: string): ApiError {
-  return new ApiError("model_failed", "The draft model failed", { reason });
+function modelFailure(reason: string, billing?: Record<string, unknown>): ApiError {
+  return new ApiError("model_failed", "The draft model failed", billing ? { reason, billing } : { reason });
+}
+
+/** A small user-text estimate. The catalog is not included. One token is the smallest supported prompt. */
+function promptTokenEstimate(request: string): number {
+  const estimate = Math.ceil(request.length / 4);
+  return Number.isSafeInteger(estimate) && estimate >= 1 ? estimate : 1;
+}
+
+/** Largest completion cap whose worst-case tariff fits the ceiling. At least one token when the caller already checked that a call can start. */
+function affordableCompletion(promptTokens: number, ceiling: number, budget: NonNullable<Deps["budget"]>): number {
+  let lo = 0;
+  let hi = DRAFT_MAX_COMPLETION_TOKENS;
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2);
+    const cost = maxCallMicroUsd(promptTokens, mid, budget);
+    if (cost !== null && cost <= ceiling) lo = mid;
+    else hi = mid - 1;
+  }
+  return lo >= 1 ? lo : 1;
+}
+
+function chargeBilling(usage: ModelUsage, budget: NonNullable<Deps["budget"]>): Record<string, unknown> | undefined {
+  const charge = authoringCharge(usage, budget);
+  if (!charge) return undefined;
+  const breach = charge.microUsd > budget.requestCeilingMicroUsd;
+  return {
+    state: "settled",
+    microUsd: charge.microUsd,
+    source: charge.source,
+    ...(charge.costInUsdTicks !== null ? { costInUsdTicks: charge.costInUsdTicks } : {}),
+    ...(breach ? { breach: true } : {}),
+  };
 }
 
 export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], newId: () => string) {
@@ -222,16 +254,37 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       if (typeof reply?.model !== "string" || typeof reply.traceId !== "string") throw new ModelError("invalid_reply");
       return { reply: { ...reply, result: parseModelDraft(reply.result) }, result: parseModelDraft(reply.result) };
     };
+    const chargedUsage = (err: unknown): ModelUsage | undefined => {
+      if (!(err instanceof ModelError) || !err.usage || !usageComplete(err.usage)) return undefined;
+      return err.usage;
+    };
     const failCall = (err: unknown): never => {
       const reason = err instanceof ModelError ? err.reason : "error";
+      const usage = chargedUsage(err);
       const at = isoAt(deps.now());
-      tx(deps.db, () => insertDraft.run(draftId, requestJson, JSON.stringify({ error: { code: "model_failed", reason } }), null, null, null, at, owner));
-      throw modelFailure(reason);
+      tx(deps.db, () => {
+        insertDraft.run(draftId, requestJson, JSON.stringify({ error: { code: "model_failed", reason } }), null, null, null, at, owner);
+        if (usage && taskId !== "" && deps.budget) noteDraftUsage(deps.db, taskId, JSON.stringify([usage]), at);
+      });
+      const billing = usage && deps.budget ? chargeBilling(usage, deps.budget) : undefined;
+      throw modelFailure(reason, billing);
     };
 
+    // A positive supported call must fit before any paid dispatch. The completion cap is only a hint.
+    let firstInput = baseInput;
+    if (deps.budget) {
+      const minimum = maxCallMicroUsd(1, 1, deps.budget);
+      if (minimum === null || minimum > deps.budget.requestCeilingMicroUsd) {
+        throw new ApiError("model_unavailable", "Authoring budget cannot fund a model call");
+      }
+      firstInput = {
+        ...baseInput,
+        maxCompletionTokens: affordableCompletion(promptTokenEstimate(body.request), deps.budget.requestCeilingMicroUsd, deps.budget),
+      };
+    }
     let first: { reply: DraftModelResult; result: ModelDraft };
     try {
-      first = await callModel(baseInput);
+      first = await callModel(firstInput);
     } catch (err) {
       first = failCall(err);
     }
@@ -350,17 +403,38 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     };
 
     let chosen = await assess(first);
-    let repairFailed = false;
-    const canRepair = Boolean(chosen.feedback) && usageComplete(first.reply.usage) && deps.now() - started < DRAFT_TIMEOUT_MS;
+    let repairUnpriced = false;
+    let repairAttempted = false;
+    // The next call is allowed only when its complete supported maximum fits the remaining ceiling.
+    // A smaller requested cap is not that check. The provider may ignore max_completion_tokens.
+    const repairFits = (): boolean => {
+      if (!deps.budget) return true;
+      const usage = first.reply.usage;
+      if (!usage) return false;
+      const charge = authoringCharge(usage, deps.budget);
+      if (!charge || charge.microUsd > deps.budget.requestCeilingMicroUsd) return false;
+      const remaining = deps.budget.requestCeilingMicroUsd - charge.microUsd;
+      const nextMax = maxCallMicroUsd(Math.max(usage.promptTokens, 1), DRAFT_MAX_COMPLETION_TOKENS, deps.budget);
+      return nextMax !== null && nextMax <= remaining;
+    };
+    const canRepair = Boolean(chosen.feedback) && usageComplete(first.reply.usage) && deps.now() - started < DRAFT_TIMEOUT_MS && repairFits();
     if (chosen.fatal && !canRepair) throw modelFailure("plan_not_hashable");
     if (canRepair && chosen.feedback) {
+      repairAttempted = true;
       try {
         const second = await callModel({ ...baseInput, repair: chosen.feedback });
         attempts.push(second);
         persistUsage();
         chosen = await assess(second);
-      } catch {
-        repairFailed = true;
+      } catch (err) {
+        const usage = chargedUsage(err);
+        if (usage) {
+          attempts.push({
+            reply: { result: { kind: "unsupported", reason: "model_failed" }, model: "", traceId: "", usage },
+            result: { kind: "unsupported", reason: "model_failed" },
+          });
+          persistUsage();
+        } else repairUnpriced = true;
       }
     }
     if (chosen.fatal) throw modelFailure("plan_not_hashable");
@@ -370,15 +444,25 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     let response = chosen.response;
     if (deps.budget) {
       let microUsd = 0;
-      let known = !repairFailed && attempts.length > 0;
+      let known = !repairUnpriced && attempts.length > 0;
+      let sawActual = false;
+      let sawTariff = false;
       for (const item of attempts) {
-        const cost = item.reply.usage && deps.budget ? quoteAuthoringCost(item.reply.usage, deps.budget) : null;
-        if (cost === null) known = false;
-        else microUsd += cost;
+        const charge = item.reply.usage ? authoringCharge(item.reply.usage, deps.budget) : null;
+        if (!charge || !Number.isSafeInteger(microUsd + charge.microUsd)) known = false;
+        else {
+          microUsd += charge.microUsd;
+          if (charge.source === "actual") sawActual = true;
+          else sawTariff = true;
+        }
       }
+      const source = sawActual && sawTariff ? "mixed" : sawActual ? "actual" : "tariff";
+      const breach = known && microUsd > deps.budget.requestCeilingMicroUsd;
       response = {
         ...response,
-        billing: known && Number.isSafeInteger(microUsd) ? { state: "settled", microUsd } : { state: "uncertain" },
+        billing: known
+          ? { state: "settled", microUsd, source, ...(breach ? { breach: true } : {}) }
+          : { state: "uncertain" },
       };
     }
     if (response.kind === "draft" && result.kind === "draft") {
@@ -409,7 +493,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
           promptVersion: draftPromptVersion(),
           catalogVersion: CATALOG_VERSION,
           latencyMs: Math.max(0, deps.now() - started),
-          repairCount: repairFailed ? 1 : Math.max(0, attempts.length - 1),
+          repairCount: repairAttempted ? 1 : Math.max(0, attempts.length - 1),
           usage: attempts.map((item) => item.reply.usage ?? null),
         },
       };

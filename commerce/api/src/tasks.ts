@@ -112,7 +112,7 @@ function ceilTokens(tokens: number, microUsdPerMillion: number): number | null {
   return Math.ceil((tokens * microUsdPerMillion) / 1_000_000);
 }
 
-/** Prices the provider token counts. Missing or inconsistent usage returns null. Ticks are ignored. */
+/** Tariff estimate from token prices. Missing or inconsistent usage returns null. Actual ticks are ignored. */
 export function quoteAuthoringCost(usage: ModelUsage, budget: NonNullable<Deps["budget"]>): number | null {
   if (!usageComplete(usage)) return null;
   const cached = usage.cachedTokens ?? 0;
@@ -124,6 +124,54 @@ export function quoteAuthoringCost(usage: ModelUsage, budget: NonNullable<Deps["
   ];
   if (parts.some((part) => part === null)) return null;
   const sum = (parts as number[]).reduce((total, part) => total + part, 0);
+  return Number.isSafeInteger(sum) && sum >= 0 ? sum : null;
+}
+
+/** 10^10 ticks per USD, and 10^6 micro-USD per USD, so 10^4 ticks per micro-USD. */
+const TICKS_PER_MICRO_USD = 10_000n;
+
+/** Converts an actual xAI tick count into micro-USD. Rounds a partial micro-USD up. */
+export function ticksToMicroUsd(ticks: number): number | null {
+  if (!Number.isSafeInteger(ticks) || ticks < 0) return null;
+  const micro = (BigInt(ticks) + TICKS_PER_MICRO_USD - 1n) / TICKS_PER_MICRO_USD;
+  if (micro > BigInt(Number.MAX_SAFE_INTEGER)) return null;
+  return Number(micro);
+}
+
+export interface AuthoringCharge {
+  microUsd: number;
+  source: "actual" | "tariff";
+  costInUsdTicks: number | null;
+}
+
+/** Uses the provider's actual tick charge when it is a safe nonnegative integer. Otherwise uses the tariff. */
+export function authoringCharge(usage: ModelUsage, budget: NonNullable<Deps["budget"]>): AuthoringCharge | null {
+  if (!usageComplete(usage)) return null;
+  if (usage.costInUsdTicks != null) {
+    const microUsd = ticksToMicroUsd(usage.costInUsdTicks);
+    if (microUsd !== null) return { microUsd, source: "actual", costInUsdTicks: usage.costInUsdTicks };
+  }
+  const microUsd = quoteAuthoringCost(usage, budget);
+  if (microUsd === null) return null;
+  return { microUsd, source: "tariff", costInUsdTicks: null };
+}
+
+/**
+ * Worst-case tariff for one call. Prompt tokens use the higher of the input and cached prices,
+ * because the cache split is not known before the provider answers.
+ */
+export function maxCallMicroUsd(
+  promptTokens: number,
+  completionTokens: number,
+  budget: NonNullable<Deps["budget"]>,
+): number | null {
+  if (!Number.isSafeInteger(promptTokens) || promptTokens < 0) return null;
+  if (!Number.isSafeInteger(completionTokens) || completionTokens < 0) return null;
+  const cachedPrice = budget.cachedInputMicroUsdPerMillion ?? budget.inputMicroUsdPerMillion;
+  const prompt = ceilTokens(promptTokens, Math.max(budget.inputMicroUsdPerMillion, cachedPrice));
+  const completion = ceilTokens(completionTokens, budget.outputMicroUsdPerMillion);
+  if (prompt === null || completion === null) return null;
+  const sum = prompt + completion;
   return Number.isSafeInteger(sum) && sum >= 0 ? sum : null;
 }
 
@@ -207,8 +255,9 @@ export function registerTaskRoutes(
     "UPDATE spend_reservations SET state = 'uncertain', updated_at = ? WHERE task_id = ? AND state = 'reserved'",
   );
   const settleKnown = db.prepare(
-    "UPDATE spend_reservations SET state = 'settled', settled_micro_usd = ?, updated_at = ? WHERE task_id = ? AND state = 'reserved' AND ? <= ceiling_micro_usd",
+    "UPDATE spend_reservations SET state = 'settled', settled_micro_usd = ?, breach = ?, updated_at = ? WHERE task_id = ? AND state = 'reserved'",
   );
+  const reservationCeiling = db.prepare("SELECT ceiling_micro_usd FROM spend_reservations WHERE task_id = ?");
   const releaseReservation = db.prepare(
     "UPDATE spend_reservations SET state = 'released', updated_at = ? WHERE task_id = ? AND state = 'reserved' AND dispatched_at IS NULL",
   );
@@ -347,8 +396,11 @@ export function registerTaskRoutes(
     const applyBilling = (result: unknown, id: string): void => {
       const billing = isPlainObject(result) && isPlainObject(result.billing) ? result.billing : null;
       const microUsd = billing?.microUsd;
-      if (billing?.state === "settled" && Number.isSafeInteger(microUsd) && (microUsd as number) >= 0) {
-        const updated = settleKnown.run(microUsd as number, at(), id, microUsd as number);
+      if (billing?.state === "settled" && typeof microUsd === "number" && Number.isSafeInteger(microUsd) && microUsd >= 0) {
+        const ceilingRow = reservationCeiling.get(id) as { ceiling_micro_usd: number } | undefined;
+        const overCeiling = typeof ceilingRow?.ceiling_micro_usd === "number" && microUsd > ceilingRow.ceiling_micro_usd;
+        const breach = billing.breach === true || overCeiling ? 1 : 0;
+        const updated = settleKnown.run(microUsd, breach, at(), id);
         if (Number(updated.changes) === 1) return;
       }
       settleUnknown.run(at(), id);
@@ -362,6 +414,11 @@ export function registerTaskRoutes(
         const error = taskError(err);
         finish.run("failed", null, JSON.stringify(error), at(), row.id);
         if (row.operation !== "draft") return;
+        const details = err instanceof ApiError ? err.details : undefined;
+        if (details && isPlainObject(details.billing)) {
+          applyBilling({ billing: details.billing }, row.id);
+          return;
+        }
         const dispatched = dispatchState.get(row.id) as { dispatched_at: string | null } | undefined;
         if (!dispatched?.dispatched_at && RELEASE_CODES.has(error.code)) releaseReservation.run(at(), row.id);
         else settleUnknown.run(at(), row.id);

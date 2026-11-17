@@ -77,11 +77,12 @@ function appWith(extra: Partial<CreateAppOptions>, dbPath = ":memory:") {
 
 function reservation(dbPath: string) {
   const raw = new DatabaseSync(dbPath);
-  const row = raw.prepare("SELECT state, ceiling_micro_usd, settled_micro_usd, dispatched_at, usage_json FROM spend_reservations").get() as {
+  const row = raw.prepare("SELECT state, ceiling_micro_usd, settled_micro_usd, dispatched_at, breach, usage_json FROM spend_reservations").get() as {
     state: string;
     ceiling_micro_usd: number;
     settled_micro_usd: number | null;
     dispatched_at: string | null;
+    breach: number | null;
     usage_json: string | null;
   };
   raw.close();
@@ -232,7 +233,7 @@ describe("dispatch billing", () => {
       draftModel: {
         async draft() {
           repairCalls += 1;
-          return { ...draftReply(repairCalls === 1 ? { version: 1 } : { version: 2 }), usage };
+          return { ...draftReply(repairCalls === 1 ? { version: 1 } : { version: 2 }), usage: { ...usage, costInUsdTicks: null } };
         },
       },
     }, repairPath);
@@ -245,10 +246,11 @@ describe("dispatch billing", () => {
     expect(settled.state).toBe("settled");
     expect(settled.settled_micro_usd).toBe(ONE_CALL_MICRO_USD * 2);
     expect(settled.settled_micro_usd).not.toBe(999);
-    expect(settled.usage_json).toContain("999");
+    expect(settled.breach).toBe(0);
+    expect(settled.usage_json).toContain("1000");
   });
 
-  it("keeps the ceiling when the known cost exceeds it", async () => {
+  it("retains the actual cost when it exceeds the ceiling", async () => {
     const dir = mkdtempSync(join(tmpdir(), "ubc26-over-"));
     const dbPath = join(dir, "api.db");
     const created = appWith({
@@ -269,9 +271,12 @@ describe("dispatch billing", () => {
     expect((await post(created.app, "/v1/tasks", { operation: "draft", input: { ...DRAFT_BODY, request: "Count the words in over.txt" } }, auth(key))).status).toBe(202);
     await created.pumpTasks();
     const row = reservation(dbPath);
-    expect(row.state).toBe("uncertain");
-    expect(row.settled_micro_usd).toBeNull();
+    expect(row.state).toBe("settled");
+    expect(row.settled_micro_usd).toBe(12_500_000);
+    expect(row.breach).toBe(1);
     expect(row.ceiling_micro_usd).toBe(50_000);
+    const again = await post(created.app, "/v1/tasks", { operation: "draft", input: { ...DRAFT_BODY, request: "Count the words in over-again.txt" } }, auth(key));
+    expect(again.status).toBe(429);
   });
 });
 
