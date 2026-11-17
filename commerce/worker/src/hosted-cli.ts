@@ -5,7 +5,7 @@ import { pathToFileURL } from "node:url";
 import { hostedClient, type HostedReference } from "@ubc26/sdk";
 import { apiClient } from "./client.ts";
 import { checkReferences, downloadPackage } from "./run.ts";
-import { evaluate } from "./engine.ts";
+import { evaluate, WorkerEngineError } from "./engine.ts";
 import { loadOperatorKeystore } from "./operator-keystore.ts";
 import { createSprintEngineRunner, sprintEngineWrapperDigest } from "./sprint-runner.ts";
 import { object, privateDirectory, readOperatorJson, readSafeFile, requireSprint } from "./sprint-authorization.ts";
@@ -182,6 +182,13 @@ export async function hostedCli(args: string[]): Promise<unknown> {
 }
 export async function hostedMain(args = process.argv.slice(2)): Promise<void> {
   try { console.log(JSON.stringify(await hostedCli(args), (_, value: unknown) => typeof value === "bigint" ? String(value) : value, 2)); }
-  catch { console.error("Hosted command failed. Inspect task state or reconcile signed sends before retrying. Secret details are redacted."); process.exitCode = 1; }
+  catch (err) {
+    if (args[0] === "check") {
+      const known = new Set(["invalid_deliverable", "bundle_input", "invalid_job", "input_io", "invalid_plan", "unsupported_capability", "output_too_large", "timeout", "spawn", "bad_output"]);
+      const reason = err instanceof WorkerEngineError ? known.has(err.code) ? err.code : "engine_failed" : "configuration_invalid";
+      console.log(JSON.stringify({ status: "check-rejected", reason, mode: "check-only", proofGenerated: false, transactionSent: false }));
+    } else console.error("Hosted command failed. Inspect task state or reconcile signed sends before retrying. Secret details are redacted.");
+    process.exitCode = 1;
+  }
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) void hostedMain();

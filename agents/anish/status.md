@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 23:44 -05:00 — Anish — Installed check rejection has a safe machine-readable result
+
+- Accepted Worker B's reviewed diagnostic finding `d66f88f`, integrated as `7d46e8d`. The prior exit 1 already differed from verdict 0, but its generic signed-send message hid the error class. `hostedMain check` now returns fixed-code rejection JSON and exit 1. Valid verdict 0 keeps its JSON and exit 0. Messages, paths and unknown codes stay redacted.
+- Three independent real-child diagnostic regressions failed before the repair. All ten focused CLI tests and worker typecheck pass. No engine/proof/chain behavior changed.
+- Current provider documentation confirms that the completion cap excludes reasoning tokens. The coordinator now reviews total billable-token eligibility and usage normalization before any real model dispatch. Earlier full-payload regression evidence remains valid, but its output maximum alone does not establish a hard cost ceiling for a reasoning model. No paid API trial ran.
+
 ## 2026-11-16 23:39 -05:00 — Anish — Public authored approval now rejects unusable examples
 
 - Independent regression reproduced approval of a draft whose predicted negative actually passed. Actual example disagreement now permits one bounded repair, and usable counts include only evaluated, agreeing verdicts. Missing evaluators, invalid inputs and disagreements keep `exampleApprovalReady` false. Public Grok approval also requires the exact owner/draft/revision binding, source quotes and completed rule coverage. Coverage completion and buyer witness records remain in progress, so those approvals fail closed.

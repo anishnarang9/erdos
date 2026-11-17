@@ -111,7 +111,7 @@ ubc26 check --engine-config "$WORK/engine.json" --plan "$PLAN_JSON" \
   --evidence "$WORK/evidence" --job-context "$WORK/job.json"
 ```
 
-A preview context is not evidence of chain funding. A signed example for another rules hash, reference hash, job or solver cannot authorize this attempt. A signature rejection is distinct from checker verdict 0.
+A preview context is not evidence of chain funding. A signed example for another rules hash, reference hash, job or solver cannot authorize this attempt. A signature rejection is distinct from checker verdict 0. The installed `check` command returns verdict JSON with exit 0 for a valid checker result, including verdict 0. A rejected check returns `{status:"check-rejected",reason,mode:"check-only",proofGenerated:false,transactionSent:false}` with exit 1. The reason is a fixed public code. Raw engine messages and local paths remain private.
 
 Use one shared private `proverLockRoot` for every runner on the machine. The runner refuses a second prover. It never removes a stale lock automatically. Run your solver separately and place its files in the deliverable directory.
 
