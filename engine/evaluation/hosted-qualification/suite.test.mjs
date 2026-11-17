@@ -182,6 +182,7 @@ test('supported candidates match the independent oracle', async () => {
     'badge-zone-1', 'clearance-1', 'queue-1', 'purpose-1',
     'nights-1', 'instrument-1', 'usable-1', 'programs-1',
     'berth-fit-1', 'berth-fee-1', 'berth-open-1', 'berth-swap-1',
+    'route-1', 'route-open-1', 'route-fixed-1', 'route-penalty-1',
   ]);
   const directory = await mkdtemp(join(tmpdir(), 'ubc26-corpus-'));
   try {
