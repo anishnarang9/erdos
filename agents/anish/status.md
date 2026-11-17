@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 00:30 -05:00 — Anish — New Linux image pins and restart smoke pass
+
+- Built immutable image `4135ab4`, id `sha256:9ea205f9acd7be20e9c8ab3e0f18808430b594cbfc5706ecf49289b4d7d71627`. Its Node 24 runtime validates source, native engine and compiler-wrapper pins. Wrong digest configuration rejects before API import and does not print the supplied synthetic credential.
+- Non-root/read-only runtime with one CPU, 1 GiB RAM and 128 PIDs passes health, real native import/approval, service restart and exact approval replay. Missing model/chain configuration leaves readiness false. The smoke container is stopped and compiler lock is released. See [the report](reports/hosted-image-startup-2026-11-17.json). No guest compile, model call, proof or transaction ran in this smoke.
+- Added Caddy active health checks against `/readyz`. The pinned Caddy binary validates that configuration. All six backup/startup Node checks pass. This is local amd64 emulation, not an external HTTPS host. A continues bounded readiness and compiler/prewarm checks. B reviews the image pin loader. Final image and public acceptance remain open.
+
 ## 2026-11-17 00:24 -05:00 — Anish — Integrate readiness and immutable image startup pins
 
 - Integrated A's readiness checkpoint as `6399fb1` and report as `eff11ff`. Added the real Grok adapter's configured id advertisement. The provenance regression now rejects an actually unreviewed reasoning model. API typecheck and 36 focused model/readiness/startup checks pass. Production readiness still needs the worker's follow-up and a fresh image.

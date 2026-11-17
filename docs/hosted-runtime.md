@@ -1,6 +1,6 @@
 # Hosted backend runtime
 
-Status: the Linux image at source `89e13f2` passes local non-root/read-only startup, authentication, real engine validation/evaluation, approval, warm compilation and compiled-package restore checks. These ran under amd64 emulation on arm64 macOS Docker Desktop. No public endpoint has been deployed. Production configuration, bounded cold compilation, real Grok access and external acceptance remain open gates. Later API repairs require a new image.
+Status: Linux image `4135ab4` passes the new immutable-pin startup, native import/approval and exact restart/replay checks. Earlier images establish authentication, warm compilation and compiled-package restore checks. These ran under amd64 emulation on arm64 macOS Docker Desktop. No public endpoint has been deployed. Production configuration, bounded cold compilation, real Grok access and external acceptance remain open gates. The active readiness follow-up will require another image.
 
 ## Host and trust boundary
 
@@ -10,7 +10,7 @@ Mount `/srv/ubc26-state` on a persistent filesystem with a hard 32-GiB quota. Ap
 
 The API uses the host Docker socket for fixed-template guest builds. That socket grants host administration power. Dedicate the host to this service. Keep wallets, private signing files and unrelated credentials off it. The API now supplies an explicit clean compiler environment. Runtime tests reject inherited service credentials and cancel owned process groups. The fixed Docker wrapper selects one resource-limited builder. This boundary does not protect a shared host from a compromised Docker client. The configured CPU and memory options follow [Docker's container-driver contract](https://docs.docker.com/build/builders/drivers/docker-container/).
 
-Only Caddy publishes ports 80 and 443. The API has no host port. Caddy obtains and renews TLS for the configured hostname, applies a 1-MB request cap, and forwards requests over the private Compose network. `TRUST_PROXY=1` is valid only with this ingress topology. Set public CORS to the exact deployed origin through the API's reviewed production configuration. Do not expose a development proxy.
+Only Caddy publishes ports 80 and 443. It checks `/readyz` every five seconds and removes an unhealthy API from proxy service. The API has no host port. Caddy obtains and renews TLS for the configured hostname, applies a 1-MB request cap, and forwards requests over the private Compose network. `TRUST_PROXY=1` is valid only with this ingress topology. Set public CORS to the exact deployed origin through the API's reviewed production configuration. Do not expose a development proxy.
 
 ## Reproducible source and images
 
@@ -70,4 +70,4 @@ For rollback, stop the API and preserve the current volume. Restore the pre-upgr
 Public deployment requires the host/account, approved resource budget and hostname. Real authoring also requires a securely configured Grok API credential and separate service/benchmark inference ceilings. Fresh Arc/Circle spending requires its own concrete preview and current authority.
 
 
-The new image startup reads those immutable pin files before importing the API server. It supplies native engine, compiler wrapper, source, guest-builder and frontend identities. Conflicting operator overrides, malformed pin files and linked pin files reject startup. The reader never copies or prints service credentials. Runtime readiness independently compares actual executable bytes and the completed prewarm record. This startup integration still needs the next pinned Linux image and readiness check.
+The new image startup reads those immutable pin files before importing the API server. It supplies native engine, compiler wrapper, source, guest-builder and frontend identities. Conflicting operator overrides, malformed pin files and linked pin files reject startup. The reader never copies or prints service credentials. Runtime readiness independently compares actual executable bytes and the completed prewarm record. Image `4135ab4` validates those pins in restricted Node 24/Linux execution. Wrong digest configuration rejects before API import without printing the supplied credential. Native import/approval, restart and exact replay pass. Readiness correctly stays false without required dependencies. The [image report](../agents/anish/reports/hosted-image-startup-2026-11-17.json) distinguishes this local smoke from public deployment. The follow-up readiness implementation still needs its own final image check.
