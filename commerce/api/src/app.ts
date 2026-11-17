@@ -14,6 +14,7 @@ import { registerAuthoringRoutes } from "./authoring.ts";
 import { registerMarketRoutes } from "./market.ts";
 import { registerX402Routes, type X402Config } from "./x402.ts";
 import { registerOpenClaimRoutes, type OpenClaimConfig } from "./open-claim.ts";
+import { registerAttemptRoutes } from "./attempts.ts";
 import { registerIdentityRoutes } from "./identity.ts";
 import { requireOwnedJob } from "./ownership.ts";
 import { assertAuthoringBudget, registerTaskRoutes } from "./tasks.ts";
@@ -149,6 +150,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   const tasks = registerTaskRoutes(ctx, authoring);
   registerX402Routes(ctx, authoring, opts.x402, tasks.withCompileSlot);
   registerOpenClaimRoutes(ctx, opts.openClaim);
+  registerAttemptRoutes(ctx);
   registerMarketRoutes(ctx);
 
   app.get("/v1/jobs/:id", readBody, requireJobId, jobs.get);
