@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 23:23 -05:00 — Anish — Runtime and authoring API scopes separated
+
+- Worker A now owns service child execution, shutdown/readiness, tasks, identity/limits, discovery and hosted attempts. The coordinator owns authoring, model schema/prompt, jobs and immutable example checks. Worker B reviews runner evidence transport after completing context-lock/resource regressions. This uses the same two Grok sessions. Migration 016 stays with service backfill. Example records start at 017.
+- Integrated `ac51659` as `9385f2c`. All 35 qualification Node checks pass. The new cases preserve semantic scores for equivalent plans while rejecting mismatched public witness contexts. Runtime visit and rule-depth bounds pass independent native regressions. The corpus digest and 326-case host result stay unchanged.
+- A real local HTTP [shutdown review](reports/hosted-shutdown-review-2026-11-16.json) confirms API exit 0 within 300 ms while its controlled compile child stays alive. No real compiler or chain call ran. Worker A has the reproducer. Two new authoring input regressions fail before adapter implementation. Known child tests also remain red and uncommitted. The generated-guest comparison continues without disagreement so far.
+
 ## 2026-11-16 23:17 -05:00 — Anish — Local runner retains signed evidence and context
 
 - Fixed a runner integration gap. Open-claim attempts now copy bounded evidence into the private attempt and pass it to prove. `configure --evidence` retains the path. `check --evidence --job-context` passes exact preview inputs. The installed CLI also exposes the existing read-only `job-input` chain exporter, without wallet or API credentials. Engine and verifier semantics remain unchanged.
