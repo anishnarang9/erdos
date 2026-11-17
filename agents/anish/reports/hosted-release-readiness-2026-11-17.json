@@ -338,8 +338,8 @@
       "hosted-bot-expiry-offline-restore-2026-11-17.json",
       "hosted-bot-expiry-native-restart-2026-11-17.json"
     ],
-    "ingressSource": "83d5b6925d26da2ad8fd56806b8d3eba572efb60",
-    "ingressReport": "hosted-engine-ingress-promotion-2026-11-17.json",
+    "ingressSource": "0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b",
+    "ingressReport": "hosted-public-docs-acceptance-2026-11-17.json",
     "runnerDownloadVerified": true,
     "apiContainerUnchangedDuringIngressPromotion": true,
     "nativeEngineDownloadPublished": true,
@@ -370,8 +370,8 @@
     "coreRunId": 44079754552,
     "coreStatus": "success",
     "installedArchiveTypeConsumer": true,
-    "ingressSource": "83d5b6925d26da2ad8fd56806b8d3eba572efb60",
-    "ingressCommerceRunId": 44098699314,
+    "ingressSource": "0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b",
+    "ingressCommerceRunId": 44172204831,
     "ingressCommerceStatus": "success",
     "coreEvidenceScope": "Engine binary unchanged from the source-labelled core baseline; API-only change triggers commerce workflow."
   },
@@ -561,5 +561,12 @@
     "funded": false,
     "productionReady": false,
     "botAuthoredPlans": false
+  },
+  "publicDocumentation": {
+    "base": "https://ubc26-159-89-149-133.sslip.io/downloads/docs/0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b/",
+    "source": "0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b",
+    "files": 9,
+    "report": "hosted-public-docs-acceptance-2026-11-17.json",
+    "finalHandoff": false
   }
 }

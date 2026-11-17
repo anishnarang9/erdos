@@ -1,5 +1,11 @@
 # Current plan
 
+## 2026-11-17 15:47 -05:00 — Anish — Publish the developer documentation bundle
+
+- Branch `codex/hosted-backend`, draft PR #8. Published the [developer guide](https://ubc26-159-89-149-133.sslip.io/downloads/docs/0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b/README.md) and [API contract](https://ubc26-159-89-149-133.sslip.io/downloads/docs/0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b/api.md). Documentation and ingress source are `0b98c3b`. The live API remains `9dc289d`. Runner and engine downloads remain `fb45033`.
+- Commerce CI 44172204831 passes. The HTTPS promotion leaves the API container unchanged. All eighteen GET and HEAD checks pass. Public bytes, checksum links and the canonical schema reference match. Range reads pass. Seven disallowed paths and methods return 404. Buyer readiness remains 503. An unauthenticated Bot callback returns 401. Previous engine and runner pins match. See the [public evidence](../anish/reports/hosted-public-docs-acceptance-2026-11-17.json).
+- SSH again permits one operator IPv4 address. The prior ingress config stays available for rollback. No model call, proof or chain transaction ran. Next: assess the remaining release gates against the published handoff. Keep the goal active.
+
 ## 2026-11-17 15:42 -05:00 — Anish — Verify the public developer documentation candidate
 
 - Branch `codex/hosted-backend`, draft PR #8. The public guide and API contract document runner installation, wallet ownership, Bot review, compilation, funding, solver progress and recovery. The UI handoff distinguishes the API and runner source pins. No UI changes.

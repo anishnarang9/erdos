@@ -1,0 +1,41 @@
+{
+  "status": "passed-public-https-documentation-acceptance",
+  "checkedAt": "2026-11-17T20:46:33.549936+00:00",
+  "base": "https://ubc26-159-89-149-133.sslip.io/downloads/docs/0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b/",
+  "documentationSource": "0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b",
+  "apiSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
+  "runnerAndEngineSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+  "publicFilesSha256": {
+    "README.md": "43c42e6a0b4fe1ea51317e5030e070f86f7b226e4ae9895d6ad213a141d2f202",
+    "api.md": "2fd17b3cfc2c2ee77adbc7c89701d1606f798d4fb8f3411b05921c753ac36396",
+    "example-revision.json": "f5ac23335cb94375dad0b4547e605482e7e1065da6f7eecfaa19e618986883a4",
+    "example-review.json": "e4872db7a23532365037c49ce44bca34df2b9c54ed90bc945a743466e618c85e",
+    "capabilities.json": "fdb05c7b3ab6cac185dca29771e5f9364d9d3170174f14223d70c9a9f2db2e6a",
+    "plan-v1.schema.json": "5c333917cf889e1682d38da76e95a4da9b331c4dd95870da5fb2e4f6050ead56",
+    "open-claim-arc-testnet.json": "310176e7c03b2b0accf149e98033d054f7311a0ba3d08d084f96666190b7ba22",
+    "release.json": "6f7b81083f2b538e8462bce0c3185eda2e724ac7672471affbc404a7ed74ccb8",
+    "SHA256SUMS": "e16979cbacc7076e3c66a8d350eda6aabfb8d66a2331b2ef054cda0c72918deb"
+  },
+  "getAndHeadChecks": 18,
+  "byteRangeChecked": true,
+  "rejectedPathsAndMethods": 7,
+  "catalogSchemaReferenceResolves": true,
+  "documentLinksResolveWithinBundle": true,
+  "checksumsMatch": true,
+  "buyerReadyStatus": 503,
+  "unauthenticatedCallbackStatus": 401,
+  "priorArtifactMetadataPinsMatch": {
+    "runner": true,
+    "engine": true
+  },
+  "apiContainerUnchanged": true,
+  "rollbackIngress": "83d5b69",
+  "newModelCalls": 0,
+  "newProofs": 0,
+  "newChainTransactions": 0,
+  "ingressCommerceCi": {
+    "runId": 44172204831,
+    "status": "success"
+  },
+  "sshRestrictedToCurrentOperatorIpv4": true
+}

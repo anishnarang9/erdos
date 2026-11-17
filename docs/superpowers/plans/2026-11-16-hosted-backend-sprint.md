@@ -304,8 +304,8 @@ The runner proves and settles files. It does not claim to solve arbitrary work a
 
 **Primary areas:** OpenAPI/route contract, typed client, sanitized task/attempt status.
 
-- [ ] Publish authentication, ownership, tasks, authoring, approval, compilation, open-bounty funding, discovery, and recovery contracts.
-- [ ] Publish representative success, pending, rejected, unsupported, expired, and error responses.
+- [x] Publish authentication, ownership, tasks, authoring, approval, compilation, open-bounty funding, discovery, and recovery contracts.
+- [x] Publish representative success, pending, rejected, unsupported, expired, and error responses.
 - [x] Expose per-job and per-solver attempt identifiers. A failed attempt does not mark the whole bounty rejected.
 - [x] Reuse sanitized telemetry where useful. Prevent secret, plaintext, password, and filesystem-path disclosure.
 - [x] Use one authoritative event order or explicit per-attempt cursors. Do not collide independent solver sequence numbers.
@@ -314,6 +314,8 @@ The runner proves and settles files. It does not claim to solve arbitrary work a
 - [x] Keep demo signers and presenter-only routes disabled on the public service.
 - [x] Do not edit or merge Neil's UI wholesale. It still needs separate open-bounty adaptation.
 - [ ] Publish a concise UI handoff for Neil with final endpoints, examples, backend limitations, and the exact integration SHA.
+
+The [public API contract](https://ubc26-159-89-149-133.sslip.io/downloads/docs/0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b/api.md) is available at documentation source `0b98c3b`. The deployed API and client keep separate source pins. Final acceptance remains open.
 
 **Acceptance:** Neil can implement the UI against the documented backend without another backend redesign. No UI completion is needed to close this sprint.
 
