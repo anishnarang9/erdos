@@ -244,7 +244,7 @@ async function placeFixture(root, fixture) {
 }
 
 test('authoring input source names no personal home path', async () => {
-  for (const name of ['corpus.mjs', 'custody-challenges.mjs', 'rubric-challenges.mjs', 'trials.mjs', 'shape.mjs']) {
+  for (const name of ['corpus.mjs', 'custody-challenges.mjs', 'rubric-challenges.mjs', 'trials.mjs', 'shape.mjs', 'example-approval.mjs']) {
     const source = await readFile(new URL(`./${name}`, import.meta.url), 'utf8');
     assert.equal(source.includes('/Users/'), false, name);
     assert.equal(source.includes('anishnarang'), false, name);
