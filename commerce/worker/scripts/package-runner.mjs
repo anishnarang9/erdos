@@ -14,12 +14,13 @@ if (git("status", "--porcelain", "--", "commerce", "contracts/deployments/open-c
 const sourceCommit = git("rev-parse", "HEAD");
 const stage = join(output, "package"); mkdirSync(stage, { recursive: true, mode: 0o700 });
 const sha = bytes => createHash("sha256").update(bytes).digest("hex");
-const entries = { "bin/ubc26.mjs": join(root, "commerce/worker/src/hosted-cli.ts"), "sdk/hosted.mjs": join(root, "commerce/sdk/src/hosted/client.ts") };
+const entries = { "bin/runtime.mjs": join(root, "commerce/worker/src/hosted-cli.ts"), "sdk/hosted.mjs": join(root, "commerce/sdk/src/hosted/client.ts") };
 for (const [name, entry] of Object.entries(entries)) {
   await build({ entryPoints: [entry], outfile: join(stage, name), bundle: true, platform: "node", target: "node24", format: "esm",
     banner: { js: 'import { createRequire as __ubc26CreateRequire } from "node:module"; const require = __ubc26CreateRequire(import.meta.url);' },
     legalComments: "eof", packages: "bundle", logLevel: "warning" });
 }
+writeFileSync(join(stage, "bin/ubc26.mjs"), '#!/usr/bin/env node\nimport { hostedMain } from "./runtime.mjs";\nawait hostedMain();\n');
 chmodSync(join(stage, "bin/ubc26.mjs"), 0o755);
 for (const path of ["commerce/package.json", "commerce/worker/src/engine.ts", "commerce/api/src/engine.ts", "contracts/deployments/open-claim-arc-testnet.json"]) {
   mkdirSync(dirname(join(stage, path)), { recursive: true }); copyFileSync(join(root, path), join(stage, path));

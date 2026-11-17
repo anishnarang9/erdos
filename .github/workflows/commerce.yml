@@ -30,8 +30,9 @@ jobs:
         run: |
           npm install --ignore-scripts --prefix "$RUNNER_TEMP/ubc26-runner-install" "$RUNNER_TEMP/ubc26-runner-release/ubc26-runner-0.2.0.tgz"
           cd "$RUNNER_TEMP/ubc26-runner-install"
-          node_modules/.bin/ubc26 help
-          node_modules/.bin/ubc26 wrapper-digest
+          node_modules/.bin/ubc26 help > help.json
+          node_modules/.bin/ubc26 wrapper-digest > wrapper.json
+          node -e 'const fs=require("node:fs"); const h=JSON.parse(fs.readFileSync("help.json")); const w=JSON.parse(fs.readFileSync("wrapper.json")); if(h.version!==1 || !/^[0-9a-f]{64}$/.test(w.wrapperSha256))process.exit(1)'
           node --input-type=module -e 'import {hostedClient} from "@ubc26/runner/hosted"; if(typeof hostedClient !== "function")process.exit(1)'
       - uses: actions/upload-artifact@v4
         with:

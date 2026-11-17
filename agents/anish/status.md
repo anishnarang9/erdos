@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 20:43 -05:00 — Anish — Package entrypoint correction
+
+- The archive built from `d7dc7c9`, but its first installed CLI smoke produced no JSON. Node resolved the npm executable symlink differently from the module URL, so the source entrypoint guard did not invoke the command. This is a failed smoke, not an installation pass.
+- Added an explicit archive launcher that calls the bundled entrypoint. Linux CI now parses help and wrapper JSON instead of accepting an empty successful exit. Packaging script syntax and whitespace checks pass. Rebuild and clean-install verification follow this checkpoint.
+- Fresh pnpm audit found four advisories through ws, tmp and esbuild. Reachability review is in progress. The pinned runtime/toolchain remains unchanged. No Grok API call, prover, wallet transaction or public deployment occurred.
+
 ## 2026-11-16 20:42 -05:00 — Anish — Standalone runner source checkpoint
 
 - Branch `codex/hosted-backend` adds the local hosted CLI, private-file API credentials, password-FD wallet authentication, durable task polling, package/reference downloads, local checking and the existing protected funding/proof/recovery/refund runner. Generated configuration disables signing until the operator reviews exact limits. The installed source path requires an independently pinned release manifest and verifies all files. Checkout source validation still rejects dirty and untracked source.
