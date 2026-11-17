@@ -116,3 +116,11 @@ The runner download route serves only four reviewed files under `/downloads/runn
 Set `UBC26_RUNNER_DIR` in the protected host configuration before applying the new Compose file. Use a separate root-owned directory, such as `/opt/ubc26-release/public-runner`. Do not point it at API state, backups, environment files or a repository checkout. Populate each source directory from the verified canonical CI assets. Check all hashes, source pins and exact file membership before publication. Directories use mode 0555 and files use mode 0444. Caddy receives this directory through a read-only mount. The API receives no download mount.
 
 Preserve published bytes at each source URL. Publish a new source directory for a new release. Check actual HTTPS downloads, full hashes, HEAD and Range responses, rejected paths, normal buyer readiness and callback authentication after promotion. A downloadable prerelease does not establish public authoring readiness or genuine Bot qualification. The source repository stays private.
+
+## Separate native engine assets
+
+The engine namespace is `/downloads/engine/SOURCE_SHA/`. It permits GET/HEAD for `ubc26-engine-linux-x64`, `SHA256SUMS` and `engine.json`. Other paths and methods return 404. Its root is the `engines` subdirectory of the existing read-only public download mount. The runner namespace and its archive bytes remain separate.
+
+Export the engine only from the reviewed runtime image. Check its exact size, ELF architecture and digest against the native qualification report. Record required shared libraries and the separate prover/tool versions. Keep the metadata and checksum file beside the binary. Use root-owned 0555 directories and 0444 published files. A client installs a checked copy with mode 0700 before selecting it in the protected engine configuration.
+
+The current export matches the deployed `fb45033` release engine and runs its capabilities command directly on Ubuntu 24.04 x64. The Debian bookworm container retains the twelve signed checks. The export does not establish a fresh proof or a universal Linux ABI claim. Proving still requires `r0vm` 3.1.0 and the pinned Groth16 image. The API server performs no proving.

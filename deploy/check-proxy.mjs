@@ -15,11 +15,15 @@ const image=process.argv[2];
 if(!image||!/^[A-Za-z0-9][A-Za-z0-9._/:@-]{0,255}$/.test(image))throw Error('Supply a reviewed locally built runtime image');
 const root=await mkdtemp(join(tmpdir(),'ubc26-proxy-check-'));await chmod(root,0o700);
 const state=join(root,'state');await mkdir(state,{mode:0o755});await writeFile(join(state,'ready'),'0',{mode:0o644});
-const downloads=join(root,'downloads'),releaseSource='a'.repeat(40),releasePath='/downloads/runner/'+releaseSource;
+const downloads=join(root,'downloads'),releaseSource='a'.repeat(40);
 await mkdir(join(downloads,releaseSource),{recursive:true,mode:0o755});
 const assets=new Map([['ubc26-runner-0.2.0.tgz',Buffer.from('controlled-runner-archive-bytes-'.repeat(4))],['SHA256SUMS',Buffer.from('controlled-checksums\n')],['release.json',Buffer.from('{"controlled":"release"}\n')],['ubc26-release.json',Buffer.from('{"controlled":"manifest"}\n')]]);
 for(const[name,bytes]of assets)await writeFile(join(downloads,releaseSource,name),bytes,{mode:0o444});
 await writeFile(join(downloads,releaseSource,'service.db'),'private-database-must-not-serve',{mode:0o444});
+const engineAssets=new Map([['ubc26-engine-linux-x64',Buffer.concat([Buffer.from([127,69,76,70]),Buffer.from('controlled-engine-bytes-'.repeat(6))])],['SHA256SUMS',Buffer.from('controlled-engine-checksums\n')],['engine.json',Buffer.from('{"controlled":"native-engine"}\n')]]);
+await mkdir(join(downloads,'engines',releaseSource),{recursive:true,mode:0o755});
+for(const[name,bytes]of engineAssets)await writeFile(join(downloads,'engines',releaseSource,name),bytes,{mode:0o444});
+await writeFile(join(downloads,'engines',releaseSource,'service.db'),'private-database-must-not-serve',{mode:0o444});
 const snapshot=join(root,'Caddyfile');await copyFile(join(dirname(fileURLToPath(import.meta.url)),'Caddyfile'),snapshot);await chmod(snapshot,0o444);
 const id=randomUUID(),network=`ubc26-proxy-${id}`,backend=`ubc26-proxy-api-${id}`,edge=`ubc26-proxy-edge-${id}`,created=[];
 let downloadPort;
@@ -46,22 +50,23 @@ async function assetRequest(path,options={}){
   req.setTimeout(4000,()=>req.destroy(Error('Download probe timed out')));req.on('error',reject);req.end();
  });
 }
-async function checkDownloads(){
+async function checkDownloads(items=assets,prefix='/downloads/runner',primary='ubc26-runner-0.2.0.tgz',metadata='release.json'){
+ const releasePath=prefix+'/'+releaseSource;
  const rows=[];
- for(const[name,bytes]of assets){
+ for(const[name,bytes]of items){
   const r=await assetRequest(releasePath+'/'+name);
-  assert.equal(r.status,200,'verified runner file must be available while API is unready: '+name);
+  assert.equal(r.status,200,'verified file must be available while API is unready: '+name);
   assert.deepEqual(Buffer.from(r.body,'base64'),bytes);
   assert.equal(r.headers['cache-control'],'public, max-age=0, must-revalidate');
   rows.push({file:name,status:r.status,sha256:createHash('sha256').update(bytes).digest('hex')});
  }
- const archive=assets.get('ubc26-runner-0.2.0.tgz'),head=await assetRequest(releasePath+'/ubc26-runner-0.2.0.tgz',{method:'HEAD'});
+ const archive=items.get(primary),head=await assetRequest(releasePath+'/'+primary,{method:'HEAD'});
  assert.equal(head.status,200);assert.equal(head.body,'');assert.equal(Number(head.headers['content-length']),archive.length);
- const partial=await assetRequest(releasePath+'/ubc26-runner-0.2.0.tgz',{headers:{range:'bytes=0-15'}});
+ const partial=await assetRequest(releasePath+'/'+primary,{headers:{range:'bytes=0-15'}});
  assert.equal(partial.status,206);assert.deepEqual(Buffer.from(partial.body,'base64'),archive.subarray(0,16));
- const rejected=['/downloads/runner',releasePath+'/',releasePath+'/service.db',releasePath+'/release.json/extra','/downloads/runner/'+releaseSource.toUpperCase().replaceAll('A','B')+'/release.json',releasePath+'/%2e%2e%2fservice.db'];
+ const rejected=[prefix,releasePath+'/',releasePath+'/service.db',releasePath+'/'+metadata+'/extra',prefix+'/'+releaseSource.toUpperCase()+'/'+metadata,releasePath+'/%2e%2e%2fservice.db'];
  for(const path of rejected){const r=await assetRequest(path);assert.equal(r.status,404,path);assert.ok(!Buffer.from(r.body,'base64').toString().includes('private-database-must-not-serve'));}
- assert.equal((await assetRequest(releasePath+'/release.json',{method:'POST'})).status,404);
+ assert.equal((await assetRequest(releasePath+'/'+metadata,{method:'POST'})).status,404);
  return{rows,head:true,range:true,nonAllowlistedPathsRejected:rejected.length,mutationsRejected:true};
 }
 try{
@@ -76,10 +81,11 @@ try{
   {phase:'unready-callback-prefix-not-a-bypass',...await awaitStatus(503,'/integrations/grok-bot/mcp/extra')},
   {phase:'unready-still-blocked',...await awaitStatus(503)}];
  const runnerDownloads=await checkDownloads();
+ const engineDownloads=await checkDownloads(engineAssets,'/downloads/engine','ubc26-engine-linux-x64','engine.json');
  await writeFile(join(state,'ready'),'1');phases.push({phase:'ready',...await awaitStatus(200)});await writeFile(join(state,'ready'),'0');phases.push({phase:'unready-again',...await awaitStatus(503)});
  const logs=await docker(['logs',edge],true),text=logs.stdout+logs.stderr;
  for(const token of ['synthetic-header-must-not-log','synthetic-query-must-not-log','synthetic-bot-service-must-not-log','/raw-private-path'])assert.ok(!text.includes(token),'Proxy logs retained private request fields');
- const report={status:'passed-controlled-proxy-readiness',caddyImage:caddy,backendImage:image,caddyFileSha256:createHash('sha256').update(await readFile(snapshot)).digest('hex'),phases,runnerDownloads,privateRequestFieldsAbsentFromLogs:true,edgeCapabilities:['NET_BIND_SERVICE'],noNewPrivileges:true,network:'dedicated Docker bridge; one loopback-only ephemeral HTTP port',tls:'HTTP-only controlled test; public TLS is outside this check',realModelCalls:0,proofs:0,chainTransactions:0,scope:'Actual pinned Caddy with a controlled readiness and restricted-callback upstream. Not public hosted or genuine Bot acceptance.'};
+ const report={status:'passed-controlled-proxy-readiness',caddyImage:caddy,backendImage:image,caddyFileSha256:createHash('sha256').update(await readFile(snapshot)).digest('hex'),phases,runnerDownloads,engineDownloads,privateRequestFieldsAbsentFromLogs:true,edgeCapabilities:['NET_BIND_SERVICE'],noNewPrivileges:true,network:'dedicated Docker bridge; one loopback-only ephemeral HTTP port',tls:'HTTP-only controlled test; public TLS is outside this check',realModelCalls:0,proofs:0,chainTransactions:0,scope:'Actual pinned Caddy with a controlled readiness and restricted-callback upstream. Not public hosted or genuine Bot acceptance.'};
  await writeFile(join(root,'report.json'),JSON.stringify(report,null,2)+'\n',{mode:0o600});process.stdout.write(JSON.stringify(report,null,2)+'\n');
 }catch(error){process.stderr.write(`Proxy check failed. Private diagnostics: ${root}\n`);throw error;}
 finally{

@@ -38,6 +38,22 @@
 			respond 404
 		}
 	}
+	@engine_downloads path /downloads/engine /downloads/engine/*
+	handle @engine_downloads {
+		@engine_asset {
+			path_regexp engine_asset "^/downloads/engine/[0-9a-f]{40}/(ubc26-engine-linux-x64|SHA256SUMS|engine[.]json)$"
+			method GET HEAD
+		}
+		header Cache-Control "public, max-age=0, must-revalidate"
+		handle @engine_asset {
+			root * /srv/ubc26-downloads/engines
+			uri strip_prefix /downloads/engine
+			file_server
+		}
+		handle {
+			respond 404
+		}
+	}
 	# The authenticated result endpoint uses its own liveness upstream.
 	handle /integrations/grok-bot/mcp {
 		reverse_proxy bot-review-ingress:8080 {

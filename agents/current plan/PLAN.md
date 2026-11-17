@@ -1,5 +1,12 @@
 # Current plan
 
+## 2026-11-17 09:01 -05:00 — Anish — Prepare standalone native engine distribution
+
+- Branch `codex/hosted-backend`, draft PR #8. Exported the exact deployed `fb45033` engine from image `0141ba0c…`. The 8,435,600-byte ELF x64 binary matches `be5c06f9…`. Its capabilities command passes directly on the Ubuntu host with an empty inherited environment. Required shared libraries are libc, libm and libgcc. The metadata leaves the minimum glibc version unknown and names the tested environments. See the [export report](../anish/reports/hosted-native-engine-export-2026-11-17.json).
+- Prepared a separate engine namespace for the binary, checksum file and metadata. It uses the existing root-owned, read-only Caddy mount. The four public runner assets remain unchanged. The exported files are staged but not public. No API image, dispatch setting, paid resource or wallet changed.
+- The real proxy test first failed with 503 for the expected engine download. After the route, pinned Caddy passes seven readiness/callback phases, thirteen runner checks and twelve engine checks. Eleven deployment tests also pass. The scoped source review found no actionable issue. See the [proxy report](../anish/reports/hosted-engine-download-proxy-2026-11-17.json).
+- Next: commit/push the reviewed ingress, verify CI, promote only Caddy and test actual anonymous engine downloads and a protected native installation. Bot connector remains Connected, with the approved $1 cap and available usage still awaiting confirmation. No Bot task, model generation, proof or chain transaction ran. Public buyer readiness and final acceptance remain open.
+
 ## 2026-11-17 08:48 -05:00 — Anish — Publish verified runner assets and connect the Bot callback
 
 - Branch `codex/hosted-backend`, draft PR #8. Ingress checkpoint `6351e09` is pushed. Commerce CI `44095123461` passes. The native Caddy/Compose profiles validate. HTTPS alone was recreated with the new Caddy configuration and a read-only artifact mount. The API container, image `0141ba0c…` and dispatch settings did not change. Previous ingress files and protected host configuration remain preserved for rollback.
