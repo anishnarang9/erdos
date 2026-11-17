@@ -122,9 +122,11 @@ The harness reads `UBC26_BENCHMARK_API_KEY_1`, `UBC26_BENCHMARK_API_KEY_2`, and 
 
 A fresh trial requires a POST, task state `succeeded`, one distinct task id, and distinct provider trace ids. `result.qualification.repairCount` is the repair count. `task.attempt` is the queue attempt count.
 
+`cost_in_usd_ticks` is the billed charge. `10000000000` ticks equal 1 USD. A known safe tick total reserves the smallest integer micro-USD that covers the charge. The qualification mean uses the raw tick total. A missing or invalid tick total leaves the reservation at the ceiling.
+
 The coordinator integrated request preflight `2a1248c` as `84f4252`. That commit rejects a model call unless the full provider payload fits. This report does not repeat the earlier prompt-budget finding. This worker did not re-test the API.
 
-`cost_in_usd_ticks` is the billed charge. `10000000000` ticks equal 1 USD. The harness stores the raw integer. It reconciles micro-USD only when that integer divides evenly by `10000`. `result.billing.microUsd` is a tariff estimate. A tariff estimate leaves the reservation at the ceiling. Unknown or uneven ticks hold the two-attempt ceiling. Scope `benchmark` is the only scope that can reserve this ledger.
+The harness retains exact billed ticks for qualification. It rounds a known bill up to covering integer micro-USD for reservations. A tariff estimate or missing/invalid actual bill keeps the full reservation. Scope `benchmark` is the only scope that can reserve this ledger. See [current public model spending bounds](hosted-model-costs.md) for the separate service preflight contract.
 
 The harness checks a returned supported plan with the engine. It scores the hidden candidates with the independent oracle. The harness adds no nonce text to a frozen prompt.
 
@@ -156,7 +158,7 @@ This worker read `commerce/api/src/authoring.ts` in the hosted-backend worktree 
 
 All commands ran from this worktree. Set `UBC26_ENGINE` to the debug executable for the host and engine tests. Node may print a `NO_COLOR` warning when the environment sets `FORCE_COLOR`. The listed exits ignore that warning.
 
-- `UBC26_ENGINE=<debug executable> node --test engine/evaluation/hosted-qualification/*.test.mjs` exited 0. 35 tests passed. 0 failed.
+- `UBC26_ENGINE=<debug executable> node --test engine/evaluation/hosted-qualification/*.test.mjs` exited 0. 36 tests passed. 0 failed.
 - `UBC26_ENGINE=<debug executable> node engine/evaluation/hosted-qualification/host-run.mjs` exited 0. `compared` is 326. `failures` is 0.
 - `node engine/evaluation/hosted-qualification/trials.mjs` exited 0. `paidTrialsRan` is false. `freshTrials` is 0. `qualificationPassed` is false.
 

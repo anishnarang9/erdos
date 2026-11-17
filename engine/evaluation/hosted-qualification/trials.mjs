@@ -2,7 +2,7 @@ import {pathToFileURL} from 'node:url';
 import {CORPUS_ID} from './corpus.mjs';
 import {assessSupportedDraft} from './assess.mjs';
 import {scoreTrial} from './score.mjs';
-import {applyTaskView, newLedger, persistLedger, readLedger, reserveTrial, withLedgerLock} from './budget.mjs';
+import {applyTaskView, newLedger, persistLedger, readLedger, reserveTrial, TICKS_PER_MICRO_USD, withLedgerLock} from './budget.mjs';
 
 const MAX_BYTES = 4_194_304;
 const TERMINAL = new Set(['succeeded', 'failed', 'uncertain']);
@@ -157,6 +157,27 @@ export function markFresh(group) {
   return group;
 }
 
+const COST_CAP_MICRO_USD = 100_000;
+
+function freshCostGate(fresh) {
+  const hasTicks = fresh.some((item) => Object.hasOwn(item, 'costInUsdTicks'));
+  if (!hasTicks) {
+    const costs = fresh.map((item) => item.actualCostMicroUsd);
+    if (!costs.every((item) => Number.isSafeInteger(item))) return {meanCostMicroUsd: null, underCap: false};
+    const meanCostMicroUsd = costs.reduce((total, item) => total + item, 0) / costs.length;
+    return {meanCostMicroUsd, underCap: meanCostMicroUsd < COST_CAP_MICRO_USD};
+  }
+  let total = 0n;
+  for (const item of fresh) {
+    const ticks = item.costInUsdTicks;
+    if (!Number.isSafeInteger(ticks) || ticks < 0) return {meanCostMicroUsd: null, underCap: false};
+    total += BigInt(ticks);
+  }
+  const count = BigInt(fresh.length);
+  const underCap = total < BigInt(COST_CAP_MICRO_USD) * BigInt(TICKS_PER_MICRO_USD) * count;
+  return {meanCostMicroUsd: Number(total) / Number(count) / TICKS_PER_MICRO_USD, underCap};
+}
+
 export function aggregateGates(trials) {
   const dispatched = trials.filter((item) => item.dispatched);
   const fresh = dispatched.filter((item) => item.fresh);
@@ -176,11 +197,10 @@ export function aggregateGates(trials) {
   const ambiguousOk = fresh.filter((item) => item.classification === 'ambiguous').every((item) => item.score?.inventedConditions === 0);
   const unsupportedOk = fresh.filter((item) => item.classification === 'unsupported')
     .every((item) => item.score?.weakerPayableJob === false && item.score?.unsupportedExplanation === true);
-  const costs = fresh.map((item) => item.actualCostMicroUsd);
-  const costsKnown = costs.every((item) => Number.isSafeInteger(item));
-  const meanCostMicroUsd = costsKnown && costs.length > 0 ? costs.reduce((total, item) => total + item, 0) / costs.length : null;
+  const costGate = freshCostGate(fresh);
+  const meanCostMicroUsd = costGate.meanCostMicroUsd;
   const passed = supported.length > 0 && semanticRate >= 0.95 && falseAccepts === 0 && malformedAccepts === 0
-    && quotes && ambiguousOk && unsupportedOk && meanCostMicroUsd != null && meanCostMicroUsd < 100_000;
+    && quotes && ambiguousOk && unsupportedOk && costGate.underCap;
   return {
     passed,
     reason: passed ? null : 'gate-failed',

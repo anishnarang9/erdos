@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtemp, readFile, rm, stat} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {committedMicroUsd, newLedger, persistLedger} from './budget.mjs';
+import {actualMicroUsdFromTicks, applyTaskView, committedMicroUsd, newLedger, persistLedger} from './budget.mjs';
 import {scoreTrial} from './score.mjs';
 import {aggregateGates, draftInput, loadDeployment, runBenchmark, trialKey} from './trials.mjs';
 
@@ -279,6 +279,102 @@ test('actual ticks reconcile and a tariff estimate stays at the ceiling', async 
   } finally {
     await rm(directory, {recursive: true, force: true});
   }
+});
+
+test('fractional actual ticks round up for the reservation and keep raw ticks for the mean', async () => {
+  assert.equal(actualMicroUsdFromTicks(250_000_000), 25_000);
+  assert.equal(actualMicroUsdFromTicks(250_000_001), 25_001);
+  assert.equal(actualMicroUsdFromTicks(10_001), 2);
+  assert.equal(actualMicroUsdFromTicks(0), 0);
+  assert.equal(actualMicroUsdFromTicks(-1), null);
+  assert.equal(actualMicroUsdFromTicks(1.5), null);
+
+  const spent = {
+    state: 'reserved',
+    reservedMicroUsd: 80_000,
+    costMicroUsd: null,
+    cost: null,
+    costInUsdTicks: null,
+    tariffMicroUsd: null,
+    costSource: null,
+    replayed: false,
+  };
+  applyTaskView(spent, {
+    state: 'succeeded',
+    id: 'task-fraction',
+    result: {qualification: {usage: [{cost_in_usd_ticks: 10_001}, {cost_in_usd_ticks: 1}]}},
+  });
+  assert.equal(spent.costInUsdTicks, 10_002);
+  assert.equal(spent.costMicroUsd, 2);
+  assert.equal(spent.costSource, 'actual-ticks');
+  assert.equal(spent.state, 'reconciled');
+
+  const invalid = {...spent, state: 'reserved', costMicroUsd: null, cost: null, costInUsdTicks: null, costSource: null};
+  applyTaskView(invalid, {state: 'succeeded', result: {qualification: {usage: [{cost_in_usd_ticks: 1.5}]}}});
+  assert.equal(invalid.costInUsdTicks, null);
+  assert.equal(invalid.costSource, null);
+  assert.equal(invalid.state, 'spent');
+  assert.equal(invalid.costMicroUsd, 80_000);
+
+  const directory = await mkdtemp(join(tmpdir(), 'ubc26-fractional-ticks-'));
+  const ledgerPath = join(directory, 'ledger.json');
+  try {
+    const ledger = newLedger(config());
+    const result = await runBenchmark({
+      challenges: [challenge],
+      config: {...config(), ledger},
+      ledgerPath,
+      trialsPerRequest: 1,
+      fetchImpl: async () => ({
+        status: 200,
+        json: async () => task({
+          result: {
+            kind: 'draft',
+            qualification: {repairCount: 0, usage: [{cost_in_usd_ticks: 250_000_001}]},
+            billing: {state: 'settled', microUsd: 1},
+            attempts: [{traceId: 'trace-fraction', usage: {cost_in_usd_ticks: 250_000_001}}],
+          },
+        }),
+      }),
+    });
+    const entry = result.ledger.entries[result.trials[0].key];
+    assert.equal(entry.costSource, 'actual-ticks');
+    assert.equal(entry.costInUsdTicks, 250_000_001);
+    assert.equal(entry.costMicroUsd, 25_001);
+    assert.equal(result.trials[0].costInUsdTicks, 250_000_001);
+    assert.equal(committedMicroUsd(result.ledger), 25_001);
+    assert.notEqual(committedMicroUsd(result.ledger), 80_000);
+  } finally {
+    await rm(directory, {recursive: true, force: true});
+  }
+
+  const score = {
+    live: true,
+    semanticAgreement: true,
+    falseAccepts: 0,
+    malformedAccepts: 0,
+    quoteFidelity: true,
+    inventedConditions: 0,
+    weakerPayableJob: false,
+  };
+  const fresh = {
+    dispatched: true,
+    fresh: true,
+    classification: 'supported',
+    repairCount: 0,
+    engineValid: true,
+    score,
+  };
+  const under = aggregateGates([{...fresh, actualCostMicroUsd: 100_000, costInUsdTicks: 999_999_999}]);
+  assert.equal(under.passed, true);
+  assert.ok(under.meanCostMicroUsd > 99_999);
+  assert.ok(under.meanCostMicroUsd < 100_000);
+  const cap = aggregateGates([{...fresh, actualCostMicroUsd: 100_000, costInUsdTicks: 1_000_000_000}]);
+  assert.equal(cap.passed, false);
+  assert.equal(cap.meanCostMicroUsd, 100_000);
+  const missing = aggregateGates([{...fresh, actualCostMicroUsd: 1, costInUsdTicks: null}]);
+  assert.equal(missing.meanCostMicroUsd, null);
+  assert.equal(missing.passed, false);
 });
 
 test('uncertain and unreported terminal costs keep the reservation', async () => {
