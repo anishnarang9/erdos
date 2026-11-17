@@ -285,8 +285,9 @@
     },
     {
       "gate": "Fresh hosted funded acceptance and Circle payment",
-      "status": "Native package matches and the deployed Arc verifier accepts the existing fee proof in a read-only call. Wallet ownership, durable funding terms, signing, a fresh funded proof and a separate Circle payment still need acceptance.",
-      "preview": "hosted-arc-fee-read-only-preview-2026-11-17.json"
+      "status": "The fee job owner obtained durable Arc funding terms, and exact replay returned the same response. The owner wallet has zero testnet funds. Protected signing, a fresh funded proof and separate Circle acceptance remain pending.",
+      "preview": "hosted-arc-fee-read-only-preview-2026-11-17.json",
+      "termsReport": "hosted-arc-fee-terms-acceptance-2026-11-17.json"
     },
     {
       "gate": "Final deployment/release review",

@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 15:58 -05:00 — Anish — Prepare and replay hosted Arc funding terms
+
+- The deployed API accepts the fee job's owner request for a 0.01 testnet USDC bounty. The saved terms bind the existing revision, compiled commitments and Arc deployment. Exact replay returns the same response and expiry. The owner needs a testnet top-up and protected signing before a transaction. No transaction ran. See the [terms evidence](reports/hosted-arc-fee-terms-acceptance-2026-11-17.json).
+
 ## 2026-11-17 15:57 -05:00 — Anish — Check the owner and funding balances
 
 - The hosted API key matches the existing fee job's recorded owner. That wallet has zero testnet USDC. The previous solver has 0.0255801 native testnet USDC at block 0x455eb33. A read-only estimate gives 21,000 gas for transferring 0.055 testnet USDC from the previous funded buyer to this job's owner. The proposed transfer ceiling is 30,000 gas at 25 gwei. The preview preserves the existing Bot receipt. It still requires protected buyer signing setup and explicit authority. See [wallet preflight](reports/hosted-arc-fee-wallet-preflight-2026-11-17.json).
