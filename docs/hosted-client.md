@@ -98,6 +98,21 @@ ubc26 check --engine-config "$WORK/engine.json" --plan "$PLAN_JSON" \
 
 The generated configuration disables signing. Review its exact approval, contract deployment, wallet paths, gas caps, deadlines and source pins. Replace generated keystore paths with your own protected keystores. Set `signingAuthorized` only after approving those exact local limits. The defaults are review candidates, not permission to spend.
 
+For signed-evidence rules, add `--evidence "$WORK/evidence"` to `configure`. Supply attestations for the exact funded job and solver. The runner copies their exact bytes into the private attempt and passes that directory to the prover. Evidence permits at most 16 files and 32,768 encoded bytes, including names and headers. The engine checks signatures, approved issuers and context bindings.
+
+Export the actual funded context before requesting those attestations. This command uses confirmed read-only chain checks. It needs no wallet password or API key:
+
+```sh
+ubc26 job-input --rpc-url https://rpc.testnet.arc.io \
+  --manifest "$DEPLOYMENT_MANIFEST" --job-id "$CHAIN_JOB" --solver "$SOLVER" \
+  --out "$WORK/job.json"
+ubc26 check --engine-config "$WORK/engine.json" --plan "$PLAN_JSON" \
+  --deliverables "$WORK/deliverables" --reference "$WORK/reference" \
+  --evidence "$WORK/evidence" --job-context "$WORK/job.json"
+```
+
+A preview context is not evidence of chain funding. A signed example for another rules hash, reference hash, job or solver cannot authorize this attempt. A signature rejection is distinct from checker verdict 0.
+
 Use one shared private `proverLockRoot` for every runner on the machine. The runner refuses a second prover. It never removes a stale lock automatically. Run your solver separately and place its files in the deliverable directory.
 
 ```sh

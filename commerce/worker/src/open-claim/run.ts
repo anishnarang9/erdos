@@ -252,6 +252,16 @@ export async function runOpenClaim(o: OpenClaimRunOptions): Promise<OpenClaimSta
       checkReferences(o.references, o.job.referenceHash);
       copyPackage(o.packageDir, at("package"));
       writeFiles(at("reference"), o.references);
+      if (o.evidence !== undefined) {
+        must(Array.isArray(o.evidence) && o.evidence.length <= 16, "evidence_limit", "evidence exceeds the file limit");
+        let encodedSize = 3;
+        for (const file of o.evidence) {
+          must(typeof file?.name === "string" && file.content instanceof Uint8Array, "evidence_limit", "evidence must contain named bytes");
+          encodedSize += 6 + Buffer.byteLength(file.name, "utf8") + file.content.byteLength;
+          must(encodedSize <= 32 * 1024, "evidence_limit", "encoded evidence exceeds 32 KiB");
+        }
+        writeFiles(at("evidence"), o.evidence);
+      }
       const solved = typeof o.solver === "function"
         ? await o.solver({ plan: { mode: "open-claim", revision: o.approval.revision }, references: o.references })
         : await o.solver.solve({ plan: { mode: "open-claim", revision: o.approval.revision }, references: o.references });
@@ -268,7 +278,7 @@ export async function runOpenClaim(o: OpenClaimRunOptions): Promise<OpenClaimSta
       phase("proving");
       let out;
       try {
-        out = await prove(o.runner, { packageDir: at("package"), jobFile: at("job.json"), deliverablesDir: at("deliverables"), referenceDir: at("reference"), outDir: at("attempt") }, o.proveBudgetSec * 1000);
+        out = await prove(o.runner, { packageDir: at("package"), jobFile: at("job.json"), deliverablesDir: at("deliverables"), referenceDir: at("reference"), outDir: at("attempt"), ...(o.evidence !== undefined ? { evidenceDir: at("evidence") } : {}) }, o.proveBudgetSec * 1000);
       } catch {
         throw new WorkerCheckError("prove", "engine proving failed; inspect private artifacts");
       } finally { privateArtifactTree(o.attemptDir); }

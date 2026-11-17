@@ -136,6 +136,8 @@ export interface OpenClaimRunOptions {
   solver: Solver | ((input: SolveInput) => Promise<BundleFile[]>);
   packageDir: string;
   references: BundleFile[];
+  /** Trusted attestations for this exact funded context. Copied into the private attempt. */
+  evidence?: BundleFile[];
   attemptDir: string;
   proveBudgetSec: number;
   releaseMarginSec?: number;

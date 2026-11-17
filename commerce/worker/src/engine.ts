@@ -112,10 +112,12 @@ export async function decrypt(r: EngineRunner, a: { submission: string; keyFile:
 /** `engine eval`: host-side check before spending a proof. */
 export async function evaluate(
   r: EngineRunner,
-  a: { planFile: string; deliverablesDir: string; referenceDir: string },
+  a: { planFile: string; deliverablesDir: string; referenceDir: string; evidenceDir?: string; jobFile?: string },
   timeoutMs = 120_000,
 ): Promise<0 | 1> {
-  const res = await r.run(["eval", "--plan", r.path(a.planFile), "--deliverables", r.path(a.deliverablesDir), "--reference", r.path(a.referenceDir)], timeoutMs);
+  const res = await r.run(["eval", "--plan", r.path(a.planFile), "--deliverables", r.path(a.deliverablesDir), "--reference", r.path(a.referenceDir),
+    ...(a.evidenceDir ? ["--evidence", r.path(a.evidenceDir)] : []),
+    ...(a.jobFile ? ["--job", r.path(a.jobFile)] : [])], timeoutMs);
   if (res.exit !== 0) throw failure("eval", res);
   const v = stdoutJson(res.stdout, "eval").verdict;
   if (v !== 0 && v !== 1) throw new WorkerEngineError("bad_output", "engine eval output has no verdict");

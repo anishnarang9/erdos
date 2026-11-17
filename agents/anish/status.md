@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 23:17 -05:00 — Anish — Local runner retains signed evidence and context
+
+- Fixed a runner integration gap. Open-claim attempts now copy bounded evidence into the private attempt and pass it to prove. `configure --evidence` retains the path. `check --evidence --job-context` passes exact preview inputs. The installed CLI also exposes the existing read-only `job-input` chain exporter, without wallet or API credentials. Engine and verifier semantics remain unchanged.
+- Three evidence/CLI regressions failed before the repair. The missing installed context command also failed its regression before integration. Worker typecheck and 166 focused CLI/open-claim/funded tests pass. Twelve actual native CLI checks across four signed workloads distinguish verdict 1, valid verdict 0 and invalid-signature rejection. See [the evidence report](reports/hosted-runner-evidence-2026-11-16.json). This is not a new evidence-bearing funded proof.
+- The frozen guest comparison continues with zero disagreements so far. API child-safety tests remain uncommitted and failing until Worker A's repair. Public deployment/model budgets/live authority remain open. No new paid model request or chain transaction occurred.
+
 ## 2026-11-16 23:10 -05:00 — Anish — Spend halt integrated; child isolation regressions confirmed
 
 - Integrated Worker A's `432422c` as `09a36d4`. Known over-ceiling settlement now persists an unresolved halt. New and queued authoring stops across restart until an authenticated operator records a resolution. Focused API checks pass 29/29 and typecheck passes. Migration of older breach history remains under review.

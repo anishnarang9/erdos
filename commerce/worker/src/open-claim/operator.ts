@@ -276,6 +276,7 @@ export async function openClaimOperator(args: string[], credentials?: { buyerTok
     const state = await runOpenClaim({ job, approval: { ...approval, chainId: 5042002, adapter: job.adapter, jobId },
       witness: manifest.witness, signer, port, prepareOnly, runner: createSprintEngineRunner(c.engine),
       solver: async () => readFilesFrom(c.deliverablesDir), packageDir: c.packageDir, references: readFilesFrom(c.referenceDir),
+      ...(c.evidenceDir ? { evidence: readFilesFrom(c.evidenceDir) } : {}),
       attemptDir: c.attemptDir, proveBudgetSec: 1800, releaseMarginSec: 600, maxGas: claimGas > releaseGas ? claimGas : releaseGas,
       maxFeePerGas: fee, maxPriorityFeePerGas: priority, claimGas, releaseGas });
     return { attemptId: state.attemptId, phase: state.phase, jobId: state.jobId, claimTx: state.claimTx, releaseTx: state.releaseTx,

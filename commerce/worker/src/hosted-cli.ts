@@ -12,6 +12,7 @@ import { object, privateDirectory, readOperatorJson, readSafeFile, requireSprint
 import { assertInstalledRelease, workerRepositoryRoot } from "./release-integrity.ts";
 import { attemptStatus } from "./open-claim/attempt-status.ts";
 import { openClaimOperator } from "./open-claim/operator.ts";
+import { prepareOpenClaimJobInput } from "./open-claim/job-input-cli.ts";
 
 const common = ["api", "key-file"];
 const commandFlags: Record<string, readonly string[]> = {
@@ -32,11 +33,12 @@ const commandFlags: Record<string, readonly string[]> = {
   references: ["api", "job", "out"],
   "funding-preview": [...common, "job", "input", "idempotency"],
   "funding-link": [...common, "job", "input", "idempotency"],
-  check: ["engine-config", "plan", "deliverables", "reference"],
+  check: ["engine-config", "plan", "deliverables", "reference", "evidence", "job-context"],
   attempt: ["state", "after-cursor"],
+  "job-input": ["rpc-url", "manifest", "job-id", "solver", "out"],
   "wrapper-digest": [],
   "verify-install": ["source-commit", "release-manifest-sha256"],
-  configure: ["api", "job", "input", "engine-config", "manifest", "buyer", "solver", "work-dir", "package-dir", "reference", "deliverables", "source-commit", "release-manifest-sha256", "revision", "out"],
+  configure: ["api", "job", "input", "engine-config", "manifest", "buyer", "solver", "work-dir", "package-dir", "reference", "deliverables", "evidence", "source-commit", "release-manifest-sha256", "revision", "out"],
   operator: ["config", "password-fd", "key-file"],
 };
 const operatorCommands = ["preview", "fund", "prepare", "run", "recover", "refund", "circle"];
@@ -72,6 +74,8 @@ export async function hostedCli(args: string[]): Promise<unknown> {
     privacy: "Results become public when the release key is broadcast.",
     signing: "Passwords use inherited file descriptors. API credentials use private files. Mutations require an idempotency key.",
     workflow: "auth, draft or import, task, job, approve, compile, task, download, funding-preview, operator, funding-link, discover" };
+  if (command === "job-input") return prepareOpenClaimJobInput(["--rpc-url", need("rpc-url"), "--manifest", need("manifest"),
+    "--job-id", need("job-id"), "--solver", need("solver"), "--out", need("out")]);
   if (command === "attempt") {
     const cursor = Number(f["after-cursor"] ?? 0);
     return attemptStatus(readOperatorJson(resolve(need("state"))), cursor);
@@ -97,7 +101,7 @@ export async function hostedCli(args: string[]): Promise<unknown> {
       solver: { address: need("solver"), keystorePath: join(work, "solver-keystore.json") },
       directory: work, journalRoot: join(work, "journal"), proverLockRoot: join(work, "prover"), attemptDir: join(work, "attempt"),
       manifest: resolve(need("manifest")), packageDir: resolve(need("package-dir")), referenceDir: resolve(need("reference")),
-      deliverablesDir: resolve(need("deliverables")), engine: readOperatorJson(resolve(need("engine-config"))),
+      deliverablesDir: resolve(need("deliverables")), ...(f.evidence ? { evidenceDir: resolve(f.evidence) } : {}), engine: readOperatorJson(resolve(need("engine-config"))),
       approval: { revision: need("revision"), imageId: terms.imageId, rulesHash: terms.rulesHash,
         referenceHash: terms.referenceHash, budget: terms.budget, expiry: terms.expiry, description: terms.description },
       gas: { maxFeePerGas: "25000000000", maxPriorityFeePerGas: "0", buyerPerCall: "300000", buyerTotal: "37500000000000000",
@@ -114,7 +118,9 @@ export async function hostedCli(args: string[]): Promise<unknown> {
   if (command === "check") {
     const engine = object(readOperatorJson(resolve(need("engine-config"))));
     const runner = createSprintEngineRunner(engine);
-    const verdict = await evaluate(runner, { planFile: resolve(need("plan")), deliverablesDir: resolve(need("deliverables")), referenceDir: resolve(need("reference")) });
+    const verdict = await evaluate(runner, { planFile: resolve(need("plan")), deliverablesDir: resolve(need("deliverables")), referenceDir: resolve(need("reference")),
+      ...(f.evidence ? { evidenceDir: resolve(f.evidence) } : {}),
+      ...(f["job-context"] ? { jobFile: resolve(f["job-context"]) } : {}) });
     return { verdict, mode: "check-only", proofGenerated: false, transactionSent: false };
   }
   const api = need("api"), key = f["key-file"] ? readKey(f["key-file"]) : undefined;

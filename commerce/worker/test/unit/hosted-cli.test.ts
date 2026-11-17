@@ -14,3 +14,10 @@ it("shows a standalone help command without a checkout or network", async () => 
 it("accepts independently pinned installation verification", () => {
   expect(parseHostedArgs(["verify-install", "--source-commit", "a".repeat(40), "--release-manifest-sha256", "b".repeat(64)]).command).toBe("verify-install");
 });
+it("accepts signed-evidence and exact context files for a local checker preview",()=>{
+  expect(parseHostedArgs(["check","--engine-config","engine.json","--plan","plan.json","--deliverables","delivery","--reference","refs","--evidence","evidence","--job-context","job.json"]).flags).toMatchObject({evidence:"evidence","job-context":"job.json"});
+  expect(parseHostedArgs(["configure","--evidence","evidence"]).flags.evidence).toBe("evidence");
+});
+it("exposes the read-only funded-context exporter without wallet or API credentials",()=>{
+  expect(parseHostedArgs(["job-input","--rpc-url","https://rpc.testnet.arc.io","--manifest","deployment.json","--job-id","7","--solver","0x2222222222222222222222222222222222222222","--out","job.json"]).command).toBe("job-input");
+});
