@@ -47,7 +47,7 @@ Public mode rejects a model that does not publish `outputTokenBound` with parame
 
 `cd558ea` does not copy `process.env` into an engine child. The child environment is a new object. `PATH` defaults to `/opt/ubc26/docker-bin:/usr/local/bin:/usr/bin:/bin`. `TMPDIR` uses `processEnv.tmpDir`, then the engine work directory, then the process temp directory. `UBC26_ENGINE_CACHE` is set only from `ENGINE_CACHE`. `RISC0_SERVER_PATH` is set only from `ENGINE_R0VM`. The child receives `SSL_CERT_FILE`, `SSL_CERT_DIR`, `REQUESTS_CA_BUNDLE`, `CURL_CA_BUNDLE`, and `NODE_EXTRA_CA_CERTS` only when those variables are set. It does not receive `XAI_API_KEY`, `DOCKER_AUTH_CONFIG`, `DOCKER_CONFIG`, or `HOME`. A deadline sends `SIGTERM` to the POSIX process group. `SIGKILL` follows after 200 ms. The group is killed again when the direct child exits. Output above 16 MiB is killed. Spawn uses `shell: false`. The WSL guest command is `/usr/bin/env -i` with those assignments. `env -u` is not used. Windows cannot signal a process group. The direct child is signalled there.
 
-`ENGINE_TMPDIR` is an optional compiler temp directory. `ENGINE_WSL_BIN` is an optional `wsl.exe` path. Public mode does not require an absolute executable pin in `cd558ea`. `GET /readyz` is not implemented. Fake-engine names `FAKE_ENGINE_LOG`, `FAKE_REFERENCE_HASH`, `FAKE_RULES_HASH`, and `FAKE_IMAGE_ID` are explicit `cliEngine` options. The server does not copy them from its environment.
+`ENGINE_TMPDIR` is an optional compiler temp directory. `ENGINE_WSL_BIN` is an optional `wsl.exe` path. `0d4a5e1` checks the pin when `DEPLOYMENT_MODE=public`. A native `ENGINE_PATH` must be absolute. WSL also requires an absolute `ENGINE_WSL_BIN`. The only accepted wrapper is `wsl.exe -d <distro> -e /usr/bin/env -i` with the explicit assignments and an absolute engine path. A relative path, a command name, and extra child variables are refused. A public process with a simulated engine exits before listen. `GET /readyz` is not implemented. This startup check does not reject a replay model, a simulated chain, or a non-HTTPS origin. Fake-engine names `FAKE_ENGINE_LOG`, `FAKE_REFERENCE_HASH`, `FAKE_RULES_HASH`, and `FAKE_IMAGE_ID` are explicit `cliEngine` options. The server does not copy them from its environment.
 
 Migration `014_spend_breach.sql` adds nullable `breach` on `spend_reservations`. Migration `015_spend_halt.sql` adds `spend_halts`. Neither migration deletes historical rows. Migration 015 does not insert halt rows for older `breach` 1 reservations. That upgrade gap remains open. A settled amount above the ceiling inserts one halt row in the same transaction. The halt stores the actual micro-USD and the ceiling. While any halt has `resolved_at` null, a new draft task returns 503 `service_disabled`. The message is `Authoring is halted after a spend breach`. The details field `haltId` is the halt id. The daily ceiling check still runs first. An exhausted day still returns 429 `rate_limited`. The runner does not claim queued draft tasks. Those tasks stay `queued` across restart. A local synchronous draft returns the same 503 before the model call. Compile tasks are not stopped by the halt.
 
@@ -77,6 +77,7 @@ In public mode, `POST /v1/drafts` and `POST /v1/jobs/:id/compile` return 403 `fo
 - `2a1248c` Reject a model call unless the full provider payload fits.
 - `432422c` Stop authoring after an over-ceiling bill until an operator resolves it.
 - `cd558ea` Keep engine children on an explicit environment and a process group.
+- `0d4a5e1` Refuse a public engine that is simulated or unpinned.
 
 ## Commands
 
@@ -125,10 +126,15 @@ From `commerce/api` after `cd558ea`:
 - `pnpm exec tsc -p tsconfig.json --noEmit` exited 0.
 - `pnpm exec vitest run` exited 0. 828 tests passed. The default run excludes `test/integration`. This is not engine, Cargo, Foundry, or funded-proof evidence.
 
+From `commerce/api` after `0d4a5e1`:
+
+- `pnpm exec tsc -p tsconfig.json --noEmit` exited 0.
+- `pnpm exec vitest run` exited 0. 832 tests passed. The default run excludes `test/integration`. This is not engine, Cargo, Foundry, or funded-proof evidence.
+
 ## Gaps
 
 These commits do not close the full authoring gate. The two earlier model-safety checks and the full-payload check are separate. A request-wide deadline through validation and repair is not in these commits. Checker verdicts do not yet decide payable examples. Requirement coverage is not in these commits. Qualification metadata is not returned for every terminal authoring kind. Example fixtures, base64 example files, encoded binary references, and eval evidence or preview context are not in these commits. The benchmark worker owns the public fixture data.
 
-Open-feed confirmed-time expiry and cursor pagination are not in these commits. The client contract is `GET /v1/open-jobs` with `cursor` and `limit` from 1 to 50. The response shape is `{jobs, nextCursor}`. `nextCursor` is a string or null. `cd558ea` gives the compiler child an explicit environment and a POSIX process-group cancel. Public executable pins, `GET /readyz`, and rejection of a simulated engine or chain are not in these commits. Graceful shutdown can still exit while a compile child remains. Migration 015 does not backfill older breach rows. Protected metrics, sanitized logs, and attempt publication are not in these commits. Auth challenge pruning and a bound on paid-compile waiters are not in these commits. Budget environment variables are not wired. The public host, account, and model budget are still unknown.
+Open-feed confirmed-time expiry and cursor pagination are not in these commits. The client contract is `GET /v1/open-jobs` with `cursor` and `limit` from 1 to 50. The response shape is `{jobs, nextCursor}`. `nextCursor` is a string or null. `cd558ea` gives the compiler child an explicit environment and a POSIX process-group cancel. `0d4a5e1` refuses a public simulated engine and an unpinned executable before listen. `GET /readyz` is not implemented. Replay model, simulated chain, and origin checks are not in that startup gate. Graceful shutdown can still exit while a compile child remains. Migration 015 does not backfill older breach rows. Protected metrics, sanitized logs, and attempt publication are not in these commits. Auth challenge pruning and a bound on paid-compile waiters are not in these commits. Budget environment variables are not wired. The public host, account, and model budget are still unknown.
 
 The coordinator owns `deploy/`, Docker, backup and restore, `docs/hosted-api-contract.md`, and `docs/hosted-runtime.md`. No hosted release is claimed. No wallet was read. No model call was paid. No prover was started.
