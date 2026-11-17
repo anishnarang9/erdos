@@ -1,5 +1,13 @@
 # Current plan
 
+## 2026-11-17 04:03 -05:00 — Anish — Resume for Vercel and ten-cent Grok refinement research
+
+- The user selected Vercel and requested roughly $0.10 per user for constraint refinement. The goal is active again. Treat this as a product cost target, not a grant of paid inference or infrastructure authority. No further Grok CLI calls remain permitted.
+- The [deployment and cost options](../../docs/hosted-vercel-grok-options.md) verify the official Bot bounty, current API prices and Vercel container/daemon limits. Bot use needs a core role, authentic chat export and short README. API usage or CLI logs alone do not establish that evidence. A bounded API flow and genuine Bot contribution can serve separate needs.
+- Conditional API calculations give $0.05 for two 12k-input/4k-output calls, or $0.08096 for two 16k-input/8192-output calls. These are not observed bills or proven spending caps. The current full-context reservation remains unchanged. A reviewed complete-input bound and cumulative refinement-session accounting are required before lowering it. The offline 60-case [payload profile](../anish/reports/hosted-prompt-profile-2026-11-17.json) measures 14,211–17,701 body bytes, not provider tokens. No model request ran.
+- Vercel now supports containers and daemons. Its daemon storage is ephemeral. Our local SQLite/packages and host Docker compiler cannot move unchanged without a verified persistence/execution design. Recommended route is Vercel plus the persistent backend. A managed-storage migration is a separate option. The topology choice is pending. CLI 49.1.0 has no credentials. Requested local login, team/project and monthly budget.
+- Code candidate stays `20b0dc2`, with its existing source-labelled tests and artifacts. Research/documentation checks are local only. No deployment, provider inference, wallet action or new proof ran. Next: resolve topology/access, then implement and verify the bounded refinement budget. Public release, 180 genuine trials, fresh live acceptance and final independent review remain open.
+
 ## 2026-11-17 03:54 -05:00 — Anish — Goal blocked on missing external access and budgets
 
 - Three consecutive goal turns ended at the same external gates. Current revalidation shows a clean checkout, successful candidate `20b0dc2` commerce/core CI, no new PR comments/reviews, and no new access or budget inputs. No known authorized local work can advance the remaining gates.

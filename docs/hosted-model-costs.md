@@ -2,6 +2,8 @@
 
 Reviewed on 2026-11-16. No paid model call supports this report.
 
+2026-11-17: The user requested roughly $0.10 per user for refinement. See the [current cost design](hosted-vercel-grok-options.md) for conditional two-call profiles and the remaining input/session-budget work. Those examples do not change the reviewed reservation below or authorize dispatch.
+
 The Chat Completions visible-output limit does not cap reasoning. The service sends `max_completion_tokens`, disables search and requests one completion. Reasoning models and unknown slugs do not advertise a reliable total output bound. Public authoring rejects those adapters before dispatch. See the [Chat Completions contract](https://docs.x.ai/developers/rest-api-reference/inference/chat-completions.md) and [reasoning documentation](https://docs.x.ai/developers/model-capabilities/text/reasoning.md).
 
 Only exact model `grok-4.20-0309-non-reasoning` currently has a reviewed live-adapter bound. Its documented context maximum is 1,000,000 tokens. Preflight prices that entire maximum, or the larger local estimate. Configured rates must cover its highest tier: $2.50 per million input tokens and $5.00 per million output tokens. An 8,192-token completion therefore needs at least $2.54096 available before dispatch. Repair requires that amount again after the first charge. These conservative reservations do not predict the actual bill. See the [model contract and tier prices](https://docs.x.ai/developers/models/grok-4.20-0309-non-reasoning.md).
