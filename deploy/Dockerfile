@@ -1,6 +1,6 @@
 FROM rust:1.98.1-bookworm@sha256:93ce27a88655056a51dbdd8f5f2d7ddc071c7b0070fb288a37b5a285fc83971e AS engine-build
 WORKDIR /src/engine
-COPY engine/Cargo.toml engine/Cargo.lock ./
+COPY engine/Cargo.toml engine/Cargo.lock engine/capabilities-v1.json ./
 COPY engine/cli ./cli
 COPY engine/compiler ./compiler
 COPY engine/guest-runtime ./guest-runtime
@@ -14,13 +14,16 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
     ldd /out/engine > /out/dynamic-libraries.txt
 
 FROM node:24-bookworm-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54 AS api-build
+RUN corepack enable && corepack prepare pnpm@10.34.9 --activate
+WORKDIR /build/commerce
+COPY commerce/package.json commerce/pnpm-lock.yaml commerce/pnpm-workspace.yaml ./
+COPY commerce/api/package.json ./api/package.json
+COPY commerce/sdk/package.json ./sdk/package.json
+COPY commerce/worker/package.json ./worker/package.json
+RUN --mount=type=cache,id=ubc26-pnpm-store,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts --store-dir=/pnpm/store
 WORKDIR /build
 COPY commerce ./commerce
 COPY deploy/build-api.mjs ./deploy/build-api.mjs
-RUN corepack enable && corepack prepare pnpm@10.34.9 --activate
-WORKDIR /build/commerce
-RUN pnpm install --frozen-lockfile --ignore-scripts
-WORKDIR /build
 RUN node deploy/build-api.mjs /out/server.mjs
 
 FROM docker:29.1.3-cli@sha256:4fa0ee1f3a7e4354c4ea34558b6d4ee32859baf4973d4c8ccc8e7fe3dd730c04 AS docker-client

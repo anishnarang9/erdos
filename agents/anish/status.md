@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 21:58 -05:00 — Anish — Review findings block public dispatch
+
+- Independent concurrent SDK requests reproduced R7: one wallet reused one idempotency key for different draft inputs. HTTP returned one accepted and one rejected response, but both tasks remained queued and both model calls ran. Worker A received the failing regression and owns the atomic acceptance repair. Do not enable public paid dispatch before it passes.
+- Integrated authoring checkpoint `95c3b29` as `55c4842` for review. Its 12 focused tests pass. It records dispatch before calling and keeps uncertain charges reserved. Full UTF-8 reference content is preserved. This is incremental source, not the completed Grok gate. Independent new tests also reproduce full buffering of an oversized provider response and a second repair dispatch after the first call exhausts the request ceiling. Those regressions remain local and uncommitted until repair. Request-wide time, usable examples and requirement coverage need further review.
+- The first full Linux image build failed because the Docker context omitted the engine's compile-time embedded `capabilities-v1.json`. Added the required committed file to the build stage. Cargo dependency artifacts remain cached for the retry. API install layers now depend on manifests rather than every source edit. Caddy validation passes; formatting is normalized. No public host, paid request or chain action occurred.
+- The active plan now marks implemented local work separately from final public/live acceptance. Final completion boxes stay open. Continue the same two Grok workers and one coordinator-owned build. No prover is running.
+
 ## 2026-11-16 21:53 -05:00 — Anish — Bind restored challenges to the current origin
 
 - Independent restore review found that issuance accepted a challenge created under the old service origin after reopening the database with a different origin. The new two-origin regression returned 200 when it required 401. Issuance now checks the stored origin against the current configured origin and checks the issuance action before signature verification.

@@ -160,24 +160,26 @@ For research/review, use the CLI's read-only mode and disable write, shell, and 
 
 Keep one prover active on each machine. Fast tests and model calls may run concurrently within measured resource limits.
 
+Implementation evidence as of 2026-11-16: [identity/task checks and checkpoints](../../../agents/anish/status.md), [runner installation](../../../agents/anish/reports/hosted-runner-install-2026-11-16.json), [local native restore](../../../agents/anish/reports/hosted-local-native-restore-2026-11-16.json), and [finite real-proof subset](../../../agents/anish/reports/hosted-engine-proof-subset-2026-11-16.json). Checked work-package items describe source and local verification. They do not imply the final public or live acceptance checklists passed.
+
 ## 4. Ordered work packages
 
 ### Package 1 — Public identity and ownership
 
 **Primary areas:** API authentication, database migrations, route context, idempotency, job/revision/approval/funding handlers.
 
-- [ ] Add wallet-signed, expiring, single-use authentication challenges for self-service API-key issuance.
-- [ ] Bind challenges to this service, the wallet, action, nonce, and expiry. Reject replay and wrong-domain signatures.
-- [ ] Issue high-entropy API keys once. Store only a digest, key identifier, wallet owner, creation time, revocation state, and allowed scopes.
-- [ ] Support key inspection and revocation. Never log raw keys.
-- [ ] Use the authenticated wallet as the principal for ownership and idempotency.
-- [ ] Bind each new job, draft, approval, and expensive task to its owner.
-- [ ] Require that funding terms name the authenticated buyer wallet.
-- [ ] Enforce ownership on all mutation routes, including compilation, linking, paid compilation, and revision operations.
-- [ ] Keep public discovery, committed packages, references, and chain status readable as required by the protocol.
-- [ ] Disable the shared legacy buyer token in public deployment mode.
-- [ ] Preserve old data without assigning legacy jobs to new users. Legacy ownerless records remain non-mutable through public credentials.
-- [ ] Add configurable per-principal/IP limits and a global emergency disable for expensive operations.
+- [x] Add wallet-signed, expiring, single-use authentication challenges for self-service API-key issuance.
+- [x] Bind challenges to this service, the wallet, action, nonce, and expiry. Reject replay and wrong-domain signatures.
+- [x] Issue high-entropy API keys once. Store only a digest, key identifier, wallet owner, creation time, revocation state, and allowed scopes.
+- [x] Support key inspection and revocation. Never log raw keys.
+- [x] Use the authenticated wallet as the principal for ownership and idempotency.
+- [x] Bind each new job, draft, approval, and expensive task to its owner.
+- [x] Require that funding terms name the authenticated buyer wallet.
+- [x] Enforce ownership on all mutation routes, including compilation, linking, paid compilation, and revision operations.
+- [x] Keep public discovery, committed packages, references, and chain status readable as required by the protocol.
+- [x] Disable the shared legacy buyer token in public deployment mode.
+- [x] Preserve old data without assigning legacy jobs to new users. Legacy ownerless records remain non-mutable through public credentials.
+- [x] Add configurable per-principal/IP limits and a global emergency disable for expensive operations.
 
 **Acceptance:** two independently issued keys can create separate jobs. Neither can alter, approve, compile, fund-link, revoke, or retrieve private account records belonging to the other. A revoked key stops working immediately.
 
@@ -185,13 +187,13 @@ Keep one prover active on each machine. Fast tests and model calls may run concu
 
 **Primary areas:** API task service, migrations, server configuration, checker subprocess boundary, deployment scripts.
 
-- [ ] Add durable tasks for slow authoring and compilation. New clients start a task and poll its status.
-- [ ] Persist task owner, operation, input/revision binding, state, attempt, output reference, and sanitized error.
-- [ ] Return task identifiers promptly. Do not keep a request open for an entire cold compilation.
-- [ ] Deduplicate expensive work before dispatch. Concurrent identical idempotent requests must not create duplicate model calls or builds.
-- [ ] Initially run one compiler task at a time and at most two authoring calls at a time.
-- [ ] Preserve completed outputs and distinguish queued, running, succeeded, failed, and uncertain outcomes.
-- [ ] Resume queued work after restart. Reconcile interrupted running work without blindly repeating paid requests.
+- [x] Add durable tasks for slow authoring and compilation. New clients start a task and poll its status.
+- [x] Persist task owner, operation, input/revision binding, state, attempt, output reference, and sanitized error.
+- [x] Return task identifiers promptly. Do not keep a request open for an entire cold compilation.
+- [x] Deduplicate expensive work before dispatch. Concurrent identical idempotent requests must not create duplicate model calls or builds.
+- [x] Initially run one compiler task at a time and at most two authoring calls at a time.
+- [x] Preserve completed outputs and distinguish queued, running, succeeded, failed, and uncertain outcomes.
+- [x] Resume queued work after restart. Reconcile interrupted running work without blindly repeating paid requests.
 - [ ] Keep engine invocation shell-free with bounded arguments, environment, time, output, memory, and disk use.
 - [ ] Keep compiler workers isolated from wallet secrets and API administration credentials.
 - [ ] Persist SQLite/WAL state, packages, task state, and compiler cache on durable storage.
@@ -234,7 +236,7 @@ Preserve existing library interfaces or explicit compatibility adapters where us
 
 **Primary areas:** existing engine evaluation harness, independent oracles, compiler/runtime tests, real Grok harness.
 
-- [ ] Reuse the existing 10,000-case seeded suite, archived guest/proof checks, commitment mutations, and semantic controls.
+- [x] Reuse the existing 10,000-case seeded suite, archived guest/proof checks, commitment mutations, and semantic controls.
 - [ ] Create a new frozen set of 60 realistic requests: 40 supported, 10 ambiguous, and 10 unsupported.
 - [ ] Spread supported requests across at least 10 task families or distinct constraint combinations.
 - [ ] Include reconciliation, inventory, budgets, policy checks, scheduling, allocation, bounded routing feasibility, quantitative calculations, signed evidence, and file requirements.
@@ -273,24 +275,24 @@ If a gate fails, repair and rerun. Do not lower the threshold to declare success
 
 **Primary areas:** `commerce/worker/`, shared SDK, versioned API client, developer guide.
 
-- [ ] Add an installed-package workflow that does not depend on the coordinator's personal paths or private operator JSON.
-- [ ] Support authentication/key setup, job authoring/import, approval, compilation-task polling, funding preview, and confirmed funding linkage.
+- [x] Add an installed-package workflow that does not depend on the coordinator's personal paths or private operator JSON.
+- [x] Support authentication/key setup, job authoring/import, approval, compilation-task polling, funding preview, and confirmed funding linkage.
 - [ ] Support open-job discovery, pagination, exact job inspection, package download, and package/reference integrity checks.
 - [ ] Exclude expired-but-unrefunded jobs from the open feed using confirmed chain time.
-- [ ] Let a solver provide a local deliverable directory or its own solver command/adapter.
-- [ ] Keep arbitrary solver execution outside the hosted API/compiler service.
-- [ ] Provide check-only and prepare-only commands before signing.
-- [ ] Run evaluation and proving locally against the actual funded context and solver identity.
-- [ ] Preview exact contract destinations, calls, gas limits, bounty, deadlines, and allowed spending.
-- [ ] Reuse protected signing, durable send journals, nonce reservations, deployment pins, and receipt reconciliation.
-- [ ] Do not remove the current operator's protections to make a packaged runner work.
-- [ ] Replace checkout-only assumptions with verified release/binary/artifact provenance in the packaged path.
-- [ ] Observe the winner before release. Losing workers release no key.
-- [ ] Support recovery, refund, interruption, pending sends, and uncertain receipts without duplicate funding or payout.
-- [ ] Keep real release keys out of RPC simulation and gas estimation.
+- [x] Let a solver provide a local deliverable directory or its own solver command/adapter.
+- [x] Keep arbitrary solver execution outside the hosted API/compiler service.
+- [x] Provide check-only and prepare-only commands before signing.
+- [x] Run evaluation and proving locally against the actual funded context and solver identity.
+- [x] Preview exact contract destinations, calls, gas limits, bounty, deadlines, and allowed spending.
+- [x] Reuse protected signing, durable send journals, nonce reservations, deployment pins, and receipt reconciliation.
+- [x] Do not remove the current operator's protections to make a packaged runner work.
+- [x] Replace checkout-only assumptions with verified release/binary/artifact provenance in the packaged path.
+- [x] Observe the winner before release. Losing workers release no key.
+- [x] Support recovery, refund, interruption, pending sends, and uncertain receipts without duplicate funding or payout.
+- [x] Keep real release keys out of RPC simulation and gas estimation.
 - [ ] Publish checksums and supported platform/tool requirements. Validate native Linux first.
-- [ ] Supply a TypeScript example and language-independent HTTP examples.
-- [ ] Document honest hardware, timing, file-size, public-result, and unsupported-capability limits.
+- [x] Supply a TypeScript example and language-independent HTTP examples.
+- [x] Document honest hardware, timing, file-size, public-result, and unsupported-capability limits.
 
 The runner proves and settles files. It does not claim to solve arbitrary work automatically. Both humans and agents may produce the files.
 
@@ -303,12 +305,12 @@ The runner proves and settles files. It does not claim to solve arbitrary work a
 - [ ] Publish authentication, ownership, tasks, authoring, approval, compilation, open-bounty funding, discovery, and recovery contracts.
 - [ ] Publish representative success, pending, rejected, unsupported, expired, and error responses.
 - [ ] Expose per-job and per-solver attempt identifiers. A failed attempt does not mark the whole bounty rejected.
-- [ ] Reuse sanitized telemetry where useful. Prevent secret, plaintext, password, and filesystem-path disclosure.
-- [ ] Use one authoritative event order or explicit per-attempt cursors. Do not collide independent solver sequence numbers.
-- [ ] Define confirmed chain state as authoritative for winner, payment, expiry, and refund.
+- [x] Reuse sanitized telemetry where useful. Prevent secret, plaintext, password, and filesystem-path disclosure.
+- [x] Use one authoritative event order or explicit per-attempt cursors. Do not collide independent solver sequence numbers.
+- [x] Define confirmed chain state as authoritative for winner, payment, expiry, and refund.
 - [ ] Document the five funding steps: create, set budget, approve, fund, register.
-- [ ] Keep demo signers and presenter-only routes disabled on the public service.
-- [ ] Do not edit or merge Neil's UI wholesale. It still needs separate open-bounty adaptation.
+- [x] Keep demo signers and presenter-only routes disabled on the public service.
+- [x] Do not edit or merge Neil's UI wholesale. It still needs separate open-bounty adaptation.
 - [ ] Publish a concise UI handoff for Neil with final endpoints, examples, backend limitations, and the exact integration SHA.
 
 **Acceptance:** Neil can implement the UI against the documented backend without another backend redesign. No UI completion is needed to close this sprint.
@@ -316,7 +318,7 @@ The runner proves and settles files. It does not claim to solve arbitrary work a
 ### Package 7 — Security, operations, and deployment
 
 - [ ] Run independent review of auth/ownership, paid inference replay, task recovery, signer boundaries, and package handling.
-- [ ] Check dependency advisories for actual reachable exposure. Fix relevant issues without uncontrolled toolchain upgrades.
+- [x] Check dependency advisories for actual reachable exposure. Fix relevant issues without uncontrolled toolchain upgrades.
 - [ ] Test concurrent identical requests and different users requesting the same expensive operation.
 - [ ] Test global/per-user quotas, malformed bodies, path traversal, symlinks, oversize artifacts, and unavailable dependencies.
 - [ ] Bind public CORS and proxy settings to the deployed hostname. Do not depend on localhost development proxies.
@@ -345,7 +347,7 @@ No hosted prover is required. The local proving machine may remain active only f
 - [ ] Preserve and exercise genuine Circle paid compilation through the deployed service, including its 402 challenge, payment, real compilation, and exact replay. Preserve payment/bounty separation.
 - [ ] Run every final CI group at the actual release SHA.
 - [ ] Publish versioned client/runner artifacts, source, setup, API contract, supported-capability matrix, reports, operational runbook, and Neil's handoff.
-- [ ] Commit and push coherent checkpoints under repository shipping rules. Preserve unrelated work.
+- [x] Commit and push coherent checkpoints under repository shipping rules. Preserve unrelated work.
 - [ ] Report exact tests, failures, skips, proof timings, costs, receipts, recovery hashes, deployment URL, and release SHA.
 
 Old wallet/spending approvals may be scoped to completed runs. Prepare a concrete preview for any new live action. Use only current applicable authority. Do not expose wallets or authorization material to workers.
