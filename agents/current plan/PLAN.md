@@ -1,5 +1,11 @@
 # Current plan
 
+## 2026-11-17 01:37 -05:00 — Anish — Hosted source integration and release gates
+
+- Coordinator `5991bd2` passes all commerce typechecks and API 917, SDK 365 plus 13 wire, and worker 945 checks. Hosted attempts, paginated discovery and confirmed-time expiry are integrated. Image `92ef0c3` passes isolated public-mode auth/ownership, real warm compilation, replay and restart with an unused synthetic model credential. Its separate-volume restore preserves attempt history, task attempt 1 and exact package bytes. These local/emulated results do not establish a public deployment or genuine Grok access.
+- The same Grok worker A owns remaining browser origin/preflight handling and bounded paid compile admission before settlement, including replay/drain. The same worker B independently reviews stable integrated security/contracts. The coordinator owns integration, native Linux install CI, final images/artifacts and evidence. Do not create more workers or overlap their scopes. Native CI's initial runner check failed; its installed-engine setup repair is awaiting the actual rerun.
+- [Release readiness](../anish/reports/hosted-release-readiness-2026-11-17.json) records exact evidence and open gates. Public host/account/resource budget/hostname and secure Grok credentials with approved service/benchmark caps remain unanswered inputs. All 180 real authoring trials remain pending. Fresh live actions need their own concrete current preview. No new wallet/spending authority is inferred. Keep the goal active while independent work remains and keep PR #8 draft.
+
 ## 2026-11-17 00:08 -05:00 — Anish — Immutable witness completion and authoring controls implemented locally
 
 - The coordinator implemented the reviewed witness-completion design in `4f3ae05`. Owner-only checks append evidence for the exact returned plan and references. Initial and later records stay immutable. Public approval retains an exact successful check id and buyer-reviewed coverage digest. The original task response never changes. Four signed workloads pass real native API transport checks and reject changed contexts. See [the evidence](../anish/reports/hosted-native-buyer-checks-2026-11-17.json).

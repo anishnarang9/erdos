@@ -1,0 +1,181 @@
+{
+  "version": 1,
+  "status": "incomplete",
+  "workingSource": "5991bd2e876f64219a8d7e628adfb5f7a284daca",
+  "finalReleaseSource": null,
+  "publicUrl": null,
+  "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/8",
+  "pullRequestState": "draft",
+  "goal": "active",
+  "scope": "Source and finite local/CI evidence. Each linked report retains its own source, platform and limits. No public release is established.",
+  "corpus": {
+    "digest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
+    "supported": 40,
+    "ambiguous": 10,
+    "unsupported": 10,
+    "families": 10,
+    "requiredLiveTrials": 180,
+    "completedLiveTrials": 0
+  },
+  "evidence": [
+    {
+      "gate": "wallet authentication and ownership",
+      "status": "passed-local",
+      "report": "hosted-public-mode-image-2026-11-17.json",
+      "limit": "Isolated emulated Linux; requires final image and external-client checks."
+    },
+    {
+      "gate": "bounded authoring, immutable witnesses and review",
+      "status": "implemented-and-controlled-tests",
+      "report": "hosted-native-buyer-checks-2026-11-17.json",
+      "documentation": "../../../docs/hosted-authoring-coverage.md",
+      "limit": "Controlled model output; genuine Grok reliability remains unmeasured."
+    },
+    {
+      "gate": "host and independent semantic oracle",
+      "status": "passed-finite",
+      "documentation": "../../../docs/hosted-qualification.md",
+      "limit": "Frozen corpus; no universal or natural-language correctness claim."
+    },
+    {
+      "gate": "actual compiled guests",
+      "status": "passed-finite",
+      "report": "hosted-corpus-guests-2026-11-16.json",
+      "compiledPlans": 40,
+      "distinctImages": 39,
+      "guestExecutions": 236,
+      "inputRejectionsBeforeGuest": 80,
+      "disagreements": 0
+    },
+    {
+      "gate": "real proof subset and recovery",
+      "status": "passed-finite-synthetic-context",
+      "reports": [
+        "hosted-engine-proof-subset-2026-11-16.json",
+        "hosted-corpus-signed-proof-2026-11-17.json"
+      ],
+      "limit": "Real Solidity verification and exact SDK/engine recovery. No current hosted funded acceptance."
+    },
+    {
+      "gate": "packaged installed runner",
+      "status": "passed-emulated-linux; native-linux-ci-pending",
+      "report": "hosted-runner-linux-progress-2026-11-17.json",
+      "limit": "Twelve native engine checks and five controlled installed progress checks. Final source artifact still required."
+    },
+    {
+      "gate": "runtime pins, configured readiness and warm compilation",
+      "status": "passed-local-image",
+      "report": "hosted-public-mode-image-2026-11-17.json",
+      "imageSource": "92ef0c3706f71ebcde3d687429ac47ae46e470a3",
+      "warmCompileMs": 1792,
+      "limit": "Unused synthetic model credential, blocked external egress, emulated Linux. Later service controls/discovery need a new combined image."
+    },
+    {
+      "gate": "proxy readiness and request log privacy",
+      "status": "passed-controlled-containers",
+      "report": "hosted-proxy-readiness-2026-11-17.json",
+      "limit": "HTTP only on isolated network; no public TLS."
+    },
+    {
+      "gate": "backup, separate restore and attempt/package consistency",
+      "status": "passed-local-image",
+      "report": "hosted-attempt-backup-restore-2026-11-17.json",
+      "files": 41,
+      "downloadedPackageFilesHashChecked": 20,
+      "limit": "Local Docker volumes; no provider durability or host quota evidence."
+    },
+    {
+      "gate": "discovery paging and confirmed expiry",
+      "status": "passed-controlled-api",
+      "documentation": "../../../docs/hosted-discovery-worker-report.md",
+      "limit": "Fixture confirmed readers; actual public RPC acceptance remains open."
+    },
+    {
+      "gate": "auth limits, durable queue caps and protected metrics",
+      "status": "implemented-and-tested",
+      "documentation": "../../../docs/hosted-service-worker-report.md",
+      "limit": "Process counters reset on restart. Host quotas are not enforced by these metrics."
+    }
+  ],
+  "activeImplementation": [
+    {
+      "owner": "same Grok worker A",
+      "work": "Exact browser origin/preflight policy; paid compiler admission before settlement, concurrency, replay and drain."
+    },
+    {
+      "owner": "same Grok worker B",
+      "work": "Independent review of integrated auth/spend, attempt privacy, pins, installed runner and recovery boundaries."
+    },
+    {
+      "owner": "coordinator",
+      "work": "Integration, native Linux CI diagnosis/verification, final runtime/client artifacts, operational evidence and documentation."
+    }
+  ],
+  "externalDependencies": [
+    {
+      "needed": "Persistent Linux host/account and approved resource budget",
+      "blocks": [
+        "public deployment",
+        "hard quota checks",
+        "laptop independence",
+        "external client",
+        "public backup/rollback drill"
+      ],
+      "inputStatus": "requested; no response yet"
+    },
+    {
+      "needed": "Public hostname/TLS access",
+      "blocks": [
+        "stable HTTPS origin",
+        "public CORS/ingress acceptance"
+      ],
+      "inputStatus": "requested with hosting inputs"
+    },
+    {
+      "needed": "Secure Grok API credential and approved service/benchmark ceilings",
+      "blocks": [
+        "genuine hosted authoring",
+        "180 fresh trial records and exact costs"
+      ],
+      "inputStatus": "requested; no response yet",
+      "reviewedModel": "grok-4.20-0309-non-reasoning",
+      "minimumReservedMicroUsdPerCall": 2540960,
+      "approvedRequestCeilingMicroUsd": null,
+      "approvedDailyCeilingMicroUsd": null,
+      "approvedBenchmarkCeilingMicroUsd": null
+    },
+    {
+      "needed": "Current scoped funding/signing authority after a concrete preview",
+      "blocks": [
+        "fresh hosted funded proof",
+        "claim/release/payout/recovery",
+        "rejection/refund",
+        "genuine Circle charge/replay through deployment"
+      ],
+      "inputStatus": "not assumed from completed historical approvals; preview follows hosted/model preparation"
+    }
+  ],
+  "releaseGatesStillOpen": [
+    "Public HTTPS and external/laptop-independent acceptance",
+    "Genuine Grok qualification at frozen corpus and thresholds",
+    "Remaining ingress/paid-waiter implementation and independent review",
+    "Actual final source native Linux runner/CI checks",
+    "Final combined image, public artifacts and exact UI handoff SHA",
+    "Fresh hosted Arc and Circle acceptance under current authority"
+  ],
+  "privacy": "The protocol publishes the release key. Settled results become public. Real release keys and signing material stay outside Git.",
+  "completionRule": "Keep the goal active while authorized independent work remains. Do not equate local readiness, synthetic credentials, finite proofs, prepared containers or historical live receipts with completed hosted release.",
+  "combinedCommerce": {
+    "sourceCommit": "5991bd2e876f64219a8d7e628adfb5f7a284daca",
+    "status": "passed",
+    "apiTests": 917,
+    "sdkTests": 365,
+    "wireTests": 13,
+    "workerTests": 945,
+    "typechecks": [
+      "api",
+      "sdk",
+      "worker"
+    ]
+  }
+}

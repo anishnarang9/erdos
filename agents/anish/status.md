@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-17 01:37 -05:00 — Anish — Verify restored attempt history and collect release gates
+
+- Full combined commerce checks pass at `5991bd2`: API 917, SDK 365 plus 13 wire, worker 945, and all three typechecks. The native Linux CI rerun remains pending after its stricter installed-engine setup repair. Both current Grok workers continue their assigned source/review work.
+- The separate-volume backup/restore preserved 41 files and every table count, including solver attempt/event rows. The restored public-mode API reauthenticated the owner, retained successful task attempt 1, rejected another wallet's task read, returned solver progress without payment confirmation, and served 20 package files with matching hashes. It correctly stayed unready before prewarm and with expensive operations disabled. The container is stopped. See [the report](reports/hosted-attempt-backup-restore-2026-11-17.json).
+- The first backup test used a read-only source mount instead of the shipped writable-source profile. Two later probe issues used the wrong package query name and a text/1-MB transport for binary artifacts. Corrected only the test profile/transport; no backup or package production code changed. Failed probes remain recorded separately.
+- Added [the release readiness ledger](reports/hosted-release-readiness-2026-11-17.json). It keeps each report's source/platform limits, the zero completed live authoring trials, active implementation and missing host/model/live dependencies explicit. Final source, public URL and approved spending ceilings remain unset. The goal stays active and PR #8 stays draft.
+
 ## 2026-11-17 01:33 -05:00 — Anish — Repair native install CI setup and keep binary provenance strict
 
 - The first native Linux installed-runner job failed on its first expected passing check. Source/manifest verification and direct engine validation passed, so this is not a completed native install gate. The initial assertion hid the safe CLI result; it now includes the fixed rejection code and candidate label for diagnosis.
