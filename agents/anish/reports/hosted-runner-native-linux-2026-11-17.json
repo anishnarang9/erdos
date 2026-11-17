@@ -1,0 +1,127 @@
+{
+  "status": "passed-installed-native-engine",
+  "sourceCommit": "5991bd2e876f64219a8d7e628adfb5f7a284daca",
+  "releaseManifestSha256": "a829a8ae9fc33c001926b4af068456c6f6b6d5ce1b7311bc096dc4e444fb948f",
+  "engineSha256": "a7d0cec0285258eda3debf9421e4ee8132fcaf784a4840fae0e86a822aed70ad",
+  "corpusDigest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
+  "node": "v24.22.2",
+  "platform": "linux",
+  "architecture": "x64",
+  "syntheticContexts": true,
+  "checks": 12,
+  "rows": [
+    {
+      "challenge": "seal-1",
+      "candidate": "valid",
+      "oracle": "pass",
+      "exit": 0,
+      "verdict": 1
+    },
+    {
+      "challenge": "seal-1",
+      "candidate": "low-seal",
+      "oracle": "fail",
+      "exit": 0,
+      "verdict": 0
+    },
+    {
+      "challenge": "seal-1",
+      "candidate": "invalid-signature",
+      "oracle": "reject",
+      "exit": 1,
+      "status": "check-rejected",
+      "reason": "invalid_deliverable"
+    },
+    {
+      "challenge": "crate-1",
+      "candidate": "valid",
+      "oracle": "pass",
+      "exit": 0,
+      "verdict": 1
+    },
+    {
+      "challenge": "crate-1",
+      "candidate": "low-seal",
+      "oracle": "fail",
+      "exit": 0,
+      "verdict": 0
+    },
+    {
+      "challenge": "crate-1",
+      "candidate": "invalid-signature",
+      "oracle": "reject",
+      "exit": 1,
+      "status": "check-rejected",
+      "reason": "invalid_deliverable"
+    },
+    {
+      "challenge": "transfer-1",
+      "candidate": "valid",
+      "oracle": "pass",
+      "exit": 0,
+      "verdict": 1
+    },
+    {
+      "challenge": "transfer-1",
+      "candidate": "low-seal",
+      "oracle": "fail",
+      "exit": 0,
+      "verdict": 0
+    },
+    {
+      "challenge": "transfer-1",
+      "candidate": "invalid-signature",
+      "oracle": "reject",
+      "exit": 1,
+      "status": "check-rejected",
+      "reason": "invalid_deliverable"
+    },
+    {
+      "challenge": "dual-seal-1",
+      "candidate": "valid",
+      "oracle": "pass",
+      "exit": 0,
+      "verdict": 1
+    },
+    {
+      "challenge": "dual-seal-1",
+      "candidate": "low-seal",
+      "oracle": "fail",
+      "exit": 0,
+      "verdict": 0
+    },
+    {
+      "challenge": "dual-seal-1",
+      "candidate": "invalid-signature",
+      "oracle": "reject",
+      "exit": 1,
+      "status": "check-rejected",
+      "reason": "invalid_deliverable"
+    }
+  ],
+  "proofs": 0,
+  "realModelCalls": 0,
+  "chainTransactions": 0,
+  "tarSha256": "48954c3f7259854b1a3fbe108faf44da4c2a15026bdd6091cabeae18d61e3138",
+  "ci": {
+    "runId": 44032104126,
+    "event": "push",
+    "url": "https://github.com/anishnarang9/UBC-26/actions/runs/44032104126",
+    "coreFastConclusion": "success",
+    "builtEngine": {
+      "links": 2,
+      "mode": "0755",
+      "uid": 1001
+    },
+    "installedEngine": {
+      "mode": "0700",
+      "copyHasIndependentInode": true
+    }
+  },
+  "initialFailure": {
+    "runId": 44031211151,
+    "phase": "first signed passing check",
+    "reason": "The protected runner rejected the hard-linked Cargo build binary. Source/manifest verification and direct engine validation had passed. CI now installs a separate copy."
+  },
+  "scope": "Native Linux x64 GitHub runner, Node24, independently installed archive and engine, four frozen signed workloads. No proof, model call or chain transaction. This is not public-host or funded acceptance."
+}

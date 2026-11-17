@@ -1,6 +1,6 @@
 # Hosted backend handoff for Neil
 
-Working integration checkpoint: [`9eb89f7`](https://github.com/anishnarang9/UBC-26/commit/9eb89f7), draft PR #8. This is not the final release SHA. Public origin, 180 real authoring trials, production readiness and live acceptance remain pending. Hosted attempt routes and client integration now pass controlled checks. Update this document at the final reviewed release.
+Working integration checkpoint: [`5991bd2`](https://github.com/anishnarang9/UBC-26/commit/5991bd2), draft PR #8. This is not the final release SHA. Public origin, 180 real authoring trials, final production acceptance and live settlement remain pending. Hosted attempts and expiry-safe discovery pass controlled checks. Browser origin/preflight and paid compilation waiter controls are still being completed. See the [release ledger](../agents/anish/reports/hosted-release-readiness-2026-11-17.json). Update this document at the final reviewed release.
 
 No UI code changed in this sprint. Use the wallet-owned [API contract](hosted-api-contract.md), [installed client](hosted-client.md) and [runtime runbook](hosted-runtime.md). Keep this open-bounty flow separate from the historical selected-provider UI.
 

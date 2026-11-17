@@ -325,8 +325,8 @@ The runner proves and settles files. It does not claim to solve arbitrary work a
 - [ ] Test global/per-user quotas, malformed bodies, path traversal, symlinks, oversize artifacts, and unavailable dependencies.
 - [ ] Bind public CORS and proxy settings to the deployed hostname. Do not depend on localhost development proxies.
 - [ ] Make database migrations repeatable. Back up before migration. Never automatically delete indexes or historical records to repair a deployment.
-- [ ] Restore a backup into a separate instance and verify job/owner/artifact consistency.
-- [ ] Expose public health and sanitized readiness. Keep diagnostics, admin controls, and secrets protected.
+- [x] Restore a backup into a separate instance and verify job/owner/artifact consistency.
+- [x] Expose public health and sanitized readiness. Keep diagnostics, admin controls, and secrets protected.
 - [ ] Verify that restart policies, disk limits, cache cleanup, and log rotation work.
 - [ ] Deploy a reviewed source SHA over HTTPS. Record runtime/toolchain/container identities and configuration names without secret values.
 - [ ] Test from an external client. A laptop-only process, temporary tunnel, or localhost URL is not the hosted release.

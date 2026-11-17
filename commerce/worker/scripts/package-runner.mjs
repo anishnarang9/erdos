@@ -4,7 +4,7 @@ import { build } from "esbuild";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, posix, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const output = resolve(process.argv[2] ?? join(root, "dist/hosted-runner"));
@@ -26,7 +26,16 @@ for (const path of ["commerce/package.json", "commerce/worker/src/engine.ts", "c
   mkdirSync(dirname(join(stage, path)), { recursive: true }); copyFileSync(join(root, path), join(stage, path));
 }
 copyFileSync(join(root, "commerce/sdk/src/hosted/client.ts"), join(stage, "sdk/hosted.ts"));
-copyFileSync(join(root, "docs/hosted-client.md"), join(stage, "README.md"));
+const readme = readFileSync(join(root, "docs/hosted-client.md"), "utf8").replace(/\]\(([^)\s]+)\)/g, (link, href) => {
+  if (href.startsWith("#") || /^[A-Za-z][A-Za-z0-9+.-]*:/.test(href)) return link;
+  const [path, ...anchor] = href.split("#");
+  const relative = posix.normalize(posix.join("docs", decodeURI(path)));
+  if (relative === ".." || relative.startsWith("../") || posix.isAbsolute(relative) || !existsSync(join(root, relative))) {
+    throw new Error("Packaged README has a missing or unsafe source document link");
+  }
+  return `](https://github.com/anishnarang9/UBC-26/blob/${sourceCommit}/${relative.split("/").map(encodeURIComponent).join("/")}${anchor.length ? "#" + anchor.join("#") : ""})`;
+});
+writeFileSync(join(stage, "README.md"), readme);
 writeFileSync(join(stage, "package.json"), JSON.stringify({ name: "@ubc26/runner", version: "0.2.0", type: "module",
   description: "Local UBC-26 buyer and solver runner", engines: { node: ">=24" }, bin: { ubc26: "bin/ubc26.mjs" },
   exports: { "./hosted": { types: "./sdk/hosted.ts", import: "./sdk/hosted.mjs" } },

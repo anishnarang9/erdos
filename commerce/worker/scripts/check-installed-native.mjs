@@ -40,7 +40,7 @@ try{
    assert.equal(result.error,undefined);const actual=JSON.parse(result.stdout);
    if(oracle.status==='reject'){
     assert.equal(result.status,1);assert.equal(actual.status,'check-rejected');assert.equal(actual.proofGenerated,false);assert.equal(actual.transactionSent,false);assert.ok(!result.stdout.includes(work));
-   }else{assert.equal(result.status,0);assert.equal(actual.verdict,oracle.status==='pass'?1:0);}
+   }else{assert.equal(result.status,0,JSON.stringify({challenge:challenge.id,candidate:candidate.id,exit:result.status,result:actual}));assert.equal(actual.verdict,oracle.status==='pass'?1:0);}
    rows.push({challenge:challenge.id,candidate:candidate.id,oracle:oracle.status,exit:result.status,...(actual.verdict===undefined?{status:actual.status,reason:actual.reason}:{verdict:actual.verdict})});
   }
  }

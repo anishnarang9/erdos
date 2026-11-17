@@ -1,5 +1,42 @@
 # anish status
 
+## 2026-11-17 01:53 -05:00 — Anish — Verify runtime observation and identify benchmark metadata mismatch
+
+- Integrated Worker B's read-only security report `c1da4bb` as `1814f2d`. It found no new material defect in the reviewed `8c98d6b` attempt, pin, backup and spend/replay paths. Corrected its workflow-inspection wording: native engine CI is in `core-fast.yml` and separately passed at `5991bd2`. The report does not review future service changes.
+- Image `5d0f8b6` passes configured readiness, auth/ownership, attempt publication, real warm compile (0.901 seconds), replay/restart and revocation. Added actual public-mode checks for protected metrics, auth limits, spoofed IP handling without trusted proxy, and privacy across both log streams. A controlled indexer error included a synthetic RPC secret; no secret appeared in logs. See [the report](reports/hosted-observation-image-2026-11-17.json). This remains emulated, isolated local evidence with an unused synthetic model credential.
+- Separate harness review reproduced a real metadata mismatch: `collectTraceIds` repeats the same provider id from `qualification.traceId`, `traceIds` and `attempts`; `markFresh` rejects that normal single-call result as missing a trace. The same qualification worker will repair this with freshness/replay regressions before any real application inference trial. Frozen corpus and thresholds must stay unchanged. No application model request or chain action occurred.
+
+## 2026-11-17 01:43 -05:00 — Anish — Installed guide links pass; ingress/payment contract staged
+
+- Clean archive `10164d1` built and installed independently. Provenance passes, and all four README document links use the archive's exact 40-character source SHA. Every target exists in that Git tree. Tar SHA-256 is `05774686a13ba119caa2a79f393dfe2f690bf18a9812c3eafc9876b6cd4feb4c`; manifest SHA-256 is `40b2bec926136e61023974d71ca49eb366e095059c10832a17c5981256a8a0a7`. Runtime source is unchanged.
+- Integrated Worker A's contract-only checkpoint `9267730`. It specifies exact service/optional frontend browser origins and an external paid compile cap of two before settlement, with complete replay, settled recovery and bounded drain. This is a staged contract; the source implementation/tests are still Worker A's active work. The same reviewer continues the independent integrated audit. No extra worker exists.
+- Public host/account/hostname, approved application inference ceilings/credential, 180 live qualification trials and fresh scoped settlement remain open. No hosted authoring request or chain action ran in this checkpoint. PR #8 remains draft.
+
+## 2026-11-17 01:41 -05:00 — Anish — Pin packaged guide links to their source documents
+
+- An installed `b955545` archive has three README links to API documents absent from the archive. The actual installed-file check failed before the repair. Packaging now resolves repository document links from the source guide and writes absolute GitHub links at the archive's exact source commit. Missing or escaping source targets reject the package build. The repository guide keeps its normal relative links.
+- The packager parses, and all four current guide links resolve to existing source files and become pinned links. CI now checks the independently installed README for missing relative references and unpinned repository links. External document links remain allowed. A new clean archive/build/install check follows this source checkpoint.
+- Runtime behavior is unchanged. All required host/model/live release gates remain open. The same service and review workers continue their current scopes. No model call, compiler, proof or chain action occurred.
+
+## 2026-11-17 01:39 -05:00 — Anish — Native Linux installed runner and exact-source CI pass
+
+- GitHub push run [44032104126](https://github.com/anishnarang9/UBC-26/actions/runs/44032104126) passes engine and contracts at exact source `5991bd2`. The independent archive/native-engine check passes all twelve signed cases on native Linux x64, Node 24.22.2. The downloaded report matches that source and its release manifest/checksum. See [the evidence](reports/hosted-runner-native-linux-2026-11-17.json).
+- The actual CI log confirms the first failure's cause: the Cargo binary had two hard links, mode 0755, uid 1001. Installing a separate mode-0700 copy satisfies the existing engine guard. No runtime protection changed. The exact-source commerce push run [44032104152](https://github.com/anishnarang9/UBC-26/actions/runs/44032104152) also passes. These source checks do not close the later final release/host gates.
+- Updated the draft PR with current source, evidence and limitations. The release ledger now separates native Linux results from the earlier emulated image/progress tests. The same two workers continue ingress/payment admission and security review. No public deployment, paid authoring trial, new proof or chain action occurred.
+
+## 2026-11-17 01:37 -05:00 — Anish — Verify restored attempt history and collect release gates
+
+- Full combined commerce checks pass at `5991bd2`: API 917, SDK 365 plus 13 wire, worker 945, and all three typechecks. The native Linux CI rerun remains pending after its stricter installed-engine setup repair. Both current Grok workers continue their assigned source/review work.
+- The separate-volume backup/restore preserved 41 files and every table count, including solver attempt/event rows. The restored public-mode API reauthenticated the owner, retained successful task attempt 1, rejected another wallet's task read, returned solver progress without payment confirmation, and served 20 package files with matching hashes. It correctly stayed unready before prewarm and with expensive operations disabled. The container is stopped. See [the report](reports/hosted-attempt-backup-restore-2026-11-17.json).
+- The first backup test used a read-only source mount instead of the shipped writable-source profile. Two later probe issues used the wrong package query name and a text/1-MB transport for binary artifacts. Corrected only the test profile/transport; no backup or package production code changed. Failed probes remain recorded separately.
+- Added [the release readiness ledger](reports/hosted-release-readiness-2026-11-17.json). It keeps each report's source/platform limits, the zero completed live authoring trials, active implementation and missing host/model/live dependencies explicit. Final source, public URL and approved spending ceilings remain unset. The goal stays active and PR #8 stays draft.
+
+## 2026-11-17 01:33 -05:00 — Anish — Repair native install CI setup and keep binary provenance strict
+
+- The first native Linux installed-runner job failed on its first expected passing check. Source/manifest verification and direct engine validation passed, so this is not a completed native install gate. The initial assertion hid the safe CLI result; it now includes the fixed rejection code and candidate label for diagnosis.
+- A controlled native reproduction confirms that a hard-linked build binary fails the existing engine provenance guard, while an independently installed copy passes all twelve checks. CI now records the built binary link/mode/owner metadata and installs a mode-0700 independent copy before the runner test. Runtime protections stay unchanged. The next native Linux result must verify this diagnosis; it is still pending.
+- A separate backup drill passed all 41 files, table counts and attempt/event rows. Its first test profile used a read-only source mount, unlike the shipped helper, and failed on SQLite sidecar creation. The documented writable-source/read-only-root profile passes. Restored API/package byte checks continue. No paid model call, proof or chain transaction occurred. The same two Grok sessions continue ingress/payment bounds and independent security review.
+
 ## 2026-11-17 01:27 -05:00 — Anish — Integrate paginated discovery and confirmed-time expiry
 
 - Integrated Worker B `0e790cd`, `8246a80` and `3c59be0` as `e63199c`, `c75d205` and `e6a4d57`. Discovery scans a bounded keyset window, advances past stale/filtered links and excludes confirmed expiry, accepted submissions and releases. Detail carries confirmed time/block and preserves funded-but-expired status. A failed chain dependency returns 503 instead of a false empty feed.

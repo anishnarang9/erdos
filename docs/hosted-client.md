@@ -6,7 +6,7 @@ Results become public when the solver broadcasts the release key. The runner pro
 
 ## Install and check provenance
 
-Native Linux is the first supported release target. Use Node.js 24 or later. Install the pinned native RISC Zero 3.1.0 engine separately. Proving needs the pinned guest toolchain, Docker Groth16 backend and enough memory. Historical Mac runs used a 12-GiB Docker VM and took about 18 minutes for the funded workload. These measurements do not predict another workload's runtime.
+Native Linux is the first supported release target. Use Node.js 24 or later. Install the pinned native RISC Zero 3.1.0 engine separately as an independent regular file. Build directories can contain hard-linked binaries; copy the reviewed artifact with `install -m 700 BUILT_ENGINE PRIVATE_ENGINE_PATH` and verify its published digest. The protected runner rejects linked executable files. Proving needs the pinned guest toolchain, Docker Groth16 backend and enough memory. Historical Mac runs used a 12-GiB Docker VM and took about 18 minutes for the funded workload. These measurements do not predict another workload's runtime.
 
 A release contains `ubc26-runner-0.2.0.tgz`, `SHA256SUMS`, `release.json` and the standalone `ubc26-release.json` manifest. Download all four files to one directory. Verify them against independently published checksums. Install the checked local archive:
 
@@ -181,3 +181,5 @@ If `resumeLocalCursor` is non-null, submit the next explicit batch with that `--
 Published phases and transaction hashes remain solver reports. They cannot confirm a winner, payment or refund. Use the confirmed open-job snapshot for those claims. See the [attempt route contract](hosted-api-contract.md#hosted-solver-attempts).
 
 The native engine CI job also builds a standalone archive, installs it outside the checkout, checks its pinned provenance, and runs `commerce/worker/scripts/check-installed-native.mjs` against the actual native Linux engine. The script generates fresh synthetic signed fixtures for four frozen workloads, checks an independent oracle, and tests pass, valid verdict 0 and signature rejection. It performs no proof or chain action. Keep the CI report's platform and source SHA with release evidence. A Mac run or emulated container run does not substitute for that native Linux result.
+
+The native Linux check passes at source `5991bd2` on x64 Ubuntu with Node 24.22.2. The [report](../agents/anish/reports/hosted-runner-native-linux-2026-11-17.json) records the installed archive/manifest and actual engine digests. The first CI run used Cargo's two-link build artifact and hit the existing provenance guard. Installing a separate mode-0700 engine copy fixed that setup. Final source artifacts still need their own provenance and acceptance check after remaining service changes.
