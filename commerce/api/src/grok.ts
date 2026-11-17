@@ -106,6 +106,8 @@ export class ModelError extends Error {
   readonly reason: string;
   /** Present when a refused or truncated reply still reported charged usage. */
   usage?: ModelUsage;
+  model?: string;
+  traceId?: string;
   constructor(code: string, message: string = code) {
     super(message);
     this.name = "ModelError";
@@ -443,7 +445,7 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
     throw new ModelError("provider_origin", "Draft model origin is not the production provider");
   }
   const scrub = (s: string): string => (opts.apiKey ? s.split(opts.apiKey).join("[redacted]") : s);
-  const fail = (reason: string, message: string): ModelError => new ModelError(reason, scrub(message));
+  const fail = (reason: string, message: string): ModelError => { const error = new ModelError(reason, scrub(message)); error.model = scrub(opts.model); return error; };
   const rawCap = maxOutputChars + 8_192;
   // Reviewed provider contract, 2026-11-16. Do not infer this from a visible-token parameter.
   // Unknown slugs, aliases and reasoning models do not advertise a total spend bound.
@@ -509,6 +511,8 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
       const failUsed = (reason: string, message: string): ModelError => {
         const err = fail(reason, message);
         if (usage) err.usage = usage;
+        if (typeof root.id === "string" && /^[A-Za-z0-9_.:-]{1,256}$/.test(root.id)) err.traceId = scrub(root.id);
+        if (typeof root.model === "string" && /^[A-Za-z0-9_.:-]{1,128}$/.test(root.model)) err.model = scrub(root.model);
         return err;
       };
       const choices = Array.isArray(root.choices) ? root.choices : [];
@@ -533,7 +537,7 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
       try {
         result = parseModelDraft(fromWireReply(parsed));
       } catch (err) {
-        if (err instanceof ModelError && usage) err.usage = usage;
+        if (err instanceof ModelError) throw failUsed(err.reason, err.message);
         throw err;
       }
       if (typeof root.id !== "string" || root.id === "") {

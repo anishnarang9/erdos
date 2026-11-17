@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 00:05 -05:00 — Anish — Retain rejected provider traces and precise benchmark charges
+
+- Rejected provider responses now retain safe model identity, trace, reported usage and failure reason. A rejected repair remains separate from the first response. Known actual charges settle once. Unknown usage stays explicit. Timeout and engine failures retain available qualification metadata without raw provider text. Initial failures also retain that metadata in the draft record.
+- The rejected-response regression failed before the repair. API typecheck and 862 API checks pass. The added charged-repair regression also passes and accounts for both exact provider charges. No paid model call occurred.
+- Integrated B's fractional-tick repair as `e4a65b1`. Known bills round up for reservation accounting. The qualification mean uses raw ticks. The first Node run lacked the explicit engine and failed those dependency checks. With the pinned native engine configured, all 36 Node checks pass. Corpus and score gates remain unchanged. B now independently reviews the completed authoring code. Active draft cancellation during service drain remains the next integration fix.
+
 ## 2026-11-17 00:03 -05:00 — Anish — Append immutable buyer witness checks
 
 - Added migration 017 and owner-only example checks for the exact stored draft revision and references. Initial wallet drafts also create records. Failures stay recorded. Database triggers prevent changes or deletion. Public approvals select the initial or explicit later check and retain its id plus the reviewed coverage digest. Original draft task replay remains unchanged.

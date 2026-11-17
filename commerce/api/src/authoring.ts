@@ -234,6 +234,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     const timer = setTimeout(() => deadline.abort(), DRAFT_TIMEOUT_MS);
     timer.unref?.();
     const signal = deadline.signal;
+    let terminalMetadata: (() => Record<string, unknown>) | undefined;
     const execute = async () => {
     const model = deps.draftModel;
     const owner = ownerWallet(c);
@@ -265,7 +266,22 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     };
     const taskId = c.get("taskId") ?? "";
     const started = deps.now();
-    const attempts: { reply: DraftModelResult; result: ModelDraft }[] = [];
+    const attempts: { reply: DraftModelResult; result: ModelDraft; failureReason?: string }[] = [];
+    const attemptViews = () => attempts.map(item => ({ kind: item.failureReason ? "model_failed" : item.result.kind, model: item.reply.model || null, traceId: item.reply.traceId || null, usage: item.reply.usage ?? null, ...(item.failureReason ? { reason: item.failureReason } : {}) }));
+    terminalMetadata = () => {
+      const last = attempts.at(-1)?.reply;
+      return { qualification: {
+        model: last?.model || null, promptVersion: draftPromptVersion(), catalogVersion: CATALOG_VERSION,
+        latencyMs: Math.max(0, deps.now() - started), repairCount: Math.max(0, attempts.length - 1),
+        traceId: last?.traceId || null, traceIds: attempts.map(item => item.reply.traceId).filter(Boolean),
+        usage: attempts.map(item => item.reply.usage ?? null),
+      }, attempts: attemptViews() };
+    };
+    const failedAttempt = (err: unknown) => {
+      const failure = err instanceof ModelError ? err : new ModelError("error");
+      const result: ModelDraft = { kind: "unsupported", reason: "model_failed" };
+      return { result, failureReason: failure.reason, reply: { result, model: failure.model ?? "", traceId: failure.traceId ?? "", ...(failure.usage ? { usage: failure.usage } : {}) } };
+    };
 
     const persistUsage = (): void => {
       if (taskId === "" || !deps.budget) return;
@@ -275,8 +291,14 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       if (taskId !== "" && deps.budget) noteDraftDispatch(deps.db, taskId, isoAt(deps.now()));
       signal.throwIfAborted();
       const reply = await withinDraftDeadline(model.draft({ ...input, signal }), signal);
-      if (typeof reply?.model !== "string" || typeof reply.traceId !== "string") throw new ModelError("invalid_reply");
-      return { reply: { ...reply, result: parseModelDraft(reply.result) }, result: parseModelDraft(reply.result) };
+      try {
+        if (typeof reply?.model !== "string" || typeof reply.traceId !== "string") throw new ModelError("invalid_reply");
+        const result = parseModelDraft(reply.result);
+        return { reply: { ...reply, result }, result };
+      } catch (err) {
+        if (err instanceof ModelError) { err.model = typeof reply?.model === "string" ? reply.model : undefined; err.traceId = typeof reply?.traceId === "string" ? reply.traceId : undefined; err.usage = reply?.usage; }
+        throw err;
+      }
     };
     const chargedUsage = (err: unknown): ModelUsage | undefined => {
       if (!(err instanceof ModelError) || !err.usage || !usageComplete(err.usage)) return undefined;
@@ -285,9 +307,10 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     const failCall = (err: unknown): never => {
       const reason = err instanceof ModelError ? err.reason : "error";
       const usage = chargedUsage(err);
+      attempts.push(failedAttempt(err));
       const at = isoAt(deps.now());
       tx(deps.db, () => {
-        insertDraft.run(draftId, requestJson, JSON.stringify({ error: { code: "model_failed", reason } }), null, null, null, at, owner);
+        insertDraft.run(draftId, requestJson, JSON.stringify({ error: { code: "model_failed", reason }, ...terminalMetadata?.() }), null, null, null, at, owner);
         if (usage && taskId !== "" && deps.budget) noteDraftUsage(deps.db, taskId, JSON.stringify([usage]), at);
       });
       const billing = usage && deps.budget ? chargeBilling(usage, deps.budget) : undefined;
@@ -464,15 +487,11 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         persistUsage();
         chosen = await assess(second);
       } catch (err) {
-        if (signal.aborted) throw new ModelError("timeout");
         const usage = chargedUsage(err);
-        if (usage) {
-          attempts.push({
-            reply: { result: { kind: "unsupported", reason: "model_failed" }, model: "", traceId: "", usage },
-            result: { kind: "unsupported", reason: "model_failed" },
-          });
-          persistUsage();
-        } else repairUnpriced = true;
+        attempts.push(failedAttempt(err));
+        persistUsage();
+        if (signal.aborted) throw new ModelError("timeout");
+        if (!usage) repairUnpriced = true;
       }
     }
     if (chosen.fatal) throw modelFailure("plan_not_hashable");
@@ -541,7 +560,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         traceId: reply.traceId, traceIds: attempts.map(item => item.reply.traceId).filter(id => id.length > 0),
         usage: attempts.map(item => item.reply.usage ?? null),
       },
-      attempts: attempts.map(item => ({ kind: item.result.kind, model: item.reply.model, traceId: item.reply.traceId || null, usage: item.reply.usage ?? null })),
+      attempts: attemptViews(),
     };
     const at = isoAt(deps.now());
     const initialCheckId = owner && response.kind === "draft" && chosen.hash ? newId() : null;
@@ -567,7 +586,10 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     };
     try { return await execute(); }
     catch (err) {
-      if (signal.aborted || (err instanceof ModelError && err.reason === "timeout")) throw modelFailure("timeout");
+      const metadata = terminalMetadata?.();
+      if (signal.aborted || (err instanceof ModelError && err.reason === "timeout")) throw new ApiError("model_failed", "The draft model failed", { reason: "timeout", ...metadata });
+      if (err instanceof ApiError && metadata) throw new ApiError(err.code, err.message, { ...err.details, ...metadata });
+      if (metadata) throw new ApiError("internal", "Internal server error", metadata);
       throw err;
     } finally { clearTimeout(timer); }
   };
