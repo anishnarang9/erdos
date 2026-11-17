@@ -43,8 +43,8 @@ export interface DraftModelInput {
     }[];
   };
   /**
-   * Requested completion cap for this call. A hint only.
-   * The provider may ignore it. Spend checks use the supported maximum.
+   * Completion cap for this call. The Chat Completions adapter sends it as `max_tokens`.
+   * That field is the documented maximum tokens to generate. `max_completion_tokens` is not.
    */
   maxCompletionTokens?: number;
   /** The engine's plan JSON Schema (engine-contract/plan-v1.schema.json). */
@@ -75,8 +75,19 @@ export interface DraftModelResult {
   latencyMs?: number;
 }
 
+/** Chat Completions documents this field as the maximum tokens to generate. */
+export interface OutputTokenBound {
+  parameter: "max_tokens";
+  maxTokens: number;
+}
+
 export interface DraftModel {
   draft(input: DraftModelInput): Promise<DraftModelResult>;
+  /**
+   * Set only when this adapter sends `max_tokens` and that value is the supported completion maximum.
+   * Absent means the service has no reliable output bound for this model.
+   */
+  outputTokenBound?: OutputTokenBound;
 }
 
 /** Draft model failure. The /v1/drafts route maps it to 502 model_failed. Never carries the API key. */
@@ -206,6 +217,58 @@ export const DRAFT_SYSTEM_PROMPT = [
 export const DRAFT_TIMEOUT_MS = 120_000;
 export const DRAFT_MAX_COMPLETION_TOKENS = 8192;
 export const DRAFT_MAX_OUTPUT_CHARS = 200_000;
+/**
+ * Chat-template markers are not bytes of the JSON body. This allowance covers those markers.
+ * It is not a measured tokenizer count.
+ */
+export const DRAFT_PROMPT_FRAMING_TOKENS = 64;
+/** Model ids used for the bound are at least this long, so a shorter live id cannot undercut it. */
+export const DRAFT_MODEL_ID_BOUND_CHARS = 128;
+
+/** The exact Chat Completions body. Spend checks serialize this function. The adapter sends its result. */
+export function draftProviderPayload(input: DraftModelInput, model: string, maxTokens: number): string {
+  const user = {
+    request: input.request,
+    outputs: input.outputs,
+    referenceNames: input.referenceNames,
+    referenceFiles: input.referenceFiles ?? [],
+    clarifications: input.clarifications,
+    ...(input.repair ? { repair: input.repair } : {}),
+  };
+  return JSON.stringify({
+    model,
+    temperature: 0,
+    max_tokens: maxTokens,
+    messages: [
+      { role: "system", content: DRAFT_SYSTEM_PROMPT },
+      {
+        role: "system",
+        content: "Engine plan schema:\n" + JSON.stringify(input.schema) + "\n\nEngine capability catalog:\n" + JSON.stringify(input.catalog ?? null),
+      },
+      { role: "user", content: JSON.stringify(user) },
+    ],
+    response_format: {
+      type: "json_schema",
+      json_schema: { name: "ubc26_draft", strict: true, schema: draftResponseSchema(input.schema) },
+    },
+  });
+}
+
+/**
+ * Upper bound on prompt tokens for one serialized provider body.
+ * A byte is at least one token for a byte-level fallback, so the UTF-8 length does not undercount the body.
+ * Framing tokens cover chat-template markers that the body does not contain.
+ */
+export function draftPromptTokenBound(payload: string): number {
+  const tokens = Buffer.byteLength(payload, "utf8") + DRAFT_PROMPT_FRAMING_TOKENS;
+  return Number.isSafeInteger(tokens) ? tokens : Number.MAX_SAFE_INTEGER;
+}
+
+/** Prompt-token upper bound for the payload this service would send at `maxTokens`. */
+export function draftCallTokenBound(input: DraftModelInput, maxTokens: number): number {
+  const model = "m".repeat(DRAFT_MODEL_ID_BOUND_CHARS);
+  return draftPromptTokenBound(draftProviderPayload(input, model, maxTokens));
+}
 
 export function draftPromptVersion(): string {
   return createHash("sha256").update(DRAFT_SYSTEM_PROMPT, "utf8").digest("hex");
@@ -345,36 +408,13 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
   const rawCap = maxOutputChars + 8_192;
 
   return {
+    outputTokenBound: { parameter: "max_tokens", maxTokens: maxCompletionTokens },
     async draft(input) {
-      const user = {
-        request: input.request,
-        outputs: input.outputs,
-        referenceNames: input.referenceNames,
-        referenceFiles: input.referenceFiles ?? [],
-        clarifications: input.clarifications,
-        ...(input.repair ? { repair: input.repair } : {}),
-      };
       const requestedCap = input.maxCompletionTokens;
       const callCap = typeof requestedCap === "number" && Number.isSafeInteger(requestedCap) && requestedCap > 0
         ? Math.min(requestedCap, maxCompletionTokens)
         : maxCompletionTokens;
-      const body = {
-        model: opts.model,
-        temperature: 0,
-        max_completion_tokens: callCap,
-        messages: [
-          { role: "system", content: DRAFT_SYSTEM_PROMPT },
-          {
-            role: "system",
-            content: "Engine plan schema:\n" + JSON.stringify(input.schema) + "\n\nEngine capability catalog:\n" + JSON.stringify(input.catalog ?? null),
-          },
-          { role: "user", content: JSON.stringify(user) },
-        ],
-        response_format: {
-          type: "json_schema",
-          json_schema: { name: "ubc26_draft", strict: true, schema: draftResponseSchema(input.schema) },
-        },
-      };
+      const body = draftProviderPayload(input, opts.model, callCap);
       const started = Date.now();
       const signal = AbortSignal.timeout(timeoutMs);
       let res: Response;
@@ -382,7 +422,7 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
         res = await doFetch(endpoint.href, {
           method: "POST",
           headers: { authorization: `Bearer ${opts.apiKey}`, "content-type": "application/json" },
-          body: JSON.stringify(body),
+          body,
           redirect: "error",
           signal,
         });
@@ -482,6 +522,7 @@ interface Recording {
 /** Calls `inner` and writes `<dir>/<key>.json` = { input, result, model, traceId } for each call. */
 export function recordingDraftModel(inner: DraftModel, dir: string): DraftModel {
   return {
+    ...(inner.outputTokenBound ? { outputTokenBound: inner.outputTokenBound } : {}),
     async draft(input) {
       const key = draftRecordKey(input);
       const out = await inner.draft(input);

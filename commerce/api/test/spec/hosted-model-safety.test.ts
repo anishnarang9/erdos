@@ -6,8 +6,9 @@ import { DatabaseSync } from "node:sqlite";
 import { afterEach, describe, expect, it } from "vitest";
 import { privateKeyToAccount } from "viem/accounts";
 import { createApp, simulatedEngine, type CreateAppOptions } from "../../src/index.ts";
-import { ModelError, grokDraftModel, readModelUsage } from "../../src/grok.ts";
-import { authoringCharge, ticksToMicroUsd } from "../../src/tasks.ts";
+import { ENGINE_CATALOG, PLAN_SCHEMA } from "../../src/authoring.ts";
+import { DRAFT_MAX_COMPLETION_TOKENS, ModelError, draftCallTokenBound, grokDraftModel, readModelUsage, type DraftModelInput } from "../../src/grok.ts";
+import { authoringCharge, maxCallMicroUsd, ticksToMicroUsd } from "../../src/tasks.ts";
 import { BUYER_TOKEN, T0, freshKey } from "./helpers.ts";
 
 const input = {
@@ -170,12 +171,35 @@ const pricedUsage = {
   costInUsdTicks: null,
 };
 
+const unitBudget = {
+  requestCeilingMicroUsd: 1_000_000,
+  dailyCeilingMicroUsd: 2_000_000,
+  inputMicroUsdPerMillion: 1_000_000,
+  outputMicroUsdPerMillion: 1_000_000,
+};
+const smallProviderInput = {
+  request: "Check a policy",
+  outputs: [{ name: "result.json", format: "json" as const }],
+  referenceNames: [] as string[],
+  referenceFiles: [] as { name: string; text: string }[],
+  clarifications: [] as { question: string; answer: string }[],
+  schema: PLAN_SCHEMA,
+  catalog: ENGINE_CATALOG,
+};
+
+function callCost(input: DraftModelInput, completionTokens: number): number {
+  const cost = maxCallMicroUsd(draftCallTokenBound(input, completionTokens), completionTokens, unitBudget);
+  if (cost === null) throw new Error("test call cost overflowed");
+  return cost;
+}
+
 describe("request spend ceiling", () => {
-  it("does not dispatch a repair when the first call exhausted the request spend ceiling", async () => {
+  it("does not dispatch when the serialized prompt and supported completion maximum exceed the ceiling", async () => {
     const dir = mkdtempSync(join(tmpdir(), "ubc26-ceiling-"));
     const dbPath = join(dir, "api.db");
     let calls = 0;
-    let cap: number | undefined;
+    const full = callCost(smallProviderInput, DRAFT_MAX_COMPLETION_TOKENS);
+    expect(full).toBeGreaterThan(1000);
     const created = appFor({
       dbPath,
       budget: {
@@ -185,9 +209,8 @@ describe("request spend ceiling", () => {
         outputMicroUsdPerMillion: 1_000_000,
       },
       draftModel: {
-        async draft(input) {
+        async draft() {
           calls += 1;
-          cap = input.maxCompletionTokens;
           return {
             model: "controlled-test-model",
             traceId: "test",
@@ -209,31 +232,45 @@ describe("request spend ceiling", () => {
     }, auth(key));
     expect(accepted.status, await accepted.clone().text()).toBe(202);
     await created.pumpTasks();
-    expect(calls).toBe(1);
-    expect(cap).toBe(996);
-    const row = reservation(dbPath);
-    expect(row.state).toBe("settled");
-    expect(row.settled_micro_usd).toBe(1000);
-    expect(row.breach).toBe(0);
-    expect(row.dispatched_at).toBeTruthy();
+    expect(calls).toBe(0);
+    expect(reservation(dbPath)).toMatchObject({ state: "released", dispatched_at: null, settled_micro_usd: null });
   });
 
-  it("does not repair when the complete next-call maximum exceeds the remaining ceiling", async () => {
+  it("does not repair when the repair payload and supported completion maximum exceed the remaining ceiling", async () => {
+    const feedback = "x".repeat(4000);
+    const repairInput = {
+      ...smallProviderInput,
+      repair: {
+        attempt: 1 as const,
+        reason: "plan_invalid" as const,
+        errors: [{ path: "/version", message: feedback }],
+        counterexamples: [],
+      },
+    };
+    const first = callCost(smallProviderInput, DRAFT_MAX_COMPLETION_TOKENS);
+    const repair = callCost(repairInput, DRAFT_MAX_COMPLETION_TOKENS);
+    expect(repair).toBeGreaterThan(first);
+    const ceiling = repair - 1;
+    expect(first).toBeLessThanOrEqual(ceiling);
     let calls = 0;
+    let cap: number | undefined;
     const created = appFor({
       budget: {
-        requestCeilingMicroUsd: 2001,
-        dailyCeilingMicroUsd: 10_000,
-        inputMicroUsdPerMillion: 1_000_000,
-        outputMicroUsdPerMillion: 1_000_000,
+        ...unitBudget,
+        requestCeilingMicroUsd: ceiling,
       },
+      engine: {
+        ...simulatedEngine(),
+        validate: async () => ({ ok: false as const, kind: "invalid" as const, errors: [{ path: "/version", message: feedback }] }),
+      } as CreateAppOptions["engine"],
       draftModel: {
-        async draft() {
+        async draft(input) {
           calls += 1;
+          cap = input.maxCompletionTokens;
           return {
             model: "controlled-test-model",
             traceId: "test",
-            usage: pricedUsage,
+            usage: { promptTokens: 1, completionTokens: 0, cachedTokens: null, reasoningTokens: null, costInUsdTicks: null },
             result: { kind: "draft", plan: { version: 0 }, examples: [], sourceQuotes: [] },
           };
         },
@@ -251,6 +288,91 @@ describe("request spend ceiling", () => {
     }, auth(key))).status).toBe(202);
     await created.pumpTasks();
     expect(calls).toBe(1);
+    expect(cap).toBe(DRAFT_MAX_COMPLETION_TOKENS);
+  });
+
+  it("rejects a reference payload before dispatch when the full prompt cannot fit", async () => {
+    const policy = "界".repeat(10_000);
+    const withReference = {
+      ...smallProviderInput,
+      request: "Check the supplied policy",
+      referenceNames: ["policy.txt"],
+      referenceFiles: [{ name: "policy.txt", text: policy }],
+    };
+    expect(draftCallTokenBound(withReference, DRAFT_MAX_COMPLETION_TOKENS)).toBeGreaterThan(draftCallTokenBound(smallProviderInput, DRAFT_MAX_COMPLETION_TOKENS));
+    expect(Buffer.byteLength(policy, "utf8")).toBe(30_000);
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-full-prompt-"));
+    const dbPath = join(dir, "api.db");
+    let calls = 0;
+    const created = appFor({
+      dbPath,
+      budget: {
+        requestCeilingMicroUsd: 1000,
+        dailyCeilingMicroUsd: 10_000,
+        inputMicroUsdPerMillion: 1_000_000,
+        outputMicroUsdPerMillion: 1_000_000,
+      },
+      draftModel: {
+        async draft() {
+          calls += 1;
+          return { model: "controlled-test-model", traceId: "test", result: { kind: "clarification" as const, questions: ["Which policy?"] } };
+        },
+      },
+    }, dbPath);
+    const key = await issue(created.app);
+    const accepted = await post(created.app, "/v1/tasks", {
+      operation: "draft",
+      input: {
+        request: "Check the supplied policy",
+        outputs: [{ name: "result.json", format: "json" }],
+        references: [{ name: "policy.txt", contentBase64: Buffer.from(policy, "utf8").toString("base64") }],
+        expirySeconds: 3600,
+        maxBudget: "10000",
+      },
+    }, auth(key));
+    expect(accepted.status, await accepted.clone().text()).toBe(202);
+    await created.pumpTasks();
+    expect(calls).toBe(0);
+    expect(reservation(dbPath)).toMatchObject({ state: "released", dispatched_at: null, settled_micro_usd: null });
+  });
+
+  it("does not dispatch a public model that has no documented output bound", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-unbounded-"));
+    const dbPath = join(dir, "api.db");
+    let calls = 0;
+    const created = appFor({
+      dbPath,
+      deployment: { mode: "public", serviceOrigin: ORIGIN },
+      budget: unitBudget,
+      draftModel: {
+        async draft() {
+          calls += 1;
+          return { model: "controlled-test-model", traceId: "test", result: { kind: "clarification" as const, questions: ["Which file?"] } };
+        },
+      },
+    }, dbPath);
+    const key = await issue(created.app);
+    const accepted = await post(created.app, "/v1/tasks", {
+      operation: "draft",
+      input: {
+        request: "Check a policy",
+        outputs: [{ name: "result.json", format: "json" }],
+        expirySeconds: 3600,
+        maxBudget: "10000",
+      },
+    }, auth(key));
+    const view = await accepted.json() as { id: string };
+    expect(accepted.status, JSON.stringify(view)).toBe(202);
+    await created.pumpTasks();
+    expect(calls).toBe(0);
+    const failed = await (await created.app.request(`/v1/tasks/${view.id}`, { headers: { authorization: `Bearer ${key}` } })).json() as {
+      state: string;
+      error: { code: string; message: string };
+    };
+    expect(failed.state).toBe("failed");
+    expect(failed.error.code).toBe("model_unavailable");
+    expect(failed.error.message).toBe("Authoring output is not bounded");
+    expect(reservation(dbPath)).toMatchObject({ state: "released", dispatched_at: null, settled_micro_usd: null });
   });
 
   it("does not dispatch when one prompt token and one completion token exceed the ceiling", async () => {
@@ -355,7 +477,9 @@ describe("request spend ceiling", () => {
   it("asks for a caller completion cap and does not raise it above the supported maximum", async () => {
     const seen: number[] = [];
     const fetch = (async (_url: unknown, init?: RequestInit) => {
-      seen.push((JSON.parse(String(init?.body)) as { max_completion_tokens: number }).max_completion_tokens);
+      const wire = JSON.parse(String(init?.body)) as { max_tokens?: number; max_completion_tokens?: number };
+      expect(wire.max_completion_tokens).toBeUndefined();
+      seen.push(wire.max_tokens ?? -1);
       return new Response(JSON.stringify({
         id: "trace-cap",
         model: "grok-4-spec",
