@@ -5,7 +5,7 @@ export {writeCandidateEvidence, writeChallenge};
 export const CORPUS_ID = 'hosted-qualification-2026-11-16';
 export const SOURCE_BASE = 'c21ec6e';
 export const REVIEWED_MAIN = '6ed9d2d';
-export const CORPUS_DIGEST = '621ac9137f29ee3969150da63430860af0f9c706d3745aafbb1a374f72953391';
+export const CORPUS_DIGEST = 'ab560ef0ab5fe955823c86c4ea3a0a1c7998cf58d3b60f4564cdf42faeac4cc6';
 
 export function buildCorpus() {
   return buildChallenges();
@@ -26,7 +26,10 @@ export function canonicalCorpus(challenges = buildCorpus()) {
     plan: challenge.plan ?? null,
     unsupportedDraft: challenge.unsupportedDraft ?? null,
     clarificationQuestions: challenge.clarificationQuestions ?? [],
+    facets: challenge.facets ?? [],
     capabilityRequests: challenge.capabilityRequests ?? [],
+    boundary: challenge.boundary ?? null,
+    outputs: (challenge.outputs ?? []).map((item) => ({name: item.name, format: item.format})),
     referenceFiles: pack(challenge.referenceFiles),
     candidates: (challenge.candidates ?? []).map((item) => ({
       id: item.id,

@@ -283,3 +283,18 @@ test('the frozen corpus has 40 supported, 10 ambiguous, and 10 unsupported reque
   const digest = createHash('sha256').update(JSON.stringify(corpus.canonicalCorpus(challenges))).digest('hex');
   assert.equal(digest, corpus.CORPUS_DIGEST);
 });
+
+test('rubric facet and boundary mutations change the frozen canonical corpus', async () => {
+  const {corpus} = await load();
+  const original = JSON.stringify(corpus.canonicalCorpus(corpus.buildCorpus()));
+  const mutated = corpus.buildCorpus();
+  const ambiguous = mutated.find((item) => item.classification === 'ambiguous');
+  const unsupported = mutated.find((item) => item.classification === 'unsupported');
+  ambiguous.facets = ['altered rubric'];
+  unsupported.boundary = 'altered boundary';
+  assert.notEqual(JSON.stringify(corpus.canonicalCorpus(mutated)), original);
+  const outputs = corpus.buildCorpus();
+  const supported = outputs.find((item) => item.classification === 'supported');
+  supported.outputs = [{name: 'altered.json', format: 'json'}];
+  assert.notEqual(JSON.stringify(corpus.canonicalCorpus(outputs)), original);
+});
