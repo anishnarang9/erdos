@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "status": "prepared-not-dispatched-not-authorized",
+  "preparedAt": "2026-11-17T18:15:05.879Z",
+  "corpusId": "hosted-qualification-2026-11-16",
+  "corpusDigest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
+  "catalogDigest": "0x3556207ddfecc64fa1a08c300c011e86f77fdb757e07fdf22343d7f9923d6b76",
+  "caseCount": 3,
+  "requestedAdditionalReviews": 3,
+  "authorizedAdditionalReviews": 0,
+  "productionDispatcherEnabled": false,
+  "paidReviewsDuringPreparation": 0,
+  "rows": [
+    {
+      "id": "voyage-fee",
+      "family": "pier-reconciliation",
+      "file": "voyage-fee.json",
+      "inputHash": "0x8ba3c64e1de0fc2b0ad277931ef6dee07f70d575fa8dd56a0fe223d238ce24e2",
+      "canonicalInputBytes": 1497,
+      "ruleCount": 3,
+      "positiveCandidate": "valid",
+      "negativeCandidate": "wrong-fee",
+      "expectedBotDecision": "pass"
+    },
+    {
+      "id": "cover-1",
+      "family": "studio-budgets",
+      "file": "cover-1.json",
+      "inputHash": "0xc9b32c171ba5c97f81e1a61e79889be687187589dbd665ae8c66bab248e457e2",
+      "canonicalInputBytes": 1325,
+      "ruleCount": 3,
+      "positiveCandidate": "valid-two-lines",
+      "negativeCandidate": "over-total",
+      "expectedBotDecision": "pass"
+    },
+    {
+      "id": "mass-1",
+      "family": "dilution-quantity",
+      "file": "mass-1.json",
+      "inputHash": "0x42513997ebc4e32ec45674c73c6d26424ea720b5a82e12e9630a89461a119ba3",
+      "canonicalInputBytes": 1050,
+      "ruleCount": 1,
+      "positiveCandidate": "valid-six",
+      "negativeCandidate": "wrong-mass",
+      "expectedBotDecision": "pass"
+    }
+  ],
+  "limits": [
+    "Operator manifest only. Do not send expected decisions or oracle candidates to Bot.",
+    "Each eventual trigger needs a fresh owned job/review and unexpired ticket. Do not create or dispatch them before spending approval.",
+    "This three-case cost probe is separate from the required 180 direct-API authoring trials."
+  ]
+}

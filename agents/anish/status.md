@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-17 13:21 -05:00 — Anish — Prepare an unpaid three-case Bot cost probe
+
+- Branch `codex/hosted-backend`, draft PR #8. Prepared fee, spending-limit and quantity cases from the unchanged frozen corpus. All nineteen native candidate/oracle comparisons agree on deployed image `4a69ca09…`, source `9dc289d`. The isolated container uses UID 1000, no network and no production state or credentials. No jobs, tickets or paid calls were created. See the [proposed probe](../../docs/grok-bot/follow-up-cost-probe.md) and [native preflight](reports/hosted-bot-follow-up-preflight-2026-11-17.json).
+- Static verification reproduces all three canonical inputs, revision/input hashes and selected example labels. The fetched public xAI contract still lacks a complete-input token or dollar bound. Bot chooses its model and may finish beyond the account cap. Personal rules do not provide account isolation. Enterprise inference hooks require separate access and do not establish a price ceiling. No account upgrade or app disconnection occurred.
+- The original setup-plus-one-review approval is consumed. Three additional reviews are proposed, with zero authorized. Estimated added cost is $0.24–$0.27, based only on rounded pilot usage. The proposed serial probe stops on uncertainty, invalid results, unavailable usage evidence or a shown charge above ten cents. It retains the existing $1 monthly cap and disabled auto top-up. It does not qualify the five-cent target, enable public dispatch or authorize mass testing.
+- The browser CSV attempt stopped when the user changed the active window. No CSV was downloaded. Runtime conversation export and exact billing remain open. Handle operator work directly without further manual helpers. The scoped review found no material issue. JSON, local links, input hashes and structural style checks pass. Next: commit/push the prepared artifacts, then request the additional paid-review scope. Keep the goal active and PR draft.
+
 ## 2026-11-17 12:58 -05:00 — Anish — Deploy and recover the review expiry fix
 
 - Source `9dc289d` is pushed and commerce CI `44118302280` passes. Native image `4a69ca09…` is deployed. All 62 runtime file hashes pass. Only the API bundle and source pin differ from `fb45033`. The native engine stays `be5c06f9…`. API environment, Caddy container and disabled general dispatch remain unchanged. A protected 41-file snapshot precedes promotion. Cached prewarm passes both verdicts in one second.

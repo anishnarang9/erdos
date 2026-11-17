@@ -414,7 +414,30 @@
       80000,
       90000
     ],
-    "targetRecurringMicroUsd": 50000
+    "targetRecurringMicroUsd": 50000,
+    "followUpCostProbe": {
+      "status": "prepared-native-checked-not-authorized",
+      "document": "../../../docs/grok-bot/follow-up-cost-probe.md",
+      "manifest": "../../../docs/grok-bot/follow-up-inputs/manifest.json",
+      "nativeReport": "hosted-bot-follow-up-preflight-2026-11-17.json",
+      "caseIds": [
+        "voyage-fee",
+        "cover-1",
+        "mass-1"
+      ],
+      "nativeOracleComparisons": 19,
+      "nativeOracleDisagreements": 0,
+      "requestedAdditionalReviews": 3,
+      "authorizedAdditionalReviews": 0,
+      "estimatedAddedMicroUsd": [
+        240000,
+        270000
+      ],
+      "estimateOnly": true,
+      "existingMonthlyAccountCapMicroUsd": 1000000,
+      "possibleInFlightCapOverrun": true,
+      "productionDispatcherEnabled": false
+    }
   },
   "botRuntimeIntegration": {
     "requiredByUser": true,
