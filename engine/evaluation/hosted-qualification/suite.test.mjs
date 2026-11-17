@@ -213,6 +213,7 @@ test('supported candidates match the independent oracle', async () => {
     'berth-fit-1', 'berth-fee-1', 'berth-open-1', 'berth-swap-1',
     'route-1', 'route-open-1', 'route-fixed-1', 'route-penalty-1',
     'mass-1', 'yield-1', 'mixture-1', 'dilution-1',
+    'seal-1', 'crate-1', 'transfer-1', 'dual-seal-1',
   ]);
   const directory = await mkdtemp(join(tmpdir(), 'ubc26-corpus-'));
   try {
@@ -228,6 +229,7 @@ test('supported candidates match the independent oracle', async () => {
       }
       const written = await corpus.writeChallenge(challenge, directory);
       for (const candidate of written.candidates) {
+        await corpus.writeCandidateEvidence(challenge, candidate, join(directory, candidate.path), context);
         const actual = await oracle.evaluateCandidate(challenge, join(directory, candidate.path), {
           referenceDirectory: join(directory, written.referencePath),
           contextHex: context,

@@ -123,6 +123,7 @@ export async function writeCandidateEvidence(challenge, candidate, candidateDire
   if (variant === 'wrong-custodian') payload.custodian = 'unapproved-custodian';
   if (variant === 'not-released') payload.released = false;
   if (variant === 'low-quantity') payload.quantity = '0';
+  if (variant === 'wrong-crate') payload.crateId = 'unlisted-crate';
   if (challenge.spec.secondArtifactFile) {
     const secondName = challenge.spec.secondArtifactFile;
     const secondBytes = variant === 'swapped-second' ? Buffer.from('other-tag') : candidate.deliveryFiles[secondName];

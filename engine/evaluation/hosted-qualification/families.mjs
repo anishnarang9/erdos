@@ -1,4 +1,5 @@
 import {policyChallenges} from './policy-challenges.mjs';
+import {custodyChallenges} from './custody-challenges.mjs';
 import {quantityChallenges} from './quantity-challenges.mjs';
 import {routeChallenges} from './route-challenges.mjs';
 import {
@@ -649,5 +650,6 @@ export function buildChallenges() {
     ...policyChallenges(),
     ...routeChallenges(),
     ...quantityChallenges(),
+    ...custodyChallenges(),
   ];
 }
