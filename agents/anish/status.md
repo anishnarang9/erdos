@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-17 00:24 -05:00 — Anish — Integrate readiness and immutable image startup pins
+
+- Integrated A's readiness checkpoint as `6399fb1` and report as `eff11ff`. Added the real Grok adapter's configured id advertisement. The provenance regression now rejects an actually unreviewed reasoning model. API typecheck and 36 focused model/readiness/startup checks pass. Production readiness still needs the worker's follow-up and a fresh image.
+- Added an immutable-image startup reader. It supplies source, engine, compiler-wrapper, frontend and guest-builder pins before server import. It rejects conflicting overrides, linked/oversized/malformed pin files and simulated engine overrides. All six state/startup Node checks pass. No new Linux image includes this code yet.
+- Integrated B's negative legacy bill guard as `232e58f` and authoring review as `4dd668f`. All 36 qualification Node checks pass. Recorded the precise zero-prompt resolution without treating legitimate non-reasoning usage as an unknown bill. B reported no other concrete authoring issue.
+- A now owns bounded readiness probes, the confirmed read-only SQLite probe defect, actual compiler-wrapper/prewarm identity checks, then remaining discovery/attempt/metrics work. The exact reviewed live adapter uses `max_completion_tokens`; compatibility integration is pending that follow-up. Public host, 180 real trials and fresh funded acceptance remain open. No paid model or chain action occurred.
+
 ## 2026-11-17 00:18 -05:00 — Anish — Reject impossible zero-prompt tariff settlement
 
 - The reviewer reproduced a tariff of zero for a provider reply reporting zero prompt/completion tokens without an actual bill. Every service request includes a nonempty system prompt and schema. Such counts cannot price that call. Tariff fallback now stays uncertain. An explicit known provider bill of zero remains authoritative.

@@ -20,7 +20,7 @@ From a clean committed checkout:
 deploy/build-image.sh ubc26-hosted:REVIEWED_SHA
 ```
 
-The script exports committed release paths with `git archive`. Ignored files and credentials cannot enter that context. The image builds the locked native engine with Rust 1.98.1 and bundles the API with pnpm 10.34.9 and esbuild 0.27.7. Base images use immutable digests. `/app/pins/` records the source revision, native executable hash, engine catalog and JavaScript builder. The native executable hash is an artifact identity; it is not a cross-platform reproducibility claim.
+The script exports committed release paths with `git archive`. Ignored files and credentials cannot enter that context. The image builds the locked native engine with Rust 1.98.1 and bundles the API with pnpm 10.34.9 and esbuild 0.27.7. Base images use immutable digests. `/app/pins/` records the source revision, native executable and compiler-wrapper hashes, guest-builder/frontend references, engine catalog and JavaScript builder. The native executable hash is an artifact identity; it is not a cross-platform reproducibility claim.
 
 Copy `deploy/host.env.example` and `deploy/api.env.example` to protected administrative files outside the checkout. Populate only the reviewed configuration names. `api.env` holds the model credential and service configuration. It must not hold a wallet. Keep expensive dispatch disabled until pricing, daily/request ceilings and live authority are approved. The incomplete example fails closed; it is not a ready production configuration.
 
@@ -68,3 +68,6 @@ For rollback, stop the API and preserve the current volume. Restore the pre-upgr
 - Hard disk quota, production readiness, issued public TLS certificate and external host checks: pending.
 
 Public deployment requires the host/account, approved resource budget and hostname. Real authoring also requires a securely configured Grok API credential and separate service/benchmark inference ceilings. Fresh Arc/Circle spending requires its own concrete preview and current authority.
+
+
+The new image startup reads those immutable pin files before importing the API server. It supplies native engine, compiler wrapper, source, guest-builder and frontend identities. Conflicting operator overrides, malformed pin files and linked pin files reject startup. The reader never copies or prints service credentials. Runtime readiness independently compares actual executable bytes and the completed prewarm record. This startup integration still needs the next pinned Linux image and readiness check.

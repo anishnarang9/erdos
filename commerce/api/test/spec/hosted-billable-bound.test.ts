@@ -11,6 +11,7 @@ it("advertises the visible cap only for the reviewed exact non-reasoning model",
  let sent:any;const model=grokDraftModel({apiKey:'synthetic-only',model:'grok-4.20-0309-non-reasoning',fetch:async(_url,init)=>{
   sent=JSON.parse(String(init?.body));return new Response(JSON.stringify({id:'trace-no-reasoning',model:'grok-4.20-0309-non-reasoning',choices:[{finish_reason:'stop',message:{content:JSON.stringify({kind:'clarification',questions:['Which policy?']})}}]}));
  }});
+ expect((model as unknown as {id?:string}).id).toBe('grok-4.20-0309-non-reasoning');
  expect(model.outputTokenBound).toEqual({parameter:'max_completion_tokens',maxTokens:8192});
  await model.draft({request:'Check a policy',outputs:[],referenceNames:[],clarifications:[],schema:{}});
  expect(sent.max_completion_tokens).toBe(8192);expect(sent.max_tokens).toBeUndefined();expect(sent.n).toBe(1);expect(sent.search_parameters).toEqual({mode:'off'});

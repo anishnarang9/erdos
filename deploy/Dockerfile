@@ -48,12 +48,15 @@ COPY commerce/api/engine-contract /app/commerce/api/engine-contract
 COPY commerce/sdk/src/chain/arc /app/commerce/sdk/src/chain/arc
 COPY contracts/deployments /app/contracts/deployments
 COPY deploy/state.mjs /app/deploy/state.mjs
+COPY deploy/start-api.mjs /app/deploy/start-api.mjs
 COPY --chmod=0555 deploy/warm-compiler.sh /app/deploy/warm-compiler.sh
 COPY engine/fixtures/expense-report-plan.json /app/deploy/smoke-plan.json
 COPY --chmod=0555 deploy/docker-compile /opt/ubc26/docker-bin/docker
 RUN ldconfig && test -n "$SOURCE_SHA" && \
     printf '%s\n' "$SOURCE_SHA" > /app/pins/source-sha && \
     printf '%s\n' 'docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e' > /app/pins/dockerfile-frontend && \
+    printf '%s\n' 'risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb' > /app/pins/guest-builder-image && \
+    sha256sum /opt/ubc26/docker-bin/docker > /app/pins/compiler-wrapper.sha256 && \
     mkdir -p /var/lib/ubc26/packages /var/lib/ubc26/work /var/lib/ubc26/cache /var/lib/ubc26/tmp /var/lib/ubc26/docker && \
     chown -R node:node /var/lib/ubc26 && \
     node --version && /usr/local/bin/ubc26-engine capabilities > /dev/null && docker buildx version
@@ -68,4 +71,4 @@ USER node:node
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD node -e 'fetch("http://127.0.0.1:8080/healthz",{signal:AbortSignal.timeout(4000)}).then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))'
-CMD ["node","/app/commerce/api/src/server.mjs"]
+CMD ["node","/app/deploy/start-api.mjs"]

@@ -88,6 +88,8 @@ export interface OutputTokenBound {
 }
 
 export interface DraftModel {
+  /** Configured adapter model identity for readiness. This does not itself establish a live spend bound. */
+  id?: string;
   draft(input: DraftModelInput): Promise<DraftModelResult>;
   /**
    * Set only when the configured cap bounds all billable generated tokens. A visible-output cap alone is insufficient.
@@ -452,6 +454,7 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
   const boundedOutput = opts.model === "grok-4.20-0309-non-reasoning";
 
   return {
+    id: scrub(opts.model),
     ...(boundedOutput ? { outputTokenBound: { parameter: "max_completion_tokens" as const, maxTokens: maxCompletionTokens } } : {}),
     ...(boundedOutput ? { providerCostBound: { maxPromptTokens: 1_000_000, inputMicroUsdPerMillion: 2_500_000, outputMicroUsdPerMillion: 5_000_000 } } : {}),
     async draft(input) {
@@ -573,6 +576,7 @@ interface Recording {
 /** Calls `inner` and writes `<dir>/<key>.json` = { input, result, model, traceId } for each call. */
 export function recordingDraftModel(inner: DraftModel, dir: string): DraftModel {
   return {
+    ...(inner.id ? { id: inner.id } : {}),
     ...(inner.outputTokenBound ? { outputTokenBound: inner.outputTokenBound } : {}),
     ...(inner.providerCostBound ? { providerCostBound: inner.providerCostBound } : {}),
     async draft(input) {
