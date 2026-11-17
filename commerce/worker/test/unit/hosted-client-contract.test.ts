@@ -29,3 +29,27 @@ it("authenticates independent SDK clients and enforces wallet ownership and imme
   const referenced=await cb.importJob(revisionWithReference,"import-reference",[reference]) as {jobId:string};
   expect(await cb.references(referenced.jobId)).toMatchObject({referenceDigest:revisionWithReference.referenceDigest,files:[reference]});
 });
+
+it("publishes solver progress through the actual API without changing the buyer job", async()=>{
+  const origin="http://localhost", instance=createApp({dbPath:":memory:",buyerToken:"local-compatible-buyer-token",deployment:{mode:"local",serviceOrigin:origin}});opened.push(instance);
+  const transport=((input:string|URL|Request,init?:RequestInit)=>instance.app.request(String(input),init)) as typeof fetch;
+  const publicClient=hostedClient({baseUrl:origin,fetch:transport});
+  const buyer=privateKeyToAccount(`0x${"33".repeat(32)}`),solver=privateKeyToAccount(`0x${"44".repeat(32)}`);
+  const buyerKey=await publicClient.authenticate(buyer.address,message=>buyer.signMessage({message}),"attempt-buyer");
+  const solverKey=await publicClient.authenticate(solver.address,message=>solver.signMessage({message}),"attempt-solver");
+  const buyerClient=hostedClient({baseUrl:origin,apiKey:buyerKey.key,fetch:transport}),solverClient=hostedClient({baseUrl:origin,apiKey:solverKey.key,fetch:transport});
+  const revision={plan:{version:1},referenceDigest:referenceDigestOf([]),outputs:[{name:"result.json",format:"json"}],expirySeconds:3600,maxBudget:"10000"};
+  const job=await buyerClient.importJob(revision,"attempt-job") as {jobId:string};
+  const before=await publicClient.job(job.jobId), attemptId="123e4567-e89b-42d3-a456-426614174001",reportedAt=new Date().toISOString();
+  const input={version:1 as const,attemptId,events:[{cursor:1,reportedAt,phase:"preparing" as const}]};
+  const first=await solverClient.publishAttempt(job.jobId,input,"attempt-create");
+  expect(first).toMatchObject({attemptId,solver:solver.address.toLowerCase(),accepted:1,progress:"solver-reported",confirmedPayment:false,confirmedWinner:null,confirmedRefund:false,chain:null});
+  expect(await solverClient.publishAttempt(job.jobId,input,"attempt-create")).toEqual(first);
+  await expect(buyerClient.publishAttempt(job.jobId,input,"wrong-solver")).rejects.toMatchObject({status:403,code:"forbidden"});
+  const next={...input,events:[...input.events,{cursor:2,reportedAt,phase:"proving" as const}]};
+  expect(await solverClient.publishAttempt(job.jobId,next,"attempt-next")).toMatchObject({accepted:1,highWaterCursor:2});
+  expect(await publicClient.attempts(job.jobId,{limit:1})).toMatchObject({attempts:[{attemptId,solver:solver.address.toLowerCase(),highWaterCursor:2}],nextCursor:null});
+  const detail=await publicClient.attempt(job.jobId,attemptId,{afterCursor:1});
+  expect(detail).toMatchObject({nextCursor:2,resumeCursor:null,events:[{cursor:2,phase:"proving"}]});
+  expect(await publicClient.job(job.jobId)).toEqual(before);
+});

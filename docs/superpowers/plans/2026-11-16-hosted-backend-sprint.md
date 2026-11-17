@@ -306,7 +306,7 @@ The runner proves and settles files. It does not claim to solve arbitrary work a
 
 - [ ] Publish authentication, ownership, tasks, authoring, approval, compilation, open-bounty funding, discovery, and recovery contracts.
 - [ ] Publish representative success, pending, rejected, unsupported, expired, and error responses.
-- [ ] Expose per-job and per-solver attempt identifiers. A failed attempt does not mark the whole bounty rejected.
+- [x] Expose per-job and per-solver attempt identifiers. A failed attempt does not mark the whole bounty rejected.
 - [x] Reuse sanitized telemetry where useful. Prevent secret, plaintext, password, and filesystem-path disclosure.
 - [x] Use one authoritative event order or explicit per-attempt cursors. Do not collide independent solver sequence numbers.
 - [x] Define confirmed chain state as authoritative for winner, payment, expiry, and refund.

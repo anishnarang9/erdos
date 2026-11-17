@@ -10,7 +10,7 @@ import { loadOperatorKeystore } from "./operator-keystore.ts";
 import { createSprintEngineRunner, sprintEngineWrapperDigest } from "./sprint-runner.ts";
 import { object, privateDirectory, readOperatorJson, readSafeFile, requireSprint } from "./sprint-authorization.ts";
 import { assertInstalledRelease, workerRepositoryRoot } from "./release-integrity.ts";
-import { attemptStatus } from "./open-claim/attempt-status.ts";
+import { attemptStatus, prepareHostedAttempt } from "./open-claim/attempt-status.ts";
 import { openClaimOperator } from "./open-claim/operator.ts";
 import { prepareOpenClaimJobInput } from "./open-claim/job-input-cli.ts";
 
@@ -35,6 +35,9 @@ const commandFlags: Record<string, readonly string[]> = {
   "funding-link": [...common, "job", "input", "idempotency"],
   check: ["engine-config", "plan", "deliverables", "reference", "evidence", "job-context"],
   attempt: ["state", "after-cursor"],
+  "publish-attempt": [...common, "job", "state", "after-cursor", "idempotency"],
+  attempts: ["api", "job", "cursor", "limit"],
+  "hosted-attempt": ["api", "job", "attempt", "after-cursor"],
   "job-input": ["rpc-url", "manifest", "job-id", "solver", "out"],
   "wrapper-digest": [],
   "verify-install": ["source-commit", "release-manifest-sha256"],
@@ -158,6 +161,17 @@ export async function hostedCli(args: string[]): Promise<unknown> {
     case "job": return client.job(need("job"));
     case "discover": return client.openJobs({ ...(f.cursor ? { cursor: f.cursor } : {}), ...(f.limit ? { limit: Number(f.limit) } : {}) });
     case "open-job": return client.openJob(need("job"));
+    case "attempts": return client.attempts(need("job"), { ...(f.cursor ? { cursor: f.cursor } : {}), ...(f.limit ? { limit: Number(f.limit) } : {}) });
+    case "hosted-attempt": return client.attempt(need("job"), need("attempt"), { ...(f["after-cursor"] ? { afterCursor: Number(f["after-cursor"]) } : {}) });
+    case "publish-attempt": {
+      need("key-file");
+      const prepared = prepareHostedAttempt(readOperatorJson(resolve(need("state"))), Number(f["after-cursor"] ?? 0));
+      const credential = await client.currentKey();
+      requireSprint(credential.wallet.toLowerCase() === prepared.solver);
+      const published = await client.publishAttempt(need("job"), prepared.input, need("idempotency"));
+      return { ...published, submittedThroughCursor: prepared.submittedThroughCursor,
+        resumeLocalCursor: prepared.resumeLocalCursor, localHighWaterCursor: prepared.localHighWaterCursor };
+    }
     case "check-examples": {
       need("key-file"); const input = object(readOperatorJson(resolve(need("input"))));
       requireSprint(Object.keys(input).length === 1 && Array.isArray(input.examples));

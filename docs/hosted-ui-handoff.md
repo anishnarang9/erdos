@@ -1,6 +1,6 @@
 # Hosted backend handoff for Neil
 
-Working integration checkpoint: [`9eb89f7`](https://github.com/anishnarang9/UBC-26/commit/9eb89f7), draft PR #8. This is not the final release SHA. Public origin, 180 real authoring trials, hosted attempts, production readiness and live acceptance remain pending. Update this document at the final reviewed release.
+Working integration checkpoint: [`9eb89f7`](https://github.com/anishnarang9/UBC-26/commit/9eb89f7), draft PR #8. This is not the final release SHA. Public origin, 180 real authoring trials, production readiness and live acceptance remain pending. Hosted attempt routes and client integration now pass controlled checks. Update this document at the final reviewed release.
 
 No UI code changed in this sprint. Use the wallet-owned [API contract](hosted-api-contract.md), [installed client](hosted-client.md) and [runtime runbook](hosted-runtime.md). Keep this open-bounty flow separate from the historical selected-provider UI.
 
@@ -64,6 +64,6 @@ Package/reference reads are public protocol inputs and do not need a buyer key. 
 
 ## Solver attempts and remaining integration gates
 
-The installed runner emits a sanitized UUID `attemptId` and per-attempt `cursor`. Merge events by `(attemptId,cursor)`. Never combine independent solvers' local sequence numbers as one global order. The local command is documented in the client guide. Hosted attempt publication/query remains pending; browser code must not read operator state files or filesystem paths.
+The installed runner emits a sanitized UUID `attemptId` and per-attempt `cursor`. Merge events by `(attemptId,cursor)`. Never combine independent solvers' local sequence numbers as one global order. The local command is documented in the client guide. Hosted publication uses `POST /v1/jobs/:id/attempts`; public list/detail reads use that path and `/:attemptId`. See the [attempt contract](hosted-api-contract.md#hosted-solver-attempts). The solver key owns its attempt. Browser code must not read operator state files or filesystem paths. Detail `nextCursor` is the high-water mark; follow non-null `resumeCursor` to avoid skipping history. All published phases remain solver-reported and carry no settlement confirmation.
 
-Before the final UI handoff, publish the final origin/SHA, real authoring qualification, paginated expiry-safe discovery, hosted attempt endpoints, representative confirmed expiry/refund snapshots, and external acceptance evidence. Demo signers and presenter-only routes remain absent from the public API. No frontend merge or deployment is part of this handoff.
+Before the final UI handoff, publish the final origin/SHA, real authoring qualification, paginated expiry-safe discovery, representative confirmed expiry/refund snapshots, and external acceptance evidence. Demo signers and presenter-only routes remain absent from the public API. No frontend merge or deployment is part of this handoff.

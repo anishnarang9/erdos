@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 01:12 -05:00 — Anish — Integrate hosted solver progress end to end
+
+- Integrated Worker A's attempt contract/routes/report as `e97e4c4`, `ddb1742` and `133cc7d`. Added bounded SDK publication/list/history methods and explicit CLI publication. The CLI checks that the API key wallet matches the local solver before posting. Only allowlisted progress leaves the private state file. No keys, paths, plaintext, error text or local payment claims enter the request.
+- Regressions failed before the new client/CLI methods. All API 898, SDK 365 plus 13 wire, and worker 945 checks pass. All three typechecks pass. An actual SDK/API test covers a solver on another buyer's job, ownership rejection, exact replay, append, public reads and unchanged job state. SDK history tests distinguish the event high-water mark from the resume cursor and test the maximum uint256 chain job ID.
+- Updated route/client/UI contracts. Published phases remain solver reports; confirmed chain snapshots define settlement. Worker A continues queue/auth/metrics controls. Worker B continues paginated discovery and confirmed-time expiry. Public hosting, paid authoring qualification and fresh live acceptance remain open. No paid model call or chain action occurred.
+
 ## 2026-11-17 00:58 -05:00 — Anish — Verify proxy readiness transitions and private request logs
 
 - The controlled pinned-Caddy test passes 503 → 200 → 503 as readiness changes. It uses an isolated internal Docker network and HTTP only. Public TLS/hosting remain unverified. Added a reusable `deploy/check-proxy.mjs` command and [the report](reports/hosted-proxy-readiness-2026-11-17.json).

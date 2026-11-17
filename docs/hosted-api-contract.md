@@ -25,7 +25,7 @@ Worker A must document any necessary runtime contract correction before SDK inte
 
 The runner persists `attemptId` as a UUID for each attempt. Sanitized status contains `attemptId`, `job:{chainId,core,adapter,jobId}`, `solver`, `phase`, `paymentConfirmed`, `nextCursor`, and `events:[{attemptId,cursor,at,phase}]`. Optional fields are `winner`, `claimTx` and `releaseTx`. Cursors are local to an attempt. Compare `(attemptId,cursor)` pairs. Never merge two solvers' local sequence numbers into one global sequence.
 
-A rejected or lost attempt changes only that attempt. Confirmed chain state defines the bounty's winner, payout, expiry and refund. Local progress does not establish chain acceptance. This source checkpoint exposes local runner status. A hosted publication/query route remains pending service integration.
+A rejected or lost attempt changes only that attempt. Confirmed chain state defines the bounty's winner, payout, expiry and refund. Local progress does not establish chain acceptance. This source checkpoint exposes local runner status. Hosted publication and public reads use the routes below.
 
 ## Authored job submission and references
 
@@ -61,3 +61,17 @@ The task result discriminant is `kind`: `draft`, `clarification` or `unsupported
 All model terminal classes retain `qualification:{model,promptVersion,catalogVersion,latencyMs,repairCount,traceId,traceIds,usage}` and separate `attempts`. Failed model replies put available metadata in sanitized error `details`. Unknown identity/usage remains null. A rejected repair uses `kind:"model_failed"` and its reason. Available billed ticks participate in accounting. Unknown bills remain uncertain. See [spending bounds](hosted-model-costs.md).
 
 One 120-second controller covers initial inference, validation, examples and repair. Service drain cancels active controllers and checker groups before closing durable state. A client timeout does not authorize a new paid request. Poll the original task and reconcile uncertainty.
+
+## Hosted solver attempts
+
+A live wallet API key can submit `POST /v1/jobs/:id/attempts` with an idempotency key. The key determines the solver; the solver need not own the buyer job. The request is `{version:1,attemptId,events:[{cursor,reportedAt,phase}],chain?,reportedClaimTx?,reportedReleaseTx?,reportedWinner?}`. `attemptId` is a UUID v4. Times are canonical UTC ISO strings with milliseconds. They must be at least 2024-01-01 and no more than five minutes ahead of server receipt. Unknown fields reject.
+
+First publication needs events starting at cursor 1. Later batches may repeat an identical stored prefix and append consecutive events. A conflicting repeat or gap rejects. Each batch permits 20 events; each attempt permits 200. An empty later batch can fill or repeat optional metadata. A different wallet cannot update the same attempt. Supplied chain bindings must match the linked open-claim job. Existing bindings and reported transaction hashes cannot be replaced.
+
+Allowed phases are `preparing`, `proving`, `proved`, `rejected`, `claim_broadcasting`, `claim_sent`, `claimed`, `lost`, `release_broadcasting`, `release_sent`, `released`, and `abandoned`. These are solver reports. They do not establish proof validity or settlement.
+
+Publication returns the summary plus `accepted` (new event count) and the acknowledged request events, each with `attemptId` and server `receivedAt`. First creation returns 201; append returns 200. Exact idempotent replay returns the stored response. Summary fields include `attemptId`, API `jobId`, `solver`, `phase`, `highWaterCursor`, `eventCount`, first `receivedAt`, nullable `chain` and optional reported transaction/winner fields. Every summary has `progress:"solver-reported"`, `confirmedPayment:false`, `confirmedWinner:null`, and `confirmedRefund:false`. These fixed fields mean this endpoint supplies no chain confirmation. Read the confirmed open-job snapshot for actual settlement.
+
+Public `GET /v1/jobs/:id/attempts?limit=20&cursor=OPAQUE` returns `{attempts,nextCursor}`. Limit is 1–50. The opaque cursor follows first receipt time and UUID. It differs from an attempt event cursor. Public `GET /v1/jobs/:id/attempts/:attemptId?afterCursor=0` returns a summary, up to 50 consecutive events, `nextCursor` and `resumeCursor`. Here `nextCursor` is the current event high-water mark. **Follow `resumeCursor` while it is non-null** to read an unfinished history page; using the high-water mark would skip unseen events. Once caught up, retain the last observed event cursor for polling.
+
+SDK methods are `publishAttempt`, `attempts` and `attempt`. Publication validates the outgoing allowlist before transport. Read decoders check job/attempt bindings, bounded pages, cursor continuity and the fixed confirmation boundary. Public reads send no bearer credential. Mutations have no automatic retry.

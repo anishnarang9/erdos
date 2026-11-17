@@ -124,7 +124,7 @@ ubc26 operator recover --config "$WORK/operator.json"
 
 `prepare` generates a local proof for the actual funded context. `run` resumes the protected claim/release flow. A losing solver releases no key. Recovery reads confirmed public chain data and checks both SDK and engine output. Use `operator refund` with the approved buyer configuration after confirmed expiry. `operator circle` uses the existing separate paid-compilation authorization and exact-replay journal.
 
-Each new solver attempt receives a persistent UUID. `ubc26 attempt --state "$WORK/attempt/state.json" --after-cursor 0` returns a sanitized local status. Its events use `(attemptId,cursor)` pairs. Resume with the last cursor for that attempt. The view omits release keys, local paths and free-form details. A rejected attempt does not reject the entire bounty. Confirmed chain state remains authoritative for winner and payment. Hosted attempt publication remains a separate integration gate.
+Each new solver attempt receives a persistent UUID. `ubc26 attempt --state "$WORK/attempt/state.json" --after-cursor 0` returns a sanitized local status. Its events use `(attemptId,cursor)` pairs. Resume with the last cursor for that attempt. The view omits release keys, local paths and free-form details. A rejected attempt does not reject the entire bounty. Confirmed chain state remains authoritative for winner and payment. Publish progress only through the explicit command below.
 
 Preserve the private state directory, nonce journals and transaction hashes after interruption. Reconcile pending or uncertain sends before retrying. The runner never sends the real release key through simulation or gas estimation. A failed attempt does not reject the entire bounty.
 
@@ -164,3 +164,18 @@ ubc26 approve --api "$API" --key-file "$KEY_FILE" --job "$JOB" \
 ```
 
 Use only an actual successful `exampleCheckId` for that owner, draft and revision. Omit `--example-check` to select the immutable initial check. Public authored approval still requires the exact coverage digest. A later witness record cannot replace the original task response or qualify different rules. Signature rejection is not verdict 0. No command here authorizes funding or signing.
+
+## Publish and read solver progress
+
+Use an API key issued to the local attempt's solver wallet. The CLI checks that wallet before any upload. It reads the protected state file, selects only public progress fields, and submits one batch of at most 20 events. It omits release keys, signing state, private paths, plaintext and free-form details. Local history over 200 events rejects before publication. The command does not sign, prove or send a chain transaction.
+
+```sh
+ubc26 publish-attempt --api "$API" --key-file "$SOLVER_KEY_FILE" --job "$JOB" \
+  --state "$WORK/attempt/state.json" --after-cursor 0 --idempotency attempt-batch-001
+ubc26 attempts --api "$API" --job "$JOB" --limit 20
+ubc26 hosted-attempt --api "$API" --job "$JOB" --attempt "$ATTEMPT_ID" --after-cursor 0
+```
+
+If `resumeLocalCursor` is non-null, submit the next explicit batch with that `--after-cursor` and a new idempotency key. Preserve the exact cursor and request identity after uncertainty. Reusing the original key requires the same request body; a changed local file can change that body. Public history reads return up to 50 events. Follow their `resumeCursor` while non-null. Their `nextCursor` is the high-water mark, not an unfinished page's resume position.
+
+Published phases and transaction hashes remain solver reports. They cannot confirm a winner, payment or refund. Use the confirmed open-job snapshot for those claims. See the [attempt route contract](hosted-api-contract.md#hosted-solver-attempts).
