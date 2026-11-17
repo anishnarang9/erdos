@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp, readFile, rm, writeFile} from 'node:fs/promises';
+import {mkdir, mkdtemp, readFile, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 
@@ -11,6 +11,89 @@ async function load() {
   const oracle = await import('./oracle.mjs');
   return {corpus, oracle};
 }
+
+function pierChallenge() {
+  const text = 'Pier Saturday closed.\n';
+  const field = (name, type) => ({name, type});
+  const rows = (name, fields) => ({name, parser: 'json/v1', collections: [{name: 'rows', fields}]});
+  return {
+    classification: 'supported',
+    spec: {kind: 'drawer-exact', text},
+    schema: {
+      deliverables: [
+        rows('drawers.json', [field('drawerId', 'string'), field('countedCents', 'i64')]),
+        {name: 'closeout.txt', parser: 'text/v1'},
+      ],
+      references: [rows('floats.json', [field('drawerId', 'string'), field('expectedCents', 'i64')])],
+      evidence: [],
+    },
+  };
+}
+
+const pierRows = '{"rows":[{"drawerId":"drawer-a","countedCents":"400"},{"drawerId":"drawer-b","countedCents":"250"},{"drawerId":"drawer-c","countedCents":"125"}]}';
+const pierFloats = '{"rows":[{"drawerId":"drawer-a","expectedCents":"400"},{"drawerId":"drawer-b","expectedCents":"250"},{"drawerId":"drawer-c","expectedCents":"125"}]}';
+const pierCloseout = 'Pier Saturday closed.\n';
+
+async function evaluatePier(oracle, drawers) {
+  const directory = await mkdtemp(join(tmpdir(), 'ubc26-proto-'));
+  const candidate = join(directory, 'candidate');
+  const reference = join(directory, 'reference');
+  await mkdir(join(candidate, 'delivery'), {recursive: true});
+  await mkdir(reference, {recursive: true});
+  await writeFile(join(candidate, 'delivery', 'drawers.json'), drawers);
+  await writeFile(join(candidate, 'delivery', 'closeout.txt'), pierCloseout);
+  await writeFile(join(reference, 'floats.json'), pierFloats);
+  try {
+    return await oracle.evaluateCandidate(pierChallenge(), candidate, {referenceDirectory: reference, contextHex: context});
+  } finally {
+    await rm(directory, {recursive: true, force: true});
+  }
+}
+
+test('duplicate __proto__ keys reject while a duplicate drawer id fails', async () => {
+  const oracle = await import('./oracle.mjs');
+  const duplicated = pierRows.replace(/}$/, ',"__proto__":{},"__proto__":{}}');
+  const actual = await evaluatePier(oracle, duplicated);
+  assert.equal(actual.status, 'reject');
+  assert.equal(actual.verdict, null);
+  assert.deepEqual(actual.violatedRequirements, ['duplicate-key']);
+
+  const escaped = pierRows.replace(/}$/, ',"__pr\\u006fto__":{},"__proto__":{}}');
+  const escapedResult = await evaluatePier(oracle, escaped);
+  assert.equal(escapedResult.status, 'reject');
+  assert.deepEqual(escapedResult.violatedRequirements, ['duplicate-key']);
+
+  const once = await evaluatePier(oracle, pierRows.replace(/}$/, ',"__proto__":{}}'));
+  assert.equal(once.status, 'pass');
+
+  const semantic = pierRows.replace(
+    '"drawer-b","countedCents":"250"',
+    '"drawer-a","countedCents":"400"',
+  );
+  const failed = await evaluatePier(oracle, semantic);
+  assert.equal(failed.status, 'fail');
+  assert.equal(failed.verdict, 0);
+  assert.deepEqual(failed.violatedRequirements, ['unique-drawer']);
+});
+
+test('JSON depth and lone surrogates reject without leaving the oracle', async () => {
+  const oracle = await import('./oracle.mjs');
+  let deep = '"x"';
+  for (let level = 0; level < 4000; level += 1) deep = `{"a":${deep}}`;
+  const nested = pierRows.replace(/}$/, `,"pad":${deep}}`);
+  const depth = await evaluatePier(oracle, nested);
+  assert.equal(depth.status, 'reject');
+  assert.deepEqual(depth.violatedRequirements, ['input-types']);
+
+  const lone = pierRows.replace(/}$/, ',"note":"\\uD800"}');
+  const surrogate = await evaluatePier(oracle, lone);
+  assert.equal(surrogate.status, 'reject');
+  assert.deepEqual(surrogate.violatedRequirements, ['input-types']);
+
+  const pair = pierRows.replace(/}$/, ',"note":"\\uD800\\uDC00"}');
+  const accepted = await evaluatePier(oracle, pair);
+  assert.equal(accepted.status, 'pass');
+});
 
 test('pier drawer family has an independent oracle and isolated failures', async () => {
   const {corpus, oracle} = await load();
