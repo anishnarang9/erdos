@@ -237,14 +237,96 @@ export function readModelUsage(root: Record<string, unknown>): ModelUsage | null
   return { promptTokens, completionTokens, cachedTokens, reasoningTokens, costInUsdTicks };
 }
 
+const PROVIDER_ORIGIN = "https://api.x.ai";
+
+function timeoutError(): Error {
+  const err = new Error("timeout");
+  err.name = "TimeoutError";
+  return err;
+}
+
+/** Reads the provider body up to `cap` bytes. Overflow cancels the stream before the rest is parsed. */
+async function readBoundedBody(
+  res: Response,
+  cap: number,
+  signal: AbortSignal,
+  fail: (reason: string, message: string) => ModelError,
+): Promise<Uint8Array> {
+  const reader = res.body?.getReader();
+  if (!reader) {
+    const buffered = new Uint8Array(await res.arrayBuffer());
+    if (buffered.byteLength > cap) throw fail("output_too_large", "Draft model output exceeds the size limit");
+    return buffered;
+  }
+  const parts: Uint8Array[] = [];
+  let total = 0;
+  try {
+    for (;;) {
+      if (signal.aborted) throw timeoutError();
+      let remove = (): void => {};
+      const aborted = new Promise<never>((_, reject) => {
+        const onAbort = () => reject(timeoutError());
+        signal.addEventListener("abort", onAbort, { once: true });
+        remove = () => signal.removeEventListener("abort", onAbort);
+      });
+      const reading = reader.read();
+      reading.catch(() => undefined);
+      let next: { done: boolean; value?: Uint8Array };
+      try {
+        next = await Promise.race([reading, aborted]);
+      } finally {
+        remove();
+      }
+      if (next.done || !next.value) break;
+      total += next.value.byteLength;
+      if (total > cap) {
+        await reader.cancel();
+        throw fail("output_too_large", "Draft model output exceeds the size limit");
+      }
+      parts.push(next.value);
+    }
+  } catch (err) {
+    await reader.cancel().catch(() => undefined);
+    if (err instanceof ModelError) throw err;
+    const name = err instanceof Error ? err.name : "";
+    if (name === "TimeoutError" || name === "AbortError") throw fail("timeout", "Draft model request timed out");
+    throw fail("invalid_reply", "Draft model response could not be read");
+  }
+  return Buffer.concat(parts);
+}
+
+function positiveFinite(name: string, value: number, integer: boolean): number {
+  const finite = typeof value === "number" && Number.isFinite(value) && value > 0 && value <= Number.MAX_SAFE_INTEGER;
+  if (!finite || (integer && !Number.isSafeInteger(value))) {
+    throw new ModelError("bad_config", `${name} must be a positive finite number`);
+  }
+  return value;
+}
+
 /** Grok (xAI chat completions) draft model. The API key is only ever placed in the Authorization header. */
 export function grokDraftModel(opts: GrokOptions): DraftModel {
   const doFetch = opts.fetch ?? globalThis.fetch;
   const baseUrl = (opts.baseUrl ?? "https://api.x.ai/v1").replace(/\/+$/, "");
-  const timeoutMs = opts.timeoutMs ?? DRAFT_TIMEOUT_MS;
-  const maxOutputChars = opts.maxOutputChars ?? DRAFT_MAX_OUTPUT_CHARS;
+  const timeoutMs = positiveFinite("timeoutMs", opts.timeoutMs ?? DRAFT_TIMEOUT_MS, false);
+  const maxCompletionTokens = positiveFinite(
+    "maxCompletionTokens",
+    opts.maxCompletionTokens ?? DRAFT_MAX_COMPLETION_TOKENS,
+    true,
+  );
+  const maxOutputChars = positiveFinite("maxOutputChars", opts.maxOutputChars ?? DRAFT_MAX_OUTPUT_CHARS, true);
+  let endpoint: URL;
+  try {
+    endpoint = new URL(`${baseUrl}/chat/completions`);
+  } catch {
+    throw new ModelError("provider_origin", "Draft model origin is not the production provider");
+  }
+  // A live credential uses only the production origin. An injected fetch may use a local double.
+  if (opts.fetch === undefined && endpoint.origin !== PROVIDER_ORIGIN) {
+    throw new ModelError("provider_origin", "Draft model origin is not the production provider");
+  }
   const scrub = (s: string): string => (opts.apiKey ? s.split(opts.apiKey).join("[redacted]") : s);
   const fail = (reason: string, message: string): ModelError => new ModelError(reason, scrub(message));
+  const rawCap = maxOutputChars + 8_192;
 
   return {
     async draft(input) {
@@ -259,7 +341,7 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
       const body = {
         model: opts.model,
         temperature: 0,
-        max_completion_tokens: opts.maxCompletionTokens ?? DRAFT_MAX_COMPLETION_TOKENS,
+        max_completion_tokens: maxCompletionTokens,
         messages: [
           { role: "system", content: DRAFT_SYSTEM_PROMPT },
           {
@@ -274,23 +356,45 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
         },
       };
       const started = Date.now();
+      const signal = AbortSignal.timeout(timeoutMs);
       let res: Response;
       try {
-        res = await doFetch(`${baseUrl}/chat/completions`, {
+        res = await doFetch(endpoint.href, {
           method: "POST",
           headers: { authorization: `Bearer ${opts.apiKey}`, "content-type": "application/json" },
           body: JSON.stringify(body),
-          signal: AbortSignal.timeout(timeoutMs),
+          redirect: "error",
+          signal,
         });
       } catch (err) {
         const name = err instanceof Error ? err.name : "";
         if (name === "TimeoutError" || name === "AbortError") throw fail("timeout", "Draft model request timed out");
         throw fail("network_error", "Draft model request failed");
       }
-      if (!res.ok) throw fail("http_error", `Draft model returned HTTP ${res.status}`);
+      if (res.redirected || (res.status >= 300 && res.status < 400)) {
+        await res.body?.cancel().catch(() => undefined);
+        throw fail("redirect", "Draft model redirect was rejected");
+      }
+      if (res.url) {
+        let seen: URL | null = null;
+        try {
+          seen = new URL(res.url);
+        } catch {
+          seen = null;
+        }
+        if (!seen || seen.origin !== endpoint.origin) {
+          await res.body?.cancel().catch(() => undefined);
+          throw fail("provider_origin", "Draft model response origin was rejected");
+        }
+      }
+      if (!res.ok) {
+        await res.body?.cancel().catch(() => undefined);
+        throw fail("http_error", `Draft model returned HTTP ${res.status}`);
+      }
+      const bytes = await readBoundedBody(res, rawCap, signal, fail);
       let json: unknown;
       try {
-        json = await res.json();
+        json = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
       } catch {
         throw fail("invalid_reply", "Draft model response is not JSON");
       }
