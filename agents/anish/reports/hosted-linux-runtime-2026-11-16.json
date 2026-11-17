@@ -101,5 +101,53 @@
   "apiOwnerMutationChecks": "import, explicit approval, preserved reference; same owner can resume after restore",
   "publicHosting": "pending external account and budget",
   "grokApiTrials": 0,
-  "chainTransactions": 0
+  "chainTransactions": 0,
+  "boundedCompileRetry": {
+    "status": "passed",
+    "cacheState": "warm base and Cargo cache after preserved cold timeout",
+    "priorTaskId": "01M7KQW13GJWJPTAPWY95QQZA8",
+    "taskId": "01M7KSQHVFPGM3HWBG5362DT68",
+    "attempt": 1,
+    "elapsedMs": 12513,
+    "manifest": {
+      "imageId": "0x57eb5af820f9f227023577d40efc83ef67d7dc7628f35611df2efa019298d62d",
+      "rulesHash": "0x9d80733e84535cb38cc0190be30cf6438f6e2fbdbff9d7228336ae7f3e4b3457",
+      "referenceHash": "0x49a43354a7e390a36a5d0f3281e4fe32e7b2be0052b46c970dfe32de09ce07dd",
+      "structureHash": "0x5a474b90a9150289128216f73e7bcbee037c3b02ce424180532af972e7bcc021",
+      "buildFingerprint": "16bf1a013d2cf6d01a4655ad4a7a61d6d8cb309167252875c0c40d5b91dca570",
+      "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+      "guestSha256": "0xef15de0025a6abcf553e6d79ba19acdf7c5c07bacee0c0ff6ea62f9c88219eb8",
+      "inputVersion": 2,
+      "parametersSha256": "0x23af6774c21d9b6e4da9368d199405210c0f7663defebc9ca005dd75f8021a38",
+      "riscZero": "3.1.0",
+      "structureSha256": "0x5b70ae9d27b284436e6993b7c4f9fb0df951385209554aee5108316410bc469f",
+      "version": 1
+    },
+    "replayTask": "01M7KSQHVFPGM3HWBG5362DT68",
+    "builder": "ubc26-compiler",
+    "compilerMemoryBytes": 4294967296,
+    "compilerCpuQuota": 200000,
+    "compilerCpuPeriod": 100000,
+    "compilerPids": 512
+  },
+  "compiledPackageRestore": {
+    "status": "passed",
+    "snapshotManifestSha256": "a5ec6a33e532a3c355a863fd6c440d1458e53106e0b8c06d9df13dd4f2fad814",
+    "files": 21,
+    "distinctContainerAndVolume": true,
+    "sameLogicalStatePath": true,
+    "successfulTask": "01M7KSQHVFPGM3HWBG5362DT68",
+    "successfulAttempt": 1,
+    "failedTask": "01M7KQW13GJWJPTAPWY95QQZA8",
+    "failedAttempt": 1,
+    "exactReplayTask": "01M7KSQHVFPGM3HWBG5362DT68",
+    "guestSha256": "0xef15de0025a6abcf553e6d79ba19acdf7c5c07bacee0c0ff6ea62f9c88219eb8",
+    "crossWalletTaskDenied": true,
+    "newKeysRevoked": true
+  },
+  "coldCompile": {
+    "status": "failed-at-30-minute-deadline",
+    "report": "hosted-linux-cold-compile-failure-2026-11-16.json",
+    "successfulWarmRetryIsNotColdPass": true
+  }
 }

@@ -48,9 +48,12 @@ COPY commerce/api/engine-contract /app/commerce/api/engine-contract
 COPY commerce/sdk/src/chain/arc /app/commerce/sdk/src/chain/arc
 COPY contracts/deployments /app/contracts/deployments
 COPY deploy/state.mjs /app/deploy/state.mjs
+COPY --chmod=0555 deploy/warm-compiler.sh /app/deploy/warm-compiler.sh
+COPY engine/fixtures/expense-report-plan.json /app/deploy/smoke-plan.json
 COPY --chmod=0555 deploy/docker-compile /opt/ubc26/docker-bin/docker
 RUN ldconfig && test -n "$SOURCE_SHA" && \
     printf '%s\n' "$SOURCE_SHA" > /app/pins/source-sha && \
+    printf '%s\n' 'docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e' > /app/pins/dockerfile-frontend && \
     mkdir -p /var/lib/ubc26/packages /var/lib/ubc26/work /var/lib/ubc26/cache /var/lib/ubc26/tmp /var/lib/ubc26/docker && \
     chown -R node:node /var/lib/ubc26 && \
     node --version && /usr/local/bin/ubc26-engine capabilities > /dev/null && docker buildx version

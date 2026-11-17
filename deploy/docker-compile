@@ -11,4 +11,5 @@ stage=${6%/source}
 case "${stage#/var/lib/ubc26/tmp/}" in ''|.|..|*/*) exit 2 ;; esac
 [ "$5" = "type=local,dest=$stage/output" ] || exit 2
 shift
-exec /usr/local/bin/docker --config /var/lib/ubc26/docker buildx build --builder ubc26-compiler "$@"
+exec /usr/local/bin/docker --config /var/lib/ubc26/docker buildx build --builder ubc26-compiler \
+  --build-arg BUILDKIT_SYNTAX=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e "$@"

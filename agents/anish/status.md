@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 23:01 -05:00 — Anish — Linux compile retry and compiled-package restore checked
+
+- The original cold Linux compile failed at its 30-minute deadline. The warm retry completed in 12.513 seconds and matched the earlier native guest/package identities. Both task outcomes remain preserved. The [Linux runtime report](reports/hosted-linux-runtime-2026-11-16.json) now records them.
+- A full 21-file backup restored into a distinct Linux container and volume. Successful/failed attempt 1, exact request replay, package bytes and owner isolation passed with dispatch disabled. New synthetic credentials were revoked. All API smoke containers are stopped.
+- Added a credential-free, bounded installation prewarm helper and pinned its Dockerfile frontend to the exact digest used by the successful build. Shell syntax passes. The updated image and helper execution remain pending. No model call, proof or chain transaction occurred. Public host, Grok budgets and fresh live authority remain open.
+
 ## 2026-11-16 22:45 -05:00 — Anish — Qualification harness integrated; authoring gaps remain explicit
 
 - Integrated Worker B's corrected harness through `4ab83c7` as `85bb0dc`, `fa59843`, `7cad973` and `750b418`. All 24 Node checks pass with the native engine path set. Three owner credentials, fresh terminal tasks/traces, durable locked reservations, actual tick accounting, resume, bounded transport and closed live gates are covered locally. CI now runs these checks and the 326-case native corpus comparison. No real API trial ran.
