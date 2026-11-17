@@ -158,7 +158,7 @@ const rateLimit = principalLimit === undefined && ipLimit === undefined
       expensivePerPrincipal: principalLimit === undefined ? 0 : Number(principalLimit),
       expensivePerIp: ipLimit === undefined ? 0 : Number(ipLimit),
     };
-const { app, close } = createApp({
+const { app, close, reconcileTasks, pumpTasks } = createApp({
   dbPath,
   buyerToken,
   engine,
@@ -196,6 +196,19 @@ if (chain) {
   }, INDEX_INTERVAL_MS);
 }
 
+reconcileTasks();
+const TASK_INTERVAL_MS = 1_000;
+let pumping = false;
+const taskTimer = setInterval(() => {
+  if (pumping) return;
+  pumping = true;
+  pumpTasks()
+    .catch((err: unknown) => console.error("[tasks] pump failed", err))
+    .finally(() => {
+      pumping = false;
+    });
+}, TASK_INTERVAL_MS);
+
 const server = serve({ fetch: app.fetch, port, ...(hostname ? { hostname } : {}) }, (info) => {
   console.log(`[api] listening on ${hostname ?? "all interfaces"}:${info.port} (db: ${dbPath}, chain: ${chain ? chain.config.chainId : "none"})`);
   console.log(`[api] engine: ${engineLabel}; draft model: ${modelLabel}; packages: ${packagesDir ?? "not kept"}`);
@@ -204,6 +217,7 @@ const server = serve({ fetch: app.fetch, port, ...(hostname ? { hostname } : {})
 });
 
 function shutdown(): void {
+  clearInterval(taskTimer);
   if (indexTimer) clearInterval(indexTimer);
   server.close(() => {
     close();

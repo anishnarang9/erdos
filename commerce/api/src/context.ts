@@ -28,6 +28,15 @@ export interface RateLimitConfig {
   windowMs?: number;
 }
 
+/** Operator prices in micro-USD. Absent in local mode. Public mode must not run drafts without it. */
+export interface AuthoringBudget {
+  requestCeilingMicroUsd: number;
+  dailyCeilingMicroUsd: number;
+  inputMicroUsdPerMillion: number;
+  outputMicroUsdPerMillion: number;
+  cachedInputMicroUsdPerMillion?: number;
+}
+
 export interface Deps {
   db: Db;
   buyerToken: string;
@@ -44,6 +53,8 @@ export interface Deps {
   deployment: DeploymentConfig;
   rateLimit?: RateLimitConfig;
   expensiveDisabled: boolean;
+  /** When set, a draft task reserves its ceiling before the handler runs. */
+  budget?: AuthoringBudget;
 }
 
 export interface IdempotencyScope {

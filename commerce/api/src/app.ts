@@ -16,7 +16,8 @@ import { registerX402Routes, type X402Config } from "./x402.ts";
 import { registerOpenClaimRoutes, type OpenClaimConfig } from "./open-claim.ts";
 import { registerIdentityRoutes } from "./identity.ts";
 import { requireOwnedJob } from "./ownership.ts";
-import type { DeploymentConfig, RateLimitConfig } from "./context.ts";
+import { assertAuthoringBudget, registerTaskRoutes } from "./tasks.ts";
+import type { AuthoringBudget, DeploymentConfig, RateLimitConfig } from "./context.ts";
 
 export interface CreateAppOptions {
   dbPath: string;
@@ -43,17 +44,24 @@ export interface CreateAppOptions {
   rateLimit?: RateLimitConfig;
   /** When true, model and compiler routes return 503. */
   expensiveDisabled?: boolean;
+  /** Prices and ceilings for draft tasks. Required before a public draft task is accepted. */
+  budget?: AuthoringBudget;
 }
 
 export interface CreatedApp {
   app: Hono<AppEnv>;
   close: () => void;
+  /** Marks interrupted drafts uncertain and requeues interrupted compiles. Call once before pumpTasks. */
+  reconcileTasks: () => void;
+  /** Runs queued work up to one compile and two drafts. Does not start a timer. */
+  pumpTasks: () => Promise<void>;
 }
 
 export function createApp(opts: CreateAppOptions): CreatedApp {
   if (typeof opts.buyerToken !== "string" || opts.buyerToken.length < 16) {
     throw new Error("createApp: buyerToken must be a string of at least 16 characters");
   }
+  assertAuthoringBudget(opts.budget);
   const engine = opts.engine ?? (opts.validatePlan
     ? { mode: "simulated" as const, validate: opts.validatePlan, compile: simulatedEngine().compile }
     : simulatedEngine());
@@ -80,6 +88,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     deployment,
     ...(opts.rateLimit ? { rateLimit: opts.rateLimit } : {}),
     expensiveDisabled: opts.expensiveDisabled ?? false,
+    ...(opts.budget ? { budget: opts.budget } : {}),
   };
 
   const app = new Hono<AppEnv>();
@@ -119,6 +128,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   // GET /v1/jobs before the parameterised GET /v1/jobs/:id below.
   const ctx = { app, deps, buyer, provider, idem, notImplemented, newId };
   const authoring = registerAuthoringRoutes(ctx);
+  const tasks = registerTaskRoutes(ctx, authoring);
   registerX402Routes(ctx, authoring, opts.x402);
   registerOpenClaimRoutes(ctx, opts.openClaim);
   registerMarketRoutes(ctx);
@@ -130,5 +140,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     close: () => {
       if (db.isOpen) db.close();
     },
+    reconcileTasks: tasks.reconcileTasks,
+    pumpTasks: tasks.pumpTasks,
   };
 }
