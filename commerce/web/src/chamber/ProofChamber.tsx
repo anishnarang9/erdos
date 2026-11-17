@@ -19,13 +19,13 @@ const GATE_X = 0.4;
 const PAD = { x: 3.7, z: 0.2 };
 const BAR_Z = Array.from({ length: 9 }, (_, k) => -2.4 + k * 0.6);
 const HEADER: Record<GateState, string> = {
-  idle: "#dfe8cf",
-  locked: "#dfe8cf",
-  accepted: "#c6ed91",
-  open: "#c6ed91",
-  rejected: "#f0ae94",
+  idle: "#cfd3ff",
+  locked: "#cfd3ff",
+  accepted: "#6bffd8",
+  open: "#6bffd8",
+  rejected: "#ff6b8b",
 };
-const BALL_COLORS = ["#e6eedb", "#cfe0bd", "#8fbf6a", "#6aa04e", "#dfe9d2", "#a9cf86"];
+const BALL_COLORS = ["#f1efe6", "#63f0ff", "#a86bff", "#ff5fd2", "#cfd3ff", "#7d8cff"];
 
 /** Deterministic layout for a reset: the visual arrangement never depends on chain data. */
 function spawn(): [number, number, number][] {
@@ -84,7 +84,7 @@ function Board({ gate }: { gate: GateState }) {
   const target = useMemo(() => new THREE.Color(), []);
   useFrame((_, dt) => {
     if (!padMat.current) return;
-    target.set(gate === "open" ? "#4d8a3f" : "#2b6140");
+    target.set(gate === "open" ? "#1f6f66" : "#1b1b33");
     padMat.current.color.lerp(target, Math.min(1, dt * 3));
   });
   return (
@@ -97,7 +97,7 @@ function Board({ gate }: { gate: GateState }) {
         <CuboidCollider args={[6, 1.2, 0.1]} position={[0, 1.2, 3.1]} />
         <mesh position={[0, -0.18, 0]} receiveShadow>
           <boxGeometry args={[12.3, 0.36, 6.3]} />
-          <meshStandardMaterial color="#1e4a35" roughness={0.9} />
+          <meshStandardMaterial color="#11111f" roughness={0.9} />
         </mesh>
       </RigidBody>
       {/* rim */}
@@ -109,17 +109,17 @@ function Board({ gate }: { gate: GateState }) {
       ].map(([x, y, z, w, h, d], i) => (
         <mesh key={i} position={[x!, y!, z!]}>
           <boxGeometry args={[w!, h!, d!]} />
-          <meshStandardMaterial color="#8fae6e" roughness={0.6} />
+          <meshStandardMaterial color="#7d8cff" roughness={0.6} />
         </mesh>
       ))}
-      <gridHelper args={[12, 24, "#2d6347", "#2a5a41"]} position={[0, 0.005, 0]} scale={[1, 1, 0.5]} />
+      <gridHelper args={[12, 24, "#2a2a44", "#22223a"]} position={[0, 0.005, 0]} scale={[1, 1, 0.5]} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[PAD.x, 0.012, PAD.z]} receiveShadow>
         <circleGeometry args={[1.6, 64]} />
-        <meshStandardMaterial ref={padMat} color="#2b6140" roughness={0.8} />
+        <meshStandardMaterial ref={padMat} color="#1b1b33" roughness={0.8} />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[PAD.x, 0.016, PAD.z]}>
         <ringGeometry args={[1.56, 1.64, 64]} />
-        <meshBasicMaterial color="#dfe8cf" />
+        <meshBasicMaterial color="#63f0ff" />
       </mesh>
     </>
   );
@@ -152,12 +152,12 @@ function Gate({ gate }: { gate: GateState }) {
         {[-2.95, 2.95].map((z) => (
           <mesh key={z} position={[0, 1.3, z]} castShadow>
             <boxGeometry args={[0.36, 2.6, 0.36]} />
-            <meshStandardMaterial color="#6f8f57" roughness={0.6} />
+            <meshStandardMaterial color="#3b3b5c" roughness={0.6} />
           </mesh>
         ))}
         <mesh position={[0, 2.66, 0]} castShadow>
           <boxGeometry args={[0.46, 0.22, 6.3]} />
-          <meshStandardMaterial color="#6f8f57" roughness={0.6} />
+          <meshStandardMaterial color="#3b3b5c" roughness={0.6} />
         </mesh>
         <mesh position={[0, 2.84, 0]} castShadow>
           <boxGeometry args={[0.34, 0.16, 3.4]} />
@@ -172,13 +172,13 @@ function Gate({ gate }: { gate: GateState }) {
             <CuboidCollider args={[0.06, 1.1, 0.06]} position={[0, 1.1, z]} />
             <mesh position={[0, 1.1, z]} castShadow>
               <boxGeometry args={[0.12, 2.2, 0.12]} />
-              <meshStandardMaterial color="#b9cc9c" roughness={0.5} />
+              <meshStandardMaterial color="#b9bdf0" roughness={0.5} />
             </mesh>
           </group>
         ))}
         <mesh position={[0, 2.25, 0]}>
           <boxGeometry args={[0.16, 0.1, 5.0]} />
-          <meshStandardMaterial color="#9fb784" roughness={0.5} />
+          <meshStandardMaterial color="#8f93d6" roughness={0.5} />
         </mesh>
         </group>
       </RigidBody>
@@ -341,7 +341,7 @@ export function ProofChamber(p: ChamberProps) {
           <PerformanceMonitor onDecline={() => setLow(true)} />
           <Fit />
           <ambientLight intensity={0.75} />
-          <hemisphereLight args={["#e9f3dc", "#0e2a24", 0.55]} />
+          <hemisphereLight args={["#dfe2ff", "#0a0a18", 0.55]} />
           <directionalLight
             position={[-7, 13, 7]}
             intensity={1.6}

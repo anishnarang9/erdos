@@ -1,7 +1,7 @@
-import { initGlobe } from './globe.js?v=8';
-import { initRobot } from './robot.js?v=8';
-import { initCoin } from './coin.js?v=8';
-import { LAYERS, ICONS } from './layers.js?v=8';
+import { initGlobe } from './globe.js?v=9';
+import { initRobot } from './robot.js?v=9';
+import { initCoin } from './coin.js?v=9';
+import { LAYERS, ICONS } from './layers.js?v=9';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -168,6 +168,7 @@ const hero = $('.hero'), heroParts = $$('.hero-copy, .hero-side, .quote, .flow')
 const statement = $('.statement .big');
 if (statement) statement.innerHTML = statement.innerHTML.split(/(\s+|<em>|<\/em>)/).map((t) => (/^\s*$/.test(t) || /^<\/?em>$/.test(t) ? t : `<span class="w">${t}</span>`)).join('');
 const words = $$('.statement .w'), sol = $('.sol-body'), token = $('.token');
+const solStage = $('.sol-stage'), casesEl = $('#cases');
 const railLinks = $$('.rail a');
 
 function onScroll() {
@@ -185,6 +186,13 @@ function onScroll() {
       let best = 0, bd = Infinity; rows.forEach((r, i) => { const b = r.getBoundingClientRect(); const d = Math.abs(b.top + b.height / 2 - vh / 2); if (d < bd) { bd = d; best = i; } });
       setRow(best);
     }
+  }
+  // The robot fades out as Case Studies arrives (fully gone once the cases title is in the top 35%).
+  if (solStage && casesEl) {
+    const ct = casesEl.getBoundingClientRect().top;
+    const fade = clamp((ct - vh * .35) / (vh * .45));
+    solStage.style.opacity = String(fade);
+    solStage.style.visibility = fade < .01 ? 'hidden' : '';
   }
   // Coin turns as its section scrolls through.
   if (token && coin) { const r = token.getBoundingClientRect(); coin.setScroll(clamp((vh - r.top) / (vh + r.height)) * 2 - 1); }

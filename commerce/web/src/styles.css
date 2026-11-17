@@ -322,3 +322,60 @@ table { border-collapse: collapse; }
 /* Side columns are narrow: long badges and metrics wrap instead of overflowing. */
 .ws-col .badge, .drawer .badge { white-space: normal; }
 .ws-col { overflow-x: hidden; }
+
+
+/* =====================================================================
+   Dark workspace: same design language as the landing site (public/site).
+   Overrides the earlier light tokens; component rules above are unchanged.
+   ===================================================================== */
+:root {
+  --paper: #07070d; --paper-2: #11111b; --ink: #f1efe6; --ink-2: #9a9aa6; --ink-3: #5d5d6b;
+  --rule: #24242f; --rule-strong: #3a3a48;
+  --scene: #0a0a14; --scene-2: #14141f; --scene-line: #2a2a38; --scene-text: #f1efe6; --scene-dim: #9a9aa6;
+  --lime: #63f0ff; --moss: #63f0ff; --coral: #ff6b8b; --error: #ff6b8b; --amber: #ffb65c; --amber-bg: #2a2114;
+  --surface: #0c0c15; --verified: #6bffd8; --money: #63f0ff;
+  --grad: linear-gradient(100deg, #63f0ff, #7d8cff 35%, #a86bff 65%, #ff5fd2);
+  --sans: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --r-1: 0px; --r-2: 0px; --r-3: 0px;
+  color-scheme: dark;
+}
+body { background: var(--paper); }
+button { background: var(--ink); color: var(--paper); font: 600 13px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+button:hover:not(:disabled) { background: #63f0ff; }
+button.ghost { color: var(--ink); background: transparent; border-color: var(--rule-strong); clip-path: none; }
+button.ghost:hover:not(:disabled) { background: var(--paper-2); border-color: var(--ink); }
+button.link, .hash button, .tabs button { clip-path: none; text-transform: none; letter-spacing: 0; }
+.hash button { background: none; color: var(--ink-2); }
+.hash button:hover:not(:disabled) { background: var(--paper-2); }
+.hash a { color: #63f0ff; }
+input, textarea, select { background: #0c0c15; color: var(--ink); border-color: var(--rule-strong); }
+.badge { border-radius: 0; background: #0c0c15; border-color: var(--rule-strong); font-family: var(--mono); font-size: 12px; letter-spacing: .04em; }
+.badge.verified { background: #0c1a18; border-color: #2b6a5c; }
+.badge.money { background: #0b1820; border-color: #2a5a6a; }
+.badge.locked { background: var(--amber-bg); border-color: #6a5326; }
+.badge.rejected { background: #24101a; border-color: #7a3046; }
+.card { background: var(--surface); }
+.ws { background:
+  linear-gradient(var(--rule), var(--rule)) 380px 0 / 1px 100% no-repeat, var(--paper); }
+.ws-top { background: rgba(7, 7, 13, .9); }
+.ws-top .wordmark svg { color: #63f0ff; }
+.mode-chip { border-color: var(--rule-strong); position: relative; }
+.mode-chip.live::before { content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 2px; background: var(--grad); }
+.mode-chip.live i { background: #6bffd8; box-shadow: 0 0 10px #6bffd8; }
+.outcome h1 { font-family: var(--sans); }
+.outcome .tone.pass { background: #6bffd8; box-shadow: 0 0 12px #6bffd8; }
+.outcome .tone.busy { background: #ffb65c; }
+.chamber-card { background: var(--scene); border: 1px solid var(--rule-strong); box-shadow: none; position: relative; }
+.chamber-card::before, .chamber-card::after { content: ""; position: absolute; width: 14px; height: 14px; border: 1px solid var(--ink-2); pointer-events: none; }
+.chamber-card::before { top: -8px; left: -8px; border-right: 0; border-bottom: 0; }
+.chamber-card::after { bottom: -8px; right: -8px; border-left: 0; border-top: 0; }
+.chamber-head .eyebrow { color: #63f0ff; }
+.chamber-status.pass i { background: #6bffd8; } .chamber-status.busy i { background: #ffb65c; }
+.chip-overlay { background: rgba(7, 7, 13, .86); }
+.ws-caption { background: var(--surface); }
+.focus-ring { box-shadow: inset 0 0 0 1px #63f0ff; border-radius: 0; }
+.toast { background: var(--ink); color: var(--paper); border-radius: 0; font-family: var(--mono); }
+.drawer { background: var(--paper); box-shadow: -24px 0 48px -24px #000; }
+.drawer-backdrop { background: rgba(0, 0, 0, .55); }
+.tabs button[aria-selected="true"] { border-bottom-color: #63f0ff; }
+.panel-title, .eyebrow { letter-spacing: .08em; }
