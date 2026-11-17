@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 23:01 -05:00 — Anish — Full authoring request budget regression passes
+
+- Integrated Worker A's `2a1248c` as `84f4252`. Preflight now prices the complete serialized provider body, uses the supported output maximum and rejects a public adapter without that bound. Repair preflight includes its own feedback.
+- All six independent worker-side model/task safety checks pass. The large UTF-8 reference test now makes zero model calls. Stream cancellation, exhausted-budget repair, owner/replay concurrency and restored challenge isolation pass. The regression failed before the repair.
+- Persistent spend-stop enforcement, a shared end-to-end deadline, engine-evaluated illustrative examples and remaining production controls are still assigned to Worker A. Public corpus input corrections remain with Worker B. No paid API call occurred.
+
 ## 2026-11-16 23:01 -05:00 — Anish — Linux compile retry and compiled-package restore checked
 
 - The original cold Linux compile failed at its 30-minute deadline. The warm retry completed in 12.513 seconds and matched the earlier native guest/package identities. Both task outcomes remain preserved. The [Linux runtime report](reports/hosted-linux-runtime-2026-11-16.json) now records them.
