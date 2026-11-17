@@ -103,7 +103,7 @@ The path id is the API job ULID. An unknown job returns 404. The body is version
 
 ## Admission and operator metrics
 
-`d75ca79` bounds pending task admission and auth issuance. It also adds operator metrics and sanitized logs. These are process admission limits. They are not a host disk, CPU, or memory quota. `/readyz` does not claim that quota. The paid compile slot is unchanged.
+`d75ca79` bounds pending task admission and auth issuance. It also adds operator metrics and sanitized logs. These are process admission limits. They are not a host disk, CPU, or memory quota. `/readyz` does not claim that quota. Browser origins and paid compile waiting are specified below.
 
 `POST /v1/tasks` counts rows in `queued` or `running`. `succeeded`, `failed`, and `uncertain` do not count. The default cap is 100 pending tasks for the process and 20 pending tasks for one wallet. `TASK_PENDING_GLOBAL` and `TASK_PENDING_PER_WALLET` override those defaults. Each value must be a positive safe integer. Zero is not unlimited. The per-wallet cap cannot exceed the global cap. An invalid value throws in `createApp` before the database opens. The server process exits before `createApp` when the environment value is invalid. The error does not echo the raw value.
 
@@ -111,11 +111,45 @@ The cap runs after the duplicate-task match and before the budget check, the hal
 
 `POST /v1/auth/challenge` and `POST /v1/auth/keys` share an IP window. The default is 20 requests per 60 seconds. `AUTH_LIMIT_IP` and `AUTH_LIMIT_WINDOW_MS` override it. A non-positive value is rejected. The window is separate from `RATE_LIMIT_PRINCIPAL` and `RATE_LIMIT_IP`. A trusted proxy uses the first `X-Forwarded-For` hop when that hop is an IPv4 address or a bounded IPv6 form. Any other hop uses the shared bucket `direct`. Public mode without `TRUST_PROXY=1` also uses `direct`. Local mode without a trusted proxy does not count, so local key issuance keeps working. A rejection returns 429 `rate_limited` with message `Auth rate limit exceeded`. The body does not echo the wallet or the signature. The rejection consumes a slot. Another IP has its own slot. The expensive principal and IP windows still apply to model and compiler routes. A missing or invalid forwarded hop on those routes also uses `direct` when the proxy is trusted, so a random hop cannot open a new counter.
 
-The compile slot stays one in-process chain. `withCompileSlot` still runs the next compile when the previous promise rejects. x402 settlement still happens before that slot. A rejected compile does not settle again and does not clear a settled payment. Circle pending and replay behavior stay as they are. This commit does not add a spend permission. `usageComplete`, `quoteAuthoringCost`, and `cancelDraftRequests` are not edited. Drain and cancel controllers stay as they are.
+`usageComplete`, `quoteAuthoringCost`, and `cancelDraftRequests` stay in place. This contract does not add a spend permission. The shared compiler and the external waiting cap are specified below.
 
 `GET /v1/operator/metrics` uses the same operator bearer as spend-halt resolve. A missing `OPERATOR_TOKEN` returns 404 `Not found`. A wrong bearer returns 401 `Unauthorized`. The body does not echo the presented token. The body reports request counts, error counts, latency totals, fixed route labels, queued and running depth, queue rejections, task accepted and finished counts, auth rejections, the configured admission numbers, process RSS, process heap, and uptime. `resources.hostQuota` is `not_enforced`. The counters reset when the process restarts. They do not enforce a host quota.
 
 Request lines are JSON. The server writes them unless `REQUEST_LOG=0`. Tests leave them off unless a test asks for them. A line has `kind`, `route`, `status`, `ms`, and `mode`. The route is a fixed pattern such as `POST /v1/tasks` or `unknown`. It is not the raw path, the query string, or an id. Task lines have `kind`, `event`, `operation`, `state`, and sometimes `code`. They do not include the input, a token, or a provider body. Public mode logs an unknown failure as `code` `internal` and does not print the stack, a path, or the error text. `REQUEST_LOG_DEBUG=1` prints that error only when the mode is local. Public mode ignores the flag. `GET /healthz` stays `{ok: true}`. `GET /readyz` stays the sanitized check list.
+
+## Browser origin
+
+This section is the contract. The implementation commits follow it.
+
+The allowlist defaults to the exact configured `SERVICE_ORIGIN`. The optional environment variable `BROWSER_ORIGIN` adds one extra exact frontend origin. `createApp` accepts that same value as `browserOrigin`. The allowlist holds those exact origins and nothing else.
+
+An origin is an absolute URL with no userinfo, no path other than `/`, no query, and no hash. Public mode accepts only `https` with a host. Public mode rejects the loopback hosts `localhost`, `127.0.0.1`, and `::1`, and it rejects every `http` origin. Local mode accepts `https`. Local mode also accepts `http` when the host is exactly `localhost`, `127.0.0.1`, or `::1`, with an optional port. Both modes reject remote `http`. A value that contains `*` is rejected. The stored allowlist entry is the canonical origin, so a default port is omitted. An invalid `SERVICE_ORIGIN` or `BROWSER_ORIGIN` throws before the database opens. The server process exits before `createApp` when the environment value is invalid. The error names the variable and omits the raw value.
+
+A request with no `Origin` header keeps the CLI response. It receives no CORS headers. CORS is a browser policy. It does not authenticate a wallet, it does not replace the API key check, and it does not enable cookies. The response never sets `Access-Control-Allow-Credentials`.
+
+An `Origin` value outside the allowlist returns 403 `forbidden` with message `Origin is not allowed`. The body omits the submitted origin. The response omits `Access-Control-Allow-Origin`. This covers `null`, a malformed value, a credential URL, a path, and any other unapproved origin. Auth, the model, the engine, payment settlement, and reservations do not run.
+
+`OPTIONS` for an allowed origin returns 204 with an empty body. The preflight does not run auth, the model, the engine, payment settlement, or a reservation. Allowed methods are `GET` and `POST`. Allowed request headers are `Authorization`, `Content-Type`, `Idempotency-Key`, `If-Match`, and `payment-signature`. A requested method or header outside that set returns 403 and is not copied into the response. Exposed headers are `ETag`, `payment-required`, `payment-response`, and `idempotent-replayed`. The service does not send `Retry-After`. Allowed responses, including errors, set `Access-Control-Allow-Origin` to the exact request origin and set `Vary` to `Origin`. Preflight `Access-Control-Max-Age` is 600. `OPTIONS` is logged as the fixed label `OPTIONS preflight`.
+
+## Paid compile admission
+
+This section is the contract. The implementation commits follow it.
+
+`PAID_COMPILE_LIMIT` and the `createApp` option `paidCompileLimit` set the maximum number of external paid-compile handlers that are active or waiting. The default is 2. The value is a positive safe integer. Zero is not unlimited. An invalid value throws before the database opens. The server process exits before `createApp` when the environment value is invalid. The error omits the raw value. The cap is one global number. There is no per-wallet map.
+
+The cap counts external `POST /v1/jobs/:id/paid-compile` handlers that still need the shared compiler. The count includes a new settlement, a settled payment that is not yet complete, and a stored compile that has no payment row. The count excludes an exact `complete` replay, a `settling` or `pending` response, a 402 challenge, and a validation failure.
+
+A new external request at the cap returns 429 `rate_limited` with message `Paid compile queue is full`. The details are `queue` `paid-compile` and `scope` `global`. That response is produced before `facilitator.settle` and before an insert into `x402_payments`. An exact `complete` replay still returns the stored status, body, `payment-response`, and `idempotent-replayed` header at the cap. It does not take a slot and it does not settle again.
+
+A `settled` row that is not `complete` stays recoverable. At the cap the resume returns the same 429 and does not call the facilitator. The row stays `settled`. A later request after a slot is free compiles that payment once. The same payment is never charged twice. A `settling` or `pending` row still returns 409 `payment_pending` and does not settle again. Circle batch acceptance and on-chain confirmation rules stay as they are. The bounty path stays separate from this service payment.
+
+The admitted handler waits for the single compiler. After that wait it reads the payment row, the job and revision binding, and `compileGate` again. A concurrent request with the same payment sees the row inserted by the first handler and does not settle a second time. An approval that changed during the wait fails before a new settlement. The handler checks drain again after the wait and before settlement or compile.
+
+Drain sets the closed flag first. A new admission after that flag returns 429 `rate_limited` with message `Paid compile is not accepting work` and details `scope` `draining`. A handler that is still waiting is cancelled. Its callback does not settle and does not compile. An active handler that has already entered settlement may finish that settlement inside the existing `TASK_DRAIN_MS` bound. It does not start the compiler after drain. The drain waits for that owned active handler together with the durable inflight work, then reconciles. No refund is created for an uncertain or settled charge.
+
+The durable task pump uses the same compiler. It marks a compile `running` only after it owns the compiler. When an external handler owns the compiler, the durable task stays `queued`. It is not marked `running` and it is not marked `failed` because the external cap is full. One pump turn may run one durable compile before the next waiting external handler starts. `COMPILE_LIMIT` stays 1. `DRAFT_LIMIT` stays 2. A dispatched draft that is interrupted still becomes `uncertain`.
+
+`GET /v1/operator/metrics` adds `paidCompile` with `active`, `waiting`, `rejected`, and `limit`. `resources.hostQuota` stays `not_enforced`. These counters do not enforce a host disk quota.
 
 ## Checkpoints
 
