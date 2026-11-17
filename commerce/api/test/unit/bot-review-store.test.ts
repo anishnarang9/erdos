@@ -35,7 +35,7 @@ describe("durable Bot review records", () => {
     const { store } = setup(); const first = create(store);
     expect(create(store)).toEqual(first);
     expect(first.status).toBe("queued");
-    expect(store.get("review1", other, "job")).toBeNull();
+    expect(store.get("review1", other, "job", 1003)).toBeNull();
     expect(() => store.create({ id: "review2", owner: other, jobId: "job", revisionId: "rev", snapshot: input(), now: 1000, expiresAt: 61000 })).toThrow(/Job not found/);
     const changed = prepareBotReview({ ...JSON.parse(input().inputJson), request: "Changed brief." });
     expect(() => create(store, changed)).toThrow(/different input/);
@@ -52,14 +52,14 @@ describe("durable Bot review records", () => {
     const row = db.prepare("SELECT * FROM bot_reviews").get()!;
     expect(JSON.stringify(row)).not.toContain(claim.ticket);
     db.close(); second.reconcile();
-    expect(second.get("review1", owner, "job")?.status).toBe("uncertain");
+    expect(second.get("review1", owner, "job", 1003)?.status).toBe("uncertain");
     expect(second.claim("review1", 1003)).toBeNull();
     expect(second.complete("review1", claim.ticket, pass(), 1004).decision).toBe("pass");
   });
 
   it("does not mistake webhook acceptance for completion or overwrite a fast callback", () => {
     const { store } = setup(); create(store); const claim = store.claim("review1", 1001)!;
-    store.accepted("review1"); expect(store.get("review1", owner, "job")?.status).toBe("waiting");
+    store.accepted("review1"); expect(store.get("review1", owner, "job", 1001)?.status).toBe("waiting");
     expect(() => store.requirePass("review1", owner, "job", "rev")).toThrow(/passed Bot review/);
     store.complete("review1", claim.ticket, pass(), 1002);
     store.accepted("review1"); store.uncertain("review1");
@@ -91,10 +91,37 @@ describe("durable Bot review records", () => {
   it("expires pending work and never dispatches stale revisions or mismatched bindings", () => {
     const { store, db } = setup(); create(store);
     expect(store.claim("review1", 61000)).toBeNull();
-    expect(store.get("review1", owner, "job")?.status).toBe("expired");
+    expect(store.get("review1", owner, "job", 61000)?.status).toBe("expired");
     expect(() => db.prepare("UPDATE bot_reviews SET input_hash='changed'").run()).toThrow(/immutable/);
     changeRevision(db);
     expect(() => create(store)).toThrow(/current revision/);
+  });
+
+  it.each(["queued", "dispatching", "waiting", "uncertain"] as const)("expires %s reviews when the owner polls without a queue pump", status => {
+    const { store, db } = setup(); create(store);
+    const claim = status === "queued" ? null : store.claim("review1", 1001)!;
+    if (status === "waiting") store.accepted("review1");
+    if (status === "uncertain") store.uncertain("review1");
+    const before = db.prepare("SELECT ticket_hash,dispatched_at FROM bot_reviews WHERE id='review1'").get();
+    expect(store.get("review1", owner, "job", 60999)?.status).toBe(status);
+    expect(store.get("review1", other, "job", 61000)).toBeNull();
+    expect(store.get("review1", owner, "other-job", 61000)).toBeNull();
+    expect(db.prepare("SELECT status FROM bot_reviews WHERE id='review1'").get()?.status).toBe(status);
+    expect(store.get("review1", owner, "job", 61000)?.status).toBe("expired");
+    expect(db.prepare("SELECT status FROM bot_reviews WHERE id='review1'").get()?.status).toBe("expired");
+    expect(db.prepare("SELECT ticket_hash,dispatched_at FROM bot_reviews WHERE id='review1'").get()).toEqual(before);
+    store.accepted("review1"); store.uncertain("review1"); store.reconcile();
+    expect(store.get("review1", owner, "job", 61001)?.status).toBe("expired");
+    expect(store.claim("review1", 61001)).toBeNull();
+    if (claim) expect(() => store.complete("review1", claim.ticket, pass(), 61001)).toThrow(/expired/);
+  });
+
+  it("retains completed receipts and exact callback replay after the ticket deadline", () => {
+    const { store } = setup(); create(store); const claim = store.claim("review1", 1001)!;
+    const receipt = store.complete("review1", claim.ticket, pass(), 1002);
+    expect(store.get("review1", owner, "job", 61000)).toEqual(receipt);
+    expect(store.complete("review1", claim.ticket, pass(), 61001)).toEqual(receipt);
+    expect(store.requirePass("review1", owner, "job", "rev")).toEqual(receipt);
   });
 
   it("rejects expired callbacks and wrong snapshot commitments before storing work", () => {
@@ -102,14 +129,14 @@ describe("durable Bot review records", () => {
     expect(() => create(store, { ...input(), inputHash: hash })).toThrow(/Invalid Bot review/);
     create(store); const claim = store.claim("review1", 1001)!;
     expect(() => store.complete("review1", claim.ticket, pass(), 61000)).toThrow(/expired/);
-    expect(store.get("review1", owner, "job")?.status).not.toBe("completed");
+    expect(store.get("review1", owner, "job", 61000)?.status).toBe("expired");
   });
 
   it("preserves a callback that arrives before the webhook acknowledgement", () => {
     const { store } = setup(); create(store); const claim = store.claim("review1", 1001)!;
     const receipt = store.complete("review1", claim.ticket, pass(), 1002);
     store.accepted("review1"); store.uncertain("review1"); store.reconcile();
-    expect(store.get("review1", owner, "job")).toEqual(receipt);
+    expect(store.get("review1", owner, "job", 1003)).toEqual(receipt);
   });
 
   it("does not dispatch an obsolete revision or accept a substituted plan", () => {
@@ -118,6 +145,6 @@ describe("durable Bot review records", () => {
     expect(() => create(store, changed)).toThrow(/current revision/);
     create(store); changeRevision(db);
     expect(() => store.claim("review1", 1001)).toThrow(/current revision/);
-    expect(store.get("review1", owner, "job")?.status).toBe("queued");
+    expect(store.get("review1", owner, "job", 1003)?.status).toBe("queued");
   });
 });

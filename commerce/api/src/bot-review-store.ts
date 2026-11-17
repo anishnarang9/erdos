@@ -71,9 +71,16 @@ export function botReviewStore(db: Db) {
       // Join the caller's synchronous acceptance transaction when it also stores idempotency.
       return db.isTransaction ? write() : tx(db, write);
     },
-    get(id: string, owner: string, jobId: string): BotReviewView | null {
-      const row = load(id);
+    get(id: string, owner: string, jobId: string, now: number): BotReviewView | null {
+      let row = load(id);
       if (!row || row.owner_wallet !== owner || row.job_id !== jobId) return null;
+      if (row.expires_at <= now && row.status !== "completed" && row.status !== "expired") {
+        // Polling must reach a terminal state even when dispatch and its queue pump are disabled.
+        // Preserve a receipt if another process completes it before this conditional update.
+        db.prepare(`UPDATE bot_reviews SET status='expired' WHERE id=? AND expires_at<=?
+          AND status IN ('queued','dispatching','waiting','uncertain')`).run(id, now);
+        row = load(id)!;
+      }
       return view(row);
     },
     nextQueued(now: number): string | null {

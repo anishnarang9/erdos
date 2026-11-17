@@ -110,7 +110,7 @@ export function registerBotReviewRoutes(ctx: RouteContext) {
   app.get("/v1/jobs/:id/bot-reviews/:reviewId", readBody, buyer, requireJobId, owned, c => {
     if (!deps.botReview) throw new ApiError("service_disabled", "Bot review is not configured");
     const owner = ownerWallet(c);
-    const row = owner ? store.get(c.req.param("reviewId") ?? "", owner, c.req.param("id") ?? "") : null;
+    const row = owner ? store.get(c.req.param("reviewId") ?? "", owner, c.req.param("id") ?? "", deps.now()) : null;
     if (!row) throw new ApiError("not_found", "Bot review not found");
     return c.json(row);
   });

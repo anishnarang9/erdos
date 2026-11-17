@@ -170,6 +170,22 @@ describe("live Bot review integration with a controlled transport", () => {
     await review(app, key, task.jobId, task.revisionHash); expect(dispatch).toHaveBeenCalledTimes(1);
   });
 
+  it.each([false, true])("reports expiry through owner polling with dispatch enabled=%s", async enabled => {
+    let now = Date.now();
+    const sends: Delivery[] = [], dispatch = vi.fn(async (delivery: Delivery) => { sends.push(delivery); });
+    const created = setup({ now: () => now, botReview: { serviceToken: SERVICE, ...(enabled ? { dispatch } : {}) } });
+    const key = await issue(created.app), task = await job(created.app, key);
+    const accepted = await review(created.app, key, task.jobId, task.revisionHash), body = await accepted.json() as any;
+    now = body.expiresAt - 1;
+    expect(await status(created.app, key, task.jobId, body.reviewId)).toBe(enabled ? "waiting" : "queued");
+    now = body.expiresAt;
+    expect(await status(created.app, key, task.jobId, body.reviewId)).toBe("expired");
+    await created.pumpTasks(); await review(created.app, key, task.jobId, task.revisionHash);
+    expect(dispatch).toHaveBeenCalledTimes(enabled ? 1 : 0);
+    expect((await approve(created.app, key, task.jobId, task.revisionHash, body.reviewId)).status).toBe(409);
+    if (enabled) expect((await callback(created.app, sends[0]!)).result.isError).toBe(true);
+  });
+
   it("preserves a completed callback that races the webhook response", async () => {
     let app: ReturnType<typeof createApp>["app"];
     const created = setup({ botReview: { serviceToken: SERVICE, dispatch: async delivery => {

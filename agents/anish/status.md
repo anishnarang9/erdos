@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-17 10:47 -05:00 — Anish — Fix review expiry without dispatch
+
+- Branch `codex/hosted-backend`, draft PR #8. Owner polling previously returned queued, dispatching, waiting or uncertain after the callback deadline. Six new regression cases reproduced the failure. Polling now uses the service clock and persists expiry through a conditional update. Ownership checks precede mutation. Completed receipts and their exact callback replay remain valid. Expiry preserves the dispatch ticket digest and timestamp, blocks late results and never creates another dispatch. No migration or SDK wire change is required.
+- Checks: 35 focused tests, all 994 API tests across 69 files, API typecheck and eight SDK Bot tests pass. The scoped review found no actionable issue. See the [regression report](reports/hosted-bot-review-expiry-2026-11-17.json). The fix is not deployed yet. Next: commit/push, verify exact-source CI, build the native image and promote with a protected snapshot and unchanged paid-dispatch settings.
+- The account usage page shows four Bot rows in the review minute, with rounded counts totaling about 100,100 tokens and rounded charges totaling eight cents. Setup has four separate earlier rows. These rows lack a run identifier and exact CSV amounts, so exact billing and the approximately five-cent target remain unqualified. See [usage events](reports/hosted-genuine-bot-usage-events-2026-11-17.json). Browser control stopped when the user switched tabs. No further manual helper or paid task was requested.
+- A [sample of API/proxy logs](reports/hosted-genuine-bot-log-privacy-2026-11-17.json) contains no checked credential or review-payload marker. The API uses a bounded unknown route label for MCP and Caddy removes request fields. Individual callback-log attribution is unavailable. No new paid review, credit purchase, proof or chain transaction ran. General dispatch stays disabled.
+
 ## 2026-11-17 10:33 -05:00 — Anish — Preserve original Bot setup evidence
 
 - Pushed `c4d8ba2` and updated draft PR #8 with the genuine negative review and public engine evidence. Commerce CI `44114999273` and core-fast CI `44114999245` pass. The earlier deployed ingress CI still passes. The API runtime and general dispatch settings did not change.
