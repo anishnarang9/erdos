@@ -416,4 +416,41 @@ describe("durable tasks", () => {
     const after = await (await second.app.request(`/v1/tasks/${view.id}`, { headers: { authorization: `Bearer ${key}` } })).json() as { state: string };
     expect(after.state).toBe("queued");
   });
+
+  it("rejects public synchronous drafts and compiles before any model or compiler call", async () => {
+    const model = countingModel();
+    const base = simulatedEngine();
+    let compiles = 0;
+    const engine = {
+      ...base,
+      async compile(input: Parameters<typeof base.compile>[0]) {
+        compiles += 1;
+        return base.compile(input);
+      },
+    };
+    const { created } = clocked({
+      deployment: { mode: "public", serviceOrigin: ORIGIN },
+      draftModel: model,
+      engine,
+      budget: {
+        requestCeilingMicroUsd: 50_000,
+        dailyCeilingMicroUsd: 100_000,
+        inputMicroUsdPerMillion: 1_250_000,
+        outputMicroUsdPerMillion: 2_500_000,
+      },
+    });
+    const key = await issue(created.app, accountA);
+    await expectError(await post(created.app, "/v1/drafts", DRAFT_BODY, auth(key)), 403, "forbidden");
+    expect(model.calls).toBe(0);
+    const job = await createJob(created.app, key);
+    await expectError(
+      await post(created.app, `/v1/jobs/${job.jobId}/compile`, { revisionHash: job.revisionHash }, auth(key)),
+      403,
+      "forbidden",
+    );
+    expect(compiles).toBe(0);
+    const task = await post(created.app, "/v1/tasks", { operation: "compile", jobId: job.jobId, revisionHash: job.revisionHash }, auth(key));
+    expect(task.status).toBe(202);
+    expect(compiles).toBe(0);
+  });
 });

@@ -70,9 +70,15 @@ export function registerAuthoringRoutes(ctx: RouteContext): ReturnType<typeof au
   const h = authoringHandlers(ctx.deps, idem.commit, ctx.newId);
   const owned = requireOwnedJob(ctx.deps);
   const expensive = expensiveGuard(ctx.deps);
-  app.post("/v1/drafts", readBody, buyer, parseJson, expensive, idem.middleware, h.draft);
+  const rejectPublicSync = async (c: Parameters<typeof h.draft>[0], next: () => Promise<void>): Promise<void> => {
+    if (ctx.deps.deployment.mode === "public") {
+      throw new ApiError("forbidden", "Public authoring uses POST /v1/tasks", { use: "POST /v1/tasks" });
+    }
+    await next();
+  };
+  app.post("/v1/drafts", readBody, buyer, parseJson, rejectPublicSync, expensive, idem.middleware, h.draft);
   app.post("/v1/jobs/:id/revisions", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, h.revise);
-  app.post("/v1/jobs/:id/compile", readBody, buyer, parseJson, requireJobId, owned, expensive, idem.middleware, h.compile);
+  app.post("/v1/jobs/:id/compile", readBody, buyer, parseJson, requireJobId, owned, rejectPublicSync, expensive, idem.middleware, h.compile);
   // Public: the package and reference files are the job's public commitments, which any solver needs.
   app.get("/v1/jobs/:id/package", readBody, requireJobId, h.packageListing);
   app.get("/v1/jobs/:id/package/file", readBody, requireJobId, h.packageFile);

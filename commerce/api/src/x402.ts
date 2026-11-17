@@ -143,6 +143,7 @@ export function registerX402Routes(
   ctx: RouteContext,
   authoring: ReturnType<typeof authoringHandlers>,
   config: X402Config | undefined,
+  withCompileSlot: <T>(run: () => Promise<T>) => Promise<T>,
 ): void {
   if (config) validateConfig(config);
   const { app, deps, buyer } = ctx;
@@ -175,7 +176,7 @@ export function registerX402Routes(
     const quote = { x402Version: 2, resource, accepts: [requirement] };
     const challenge = () => c.json(quote, 402, { "payment-required": encodedHeader(quote) });
     const raw = validPayload(c.req.header("payment-signature"));
-    if (!raw) return stored ? authoring.compile(c, async () => {}) : challenge();
+    if (!raw) return stored ? withCompileSlot(() => authoring.compile(c, async () => {})) : challenge();
     if (!isPlainObject(raw) || raw.x402Version !== 2 || !isPlainObject(raw.payload) ||
         !isPlainObject(raw.resource) || !isPlainObject(raw.accepted) ||
         typeof raw.accepted.network !== "string" || typeof raw.accepted.asset !== "string") {
@@ -205,7 +206,7 @@ export function registerX402Routes(
     if (existing?.state === "settling" || existing?.state === "pending") {
       throw new ApiError("payment_pending", "Payment settlement needs reconciliation before retry");
     }
-    if (!existing && stored) return authoring.compile(c, async () => {});
+    if (!existing && stored) return withCompileSlot(() => authoring.compile(c, async () => {}));
     let settlementJson = existing?.settlement_json ?? null;
     if (!existing) {
       const at = isoAt(deps.now());
@@ -230,7 +231,7 @@ export function registerX402Routes(
       settled.run(settlementJson, isoAt(deps.now()), paymentId);
     }
     if (settlementJson === null) throw new ApiError("internal", "Settled payment has no receipt");
-    return await compileAfterPayment(c, deps, authoring.compile, settlementJson, paymentId, complete);
+    return await withCompileSlot(() => compileAfterPayment(c, deps, authoring.compile, settlementJson, paymentId, complete));
   });
 }
 

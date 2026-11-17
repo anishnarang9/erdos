@@ -6,7 +6,7 @@ import { createApp } from "../../src/app.ts";
 import { httpX402Facilitator } from "../../src/x402.ts";
 import { privateKeyToAccount } from "viem/accounts";
 import { verifyTypedData, type Address, type Hex } from "viem";
-import { BUYER_TOKEN, T0, type SpecApp } from "../spec/helpers.ts";
+import { BUYER_TOKEN, T0, freshKey, type SpecApp } from "../spec/helpers.ts";
 import { EMPTY_REF_HASH, approveOk, countingEngine, createJob56, json, req, revisionWith } from "../spec/helpers-t56.ts";
 
 const asset = "0x3600000000000000000000000000000000000000" as Address;
@@ -39,11 +39,12 @@ function facilitator() {
 }
 function setup(engine = countingEngine(), f = facilitator(), dbPath = ":memory:", amount = "10000") {
   const made = createApp({ dbPath, buyerToken: BUYER_TOKEN, now: () => T0, engine,
+    deployment: { mode: "local", serviceOrigin: "https://api.example.test" },
     x402: { resourceBaseUrl: "https://api.example.test", network: "eip155:5042002", asset,
       payTo, amount, extra: { name: "USD Coin", version: "2" }, facilitator: f } } as any);
   const s: SpecApp = { app: made.app, close: made.close, clock: { t: T0 } };
   opened.push(s);
-  return { s, engine, f };
+  return { s, engine, f, pumpTasks: made.pumpTasks };
 }
 const opened: SpecApp[] = [];
 const dirs: string[] = [];
@@ -200,4 +201,77 @@ it("sends the x402 v2 settle envelope to the configured facilitator", async () =
   expect(result.success).toBe(true);
   expect(seenUrl).toBe("https://facilitator.example.test/v1/x402/settle");
   expect(seenBody).toEqual({ x402Version: 2, paymentPayload: p, paymentRequirements: p.accepted });
+});
+
+it("shares one compiler between a queued compile and a paid compile", async () => {
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => { release = resolve; });
+  let entered = 0;
+  const inner = countingEngine();
+  const engine = countingEngine({
+    compile: async (input) => {
+      entered += 1;
+      if (entered === 1) await gate;
+      return inner.compile(input);
+    },
+  });
+  const { s, f, pumpTasks } = setup(engine);
+  const challenge = await s.app.request("/v1/auth/challenge", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ wallet: payer.address.toLowerCase() }),
+  });
+  const issued = await challenge.json() as { challengeId: string; message: string };
+  expect(challenge.status, JSON.stringify(issued)).toBe(200);
+  const signature = await payer.signMessage({ message: issued.message });
+  const keys = await s.app.request("/v1/auth/keys", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ challengeId: issued.challengeId, signature }),
+  });
+  const key = ((await keys.json()) as { key: string }).key;
+  expect(keys.status).toBe(200);
+  const created = await s.app.request("/v1/jobs", {
+    method: "POST",
+    headers: { authorization: `Bearer ${key}`, "content-type": "application/json", "idempotency-key": freshKey() },
+    body: JSON.stringify({ revision: revisionWith(EMPTY_REF_HASH), source: "import" }),
+  });
+  const owned = await created.json() as { jobId: string; revision: { revisionHash: string } };
+  expect(created.status, JSON.stringify(owned)).toBe(201);
+  const approved = await s.app.request(`/v1/jobs/${owned.jobId}/approve`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${key}`,
+      "content-type": "application/json",
+      "idempotency-key": freshKey(),
+      "if-match": owned.revision.revisionHash,
+    },
+    body: JSON.stringify({ revisionHash: owned.revision.revisionHash, referenceDigest: EMPTY_REF_HASH }),
+  });
+  expect(approved.status, await approved.clone().text()).toBe(200);
+  const queued = await s.app.request("/v1/tasks", {
+    method: "POST",
+    headers: { authorization: `Bearer ${key}`, "content-type": "application/json", "idempotency-key": freshKey() },
+    body: JSON.stringify({ operation: "compile", jobId: owned.jobId, revisionHash: owned.revision.revisionHash }),
+  });
+  expect(queued.status).toBe(202);
+  const paidJob = await job(s);
+  const payload = (await signed(await request(s, paidJob))).p;
+  const pumping = pumpTasks();
+  for (let i = 0; i < 50 && entered < 1; i += 1) await new Promise((resolve) => setTimeout(resolve, 10));
+  expect(entered).toBe(1);
+  const paid = request(s, paidJob, payload);
+  for (let i = 0; i < 50 && f.settlements < 1; i += 1) await new Promise((resolve) => setTimeout(resolve, 10));
+  expect(f.settlements).toBe(1);
+  expect(entered).toBe(1);
+  release();
+  await pumping;
+  const paidRes = await paid;
+  expect(paidRes.status, await paidRes.clone().text()).toBe(200);
+  expect(entered).toBe(2);
+  const replay = await request(s, paidJob, payload);
+  expect(replay.status).toBe(200);
+  expect(replay.headers.get("idempotent-replayed")).toBe("true");
+  expect(f.settlements).toBe(1);
+  expect(entered).toBe(2);
 });
