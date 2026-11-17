@@ -165,7 +165,7 @@
     }
   ],
   "releaseGatesStillOpen": [
-    "Live Grok Bot constraint validation via webhook and restricted callback, with genuine evidence and measured combined cost",
+    "Production Bot account isolation, conversation export, and measured combined authoring and review cost",
     "Reviewed authoring input/session policy within $0.10 per run",
     "Public authoring readiness and external API/laptop-independent acceptance",
     "Later authorized genuine 180-trial qualification",
@@ -478,7 +478,7 @@
     "paidDispatchDisabled": true,
     "massQualificationApproved": false,
     "currentNativeRuntime": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
-    "next": "Preserve genuine conversation export and exact billing. Keep general dispatch disabled. Do not send a second paid review.",
+    "next": "Preserve the genuine conversation export and exact billing. Keep general dispatch disabled. All four authorized reviews are complete.",
     "candidateSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
     "pilotCapApprovedMicroUsd": 1000000,
     "pilotCapConfigured": true,
@@ -563,6 +563,58 @@
     "funded": false,
     "productionReady": false,
     "botAuthoredPlans": false
+  },
+  "publicLiveness": {
+    "observedPublicBeforeFix": {
+      "healthz": 503,
+      "readyz": 503,
+      "unauthenticatedCallback": 401,
+      "documentationHashesMatched": 9
+    },
+    "controlledFix": {
+      "caddyFileSha256": "40389dc2aac2450af7d084490b556ba1649741bdb580ec5516702b9b01cb4b36",
+      "phases": [
+        {
+          "phase": "unready",
+          "status": 503
+        },
+        {
+          "phase": "unready-callback-auth-required",
+          "status": 401
+        },
+        {
+          "phase": "unready-authenticated-callback",
+          "status": 200
+        },
+        {
+          "phase": "unready-callback-prefix-not-a-bypass",
+          "status": 503
+        },
+        {
+          "phase": "unready-still-blocked",
+          "status": 503
+        },
+        {
+          "phase": "unready-liveness",
+          "status": 200
+        },
+        {
+          "phase": "ready",
+          "status": 200
+        },
+        {
+          "phase": "unready-again",
+          "status": 503
+        }
+      ],
+      "privateRequestFieldsAbsentFromLogs": true,
+      "deployed": false
+    },
+    "operationalReports": [
+      "hosted-log-rotation-restart-drill-2026-11-17.json",
+      "hosted-buildkit-gc-drill-2026-11-17.json",
+      "hosted-previous-image-rollback-drill-2026-11-17.json"
+    ]
   },
   "publicDocumentation": {
     "base": "https://ubc26-159-89-149-133.sslip.io/downloads/docs/0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b/",

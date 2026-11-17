@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 16:11 -05:00 — Anish — Separate public liveness from buyer readiness
+
+- Public HTTPS returns 503 on /healthz and /readyz before the fix. All nine public documentation files match their recorded hashes. The pinned proxy regression fails before the fix, then passes with the exact GET /healthz route. Buyer traffic stays gated and callback authentication still applies. The proxy fix awaits deployment. See the [release ledger](reports/hosted-release-readiness-2026-11-17.json).
+
 ## 2026-11-17 16:07 -05:00 — Anish — Verify automatic BuildKit cache reclamation
 
 - The pinned BuildKit image reclaimed cache from 37.77 MB to 8.192 kB with an 8 MiB threshold on an isolated Linux worker. The builder was removed after measurement. Production eviction and eviction under host disk pressure remain untested. See the [cache drill](reports/hosted-buildkit-gc-drill-2026-11-17.json).

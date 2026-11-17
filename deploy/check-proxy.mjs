@@ -84,6 +84,12 @@ try{
   {phase:'unready-authenticated-callback',...await awaitStatus(200,'/integrations/grok-bot/mcp','synthetic-bot-service-must-not-log')},
   {phase:'unready-callback-prefix-not-a-bypass',...await awaitStatus(503,'/integrations/grok-bot/mcp/extra')},
   {phase:'unready-still-blocked',...await awaitStatus(503)}];
+ const live=await assetRequest('/healthz');
+ assert.equal(live.status,200,'liveness must remain available during readiness failure');
+ assert.equal(Buffer.from(live.body,'base64').toString('utf8'),'ok');
+ assert.equal((await assetRequest('/healthz/extra')).status,503);
+ assert.equal((await assetRequest('/healthz',{method:'POST'})).status,503);
+ phases.push({phase:'unready-liveness',status:live.status});
  const runnerDownloads=await checkDownloads();
  const engineDownloads=await checkDownloads(engineAssets,'/downloads/engine','ubc26-engine-linux-x64','engine.json');
  const documentationDownloads=await checkDownloads(docsAssets,'/downloads/docs','README.md','release.json');
