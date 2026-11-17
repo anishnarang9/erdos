@@ -1,7 +1,7 @@
 // T5/T6 engine boundary. Wraps Anish's engine CLI (engine/README.md on codex/anish-engine, "Connect commerce").
 // The CLI writes success JSON to stdout and error JSON `{ code, message, path?, request? }` to stderr.
 // Exit 2: argument, input or output error. Exit 3: build, prover or randomness failure.
-import { execFile } from "node:child_process";
+import { spawn, type ChildProcess } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -173,6 +173,171 @@ export function simulatedEngine(): Engine {
  */
 export type EngineBin = string | { command: string; args?: string[] };
 
+/** Pinned compiler PATH. The child does not receive the server PATH. */
+export const COMPILER_PATH = "/opt/ubc26/docker-bin:/usr/local/bin:/usr/bin:/bin";
+/** Pinned compiler temp directory when the caller does not pass a work or temp directory. */
+export const COMPILER_TMPDIR = "/var/lib/ubc26/tmp";
+const WSL_GUEST_PATH = "/usr/local/bin:/usr/bin:/bin";
+const WSL_ENV_BIN = "/usr/bin/env";
+const ENGINE_MAX_BUFFER = 16 * 1024 * 1024;
+const ENGINE_KILL_GRACE_MS = 200;
+const SSL_ENV_KEYS = ["SSL_CERT_FILE", "SSL_CERT_DIR", "REQUESTS_CA_BUNDLE", "CURL_CA_BUNDLE", "NODE_EXTRA_CA_CERTS"] as const;
+export type SslEnvKey = (typeof SSL_ENV_KEYS)[number];
+
+/**
+ * Explicit compiler settings. Values are assigned into a new object.
+ * process.env is never copied. Registry credentials and server secrets are not accepted here.
+ */
+export interface CompilerProcessSettings {
+  path?: string;
+  tmpDir?: string;
+  cacheDir?: string;
+  r0vmPath?: string;
+  /** Named CA locations only. Other SSL or auth variables are not read. */
+  ssl?: Partial<Record<SslEnvKey, string>>;
+  /**
+   * Extra explicit names. Local tests use this for fake-engine knobs.
+   * Passing process.env is rejected. Undefined values are rejected.
+   */
+  extra?: Record<string, string | undefined>;
+}
+
+const ENV_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+/** Builds the child environment from explicit settings. It does not inherit the server environment. */
+export function compilerProcessEnv(settings: CompilerProcessSettings = {}): Record<string, string> {
+  if (settings.extra === process.env) throw new Error("Compiler environment cannot inherit process.env");
+  const env: Record<string, string> = {};
+  if (settings.extra) {
+    for (const [key, value] of Object.entries(settings.extra)) {
+      if (!ENV_NAME.test(key) || typeof value !== "string") throw new Error(`Compiler environment name ${key} is not explicit`);
+      env[key] = value;
+    }
+  }
+  const ssl = settings.ssl ?? {};
+  for (const key of SSL_ENV_KEYS) {
+    const value = ssl[key];
+    if (typeof value === "string" && value.length > 0) env[key] = value;
+  }
+  env.PATH = settings.path ?? COMPILER_PATH;
+  env.TMPDIR = settings.tmpDir ?? COMPILER_TMPDIR;
+  if (settings.cacheDir) env.UBC26_ENGINE_CACHE = settings.cacheDir;
+  if (settings.r0vmPath) env.RISC0_SERVER_PATH = settings.r0vmPath;
+  return env;
+}
+
+/** Copies only named CA variables from a configuration map. It does not copy the rest of that map. */
+export function explicitSsl(env: Record<string, string | undefined>): Partial<Record<SslEnvKey, string>> | undefined {
+  const ssl: Partial<Record<SslEnvKey, string>> = {};
+  for (const key of SSL_ENV_KEYS) {
+    const value = env[key];
+    if (typeof value === "string" && value.length > 0) ssl[key] = value;
+  }
+  return Object.keys(ssl).length > 0 ? ssl : undefined;
+}
+
+const liveChildren = new Set<ChildProcess>();
+let exitHooked = false;
+
+function killProcessGroup(child: ChildProcess, signal: NodeJS.Signals): void {
+  const pid = child.pid;
+  if (pid === undefined || pid <= 0) return;
+  // POSIX group id. Windows has no equivalent signal, so the direct child is signalled there.
+  if (process.platform !== "win32") {
+    try {
+      process.kill(-pid, signal);
+      return;
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === "ESRCH") return;
+    }
+  }
+  try {
+    child.kill(signal);
+  } catch {
+    // The direct process has already exited.
+  }
+}
+
+function trackChild(child: ChildProcess): void {
+  liveChildren.add(child);
+  const drop = () => liveChildren.delete(child);
+  child.on("close", drop);
+  child.on("error", drop);
+  if (exitHooked) return;
+  exitHooked = true;
+  process.on("exit", () => {
+    for (const current of liveChildren) killProcessGroup(current, "SIGKILL");
+  });
+}
+
+function spawnEngine(command: string, args: string[], timeout: number, env: Record<string, string>, label: string): Promise<RunResult> {
+  return new Promise((resolve, reject) => {
+    let stdout = "";
+    let stderr = "";
+    let used = 0;
+    let settled = false;
+    let timedOut = false;
+    let killTimer: ReturnType<typeof setTimeout> | undefined;
+    let child: ChildProcess;
+    const finish = (fn: () => void) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(deadline);
+      fn();
+    };
+    try {
+      child = spawn(command, args, {
+        shell: false,
+        windowsHide: true,
+        detached: process.platform !== "win32",
+        env,
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+    } catch {
+      reject(new EngineError("spawn", `Engine ${label} could not be started`));
+      return;
+    }
+    trackChild(child);
+    const armKill = () => {
+      if (killTimer) return;
+      killTimer = setTimeout(() => killProcessGroup(child, "SIGKILL"), ENGINE_KILL_GRACE_MS);
+    };
+    const deadline = setTimeout(() => {
+      timedOut = true;
+      killProcessGroup(child, "SIGTERM");
+      armKill();
+    }, timeout);
+    const onChunk = (kind: "out" | "err", chunk: Buffer) => {
+      if (used + chunk.length > ENGINE_MAX_BUFFER) {
+        timedOut = true;
+        killProcessGroup(child, "SIGKILL");
+        return;
+      }
+      used += chunk.length;
+      const text = chunk.toString("utf8");
+      if (kind === "out") stdout += text;
+      else stderr += text;
+    };
+    child.stdout?.on("data", (chunk: Buffer) => onChunk("out", chunk));
+    child.stderr?.on("data", (chunk: Buffer) => onChunk("err", chunk));
+    child.on("error", () => {
+      clearTimeout(killTimer);
+      finish(() => reject(new EngineError("spawn", `Engine ${label} could not be started`)));
+    });
+    child.on("close", (code, signal) => {
+      clearTimeout(deadline);
+      if (timedOut) killProcessGroup(child, "SIGKILL");
+      else {
+        clearTimeout(killTimer);
+        killProcessGroup(child, "SIGKILL");
+      }
+      if (timedOut || signal) finish(() => reject(new EngineError("timeout", `Engine ${label} timed out or was killed`)));
+      else if (typeof code === "number") finish(() => resolve({ exit: code, stdout, stderr }));
+      else finish(() => reject(new EngineError("spawn", `Engine ${label} could not be started`)));
+    });
+  });
+}
+
 export interface CliEngineOptions {
   bin: EngineBin;
   /** Parent directory for per-call temporary directories, as a path this process can write. Defaults to os.tmpdir(). */
@@ -183,6 +348,13 @@ export interface CliEngineOptions {
   timeoutMs?: number;
   /** compile timeout (a cold guest build runs Docker). Default 30 min. */
   compileTimeoutMs?: number;
+  /**
+   * Explicit extra child variables, read at each spawn. Local tests pass fake-engine knobs here.
+   * This is not an inheritance list. Do not pass process.env.
+   */
+  env?: Record<string, string>;
+  /** Explicit PATH, temp, cache, prover, and CA settings. Omitted fields use pinned defaults. */
+  processEnv?: CompilerProcessSettings;
 }
 
 /** One engine error object from stderr. */
@@ -288,22 +460,20 @@ export function cliEngine(opts: CliEngineOptions): Engine {
   const command = typeof opts.bin === "string" ? opts.bin : opts.bin.command;
   const prefix = typeof opts.bin === "string" ? [] : (opts.bin.args ?? []);
   const ep = opts.toEnginePath ?? ((p: string) => p);
+  const childEnv = (): Record<string, string> => {
+    if (opts.env === process.env) throw new Error("Compiler environment cannot inherit process.env");
+    return compilerProcessEnv({
+      path: opts.processEnv?.path,
+      tmpDir: opts.processEnv?.tmpDir ?? opts.workDir ?? tmpdir(),
+      ...(opts.processEnv?.cacheDir ? { cacheDir: opts.processEnv.cacheDir } : {}),
+      ...(opts.processEnv?.r0vmPath ? { r0vmPath: opts.processEnv.r0vmPath } : {}),
+      ...(opts.processEnv?.ssl ? { ssl: opts.processEnv.ssl } : {}),
+      ...(opts.env ? { extra: opts.env } : {}),
+    });
+  };
 
   const run = (args: string[], timeout: number): Promise<RunResult> =>
-    new Promise((resolve, reject) => {
-      execFile(
-        command,
-        [...prefix, ...args],
-        { timeout, maxBuffer: 16 * 1024 * 1024, windowsHide: true, encoding: "utf8", shell: false },
-        (err, stdout, stderr) => {
-          if (!err) return resolve({ exit: 0, stdout, stderr });
-          const e = err as NodeJS.ErrnoException & { killed?: boolean; code?: unknown; signal?: unknown };
-          if (e.killed || e.signal) reject(new EngineError("timeout", `Engine ${args[0]} timed out or was killed`));
-          else if (typeof e.code === "number") resolve({ exit: e.code, stdout, stderr });
-          else reject(new EngineError("spawn", `Engine ${args[0]} could not be started`));
-        },
-      );
-    });
+    spawnEngine(command, [...prefix, ...args], timeout, childEnv(), args[0] ?? "command");
 
   const withTemp = async <T>(fn: (dir: string) => Promise<T>): Promise<T> => {
     const parent = opts.workDir ?? tmpdir();
@@ -410,24 +580,40 @@ export interface WslEngineOptions {
   r0vmPath?: string;
   /** Linux path of the engine build cache (UBC26_ENGINE_CACHE). */
   cacheDir?: string;
+  /** Linux temp directory inside the guest. A non-POSIX value stays on the host side only. */
+  tmpDir?: string;
+  /** Named CA locations for the guest. */
+  ssl?: Partial<Record<SslEnvKey, string>>;
+  /** Absolute path of wsl.exe. The default name is a local PATH lookup and is not a public pin. */
+  wslBin?: string;
   /** Host path for temporary directories. Prefer one on the WSL filesystem (case-sensitive, fast). */
   workDir?: string;
   timeoutMs?: number;
   compileTimeoutMs?: number;
 }
 
-/** The `wsl.exe` invocation that runs the engine with a fixed environment and no shell. */
-export function wslEngineBin(o: Pick<WslEngineOptions, "distro" | "enginePath" | "r0vmPath" | "cacheDir">): EngineBin {
-  const env = [
-    ...(o.r0vmPath ? [`RISC0_SERVER_PATH=${o.r0vmPath}`] : []),
-    ...(o.cacheDir ? [`UBC26_ENGINE_CACHE=${o.cacheDir}`] : []),
-  ];
-  return { command: "wsl.exe", args: ["-d", o.distro, "-e", "env", "-u", "RISC0_DEV_MODE", "-u", "RUST_LOG", ...env, o.enginePath] };
+/** The `wsl.exe` invocation that runs the engine with a clean guest environment and no shell. */
+export function wslEngineBin(o: Pick<WslEngineOptions, "distro" | "enginePath" | "r0vmPath" | "cacheDir" | "tmpDir" | "ssl" | "wslBin">): EngineBin {
+  const guest = compilerProcessEnv({
+    path: WSL_GUEST_PATH,
+    tmpDir: o.tmpDir && o.tmpDir.startsWith("/") ? o.tmpDir : "/tmp",
+    ...(o.cacheDir ? { cacheDir: o.cacheDir } : {}),
+    ...(o.r0vmPath ? { r0vmPath: o.r0vmPath } : {}),
+    ...(o.ssl ? { ssl: o.ssl } : {}),
+  });
+  const assignments = ["PATH", "TMPDIR", "RISC0_SERVER_PATH", "UBC26_ENGINE_CACHE", ...SSL_ENV_KEYS]
+    .filter((key) => Object.hasOwn(guest, key))
+    .map((key) => `${key}=${guest[key]}`);
+  return { command: o.wslBin ?? "wsl.exe", args: ["-d", o.distro, "-e", WSL_ENV_BIN, "-i", ...assignments, o.enginePath] };
 }
 
 export function wslEngine(o: WslEngineOptions): Engine {
   return cliEngine({
     bin: wslEngineBin(o),
+    processEnv: {
+      path: COMPILER_PATH,
+      tmpDir: o.workDir ?? tmpdir(),
+    },
     toEnginePath: (p) => windowsToWslPath(p, o.distro),
     ...(o.workDir ? { workDir: o.workDir } : {}),
     ...(o.timeoutMs ? { timeoutMs: o.timeoutMs } : {}),
@@ -445,17 +631,24 @@ export interface EngineEnvConfig {
   r0vmPath?: string;
   cacheDir?: string;
   workDir?: string;
+  /** Explicit compiler temp directory (ENGINE_TMPDIR). Not inherited as part of the server environment. */
+  tmpDir?: string;
+  /** Absolute wsl.exe path (ENGINE_WSL_BIN). */
+  wslBin?: string;
+  ssl?: Partial<Record<SslEnvKey, string>>;
 }
 
 /**
  * Reads ENGINE_MODE (wsl | native | simulated), ENGINE_PATH, ENGINE_WSL_DISTRO (default Ubuntu), ENGINE_R0VM,
- * ENGINE_CACHE and ENGINE_WORK_DIR. Returns null for simulated (the default); throws on a bad configuration.
+ * ENGINE_CACHE, ENGINE_WORK_DIR, ENGINE_TMPDIR, ENGINE_WSL_BIN, and named CA variables. Returns null for
+ * simulated (the default). It does not copy the rest of `env`.
  */
 export function engineConfigFromEnv(env: Record<string, string | undefined>): EngineEnvConfig | null {
   const mode = env.ENGINE_MODE ?? "simulated";
   if (mode === "simulated") return null;
   if (mode !== "wsl" && mode !== "native") throw new Error(`ENGINE_MODE must be wsl, native or simulated, not ${mode}`);
   if (!env.ENGINE_PATH) throw new Error(`ENGINE_PATH is required when ENGINE_MODE=${mode}`);
+  const ssl = explicitSsl(env);
   return {
     mode,
     enginePath: env.ENGINE_PATH,
@@ -463,6 +656,9 @@ export function engineConfigFromEnv(env: Record<string, string | undefined>): En
     ...(env.ENGINE_R0VM ? { r0vmPath: env.ENGINE_R0VM } : {}),
     ...(env.ENGINE_CACHE ? { cacheDir: env.ENGINE_CACHE } : {}),
     ...(env.ENGINE_WORK_DIR ? { workDir: env.ENGINE_WORK_DIR } : {}),
+    ...(env.ENGINE_TMPDIR ? { tmpDir: env.ENGINE_TMPDIR } : {}),
+    ...(env.ENGINE_WSL_BIN ? { wslBin: env.ENGINE_WSL_BIN } : {}),
+    ...(ssl ? { ssl } : {}),
   };
 }
 
@@ -473,5 +669,20 @@ export function engineFromConfig(c: EngineEnvConfig): { engine: Engine; label: s
     return { engine: wslEngine(c), label: `wsl:${c.distro}:${c.enginePath}`, bin: wslEngineBin(c), toEnginePath };
   }
   const bin = c.enginePath;
-  return { engine: cliEngine({ bin, ...(c.workDir ? { workDir: c.workDir } : {}) }), label: `native:${c.enginePath}`, bin, toEnginePath: (p) => p };
+  return {
+    engine: cliEngine({
+      bin,
+      processEnv: {
+        path: COMPILER_PATH,
+        tmpDir: c.tmpDir ?? c.workDir ?? tmpdir(),
+        ...(c.cacheDir ? { cacheDir: c.cacheDir } : {}),
+        ...(c.r0vmPath ? { r0vmPath: c.r0vmPath } : {}),
+        ...(c.ssl ? { ssl: c.ssl } : {}),
+      },
+      ...(c.workDir ? { workDir: c.workDir } : {}),
+    }),
+    label: `native:${c.enginePath}`,
+    bin,
+    toEnginePath: (p) => p,
+  };
 }

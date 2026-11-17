@@ -22,6 +22,10 @@ export {
   engineConfigFromEnv,
   engineFromConfig,
   wslEngineBin,
+  compilerProcessEnv,
+  explicitSsl,
+  COMPILER_PATH,
+  COMPILER_TMPDIR,
   windowsToWslPath,
   parseEngineError,
   parseManifest,
@@ -38,6 +42,8 @@ export {
   type EngineErrorBody,
   type WslEngineOptions,
   type EngineEnvConfig,
+  type CompilerProcessSettings,
+  type SslEnvKey,
 } from "./engine.ts";
 export {
   grokDraftModel,
