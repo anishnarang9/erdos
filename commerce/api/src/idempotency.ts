@@ -13,14 +13,20 @@ interface StoredRow {
   response_json: string;
 }
 
+export interface IdempotentResult {
+  status: number;
+  body: unknown;
+}
+
 export interface Idempotency {
   middleware: MiddlewareHandler<AppEnv>;
   /**
    * Runs the handler's writes and stores its response in one transaction, then returns the response.
    * If a concurrent request with the same scope stored first, the writes are rolled back and that
    * request's outcome (replay or 422) is returned instead.
+   * A write function may return the response when the body is known only after the writes.
    */
-  commit: (c: AppContext, status: number, body: unknown, writes?: () => void) => Response;
+  commit: (c: AppContext, status: number, body: unknown, writes?: () => void | IdempotentResult) => Response;
 }
 
 export function idempotency(deps: Deps): Idempotency {
@@ -95,25 +101,42 @@ export function idempotency(deps: Deps): Idempotency {
     }
   };
 
+  const responseFrom = (status: number, text: string): Response =>
+    new Response(text, { status, headers: { "content-type": "application/json" } });
+
+  const produce = (
+    status: number,
+    preset: string,
+    writes?: () => void | IdempotentResult,
+  ): { status: number; text: string } => {
+    const written = writes?.();
+    if (typeof written === "object" && written !== null && typeof written.status === "number" && "body" in written) {
+      return { status: written.status, text: JSON.stringify(written.body) };
+    }
+    return { status, text: preset };
+  };
+
   const commit: Idempotency["commit"] = (c, status, body, writes) => {
-    const text = JSON.stringify(body);
+    const preset = JSON.stringify(body);
     const scope = c.get("idem");
     if (!scope) {
-      if (writes) tx(db, writes);
-      return new Response(text, { status, headers: { "content-type": "application/json" } });
+      const ready = writes ? tx(db, () => produce(status, preset, writes)) : { status, text: preset };
+      return responseFrom(ready.status, ready.text);
     }
+    let ready: { status: number; text: string } | undefined;
     const raced = tx(db, () => {
       const row = lookup(scope);
       if (row) return row;
-      writes?.();
-      if (status < 500) store(scope, status, text);
+      ready = produce(status, preset, writes);
+      if (ready.status < 500) store(scope, ready.status, ready.text);
       return undefined;
     });
     if (raced) {
       scope.stored = true;
       return outcome(scope, raced);
     }
-    return new Response(text, { status, headers: { "content-type": "application/json" } });
+    if (!ready) throw new Error("idempotency commit produced no response");
+    return responseFrom(ready.status, ready.text);
   };
 
   return { middleware, commit };

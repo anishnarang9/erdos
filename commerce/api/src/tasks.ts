@@ -268,9 +268,11 @@ export function registerTaskRoutes(
     if (inputJson === undefined) throw new ApiError("validation_failed", "Task input cannot be canonicalized");
     const inputHash = hashInput(input);
     const at = isoAt(deps.now());
-    const created = tx(db, () => {
+    // Task, reservation, and the idempotency response commit together.
+    // A later different body for this key must not keep orphan paid work.
+    return idem.commit(c, 202, null, () => {
       const existing = findDup.get(wallet, operation, inputHash, ...DEDUP_STATES) as TaskRow | undefined;
-      if (existing) return existing;
+      if (existing) return { status: 202, body: taskView(existing) };
       const id = newId();
       if (operation === "draft" && deps.budget) {
         const spent = Number((spentToday.get(dayStart(deps.now())) as { spent: number }).spent);
@@ -280,9 +282,8 @@ export function registerTaskRoutes(
         insertReservation.run(newId(), wallet, id, deps.budget.requestCeilingMicroUsd, at, at);
       }
       insertTask.run(id, wallet, operation, inputJson, inputHash, at, at);
-      return byId.get(id) as unknown as TaskRow;
+      return { status: 202, body: taskView(byId.get(id) as unknown as TaskRow) };
     });
-    return c.json(taskView(created), 202);
   });
 
   app.get("/v1/tasks/:id", readBody, requireApiKey(deps), (c) => {
