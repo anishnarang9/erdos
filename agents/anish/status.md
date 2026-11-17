@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 16:07 -05:00 — Anish — Verify automatic BuildKit cache reclamation
+
+- The pinned BuildKit image reclaimed cache from 37.77 MB to 8.192 kB with an 8 MiB threshold on an isolated Linux worker. The builder was removed after measurement. Production eviction and eviction under host disk pressure remain untested. See the [cache drill](reports/hosted-buildkit-gc-drill-2026-11-17.json).
+
 ## 2026-11-17 16:02 -05:00 — Anish — Exercise Docker log rotation and restart
 
 - The VPS applies three-file rotation at 10 MB and restart unless stopped. An isolated drill hits the three-file limit and restarts after its process exits. The first test used Docker kill, which did not exercise automatic restart. All three bounded filesystems have free capacity. BuildKit reports GC enabled, with cache below its configured limit. Actual cache reclamation remains unverified. See the [operations drill](reports/hosted-log-rotation-restart-drill-2026-11-17.json).
