@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-17 04:21 -05:00 — Anish — Prepare verified server transfer and dedicated SSH access
+
+- DigitalOcean context `ubc26` is not authenticated yet. Account signup/browser authorization remains pending. Prepared the existing `20b0dc2` image for native-host transfer without a registry subscription. The private archive is 127,415,689 bytes, SHA-256 `7289a46d…`. The [transfer report](reports/hosted-image-transfer-2026-11-17.json) verifies all 32 OCI blobs and 26 uncompressed runtime layers, platform and source label.
+- The image ID `acc4eb14…` identifies an OCI index. Initial export inspection incorrectly compared it with the config ID. Full descriptor-chain validation confirms amd64 manifest `e7e2d7b6…` and config `892a4e58…`. The [DigitalOcean runbook](../../docs/hosted-digitalocean.md) now requires checksum verification and explicit native import identities. This is local transfer evidence, not a native compiler pass.
+- Prepared a task-specific Ed25519 SSH key outside Git and the candidate bundle. Private permissions are 0600 in a 0700 directory. Its contents were never printed. No provider key upload, resource creation, Sandbox, model request, compiler/proof run or chain action occurred.
+- Code candidate and previous CI evidence remain unchanged. Next: verify DigitalOcean browser authorization, inspect current size/region/price and existing resources, then provision the selected host and test the real compiler. Secure application model access, approved inference ceilings, genuine trials, current live acceptance and final review stay open. The previous goal turn made progress through provider selection and installed CLI access. This turn adds verified deployable bytes and operator access preparation.
+
 ## 2026-11-17 04:15 -05:00 — Anish — User selects DigitalOcean for the backend
 
 - The user chose the previously quoted DigitalOcean route and requested signup instructions. The selected specification is Basic Regular four shared vCPUs, 8 GiB RAM, 160 GiB SSD, Ubuntu 24.04 LTS x64 and weekly backups. Published monthly compute plus weekly backup is $57.60 before tax and separate usage. Account signup, billing activation and authenticated provider access are the next dependencies.

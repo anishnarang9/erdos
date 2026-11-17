@@ -44,3 +44,15 @@ Follow the existing [runtime runbook](hosted-runtime.md), the candidate's [relea
 - Complete genuine model qualification, current live acceptance and independent review. Preserve the original sprint completion gates.
 
 Proving and signing remain on clients. The per-refinement model target is separate from server cost. Candidate code remains `20b0dc2`; documentation checkpoints do not establish a public release.
+
+## Prepared transfer artifact
+
+The private candidate bundle now contains `ubc26-hosted-runtime-20b0dc2.docker.tar.gz` and `SHA256SUMS.runtime`. The archive is 127,415,689 bytes. Its SHA-256 is `7289a46dbb583a41d74be33d725baf661a0a21538743b6d50b890d5acdf56f20`. See the [transfer verification](../agents/anish/reports/hosted-image-transfer-2026-11-17.json).
+
+The verifier checked all 32 OCI blob hashes and sizes, all 26 uncompressed runtime layer hashes, the Linux amd64 platform and the candidate source label. The archive includes the existing OCI index `acc4eb14…`, amd64 manifest `e7e2d7b6…` and config `892a4e58…`. An initial local check incorrectly equated the index digest with the child config digest. Inspection showed the expected OCI structure. Verification now follows its descriptor chain and validates the actual layers.
+
+After copying, verify the archive checksum on the host before import. Record the imported index, platform manifest and config identities. A classic Docker image store can expose the config ID instead of retaining the OCI index ID. Only accept identities that exactly match the report and the expected runtime payload. Do not describe a config-only import as preservation of the full OCI index. The compose image setting must select the actual verified imported identity.
+
+A dedicated Ed25519 operator key is prepared outside the repository. Its private file has mode 0600 inside a mode-0700 directory. Upload only its public key through authenticated provider access. No key material or API credentials belong in the candidate bundle or Git.
+
+These checks establish local transfer readiness. They do not establish native compilation, public deployment or model access. No server was contacted.
