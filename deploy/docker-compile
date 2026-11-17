@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+# The engine has one fixed Docker operation. The API's PATH selects this wrapper.
+if [ "$#" -ne 6 ] || [ "$1" != build ] || [ "$2" != --platform ] || [ "$3" != linux/amd64 ] || [ "$4" != --output ]; then
+  echo 'Unsupported compiler operation' >&2
+  exit 2
+fi
+case "$5" in type=local,dest=/var/lib/ubc26/tmp/*/output) ;; *) exit 2 ;; esac
+case "$6" in /var/lib/ubc26/tmp/*/source) ;; *) exit 2 ;; esac
+stage=${6%/source}
+case "${stage#/var/lib/ubc26/tmp/}" in ''|.|..|*/*) exit 2 ;; esac
+[ "$5" = "type=local,dest=$stage/output" ] || exit 2
+shift
+exec /usr/local/bin/docker --config /var/lib/ubc26/docker buildx build --builder ubc26-compiler "$@"

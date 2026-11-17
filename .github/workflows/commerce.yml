@@ -2,9 +2,9 @@ name: commerce
 
 on:
   push:
-    paths: ["commerce/**", ".github/workflows/commerce.yml"]
+    paths: ["commerce/**", "deploy/**", ".github/workflows/commerce.yml"]
   pull_request:
-    paths: ["commerce/**", ".github/workflows/commerce.yml"]
+    paths: ["commerce/**", "deploy/**", ".github/workflows/commerce.yml"]
 
 permissions:
   contents: read
@@ -24,6 +24,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm test
+      - name: Check backup integrity and the relocated API bundle
+        run: |
+          node --test ../deploy/state.test.mjs
+          node ../deploy/build-api.mjs "$RUNNER_TEMP/ubc26-hosted-api/server.mjs"
       - name: Build the standalone runner from the checked source
         run: node worker/scripts/package-runner.mjs "$RUNNER_TEMP/ubc26-runner-release"
       - name: Check an independent Linux installation

@@ -1,0 +1,70 @@
+name: ubc26-hosted
+services:
+  api:
+    image: ${UBC26_IMAGE:?Set the reviewed image digest or local image ID}
+    platform: linux/amd64
+    init: true
+    user: '1000:1000'
+    env_file:
+      - ${UBC26_API_ENV:?Set the protected API environment file path}
+    environment:
+      NODE_ENV: production
+      DEPLOYMENT_MODE: public
+      HOST: 0.0.0.0
+      PORT: '8080'
+      SERVICE_ORIGIN: https://${UBC26_HOSTNAME:?Set the public hostname}
+      TRUST_PROXY: '1'
+      ENGINE_MODE: native
+      ENGINE_PATH: /usr/local/bin/ubc26-engine
+      ENGINE_WORK_DIR: /var/lib/ubc26/work
+      PACKAGES_DIR: /var/lib/ubc26/packages
+      DB_PATH: /var/lib/ubc26/service.db
+      UBC26_ENGINE_CACHE: /var/lib/ubc26/cache
+      TMPDIR: /var/lib/ubc26/tmp
+      PATH: /opt/ubc26/docker-bin:/usr/local/bin:/usr/bin:/bin
+    group_add:
+      - ${UBC26_DOCKER_GID:?Set the dedicated host Docker socket group ID}
+    volumes:
+      - ${UBC26_STATE_DIR:?Set the quota-limited durable state mount}:/var/lib/ubc26
+      - /var/run/docker.sock:/var/run/docker.sock
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777,noexec,nosuid,nodev
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    cpus: 1.0
+    mem_limit: 1g
+    memswap_limit: 1g
+    pids_limit: 128
+    restart: unless-stopped
+    stop_grace_period: 35m
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
+    networks: [backend]
+  https:
+    image: caddy:2.10.2-alpine@sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d
+    environment:
+      UBC26_HOSTNAME: ${UBC26_HOSTNAME:?Set the public hostname}
+      UBC26_TLS_EMAIL: ${UBC26_TLS_EMAIL:?Set the TLS contact email}
+    ports: ['80:80', '443:443', '443:443/udp']
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    read_only: true
+    tmpfs: [/tmp:size=16m,noexec,nosuid,nodev]
+    mem_limit: 128m
+    memswap_limit: 128m
+    cpus: 0.25
+    pids_limit: 64
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
+    networks: [backend]
+networks:
+  backend:
+volumes:
+  caddy-data:
+  caddy-config:

@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 21:53 -05:00 — Anish — Runtime package and local restore checkpoint
+
+- Added pinned Linux build stages, a clean committed-source image script, one bounded BuildKit compiler, HTTPS Compose ingress, backup/restore commands and [runtime instructions](../../docs/hosted-runtime.md). Compose validates with example administrative values. The pinned Linux Node-24 API build target passes. The native Linux engine release build continues; the full runtime/TLS/resource checks remain pending. No deployment occurred.
+- Four state tests pass locally and inside the pinned Linux amd64 Node-24 image. They check WAL snapshot recovery, owner/job consistency, artifact hashes, quiescence, tampering, extra files, symlinks, wrong pins and existing destinations. The real [local native restore drill](reports/hosted-local-native-restore-2026-11-16.json) preserves the original state and recovers the completed task, attempt 1, deduplication, owner isolation and exact guest bytes in a new process. Internal logical paths stay fixed. This is not public-host evidence.
+- Combined commerce typechecks pass. SDK 357 and API 799 pass. The default worker run passed 924 but hit the existing one-second native-child timeout once under concurrent load. The focused retry passed 33/33. A full run with four workers passed all 925. No product timeout changed. Pushed checkpoint `b7a4b0b` passed commerce/Linux installation, engine and contracts CI.
+- Worker A continues model/usage/production controls. Worker B continues the frozen corpus. Hosting access, model API configuration/budgets and fresh live authority remain open. No paid API request, wallet access or chain transaction occurred.
+
 ## 2026-11-16 21:44 -05:00 — Anish — Durable tasks integrated and native queue checked
 
 - Integrated Worker A's durable queue, emergency-disable repair and public sync gate through `5e6b5d8`. Public clients use tasks. Paid compilation shares one compiler slot and retains completed Circle replay. My separate SDK/restart regression first reproduced queued dispatch despite emergency disable, then passed after the repair. Full combined commerce checks are running; all typechecks, SDK 357 and API 799 have passed so far.
