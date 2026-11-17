@@ -25,6 +25,9 @@ export interface HostedTask {
   result?: unknown;
   error?: { code: string; message: string };
 }
+export interface HostedReference { name: string; contentBase64: string }
+export type HostedSubmission = { revision: unknown; references?: HostedReference[] } &
+  ({ source: "import" } | { source: "grok"; draftId: string });
 export interface WaitTaskOptions { intervalMs?: number; timeoutMs?: number; signal?: AbortSignal }
 export class HostedApiError extends Error {
   constructor(readonly status: number, readonly code: string) {
@@ -157,7 +160,8 @@ export function hostedClient(options: HostedClientOptions) {
     },
     currentKey: async () => keyView(await request("GET", "/v1/auth/keys/current")),
     revokeKey: (id: string, replayKey: string) => request("POST", `/v1/auth/keys/${encodeURIComponent(id)}/revoke`, {}, replayKey),
-    importJob: (revision: unknown, replayKey: string) => request("POST", "/v1/jobs", { revision, source: "import" }, replayKey),
+    createJob: (submission: HostedSubmission, replayKey: string) => request("POST", "/v1/jobs", submission, replayKey),
+    importJob: (revision: unknown, replayKey: string, references?: HostedReference[]) => request("POST", "/v1/jobs", { revision, source: "import", ...(references ? { references } : {}) }, replayKey),
     job: (id: string) => request("GET", `/v1/jobs/${encodeURIComponent(id)}`, undefined, undefined, false),
     revise: (id: string, body: unknown, replayKey: string, revisionHash: string) => request("POST", `/v1/jobs/${encodeURIComponent(id)}/revisions`, body, replayKey, true, { "if-match": `"${revisionHash}"` }),
     approve: (id: string, body: { revisionHash: string; referenceDigest: string }, replayKey: string) => request("POST", `/v1/jobs/${encodeURIComponent(id)}/approve`, body, replayKey, true, { "if-match": `"${body.revisionHash}"` }),

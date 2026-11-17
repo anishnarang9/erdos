@@ -78,13 +78,24 @@ function writeFilesInto(dir: string, files: BundleFile[]): void {
 }
 
 export function readFilesFrom(dir: string): BundleFile[] {
-  return readdirSync(dir)
-    .sort()
-    .map((name) => {
-      const path = join(dir, name), s = lstatSync(path);
-      must(s.isFile() && !s.isSymbolicLink() && s.nlink === 1, "artifact_path", "bundle contains a link or non-file");
-      return { name, content: new Uint8Array(readFileSync(path)) };
-    });
+  checkArtifactAncestors(resolve(dir));
+  const names = readdirSync(dir).sort();
+  must(names.length <= 16, "bundle_limits", "bundle has too many files");
+  let total = 0;
+  const entries = names.map(name => {
+    const path = join(dir, name), info = lstatSync(path);
+    must(SAFE_NAME.test(name) && name !== "." && name !== ".." && info.isFile() && !info.isSymbolicLink() && info.nlink === 1,
+      "artifact_path", "bundle contains an unsafe name, link or non-file");
+    total += info.size;
+    // References permit 32 KiB of content. Deliverables receive the stricter encoded bound downstream.
+    must(info.size <= 32_768 && total <= 32_768, "bundle_limits", "bundle exceeds its content byte limit");
+    return { name, path, size: info.size };
+  });
+  return entries.map(entry => {
+    const content = new Uint8Array(readFileSync(entry.path));
+    must(content.length === entry.size, "artifact_path", "bundle changed while reading");
+    return { name: entry.name, content };
+  });
 }
 
 export function sameFiles(a: BundleFile[], b: BundleFile[]): boolean {

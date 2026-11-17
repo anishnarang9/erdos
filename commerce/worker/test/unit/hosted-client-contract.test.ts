@@ -24,4 +24,8 @@ it("authenticates independent SDK clients and enforces wallet ownership and imme
   expect(await ca.revokeKey(ka.id,"revoke-a")).toEqual({revoked:true});
   await expect(ca.currentKey()).rejects.toMatchObject({status:401,code:"unauthorized"});
   expect((await cb.currentKey()).id).toBe(kb.id);
+  const reference={name:"policy.txt",contentBase64:Buffer.from("approved policy").toString("base64")};
+  const revisionWithReference={...revision,referenceDigest:referenceDigestOf([{name:reference.name,content:Buffer.from("approved policy")}])};
+  const referenced=await cb.importJob(revisionWithReference,"import-reference",[reference]) as {jobId:string};
+  expect(await cb.references(referenced.jobId)).toMatchObject({referenceDigest:revisionWithReference.referenceDigest,files:[reference]});
 });

@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 21:19 -05:00 — Anish — Buyer linkage repaired; authored inputs preserved
+
+- Integrated Worker A's reviewed buyer-binding fix `9237298` and contract record `ad37950` as `b4e07a8` and `6bb7604`. Wallet-key selected-provider terms now name the buyer. Receipt linkage rejects another confirmed client. The local legacy shape remains compatible. Fresh API suite passed 789 tests. The integrated identity checkpoint also passed all 15 native-engine API tests.
+- The SDK/runner now preserve reference bytes on import and retain draftId/source when accepting a completed draft task. `accept-draft` creates an unapproved job and rejects clarification/unsupported task results. The installed guide includes this missing step. A real Hono/SDK regression verifies stored reference bytes. SDK tests pass 15/15 and all workspace typechecks pass.
+- Local file reads now bound file count and total content before reading. They preserve the existing 16-file, 32-KiB reference-content limit. Downstream delivery encoding retains its stricter 16,384-byte limit. New large-file/count regressions first failed and now pass. Focused package/recovery/open-claim checks passed 82 tests. Full checks at this checkpoint remain pending CI.
+- The proof subset and complete identity/client tests are pushed in draft PR #8. Exact-head commerce and Linux install CI passed at `de5c9d8`. Worker A continues durable tasks, Grok and runtime. Worker B now repairs the confirmed oracle defect before corpus expansion. Hosting access and model/service budgets remain unavailable. No new paid API call or chain action occurred.
+
 ## 2026-11-16 21:07 -05:00 — Anish — Identity integrated and fresh proof subset verified
 
 - Draft [PR #8](https://github.com/anishnarang9/UBC-26/pull/8) tracks this active sprint. Integrated Worker A's identity checkpoint `094a210` as `8fe84e0`, after review of challenge consumption, key digests, revocation, owner middleware and paid-route ownership. The actual SDK/service test authenticates two wallets, isolates equal idempotency keys, rejects cross-owner approval/revocation and immediately rejects a revoked key.

@@ -45,6 +45,8 @@ Authentication signs only the service's expiring issuance challenge. It sends no
 ```sh
 ubc26 draft --api "$API" --key-file "$KEY_FILE" --input draft.json --idempotency draft-001
 ubc26 task --api "$API" --key-file "$KEY_FILE" --task "$TASK" --wait-ms 1800000
+ubc26 accept-draft --api "$API" --key-file "$KEY_FILE" --task "$DRAFT_TASK" \
+  --input draft.json --idempotency create-from-draft-001
 ubc26 job --api "$API" --job "$JOB"
 ubc26 approve --api "$API" --key-file "$KEY_FILE" --job "$JOB" \
   --revision "$REVISION_HASH" --reference-digest "$REFERENCE_DIGEST" --idempotency approve-001
@@ -55,7 +57,9 @@ ubc26 download --api "$API" --job "$JOB" --out "$WORK/package"
 ubc26 references --api "$API" --job "$JOB" --out "$WORK/reference"
 ```
 
-Use `import --input revision.json` instead of `draft` to import exact rules. Read the complete rules, examples, assumptions and requirement coverage before approval. A material revision invalidates approval.
+`accept-draft` creates a job from a successful draft task. It preserves the draft ID and the original request's reference bytes. It does not approve the rules. Keep `draft.json` until this step completes. Clarification and unsupported responses cannot become jobs through this command.
+
+Use `import --input revision.json` instead of `draft` to import exact rules. Add `--reference /absolute/reference-directory` when the revision commits reference files. Read the complete rules, examples, assumptions and requirement coverage before approval. A material revision invalidates approval.
 
 Task states are queued, running, succeeded, failed and uncertain. Preserve each returned task identifier. Resume polling that identifier after interruption. Polling does not submit another model call or compilation. An uncertain task requires reconciliation. Do not replace its idempotency key to force a retry.
 

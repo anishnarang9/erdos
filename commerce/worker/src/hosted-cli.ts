@@ -2,7 +2,7 @@
 import { closeSync, fsyncSync, openSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { hostedClient } from "@ubc26/sdk";
+import { hostedClient, type HostedReference } from "@ubc26/sdk";
 import { apiClient } from "./client.ts";
 import { checkReferences, downloadPackage } from "./run.ts";
 import { evaluate } from "./engine.ts";
@@ -20,7 +20,8 @@ const commandFlags: Record<string, readonly string[]> = {
   key: common,
   revoke: [...common, "key-id", "idempotency"],
   draft: [...common, "input", "idempotency"],
-  import: [...common, "input", "idempotency"],
+  import: [...common, "input", "reference", "idempotency"],
+  "accept-draft": [...common, "task", "input", "idempotency"],
   job: ["api", "job"],
   discover: ["api"],
   "open-job": ["api", "job"],
@@ -132,7 +133,21 @@ export async function hostedCli(args: string[]): Promise<unknown> {
     case "key": need("key-file"); return client.currentKey();
     case "revoke": need("key-file"); return client.revokeKey(need("key-id"), need("idempotency"));
     case "draft": need("key-file"); return client.draft(input(), need("idempotency"));
-    case "import": need("key-file"); return client.importJob(input(), need("idempotency"));
+    case "import": {
+      need("key-file");
+      const references = f.reference ? (await import("./run.ts")).readFilesFrom(resolve(f.reference)).map(file =>
+        ({ name: file.name, contentBase64: Buffer.from(file.content).toString("base64") })) : undefined;
+      return client.importJob(input(), need("idempotency"), references);
+    }
+    case "accept-draft": {
+      need("key-file"); const task = await client.task(need("task"));
+      requireSprint(task.operation === "draft" && task.state === "succeeded");
+      const draft = object(task.result), original = object(input());
+      requireSprint(draft.kind === "draft" && typeof draft.draftId === "string" && draft.draftId.length > 0);
+      const references = original.references ?? []; requireSprint(Array.isArray(references));
+      return client.createJob({ source: "grok", draftId: draft.draftId, revision: draft.revision,
+        references: references as HostedReference[] }, need("idempotency"));
+    }
     case "job": return client.job(need("job"));
     case "discover": return client.openJobs();
     case "open-job": return client.openJob(need("job"));

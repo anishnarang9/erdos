@@ -96,3 +96,15 @@ it("preserves known API error codes without remote messages", async () => {
   try { await client.currentKey(); throw new Error("expected failure"); }
   catch(error) { expect(error).toBeInstanceOf(HostedApiError); expect((error as HostedApiError).code).toBe("capability_unsupported"); expect(String(error)).not.toContain("private"); }
 });
+it("retains reference bytes when creating imported jobs", async () => {
+  const {client,calls}=fixture([{jobId:"j1"}]);
+  const references=[{name:"policy.txt",contentBase64:"cG9saWN5"}];
+  await client.importJob({plan:{version:1}},"import-with-refs",references);
+  expect(JSON.parse(String(calls[0]!.init?.body))).toEqual({revision:{plan:{version:1}},source:"import",references});
+});
+it("preserves an authored draft ID and references in the job submission",async()=>{
+  const {client,calls}=fixture([{jobId:"j1"}]);
+  const submission={source:"grok" as const,draftId:"draft-1",revision:{plan:{version:1}},references:[{name:"policy.txt",contentBase64:"cG9saWN5"}]};
+  await client.createJob(submission,"accept-draft-1");
+  expect(JSON.parse(String(calls[0]!.init?.body))).toEqual(submission);
+});
