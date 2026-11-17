@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 16:21 -05:00 — Anish — Check the Circle quote at the worker signing boundary
+
+- The operator accepts the captured isolated VPS quote and prepares the expected one-unit typed message. Changed amount, recipient and domain stop before the signing callback. The stub creates no signature and no request carries a payment. See the [Circle preflight](reports/hosted-circle-facilitator-preflight-2026-11-17.json).
+
 ## 2026-11-17 16:20 -05:00 — Anish — Confirm the Circle payer already has enough testnet USDC
 
 - The Gateway balance query returns 0.009999 testnet USDC for the proposed payer and 0.000001 for the recipient. Both report zero pending batch. The existing balance covers the one-unit quote without a new deposit. The check creates no payment. See the [Circle preflight](reports/hosted-circle-facilitator-preflight-2026-11-17.json).

@@ -95,5 +95,36 @@
     "recipientPendingBatch": "0",
     "existingBalanceCoversCharge": true,
     "newDepositRequiredForQuotedAmount": false
+  },
+  "workerQuoteCheck": {
+    "source": "eb9b8de8b7339989cd8334da0b1a9a8317850fce",
+    "method": "Replay the captured isolated VPS quote through the worker with a signing stub and a transport that returns only the quote.",
+    "checks": [
+      {
+        "variant": "observed",
+        "signingBoundaryReached": true,
+        "requests": 1,
+        "paymentSignatures": 0
+      },
+      {
+        "variant": "changed-amount",
+        "signingBoundaryReached": false,
+        "requests": 1,
+        "paymentSignatures": 0
+      },
+      {
+        "variant": "changed-recipient",
+        "signingBoundaryReached": false,
+        "requests": 1,
+        "paymentSignatures": 0
+      },
+      {
+        "variant": "changed-domain",
+        "signingBoundaryReached": false,
+        "requests": 1,
+        "paymentSignatures": 0
+      }
+    ],
+    "approvalStillRequired": true
   }
 }
