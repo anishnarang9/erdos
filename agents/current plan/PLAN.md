@@ -1,5 +1,11 @@
 # Current plan
 
+## 2026-11-17 03:54 -05:00 — Anish — Goal blocked on missing external access and budgets
+
+- Three consecutive goal turns ended at the same external gates. Current revalidation shows a clean checkout, successful candidate `20b0dc2` commerce/core CI, no new PR comments/reviews, and no new access or budget inputs. No known authorized local work can advance the remaining gates.
+- Required inputs remain hosting account/access route, public hostname and resource budget, plus the private application Grok API credential location and approved request/daily/benchmark ceilings. The consolidated input request remains pending. Final external review and current live-action authority are also unresolved. Genuine deployed trials remain 0/180. Do not infer authority from old runs.
+- Record the goal as blocked, not complete. Candidate artifacts, source-labelled evidence, PR #8 and the private local bundle remain preserved. Both stopped worker checkouts are recoverably archived. No further Grok CLI calls are permitted. Resume the same goal when the required inputs or external state change.
+
 ## 2026-11-17 03:49 -05:00 — Anish — Preserve stopped workers and await required external inputs
 
 - The two stopped worker checkouts are recoverably archived through the app. Worker A's uncommitted source, both histories and their task logs remain preserved. The integration checkout stays active. No further Grok CLI call ran after the user's instruction.
