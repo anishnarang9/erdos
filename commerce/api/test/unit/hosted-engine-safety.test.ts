@@ -106,6 +106,25 @@ describe("public executable pin", () => {
   });
 });
 
+describe("child utf-8 output", () => {
+  it("preserves a UTF-8 scalar split across child output buffers", async () => {
+    const root = await mkdtemp(join(tmpdir(), "ubc26-child-utf8-"));
+    try {
+      const script = join(root, "controlled-engine.mjs");
+      await writeFile(
+        script,
+        `const h="0x"+"11".repeat(32);const bytes=Buffer.from(JSON.stringify({structureHash:h,rulesHash:h,preview:{name:"界"}}));const split=bytes.indexOf(Buffer.from("界"))+1;process.stdout.write(bytes.subarray(0,split));setTimeout(()=>process.stdout.write(bytes.subarray(split)),50);`,
+      );
+      const result = await cliEngine({ bin: { command: process.execPath, args: [script] }, workDir: join(root, "work") }).validate({ version: 1 });
+      expect(result.ok).toBe(true);
+      if (!result.ok) throw new Error("Controlled engine failed");
+      expect(result.preview).toEqual({ name: "界" });
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("engine cancellation and eval files", () => {
   it("does not spawn when the signal is already aborted", async () => {
     const root = await mkdtemp(join(tmpdir(), "ubc26-abort-before-"));

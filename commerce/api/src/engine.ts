@@ -2,6 +2,7 @@
 // The CLI writes success JSON to stdout and error JSON `{ code, message, path?, request? }` to stderr.
 // Exit 2: argument, input or output error. Exit 3: build, prover or randomness failure.
 import { spawn, type ChildProcess } from "node:child_process";
+import { StringDecoder } from "node:string_decoder";
 import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -353,6 +354,8 @@ function spawnEngine(
   return new Promise((resolve, reject) => {
     let stdout = "";
     let stderr = "";
+    const stdoutDecoder = new StringDecoder("utf8");
+    const stderrDecoder = new StringDecoder("utf8");
     let used = 0;
     let settled = false;
     let timedOut = false;
@@ -403,7 +406,7 @@ function spawnEngine(
         return;
       }
       used += chunk.length;
-      const text = chunk.toString("utf8");
+      const text = (kind === "out" ? stdoutDecoder : stderrDecoder).write(chunk);
       if (kind === "out") stdout += text;
       else stderr += text;
     };
@@ -414,6 +417,8 @@ function spawnEngine(
       finish(() => reject(new EngineError("spawn", `Engine ${label} could not be started`)));
     });
     child.on("close", (code, closeSignal) => {
+      stdout += stdoutDecoder.end();
+      stderr += stderrDecoder.end();
       clearTimeout(deadline);
       clearTimeout(killTimer);
       killProcessGroup(child, "SIGKILL");
