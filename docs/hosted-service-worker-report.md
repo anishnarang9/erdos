@@ -35,12 +35,17 @@ The current draft handler does not return token usage. A completed draft therefo
 
 `EXPENSIVE_OPS_DISABLED=1` sets `expensiveDisabled`. A new expensive accept returns 503 `service_disabled`. The runner also does not dispatch a task that is already `queued`. That task stays `queued`. The model is not called. Reconcile still marks a running draft `uncertain`. Reconcile still returns a running compile to `queued`. That compile stays queued while dispatch is paused.
 
+In public mode, `POST /v1/drafts` and `POST /v1/jobs/:id/compile` return 403 `forbidden`. The message is `Public authoring uses POST /v1/tasks`. The details field `use` is `POST /v1/tasks`. Those routes do not call the model or the compiler. Local mode keeps the synchronous routes. Public clients send draft and compile work to `POST /v1/tasks`.
+
+`POST /v1/jobs/:id/paid-compile` stays synchronous. It uses the same single compiler as a queued compile task. One compile runs at a time. A completed Circle payment replays the stored response. The replay does not compile again and does not settle again. The x402 amount is a service charge. It is not the job bounty.
+
 ## Checkpoints
 
 - `094a210` Add wallet API keys and job ownership.
 - `9237298` Bind selected funding to the authenticated wallet.
 - `7c6b3c9` Queue durable draft and compile tasks.
 - `5cf64a4` Pause queued work when expensive operations are disabled.
+- `5e6b5d8` Route public authoring through the durable task gate.
 
 ## Commands
 
@@ -63,6 +68,11 @@ From `commerce/api` after `5cf64a4`:
 
 - `pnpm exec tsc -p tsconfig.json --noEmit` exited 0.
 - `pnpm exec vitest run` exited 0. 797 tests passed.
+
+From `commerce/api` after `5e6b5d8`:
+
+- `pnpm exec tsc -p tsconfig.json --noEmit` exited 0.
+- `pnpm exec vitest run` exited 0. 799 tests passed.
 
 ## Gaps
 
