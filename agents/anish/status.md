@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 15:55 -05:00 — Anish — Verify the Arc Testnet fee-case preview
+
+- The VPS returns the expected fee-case manifest and lists 20 package files. A pinned block read matches the core, adapter and verifier runtime hashes. The deployed verifier accepts the existing fee proof via eth_call. The preview proposes 0.01 testnet USDC for the bounty and 0.06775 testnet USDC for maximum gas, including one refund. Wallet ownership and durable funding terms remain pending. No signing or chain transaction occurred. See [read-only preview](reports/hosted-arc-fee-read-only-preview-2026-11-17.json).
+
 ## 2026-11-17 15:52 -05:00 — Anish — Verify the ten-cent authoring admission limit
 
 - The reviewed model reserves $2.54096 for one call under current provider bounds. The published batch discount and team billing controls do not establish a ten-cent run limit. The exact $0.10 case returns HTTP 503 before provider dispatch. All 26 focused tests pass. See [authoring cost policy](../../docs/hosted-ten-cent-authoring.md).
