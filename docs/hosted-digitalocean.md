@@ -80,16 +80,16 @@ The existing live model guard prices the full documented context. It cannot admi
 
 ## Restricted Bot callback bootstrap
 
-The exact `/integrations/grok-bot/mcp` path uses a separate healthy upstream. All buyer routes retain the readiness gate and HTTP 503. Ten checks through actual public TLS pass. The authenticated MCP exposes only `submit_constraint_review`. A per-review ticket is also mandatory. This is operator protocol evidence, not a genuine Bot review.
+The exact `/integrations/grok-bot/mcp` path uses a separate healthy upstream. All buyer routes retain the readiness gate and HTTP 503. Ten checks through actual public TLS pass. The authenticated MCP exposes only `submit_constraint_review`. A per-review ticket is also mandatory. This handshake is operator protocol evidence. A later genuine negative review returns through the same endpoint and blocks approval. See the [pilot report](../agents/anish/reports/hosted-genuine-bot-pilot-2026-11-17.json).
 
 `BOT_REVIEW_REQUIRED=1` enables callback authentication and mandatory review receipts. The production profile supplies no dispatcher. It rejects live webhook environment settings. The application xAI key remains absent from the host. The user approved saving the dedicated callback credential into Grok Bot. The user completed `UBC26 Result Callback`, and its installed-plugin UI reports Connected.
 
 Before promotion, a quiesced snapshot preserved 41 files and 18 migrations. A later snapshot preserves 41 files, 19 migrations and one queued review. Production restart and an isolated restored API preserve owner isolation, authentication, the review hash, failed compile replay and twenty package hashes each. The restored container is stopped. Earlier full-host reboot and encrypted off-host recovery evidence retains its original source. Provider-managed restore remains untested.
 
-The approved Bot pilot permits setup and one measured review under a $1 account cap, with possible in-flight overrun. Cap configuration remains pending. No credit purchase or mass test is authorized. The production $0.10 complete-run ceiling remains unchanged.
+The approved Bot pilot permits setup and one measured review under a $1 account cap, with possible in-flight overrun. The installed app confirms the $1 monthly cap and disabled auto top-up. No credit purchase or mass test is authorized. The production $0.10 complete-run ceiling remains unchanged.
 
 ## Public runner download
 
-Ingress source `6351e09` serves the four canonical `fb45033` runner assets through versioned public HTTPS. The route reads a separate root-owned, read-only mount. Thirteen download checks, two readiness/authentication checks and a fresh offline installation pass. The callback also passes its ten public protocol checks after promotion. The API container and image did not change. Normal buyer routes remain HTTP 503.
+Ingress source `83d5b69` serves the four canonical `fb45033` runner assets through versioned public HTTPS. The route reads a separate root-owned, read-only mount. Thirteen download checks, two readiness/authentication checks and a fresh offline installation pass. The callback also passes its ten public protocol checks after promotion. The API container and image did not change. Normal buyer routes remain HTTP 503.
 
-See the [download instructions](hosted-runner-downloads.md) and [public acceptance report](../agents/anish/reports/hosted-runner-public-download-2026-11-17.json). The archive excludes the native engine. Engine distribution and the complete public workflow remain open. The source repository stays private.
+See the [download instructions](hosted-runner-downloads.md) and [public acceptance report](../agents/anish/reports/hosted-runner-public-download-2026-11-17.json). The archive excludes the native engine. The separate [engine download](hosted-engine-downloads.md) also passes public-byte installation and twelve signed native checks. The complete public workflow remains open. The source repository stays private.

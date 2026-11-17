@@ -1,0 +1,38 @@
+{
+  "status": "promoted-awaiting-public-download-checks",
+  "ingressSource": "83d5b6925d26da2ad8fd56806b8d3eba572efb60",
+  "runtimeSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+  "runtimeImage": "sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8",
+  "files": {
+    "Caddyfile": "b7ab5bf34a9747f5358a6e58ebe6a6dcd9558ef2f2ebdb11ec5ac965bab36aec",
+    "compose.yaml": "d3028f3be61354d32f72b1220ac375a8fe7d9e0ba464523bb4334e0c12208ef8"
+  },
+  "caddyValidated": true,
+  "composeValidated": true,
+  "priorContainers": {
+    "/ubc26-hosted-api-1": {
+      "id": "292bc54eb1f4845052a09143da456f8567f557d171ee3a85c441d32bb5ab0ecf",
+      "image": "sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8",
+      "state": "running"
+    },
+    "/ubc26-hosted-https-1": {
+      "id": "0d36a46646945b9dcfc0017d6b73a7e231fe408dcd0374e7eea04cbe3b14d2ea",
+      "image": "sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d",
+      "state": "running"
+    }
+  },
+  "priorIngressDirectory": "/opt/ubc26-release/ingress-6351e09",
+  "candidateIngressDirectory": "/opt/ubc26-release/ingress-83d5b69",
+  "publicRunnerDirectory": "/opt/ubc26-release/public-runner",
+  "hostEnvironmentChanged": false,
+  "startedAt": "2026-11-17T14:39:19.739874+00:00",
+  "apiContainerUnchanged": true,
+  "apiImage": "sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8",
+  "apiHealthy": true,
+  "httpsContainerRecreated": true,
+  "httpsRunning": true,
+  "runnerMountReadOnly": true,
+  "caddyFileMountReadOnly": true,
+  "httpsContainerId": "8f169a6e7d2c2be01370905b3455f172fe5ffbc797fbe4dd20d4affb68cf8203",
+  "finishedAt": "2026-11-17T14:39:23.961877+00:00"
+}

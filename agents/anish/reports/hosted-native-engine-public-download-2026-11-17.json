@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "status": "passed-public-native-engine-assets",
+  "checkedAt": "2026-11-17T14:41:22.976Z",
+  "sourceCommit": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+  "ingressSource": "83d5b6925d26da2ad8fd56806b8d3eba572efb60",
+  "origin": "https://ubc26-159-89-149-133.sslip.io",
+  "base": "https://ubc26-159-89-149-133.sslip.io/downloads/engine/fb450331c014b59d037fb692496bdc4f72b11a9c",
+  "tlsVerified": true,
+  "anonymous": true,
+  "engine": {
+    "version": 1,
+    "sourceCommit": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "file": "ubc26-engine-linux-x64",
+    "sha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+    "bytes": 8435600,
+    "platform": "linux-x64-glibc",
+    "runtimeImage": "sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8",
+    "capabilityCatalogJcsSha256": "0x3556207ddfecc64fa1a08c300c011e86f77fdb757e07fdf22343d7f9923d6b76",
+    "dynamicLibraries": [
+      "libc.so.6",
+      "libgcc_s.so.1",
+      "libm.so.6"
+    ],
+    "elfInterpreter": "/lib64/ld-linux-x86-64.so.2",
+    "minimumGlibcFromSymbolVersions": null,
+    "testedRuntime": "Debian 12 bookworm x64 container",
+    "exportedBinaryHostCheck": "Ubuntu 24.04 x64 capabilities passed with an empty inherited environment",
+    "r0vmRequiredForProving": "3.1.0",
+    "groth16ImageTag": "risczero/risc0-groth16-prover:v2026-10-20.1",
+    "groth16ImageDigest": "risczero/risc0-groth16-prover@sha256:49093ed164b82aca9305dd80e4a6eb996bd443201ac7bd50b52909b2761ef583",
+    "sourceCheckoutRequired": false,
+    "engineIncludesGuestTemplates": true,
+    "separateProvingToolsRequired": true,
+    "proofGeneratedForThisExport": false
+  },
+  "rows": [
+    {
+      "check": "anonymous-file",
+      "name": "ubc26-engine-linux-x64",
+      "status": 200,
+      "bytes": 8435600,
+      "sha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7"
+    },
+    {
+      "check": "anonymous-file",
+      "name": "engine.json",
+      "status": 200,
+      "bytes": 1170,
+      "sha256": "1fccd8103729b1c384f78ea3943268cbb6f3d56bb4aad58d14c8518f2dd1fcc7"
+    },
+    {
+      "check": "anonymous-file",
+      "name": "SHA256SUMS",
+      "status": 200,
+      "bytes": 167,
+      "sha256": "5bffdeb9a09512eba9a15ef9c18b6da109926244b5fd09a1f4681abf41eb8949"
+    },
+    {
+      "check": "head",
+      "status": 200,
+      "bytes": 8435600
+    },
+    {
+      "check": "partial-download",
+      "status": 206,
+      "contentRange": "bytes 0-31/8435600"
+    },
+    {
+      "check": "rejected-path",
+      "path": "/downloads/engine",
+      "status": 404
+    },
+    {
+      "check": "rejected-path",
+      "path": "/downloads/engine/fb450331c014b59d037fb692496bdc4f72b11a9c/",
+      "status": 404
+    },
+    {
+      "check": "rejected-path",
+      "path": "/downloads/engine/fb450331c014b59d037fb692496bdc4f72b11a9c/service.db",
+      "status": 404
+    },
+    {
+      "check": "rejected-path",
+      "path": "/downloads/engine/fb450331c014b59d037fb692496bdc4f72b11a9c/engine.json/extra",
+      "status": 404
+    },
+    {
+      "check": "rejected-path",
+      "path": "/downloads/engine/FB450331C014B59D037FB692496BDC4F72B11A9C/engine.json",
+      "status": 404
+    },
+    {
+      "check": "rejected-path",
+      "path": "/downloads/engine/fb450331c014b59d037fb692496bdc4f72b11a9c/%2e%2e%2fservice.db",
+      "status": 404
+    },
+    {
+      "check": "mutation-rejected",
+      "status": 404
+    }
+  ],
+  "engineChecks": 12,
+  "runnerRows": [
+    {
+      "name": "ubc26-runner-0.2.0.tgz",
+      "status": 200,
+      "sha256": "148366c2a62114a8c5d0696fa9c3ee990e06a217d815f4e50c506a856e5a793c"
+    },
+    {
+      "name": "ubc26-release.json",
+      "status": 200,
+      "sha256": "fbab4c2c6941115a099aab3b6ab6ca2b4e436066e483f21ce73bcaec1165e447"
+    },
+    {
+      "name": "release.json",
+      "status": 200,
+      "sha256": "40cb2054ce0cc7912b7c88f52efc1671332fe8b49015d8d79dd01752083ba840"
+    },
+    {
+      "name": "SHA256SUMS",
+      "status": 200,
+      "sha256": "35ca1388c9a163c3f57a0217bef3bff2127650a6ece6ecc81b0b1500851b09b6"
+    }
+  ],
+  "existingRunnerFilesUnchanged": true,
+  "buyerApiStatus": 503,
+  "unauthenticatedCallbackStatus": 401,
+  "nativeInstallationQualified": false,
+  "modelCalls": 0,
+  "genuineBotReviews": 0,
+  "proofs": 0,
+  "chainTransactions": 0
+}

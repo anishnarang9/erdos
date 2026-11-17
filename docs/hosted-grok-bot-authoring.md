@@ -1,10 +1,10 @@
 # Live Grok Bot constraint validation
 
-Status: native callback-only deployment and public HTTPS bootstrap pass on `fb45033`. The Bot connector reports Connected. Genuine routine execution and cost measurement remain pending.
+Status: one genuine webhook review passes on native `fb45033`. Bot detects the $75-versus-$100 contradiction and the backend rejects approval. Rounded account changes suggest $0.08–$0.09 for this review. The $0.05 target, exact billing and public dispatch remain unqualified.
 
 ## Current requirement
 
-The user explicitly rejected development-only Bot use. Grok Bot must participate in the live constraint-validation workflow. Keep the app's API boundary. The backend can invoke a dedicated Bot routine through an authenticated webhook. The proposed return channel is a small custom MCP tool on our backend. Official Bot docs support both mechanisms. The owner routes, durable store, restricted MCP tool and approval gate exist. The restricted callback runs in production. The connector reports Connected. The dispatch spending policy and one genuine end-to-end run remain pending.
+The user explicitly rejected development-only Bot use. Grok Bot must participate in the live constraint-validation workflow. Keep the app's API boundary. The backend can invoke a dedicated Bot routine through an authenticated webhook. The proposed return channel is a small custom MCP tool on our backend. Official Bot docs support both mechanisms. The owner routes, durable store, restricted MCP tool and approval gate exist. The restricted callback runs in production. The connector reports Connected. One approved synthetic review completed through the real callback. Production spending policy and broader qualification remain pending.
 
 Production flow: app → DigitalOcean API → deterministic plan/example checks → Grok Bot semantic review → explicit buyer approval → native compiler. Existing direct Grok API authoring can supply the candidate plan. Its calls and any repair count toward the same total refinement cost target. Typed imports can supply a candidate without another model call.
 
@@ -25,7 +25,7 @@ Target about $0.05–$0.10 for the entire refinement, including direct API draft
 
 Payload/output limits bound our protocol. They do not prove Bot token usage or impose a provider-enforced dollar ceiling. Bot chooses its model and has plan-dependent usage. A running Bot task can exceed a spend cap. Measure a small separately approved real sample before claiming a unit price. Keep API charges and Bot usage separate in that measurement. The proposed $20 mass-test budget remains unapproved.
 
-The user installed Grok Bot and reports exhausted usage. The app passes Apple signature/notarization checks and opens. No task was sent, no credits were purchased and no API key was placed in Bot chat. The API key does not replace Bot's own allowance. The restricted MCP connector is connected. A genuine run still needs available Bot usage, the approved account cap and the actual routine webhook.
+The user installed Grok Bot and reports exhausted usage. The app passes Apple signature/notarization checks and opens. The user created one routine, and the operator sent one approved review. No credits were purchased. No API key entered Bot chat. The API key does not replace Bot's own allowance. The restricted MCP connector is connected. The installed app confirms the $1 monthly limit and disabled auto top-up. The routine webhook credential stays in a private operator file.
 
 ## Bounty evidence
 
@@ -46,11 +46,11 @@ Sources: [Bot webhooks](https://docs.x.ai/grok-bot/skills-routines-and-automatio
 
 The SDK provides `requestBotReview`, `botReview` and `waitForBotReview`. Polling ends at completed, expired or uncertain. It never resends a trigger or approves a job.
 
-The proxy configuration gives only the exact MCP endpoint a separate `/healthz` upstream pool. Other API routes retain `/readyz`. The actual pinned proxy passed a controlled test with public-route 503, callback 401 without its credential, callback 200 with a synthetic credential and 503 for a longer callback-path prefix. This is local HTTP routing evidence, not public deployment or genuine Bot evidence.
+The proxy configuration gives only the exact MCP endpoint a separate `/healthz` upstream pool. Other API routes retain `/readyz`. The actual pinned proxy passed a controlled test with public-route 503, callback 401 without its credential, callback 200 with a synthetic credential and 503 for a longer callback-path prefix. This controlled check remains historical. Later native TLS and genuine Bot evidence appear below.
 
-## Pending account setup
+## Account setup and pilot authority
 
-Use the prepared [routine instructions](grok-bot/routine-instructions.md) when account usage and spending scope permit setup. Routine creation itself can consume Bot usage. The user approved setup plus one measured review under a $1 account cap, with possible in-flight overrun. Confirm the account cap before sending setup instructions. This pilot does not authorize buying credits, mass testing or a higher production authoring ceiling. A genuine acceptance run also needs the callback service configured in Bot as a Remote HTTPS connector and a private webhook URL/key saved outside Git.
+Use the prepared [routine instructions](grok-bot/routine-instructions.md) when account usage and spending scope permit setup. Routine creation itself can consume Bot usage. The user approved setup plus one measured review under a $1 account cap, with possible in-flight overrun. Confirm the account cap before sending setup instructions. This pilot does not authorize buying credits, mass testing or a higher production authoring ceiling. The callback connector is configured and the private webhook is saved outside Git. The user asked the operator to handle further terminal work directly.
 
 The callback ticket is a short-lived capability. Treat the webhook payload and original conversation export as private. Keep the original evidence private and redact credentials from any shared copy. Do not replace real Bot output with the prepared sample or a controlled transport result.
 
@@ -64,7 +64,7 @@ Native source `fb45033`, image `sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343f
 
 The user approved the dedicated result-only connector and a $1 account cap for setup plus one measured review. The user accepts a possible in-flight overrun. The production complete-run ceiling remains $0.10. No credit purchase or mass test is authorized.
 
-The user completed the approved connector as `UBC26 Result Callback`. The installed-plugin UI reports Connected. The account cap and available usage remain pending confirmation. Foreground automation stopped after the user's two-minute window. No Bot task or paid generation ran. The API key remains outside the host and Bot chat.
+The user completed the approved connector as `UBC26 Result Callback`. The installed-plugin UI reports Connected. The installed app confirms the $1 monthly limit, available credits and disabled auto top-up. One setup task created `UBC26 Constraint Review`. One real review then completed through its webhook and restricted MCP tool. No direct xAI API generation ran. The API key remains outside the host and Bot chat.
 
 The native review preflight uses the real engine and a 1,185-byte canonical input. Owner isolation, replay and approval/compilation blocking pass. Production restart and a separate offline restore preserve the queued review, active keys and twenty prior artifact hashes. The restored test container is stopped. Public buyer routes remain HTTP 503.
 
@@ -73,3 +73,13 @@ The native review preflight uses the real engine and a 1,185-byte canonical inpu
 Bot apps and cloud-computer state are shared across one account. A second Bot does not isolate that account's files, sessions or app access. The current account also shows GitHub and Origin connected. Public customer payloads must wait for a deployment account that exposes only the intended review tools and contains no unrelated private sessions. Our restricted callback credential limits backend actions. It does not isolate other tools on the Bot account. See the [official account-sharing rules](https://docs.x.ai/grok-bot/computer-and-apps#one-computer-shared-by-all-your-bots).
 
 The approved synthetic pilot can measure one review under the $1 account cap. It does not qualify public account isolation. Keep general dispatch disabled while that production boundary remains unresolved.
+
+## Measured synthetic pilot
+
+The [pilot report](../agents/anish/reports/hosted-genuine-bot-pilot-2026-11-17.json) binds one real review to job `01M7N1NP4A2JP800PGBXAET6NJ` and review `01M7N1NQHW4972D29W9FXBKHCK`. Native syntax and positive/negative examples pass before acceptance. An exact client replay selects the same review. The operator then claims only this review durably and sends one HTTPS trigger. The general dispatcher stays disabled. No uncertain delivery retries.
+
+The buyer brief caps refunds at USD 75.00. The candidate allows 10,000 cents. Bot covers all three rules and identifies rule 1 as a contradiction. It quotes the brief exactly and recommends 7,500 cents. Its authenticated callback stores an immutable `needs_changes` receipt. A later buyer approval attempt returns 409. Receipt latency from durable acceptance is 25,976 ms. This negative case needs no approval, compilation, proof or funded transaction.
+
+Before the review, the app displays $4.87 credits and $0.28 monthly additional usage. Afterward it displays $4.79 and $0.37. These rounded account changes suggest $0.08–$0.09. They do not provide exact per-run attribution or exclude delayed charges and other account activity. The setup charge remains separate and unknown. No direct API draft accompanies this typed-import test.
+
+This sample does not establish the user's approximately $0.05 target. It does not establish a strict $0.10 complete-authoring ceiling or a recurring unit price. Keep general dispatch disabled. Do not start another paid review, buy credits or run mass qualification under this one-review approval. Exact billing, the original Bot conversation export and broader reliability remain open. The user directs us to omit the Bot path if the recurring cost cannot meet the target.

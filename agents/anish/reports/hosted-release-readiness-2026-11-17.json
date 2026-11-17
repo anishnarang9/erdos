@@ -7,7 +7,7 @@
   "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/8",
   "pullRequestState": "draft",
   "goal": "active",
-  "scope": "Native callback-only candidate, TLS, owner-bound review preflight, restart/offline restore and public runner download/install pass. Bot cap/usage, genuine run/cost, public buyer API and final acceptance remain incomplete.",
+  "scope": "Native callback-only runtime, public runner/engine downloads and one genuine negative Bot review pass. Rounded account usage suggests 8\u20139 cents. Five-cent cost, exact billing/export, public buyer API and final acceptance remain incomplete.",
   "corpus": {
     "digest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
     "supported": 40,
@@ -135,12 +135,13 @@
   "activeImplementation": [],
   "externalDependencies": [
     {
-      "needed": "Approved Bot pilot setup and one measured review",
-      "inputStatus": "The approved result-only connector reports Connected. The $1 account cap and available usage are pending manual confirmation. No credit purchase or Bot task ran.",
+      "needed": "Exact Bot pilot billing/export and production spending policy",
+      "inputStatus": "Connected connector, confirmed $1 cap and one genuine review pass. The one-review pilot authority is consumed. No credit purchase occurred. Exact billing, original conversation export and production spending policy remain open.",
       "productionRunCeilingMicroUsd": 100000,
       "pilotAccountCapMicroUsd": 1000000,
       "reviewsAuthorized": 1,
-      "massTestingApproved": false
+      "massTestingApproved": false,
+      "reviewsRemainingAuthorized": 0
     },
     {
       "needed": "Ten-cent complete authoring input/session bound",
@@ -243,7 +244,7 @@
     "linuxEngineBuild": "CI debug engine",
     "linuxEngineSha256": "a7d0cec0285258eda3debf9421e4ee8132fcaf784a4840fae0e86a822aed70ad",
     "nativeVpsReleaseEngineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
-    "limit": "Current canonical runner passes native Linux CI, twelve signed VPS cases and public HTTPS download/offline installation checks. It excludes the engine. Standalone engine distribution and full public API acceptance remain incomplete.",
+    "limit": "Canonical runner and separate native engine are public. Public-byte installation passes twelve signed Linux checks. Full public API acceptance and fresh proving through the complete hosted workflow remain incomplete.",
     "publicDownloadPublished": true,
     "image": "sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8",
     "reports": [
@@ -254,13 +255,13 @@
     "nativeVpsReport": "hosted-runner-native-digitalocean-fb45033-2026-11-17.json",
     "publicDownloadBase": "https://ubc26-159-89-149-133.sslip.io/downloads/runner/fb450331c014b59d037fb692496bdc4f72b11a9c",
     "publicDownloadReport": "hosted-runner-public-download-2026-11-17.json",
-    "nativeEngineDownloadPublished": false
+    "nativeEngineDownloadPublished": true
   },
   "developmentWorkerPolicy": "No further Grok CLI calls, per user reply. Both original sessions remain stopped.",
   "remainingWork": [
     {
       "gate": "Live Bot semantic-validation step",
-      "status": "Durable store, native owner/gate checks and public callback bootstrap pass. Genuine Bot connector/routine, one measured review and authentic export remain pending."
+      "status": "One genuine negative review completes through the connected routine and restricted MCP callback, then blocks approval. Exact billing, authentic conversation export and broader reliability remain unqualified. No second review is authorized."
     },
     {
       "gate": "Ten-cent complete authoring run",
@@ -272,7 +273,7 @@
     },
     {
       "gate": "Public runner download and final combined artifact/handoff",
-      "status": "Four canonical fb45033 assets are public through versioned HTTPS. Thirteen download checks, two readiness/auth checks and an independent offline installation pass. Native engine binary distribution and final complete-service handoff remain open."
+      "status": "Four runner assets and three separate native-engine assets are public through versioned HTTPS. Public-byte installation passes twelve signed Linux checks. Final complete-service handoff remains open."
     },
     {
       "gate": "180 genuine deployed qualification trials",
@@ -324,12 +325,16 @@
       "hosted-bot-public-callback-2026-11-17.json",
       "hosted-bot-native-preflight-2026-11-17.json",
       "hosted-bot-native-restart-2026-11-17.json",
-      "hosted-bot-native-restore-2026-11-17.json"
+      "hosted-bot-native-restore-2026-11-17.json",
+      "hosted-native-engine-public-download-2026-11-17.json",
+      "hosted-native-engine-public-install-2026-11-17.json",
+      "hosted-genuine-bot-pilot-2026-11-17.json"
     ],
-    "ingressSource": "6351e0901312d6e15b5e5f221b9b4448cee50718",
-    "ingressReport": "hosted-runner-ingress-promotion-2026-11-17.json",
+    "ingressSource": "83d5b6925d26da2ad8fd56806b8d3eba572efb60",
+    "ingressReport": "hosted-engine-ingress-promotion-2026-11-17.json",
     "runnerDownloadVerified": true,
-    "apiContainerUnchangedDuringIngressPromotion": true
+    "apiContainerUnchangedDuringIngressPromotion": true,
+    "nativeEngineDownloadPublished": true
   },
   "currentDeploymentCi": {
     "commerceSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
@@ -340,8 +345,8 @@
     "coreRunId": 44079754552,
     "coreStatus": "success",
     "installedArchiveTypeConsumer": true,
-    "ingressSource": "6351e0901312d6e15b5e5f221b9b4448cee50718",
-    "ingressCommerceRunId": 44095123461,
+    "ingressSource": "83d5b6925d26da2ad8fd56806b8d3eba572efb60",
+    "ingressCommerceRunId": 44098699314,
     "ingressCommerceStatus": "success"
   },
   "historicalVerificationSections": [
@@ -363,9 +368,9 @@
   },
   "runtimeBotValidation": {
     "requiredByUser": true,
-    "status": "native-callback-bootstrap-passed-genuine-bot-pending",
+    "status": "genuine-negative-review-passed-cost-target-unqualified",
     "role": "Live semantic validation of buyer brief against exact candidate rules; development-only use was rejected.",
-    "genuineReviews": 0,
+    "genuineReviews": 1,
     "measuredCost": null,
     "twentyDollarMassBudgetApproved": false,
     "pilot": {
@@ -373,16 +378,20 @@
       "connectorName": "UBC26 Result Callback",
       "connectorState": "Connected in installed-plugin UI. Tool details were not expanded. Authenticated public protocol client separately lists one result tool.",
       "capApprovedMicroUsd": 1000000,
-      "capConfigured": false,
+      "capConfigured": true,
       "pilotScope": "Setup plus one measured review; user accepts an in-flight overrun.",
       "creditsPurchased": false,
       "purchaseAuthorized": false,
-      "genuineReviews": 0,
+      "genuineReviews": 1,
       "conversationExport": false,
-      "usageRestored": false,
-      "uiBlocker": "Foreground setup window ended. User completed credential entry manually. No further mouse/keyboard control is active.",
+      "usageRestored": true,
+      "uiBlocker": "Review and billing observation completed. Original conversation export remains pending.",
       "productionRunCeilingMicroUsd": 100000,
-      "massTestingApproved": false
+      "massTestingApproved": false,
+      "routineCreated": true,
+      "webhookSavedPrivately": true,
+      "automaticRetry": false,
+      "reviewsRemainingAuthorized": 0
     },
     "productionAccountIsolation": {
       "qualified": false,
@@ -390,7 +399,12 @@
       "requiredBeforePublicDispatch": "Deployment account with only intended review tools and no unrelated private sessions.",
       "syntheticPilotAllowed": true,
       "source": "https://docs.x.ai/grok-bot/computer-and-apps#one-computer-shared-by-all-your-bots"
-    }
+    },
+    "estimatedRoundedAccountChangeMicroUsd": [
+      80000,
+      90000
+    ],
+    "targetRecurringMicroUsd": 50000
   },
   "botRuntimeIntegration": {
     "requiredByUser": true,
@@ -400,22 +414,30 @@
     "localSdkTests": 373,
     "localWorkerTests": 950,
     "publicMcpNativeAcceptance": true,
-    "genuineBotReviews": 0,
+    "genuineBotReviews": 1,
     "conversationExport": false,
     "measuredCostMicroUsd": null,
     "approvedCompleteRunCeilingMicroUsd": 100000,
     "paidDispatchDisabled": true,
     "massQualificationApproved": false,
     "currentNativeRuntime": "fb450331c014b59d037fb692496bdc4f72b11a9c",
-    "next": "Confirm the approved $1 account cap and available usage, then create the routine and run one measured review.",
+    "next": "Preserve genuine conversation export and exact billing. Keep general dispatch disabled. Do not send a second paid review.",
     "candidateSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
     "pilotCapApprovedMicroUsd": 1000000,
-    "pilotCapConfigured": false,
+    "pilotCapConfigured": true,
     "pilotInFlightOverrunAccepted": true,
     "pilotReviewsAuthorized": 1,
     "creditsPurchaseAuthorized": false,
     "connectorConnectedInUi": true,
-    "connectorName": "UBC26 Result Callback"
+    "connectorName": "UBC26 Result Callback",
+    "targetRecurringMicroUsd": 50000,
+    "estimatedRoundedAccountChangeMicroUsd": [
+      80000,
+      90000
+    ],
+    "generalDispatcherDisabled": true,
+    "paidDispatchDisabledMeaning": "General service dispatch stays disabled. One explicitly approved operator pilot trigger completed.",
+    "pilotReviewsRemainingAuthorized": 0
   },
   "previousCombinedCandidate": {
     "source": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",

@@ -23,8 +23,8 @@ npm install --offline --ignore-scripts --no-audit --no-fund \
 "$HOME/ubc26-client/node_modules/.bin/ubc26" help
 ```
 
-The public archive passes a fresh offline installation and provenance check on macOS arm64. The same bytes pass installed-package checks on native Linux x64, including twelve signed checks against the deployed release engine. Native Linux is the first supported engine target. Engine binary distribution remains pending. Evaluation and proving require the separately installed, pinned engine and tools described in the [client guide](hosted-client.md).
+The public archive passes a fresh offline installation and provenance check on macOS arm64. The same bytes pass installed-package checks on native Linux x64, including twelve signed checks against the deployed release engine. Native Linux is the first supported engine target. The separate [native engine download](hosted-engine-downloads.md) is available and passes twelve signed checks using public bytes. Evaluation and proving require the separately installed, pinned engine and tools described in the [client guide](hosted-client.md).
 
-The [public acceptance report](../agents/anish/reports/hosted-runner-public-download-2026-11-17.json) records exact hashes, HEAD/Range checks, blocked paths and installation results. Ingress source is `6351e0901312d6e15b5e5f221b9b4448cee50718`. The source repository stays private. Directory listings and writes return 404.
+The [public acceptance report](../agents/anish/reports/hosted-runner-public-download-2026-11-17.json) records exact hashes, HEAD/Range checks, blocked paths and installation results. Initial runner ingress source was `6351e0901312d6e15b5e5f221b9b4448cee50718`. Current ingress `83d5b6925d26da2ad8fd56806b8d3eba572efb60` adds the engine namespace and preserves all four runner files. The source repository stays private. Directory listings and writes return 404.
 
 These artifacts do not establish genuine Bot validation, measured model cost, a working public buyer API or fresh funded acceptance. The current protocol publishes the release key, so settled results become public.
