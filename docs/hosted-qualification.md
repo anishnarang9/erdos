@@ -144,6 +144,16 @@ The suite at `5cd66a8` had 31 tests. The coordinator integrated that commit as `
 
 `5cd66a8` publishes the rubric outputs, the approved public keys, the illustrative fixtures, and digest `2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470`. The coordinator integrated that commit as `f25223f`.
 
+## Runner evidence review
+
+This worker read commit `f314f59` on the hosted-backend branch. The review file is `docs/hosted-runner-evidence-review.md`. This worker did not edit that tree.
+
+The installed check command hides an invalid-signature rejection. Verdict 0 still returns JSON and exit 0. The review gives the stub input and the line numbers.
+
+The coordinator integrated `ac51659` as `9385f2c`. The coordinator reports 35 Node checks passed for that integration. This worker did not rerun that suite.
+
+The coordinator file `agents/anish/reports/hosted-corpus-guests-2026-11-16.json` records status `passed-finite-guest-corpus`. It records 40 compiled plans, 316 cases, and 0 failures. This worker did not run that comparison. Real model calls remain 0.
+
 ## Blockers
 
 Three distinct wallet-owned benchmark keys are absent. The user has not authorized a Grok call. Host, account, and benchmark caps remain pending.
@@ -152,7 +162,7 @@ The buyer example route is a proposal. The coordinator API tree has no such rout
 
 ## Remaining gaps
 
-This worker did not run guest execution of this corpus. This worker did not run fresh proofs. This worker did not run Solidity receipt checks. This worker did not rerun the 10,000-case seeded suite or cargo. This worker started no guest compile, proof, container, prover, or paid API call. The coordinator owns the compiler allocation.
+This worker did not run guest execution of this corpus. The coordinator guest report records a finite pass. This worker did not reproduce it. This worker did not run fresh proofs. This worker did not run Solidity receipt checks. This worker did not rerun the 10,000-case seeded suite or cargo. This worker started no guest compile, proof, container, prover, or paid API call. The coordinator owns the compiler allocation.
 
 No server benchmark mode is present. Public semantic deduplication stays in place. Equal draft inputs from one owner remain one task.
 
