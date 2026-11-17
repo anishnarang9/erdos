@@ -46,6 +46,17 @@ jobs:
           node_modules/.bin/ubc26 wrapper-digest > wrapper.json
           node -e 'const fs=require("node:fs"); const h=JSON.parse(fs.readFileSync("help.json")); const w=JSON.parse(fs.readFileSync("wrapper.json")); if(h.version!==1 || !/^[0-9a-f]{64}$/.test(w.wrapperSha256))process.exit(1)'
           node --input-type=module -e 'import {hostedClient} from "@ubc26/runner/hosted"; if(typeof hostedClient !== "function")process.exit(1)'
+          node --input-type=module - <<'NODE'
+          import {readFileSync} from 'node:fs';
+          import assert from 'node:assert/strict';
+          const readme=readFileSync('node_modules/@ubc26/runner/README.md','utf8');
+          const links=[...readme.matchAll(/\]\(([^)\s]+)\)/g)].map(match=>match[1]);
+          assert.ok(links.length>0);
+          assert.ok(links.every(href=>href.startsWith('#')||/^[A-Za-z][A-Za-z0-9+.-]*:/.test(href)));
+          const sourceLinks=links.filter(href=>href.startsWith('https://github.com/anishnarang9/UBC-26/blob/'));
+          assert.ok(sourceLinks.length>0);
+          assert.ok(sourceLinks.every(href=>href.startsWith(`https://github.com/anishnarang9/UBC-26/blob/${process.env.GITHUB_SHA}/`)));
+          NODE
       - uses: actions/upload-artifact@v4
         with:
           name: ubc26-runner-${{ github.sha }}

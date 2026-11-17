@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 01:41 -05:00 — Anish — Pin packaged guide links to their source documents
+
+- An installed `b955545` archive has three README links to API documents absent from the archive. The actual installed-file check failed before the repair. Packaging now resolves repository document links from the source guide and writes absolute GitHub links at the archive's exact source commit. Missing or escaping source targets reject the package build. The repository guide keeps its normal relative links.
+- The packager parses, and all four current guide links resolve to existing source files and become pinned links. CI now checks the independently installed README for missing relative references and unpinned repository links. External document links remain allowed. A new clean archive/build/install check follows this source checkpoint.
+- Runtime behavior is unchanged. All required host/model/live release gates remain open. The same service and review workers continue their current scopes. No model call, compiler, proof or chain action occurred.
+
 ## 2026-11-17 01:39 -05:00 — Anish — Native Linux installed runner and exact-source CI pass
 
 - GitHub push run [44032104126](https://github.com/anishnarang9/UBC-26/actions/runs/44032104126) passes engine and contracts at exact source `5991bd2`. The independent archive/native-engine check passes all twelve signed cases on native Linux x64, Node 24.22.2. The downloaded report matches that source and its release manifest/checksum. See [the evidence](reports/hosted-runner-native-linux-2026-11-17.json).
