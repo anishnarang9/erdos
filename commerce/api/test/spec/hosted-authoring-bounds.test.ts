@@ -90,7 +90,7 @@ function reservation(dbPath: string) {
 }
 
 describe("reference text", () => {
-  it("sends the full UTF-8 reference and rejects binary without a model call", async () => {
+  it("sends full UTF-8 references and explicit base64 for binary bytes", async () => {
     const model = fakeModel(draftReply());
     const s = makeApp56({ draftModel: model });
     const long = "x".repeat(9000);
@@ -102,10 +102,11 @@ describe("reference text", () => {
     const before = model.calls.length;
     const bad = await req(s, "POST", "/v1/drafts", { ...DRAFT_BODY, references: refsPayload([file("blob.bin", new Uint8Array([0xff, 0xfe]))]) });
     const text = await bad.text();
-    expect(bad.status, text).toBe(400);
+    expect(bad.status, text).toBe(200);
     expect(text).not.toContain("binary file");
     expect(text).not.toContain("<truncated");
-    expect(model.calls).toHaveLength(before);
+    expect(model.calls).toHaveLength(before + 1);
+    expect((model.calls.at(-1) as unknown as { referenceFiles: unknown[] }).referenceFiles[0]).toMatchObject({ name: "blob.bin", encoding: "base64", contentBase64: "//4=", byteLength: 2 });
     s.close();
   });
 

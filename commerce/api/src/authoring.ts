@@ -17,6 +17,7 @@ import { DRAFT_MAX_COMPLETION_TOKENS, DRAFT_TIMEOUT_MS, ModelError, draftCallTok
 import { authoringCharge, maxCallMicroUsd, noteDraftDispatch, noteDraftUsage, usageComplete } from "./tasks.ts";
 import { parseManifest, EngineError, isCliCompileResult, type Manifest } from "./engine.ts";
 import { artifactBinding, requireRealArtifact } from "./artifact.ts";
+import { parseExampleFixtures, resolveExample, exampleFiles, type ExampleFixture } from "./authoring-examples.ts";
 import {
   assertDraftOwner,
   engineFailure,
@@ -49,7 +50,7 @@ export const ENGINE_CATALOG: Record<string, unknown> = contractFile("capabilitie
 /** At most this many model examples are run through `engine eval` per draft. */
 export const MAX_EVAL_EXAMPLES = 8;
 
-const DRAFT_KEYS = ["request", "outputs", "references", "clarifications", "expirySeconds", "maxBudget"];
+const DRAFT_KEYS = ["request", "outputs", "references", "clarifications", "expirySeconds", "maxBudget", "exampleFixtures"];
 const MAX_REQUEST_CHARS = 8000;
 const CATALOG_VERSION = createHash("sha256").update(canonicalize(ENGINE_CATALOG) ?? "", "utf8").digest("hex");
 
@@ -99,6 +100,7 @@ interface DraftBody {
   request: string;
   outputs: DraftOutput[];
   references: BundleFile[];
+  exampleFixtures: ExampleFixture[];
   clarifications: { question: string; answer: string }[];
   expirySeconds: number;
   maxBudget: string;
@@ -158,11 +160,13 @@ function parseDraftBody(body: unknown): DraftBody {
       });
     }
   }
+  const exampleFixtures = parseExampleFixtures(body.exampleFixtures);
   if (errors.length > 0 || !probe.ok) throw invalid(errors);
   return {
     request: request as string,
     outputs: probe.revision.outputs,
     references,
+    exampleFixtures,
     clarifications,
     expirySeconds: probe.revision.expirySeconds,
     maxBudget: probe.revision.maxBudget,
@@ -228,21 +232,20 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     const body = parseDraftBody(c.get("json"));
     const requestJson = JSON.stringify(c.get("json"));
     const draftId = newId();
-    const referenceFiles: { name: string; text: string }[] = [];
-    const refErrors: FieldError[] = [];
-    body.references.forEach((file, index) => {
-      try {
-        referenceFiles.push({ name: file.name, text: referenceText(file.content) });
-      } catch {
-        refErrors.push({ path: `/references/${index}`, message: "file is not UTF-8 text" });
+    const referenceFiles: NonNullable<DraftModelInput["referenceFiles"]> = body.references.map(file => {
+      try { return { name: file.name, text: referenceText(file.content) }; }
+      catch {
+        return { name: file.name, encoding: "base64" as const, contentBase64: Buffer.from(file.content).toString("base64"),
+          byteLength: file.content.byteLength, sha256: createHash("sha256").update(file.content).digest("hex") };
       }
     });
-    if (refErrors.length > 0) throw invalid(refErrors);
+    const textReferences = referenceFiles.filter((file): file is { name: string; text: string } => "text" in file);
     const baseInput: DraftModelInput = {
       request: body.request,
       outputs: body.outputs,
       referenceNames: body.references.map((file) => file.name),
       referenceFiles,
+      ...(body.exampleFixtures.length ? { exampleFixtures: body.exampleFixtures } : {}),
       clarifications: body.clarifications,
       schema: PLAN_SCHEMA,
       catalog: ENGINE_CATALOG,
@@ -359,7 +362,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
           feedback: { attempt: 1, reason: "file_errors", errors: fileErrors, counterexamples: [] },
         };
       }
-      const examples = await labelExamples(result, body.references);
+      const examples = await labelExamples(result, body.references, body.exampleFixtures);
       const counts = exampleCounts(result.examples);
       const revision: Revision = {
         plan: result.plan,
@@ -478,7 +481,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       const quoteVerification = result.sourceQuotes.map((item) => ({
         path: item.path,
         quote: item.quote,
-        found: quoteFound(item.path, item.quote, body.request, referenceFiles),
+        found: quoteFound(item.path, item.quote, body.request, textReferences),
       }));
       const rules = isPlainObject(result.plan) && Array.isArray(result.plan.rules) ? result.plan.rules.length : 0;
       const counts = exampleCounts(result.examples);
@@ -522,7 +525,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
    * Labels the model's examples with the checker (`engine eval`), never with the model. An example whose
    * files the engine cannot read gets checkerVerdict null and the engine's message.
    */
-  const labelExamples = async (result: Extract<ModelDraft, { kind: "draft" }>, references: BundleFile[]) => {
+  const labelExamples = async (result: Extract<ModelDraft, { kind: "draft" }>, references: BundleFile[], fixtures: ExampleFixture[] = []) => {
     const out: Record<string, unknown>[] = [];
     for (const [i, e] of result.examples.entries()) {
       const base = { name: e.name, predictedVerdict: e.predictedVerdict };
@@ -530,13 +533,16 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         out.push({ ...base, checkerVerdict: null, agrees: null });
         continue;
       }
-      const deliverables = e.files.map((f) => ({ name: f.name, content: new Uint8Array(Buffer.from(f.content, "utf8")) }));
       let r: Awaited<ReturnType<NonNullable<Deps["engine"]["eval"]>>>;
       try {
-        r = await deps.engine.eval({ plan: result.plan, deliverables, reference: references });
+        const resolved = resolveExample(e, fixtures);
+        const input = { plan: result.plan, deliverables: exampleFiles(resolved.files, 16_384, "/examples/files"), reference: references,
+          ...(resolved.evidence ? { evidence: exampleFiles(resolved.evidence, 32_768, "/examples/evidence") } : {}),
+          ...(resolved.context ? { context: resolved.context } : {}) };
+        r = await deps.engine.eval(input);
       } catch (err) {
-        if (err instanceof EngineError) {
-          out.push({ ...base, checkerVerdict: null, agrees: null, checkerError: err.message });
+        if (err instanceof EngineError || err instanceof ApiError) {
+          out.push({ ...base, checkerVerdict: null, agrees: null, checkerError: err instanceof ApiError ? "Invalid example input" : "Engine example check failed" });
           continue;
         }
         throw err;

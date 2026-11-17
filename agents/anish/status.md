@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 23:29 -05:00 — Anish — All sixty authoring envelopes enter the actual handler
+
+- Authoring preserves full UTF-8 text and represents opaque reference bytes explicitly as base64, byte length and SHA-256. It accepts bounded public example fixtures, exact encoded files/evidence/context and model fixture selections. Strict model schema and prompt agree. The complete provider budget body includes the new fields. No binary semantic summary is fabricated.
+- The independent input regressions failed before implementation and now pass. Full API checks pass 827/827 and typecheck passes. The [actual-handler probe](reports/hosted-authoring-inputs-2026-11-16.json) accepts all 60 frozen request bodies with 60 controlled clarification calls, zero pre-model rejections and zero real Grok calls. This is input compatibility, not authoring qualification.
+- Actual engine evidence/context support awaits Worker A's child adapter. The coordinator next enforces usable examples, immutable buyer checks, coverage and one request-wide deadline. Known child regressions remain uncommitted until repaired. Public host/model access/budgets and live acceptance remain open.
+
 ## 2026-11-16 23:28 -05:00 — Anish — Frozen generated-guest corpus passes
 
 - The [generated-guest report](reports/hosted-corpus-guests-2026-11-16.json) passes all 40 supported checker plans and 316 candidates. Actual guest executions: 236. Input rejections before guest: 80. Host/oracle/guest disagreements: 0. There are 39 structures/images, with one image per structure. The actual compiler runs in the bounded pinned Linux container. Native r0vm 3.1.0 executes the packages under a clean environment.
