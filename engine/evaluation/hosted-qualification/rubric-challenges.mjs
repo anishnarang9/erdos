@@ -2,13 +2,14 @@ import {bin, int, syntheticSigner} from './shape.mjs';
 
 const boundary = 'The current catalog does not expose this named primitive. This label does not claim the domain task is impossible through a separately approved formulation.';
 
-function ambiguous(id, family, title, prompt, questions, facets) {
+function ambiguous(id, family, title, prompt, questions, facets, outputs) {
   return {
     id, family, title, prompt,
     classification: 'ambiguous',
     requirements: [],
     clarificationQuestions: questions,
     facets,
+    outputs,
     candidates: [],
   };
 }
@@ -46,7 +47,7 @@ function evidenceDraft(profile) {
   };
 }
 
-function unsupported(id, family, title, prompt, kind, name) {
+function unsupported(id, family, title, prompt, kind, name, outputs) {
   const unsupportedDraft = kind === 'parser'
     ? parserDraft(name)
     : kind === 'evidence'
@@ -59,6 +60,7 @@ function unsupported(id, family, title, prompt, kind, name) {
     capabilityRequests: [{kind, name}],
     unsupportedDraft,
     boundary,
+    outputs,
     candidates: [],
   };
 }
@@ -72,6 +74,7 @@ export function rubricChallenges() {
       'Charge this harbor call a fair fee and accept the manifest.',
       ['Which harbor fee table applies to this call?', 'Which currency unit applies to the fee?'],
       ['fee table', 'currency unit'],
+      [{name: 'manifest.json', format: 'json'}],
     ),
     ambiguous(
       'hq-ambiguous-2',
@@ -80,6 +83,7 @@ export function rubricChallenges() {
       'Substitute an equivalent pharmacy lot when the requested lot is short.',
       ['Which substitution list defines an equivalent lot?', 'Who must approve a substitution?'],
       ['substitution list', 'approve'],
+      [{name: 'lot.json', format: 'json'}],
     ),
     ambiguous(
       'hq-ambiguous-3',
@@ -88,6 +92,7 @@ export function rubricChallenges() {
       'Accept the studio invoice if overtime looks reasonable.',
       ['Which overtime multiplier applies?', 'Which hour threshold starts overtime?'],
       ['overtime multiplier', 'hour threshold'],
+      [{name: 'invoice.json', format: 'json'}],
     ),
     ambiguous(
       'hq-ambiguous-4',
@@ -96,6 +101,7 @@ export function rubricChallenges() {
       'Admit the guest when an escort is appropriate.',
       ['Which zones require a guest escort?', 'Which badge roles may escort a guest?'],
       ['zones', 'badge roles'],
+      [{name: 'guest.json', format: 'json'}],
     ),
     ambiguous(
       'hq-ambiguous-5',
@@ -104,6 +110,7 @@ export function rubricChallenges() {
       'Cancel the telescope block when the weather is unsuitable.',
       ['Which weather measurement cancels a block?', 'Which numeric threshold makes weather unsuitable?'],
       ['weather measurement', 'numeric threshold'],
+      [{name: 'block.json', format: 'json'}],
     ),
     ambiguous(
       'hq-ambiguous-6',
@@ -112,6 +119,7 @@ export function rubricChallenges() {
       'Assign the better berth to the higher priority vessel.',
       ['Which priority order ranks the vessels?', 'Which berth attribute defines the better berth?'],
       ['priority order', 'berth attribute'],
+      [{name: 'berth.json', format: 'json'}],
     ),
     ambiguous(
       'hq-ambiguous-7',
@@ -120,6 +128,7 @@ export function rubricChallenges() {
       'Accept a route when its toll is reasonable.',
       ['Which toll table applies to each edge?', 'Which currency unit applies to the toll?'],
       ['toll table', 'currency unit'],
+      [{name: 'route.json', format: 'json'}],
     ),
     ambiguous(
       'hq-ambiguous-8',
@@ -128,6 +137,7 @@ export function rubricChallenges() {
       'Round the dilution take to a practical quantity.',
       ['Which rounding mode applies to a take?', 'Which integer unit is the rounding step?'],
       ['rounding mode', 'rounding step'],
+      [{name: 'take.json', format: 'json'}],
     ),
     ambiguous(
       'hq-ambiguous-9',
@@ -136,6 +146,7 @@ export function rubricChallenges() {
       'Release the sealed item after hours when the duty officer agrees.',
       ['Which clock and time zone define after hours?', 'Which duty roles may approve an after-hours release?'],
       ['time zone', 'duty roles'],
+      [{name: 'release.json', format: 'json'}],
     ),
     ambiguous(
       'hq-ambiguous-10',
@@ -144,6 +155,7 @@ export function rubricChallenges() {
       'Ship the firmware build on the preferred channel.',
       ['Which channel names are allowed?', 'Does the preferred channel mean stable or beta?'],
       ['channel names', 'stable or beta'],
+      [{name: 'channel.json', format: 'json'}],
     ),
     unsupported(
       'hq-unsupported-1',
@@ -152,6 +164,7 @@ export function rubricChallenges() {
       'Accept notice lines that match the regular expression ^build-[0-9]+$ inside the checker.',
       'operation',
       'regex_match',
+      [{name: 'notice.txt', format: 'text'}],
     ),
     unsupported(
       'hq-unsupported-2',
@@ -160,6 +173,7 @@ export function rubricChallenges() {
       'Compute a decimal reimbursement ratio with division inside the checker.',
       'operation',
       'div',
+      [{name: 'ratio.json', format: 'json'}],
     ),
     unsupported(
       'hq-unsupported-3',
@@ -168,6 +182,7 @@ export function rubricChallenges() {
       'Choose the shortest harbor route with a shortest_path primitive inside the checker.',
       'operation',
       'shortest_path',
+      [{name: 'route.json', format: 'json'}],
     ),
     unsupported(
       'hq-unsupported-4',
@@ -176,6 +191,7 @@ export function rubricChallenges() {
       'Accept the lot list when its median quantity is inside the catalog band, using a median primitive.',
       'operation',
       'median',
+      [{name: 'lot.json', format: 'json'}],
     ),
     unsupported(
       'hq-unsupported-5',
@@ -184,6 +200,7 @@ export function rubricChallenges() {
       'Parse free-form local date strings into time zones inside the checker.',
       'operation',
       'date_parse',
+      [{name: 'date.json', format: 'json'}],
     ),
     unsupported(
       'hq-unsupported-6',
@@ -192,6 +209,7 @@ export function rubricChallenges() {
       'Fetch the current harbor rate from an HTTPS endpoint inside the guest.',
       'operation',
       'http_get',
+      [{name: 'rate.json', format: 'json'}],
     ),
     unsupported(
       'hq-unsupported-7',
@@ -200,6 +218,7 @@ export function rubricChallenges() {
       'Ask a language model inside the guest whether the cover prose is persuasive.',
       'operation',
       'llm_judge',
+      [{name: 'cover.txt', format: 'text'}],
     ),
     unsupported(
       'hq-unsupported-8',
@@ -208,6 +227,7 @@ export function rubricChallenges() {
       'Compare blob.bin with a SHA3-256 file hashing primitive inside the checker.',
       'operation',
       'sha3_256',
+      [{name: 'blob.bin', format: 'binary'}],
     ),
     unsupported(
       'hq-unsupported-9',
@@ -216,6 +236,7 @@ export function rubricChallenges() {
       'Extract lot rows directly from a PDF with a native PDF parser.',
       'parser',
       'pdf/v1',
+      [{name: 'lots.pdf', format: 'binary'}],
     ),
     unsupported(
       'hq-unsupported-10',
@@ -224,6 +245,7 @@ export function rubricChallenges() {
       'Validate an X.509 certificate chain and its revocation status as a native evidence profile.',
       'evidence',
       'x509/v1',
+      [{name: 'chain.pem', format: 'text'}],
     ),
   ];
 }
