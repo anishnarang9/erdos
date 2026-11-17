@@ -381,4 +381,39 @@ describe("durable tasks", () => {
     await expectError(await post(publicApp.created.app, "/v1/tasks", draftTask(), auth(publicKey)), 503, "model_unavailable");
     expect(model.calls).toBe(0);
   });
+
+  it("keeps queued model work paused after restart with emergency disable", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-disable-"));
+    const dbPath = join(dir, "api.db");
+    const model = countingModel();
+    const first = createApp({
+      dbPath,
+      buyerToken: BUYER_TOKEN,
+      now: () => T0,
+      deployment: { mode: "local", serviceOrigin: ORIGIN },
+      draftModel: model,
+    });
+    opened.push(first);
+    const key = await issue(first.app, accountA);
+    const queued = await post(first.app, "/v1/tasks", draftTask("Check the requested policy"), auth(key));
+    const view = await queued.json() as { id: string; state: string };
+    expect(queued.status, JSON.stringify(view)).toBe(202);
+    expect(view.state).toBe("queued");
+    expect(model.calls).toBe(0);
+    first.close();
+    const second = createApp({
+      dbPath,
+      buyerToken: BUYER_TOKEN,
+      now: () => T0,
+      deployment: { mode: "local", serviceOrigin: ORIGIN },
+      draftModel: model,
+      expensiveDisabled: true,
+    });
+    opened.push(second);
+    second.reconcileTasks();
+    await second.pumpTasks();
+    expect(model.calls).toBe(0);
+    const after = await (await second.app.request(`/v1/tasks/${view.id}`, { headers: { authorization: `Bearer ${key}` } })).json() as { state: string };
+    expect(after.state).toBe("queued");
+  });
 });
