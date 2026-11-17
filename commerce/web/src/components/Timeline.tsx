@@ -49,7 +49,7 @@ export function Timeline() {
       {stage === "refunded" && (
         <span style={{ marginLeft: 16, display: "flex", gap: 8, alignItems: "center" }}>
           <span className="badge money">↩ refunded</span>
-          {refund?.steps[0]?.txHash && <Hash value={refund.steps[0].txHash} tx />}
+          {(refund?.steps[0]?.txHash ?? sub?.refundTx) && <Hash value={(refund?.steps[0]?.txHash ?? sub?.refundTx)!} tx />}
         </span>
       )}
     </footer>

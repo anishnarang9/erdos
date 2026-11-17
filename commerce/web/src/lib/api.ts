@@ -131,6 +131,8 @@ export interface Submission {
   envelopeHash: string | null;
   keyCommitment: string | null;
   releaseTx: string | null;
+  /** The escrow core's indexed Refunded transaction, if the job was refunded. */
+  refundTx?: string | null;
   key: string | null;
   chainJob: { chainId: number; core: string; jobId: string };
 }

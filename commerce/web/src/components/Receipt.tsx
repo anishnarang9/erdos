@@ -9,7 +9,7 @@ export function Receipt() {
   const sub = useDemo((s) => s.submission);
   const budget = useDemo((s) => s.fundingTerms?.budget);
   const files = useDemo((s) => s.delivery?.files);
-  const refund = useDemo((s) => s.refundOp?.steps[0]?.txHash);
+  const refund = useDemo((s) => s.refundOp?.steps[0]?.txHash ?? s.submission?.refundTx ?? undefined);
   if ((stage === "paid" || stage === "decrypted") && sub?.releaseTx) {
     return (
       <motion.div className="receipt" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35 }}>

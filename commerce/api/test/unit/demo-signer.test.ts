@@ -275,4 +275,22 @@ describe("demo signer", () => {
     expect((await req(app, "POST", `/v1/demo/jobs/${jobId}/refund`, {})).status).toBe(200);
     expect(p.calls.filter((c) => c === "refund")).toHaveLength(1);
   });
+
+  it("submission reports an indexed Refunded transaction, so any session can show the refund", async () => {
+    const t = makeApp();
+    const { app, p, db } = t;
+    const jobId = await selectedJob(t, p);
+    await settle(app, (await req(app, "POST", `/v1/demo/jobs/${jobId}/fund`, {})).body.opId);
+    expect((await req(app, "GET", `/v1/jobs/${jobId}/submission`)).body.refundTx).toBeNull();
+    const refundTx = `0x${"ab".repeat(32)}`;
+    // As the indexer writes it: core events carry the lowercased core address.
+    db.prepare(
+      `INSERT INTO events (chain_id, block, log_index, tx_hash, name, job_id, args_json, contract, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).run(5042002, 9, 0, refundTx, "Refunded", "1", JSON.stringify({ jobId: "1", client: POSTER, amount: "10000" }), "core", CORE.toLowerCase());
+    // A Refunded log for another job or from another contract must not leak in.
+    db.prepare(
+      `INSERT INTO events (chain_id, block, log_index, tx_hash, name, job_id, args_json, contract, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).run(5042002, 10, 0, `0x${"cd".repeat(32)}`, "Refunded", "2", "{}", "core", CORE.toLowerCase());
+    expect((await req(app, "GET", `/v1/jobs/${jobId}/submission`)).body.refundTx).toBe(refundTx);
+  });
 });
