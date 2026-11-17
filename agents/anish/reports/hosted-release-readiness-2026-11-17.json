@@ -7,7 +7,7 @@
   "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/8",
   "pullRequestState": "draft",
   "goal": "active",
-  "scope": "Native callback-only runtime and public runner/engine downloads pass. Four genuine fixed-case Bot decisions agree. Three accepted plans compile on the VPS. Follow-up account changes total approximately $0.23. Fresh local proof testing is active. Cost/session bounds, billing/export, public buyer API and funded acceptance remain incomplete.",
+  "scope": "Native callback-only runtime and public runner/engine downloads pass. Four genuine fixed-case Bot decisions agree. Three accepted plans compile on the VPS and produce fresh locally verified/recovered proofs. Their follow-up account changes total approximately $0.23. Authoring/session bounds, billing/export, public buyer API and funded acceptance remain incomplete.",
   "corpus": {
     "digest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
     "supported": 40,
@@ -350,6 +350,15 @@
       "runtimeImageChanged": false,
       "nativeColdApiCompilePassed": true,
       "threeBotReviewedCasesCompiled": true
+    },
+    "positiveBotRecovery": {
+      "report": "hosted-bot-positive-recovery-2026-11-17.json",
+      "snapshotFiles": 101,
+      "reviewsAndApprovalsPreserved": 3,
+      "packageHashesPerInstance": 60,
+      "compileReplayAttempt": 1,
+      "completedReceiptsSurviveTicketDeadline": true,
+      "restoredInstanceStopped": true
     }
   },
   "currentDeploymentCi": {
@@ -385,7 +394,7 @@
   },
   "runtimeBotValidation": {
     "requiredByUser": true,
-    "status": "four-genuine-fixed-case-reviews-correct-three-native-compiles-local-proof-running",
+    "status": "four-genuine-fixed-case-reviews-correct-three-native-compile-proof-recovery-paths-passed",
     "role": "Live semantic validation of buyer brief against exact candidate rules; development-only use was rejected.",
     "genuineReviews": 4,
     "measuredCost": null,
@@ -534,14 +543,23 @@
     "engineBytesChanged": false
   },
   "currentBotEndToEnd": {
-    "status": "three-native-compiles-passed-local-proof-active",
+    "status": "passed-three-native-compiles-fresh-local-proofs-solidity-and-recovery",
+    "report": "hosted-bot-end-to-end-2026-11-17.json",
     "caseIds": [
       "voyage-fee",
       "cover-1",
       "mass-1"
     ],
+    "genuineBotReviews": 3,
+    "nativeCompiles": 3,
+    "freshProofsVerified": 3,
+    "solidityMutationRejections": 12,
+    "sdkExactRecoveries": 3,
+    "engineExactRecoveries": 3,
+    "independentRecoveredOraclePasses": 3,
     "synthetic": true,
     "funded": false,
-    "productionReady": false
+    "productionReady": false,
+    "botAuthoredPlans": false
   }
 }

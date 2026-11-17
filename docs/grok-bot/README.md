@@ -14,6 +14,22 @@ The user separately approved three serial reviews under the existing $1 monthly 
 
 Both rounded account balances changed by $0.23 across the three reviews. The native engine and independent oracle agree on nineteen candidate comparisons. These are three positive cases. They do not establish general semantic accuracy or exact bill attribution. The frozen corpus supplied the plans. Bot reviewed those plans. See the [complete results](../../agents/anish/reports/hosted-bot-follow-up-reviews-2026-11-17.json).
 
+## Compiler and proof acceptance
+
+All three cases pass this sequence: typed import, native example checks, genuine Bot review, buyer approval, VPS compilation and package download. Each then produces a fresh local Groth16 proof. The pinned Solidity verifier accepts each exact proof and rejects changed image, journal, seal and verdict values. SDK and engine recovery reproduce the exact files. The independent oracle accepts all three recovered outputs.
+
+| Case | Fresh proof time | Proof verification and recovery |
+| --- | ---: | --- |
+| Fee reconciliation | 365.916 seconds | Pass |
+| Spending limit | 320.526 seconds | Pass |
+| Quantity calculation | 206.612 seconds | Pass |
+
+The first cold compile exposed a root-owned Buildx activity file. Its ownership repair preserves its bytes and mode. The failed task remains recorded. The first temporary solver adapter also produced empty files. The engine rejected them before proving. The corrected adapter supplies the exact fixture bytes.
+
+The [proof evidence](../../agents/anish/reports/hosted-bot-end-to-end-2026-11-17.json) includes the three actual proofs and source identities. A [101-file snapshot and separate restore](../../agents/anish/reports/hosted-bot-positive-recovery-2026-11-17.json) preserve all three review/approval bindings and sixty package hashes per instance. The restored container is stopped.
+
+These tests use the worktree SDK/worker and fresh synthetic proof contexts. Installed public-runner acceptance, natural-language authoring, funded Arc acceptance and public buyer readiness remain open. No new chain transaction ran. Bot supplies semantic review, while the native engine generates the proofs.
+
 ## Live pilot
 
 The backend validates the plan and examples before creating an owner-bound review. The operator claims one review durably and sends one authenticated webhook. The real Bot routine calls `submit_constraint_review` through `UBC26 Result Callback`. Its immutable `needs_changes` receipt covers all three rules and identifies the candidate's $100 limit against the brief's $75 maximum. The backend then rejects buyer approval. See the [pilot receipt and limits](../../agents/anish/reports/hosted-genuine-bot-pilot-2026-11-17.json).
