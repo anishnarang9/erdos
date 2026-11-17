@@ -1,4 +1,12 @@
 {
+	log default {
+		format filter {
+			wrap json
+			fields {
+				request delete
+			}
+		}
+	}
 	admin off
 	email {$UBC26_TLS_EMAIL}
 }

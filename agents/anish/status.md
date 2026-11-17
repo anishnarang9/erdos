@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 00:58 -05:00 — Anish — Verify proxy readiness transitions and private request logs
+
+- The controlled pinned-Caddy test passes 503 → 200 → 503 as readiness changes. It uses an isolated internal Docker network and HTTP only. Public TLS/hosting remain unverified. Added a reusable `deploy/check-proxy.mjs` command and [the report](reports/hosted-proxy-readiness-2026-11-17.json).
+- The first control profile dropped Caddy's required file capability and failed before serving. Adding only `NET_BIND_SERVICE` corrected that test profile. The stronger privacy regression then failed because Caddy request-error logs kept a raw synthetic header/query/path. The global request-object filter fixes that regression. Compose now grants only the required bind capability, drops the others and sets `no-new-privileges`. Resolved Compose configuration matches those settings and exposes no direct API port.
+- Pinned Caddy validates the configuration. The reusable real-container check passes all readiness transitions and privacy assertions. No paid inference, proof or external transaction ran in that check. The completed signed proof is separately recorded. A continues attempts/auth/admission/metrics. B's completed image review found no issue and its next scope is discovery. New combined-image acceptance remains pending.
+
 ## 2026-11-17 00:54 -05:00 — Anish — Frozen signed proof and both recovery paths pass
 
 - Generated one fresh real Groth16 proof for frozen supported workload `seal-1`, beyond the earlier historical-schema proof subset. Native evaluation and the independent oracle pass. The proof uses its existing synthetic qualification context. It establishes no hosted or funded acceptance.

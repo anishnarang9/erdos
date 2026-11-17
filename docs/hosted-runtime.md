@@ -71,3 +71,10 @@ Public deployment requires the host/account, approved resource budget and hostna
 
 
 The new image startup reads those immutable pin files before importing the API server. It supplies native engine, compiler wrapper, source, guest-builder and frontend identities. Conflicting operator overrides, malformed pin files and linked pin files reject startup. The reader never copies or prints service credentials. Runtime readiness independently compares actual executable bytes and the completed prewarm record. Image `4135ab4` validates those pins in restricted Node 24/Linux execution. Wrong digest configuration rejects before API import without printing the supplied credential. Native import/approval, restart and exact replay pass. Readiness correctly stays false without required dependencies. The [image report](../agents/anish/reports/hosted-image-startup-2026-11-17.json) distinguishes this local smoke from public deployment. The follow-up readiness implementation still needs its own final image check.
+
+
+## Check proxy readiness and log privacy
+
+Run `node deploy/check-proxy.mjs REVIEWED_LOCAL_IMAGE` after caching the pinned Caddy image and building that runtime image. The check uses a dedicated internal Docker network, a controlled upstream and HTTP only. It checks 503 before readiness, 200 after readiness, and 503 after readiness is removed. It also rejects raw test header/query/path values in proxy error logs. It performs no model, compiler, prover or external chain operation. Public TLS remains a separate host check.
+
+The proxy drops the request object from runtime error logs. API structured logs supply route/status timing without raw request content. The Caddy container drops all capabilities except `NET_BIND_SERVICE` and uses `no-new-privileges`. The image requires that bind capability even in the controlled high-port test. See [the finite proxy report](../agents/anish/reports/hosted-proxy-readiness-2026-11-17.json). The first test profile omitted that capability. A later regression confirmed the raw request-log exposure before the filter fixed it.
