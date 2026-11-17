@@ -325,6 +325,93 @@ function voyageFee(delivery, spec) {
   ]);
 }
 
+function lotRange(delivery, reference) {
+  const rows = delivery.values['vials.json'].rows;
+  const lots = keyed(reference.values['lots.json'].rows, 'lotId');
+  const paired = rows.map((row) => ({row, lot: member(lots, row.lotId)}));
+  return violations([
+    ['unique-lot', distinct(rows, 'lotId')],
+    ['floor', paired.every(({row, lot}) => row.vials >= lot.floor)],
+    ['ceiling', paired.every(({row, lot}) => row.vials <= lot.ceiling)],
+    ['cold-chain', paired.every(({row, lot}) => row.coldOk === lot.cold)],
+    ['capacity', checkedSum(rows.map((row) => row.vials)) <= reference.values['capacity.json'].capacity],
+  ]);
+}
+
+function lotExpiry(delivery, reference) {
+  const rows = delivery.values['expiry.json'].rows;
+  const lots = keyed(reference.values['lots.json'].rows, 'lotId');
+  const paired = rows.map((row) => ({row, lot: member(lots, row.lotId)}));
+  return violations([
+    ['unique-lot', distinct(rows, 'lotId')],
+    ['lot-count', rows.length === reference.values['lots.json'].rows.length],
+    ['expiry', paired.every(({row, lot}) => row.expiryDay <= lot.maxDay)],
+  ]);
+}
+
+function lotSites(delivery, reference) {
+  const north = delivery.values['north.json'].rows;
+  const south = delivery.values['south.json'].rows;
+  const total = checked('add', checkedSum(north.map((row) => row.vials)), checkedSum(south.map((row) => row.vials)));
+  return violations([
+    ['unique-north', distinct(north, 'lotId')],
+    ['unique-south', distinct(south, 'lotId')],
+    ['site-total', total === checkedSum(reference.values['catalog.json'].rows.map((row) => row.total))],
+  ]);
+}
+
+function lotSensor(delivery, reference) {
+  const rows = delivery.values['readings.json'].rows;
+  const sensors = keyed(reference.values['sensors.json'].rows, 'sensorId');
+  const paired = rows.map((row) => ({row, sensor: member(sensors, row.sensorId)}));
+  return violations([
+    ['unique-sensor', distinct(rows, 'sensorId')],
+    ['low', paired.every(({row, sensor}) => row.celsius >= sensor.low)],
+    ['high', paired.every(({row, sensor}) => row.celsius <= sensor.high)],
+  ]);
+}
+
+function categoryCap(delivery, reference) {
+  const rows = delivery.values['lines.json'].rows;
+  const categories = keyed(reference.values['categories.json'].rows, 'category');
+  const paired = rows.map((row) => ({row, cap: member(categories, row.category)}));
+  return violations([
+    ['unique-line', distinct(rows, 'lineId')],
+    ['item-cap', paired.every(({row, cap}) => row.spentCents <= cap.capCents)],
+    ['total-cap', checkedSum(rows.map((row) => row.spentCents)) <= reference.values['budget.json'].totalCents],
+  ]);
+}
+
+function indirectRate(delivery, reference, spec) {
+  const project = delivery.values['project.json'];
+  const allowed = checked('mul', project.directCents, reference.values['rate.json'].rateBps);
+  const claimed = checked('mul', project.indirectCents, BigInt(spec.scale));
+  return violations([
+    ['indirect-rate', claimed <= allowed],
+    ['memo-text', delivery.values['memo.txt'] === spec.text],
+  ]);
+}
+
+function crewGear(delivery, reference) {
+  const people = delivery.values['personnel.json'].rows;
+  const gear = delivery.values['equipment.json'].rows;
+  const total = checked('add', checkedSum(people.map((row) => row.cents)), checkedSum(gear.map((row) => row.cents)));
+  return violations([
+    ['unique-person', distinct(people, 'personId')],
+    ['unique-gear', distinct(gear, 'gearId')],
+    ['crew-total', total <= reference.values['budget.json'].totalCents],
+  ]);
+}
+
+function coverNote(delivery, spec) {
+  const rows = delivery.values['lines.json'].rows;
+  return violations([
+    ['unique-line', distinct(rows, 'lineId')],
+    ['cover-total', checkedSum(rows.map((row) => row.spentCents)) <= BigInt(spec.totalCents)],
+    ['cover-text', delivery.values['cover.txt'] === spec.text],
+  ]);
+}
+
 function drawerExact(delivery, reference, spec) {
   const rows = delivery.values['drawers.json'].rows;
   const floats = keyed(reference.values['floats.json'].rows, 'drawerId');
@@ -361,6 +448,30 @@ export async function evaluateCandidate(challenge, candidateDirectory, {referenc
         break;
       case 'voyage-fee':
         violated = voyageFee(delivery, challenge.spec);
+        break;
+      case 'lot-range':
+        violated = lotRange(delivery, reference);
+        break;
+      case 'lot-expiry':
+        violated = lotExpiry(delivery, reference);
+        break;
+      case 'lot-sites':
+        violated = lotSites(delivery, reference);
+        break;
+      case 'lot-sensor':
+        violated = lotSensor(delivery, reference);
+        break;
+      case 'category-cap':
+        violated = categoryCap(delivery, reference);
+        break;
+      case 'indirect-rate':
+        violated = indirectRate(delivery, reference, challenge.spec);
+        break;
+      case 'crew-gear':
+        violated = crewGear(delivery, reference);
+        break;
+      case 'cover-note':
+        violated = coverNote(delivery, challenge.spec);
         break;
       default:
         throw Error(`No independent domain oracle for ${challenge.spec.kind}`);
