@@ -59,7 +59,8 @@ RUN ldconfig && test -n "$SOURCE_SHA" && \
     node --version && /usr/local/bin/ubc26-engine capabilities > /dev/null && docker buildx version
 ENV NODE_ENV=production DEPLOYMENT_MODE=public PORT=8080 HOST=0.0.0.0 \
     ENGINE_MODE=native ENGINE_PATH=/usr/local/bin/ubc26-engine \
-    ENGINE_WORK_DIR=/var/lib/ubc26/work PACKAGES_DIR=/var/lib/ubc26/packages \
+    ENGINE_WORK_DIR=/var/lib/ubc26/work ENGINE_TMPDIR=/var/lib/ubc26/tmp ENGINE_CACHE=/var/lib/ubc26/cache \
+    PACKAGES_DIR=/var/lib/ubc26/packages \
     UBC26_ENGINE_CACHE=/var/lib/ubc26/cache DB_PATH=/var/lib/ubc26/service.db \
     TMPDIR=/var/lib/ubc26/tmp NODE_OPTIONS=--max-old-space-size=512 \
     PATH=/opt/ubc26/docker-bin:/usr/local/bin:/usr/bin:/bin

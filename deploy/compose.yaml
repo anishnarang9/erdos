@@ -17,6 +17,8 @@ services:
       ENGINE_MODE: native
       ENGINE_PATH: /usr/local/bin/ubc26-engine
       ENGINE_WORK_DIR: /var/lib/ubc26/work
+      ENGINE_TMPDIR: /var/lib/ubc26/tmp
+      ENGINE_CACHE: /var/lib/ubc26/cache
       PACKAGES_DIR: /var/lib/ubc26/packages
       DB_PATH: /var/lib/ubc26/service.db
       UBC26_ENGINE_CACHE: /var/lib/ubc26/cache

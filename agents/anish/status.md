@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 23:32 -05:00 — Anish — Child isolation passes; UTF-8 boundary repaired
+
+- Integrated Worker A's child repair `cd558ea` as `9d414c7` and report `4d07eb5` as `6a7bd68`. The two independent environment/descendant regressions now pass. Combined API checks pass 831/831 with typecheck. Public pins, cancellation interfaces and graceful task drain remain pending Worker A.
+- Independent integration review then reproduced UTF-8 corruption when a child split one multibyte character across buffers. The wrapper now uses a streaming decoder. All nine independent child/model/task checks and worker typecheck pass. This small coordinator repair must survive later service integration.
+- Updated deployment configuration to pass the new explicit `ENGINE_TMPDIR` and `ENGINE_CACHE` settings. Compose validates the fixed `/var/lib/ubc26/tmp` and cache paths. A new runtime image using these source changes remains pending. Original image/compile reports stay tied to their earlier source. No paid call or chain action occurred.
+
 ## 2026-11-16 23:29 -05:00 — Anish — All sixty authoring envelopes enter the actual handler
 
 - Authoring preserves full UTF-8 text and represents opaque reference bytes explicitly as base64, byte length and SHA-256. It accepts bounded public example fixtures, exact encoded files/evidence/context and model fixture selections. Strict model schema and prompt agree. The complete provider budget body includes the new fields. No binary semantic summary is fabricated.
