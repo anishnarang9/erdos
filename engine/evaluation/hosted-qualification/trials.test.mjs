@@ -714,6 +714,40 @@ test('synthetic scores and aggregate gates stay closed without a live trial', ()
     score: {live: true, semanticAgreement: true, falseAccepts: 0, malformedAccepts: 0, quoteFidelity: true},
   }]);
   assert.equal(costly.passed, false);
+  const negativeBill = aggregateGates([{
+    dispatched: true,
+    fresh: true,
+    classification: 'supported',
+    repairCount: 0,
+    engineValid: true,
+    actualCostMicroUsd: -1,
+    score: {live: true, semanticAgreement: true, falseAccepts: 0, malformedAccepts: 0, quoteFidelity: true, inventedConditions: 0, weakerPayableJob: false},
+  }]);
+  assert.equal(negativeBill.passed, false);
+  assert.equal(negativeBill.meanCostMicroUsd, null);
+  const zeroBill = aggregateGates([{
+    dispatched: true,
+    fresh: true,
+    classification: 'supported',
+    repairCount: 0,
+    engineValid: true,
+    actualCostMicroUsd: 0,
+    score: {live: true, semanticAgreement: true, falseAccepts: 0, malformedAccepts: 0, quoteFidelity: true, inventedConditions: 0, weakerPayableJob: false},
+  }]);
+  assert.equal(zeroBill.passed, true);
+  assert.equal(zeroBill.meanCostMicroUsd, 0);
+  const negativeTicks = aggregateGates([{
+    dispatched: true,
+    fresh: true,
+    classification: 'supported',
+    repairCount: 0,
+    engineValid: true,
+    actualCostMicroUsd: 1,
+    costInUsdTicks: -1,
+    score: {live: true, semanticAgreement: true, falseAccepts: 0, malformedAccepts: 0, quoteFidelity: true, inventedConditions: 0, weakerPayableJob: false},
+  }]);
+  assert.equal(negativeTicks.passed, false);
+  assert.equal(negativeTicks.meanCostMicroUsd, null);
 });
 
 test('clarification and unsupported terminals without qualification stay unfresh', async () => {

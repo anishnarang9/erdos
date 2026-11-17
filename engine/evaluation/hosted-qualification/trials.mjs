@@ -163,7 +163,7 @@ function freshCostGate(fresh) {
   const hasTicks = fresh.some((item) => Object.hasOwn(item, 'costInUsdTicks'));
   if (!hasTicks) {
     const costs = fresh.map((item) => item.actualCostMicroUsd);
-    if (!costs.every((item) => Number.isSafeInteger(item))) return {meanCostMicroUsd: null, underCap: false};
+    if (!costs.every((item) => Number.isSafeInteger(item) && item >= 0)) return {meanCostMicroUsd: null, underCap: false};
     const meanCostMicroUsd = costs.reduce((total, item) => total + item, 0) / costs.length;
     return {meanCostMicroUsd, underCap: meanCostMicroUsd < COST_CAP_MICRO_USD};
   }

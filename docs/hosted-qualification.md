@@ -122,7 +122,7 @@ The harness reads `UBC26_BENCHMARK_API_KEY_1`, `UBC26_BENCHMARK_API_KEY_2`, and 
 
 A fresh trial requires a POST, task state `succeeded`, one distinct task id, and distinct provider trace ids. `result.qualification.repairCount` is the repair count. `task.attempt` is the queue attempt count.
 
-`cost_in_usd_ticks` is the billed charge. `10000000000` ticks equal 1 USD. A known safe tick total reserves the smallest integer micro-USD that covers the charge. The qualification mean uses the raw tick total. A missing or invalid tick total leaves the reservation at the ceiling.
+`cost_in_usd_ticks` is the billed charge. `10000000000` ticks equal 1 USD. A known safe tick total reserves the smallest integer micro-USD that covers the charge. The qualification mean uses the raw tick total. A missing or invalid tick total leaves the reservation at the ceiling. A legacy report without tick fields rejects a negative bill.
 
 The coordinator integrated request preflight `2a1248c` as `84f4252`. That commit rejects a model call unless the full provider payload fits. This report does not repeat the earlier prompt-budget finding. This worker did not re-test the API.
 
