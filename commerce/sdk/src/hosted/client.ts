@@ -115,8 +115,18 @@ export function hostedClient(options: HostedClientOptions) {
       signal: signal ? AbortSignal.any([signal, deadline]) : deadline,
       ...(body !== undefined ? { body: JSON.stringify(body) } : {}) });
     if (!response.ok) {
-      // Do not expose remote bodies. They can contain secrets or private paths.
-      await response.body?.cancel(); throw new HostedApiError(response.status, "request_failed");
+      // Preserve stable classifications. Remote messages and details remain private.
+      const known = new Set(["validation_failed", "unauthorized", "forbidden", "not_found", "revision_conflict",
+        "approval_required", "payload_too_large", "idempotency_key_reused", "capability_unsupported", "rate_limited",
+        "wrong_state", "chain_unavailable", "terms_mismatch", "model_unavailable", "model_invalid", "engine_unavailable",
+        "payment_required", "payment_invalid", "payment_pending", "payment_failed", "payment_conflict", "payment_unavailable",
+        "quote_expired", "chain_unconfirmed", "engine_failed", "model_failed", "service_disabled", "internal", "not_implemented"]);
+      let code = "request_failed";
+      try {
+        const body = object(await boundedBody(response, maxBytes)), error = object(body.error);
+        if (typeof error.code === "string" && known.has(error.code)) code = error.code;
+      } catch { /* Never expose an untrusted error body or parsing error. */ }
+      throw new HostedApiError(response.status, code);
     }
     return boundedBody(response, maxBytes);
   };

@@ -91,3 +91,8 @@ describe("hosted client", () => {
     expect(calls[0]!.url).toContain("..%2Fk"); expect(new Headers(calls[1]!.init?.headers).get("if-match")).toBe('"0xabc"');
   });
 });
+it("preserves known API error codes without remote messages", async () => {
+  const { client } = fixture([Response.json({error:{code:"capability_unsupported",message:"/private/operator secret"}}, {status:422})]);
+  try { await client.currentKey(); throw new Error("expected failure"); }
+  catch(error) { expect(error).toBeInstanceOf(HostedApiError); expect((error as HostedApiError).code).toBe("capability_unsupported"); expect(String(error)).not.toContain("private"); }
+});
