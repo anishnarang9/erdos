@@ -14,11 +14,11 @@ App flow: authenticate owner → load exact revision → native validation/examp
 
 ## Transport and application gate
 
-- [ ] Create owner-authenticated review and polling routes. Derive the plan and bindings from stored records. Evaluate bounded examples with the native engine.
-- [ ] Add the one-tool authenticated MCP endpoint. Validate Origin, JSON-RPC, body bounds, service credential and per-review ticket.
-- [ ] Add at-most-once webhook dispatch with a bounded timeout, no redirects and no retry. A trigger acknowledgement never passes a review.
-- [ ] Require the exact passed receipt at approval when enabled. Persist its identity with approval and recheck after asynchronous validation.
-- [ ] Keep the integration disabled by default. Require explicit operator configuration before live dispatch. Cost remains unknown until genuine measurement.
+- [x] Create owner-authenticated review and polling routes. Derive the plan and bindings from stored records. Evaluate bounded examples with the native engine.
+- [x] Add the one-tool authenticated MCP endpoint. Validate Origin, JSON-RPC, body bounds, service credential and per-review ticket.
+- [x] Add at-most-once webhook dispatch with a bounded timeout, no redirects and no retry. A trigger acknowledgement never passes a review.
+- [x] Require the exact passed receipt at approval when enabled. Persist its identity with approval and recheck after asynchronous validation.
+- [x] Keep the integration disabled by default. Require explicit operator configuration before live dispatch. Cost remains unknown until genuine measurement.
 - [ ] Add SDK methods and isolated callback ingress. Preserve normal public readiness checks.
 
 ## Acceptance

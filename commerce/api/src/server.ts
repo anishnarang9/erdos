@@ -3,6 +3,7 @@ import { serve } from "@hono/node-server";
 import { createPublicClient, getAddress, http, type PublicClient } from "viem";
 import { createApp } from "./app.ts";
 import { TASK_DRAIN_MS } from "./tasks.ts";
+import { startPumpTimer } from "./pump-timer.ts";
 import { migrationVersions, openDb, type Db } from "./db.ts";
 import { createIndexer } from "./indexer.ts";
 import { assertChainEngine, createApiArcChain, type ApiChain } from "./chain.ts";
@@ -353,17 +354,7 @@ if (chain) {
 }
 
 reconcileTasks();
-const TASK_INTERVAL_MS = 1_000;
-let pumping = false;
-const taskTimer = setInterval(() => {
-  if (pumping) return;
-  pumping = true;
-  pumpTasks()
-    .catch((err: unknown) => logInternal(deploymentMode, process.env.REQUEST_LOG_DEBUG === "1", "task-pump", err))
-    .finally(() => {
-      pumping = false;
-    });
-}, TASK_INTERVAL_MS);
+const taskTimer = startPumpTimer(pumpTasks, (err: unknown) => logInternal(deploymentMode, process.env.REQUEST_LOG_DEBUG === "1", "task-pump", err));
 
 runtime.worker = "running";
 runtime.route = true;

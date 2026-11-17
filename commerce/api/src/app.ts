@@ -24,6 +24,9 @@ import { registerBrowserOrigin } from "./browser-origin.ts";
 import type { AuthoringBudget, AuthLimitConfig, DeploymentConfig, RateLimitConfig, TaskQueueConfig } from "./context.ts";
 import { createCompileAdmission } from "./compile-admission.ts";
 import type { ReadyReport } from "./ready.ts";
+import type { BotReviewConfig } from "./bot-review-types.ts";
+import { registerBotReviewRoutes } from "./bot-review.ts";
+import { botReviewStore } from "./bot-review-store.ts";
 
 export interface CreateAppOptions {
   dbPath: string;
@@ -74,6 +77,8 @@ export interface CreateAppOptions {
   requestLogDebug?: boolean;
   /** Production readiness. Absent reports not configured and does not claim the process is ready. */
   ready?: (deps: Deps) => Promise<ReadyReport>;
+  /** Enables mandatory Bot review at approval. Dispatch needs separate explicit configuration. */
+  botReview?: BotReviewConfig;
 }
 
 export interface CreatedApp {
@@ -97,6 +102,9 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     throw new Error("createApp: buyerToken must be a string of at least 16 characters");
   }
   assertAuthoringBudget(opts.budget);
+  if (opts.botReview && (typeof opts.botReview.serviceToken !== "string" || opts.botReview.serviceToken.length < 32
+    || opts.botReview.serviceToken.length > 512 || opts.botReview.serviceToken === opts.buyerToken
+    || opts.botReview.serviceToken === opts.operatorToken)) throw new Error("Bot review requires a separate service credential of 32–512 characters");
   const taskQueue = resolveTaskQueue(opts.taskQueue);
   const authLimit = resolveAuthLimit(opts.authLimit);
   const compileAdmission = createCompileAdmission(resolvePaidCompileLimit(opts.paidCompileLimit));
@@ -139,6 +147,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     expensiveDisabled: opts.expensiveDisabled ?? false,
     ...(opts.budget ? { budget: opts.budget } : {}),
     ...(opts.operatorToken ? { operatorToken: opts.operatorToken } : {}),
+    ...(opts.botReview ? { botReview: opts.botReview } : {}),
   };
 
   const app = new Hono<AppEnv>();
@@ -178,6 +187,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   // Route modules (one owner each): authoring.ts (T5/T6), market.ts (T7/T8). Register literal paths such as
   // GET /v1/jobs before the parameterised GET /v1/jobs/:id below.
   const ctx = { app, deps, buyer, provider, idem, notImplemented, newId };
+  const botReviews = registerBotReviewRoutes(ctx);
   const authoring = registerAuthoringRoutes(ctx);
   const tasks = registerTaskRoutes(ctx, authoring);
   registerX402Routes(ctx, authoring, opts.x402);
@@ -193,9 +203,9 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
       compileAdmission.close();
       if (db.isOpen) db.close();
     },
-    reconcileTasks: tasks.reconcileTasks,
-    pumpTasks: tasks.pumpTasks,
-    drainTasks: tasks.drainTasks,
+    reconcileTasks: () => { botReviewStore(db).reconcile(); tasks.reconcileTasks(); },
+    pumpTasks: async () => { await Promise.all([tasks.pumpTasks(), botReviews.pump()]); },
+    drainTasks: async boundMs => { await Promise.all([tasks.drainTasks(boundMs), botReviews.drain(boundMs)]); },
     checkReady: loadReady,
   };
 }

@@ -3,6 +3,7 @@ import { ApiError } from "./errors.ts";
 import { tx } from "./db.ts";
 import { requireRealArtifact } from "./artifact.ts";
 import { requireChain } from "./chain.ts";
+import { assertBotApproved } from "./bot-review-gate.ts";
 import { isoAt, sha256, type AppContext, type AppEnv, type Deps, type IdempotencyScope } from "./context.ts";
 
 const KEY_RE = /^[A-Za-z0-9_.:-]{1,128}$/;
@@ -47,6 +48,11 @@ export function idempotency(deps: Deps): Idempotency {
         "idempotency_key_reused",
         "Idempotency-Key was already used with a different request",
       );
+    }
+    const botGateRoute = /^\/v1\/jobs\/([^/]+)\/(approve|compile|select-quote|open-claim-terms)$/.exec(s.path);
+    if (deps.botReview && row.status >= 200 && row.status < 300 && botGateRoute) {
+      const current = db.prepare("SELECT current_revision_id FROM jobs WHERE id=?").get(botGateRoute[1]!);
+      assertBotApproved(deps, String(current?.current_revision_id ?? ""));
     }
     const artifactRoute = /^\/v1\/jobs\/([^/]+)\/(compile|select-quote|funding-receipt)$/.exec(s.path);
     if (row.status >= 200 && row.status < 300 && artifactRoute) {

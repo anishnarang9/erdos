@@ -4,6 +4,7 @@ import { ApiError } from "./errors.ts";
 import { isoAt, parseJson, readBody, requireJobId, ULID_RE, type AppEnv } from "./context.ts";
 import { assertFundingBuyer, requireOwnedJob } from "./ownership.ts";
 import { requireRealArtifact } from "./artifact.ts";
+import { assertBotApproved } from "./bot-review-gate.ts";
 import { isPlainObject } from "./revision.ts";
 import type { RouteContext } from "./routes.ts";
 
@@ -210,6 +211,8 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
   };
 
   app.post("/v1/jobs/:id/open-claim-terms", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, async c => {
+    const current = q.job.get(c.req.param("id") ?? "") as Job | undefined;
+    if (current) assertBotApproved(deps, current.current_revision_id);
     const principal = c.get("principal");
     if (principal?.kind === "wallet") {
       const named = c.get("json");

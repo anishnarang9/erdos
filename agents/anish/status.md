@@ -2,6 +2,14 @@
 
 
 
+
+## 2026-11-17 06:49 -05:00 — Anish — Wire durable Bot callbacks and mandatory approval receipts
+
+- Branch `codex/hosted-backend`, draft PR #8. The API now derives an owner-bound review from the stored revision and native example checks. Grok revisions use the saved brief and buyer answers. Atomic acceptance saves one review and its initial 202 response before any outbound trigger. The restricted authenticated MCP endpoint accepts one hash-bound result tool. Buyer approval stores the exact passed receipt and input/result hashes.
+- Compilation and new funding preparation enforce Bot receipts when configured, including cached successes. Existing paid chain receipt/link reconciliation remains available after independent chain checks. It emits no new funding requests. The webhook sends one bounded HTTPS POST, accepts only documented HTTP 200, refuses redirects and never automatically retries uncertain work. Its ten-second timeout cannot cancel accepted provider work.
+- All 982 API tests across 68 files pass. API typecheck passes. The separate review passes 43 focused cases and typecheck, with no remaining actionable API defect. Four review findings gained observed failing regressions and fixes: acceptance before network, cached gate bypass, emergency-stop recovery and queue starvation during compilation. Queue/drain handling retains uncertain claims.
+- The integration remains disabled in the production server. No Bot task, paid model call, new proof or chain transaction ran. The native `4a6a320` deployment and its public HTTP 503 remain unchanged. SDK and isolated proxy configuration pass local checks but await their separate scoped review/checkpoint. Next: finish that checkpoint, configure callback-only server access, then obtain real account/cost acceptance before paid dispatch. The ten-cent complete-run ceiling remains in force.
+
 ## 2026-11-17 06:29 -05:00 — Anish — Persist Bot review claims and immutable receipts
 
 - Branch `codex/hosted-backend`, draft PR #8. Migration 019 and the Bot review store bind one canonical review to an owned job revision. Dispatch claims persist before network access and store only a callback-ticket digest. Interrupted claims become uncertain and cannot be claimed again. Exact terminal replay preserves its receipt, including after expiry. Changed results are rejected.

@@ -34,10 +34,11 @@ function snapshot(row: Row): BotReviewSnapshot {
 export function botReviewStore(db: Db) {
   const load = (id: string) => db.prepare("SELECT * FROM bot_reviews WHERE id=?").get(id) as Row | undefined;
   function current(owner: string, jobId: string, revisionId: string) {
-    const row = db.prepare("SELECT j.owner_wallet,j.current_revision_id,r.revision_hash,r.reference_digest,r.revision_json FROM jobs j JOIN revisions r ON r.id=j.current_revision_id AND r.job_id=j.id WHERE j.id=?").get(jobId) as
-      { owner_wallet: string | null; current_revision_id: string; revision_hash: string; reference_digest: string; revision_json: string } | undefined;
+    const row = db.prepare("SELECT j.owner_wallet,j.current_revision_id,j.state,r.revision_hash,r.reference_digest,r.revision_json FROM jobs j JOIN revisions r ON r.id=j.current_revision_id AND r.job_id=j.id WHERE j.id=?").get(jobId) as
+      { owner_wallet: string | null; current_revision_id: string; state: string; revision_hash: string; reference_digest: string; revision_json: string } | undefined;
     if (!row || row.owner_wallet !== owner) throw new ApiError("not_found", "Job not found");
     if (row.current_revision_id !== revisionId) throw new ApiError("revision_conflict", "Bot review requires the current revision");
+    if (row.state !== "drafted") throw new ApiError("wrong_state", "Bot review requires a drafted job");
     return row;
   }
   return {
@@ -49,7 +50,7 @@ export function botReviewStore(db: Db) {
         || args.expiresAt <= args.now || args.expiresAt - args.now > 86_400_000) {
         throw new ApiError("validation_failed", "Invalid Bot review input");
       }
-      return tx(db, () => {
+      const write = () => {
         const binding = current(args.owner, args.jobId, args.revisionId);
         const input = JSON.parse(captured.inputJson) as { revisionHash: string; referenceDigest: string; plan: unknown };
         if (input.revisionHash !== binding.revision_hash || input.referenceDigest !== binding.reference_digest
@@ -66,12 +67,21 @@ export function botReviewStore(db: Db) {
         db.prepare("INSERT INTO bot_reviews (id,owner_wallet,job_id,revision_id,revision_hash,input_hash,input_json,status,created_at,expires_at) VALUES (?,?,?,?,?,?,?,'queued',?,?)")
           .run(args.id, args.owner, args.jobId, args.revisionId, binding.revision_hash, captured.inputHash, captured.inputJson, args.now, args.expiresAt);
         return view(load(args.id)!);
-      });
+      };
+      // Join the caller's synchronous acceptance transaction when it also stores idempotency.
+      return db.isTransaction ? write() : tx(db, write);
     },
     get(id: string, owner: string, jobId: string): BotReviewView | null {
       const row = load(id);
       if (!row || row.owner_wallet !== owner || row.job_id !== jobId) return null;
       return view(row);
+    },
+    nextQueued(now: number): string | null {
+      db.prepare(`UPDATE bot_reviews SET status='expired' WHERE status='queued' AND
+        (expires_at<=? OR NOT EXISTS (SELECT 1 FROM jobs j WHERE j.id=bot_reviews.job_id
+          AND j.current_revision_id=bot_reviews.revision_id AND j.owner_wallet=bot_reviews.owner_wallet AND j.state='drafted'))`).run(now);
+      const row = db.prepare("SELECT id FROM bot_reviews WHERE status='queued' ORDER BY created_at,id LIMIT 1").get() as { id: string } | undefined;
+      return row?.id ?? null;
     },
     /** Claim before sending. A crash after this commit leaves uncertain delivery, never a fresh attempt. */
     claim(id: string, now: number): { reviewId: string; ticket: string; input: BotReviewSnapshot; expiresAt: number } | null {

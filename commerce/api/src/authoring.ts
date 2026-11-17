@@ -8,6 +8,7 @@ import canonicalize from "canonicalize";
 import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { assessCoverage } from "./coverage.ts";
+import { assertBotApproved } from "./bot-review-gate.ts";
 import { withinDraftDeadline, registerDraftDeadline } from "./draft-deadline.ts";
 import { appendExampleCheck, exampleCheckView } from "./example-checks.ts";
 import { tx } from "./db.ts";
@@ -712,6 +713,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       });
     }
     const approval = store.approvalOf(rev.id);
+    assertBotApproved(deps, rev.id);
     if (!approval || approval.revisionHash !== rev.revision_hash) {
       throw new ApiError("approval_required", "The current revision is not approved", { state: job.state });
     }

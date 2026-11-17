@@ -13,6 +13,7 @@ import {
 import { JobStatus, withRetry } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { requireRealArtifact } from "./artifact.ts";
+import { assertBotApproved } from "./bot-review-gate.ts";
 import { readBody, parseJson, requireJobId, isoAt, type AppEnv, type Deps } from "./context.ts";
 import { requireOwnedJob } from "./ownership.ts";
 import type { RouteContext } from "./routes.ts";
@@ -472,6 +473,7 @@ export function registerMarketRoutes(ctx: RouteContext): void {
     const chain = requireChain(deps);
     const body = parseSelectBody(c.get("json"));
     const { job, rev, fields } = loadJob(c.req.param("id") ?? "");
+    assertBotApproved(deps, rev.id);
     if (job.state !== "compiled") throw wrongState(job.state);
     if (lower(body.revisionHash) !== rev.revision_hash) throw revisionConflict(rev.revision_hash);
     const quote = q.quote.get(body.quoteId) as QuoteRow | undefined;

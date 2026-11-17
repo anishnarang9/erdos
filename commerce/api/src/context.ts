@@ -8,6 +8,7 @@ import type { DraftModel } from "./grok.ts";
 import type { ApiChain } from "./chain.ts";
 
 import type { CompileAdmission } from "./compile-admission.ts";
+import type { BotReviewConfig } from "./bot-review-types.ts";
 
 export const MAX_BODY_BYTES = 1024 * 1024; // 1 MiB
 
@@ -103,6 +104,7 @@ export interface Deps {
   budget?: AuthoringBudget;
   /** Bearer token for an audited spend-halt resolution. Unset means resolution is unavailable. */
   operatorToken?: string;
+  botReview?: BotReviewConfig;
 }
 
 export interface IdempotencyScope {
