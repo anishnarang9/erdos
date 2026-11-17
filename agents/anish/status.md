@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 16:00 -05:00 — Anish — Exercise the previous API image on restored state
+
+- The prior API image boots from its separate restored snapshot with network disabled. Liveness passes, readiness returns 503, and the database reports zero foreign-key errors and two compiled manifests. The restored instance stops after the check. Production API and HTTPS container identities match their pre-drill values. See the [rollback drill](reports/hosted-previous-image-rollback-drill-2026-11-17.json).
+
 ## 2026-11-17 15:58 -05:00 — Anish — Prepare and replay hosted Arc funding terms
 
 - The deployed API accepts the fee job's owner request for a 0.01 testnet USDC bounty. The saved terms bind the existing revision, compiled commitments and Arc deployment. Exact replay returns the same response and expiry. The owner needs a testnet top-up and protected signing before a transaction. No transaction ran. See the [terms evidence](reports/hosted-arc-fee-terms-acceptance-2026-11-17.json).
