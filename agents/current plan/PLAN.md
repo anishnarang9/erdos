@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 22:45 -05:00 — Anish — Complete authoring envelopes before paid qualification
+
+- The 60-request corpus passes 326 native host cases, and its corrected offline trial harness passes 24 local checks. This does not establish the 180 fresh Grok API trials. Public host/account, secure API configuration and approved service/benchmark caps are still pending user input.
+- Real API envelope review found missing output metadata, a binary-reference adapter gap and missing public signer policy in signed requests. Follow [the authoring example contract](../../docs/hosted-authoring-examples.md). Worker B owns complete public corpus inputs, separate illustrative signed fixtures, digest and harness. Worker A owns API encoding/example/evidence adapters and safe paid dispatch. Keep hidden answers out of author input. Preserve every predicate, the 40/10/10 split and acceptance thresholds. No engine, guest, verifier or contract extension is needed.
+- The coordinator retains SDK/runner, runtime assets, integration and the one compilation/prover allocation. The first cold bounded compiler smoke timed out and cancelled cleanly; preserve it. A warm retry now runs as a new local task. No paid model or chain action is configured. Keep PR #8 draft and final public/live gates open.
+
 ## 2026-11-16 21:44 -05:00 — Anish — Queue integration and runtime ownership
 
 - Integration branch `codex/hosted-backend` includes durable tasks, wallet ownership, installed runner and reviewed corpus batches. Public synchronous authoring cannot bypass the queue. Paid compile shares its compiler slot. Local real HTTP queue/compilation/replay passed. Public deployment, real Grok calls and new live settlement remain open gates.
