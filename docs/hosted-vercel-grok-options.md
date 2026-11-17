@@ -4,6 +4,8 @@ Reviewed 2026-11-17. The user selected Vercel and requested roughly $0.10 per us
 
 ## Current account and hosting recommendation
 
+Current decision, 2026-11-17: The user chose DigitalOcean after reconsidering the compiler deployment risk. Follow the [DigitalOcean setup](hosted-digitalocean.md). Keep the Vercel investigation below as history. No Sandbox was created. Vercel login remains available for the later frontend.
+
 Latest correction: Vercel is a viable target after adapting this backend. The user asked why it could not stay there. The initial recommendation did not inspect Sandbox's Docker support. The [official Docker announcement](https://vercel.com/changelog/run-docker-containers-inside-vercel-sandbox) explicitly supports installing Docker and running its daemon inside a Sandbox. Its August update uses Ubuntu-based managed images. Do not treat a second provider as a prerequisite.
 
 Prioritize a compatibility check for the user's Vercel preference. The proposed mapping is:

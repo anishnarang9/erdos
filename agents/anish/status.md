@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-17 04:15 -05:00 — Anish — User selects DigitalOcean for the backend
+
+- The user chose the previously quoted DigitalOcean route and requested signup instructions. The selected specification is Basic Regular four shared vCPUs, 8 GiB RAM, 160 GiB SSD, Ubuntu 24.04 LTS x64 and weekly backups. Published monthly compute plus weekly backup is $57.60 before tax and separate usage. Account signup, billing activation and authenticated provider access are the next dependencies.
+- Added the [account and deployment setup](../../docs/hosted-digitalocean.md), with the official registration link, local `doctl` browser-login flow, native compiler acceptance, source identities, hard quotas and recovery sequence. Installed official Homebrew `doctl` 2.5.0 and checked its OAuth login command. `doctl auth login --context ubc26` opens authorization in the browser. The `ubc26` context does not yet exist. No API token should enter chat or source files. No server exists yet.
+- Read-only Vercel team inspection confirmed active Hobby. Its documented free Sandbox allowance could support a bounded test, but the user's provider choice superseded that investigation before any project or Sandbox creation. No Docker compile, paid inference, wallet access or chain action ran. The existing image identity is `acc4eb14…`, size 128,168,670 bytes. Code candidate stays `20b0dc2`.
+- Continue the existing persistent-host deployment. Recheck actual size/region/price after authentication. Native compiler performance, public deployment, secure application model access and budgets, 180 genuine trials, current live acceptance and final independent review remain open. No further Grok CLI calls are permitted.
+
 ## 2026-11-17 04:10 -05:00 — Anish — Correct the Vercel compiler assessment
 
 - The user asked why the backend cannot remain on Vercel. It can remain there after adapting the current single-host design. The earlier recommendation missed official Vercel Sandbox Docker-daemon support. A second hosting provider is not an established requirement. The user did not approve DigitalOcean spending.
