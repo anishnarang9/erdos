@@ -9,6 +9,25 @@ import type { ApiChain } from "./chain.ts";
 
 export const MAX_BODY_BYTES = 1024 * 1024; // 1 MiB
 
+export type Principal =
+  | { kind: "legacy" }
+  | { kind: "wallet"; wallet: string; keyId: string; scopes: string[] };
+
+export interface DeploymentConfig {
+  mode: "local" | "public";
+  /** Origin bound into wallet challenge messages. */
+  serviceOrigin: string;
+  /** When true, the first X-Forwarded-For hop is the client IP for rate limits. */
+  trustProxy: boolean;
+}
+
+export interface RateLimitConfig {
+  /** 0 disables this dimension. */
+  expensivePerPrincipal: number;
+  expensivePerIp: number;
+  windowMs?: number;
+}
+
 export interface Deps {
   db: Db;
   buyerToken: string;
@@ -22,6 +41,9 @@ export interface Deps {
   packagesDir?: string;
   /** T7/T8 chain; absent means chain routes return 503 chain_unavailable. */
   chain?: ApiChain;
+  deployment: DeploymentConfig;
+  rateLimit?: RateLimitConfig;
+  expensiveDisabled: boolean;
 }
 
 export interface IdempotencyScope {
@@ -39,8 +61,10 @@ export interface AppEnv {
     rawBody: Uint8Array;
     /** Parsed JSON body; only set for POST. */
     json: unknown;
-    /** "buyer" or the lowercase provider address. */
+    /** "buyer", a lowercase wallet, or the lowercase provider address. */
     caller: string;
+    /** Set by buyer or API-key authentication. */
+    principal?: Principal;
     idem: IdempotencyScope | undefined;
   };
 }

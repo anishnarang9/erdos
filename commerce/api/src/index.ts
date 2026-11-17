@@ -12,6 +12,7 @@ export {
   type FieldError,
 } from "./revision.ts";
 export { providerAuthMessage, AUTH_WINDOW_SECONDS } from "./auth.ts";
+export { authChallengeMessage, CHALLENGE_TTL_MS } from "./identity.ts";
 export { ApiError, ERROR_STATUS, type ErrorCode, type ErrorBody } from "./errors.ts";
 export { MAX_BODY_BYTES, type AppEnv } from "./context.ts";
 export {

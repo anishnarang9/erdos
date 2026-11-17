@@ -3,6 +3,7 @@ import type { ULIDFactory } from "ulid";
 import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { isoAt, type AppEnv, type Deps } from "./context.ts";
+import { ownerWallet } from "./ownership.ts";
 import type { Idempotency } from "./idempotency.ts";
 import { EngineError, type Manifest } from "./engine.ts";
 import { chainViewFor } from "./market.ts";
@@ -89,7 +90,7 @@ export function jobStore(deps: Deps) {
   const { db } = deps;
   const q = {
     insertJob: db.prepare(
-      "INSERT INTO jobs (id, state, current_revision_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO jobs (id, state, current_revision_id, created_at, updated_at, owner_wallet) VALUES (?, ?, ?, ?, ?, ?)",
     ),
     insertRevision: db.prepare(
       "INSERT INTO revisions (id, job_id, n, revision_json, plan_json, structure_hash, rules_hash, reference_digest, revision_hash, source, draft_id, edited, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -119,6 +120,7 @@ export function jobStore(deps: Deps) {
       "INSERT OR IGNORE INTO manifests (revision_id, image_id, rules_hash, reference_hash, manifest_json, package_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
     ),
     draftHash: db.prepare("SELECT revision_hash FROM drafts WHERE id = ?"),
+    draftOwner: db.prepare("SELECT owner_wallet FROM drafts WHERE id = ?"),
   };
 
   const loadJob = (id: string): { job: JobRow; rev: RevisionRow } => {
@@ -153,6 +155,13 @@ export function jobStore(deps: Deps) {
   };
 
   return { q, loadJob, approvalOf, manifestOf, packageOf, referencesOf };
+}
+
+/** A wallet cannot use another wallet's draft or a legacy draft. Legacy cannot use a wallet draft. */
+export function assertDraftOwner(store: JobStore, draftId: string | null, owner: string | null): void {
+  if (draftId === null) return;
+  const row = store.q.draftOwner.get(draftId) as { owner_wallet: string | null } | undefined;
+  if (!row || row.owner_wallet !== owner) throw invalid([{ path: "/draftId", message: "unknown draftId" }]);
 }
 
 export type JobStore = ReturnType<typeof jobStore>;
@@ -284,12 +293,14 @@ export function jobRoutes(deps: Deps, commit: Idempotency["commit"], newId: ULID
   /** POST /v1/jobs */
   const create: Handler<AppEnv> = async (c) => {
     const s = await parseSubmission(deps, store, c.get("json"));
+    const owner = ownerWallet(c);
+    assertDraftOwner(store, s.draftId, owner);
     const jobId = newId(deps.now());
     const revId = newId(deps.now());
     const at = isoAt(deps.now());
     const resBody = { jobId, state: "drafted", revision: { n: 1, revisionHash: s.revisionHash } };
     return commit(c, 201, resBody, () => {
-      q.insertJob.run(jobId, "drafted", revId, at, at);
+      q.insertJob.run(jobId, "drafted", revId, at, at, owner);
       insertRevision(store, jobId, revId, 1, s, at);
     });
   };
@@ -393,8 +404,9 @@ export function jobRoutes(deps: Deps, commit: Idempotency["commit"], newId: ULID
       rulesHash: rev.rules_hash,
       approvedAt: at,
     };
+    const approvedBy = ownerWallet(c) ?? "buyer";
     return commit(c, 200, { state: "approved", approval }, () => {
-      q.insertApproval.run(job.id, rev.id, current, rev.reference_digest, rev.structure_hash, rev.rules_hash, "buyer", at);
+      q.insertApproval.run(job.id, rev.id, current, rev.reference_digest, rev.structure_hash, rev.rules_hash, approvedBy, at);
       q.setState.run("approved", at, job.id);
     });
   };

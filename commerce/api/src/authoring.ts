@@ -8,12 +8,15 @@ import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { tx } from "./db.ts";
 import { isoAt, readBody, parseJson, requireJobId, type AppEnv, type Deps } from "./context.ts";
+import { expensiveGuard } from "./limits.ts";
+import { ownerWallet, requireOwnedJob } from "./ownership.ts";
 import type { RouteContext } from "./routes.ts";
 import type { Idempotency } from "./idempotency.ts";
 import { ModelError, parseModelDraft, type DraftModelInput, type DraftOutput, type ModelDraft } from "./grok.ts";
 import { parseManifest, EngineError, isCliCompileResult, type Manifest } from "./engine.ts";
 import { artifactBinding, requireRealArtifact } from "./artifact.ts";
 import {
+  assertDraftOwner,
   engineFailure,
   insertRevision,
   invalid,
@@ -65,9 +68,11 @@ const MAX_CLARIFICATION_ROUNDS = 2;
 export function registerAuthoringRoutes(ctx: RouteContext): ReturnType<typeof authoringHandlers> {
   const { app, buyer, idem } = ctx;
   const h = authoringHandlers(ctx.deps, idem.commit, ctx.newId);
-  app.post("/v1/drafts", readBody, buyer, parseJson, idem.middleware, h.draft);
-  app.post("/v1/jobs/:id/revisions", readBody, buyer, parseJson, requireJobId, idem.middleware, h.revise);
-  app.post("/v1/jobs/:id/compile", readBody, buyer, parseJson, requireJobId, idem.middleware, h.compile);
+  const owned = requireOwnedJob(ctx.deps);
+  const expensive = expensiveGuard(ctx.deps);
+  app.post("/v1/drafts", readBody, buyer, parseJson, expensive, idem.middleware, h.draft);
+  app.post("/v1/jobs/:id/revisions", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, h.revise);
+  app.post("/v1/jobs/:id/compile", readBody, buyer, parseJson, requireJobId, owned, expensive, idem.middleware, h.compile);
   // Public: the package and reference files are the job's public commitments, which any solver needs.
   app.get("/v1/jobs/:id/package", readBody, requireJobId, h.packageListing);
   app.get("/v1/jobs/:id/package/file", readBody, requireJobId, h.packageFile);
@@ -157,13 +162,14 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
   const store = jobStore(deps);
   const { q, loadJob } = store;
   const insertDraft = deps.db.prepare(
-    "INSERT INTO drafts (id, request_json, result_json, model, trace_id, revision_hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    "INSERT INTO drafts (id, request_json, result_json, model, trace_id, revision_hash, created_at, owner_wallet) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
   );
   const maxN = deps.db.prepare("SELECT MAX(n) AS n FROM revisions WHERE job_id = ?");
 
   /** POST /v1/drafts (§3) */
   const draft: Handler<AppEnv> = async (c) => {
     const model = deps.draftModel;
+    const owner = ownerWallet(c);
     if (!model) throw new ApiError("model_unavailable", "No draft model configured");
     const body = parseDraftBody(c.get("json"));
     const requestJson = JSON.stringify(c.get("json"));
@@ -187,7 +193,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       // Every call is recorded, failures included. ModelError messages never carry the API key.
       const reason = err instanceof ModelError ? err.reason : "error";
       const at = isoAt(deps.now());
-      tx(deps.db, () => insertDraft.run(draftId, requestJson, JSON.stringify({ error: { code: "model_failed", reason } }), null, null, null, at));
+      tx(deps.db, () => insertDraft.run(draftId, requestJson, JSON.stringify({ error: { code: "model_failed", reason } }), null, null, null, at, owner));
       throw modelFailure(reason);
     }
 
@@ -248,7 +254,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     const at = isoAt(deps.now());
     const stored = JSON.stringify({ response, modelResult: result });
     return commit(c, 200, response, () => {
-      insertDraft.run(draftId, requestJson, stored, reply.model, reply.traceId, hash, at);
+      insertDraft.run(draftId, requestJson, stored, reply.model, reply.traceId, hash, at, owner);
     });
   };
 
@@ -291,6 +297,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       throw invalid([{ path: "/headers/if-match", message: "If-Match header is required" }]);
     }
     const s = await parseSubmission(deps, store, c.get("json"));
+    assertDraftOwner(store, s.draftId, ownerWallet(c));
     const { job, rev } = loadJob(c.req.param("id") ?? "");
     if (job.state !== "drafted" && job.state !== "approved") {
       throw new ApiError("wrong_state", `Job in state ${job.state} cannot be revised`, { state: job.state });
