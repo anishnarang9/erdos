@@ -214,6 +214,7 @@ test('supported candidates match the independent oracle', async () => {
     'route-1', 'route-open-1', 'route-fixed-1', 'route-penalty-1',
     'mass-1', 'yield-1', 'mixture-1', 'dilution-1',
     'seal-1', 'crate-1', 'transfer-1', 'dual-seal-1',
+    'firmware-1', 'firmware-pair-1', 'firmware-note-1', 'firmware-opaque-1',
   ]);
   const directory = await mkdtemp(join(tmpdir(), 'ubc26-corpus-'));
   try {
@@ -250,4 +251,35 @@ test('supported candidates match the independent oracle', async () => {
   } finally {
     await rm(directory, {recursive: true, force: true});
   }
+});
+
+test('the frozen corpus has 40 supported, 10 ambiguous, and 10 unsupported requests', async () => {
+  const {corpus} = await load();
+  const challenges = corpus.buildCorpus();
+  const counts = {supported: 0, ambiguous: 0, unsupported: 0};
+  const banned = /^(expense|ledger|inventory|schedule|file|signed|ambiguous|unsupported)-/;
+  const historical = ['expenses.json', 'stock.json', 'assignments.json', 'note.txt'];
+  assert.equal(new Set(challenges.map((item) => item.id)).size, 60);
+  for (const challenge of challenges) {
+    counts[challenge.classification] += 1;
+    assert.equal(banned.test(challenge.id), false, challenge.id);
+    assert.equal(challenge.prompt.includes('violatedRequirements'), false, challenge.id);
+    const packed = JSON.stringify(challenge.plan ?? challenge.unsupportedDraft ?? {});
+    for (const name of historical) assert.equal(packed.includes(name), false, `${challenge.id}:${name}`);
+    if (challenge.classification === 'ambiguous') {
+      assert.equal(challenge.plan, undefined);
+      assert.ok(challenge.clarificationQuestions.length >= 1 && challenge.clarificationQuestions.length <= 5);
+      assert.ok(challenge.facets.every((facet) => typeof facet === 'string' && challenge.clarificationQuestions.some((question) => question.includes(facet))));
+    }
+    if (challenge.classification === 'unsupported') {
+      assert.equal(challenge.capabilityRequests.length, 1);
+      assert.equal(typeof challenge.boundary, 'string');
+      assert.ok(challenge.unsupportedDraft);
+    }
+  }
+  assert.deepEqual(counts, {supported: 40, ambiguous: 10, unsupported: 10});
+  assert.equal(new Set(challenges.filter((item) => item.classification === 'supported').map((item) => item.family)).size, 10);
+  const {createHash} = await import('node:crypto');
+  const digest = createHash('sha256').update(JSON.stringify(corpus.canonicalCorpus(challenges))).digest('hex');
+  assert.equal(digest, corpus.CORPUS_DIGEST);
 });

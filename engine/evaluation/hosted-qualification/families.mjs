@@ -1,5 +1,7 @@
 import {policyChallenges} from './policy-challenges.mjs';
 import {custodyChallenges} from './custody-challenges.mjs';
+import {firmwareChallenges} from './firmware-challenges.mjs';
+import {rubricChallenges} from './rubric-challenges.mjs';
 import {quantityChallenges} from './quantity-challenges.mjs';
 import {routeChallenges} from './route-challenges.mjs';
 import {
@@ -651,5 +653,7 @@ export function buildChallenges() {
     ...routeChallenges(),
     ...quantityChallenges(),
     ...custodyChallenges(),
+    ...firmwareChallenges(),
+    ...rubricChallenges(),
   ];
 }

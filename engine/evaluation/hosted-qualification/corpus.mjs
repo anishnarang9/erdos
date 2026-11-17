@@ -5,6 +5,7 @@ export {writeCandidateEvidence, writeChallenge};
 export const CORPUS_ID = 'hosted-qualification-2026-11-16';
 export const SOURCE_BASE = 'c21ec6e';
 export const REVIEWED_MAIN = '6ed9d2d';
+export const CORPUS_DIGEST = '621ac9137f29ee3969150da63430860af0f9c706d3745aafbb1a374f72953391';
 
 export function buildCorpus() {
   return buildChallenges();
