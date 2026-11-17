@@ -22,14 +22,14 @@ it("does not dispatch a repair when the first call exhausted the request spend c
   const engine={...simulatedEngine(),validate:async()=>({ok:false as const,kind:"invalid" as const,errors:[{path:"/version",message:"Invalid version"}]})};
   const app=createApp({dbPath:":memory:",buyerToken:"local-compatibility-only-token",engine,
     deployment:{mode:"local",serviceOrigin:"http://localhost"},
-    budget:{requestCeilingMicroUsd:1000,dailyCeilingMicroUsd:10000,inputMicroUsdPerMillion:1000000,outputMicroUsdPerMillion:1000000},
-    draftModel:{draft:async()=>{calls++;return{model:"controlled-test-model",traceId:"test",usage:{promptTokens:1000,completionTokens:0,cachedTokens:null,reasoningTokens:null,costInUsdTicks:null},result:{kind:"draft",plan:{version:0},examples:[],sourceQuotes:[]}};}}});apps.push(app);
+    budget:{requestCeilingMicroUsd:200000,dailyCeilingMicroUsd:1000000,inputMicroUsdPerMillion:1000000,outputMicroUsdPerMillion:1000000},
+    draftModel:{draft:async()=>{calls++;return{model:"controlled-test-model",traceId:"test",usage:{promptTokens:200000,completionTokens:0,cachedTokens:null,reasoningTokens:null,costInUsdTicks:null},result:{kind:"draft",plan:{version:0},examples:[],sourceQuotes:[]}};}}});apps.push(app);
   const transport=((input:string|URL|Request,init?:RequestInit)=>app.app.request(String(input),init)) as typeof fetch;
   const signer=privateKeyToAccount(`0x${"55".repeat(32)}`),anonymous=hostedClient({baseUrl:"http://localhost",fetch:transport});
   const key=await anonymous.authenticate(signer.address,message=>signer.signMessage({message}),"budget-test-login");
   const client=hostedClient({baseUrl:"http://localhost",apiKey:key.key,fetch:transport});
   await client.draft({request:"Check a policy",outputs:[{name:"result.json",format:"json"}],references:[],expirySeconds:3600,maxBudget:"10000"},"budget-test-draft");
-  await app.pumpTasks();expect(calls).toBeLessThanOrEqual(1);
+  await app.pumpTasks();expect(calls).toBe(1);
 });
 
 it("checks the full reference and catalog prompt before the first paid dispatch",async()=>{

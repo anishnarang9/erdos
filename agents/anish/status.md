@@ -2,6 +2,11 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 23:05 -05:00 — Anish — Exhausted-call regression requires a real first dispatch
+
+- Tightened the independent request-spend regression after full-payload preflight landed. Its request ceiling now admits the first controlled call. That call exhausts the ceiling, and the test requires exactly one call. This prevents a preflight rejection from hiding a repair-dispatch regression. All six model/task safety checks pass.
+- Recorded the signed-preview issue and unchanged gates in the shared plan. The proposed witness completion design remains under review. Continue the existing API and qualification workers. No paid model or chain action occurred.
+
 ## 2026-11-16 23:04 -05:00 — Anish — CI working-directory regression repaired
 
 - `core-fast` at `d73a963` failed in the hosted harness. A subprocess test resolved its CLI from repository root, while CI runs in `engine/`. Reproduced the failure in that directory before the fix. The test now resolves its sibling module from its own URL.

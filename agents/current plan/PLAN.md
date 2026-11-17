@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 23:05 -05:00 — Anish — Signed preview bindings need an explicit completion step
+
+- Corrected corpus digest `2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470` includes complete public metadata. All 31 Node checks and 326 native comparisons pass. No real Grok trial has run.
+- A public signed example commits the checker rules hash. Independent review proves that a semantically equivalent valid draft with an extra true rule cannot reuse it. Do not bypass guest bindings, leak hidden plans, relabel supported cases or change qualification thresholds. See [the signed-preview evidence](../anish/reports/hosted-signed-preview-review-2026-11-16.json). Worker B reviews an explicit immutable buyer-supplied witness completion step. API approval must reject incomplete examples. Semantic draft scoring and final approvability are separate measurements under the existing plan.
+- The pinned Linux prewarm passes with warm cache. The original cold timeout stays preserved. Public hosting, hard disk quotas, model access/budgets and fresh funded acceptance remain open. The goal remains active and PR #8 remains draft.
+
 ## 2026-11-16 22:45 -05:00 — Anish — Complete authoring envelopes before paid qualification
 
 - The 60-request corpus passes 326 native host cases, and its corrected offline trial harness passes 24 local checks. This does not establish the 180 fresh Grok API trials. Public host/account, secure API configuration and approved service/benchmark caps are still pending user input.
