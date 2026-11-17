@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 16:31 -05:00 — Anish — Prepare the revised complete-authoring pilot
+
+- The user selected a 5–10¢ average target and requested a bounded proposal. Exact full-payload tokenizer counts range from 3,330 to 3,375 text tokens. The proposal allows at most three drafts and three Bot reviews with a $0.50 planning allowance and possible in-flight overrun. Paid execution awaits approval. See the [pilot proposal](../../docs/grok-bot/combined-authoring-pilot.md).
+
 ## 2026-11-17 16:21 -05:00 — Anish — Check the Circle quote at the worker signing boundary
 
 - The operator accepts the captured isolated VPS quote and prepares the expected one-unit typed message. Changed amount, recipient and domain stop before the signing callback. The stub creates no signature and no request carries a payment. See the [Circle preflight](reports/hosted-circle-facilitator-preflight-2026-11-17.json).

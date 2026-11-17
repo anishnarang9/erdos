@@ -1,0 +1,45 @@
+{
+  "status": "proposal-only",
+  "userDecision": "Target 5\u201310 cents average; prepare bounded pilot proposal",
+  "cases": [
+    {
+      "caseId": "voyage-fee",
+      "fullPayloadBytes": 14502,
+      "serializedSchemaBytes": 5653,
+      "serializedCatalogBytes": 1052,
+      "outputTokenLimit": 2048,
+      "serializedPayloadTextTokens": 3375,
+      "planningFramingAllowanceTokens": 512,
+      "planningApiCostMicroUsdAtHighestRate": 19958
+    },
+    {
+      "caseId": "cover-1",
+      "fullPayloadBytes": 14452,
+      "serializedSchemaBytes": 5653,
+      "serializedCatalogBytes": 1052,
+      "outputTokenLimit": 2048,
+      "serializedPayloadTextTokens": 3365,
+      "planningFramingAllowanceTokens": 512,
+      "planningApiCostMicroUsdAtHighestRate": 19933
+    },
+    {
+      "caseId": "mass-1",
+      "fullPayloadBytes": 14343,
+      "serializedSchemaBytes": 5653,
+      "serializedCatalogBytes": 1052,
+      "outputTokenLimit": 2048,
+      "serializedPayloadTextTokens": 3330,
+      "planningFramingAllowanceTokens": 512,
+      "planningApiCostMicroUsdAtHighestRate": 19845
+    }
+  ],
+  "tokenizerScope": "Text of complete serialized payload; provider framing remains estimated",
+  "generationCalls": 0,
+  "botRuns": 0,
+  "paidPilotApproved": false,
+  "planningAllowanceMicroUsd": 500000,
+  "maximumApiCalls": 3,
+  "maximumBotRuns": 3,
+  "repairs": 0,
+  "pilotDocument": "../../../docs/grok-bot/combined-authoring-pilot.md"
+}

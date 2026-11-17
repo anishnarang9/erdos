@@ -1,6 +1,6 @@
 # Ten-cent constraint authoring
 
-Status: proposed cost policy. Paid authoring remains disabled.
+Status — the user revised the cost target to a 5–10¢ average on 2026-11-17 and requested a bounded pilot proposal. See the [complete authoring pilot](grok-bot/combined-authoring-pilot.md). Paid execution awaits approval. The sections below describe the earlier strict policy and the current production guard.
 
 The user permits at most **$0.10 for a complete authoring run**. This includes its model repair. The compiler then handles deterministic validation and checker generation. The user deferred mass testing and rejected the proposed $20 testing and daily budgets. No generation request has run.
 

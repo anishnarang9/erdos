@@ -166,7 +166,7 @@
   ],
   "releaseGatesStillOpen": [
     "Production Bot account isolation, conversation export, and measured combined authoring and review cost",
-    "Reviewed authoring input/session policy within $0.10 per run",
+    "Approve and qualify the proposed 5\u201310 cent average complete-authoring pilot",
     "Public authoring readiness and external API/laptop-independent acceptance",
     "Later authorized genuine 180-trial qualification",
     "Final combined runtime/public runner artifacts and exact handoff identities",
@@ -650,5 +650,11 @@
     "files": 9,
     "report": "hosted-public-docs-acceptance-2026-11-17.json",
     "finalHandoff": false
+  },
+  "revisedCostDecision": {
+    "userDecision": "Target 5\u201310 cents average; prepare bounded pilot proposal",
+    "proposal": "hosted-combined-authoring-pilot-proposal-2026-11-17.json",
+    "executionApproved": false,
+    "productionGuard": "strict and disabled for paid dispatch"
   }
 }
