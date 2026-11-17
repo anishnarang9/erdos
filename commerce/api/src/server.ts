@@ -174,6 +174,7 @@ const { app, close, reconcileTasks, pumpTasks } = createApp({
   },
   ...(rateLimit ? { rateLimit } : {}),
   expensiveDisabled: process.env.EXPENSIVE_OPS_DISABLED === "1",
+  ...(process.env.OPERATOR_TOKEN ? { operatorToken: process.env.OPERATOR_TOKEN } : {}),
 });
 
 // Indexer (§6): ticks every 5 s when a chain is configured. It uses its own connection to the same database

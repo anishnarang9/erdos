@@ -46,6 +46,8 @@ export interface CreateAppOptions {
   expensiveDisabled?: boolean;
   /** Prices and ceilings for draft tasks. Required before a public draft task is accepted. */
   budget?: AuthoringBudget;
+  /** Bearer token that may resolve a spend halt. Unset leaves a halt in force. */
+  operatorToken?: string;
 }
 
 export interface CreatedApp {
@@ -89,6 +91,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     ...(opts.rateLimit ? { rateLimit: opts.rateLimit } : {}),
     expensiveDisabled: opts.expensiveDisabled ?? false,
     ...(opts.budget ? { budget: opts.budget } : {}),
+    ...(opts.operatorToken ? { operatorToken: opts.operatorToken } : {}),
   };
 
   const app = new Hono<AppEnv>();

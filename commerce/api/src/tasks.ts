@@ -1,4 +1,5 @@
 // Durable draft and compile work. The HTTP request returns before the handler runs.
+import { timingSafeEqual } from "node:crypto";
 import type { Handler } from "hono";
 import canonicalize from "canonicalize";
 import { ApiError, ERROR_STATUS, type ErrorCode } from "./errors.ts";
@@ -9,6 +10,12 @@ import type { ModelUsage } from "./grok.ts";
 import { expensiveGuard } from "./limits.ts";
 import { isPlainObject } from "./revision.ts";
 import type { RouteContext } from "./routes.ts";
+
+function bearerMatches(presented: string, expected: string): boolean {
+  const left = Buffer.from(presented);
+  const right = Buffer.from(expected);
+  return left.length === right.length && timingSafeEqual(left, right);
+}
 
 const COMPILE_LIMIT = 1;
 const DRAFT_LIMIT = 2;
@@ -262,6 +269,18 @@ export function registerTaskRoutes(
     "UPDATE spend_reservations SET state = 'released', updated_at = ? WHERE task_id = ? AND state = 'reserved' AND dispatched_at IS NULL",
   );
   const dispatchState = db.prepare("SELECT dispatched_at FROM spend_reservations WHERE task_id = ?");
+  const reservationIdentity = db.prepare("SELECT id, ceiling_micro_usd FROM spend_reservations WHERE task_id = ?");
+  const openHalt = db.prepare("SELECT id FROM spend_halts WHERE resolved_at IS NULL ORDER BY created_at ASC, id ASC LIMIT 1");
+  const haltById = db.prepare("SELECT id, resolved_at FROM spend_halts WHERE id = ?");
+  const insertHalt = db.prepare(
+    "INSERT INTO spend_halts (id, reservation_id, task_id, settled_micro_usd, ceiling_micro_usd, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+  );
+  const resolveHalt = db.prepare(
+    "UPDATE spend_halts SET resolved_at = ?, resolved_by = 'operator', resolution_note = ? WHERE id = ? AND resolved_at IS NULL",
+  );
+  const requeueDraft = db.prepare(
+    "UPDATE tasks SET state = 'queued', attempt = MAX(attempt - 1, 0), updated_at = ? WHERE id = ? AND state = 'running' AND operation = 'draft'",
+  );
 
   const walletOf = (c: AppContext): string => {
     const principal = c.get("principal");
@@ -328,11 +347,44 @@ export function registerTaskRoutes(
         if (spent + deps.budget.requestCeilingMicroUsd > deps.budget.dailyCeilingMicroUsd) {
           throw new ApiError("rate_limited", "Authoring budget is exhausted");
         }
+      }
+      if (operation === "draft") {
+        const halt = openHalt.get() as { id: string } | undefined;
+        if (halt) throw new ApiError("service_disabled", "Authoring is halted after a spend breach", { haltId: halt.id });
+      }
+      if (operation === "draft" && deps.budget) {
         insertReservation.run(newId(), wallet, id, deps.budget.requestCeilingMicroUsd, at, at);
       }
       insertTask.run(id, wallet, operation, inputJson, inputHash, at, at);
       return { status: 202, body: taskView(byId.get(id) as unknown as TaskRow) };
     });
+  });
+
+  app.post("/v1/operator/spend-halts/:id/resolve", readBody, parseJson, (c) => {
+    if (!deps.operatorToken) throw new ApiError("not_found", "Not found");
+    const header = c.req.header("authorization") ?? "";
+    const presented = header.startsWith("Bearer ") ? header.slice("Bearer ".length) : "";
+    if (!bearerMatches(presented, deps.operatorToken)) throw new ApiError("unauthorized", "Unauthorized");
+    const id = c.req.param("id") ?? "";
+    const body = c.get("json");
+    if (!isPlainObject(body)) {
+      throw new ApiError("validation_failed", "Request validation failed", { errors: [{ path: "", message: "body must be a JSON object" }] });
+    }
+    const unknown = Object.keys(body).filter((key) => key !== "note");
+    if (unknown.length > 0) {
+      throw new ApiError("validation_failed", "Request validation failed", { errors: unknown.map((key) => ({ path: `/${key}`, message: "unknown field" })) });
+    }
+    const note = body.note;
+    if (typeof note !== "string" || note.trim() === "" || note.trim().length > 500) {
+      throw new ApiError("validation_failed", "Request validation failed", { errors: [{ path: "/note", message: "must be a string of 1 to 500 characters" }] });
+    }
+    const row = haltById.get(id) as { id: string; resolved_at: string | null } | undefined;
+    if (!row) throw new ApiError("not_found", "Spend halt not found");
+    if (row.resolved_at !== null) throw new ApiError("wrong_state", "The spend halt is already resolved");
+    const at = isoAt(deps.now());
+    const updated = resolveHalt.run(at, note.trim(), id);
+    if (Number(updated.changes) !== 1) throw new ApiError("wrong_state", "The spend halt is already resolved");
+    return c.json({ id, resolvedAt: at });
   });
 
   app.get("/v1/tasks/:id", readBody, requireApiKey(deps), (c) => {
@@ -397,11 +449,20 @@ export function registerTaskRoutes(
       const billing = isPlainObject(result) && isPlainObject(result.billing) ? result.billing : null;
       const microUsd = billing?.microUsd;
       if (billing?.state === "settled" && typeof microUsd === "number" && Number.isSafeInteger(microUsd) && microUsd >= 0) {
-        const ceilingRow = reservationCeiling.get(id) as { ceiling_micro_usd: number } | undefined;
-        const overCeiling = typeof ceilingRow?.ceiling_micro_usd === "number" && microUsd > ceilingRow.ceiling_micro_usd;
-        const breach = billing.breach === true || overCeiling ? 1 : 0;
-        const updated = settleKnown.run(microUsd, breach, at(), id);
-        if (Number(updated.changes) === 1) return;
+        let settled = false;
+        tx(db, () => {
+          const ceilingRow = reservationCeiling.get(id) as { ceiling_micro_usd: number } | undefined;
+          const overCeiling = typeof ceilingRow?.ceiling_micro_usd === "number" && microUsd > ceilingRow.ceiling_micro_usd;
+          const breach = billing.breach === true || overCeiling ? 1 : 0;
+          const updated = settleKnown.run(microUsd, breach, at(), id);
+          if (Number(updated.changes) !== 1) return;
+          settled = true;
+          if (breach !== 1) return;
+          const reservation = reservationIdentity.get(id) as { id: string; ceiling_micro_usd: number } | undefined;
+          if (!reservation) return;
+          insertHalt.run(newId(), reservation.id, id, microUsd, reservation.ceiling_micro_usd, at());
+        });
+        if (settled) return;
       }
       settleUnknown.run(at(), id);
     };
@@ -424,6 +485,10 @@ export function registerTaskRoutes(
         else settleUnknown.run(at(), row.id);
       }
     };
+    if (row.operation === "draft" && openHalt.get()) {
+      requeueDraft.run(at(), row.id);
+      return;
+    }
     if (row.operation === "compile") await withCompileSlot(work);
     else await work();
   };
@@ -437,7 +502,9 @@ export function registerTaskRoutes(
       const claimed = tx(db, () => {
         const rows: TaskRow[] = [];
         const at = isoAt(deps.now());
+        const authoringHalted = openHalt.get() !== undefined;
         for (const [operation, limit] of [["compile", COMPILE_LIMIT], ["draft", DRAFT_LIMIT]] as const) {
+          if (operation === "draft" && authoringHalted) continue;
           const active = Number((runningCount.get(operation) as { n: number }).n);
           const room = limit - active;
           if (room <= 0) continue;
