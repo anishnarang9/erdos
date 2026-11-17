@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 00:18 -05:00 — Anish — Reject impossible zero-prompt tariff settlement
+
+- The reviewer reproduced a tariff of zero for a provider reply reporting zero prompt/completion tokens without an actual bill. Every service request includes a nonempty system prompt and schema. Such counts cannot price that call. Tariff fallback now stays uncertain. An explicit known provider bill of zero remains authoritative.
+- The new regression failed before the fix. API typecheck, 17 focused billing/metadata checks and all 865 API tests pass. Zero reasoning under the exact reviewed non-reasoning model remains a model-contract fact. It does not make missing prompt usage a free request.
+- Rechecked the current provider schema through its public Markdown endpoint. Search defaults require the existing explicit `search_parameters.mode=off`. Visible completion limits still exclude reasoning. Worker A published readiness and digest checks at `d0bd57b`; integration and independent review follow. No paid API call occurred.
+
 ## 2026-11-17 00:14 -05:00 — Anish — Integrated suites and installed Linux signed checks pass
 
 - At `9eb89f7`, all API/SDK/worker typechecks pass. API 864, SDK 360, wire fixtures 13 and worker 941 checks pass. The frozen harness passes 36 Node checks with the explicit native engine. No new test failure remains in those checks.

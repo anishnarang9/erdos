@@ -125,7 +125,8 @@ function ceilTokens(tokens: number, microUsdPerMillion: number): number | null {
 
 /** Tariff estimate from token prices. Missing or inconsistent usage returns null. Actual ticks are ignored. */
 export function quoteAuthoringCost(usage: ModelUsage, budget: NonNullable<Deps["budget"]>): number | null {
-  if (!usageComplete(usage) || usage.reasoningTokens === null) return null;
+  if (!usageComplete(usage) || usage.reasoningTokens === null || usage.promptTokens === 0) return null;
+  // Every authoring call contains a nonempty system prompt and schema. A zero prompt count cannot price it.
   // Provider formats differ on whether completion_tokens includes reasoning. Sum them for a conservative tariff.
   const generated = usage.completionTokens + usage.reasoningTokens;
   if (!Number.isSafeInteger(generated)) return null;

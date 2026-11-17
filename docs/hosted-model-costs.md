@@ -13,3 +13,5 @@ Actual safe integer provider ticks remain authoritative. One USD contains 10^10 
 Public host access, secure model credentials, approved request/daily/benchmark budgets and 180 fresh qualification trials remain pending. These changes do not authorize spending. Recheck the provider contract and prices before enabling a live deployment.
 
 The qualification harness also needs a reviewed worst-case attempt price. `UBC26_ATTEMPT_PRICE_MICRO_USD` is a reservation bound, not an expected average. For the exact model and current limits above, it must cover at least 2,540,960 micro-USD per call. The harness reserves two calls per request and reconciles actual billed ticks afterwards. A controlled test's smaller synthetic price is not a live deployment price. Verify this binding and the approved aggregate benchmark cap before enabling dispatch.
+
+Every authoring request has a nonempty system prompt and schema. A reported zero prompt count cannot support tariff fallback. Without a usable actual bill, the service keeps that reservation uncertain. An explicitly reported safe actual bill of zero remains authoritative. Search is explicitly disabled in each provider payload.

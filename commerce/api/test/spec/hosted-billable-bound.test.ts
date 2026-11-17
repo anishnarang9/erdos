@@ -42,3 +42,8 @@ it("prices the reviewed model using its provider context ceiling and highest tie
  }
  expect(calls).toBe(0);
 });
+it('does not price an impossible zero-token prompt as an unbilled free request',()=>{
+ const usage={promptTokens:0,completionTokens:0,cachedTokens:0,reasoningTokens:0,costInUsdTicks:null};
+ expect(quoteAuthoringCost(usage,budget)).toBeNull();expect(authoringCharge(usage,budget)).toBeNull();
+ expect(authoringCharge({...usage,costInUsdTicks:0},budget)).toEqual({microUsd:0,source:'actual',costInUsdTicks:0});
+});
