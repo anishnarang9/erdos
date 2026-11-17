@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 23:10 -05:00 — Anish — Spend halt integrated; child isolation regressions confirmed
+
+- Integrated Worker A's `432422c` as `09a36d4`. Known over-ceiling settlement now persists an unresolved halt. New and queued authoring stops across restart until an authenticated operator records a resolution. Focused API checks pass 29/29 and typecheck passes. Migration of older breach history remains under review.
+- Two independent child-boundary tests fail on current source: synthetic model/server variables reach the child, and a controlled descendant survives timeout. Test cleanup kills only its own descendant. These tests remain uncommitted until the production child repair passes. Worker A has the evidence and continues fixes. No real credential was inspected.
+- The 40-plan generated-guest comparison now runs sequentially against the frozen corpus. Its 316 supported host/oracle checks pass first. One setup attempt failed before building because the package parent was absent. That record is preserved separately. The corrected driver runs in a fresh output directory. One compiler/executor lock is held. No Grok call, Groth16 proof or chain action occurs in this check.
+
 ## 2026-11-16 23:05 -05:00 — Anish — Exhausted-call regression requires a real first dispatch
 
 - Tightened the independent request-spend regression after full-payload preflight landed. Its request ceiling now admits the first controlled call. That call exhausts the ceiling, and the test requires exactly one call. This prevents a preflight rejection from hiding a repair-dispatch regression. All six model/task safety checks pass.
