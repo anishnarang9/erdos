@@ -1,0 +1,50 @@
+{
+  "checkedAt": "2026-11-17T21:17:15.056582+00:00",
+  "status": "facilitator-compatible-hosted-route-unconfigured",
+  "runtimeSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
+  "operatorObservedX402ConfigPresent": false,
+  "publicBuyerReady": false,
+  "liveFacilitatorSupport": {
+    "url": "https://gateway-api-testnet.circle.com/v1/x402/supported",
+    "network": "eip155:5042002",
+    "scheme": "exact",
+    "x402Version": 2,
+    "asset": {
+      "symbol": "USDC",
+      "address": "0x3600000000000000000000000000000000000000",
+      "decimals": 6,
+      "authorizationVersions": [
+        "1",
+        "2"
+      ]
+    },
+    "signingDomain": {
+      "name": "GatewayWalletBatched",
+      "version": "1",
+      "verifyingContract": "0x0077777d7eba4688bdef3e311b846f25870a19b9",
+      "minValiditySeconds": 604800
+    }
+  },
+  "localTests": {
+    "files": 2,
+    "passed": 22
+  },
+  "unsignedProposal": {
+    "payer": "0x638202ccb15315dbc5b22e02717b908beac3aebd",
+    "recipient": "0x5c8e2f73eb2a4e8222b381e2fcb84e5769ad8c85",
+    "maximumChargeAtomic": "1",
+    "token": "testnet USDC",
+    "bountyChargeAtomic": "0",
+    "requires": [
+      "Confirm current Gateway balance and signer availability before payment",
+      "Prepare one approved revision with no cached compiled artifact",
+      "Verify the deployed 402 body and payment-required header before signing",
+      "Obtain fresh scoped approval for one charge",
+      "Confirm the final Circle batch and exact response replay"
+    ]
+  },
+  "liveChallengeObserved": false,
+  "signedAuthorizations": 0,
+  "facilitatorSettlementRequests": 0,
+  "transactionsSubmitted": 0
+}

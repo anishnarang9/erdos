@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 16:17 -05:00 — Anish — Verify Circle Testnet payment prerequisites
+
+- The live facilitator advertises the Arc Testnet USDC parameters used by the previous acceptance. The current VPS image has no x402 configuration. All 22 focused local checks passed. The unsigned preview keeps the proposed separate compile charge at one atomic testnet USDC. See the [preflight](reports/hosted-circle-facilitator-preflight-2026-11-17.json).
+
 ## 2026-11-17 16:15 -05:00 — Anish — Screen current provider limits against the combined cost cap
 
 - The cheapest full-context input reservation in the current published xAI text catalog is 51.2¢. The Bot account cap permits an active run to finish after it crosses the limit. The cost policy now shows the API budget left after each observed Bot cost range. No inference ran. See the [cost policy](../../docs/hosted-ten-cent-authoring.md).
