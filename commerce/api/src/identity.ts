@@ -5,6 +5,7 @@ import { isAddress, verifyMessage } from "viem";
 import { ApiError } from "./errors.ts";
 import { tx } from "./db.ts";
 import { isoAt, parseJson, readBody, sha256, type AppEnv, type Deps, type Principal } from "./context.ts";
+import { authIpGuard } from "./limits.ts";
 import { isPlainObject } from "./revision.ts";
 
 export const CHALLENGE_TTL_MS = 10 * 60 * 1000;
@@ -112,7 +113,8 @@ export function registerIdentityRoutes(app: Hono<AppEnv>, deps: Deps, newId: () 
   );
   const keyById = deps.db.prepare("SELECT id, revoked_at FROM api_keys WHERE id = ? AND wallet = ?");
 
-  app.post("/v1/auth/challenge", readBody, parseJson, async (c) => {
+  const authLimit = authIpGuard(deps);
+  app.post("/v1/auth/challenge", readBody, authLimit, parseJson, async (c) => {
     const body = c.get("json");
     if (!isPlainObject(body) || Object.keys(body).some((key) => key !== "wallet")) {
       throw validation("body must be { wallet }", "");
@@ -135,7 +137,7 @@ export function registerIdentityRoutes(app: Hono<AppEnv>, deps: Deps, newId: () 
     return c.json({ challengeId, message, expiresAt });
   });
 
-  app.post("/v1/auth/keys", readBody, parseJson, async (c) => {
+  app.post("/v1/auth/keys", readBody, authLimit, parseJson, async (c) => {
     const body = c.get("json");
     if (!isPlainObject(body) || Object.keys(body).some((key) => key !== "challengeId" && key !== "signature")) {
       throw validation("body must be { challengeId, signature }", "");
