@@ -1,5 +1,13 @@
 # anish status
 
+## 2026-11-17 02:51 -05:00 — Anish — Verify candidate artifacts, runtime, restore and exact-source CI
+
+- Candidate code `ae8f13f` is pushed and passes exact-source commerce/core CI. API 939, SDK 365 plus 13 wire, worker 945, qualification 57, native host/oracle 326 with zero disagreements, and twelve native Linux installed signed cases pass. Rust passes 51 with three prepared-guest tests ignored. Arc Foundry passes 168 with one fork-only skip. Contract examples and Python oracle checks pass.
+- Caller-directory reproducibility now passes on Mac and Linux. The canonical Linux archive is `1ac075a6b85a208294770688c57c0113e962c6c766467214cf5cb7a467cf57f2`. Its payload manifest `0ff72e61…` matches the native Linux check. Checksums and independent offline installation pass. Mac/Linux tar envelopes differ; no cross-toolchain archive reproducibility is claimed.
+- Image `3b6c22ae…` passes restricted public-mode auth/ownership, CORS, real warm compilation (1.157 seconds), restart, metrics and log privacy. Controlled loopback settlement checks verify rejection before capture and exact completed replay at full capacity. Separate-volume backup/restore preserves all 181 files and table counts. Restored API reauthentication, owner isolation, task attempt 1, progress history and 20 package hashes pass. All owned API containers stop afterward.
+- Twelve read-only Arc RPC calls match all five pinned runtime hashes, proxy implementation and adapter getters at block 72654690. This does not replay roles or establish a new funded acceptance. See the candidate reports in the release ledger. Genuine application trials remain zero. No new proof, external payment or chain transaction ran.
+- The user directed continuation without more Grok CLI calls. Keep both sessions stopped. The coordinator continues the spending/model audit and handoff. A final external review, hosting/account/hostname, secure application model access and approved budgets, 180 genuine trials and fresh scoped live acceptance remain open. Keep PR #8 draft and the goal active.
+
 ## 2026-11-17 02:42 -05:00 — Anish — Pin the runner bundler working directory
 
 - Exact-source `0aff524` commerce and engine/contracts CI pass. Native Linux checks all twelve installed signed cases. Its controlled API integration passes. The combined restricted image passes CORS, real warm compile (1.708 seconds), restart, protected metrics/logs and paid capacity/replay against a controlled loopback facilitator. No external payment, model call or chain transaction occurred.

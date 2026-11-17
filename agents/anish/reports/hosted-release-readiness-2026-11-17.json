@@ -1,7 +1,7 @@
 {
   "version": 1,
   "status": "incomplete",
-  "workingSource": "41341adfba1819fea613daeb66c272d625f08ee3",
+  "workingSource": "ae8f13f8e4d517a29c4eb77c8b1da7cd182a2b73",
   "finalReleaseSource": null,
   "publicUrl": null,
   "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/8",
@@ -127,11 +127,11 @@
   "activeImplementation": [
     {
       "owner": "coordinator",
-      "work": "Verify final combined source with Linux CI, new image and runner artifacts. Then update evidence and final UI/operations handoff."
+      "work": "Finish spending/model binding audit, then refresh candidate evidence and handoff if source changes."
     },
     {
-      "owner": "independent reviewer pending",
-      "work": "Review later ingress/payment/benchmark source after implementation."
+      "owner": "external final reviewer pending",
+      "work": "Review later ingress/payment/benchmark/packaging source. The user directed no more Grok CLI calls."
     }
   ],
   "externalDependencies": [
@@ -235,5 +235,19 @@
     "status": "implemented; unit/typecheck passed",
     "apiTests": 928,
     "publicHostAcceptance": false
-  }
+  },
+  "candidateCodeSource": "ae8f13f8e4d517a29c4eb77c8b1da7cd182a2b73",
+  "candidate": {
+    "image": "sha256:3b6c22aea15bb1eca7a8db496993509dac0b6a647aa328adc89e5ce9e3c5e680",
+    "runnerTarSha256": "1ac075a6b85a208294770688c57c0113e962c6c766467214cf5cb7a467cf57f2",
+    "runnerManifestSha256": "0ff72e6100034c1e2c6218dbb4f180d76d584bc5c4d3ab14e318fd9405f1e9ee",
+    "reports": [
+      "hosted-candidate-ci-2026-11-17.json",
+      "hosted-candidate-runtime-2026-11-17.json",
+      "hosted-candidate-install-2026-11-17.json",
+      "hosted-candidate-restore-2026-11-17.json",
+      "hosted-arc-readonly-2026-11-17.json"
+    ]
+  },
+  "developmentWorkerPolicy": "No further Grok CLI calls, per user reply. Both original sessions remain stopped."
 }
