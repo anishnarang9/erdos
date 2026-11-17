@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 21:07 -05:00 — Anish — Identity integrated and fresh proof subset verified
+
+- Draft [PR #8](https://github.com/anishnarang9/UBC-26/pull/8) tracks this active sprint. Integrated Worker A's identity checkpoint `094a210` as `8fe84e0`, after review of challenge consumption, key digests, revocation, owner middleware and paid-route ownership. The actual SDK/service test authenticates two wallets, isolates equal idempotency keys, rejects cross-owner approval/revocation and immediately rejects a revoked key.
+- Fresh combined `pnpm check` exits 0: SDK 13 Node checks plus 355 Vitest tests, API 788, worker 921, all typechecks. SDK errors now retain known public classifications without remote messages or details. Queue, production readiness, inference cost controls and deployment remain pending Worker A's later checkpoints.
+- The [fresh engine subset](reports/hosted-engine-proof-subset-2026-11-16.json) passes three distinct positive workloads and one real verdict-0 proof. Prove times: budget 173.154 s, budget failure 209.669 s, inventory 273.577 s, reconciliation 278.652 s. The pinned Solidity verifier accepted every exact journal and rejected all image/journal/seal/verdict mutations. SDK and engine recovery match all passing bytes. Independent domain oracles agree. The driver exited 0 and released the prover lock. These use historical workload schemas and fresh synthetic contexts, not live settlement.
+- [Independent corpus review](reports/hosted-qualification-review-2026-11-16.md) reproduced an oracle false accept for duplicate __proto__ keys at `90ce162`. The real engine rejected the input. Do not integrate that checkpoint until Worker B repairs it and completes the frozen corpus. Review notes are prepared for its next continuation.
+- No hosted Grok API call, new wallet access or chain transaction occurred. Public host/access/budget and fresh live authority remain separate gates. Continue queue/runtime integration and concrete deployment preparation. Keep PR #8 draft.
+
 ## 2026-11-16 20:57 -05:00 — Anish — Attempts isolated and fresh proof generation advances
 
 - The runner now persists an attempt UUID and preserves it through prepare/resume. A sanitized local attempt view exposes per-attempt cursors and omits keys, paths and free-form details. Failed attempts remain separate from bounty state. Full worker suite passed 920 tests. Focused attempt/resume checks passed 25 tests. Hosted attempt publication still needs API integration.

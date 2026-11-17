@@ -1,0 +1,27 @@
+import { afterEach, expect, it } from "vitest";
+import { privateKeyToAccount } from "viem/accounts";
+import { hostedClient, HostedApiError } from "@ubc26/sdk";
+import { createApp, referenceDigestOf } from "@ubc26/api";
+const opened: ReturnType<typeof createApp>[]=[];
+afterEach(()=>{for(const instance of opened.splice(0))instance.close();});
+it("authenticates independent SDK clients and enforces wallet ownership and immediate revocation", async()=>{
+  const origin="http://localhost";
+  const instance=createApp({dbPath:":memory:",buyerToken:"local-compatible-buyer-token",deployment:{mode:"local",serviceOrigin:origin}});opened.push(instance);
+  const transport=((input:string|URL|Request,init?:RequestInit)=>instance.app.request(String(input),init)) as typeof fetch;
+  const unauth=hostedClient({baseUrl:origin,fetch:transport});
+  const a=privateKeyToAccount(`0x${"11".repeat(32)}`),b=privateKeyToAccount(`0x${"22".repeat(32)}`);
+  const ka=await unauth.authenticate(a.address,message=>a.signMessage({message}),"login-a");
+  const kb=await unauth.authenticate(b.address,message=>b.signMessage({message}),"login-b");
+  expect(ka.wallet).toBe(a.address.toLowerCase());expect(kb.wallet).toBe(b.address.toLowerCase());
+  const ca=hostedClient({baseUrl:origin,apiKey:ka.key,fetch:transport}), cb=hostedClient({baseUrl:origin,apiKey:kb.key,fetch:transport});
+  const revision={plan:{version:1},referenceDigest:referenceDigestOf([]),outputs:[{name:"result.json",format:"json"}],expirySeconds:3600,maxBudget:"10000"};
+  const ja=await ca.importJob(revision,"create-1") as {jobId:string;revision:{revisionHash:string}};
+  const jb=await cb.importJob(revision,"create-1") as {jobId:string};
+  expect(ja.jobId).not.toBe(jb.jobId);
+  await expect(cb.approve(ja.jobId,{revisionHash:ja.revision.revisionHash,referenceDigest:revision.referenceDigest},"approve-1")).rejects.toMatchObject({status:404,code:"not_found"});
+  expect(await ca.approve(ja.jobId,{revisionHash:ja.revision.revisionHash,referenceDigest:revision.referenceDigest},"approve-1")).toMatchObject({state:"approved"});
+  await expect(ca.revokeKey(kb.id,"revoke-b")).rejects.toBeInstanceOf(HostedApiError);
+  expect(await ca.revokeKey(ka.id,"revoke-a")).toEqual({revoked:true});
+  await expect(ca.currentKey()).rejects.toMatchObject({status:401,code:"unauthorized"});
+  expect((await cb.currentKey()).id).toBe(kb.id);
+});
