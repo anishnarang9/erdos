@@ -2,6 +2,13 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 20:33 -05:00 — Anish — Hosted backend sprint started
+
+- Execute [the hosted backend sprint](../../docs/superpowers/plans/2026-11-16-hosted-backend-sprint.md) from reviewed main `6ed9d2d`. Integration branch: `codex/hosted-backend`. Preserve the deployed Arc adapter and historical acceptance. UI and new deployments remain excluded.
+- Two Grok 4.7 CLI workers have exclusive scopes. Worker A owns API, hosted runtime and backend docs. Worker B owns engine qualification and independent fixtures. The coordinator owns SDK, runner, interfaces and integration. Workers cannot sign, spend, deploy, or start a prover. One coordinator-managed prover slot remains available.
+- Public hosting, deployed Grok API access, benchmark spending authority, and fresh testnet spending remain separate gates. GitHub authentication works. No suitable hosting account or Grok API credential is configured in the current environment. Baseline commerce/engine checks are running. Wire fixtures pass.
+- The draft [shared interface](../../docs/hosted-api-contract.md) fixes the new auth/task routes for parallel implementation. Existing synchronous routes remain compatible in local mode. Public mode requires wallet ownership.
+
 ## 2026-11-16 11:04 -05:00 — Anish — Prepared Arc acceptance complete; publish final evidence
 
 - The [live report](../anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) closes the prepared buyer-to-solver Arc run at runtime source `8fe6dc5`. Job 7 confirms buyer approval, five signed funding steps, fresh funded-context proof acceptance, winning claim, key release, exact 0.01-USDC payout and byte-exact SDK/engine recovery. Both recovered directories pass the independent oracle. A second solver abstains after observing the winner. The separate invalid claim and job-6 expiry refund passed. Failed job 5 was preserved and refunded.
