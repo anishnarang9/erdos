@@ -1,7 +1,7 @@
-import { initGlobe } from './globe.js?v=6';
-import { initRobot } from './robot.js?v=6';
-import { initCoin } from './coin.js?v=6';
-import { LAYERS, ICONS } from './layers.js?v=6';
+import { initGlobe } from './globe.js?v=8';
+import { initRobot } from './robot.js?v=8';
+import { initCoin } from './coin.js?v=8';
+import { LAYERS, ICONS } from './layers.js?v=8';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -151,7 +151,9 @@ function renderLayers() {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $$('.plus[aria-expanded="true"]', stack).forEach((b) => b.click()); });
   // Fit the 1200×520 design box to the width, and to the height left under the two pinned header strips.
   const fit = () => {
-    const step = Math.min(132, innerHeight * .13), room = innerHeight - 66 - 24 - 2 * step - 178;
+    // Short screens pin slimmer header strips so the top layer's diagram still fits.
+    const step = innerHeight < 860 ? 60 : Math.min(132, innerHeight * .13), room = innerHeight - 66 - 24 - 2 * step - 178;
+    stack.style.setProperty('--step', `${step}px`); stack.classList.toggle('slim', step === 60);
     $$('.diagram-wrap', stack).forEach((w) => { const s = Math.max(.62, Math.min(1.15, w.clientWidth / W, room / H)); w.style.setProperty('--s', s); w.style.height = innerWidth > 1100 ? `${H * s}px` : ''; });
   };
   new ResizeObserver(fit).observe(stack); fit();

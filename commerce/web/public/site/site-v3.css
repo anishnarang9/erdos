@@ -42,7 +42,7 @@
 .eco-lead b { display: inline-grid; place-items: center; width: 22px; height: 22px; border: 1px solid var(--dim); font: 400 15px var(--mono); }
 .eco-stack { position: relative; }
 .stack-tail { height: 74vh; }
-.layer { --step: min(132px, 13vh); position: sticky; top: calc(var(--bar) + 24px + var(--i) * var(--step)); display: grid; grid-template-columns: var(--col) minmax(0, 1fr); margin: 0 var(--col) 36vh 32px; background: var(--bg); border-top: 1px solid var(--line-2); box-shadow: 0 -30px 40px -10px var(--bg); z-index: calc(2 + var(--i)); }
+.layer { position: sticky; top: calc(var(--bar) + 24px + var(--i) * var(--step, 132px)); display: grid; grid-template-columns: var(--col) minmax(0, 1fr); margin: 0 var(--col) 36vh 32px; background: var(--bg); border-top: 1px solid var(--line-2); box-shadow: 0 -30px 40px -10px var(--bg); z-index: calc(2 + var(--i)); }
 .layer.last { margin-bottom: 0; }
 .layer-tag { display: flex; align-items: center; gap: 22px; height: 118px; padding: 0 30px; border: 1px solid var(--line-2); border-top: 0; font-size: 15px; letter-spacing: .06em; align-self: start; }
 .layer-main { padding: 26px 0 30px 34px; min-width: 0; }
@@ -165,3 +165,11 @@
 .token-links b { font-size: 21px; white-space: nowrap; }
 .token-links a { gap: 12px; padding-left: 24px; padding-right: 24px; }
 @media (max-width: 1500px) { .token-links .pill { display: none; } }
+
+/* short screens: slim pinned layer headers */
+.eco-stack.slim .layer-tag { height: 58px; }
+.eco-stack.slim .layer-main { padding-top: 10px; }
+.eco-stack.slim .layer-main h3 { font-size: 30px; }
+.eco-stack.slim .layer-sub { margin-top: 12px; }
+.brand span { white-space: nowrap; }
+@media (max-width: 1400px) { .brand { font-size: 18px; gap: 8px; padding-left: 24px; } .brand svg { width: 28px; height: 28px; } }
