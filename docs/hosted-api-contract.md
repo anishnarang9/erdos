@@ -91,3 +91,9 @@ An expired, unrefunded detail can contain:
 ```
 
 This fragment omits the unchanged job, deployment and manifest fields. It deliberately makes no `refunded:true` claim. A failed list or detail dependency returns 503 with `error.code:"chain_unavailable"` and a fixed public message. Provider URLs and raw errors remain private.
+
+## Browser and paid compile admission — staged contract
+
+Worker A's next implementation uses exact `SERVICE_ORIGIN` plus one optional exact `BROWSER_ORIGIN`. Public origins must use HTTPS and cannot contain credentials, wildcard, query or fragment. Browser preflight permits only the required GET/POST methods and request headers, without wallet auth or expensive work. It exposes payment, replay and ETag headers, varies by Origin and enables no cookies. Unapproved origins reject before route work. Requests without Origin retain CLI behavior. The final implementation and regressions are still pending; see [the full staged contract](hosted-service-worker-report.md#browser-origin).
+
+The staged `PAID_COMPILE_LIMIT` default is two active-or-waiting external paid compilation handlers. Admission must precede any new payment row or settlement. Exact completed replay bypasses this capacity count. A settled unfinished payment remains recoverable without another charge. After waiting, the service rechecks approval, request/payment binding and drain state. Durable compiler tasks share one compiler and stay queued when it is occupied. Draining cancels waiting paid handlers before settlement/compile and accounts for owned active work before closing state. These behaviors require Worker A's forthcoming source and tests. No deployed bound is claimed yet.

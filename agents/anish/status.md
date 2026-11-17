@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 01:43 -05:00 — Anish — Installed guide links pass; ingress/payment contract staged
+
+- Clean archive `10164d1` built and installed independently. Provenance passes, and all four README document links use the archive's exact 40-character source SHA. Every target exists in that Git tree. Tar SHA-256 is `05774686a13ba119caa2a79f393dfe2f690bf18a9812c3eafc9876b6cd4feb4c`; manifest SHA-256 is `40b2bec926136e61023974d71ca49eb366e095059c10832a17c5981256a8a0a7`. Runtime source is unchanged.
+- Integrated Worker A's contract-only checkpoint `9267730`. It specifies exact service/optional frontend browser origins and an external paid compile cap of two before settlement, with complete replay, settled recovery and bounded drain. This is a staged contract; the source implementation/tests are still Worker A's active work. The same reviewer continues the independent integrated audit. No extra worker exists.
+- Public host/account/hostname, approved application inference ceilings/credential, 180 live qualification trials and fresh scoped settlement remain open. No hosted authoring request or chain action ran in this checkpoint. PR #8 remains draft.
+
 ## 2026-11-17 01:41 -05:00 — Anish — Pin packaged guide links to their source documents
 
 - An installed `b955545` archive has three README links to API documents absent from the archive. The actual installed-file check failed before the repair. Packaging now resolves repository document links from the source guide and writes absolute GitHub links at the archive's exact source commit. Missing or escaping source targets reject the package build. The repository guide keeps its normal relative links.
