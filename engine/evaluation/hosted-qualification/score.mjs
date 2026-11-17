@@ -14,7 +14,23 @@ function referenceText(challenge) {
   return parts.join('\n');
 }
 
-export function scoreTrial({challenge, response, candidateResults = [], repairCount = 0, cost = null, latencyMs = null, live = false}) {
+function blank(base) {
+  return {
+    ...base,
+    clarificationFacets: 0,
+    facetCount: 0,
+    inventedConditions: 0,
+    semanticAgreement: false,
+    falseAccepts: 0,
+    missingRequirements: 0,
+    validInputFalseRejects: 0,
+    malformedAccepts: 0,
+    weakerPayableJob: false,
+    unsupportedExplanation: false,
+  };
+}
+
+export function scoreTrial({challenge, response, candidateResults = [], repairCount = null, cost = null, latencyMs = null, live = false}) {
   const text = referenceText(challenge);
   const quotes = response?.sourceQuotes ?? [];
   const quoteFidelity = quotes.every((item) => typeof item.quote === 'string' && item.quote.length > 0 && text.includes(item.quote));
@@ -24,45 +40,34 @@ export function scoreTrial({challenge, response, candidateResults = [], repairCo
     const facets = challenge.facets ?? [];
     const matched = facets.filter((facet) => questions.some((question) => question.toLowerCase().includes(facet.toLowerCase())));
     return {
-      ...base,
+      ...blank(base),
       clarificationFacets: matched.length,
       facetCount: facets.length,
       inventedConditions: response?.kind === 'draft' ? 1 : 0,
-      semanticAgreement: false,
-      falseAccepts: 0,
-      missingRequirements: 0,
-      weakerPayableJob: false,
-      unsupportedExplanation: false,
     };
   }
   if (challenge.classification === 'unsupported') {
     const name = challenge.capabilityRequests?.[0]?.name ?? '';
     return {
-      ...base,
-      clarificationFacets: 0,
-      facetCount: 0,
-      inventedConditions: 0,
-      semanticAgreement: false,
-      falseAccepts: 0,
-      missingRequirements: 0,
+      ...blank(base),
       weakerPayableJob: response?.kind === 'draft',
       unsupportedExplanation: response?.kind === 'unsupported' && typeof response.reason === 'string' && response.reason.includes(name),
     };
   }
   const falseAccepts = candidateResults.filter((item) => item.engine === 'pass' && item.oracle !== 'pass').length;
   const missingRequirements = candidateResults.filter((item) => item.oracle === 'fail' && item.engine === 'pass').length;
-  const inventedConditions = candidateResults.filter((item) => item.oracle === 'pass' && item.engine !== 'pass').length;
+  const malformedAccepts = candidateResults.filter((item) => item.oracle === 'reject' && item.engine === 'pass').length;
+  const validInputFalseRejects = candidateResults.filter((item) => item.oracle === 'pass' && item.engine !== 'pass').length;
+  const inventedConditions = validInputFalseRejects;
   const semanticAgreement = candidateResults.length > 0 && falseAccepts === 0 && missingRequirements === 0 && inventedConditions === 0
-    && candidateResults.every((item) => item.engine === item.oracle);
+    && malformedAccepts === 0 && candidateResults.every((item) => item.engine === item.oracle);
   return {
-    ...base,
-    clarificationFacets: 0,
-    facetCount: 0,
+    ...blank(base),
     inventedConditions,
     semanticAgreement,
     falseAccepts,
     missingRequirements,
-    weakerPayableJob: false,
-    unsupportedExplanation: false,
+    validInputFalseRejects,
+    malformedAccepts,
   };
 }
