@@ -7,6 +7,7 @@ import { tx } from "./db.ts";
 import { isoAt, parseJson, readBody, sha256, ULID_RE, type AppContext, type AppEnv, type Deps, type Principal } from "./context.ts";
 import { requireApiKey } from "./identity.ts";
 import type { ModelUsage } from "./grok.ts";
+import { cancelEngineChildren } from "./engine.ts";
 import { expensiveGuard } from "./limits.ts";
 import { isPlainObject } from "./revision.ts";
 import type { RouteContext } from "./routes.ts";
@@ -19,6 +20,8 @@ function bearerMatches(presented: string, expected: string): boolean {
 
 const COMPILE_LIMIT = 1;
 const DRAFT_LIMIT = 2;
+/** Bound for stopping new work and reconciling owned compiler children before exit. */
+export const TASK_DRAIN_MS = 2_000;
 const DEDUP_STATES = ["queued", "running", "succeeded", "uncertain"];
 const RELEASE_CODES = new Set([
   "validation_failed",
@@ -219,6 +222,7 @@ export function registerTaskRoutes(
 ): {
   reconcileTasks: () => void;
   pumpTasks: () => Promise<void>;
+  drainTasks: (boundMs?: number) => Promise<void>;
   withCompileSlot: <T>(run: () => Promise<T>) => Promise<T>;
 } {
   const { app, deps, buyer, idem, newId } = ctx;
@@ -280,6 +284,12 @@ export function registerTaskRoutes(
   );
   const requeueDraft = db.prepare(
     "UPDATE tasks SET state = 'queued', attempt = MAX(attempt - 1, 0), updated_at = ? WHERE id = ? AND state = 'running' AND operation = 'draft'",
+  );
+  const requeueCompile = db.prepare(
+    "UPDATE tasks SET state = 'queued', updated_at = ? WHERE id = ? AND state = 'running' AND operation = 'compile'",
+  );
+  const uncertainDraft = db.prepare(
+    "UPDATE tasks SET state = 'uncertain', updated_at = ? WHERE id = ? AND state = 'running' AND operation = 'draft'",
   );
 
   const walletOf = (c: AppContext): string => {
@@ -472,6 +482,21 @@ export function registerTaskRoutes(
         finish.run("succeeded", JSON.stringify(result), null, at(), row.id);
         if (row.operation === "draft") applyBilling(result, row.id);
       } catch (err) {
+        if (draining) {
+          const stamp = at();
+          if (row.operation === "compile") {
+            requeueCompile.run(stamp, row.id);
+            return;
+          }
+          const dispatched = dispatchState.get(row.id) as { dispatched_at: string | null } | undefined;
+          if (dispatched?.dispatched_at) {
+            uncertainDraft.run(stamp, row.id);
+            settleUnknown.run(stamp, row.id);
+            return;
+          }
+          requeueDraft.run(stamp, row.id);
+          return;
+        }
         const error = taskError(err);
         finish.run("failed", null, JSON.stringify(error), at(), row.id);
         if (row.operation !== "draft") return;
@@ -494,33 +519,55 @@ export function registerTaskRoutes(
   };
 
   let pumping = false;
+  let draining = false;
+  let inflight: Promise<void> = Promise.resolve();
   const pumpTasks = async (): Promise<void> => {
     // Emergency disable blocks new accepts and also blocks dispatch of work already queued.
-    if (deps.expensiveDisabled || pumping) return;
+    // Draining refuses a new claim so a restarted process cannot overlap a child this process still owns.
+    if (deps.expensiveDisabled || pumping || draining) return;
     pumping = true;
-    try {
-      const claimed = tx(db, () => {
-        const rows: TaskRow[] = [];
-        const at = isoAt(deps.now());
-        const authoringHalted = openHalt.get() !== undefined;
-        for (const [operation, limit] of [["compile", COMPILE_LIMIT], ["draft", DRAFT_LIMIT]] as const) {
-          if (operation === "draft" && authoringHalted) continue;
-          const active = Number((runningCount.get(operation) as { n: number }).n);
-          const room = limit - active;
-          if (room <= 0) continue;
-          for (const row of queued.all(operation, room) as unknown as TaskRow[]) {
-            const updated = markRunning.run(row.attempt + 1, at, row.id);
-            if (Number(updated.changes) !== 1) continue;
-            rows.push({ ...row, state: "running", attempt: row.attempt + 1, updated_at: at });
+    const run = (async () => {
+      try {
+        const claimed = tx(db, () => {
+          const rows: TaskRow[] = [];
+          const at = isoAt(deps.now());
+          const authoringHalted = openHalt.get() !== undefined;
+          for (const [operation, limit] of [["compile", COMPILE_LIMIT], ["draft", DRAFT_LIMIT]] as const) {
+            if (operation === "draft" && authoringHalted) continue;
+            const active = Number((runningCount.get(operation) as { n: number }).n);
+            const room = limit - active;
+            if (room <= 0) continue;
+            for (const row of queued.all(operation, room) as unknown as TaskRow[]) {
+              const updated = markRunning.run(row.attempt + 1, at, row.id);
+              if (Number(updated.changes) !== 1) continue;
+              rows.push({ ...row, state: "running", attempt: row.attempt + 1, updated_at: at });
+            }
           }
-        }
-        return rows;
-      });
-      await Promise.all(claimed.map((row) => runOne(row)));
+          return rows;
+        });
+        await Promise.all(claimed.map((row) => runOne(row)));
+      } finally {
+        pumping = false;
+      }
+    })();
+    inflight = run;
+    try {
+      await run;
     } finally {
-      pumping = false;
+      if (inflight === run) inflight = Promise.resolve();
     }
   };
 
-  return { reconcileTasks, pumpTasks, withCompileSlot };
+  const drainTasks = async (boundMs = TASK_DRAIN_MS): Promise<void> => {
+    draining = true;
+    await cancelEngineChildren();
+    await Promise.race([
+      inflight,
+      new Promise<void>((resolve) => setTimeout(resolve, boundMs)),
+    ]);
+    reconcileTasks();
+    await cancelEngineChildren();
+  };
+
+  return { reconcileTasks, pumpTasks, drainTasks, withCompileSlot };
 }
