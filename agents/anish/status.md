@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 01:33 -05:00 — Anish — Repair native install CI setup and keep binary provenance strict
+
+- The first native Linux installed-runner job failed on its first expected passing check. Source/manifest verification and direct engine validation passed, so this is not a completed native install gate. The initial assertion hid the safe CLI result; it now includes the fixed rejection code and candidate label for diagnosis.
+- A controlled native reproduction confirms that a hard-linked build binary fails the existing engine provenance guard, while an independently installed copy passes all twelve checks. CI now records the built binary link/mode/owner metadata and installs a mode-0700 independent copy before the runner test. Runtime protections stay unchanged. The next native Linux result must verify this diagnosis; it is still pending.
+- A separate backup drill passed all 41 files, table counts and attempt/event rows. Its first test profile used a read-only source mount, unlike the shipped helper, and failed on SQLite sidecar creation. The documented writable-source/read-only-root profile passes. Restored API/package byte checks continue. No paid model call, proof or chain transaction occurred. The same two Grok sessions continue ingress/payment bounds and independent security review.
+
 ## 2026-11-17 01:27 -05:00 — Anish — Integrate paginated discovery and confirmed-time expiry
 
 - Integrated Worker B `0e790cd`, `8246a80` and `3c59be0` as `e63199c`, `c75d205` and `e6a4d57`. Discovery scans a bounded keyset window, advances past stale/filtered links and excludes confirmed expiry, accepted submissions and releases. Detail carries confirmed time/block and preserves funded-but-expired status. A failed chain dependency returns 503 instead of a false empty feed.

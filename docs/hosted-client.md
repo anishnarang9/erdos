@@ -6,7 +6,7 @@ Results become public when the solver broadcasts the release key. The runner pro
 
 ## Install and check provenance
 
-Native Linux is the first supported release target. Use Node.js 24 or later. Install the pinned native RISC Zero 3.1.0 engine separately. Proving needs the pinned guest toolchain, Docker Groth16 backend and enough memory. Historical Mac runs used a 12-GiB Docker VM and took about 18 minutes for the funded workload. These measurements do not predict another workload's runtime.
+Native Linux is the first supported release target. Use Node.js 24 or later. Install the pinned native RISC Zero 3.1.0 engine separately as an independent regular file. Build directories can contain hard-linked binaries; copy the reviewed artifact with `install -m 700 BUILT_ENGINE PRIVATE_ENGINE_PATH` and verify its published digest. The protected runner rejects linked executable files. Proving needs the pinned guest toolchain, Docker Groth16 backend and enough memory. Historical Mac runs used a 12-GiB Docker VM and took about 18 minutes for the funded workload. These measurements do not predict another workload's runtime.
 
 A release contains `ubc26-runner-0.2.0.tgz`, `SHA256SUMS`, `release.json` and the standalone `ubc26-release.json` manifest. Download all four files to one directory. Verify them against independently published checksums. Install the checked local archive:
 
