@@ -8,7 +8,7 @@ import canonicalize from "canonicalize";
 import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { assessCoverage } from "./coverage.ts";
-import { withinDraftDeadline } from "./draft-deadline.ts";
+import { withinDraftDeadline, registerDraftDeadline } from "./draft-deadline.ts";
 import { appendExampleCheck, exampleCheckView } from "./example-checks.ts";
 import { tx } from "./db.ts";
 import { isoAt, readBody, parseJson, requireJobId, type AppEnv, type Deps } from "./context.ts";
@@ -234,6 +234,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     const timer = setTimeout(() => deadline.abort(), DRAFT_TIMEOUT_MS);
     timer.unref?.();
     const signal = deadline.signal;
+    const unregister = registerDraftDeadline(deps, deadline);
     let terminalMetadata: (() => Record<string, unknown>) | undefined;
     const execute = async () => {
     const model = deps.draftModel;
@@ -591,7 +592,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       if (err instanceof ApiError && metadata) throw new ApiError(err.code, err.message, { ...err.details, ...metadata });
       if (metadata) throw new ApiError("internal", "Internal server error", metadata);
       throw err;
-    } finally { clearTimeout(timer); }
+    } finally { clearTimeout(timer); unregister(); }
   };
 
   /**
@@ -652,6 +653,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     if (!shape.ok || !refs.ok || revisionHash(shape.revision) !== row.revision_hash || referenceDigestOf(refs.files) !== shape.revision.referenceDigest) throw new ApiError("revision_conflict", "Stored draft bindings are invalid");
     const controller = new AbortController(), timer = setTimeout(() => controller.abort(), DRAFT_TIMEOUT_MS);
     timer.unref?.();
+    const unregister = registerDraftDeadline(deps, controller);
     try {
       const examples = await labelExamples({ kind: "draft", plan: shape.revision.plan, examples: fixtures, sourceQuotes: [] }, refs.files, [], controller.signal);
       controller.signal.throwIfAborted();
@@ -665,7 +667,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         return commit(c, 201, view, () => appendExampleCheck(deps.db, { id, draftId, revisionHash: row.revision_hash!, owner, origin: "buyer", fixtures, result: view, createdAt: at }));
       }
       throw err;
-    } finally { clearTimeout(timer); }
+    } finally { clearTimeout(timer); unregister(); }
   };
 
   /** POST /v1/jobs/:id/revisions (§4) */

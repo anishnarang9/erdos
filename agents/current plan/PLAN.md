@@ -1,5 +1,11 @@
 # Current plan
 
+## 2026-11-17 00:08 -05:00 — Anish — Immutable witness completion and authoring controls implemented locally
+
+- The coordinator implemented the reviewed witness-completion design in `4f3ae05`. Owner-only checks append evidence for the exact returned plan and references. Initial and later records stay immutable. Public approval retains an exact successful check id and buyer-reviewed coverage digest. The original task response never changes. Four signed workloads pass real native API transport checks and reject changed contexts. See [the evidence](../anish/reports/hosted-native-buyer-checks-2026-11-17.json).
+- Coverage checks validate finite links, not completeness of natural-language intent. One 120-second deadline covers model, validation, examples and repair. Provider failures retain safe traces and reported bills. Shutdown cancellation now covers model and witness handlers as well as engine children. Local API checks pass 863 tests. Real Grok trials remain zero.
+- These changes close local implementation items. Public Linux deployment, cold installation, reviewed production readiness, 180 fresh Grok trials, final release artifacts and new funded acceptance remain open. Continue the same two Grok workers and one compiler/prover allocation. No new spending authority is inferred.
+
 ## 2026-11-16 23:53 -05:00 — Anish — Correct public authoring spending contract
 
 - Current xAI docs make the visible completion limit insufficient for reasoning models. Only exact reviewed non-reasoning model `grok-4.20-0309-non-reasoning` advertises the live adapter's total output bound. Preflight prices its full context maximum and highest tier. Each 8,192-token call needs at least $2.54096 available. Actual costs remain separately measured. See [the contract](../../docs/hosted-model-costs.md).

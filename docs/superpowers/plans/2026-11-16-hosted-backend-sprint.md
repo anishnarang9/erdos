@@ -210,23 +210,25 @@ Preserve existing library interfaces or explicit compatibility adapters where us
 
 **Primary areas:** `commerce/api/src/grok.ts`, `authoring.ts`, engine-contract copies, qualification records.
 
+Implementation controls pass local API/native checks through `4f3ae05` and subsequent metadata/drain fixes. Checked items below describe code and finite local evidence. Real hosted Grok acceptance and the cost/semantic qualification gates remain open.
+
 - [ ] Use the configured Grok API from the hosted service. Development CLI access is not a substitute for deployed API access.
-- [ ] Supply the current engine schema/catalog, full permitted reference contents, requested outputs, and clarification answers.
-- [ ] Do not silently truncate material used to draft paid requirements. Reject or request clarification when the model cannot inspect necessary input.
-- [ ] Return a draft, focused clarification, or specific unsupported-capability explanation.
-- [ ] Add a request-wide timeout, supported output-token limit, output-size bound, and finish-reason checks.
-- [ ] Validate every generated plan with the real engine.
-- [ ] Allow one automatic repair using exact validation/counterexample feedback. Keep initial and repaired attempts separate.
-- [ ] Require usable positive and negative examples. Evaluate them with the engine and preserve invalid-input versus verdict-0 distinctions.
-- [ ] Check source quotes against the supplied request/reference text.
-- [ ] Preserve requirement-to-rule coverage metadata and show omissions or unresolved assumptions before approval.
-- [ ] Keep approval explicit and bound to the current rules, structure, references, outputs, expiry policy, and budget.
-- [ ] Any material revision voids approval. Compilation must reproduce the approved commitments.
-- [ ] Give the model no wallet, spending, arbitrary shell, or contract-changing authority.
-- [ ] Record model ID, prompt/catalog version, latency, billable usage, retries, and cost.
-- [ ] Reserve spend before calls. Apply a request-wide ceiling across repairs and a configurable global daily limit.
-- [ ] Unknown pricing/usage or uncertain billing must not silently count as zero cost or trigger unlimited retries.
-- [ ] Keep API service charges separate from escrow bounties. Preserve x402's existing pending-payment and exact-replay protections.
+- [x] Supply the current engine schema/catalog, full permitted reference contents, requested outputs, and clarification answers.
+- [x] Do not silently truncate material used to draft paid requirements. Reject or request clarification when the model cannot inspect necessary input.
+- [x] Return a draft, focused clarification, or specific unsupported-capability explanation.
+- [x] Add a request-wide timeout, supported output-token limit, output-size bound, and finish-reason checks.
+- [x] Validate every generated plan with the real engine.
+- [x] Allow one automatic repair using exact validation/counterexample feedback. Keep initial and repaired attempts separate.
+- [x] Require usable positive and negative examples. Evaluate them with the engine and preserve invalid-input versus verdict-0 distinctions.
+- [x] Check source quotes against the supplied request/reference text.
+- [x] Preserve requirement-to-rule coverage metadata and show omissions or unresolved assumptions before approval.
+- [x] Keep approval explicit and bound to the current rules, structure, references, outputs, expiry policy, and budget.
+- [x] Any material revision voids approval. Compilation must reproduce the approved commitments.
+- [x] Give the model no wallet, spending, arbitrary shell, or contract-changing authority.
+- [x] Record model ID, prompt/catalog version, latency, billable usage, retries, and cost.
+- [x] Reserve spend before calls. Apply a request-wide ceiling across repairs and a configurable global daily limit.
+- [x] Unknown pricing/usage or uncertain billing must not silently count as zero cost or trigger unlimited retries.
+- [x] Keep API service charges separate from escrow bounties. Preserve x402's existing pending-payment and exact-replay protections.
 
 **Cost gate:** target mean authoring cost below $0.10, including failed attempts and repairs, across the frozen qualification corpus. Report first-pass and repaired costs separately. Proposed caps are configuration, not permission to incur charges without applicable account authority.
 
@@ -237,18 +239,18 @@ Preserve existing library interfaces or explicit compatibility adapters where us
 **Primary areas:** existing engine evaluation harness, independent oracles, compiler/runtime tests, real Grok harness.
 
 - [x] Reuse the existing 10,000-case seeded suite, archived guest/proof checks, commitment mutations, and semantic controls.
-- [ ] Create a new frozen set of 60 realistic requests: 40 supported, 10 ambiguous, and 10 unsupported.
-- [ ] Spread supported requests across at least 10 task families or distinct constraint combinations.
+- [x] Create a new frozen set of 60 realistic requests: 40 supported, 10 ambiguous, and 10 unsupported.
+- [x] Spread supported requests across at least 10 task families or distinct constraint combinations.
 - [ ] Include reconciliation, inventory, budgets, policy checks, scheduling, allocation, bounded routing feasibility, quantitative calculations, signed evidence, and file requirements.
-- [ ] Use new schemas/data/conditions. Do not merely rename historical fixtures.
-- [ ] Include tasks with multiple valid solutions. Do not reduce acceptance to a supplied expected-answer hash.
-- [ ] Write deterministic expected-result oracles independently from generated plans.
-- [ ] Give supported tasks valid outputs, isolated requirement violations, and malformed inputs.
+- [x] Use new schemas/data/conditions. Do not merely rename historical fixtures.
+- [x] Include tasks with multiple valid solutions. Do not reduce acceptance to a supplied expected-answer hash.
+- [x] Write deterministic expected-result oracles independently from generated plans.
+- [x] Give supported tasks valid outputs, isolated requirement violations, and malformed inputs.
 - [ ] Run three fresh Grok API trials per request through the actual authoring path. Do not share hidden answers or batch scratchpads.
 - [ ] Score semantic agreement, missing requirements, invented conditions, clarification facets, unsupported explanations, quote fidelity, repair count, cost, and latency.
 - [ ] Keep benchmark budget separate from public-service budget. Stop expensive dispatch if its authorized cap is exhausted.
-- [ ] Add meaningful regressions before fixing confirmed failures.
-- [ ] Exercise integer boundaries, duplicate/missing keys, malformed encodings, nesting/visit bounds, resource limits, source injection, reference changes, and commitment substitution.
+- [x] Add meaningful regressions before fixing confirmed failures.
+- [x] Exercise integer boundaries, duplicate/missing keys, malformed encodings, nesting/visit bounds, resource limits, source injection, reference changes, and commitment substitution.
 - [ ] Compare independent oracles, host evaluation, generated guest execution, and proof-backed outcomes.
 - [ ] Any new capability must update catalog/schema, compiler, guest, API contract copies, client behavior, and qualification together.
 - [ ] Add only small general capabilities needed by concrete workloads. Separate larger parser/runtime/verifier projects from this sprint.

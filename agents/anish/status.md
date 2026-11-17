@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 00:08 -05:00 — Anish — Cancel model and witness handlers during shutdown
+
+- A stronger shutdown regression showed that model requests kept running after the task drain. The service now aborts this instance's active authoring and witness controllers and waits for their cancellation bookkeeping within the drain bound. Checker process-group cancellation remains in place. Dispatched unknown bills stay uncertain.
+- The cancellation regression failed before the change. API typecheck, six focused shutdown/deadline/metadata checks and all 863 API tests pass afterwards. The preceding metadata verification initially ran from the wrong package directory and was rejected by package-manager configuration. The correct API package typecheck now passes. No paid request, proof or chain action occurred.
+- Updated the executing plan to distinguish implemented local authoring controls from pending real hosted acceptance. Worker A continues readiness and real digest pins. B reviews the integrated authoring path. Public host, approved model budgets and fresh spending authority remain pending. The goal stays active and PR #8 stays draft.
+
 ## 2026-11-17 00:05 -05:00 — Anish — Retain rejected provider traces and precise benchmark charges
 
 - Rejected provider responses now retain safe model identity, trace, reported usage and failure reason. A rejected repair remains separate from the first response. Known actual charges settle once. Unknown usage stays explicit. Timeout and engine failures retain available qualification metadata without raw provider text. Initial failures also retain that metadata in the draft record.

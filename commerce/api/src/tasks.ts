@@ -8,6 +8,7 @@ import { isoAt, parseJson, readBody, sha256, ULID_RE, type AppContext, type AppE
 import { requireApiKey } from "./identity.ts";
 import type { ModelUsage } from "./grok.ts";
 import { cancelEngineChildren } from "./engine.ts";
+import { cancelDraftRequests } from "./draft-deadline.ts";
 import { expensiveGuard } from "./limits.ts";
 import { isPlainObject } from "./revision.ts";
 import type { RouteContext } from "./routes.ts";
@@ -563,9 +564,10 @@ export function registerTaskRoutes(
 
   const drainTasks = async (boundMs = TASK_DRAIN_MS): Promise<void> => {
     draining = true;
+    const drafts = cancelDraftRequests(deps);
     await cancelEngineChildren();
     await Promise.race([
-      inflight,
+      Promise.allSettled([inflight, drafts]),
       new Promise<void>((resolve) => setTimeout(resolve, boundMs)),
     ]);
     reconcileTasks();
