@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 00:54 -05:00 — Anish — Frozen signed proof and both recovery paths pass
+
+- Generated one fresh real Groth16 proof for frozen supported workload `seal-1`, beyond the earlier historical-schema proof subset. Native evaluation and the independent oracle pass. The proof uses its existing synthetic qualification context. It establishes no hosted or funded acceptance.
+- The pinned real Solidity verifier accepts the exact receipt and rejects image, journal, seal and verdict mutations. SDK and engine recovery are byte-exact. The independent oracle also accepts recovered bytes. Proving took 722.818 seconds for 4,418,526 cycles under one local prover. The native prover ran at background priority. Both allocation locks are released. [Report and encrypted receipt](reports/hosted-corpus-signed-proof-2026-11-17.json) omit the private release key. No real model call or external transaction occurred.
+- Integrated A's write-probe/cache/compiler-prewarm follow-up as `44e3c4c` and `dcc5c61`. API typecheck, 41 focused checks and all 893 API tests pass. Integrated B's pin-loader review as `2a648ef`; no concrete issue found. The new readiness code still needs its Linux image/prewarm check. A continues hosted attempts, admission/auth limits and metrics. Discovery is reserved for B after its completed review.
+
 ## 2026-11-17 00:30 -05:00 — Anish — New Linux image pins and restart smoke pass
 
 - Built immutable image `4135ab4`, id `sha256:9ea205f9acd7be20e9c8ab3e0f18808430b594cbfc5706ecf49289b4d7d71627`. Its Node 24 runtime validates source, native engine and compiler-wrapper pins. Wrong digest configuration rejects before API import and does not print the supplied synthetic credential.

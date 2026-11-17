@@ -204,3 +204,10 @@ No server benchmark mode is present. Public semantic deduplication stays in plac
 - Frozen prompts gain no nonce text. Public semantic deduplication stays in place.
 - Illustrative fixture contexts stay previews of the hidden plan hash. They do not approve a different plan.
 - Real trials stay 0. Public access and model budgets remain pending.
+
+
+## New frozen signed proof — 2026-11-17
+
+The [signed proof report](../agents/anish/reports/hosted-corpus-signed-proof-2026-11-17.json) covers supported case `seal-1` from the unchanged frozen digest. Its actual Groth16 proof takes 722.818 seconds and 4,418,526 cycles. The pinned Solidity verifier accepts the receipt and rejects four commitment/seal mutations. Both SDK and engine recover exact original bytes. The independent oracle accepts the original and recovered files. The proof uses a synthetic qualification context and no external transaction.
+
+This is one finite new-corpus proof. It supplements the earlier three-schema passing proofs and verdict-0 proof. It does not establish real Grok authoring or a funded hosted-to-solver flow. The release key remains private. Public receipts contain only encrypted results and commitments.
