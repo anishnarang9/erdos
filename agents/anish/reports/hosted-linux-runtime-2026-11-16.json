@@ -149,5 +149,29 @@
     "status": "failed-at-30-minute-deadline",
     "report": "hosted-linux-cold-compile-failure-2026-11-16.json",
     "successfulWarmRetryIsNotColdPass": true
+  },
+  "compilerPrewarm": {
+    "version": 1,
+    "status": "compiler-warmed",
+    "sourceSha": "621d86d09461afa1e62502bcbc9b29cd0d0625ba",
+    "engineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+    "dockerfileFrontend": "docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e",
+    "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+    "imageId": "0x63b0098ad9e97bb1ec4a7d13875503ad9bbd129586ddd2ba8a24e07079e9489b",
+    "guestSha256": "0x535734f2894b386311ff1597c0a71b93f2377b43e5ea865621581fec1ee0db4c",
+    "elapsedSeconds": 13,
+    "checkedAt": "2026-11-17T04:02:08.145Z",
+    "passingVerdict": 1,
+    "failingVerdict": 0,
+    "proofGenerated": false,
+    "chainTransactionSent": false,
+    "runtimeImage": "sha256:f1da5dd1427fcd6d328cbcc47c9492285e614fdfdf424b39aa5acde1fde61cc2",
+    "cacheState": "warm after preserved cold timeout",
+    "nonRoot": true,
+    "readOnlyRoot": true,
+    "containerNetwork": "none",
+    "apiEnvironmentProvided": false,
+    "exclusiveCompiler": true,
+    "coldPrewarmVerified": false
   }
 }

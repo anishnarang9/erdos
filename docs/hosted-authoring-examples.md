@@ -45,7 +45,7 @@ The model receives approved public keys. It receives no signing key, wallet, spe
 
 Extend the API's real engine evaluation adapter with optional evidence files and a preview context. Write them to fresh bounded temporary paths. Invoke the existing `engine eval --evidence ... --job ...` flags without a shell. The engine already supports these flags. It checks the original generated plan and actual signatures.
 
-The existing eval command permits an explicit illustrative context and discards its preview ciphertext. It does not assert funded manifest binding. Label this context as an example. Funding and proving must still use the exact real chain context and existing manifest checks. Do not change the engine to make an example pass.
+The existing eval command permits an explicit illustrative context and discards its preview ciphertext. Its guest runtime checks the exact rules hash and reference hash against that context. Synthetic chain, escrow, job and provider bytes do not establish a funded chain job. A supplied context must retain both hashes. Label this context as an example. Funding and proving must still use the exact real chain context and existing manifest checks. Do not change the engine to make an example pass.
 
 Before approval, require a genuinely passing example and a structurally valid verdict-0 example. An invalid signature, missing evidence or malformed bundle is a rejection, not a negative verdict. A missing trusted witness must remain visible and block incomplete authored approval. Use the one repair for genuine plan/example disagreement when its full cost and time fit.
 

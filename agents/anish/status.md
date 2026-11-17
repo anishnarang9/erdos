@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 23:04 -05:00 — Anish — Compiler prewarm checked; signed preview limitation confirmed
+
+- Image `621d86d` built from clean committed source. The bounded prewarm passed in 13 seconds with the existing warm cache, non-root/read-only runtime and no API environment. It compiled the pinned guest template and returned actual verdicts 1 and 0. This does not establish cold-cache installation or public hosting. See [the runtime report](reports/hosted-linux-runtime-2026-11-16.json).
+- Integrated Worker B's public input correction `5cd66a8` and report `16735fc` as `f25223f` and `2f5906b`. All 31 Node tests and 326 independent host/oracle comparisons pass. Corrected frozen digest: `2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470`. Held-out plans/candidates/predicates remain unchanged.
+- Independent [signed-preview review](reports/hosted-signed-preview-review-2026-11-16.json) confirms that a semantically equivalent valid plan cannot reuse signatures bound to the original rules hash. Worker B now reviews a separate immutable buyer-supplied witness completion step. No engine binding change or hidden-plan disclosure is authorized. Worker A continues the spend latch and other API gates. No paid model call or chain action occurred.
+
 ## 2026-11-16 23:01 -05:00 — Anish — Full authoring request budget regression passes
 
 - Integrated Worker A's `2a1248c` as `84f4252`. Preflight now prices the complete serialized provider body, uses the supported output maximum and rejects a public adapter without that bound. Repair preflight includes its own feedback.
