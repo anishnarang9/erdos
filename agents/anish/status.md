@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 16:14 -05:00 — Anish — Verify proxy CI and public artifact pins
+
+- Commerce CI passed at the deployed ingress source `6b4eec1`. Fresh HTTPS downloads match all 16 recorded hashes for the runner, native engine and documentation. Source and artifact pins still refer to their respective components. See the [release ledger](reports/hosted-release-readiness-2026-11-17.json).
+
 ## 2026-11-17 16:13 -05:00 — Anish — Deploy the public liveness route
 
 - The VPS now runs proxy source `6b4eec1`. External HTTPS returns 200 for GET /healthz, 503 for buyer readiness and 401 for the unauthenticated Bot callback. All nine public documentation hashes match. The API container stayed in place. The previous proxy is available at `0b98c3b`. See the [release ledger](reports/hosted-release-readiness-2026-11-17.json).

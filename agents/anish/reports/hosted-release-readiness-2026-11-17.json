@@ -631,7 +631,17 @@
       "apiContainerUnchanged": true,
       "apiImageUnchanged": true,
       "publicBuyerReady": false,
-      "startupObservation": "The proxy briefly refused a connection during recreation; the next successful check met every gate."
+      "startupObservation": "The proxy briefly refused a connection during recreation; the next successful check met every gate.",
+      "postDeploymentVerification": {
+        "checkedAt": "2026-11-17T21:14:24.630469+00:00",
+        "commerceRunId": 44177105282,
+        "commercePassed": true,
+        "publicAssetHashesMatched": {
+          "runner": 4,
+          "engine": 3,
+          "documentation": 9
+        }
+      }
     }
   },
   "publicDocumentation": {
