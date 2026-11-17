@@ -32,7 +32,11 @@ jobs:
         run: node worker/scripts/package-runner.mjs "$RUNNER_TEMP/ubc26-runner-release"
       - name: Check an independent Linux installation
         run: |
-          npm install --ignore-scripts --prefix "$RUNNER_TEMP/ubc26-runner-install" "$RUNNER_TEMP/ubc26-runner-release/ubc26-runner-0.2.0.tgz"
+          mkdir "$RUNNER_TEMP/ubc26-runner-download"
+          cp "$RUNNER_TEMP/ubc26-runner-release/ubc26-runner-0.2.0.tgz" "$RUNNER_TEMP/ubc26-runner-release/SHA256SUMS" "$RUNNER_TEMP/ubc26-runner-release/release.json" "$RUNNER_TEMP/ubc26-runner-release/ubc26-release.json" "$RUNNER_TEMP/ubc26-runner-download/"
+          cd "$RUNNER_TEMP/ubc26-runner-download"
+          sha256sum --check SHA256SUMS
+          npm install --ignore-scripts --prefix "$RUNNER_TEMP/ubc26-runner-install" ./ubc26-runner-0.2.0.tgz
           cd "$RUNNER_TEMP/ubc26-runner-install"
           RELEASE_MANIFEST_SHA256=$(node -p 'require(process.env.RUNNER_TEMP+"/ubc26-runner-release/release.json").releaseManifestSha256')
           node_modules/.bin/ubc26 verify-install --source-commit "${{ github.sha }}" --release-manifest-sha256 "$RELEASE_MANIFEST_SHA256" > provenance.json
@@ -48,3 +52,4 @@ jobs:
             ${{ runner.temp }}/ubc26-runner-release/*.tgz
             ${{ runner.temp }}/ubc26-runner-release/SHA256SUMS
             ${{ runner.temp }}/ubc26-runner-release/release.json
+            ${{ runner.temp }}/ubc26-runner-release/ubc26-release.json

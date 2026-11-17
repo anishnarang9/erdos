@@ -17,7 +17,7 @@ Task view: `{id,operation,state,attempt,createdAt,updatedAt,result?,error?}`. St
 
 Existing job import, approval, package, references, open-claim funding and discovery routes retain their documented body shapes. Public mutation routes require owner authorization. Funding buyer must equal the authenticated wallet. Compile approval and revision binding remain mandatory. Public results become readable according to the existing protocol.
 
-Worker A must document any necessary contract correction before SDK integration. Worker A owns `commerce/api/`, `deploy/`, `docs/hosted-runtime.md` and its API contract. The coordinator owns this document, SDK exports and the runner. Worker B owns engine fixtures and reports. No worker may change shared catalog copies without coordinator agreement.
+Worker A must document any necessary contract correction before SDK integration. Worker A owns `commerce/api/` and its service report. The coordinator owns `deploy/`, `docs/hosted-runtime.md`, this document, SDK exports and the runner. Worker B owns engine fixtures and reports. No worker may change shared catalog copies without coordinator agreement.
 
 ## Local solver attempt status
 
@@ -30,3 +30,9 @@ A rejected or lost attempt changes only that attempt. Confirmed chain state defi
 `POST /v1/jobs` accepts `{source:"grok",draftId,revision,references}` for an authored draft. References use `{name,contentBase64}` records with the original bytes. The owner must own the draft. Deterministic imports use `{source:"import",revision,references}`. Preserve the reference digest and the exact draft ID. A task that requests clarification or reports unsupported work cannot supply a payable job through the client acceptance command.
 
 Selected-provider funding terms include `buyer` for wallet-key callers. Funding linkage checks the confirmed job client against that wallet. Legacy local sessions keep their prior response shape. Open-claim terms keep the existing five funding steps.
+
+## Task acceptance and service origin
+
+Task acceptance commits the durable task, spend reservation and idempotency response in one transaction. Concurrent requests that reuse a key with different bodies leave one task and one reservation. Equal semantic inputs under distinct keys still select the same task for one wallet. Separate wallets have separate tasks. A successful task-accept replay returns the original 202 view; poll its identifier for current state.
+
+Issuance checks the challenge's stored origin and action against the current service configuration. Restoring a database at another hostname does not make pending old-hostname signatures valid there. Existing credential digests remain owner records; review them as part of restore operations.

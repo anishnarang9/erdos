@@ -1,6 +1,6 @@
 # Hosted backend runtime
 
-Status: deployment candidate under verification. No public endpoint has been deployed. Production API configuration, the complete image smoke, real Grok access and external acceptance remain open gates. Local checks do not close those gates.
+Status: the Linux image at source `89e13f2` passes local non-root/read-only startup, authentication, real engine validation/evaluation, approval and separate-volume restore checks. These ran under amd64 emulation on arm64 macOS Docker Desktop. No public endpoint has been deployed. Production configuration, bounded cold compilation, real Grok access and external acceptance remain open gates. Later API repairs require a new image.
 
 ## Host and trust boundary
 
@@ -61,6 +61,7 @@ For rollback, stop the API and preserve the current volume. Restore the pre-upgr
 - State tests: WAL-backed relational recovery; no quiescence; symlinks; changed/extra files; wrong manifest pin; existing target.
 - Real local native task: import, approval, compilation, replay, deduplication, package integrity, process restart and restored owner isolation.
 - Linux API build target: pinned Node 24 container completed its frozen install and bundle.
-- Native Linux engine image, complete runtime, TLS validation, resource-limit drills and external host checks: pending.
+- Full Linux image: built. Caddy configuration: valid. Actual API cgroups enforce 1 GiB memory, zero extra swap, one CPU and 128 processes. Separate-container restore preserved approval, ownership and reference data. See [the Linux report](../agents/anish/reports/hosted-linux-runtime-2026-11-16.json).
+- Bounded cold compilation, hard disk quota, production readiness, issued public TLS certificate and external host checks: pending.
 
 Public deployment requires the host/account, approved resource budget and hostname. Real authoring also requires a securely configured Grok API credential and separate service/benchmark inference ceilings. Fresh Arc/Circle spending requires its own concrete preview and current authority.

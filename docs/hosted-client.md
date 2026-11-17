@@ -8,7 +8,7 @@ Results become public when the solver broadcasts the release key. The runner pro
 
 Native Linux is the first supported release target. Use Node.js 24 or later. Install the pinned native RISC Zero 3.1.0 engine separately. Proving needs the pinned guest toolchain, Docker Groth16 backend and enough memory. Historical Mac runs used a 12-GiB Docker VM and took about 18 minutes for the funded workload. These measurements do not predict another workload's runtime.
 
-A release contains `ubc26-runner-0.2.0.tgz`, `SHA256SUMS` and `release.json`. Verify the archive against independently published checksums. Install the checked local archive:
+A release contains `ubc26-runner-0.2.0.tgz`, `SHA256SUMS`, `release.json` and the standalone `ubc26-release.json` manifest. Download all four files to one directory. Verify them against independently published checksums. Install the checked local archive:
 
 ```sh
 sha256sum --check SHA256SUMS

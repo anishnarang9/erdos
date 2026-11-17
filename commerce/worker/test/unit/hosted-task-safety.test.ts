@@ -40,3 +40,18 @@ it("rejects an old service-origin challenge after a state restore at another ori
   const replay=await active.app.request("https://first.example.test/v1/auth/keys",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({challengeId:challenge.challengeId,signature})});
   expect(replay.status).toBe(401);
 });
+
+it("creates only one paid task when concurrent requests reuse a key with different bodies",async()=>{
+  let calls=0;
+  const active=createApp({dbPath:":memory:",buyerToken:"local-compatibility-only-token",deployment:{mode:"local",serviceOrigin:"http://localhost"},draftModel:{draft:async()=>{calls++;return{model:"controlled-test-model",traceId:"test",result:{kind:"clarification",questions:["Which policy?"]}};}}});apps.push(active);
+  const transport=((input:string|URL|Request,init?:RequestInit)=>active.app.request(String(input),init)) as typeof fetch;
+  const signer=privateKeyToAccount(`0x${"44".repeat(32)}`),anonymous=hostedClient({baseUrl:"http://localhost",fetch:transport});
+  const key=await anonymous.authenticate(signer.address,message=>signer.signMessage({message}),"concurrent-test-login");
+  const client=hostedClient({baseUrl:"http://localhost",apiKey:key.key,fetch:transport});
+  const input={request:"Check policy A",outputs:[{name:"result.json",format:"json" as const}],references:[],expirySeconds:3600,maxBudget:"10000"};
+  const outcomes=await Promise.allSettled([client.draft(input,"same-cost-key"),client.draft({...input,request:"Check policy B"},"same-cost-key")]);
+  expect(outcomes.filter(item=>item.status==="fulfilled")).toHaveLength(1);
+  expect(outcomes.filter(item=>item.status==="rejected")).toHaveLength(1);
+  await active.pumpTasks();
+  expect(calls).toBe(1);
+});

@@ -10,7 +10,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const output = resolve(process.argv[2] ?? join(root, "dist/hosted-runner"));
 if (existsSync(output)) throw new Error("Release output directory already exists");
 const git = (...args) => execFileSync("git", ["-C", root, ...args], { encoding: "utf8" }).trim();
-if (git("status", "--porcelain", "--", "commerce", "contracts/deployments/open-claim-arc-testnet.json")) throw new Error("Commit runner source before packaging");
+if (git("status", "--porcelain", "--", "commerce", "docs/hosted-client.md", "contracts/deployments/open-claim-arc-testnet.json")) throw new Error("Commit runner source before packaging");
 const sourceCommit = git("rev-parse", "HEAD");
 const stage = join(output, "package"); mkdirSync(stage, { recursive: true, mode: 0o700 });
 const sha = bytes => createHash("sha256").update(bytes).digest("hex");
@@ -44,7 +44,9 @@ const manifest = JSON.stringify({ version: 1, sourceCommit, platform: "native-po
 writeFileSync(join(stage, "ubc26-release.json"), manifest);
 const packed = JSON.parse(execFileSync("npm", ["pack", "--json", "--ignore-scripts", "--pack-destination", output], { cwd: stage, encoding: "utf8" }))[0];
 const tarball = join(output, packed.filename), tarSha256 = sha(readFileSync(tarball)), releaseManifestSha256 = sha(manifest);
-writeFileSync(join(output, "SHA256SUMS"), `${tarSha256}  ${packed.filename}\n${releaseManifestSha256}  package/ubc26-release.json\n`);
-writeFileSync(join(output, "release.json"), JSON.stringify({ version: 1, sourceCommit, tarball: packed.filename, tarSha256, releaseManifestSha256,
-  node: process.version, engineIncluded: false, proofRun: false }, null, 2) + "\n");
+writeFileSync(join(output, "ubc26-release.json"), manifest);
+const metadata = JSON.stringify({ version: 1, sourceCommit, tarball: packed.filename, tarSha256, releaseManifestSha256,
+  node: process.version, engineIncluded: false, proofRun: false }, null, 2) + "\n";
+writeFileSync(join(output, "release.json"), metadata);
+writeFileSync(join(output, "SHA256SUMS"), `${tarSha256}  ${packed.filename}\n${releaseManifestSha256}  ubc26-release.json\n${sha(metadata)}  release.json\n`);
 console.log(JSON.stringify({ sourceCommit, tarball, tarSha256, releaseManifestSha256 }));
