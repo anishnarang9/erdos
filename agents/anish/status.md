@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 03:49 -05:00 — Anish — Preserve stopped workers and await required external inputs
+
+- The two stopped worker checkouts are recoverably archived through the app. Worker A's uncommitted source, both histories and their task logs remain preserved. The integration checkout stays active. No further Grok CLI call ran after the user's instruction.
+- Candidate code remains `20b0dc2`. Its exact-source commerce/core CI, canonical archive, native Linux checks and current image identity/startup/prewarm pass. Documentation checkpoint `8122ad7` publishes the full report, review scope and unapproved operator preflight. Relative links and report/source/budget consistency pass validation. PR #8 stays draft with its candidate evidence and explicit open gates.
+- No known authorized local implementation or verification remains before the missing inputs. Public host/account/hostname/resource budget, secure application API access and approved ceilings remain absent. Genuine deployed trials and new live actions cannot start. Final external review also remains pending. Preserve all reservations and earlier source labels. Do not infer new spending or signing authority. Keep the goal incomplete and follow its repeated-blocker rules.
+
 ## 2026-11-17 03:44 -05:00 — Anish — Publish current candidate evidence and concrete operator preflight
 
 - Candidate code `20b0dc2` passes exact-source commerce and core CI, including 63 qualification checks and twelve native Linux installed signed cases. The canonical Linux archive is `58ecaecd…`, payload manifest `cc1b0196…`. Its checksums and independent offline installation pass. The archive's only changed payload file from `ae8f13f` is README source links; source manifest identity also changes.
