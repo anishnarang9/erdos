@@ -75,3 +75,11 @@ Publication returns the summary plus `accepted` (new event count) and the acknow
 Public `GET /v1/jobs/:id/attempts?limit=20&cursor=OPAQUE` returns `{attempts,nextCursor}`. Limit is 1–50. The opaque cursor follows first receipt time and UUID. It differs from an attempt event cursor. Public `GET /v1/jobs/:id/attempts/:attemptId?afterCursor=0` returns a summary, up to 50 consecutive events, `nextCursor` and `resumeCursor`. Here `nextCursor` is the current event high-water mark. **Follow `resumeCursor` while it is non-null** to read an unfinished history page; using the high-water mark would skip unseen events. Once caught up, retain the last observed event cursor for polling.
 
 SDK methods are `publishAttempt`, `attempts` and `attempt`. Publication validates the outgoing allowlist before transport. Read decoders check job/attempt bindings, bounded pages, cursor continuity and the fixed confirmation boundary. Public reads send no bearer credential. Mutations have no automatic retry.
+
+## Admission and protected metrics
+
+Queued and running durable tasks default to 100 globally and 20 per wallet. A full queue returns 429 `rate_limited` with `{queue:"pending",scope:"global"|"wallet"}` in details. Exact replay and semantic deduplication still select the stored task before this admission check and reserve no new spend. `TASK_PENDING_GLOBAL` and `TASK_PENDING_PER_WALLET` configure positive limits.
+
+Auth challenge and key issuance share a separate 20-per-IP, 60-second window by default. `AUTH_LIMIT_IP` and `AUTH_LIMIT_WINDOW_MS` configure positive limits. Only the reviewed trusted proxy topology may supply client forwarding data. Public direct access shares a conservative fallback bucket. Expensive request limits remain separate.
+
+`GET /v1/operator/metrics` requires the operator bearer token. An absent token disables the route; buyer/solver API keys do not grant access. It returns fixed route/status/latency counts, durable queue counts, process task/auth counts and process memory/uptime. Process counters reset on restart. They do not establish historical billing or host disk quotas. Structured public logs omit request bodies, headers, query strings, identifiers and free-form error values. Routes use fixed labels. Local debug remains an explicit option.

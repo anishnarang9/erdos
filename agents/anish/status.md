@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 01:22 -05:00 — Anish — Verify public-mode runtime and integrate service controls
+
+- Image `92ef0c3` passed all configured readiness checks with actual engine/wrapper bytes and its real prewarm record. Independent synthetic wallet auth, legacy-token rejection, ownership, approval, sanitized solver attempts, public reads, real warm compile, replay, restart and revocation passed. Compile took 1.792 seconds; task attempt stayed 1. The local isolated container used an unused synthetic model credential. This does not verify public hosting or genuine Grok access. See [the report](reports/hosted-public-mode-image-2026-11-17.json).
+- The first host-port probe timed out on Docker Desktop's internal network while container health passed. The retry used container loopback and retained blocked external egress. The owned container is stopped and both compiler/prover locks are released. No paid model, proof or chain action occurred.
+- Integrated Worker A `d75ca79` as `5f1de9d` plus its report. Queue admission, auth IP limits and protected fixed-cardinality metrics/logs pass API typecheck and 24 focused checks with prior task/idempotency/readiness regressions. Root zero-prompt billing and draft cancellation functions remain present. Full combined checks, paid compile waiter bounds, browser-origin policy and the final image remain pending. Worker B continues discovery.
+
 ## 2026-11-17 01:18 -05:00 — Anish — Consume the real compiler prewarm digest
 
 - Built image `c7a8c44` from committed source and ran the fixed-template prewarm with the real compiler, pass and valid verdict-0 evaluations. Warm cache completed in one second. The first test mount selected the volume root instead of its existing `restored` subpath and failed before compilation. The corrected mount preserved state and completed. Both compiler/prover locks are released. See [the report](reports/hosted-runtime-prewarm-2026-11-17.json).
