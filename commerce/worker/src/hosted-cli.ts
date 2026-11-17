@@ -23,7 +23,7 @@ const commandFlags: Record<string, readonly string[]> = {
   import: [...common, "input", "reference", "idempotency"],
   "accept-draft": [...common, "task", "input", "idempotency"],
   job: ["api", "job"],
-  discover: ["api"],
+  discover: ["api", "cursor", "limit"],
   "open-job": ["api", "job"],
   approve: [...common, "job", "revision", "reference-digest", "idempotency"],
   compile: [...common, "job", "revision", "idempotency"],
@@ -149,7 +149,7 @@ export async function hostedCli(args: string[]): Promise<unknown> {
         references: references as HostedReference[] }, need("idempotency"));
     }
     case "job": return client.job(need("job"));
-    case "discover": return client.openJobs();
+    case "discover": return client.openJobs({ ...(f.cursor ? { cursor: f.cursor } : {}), ...(f.limit ? { limit: Number(f.limit) } : {}) });
     case "open-job": return client.openJob(need("job"));
     case "approve": need("key-file"); return client.approve(need("job"), { revisionHash: need("revision"), referenceDigest: need("reference-digest") }, need("idempotency"));
     case "compile": need("key-file"); return client.compile(need("job"), need("revision"), need("idempotency"));

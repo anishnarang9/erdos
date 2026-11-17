@@ -13,6 +13,8 @@ export interface HostedKey {
   createdAt: string;
 }
 export interface IssuedHostedKey extends HostedKey { key: string }
+export interface HostedDiscoveryOptions { cursor?: string; limit?: number }
+export interface HostedDiscoveryPage { jobs: unknown[]; nextCursor?: string | null }
 export interface AuthChallenge { challengeId: string; message: string; expiresAt: string }
 export type TaskState = "queued" | "running" | "succeeded" | "failed" | "uncertain";
 export interface HostedTask {
@@ -178,7 +180,22 @@ export function hostedClient(options: HostedClientOptions) {
         await pause(interval, signal);
       }
     },
-    openJobs: () => request("GET", "/v1/open-jobs", undefined, undefined, false),
+    openJobs: async (options: HostedDiscoveryOptions = {}): Promise<HostedDiscoveryPage> => {
+      const validCursor = (value: unknown): value is string => typeof value === "string" && value.length > 0 && value.length <= 512 && !/[\x00-\x1f\x7f]/.test(value);
+      if (options.cursor !== undefined && !validCursor(options.cursor)) throw new Error("Discovery cursor is invalid");
+      if (options.limit !== undefined && (!Number.isSafeInteger(options.limit) || options.limit < 1 || options.limit > 50)) throw new Error("Discovery limit must be an integer from 1 to 50");
+      const query = new URLSearchParams();
+      if (options.cursor !== undefined) query.set("cursor", options.cursor);
+      if (options.limit !== undefined) query.set("limit", String(options.limit));
+      const suffix = query.toString();
+      const page = object(await request("GET", `/v1/open-jobs${suffix ? `?${suffix}` : ""}`, undefined, undefined, false));
+      if (!Array.isArray(page.jobs) || page.jobs.length > (options.limit ?? 50)) throw new Error("Discovery page exceeds its declared limit or has no jobs array");
+      const hasCursor = Object.hasOwn(page, "nextCursor");
+      if ((options.cursor !== undefined || options.limit !== undefined) && !hasCursor) throw new Error("Service did not confirm discovery pagination");
+      if (hasCursor && page.nextCursor !== null && !validCursor(page.nextCursor)) throw new Error("Discovery pagination response has an invalid cursor");
+      if (options.cursor !== undefined && page.nextCursor === options.cursor) throw new Error("Discovery pagination cursor did not advance");
+      return { jobs: page.jobs, ...(hasCursor ? { nextCursor: page.nextCursor as string | null } : {}) };
+    },
     openJob: (id: string) => request("GET", `/v1/open-jobs/${encodeURIComponent(id)}`, undefined, undefined, false),
     fundingTerms: (id: string, body: unknown, replayKey: string) => request("POST", `/v1/jobs/${encodeURIComponent(id)}/open-claim-terms`, body, replayKey),
     linkFunding: (id: string, body: unknown, replayKey: string) => request("POST", `/v1/jobs/${encodeURIComponent(id)}/open-claim-link`, body, replayKey),

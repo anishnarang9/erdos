@@ -67,6 +67,8 @@ Reuse the same idempotency key only for the same request bytes and purpose. A ne
 
 The package downloader checks file hashes, package commitments and the guest digest. Reference download checks the complete canonical reference hash. Package and reference directories must be new paths inside a private parent directory.
 
+Discovery uses `ubc26 discover --api "$API"`. The new client also accepts `--limit 10` and `--cursor "$NEXT_CURSOR"` with a backend that implements the [paginated contract](hosted-api-contract.md#discovery-pagination--client-staged-server-integration-pending). Follow the returned `nextCursor` until it is null. The client stops if a server ignores pagination or repeats a cursor. Server pagination and expiry filtering remain pending integration in this sprint checkpoint.
+
 ## Fund and run supplied deliverables
 
 The buyer executes five funding operations: create job, set budget, approve the exact token amount, fund, and register. Service charges and escrow bounties are separate.

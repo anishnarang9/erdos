@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 22:24 -05:00 — Anish — Stage bounded discovery pagination
+
+- Added optional opaque cursor and 1–50 page-limit arguments to the SDK and installed CLI. Explicit pagination requires a response marker. The client rejects ignored query pagination, oversized pages, malformed cursors and repeated cursors. Public discovery sends no wallet key. The new regressions first failed, then all 17 hosted SDK tests passed. Four CLI tests and SDK/worker typechecks pass.
+- [The contract](../../docs/hosted-api-contract.md#discovery-pagination--client-staged-server-integration-pending) fixes `cursor`, `limit` and `nextCursor` for server integration. The server still needs confirmed-time expiry filtering, bounded scans/RPC and actual pagination. This client checkpoint does not close that gate. Worker A must receive the contract at its next continuation.
+- Public host/model inputs remain pending. The single local Linux cold compile continues its pinned guest-builder download with the bounded worker. No extra compiler, prover, paid model call or chain action started.
+
 ## 2026-11-16 22:18 -05:00 — Anish — Independent Linux installation and bounded compiler staging
 
 - Downloaded only the four published artifacts from exact-source Linux CI `230c3cd`. All SHA256SUMS entries pass. An isolated non-root Linux amd64 container installed the archive offline, verified its full release manifest/source pin, and evaluated the real reconciliation fixture with verdict 1. [The report](reports/hosted-runner-linux-install-2026-11-16.json) states emulation, clean operator environment and check-only limits. Initial mount/environment failures exercised existing protections; no protection changed.

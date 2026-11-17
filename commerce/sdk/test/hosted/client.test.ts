@@ -15,6 +15,27 @@ function fixture(replies: unknown[]) {
   return { calls, client: hostedClient({ baseUrl: "https://bounty.example", apiKey: "secret-key", fetch: fetchImpl }) };
 }
 describe("hosted client", () => {
+  it("passes opaque discovery cursors and page limits without credentials", async () => {
+    const {client,calls}=fixture([{jobs:[],nextCursor:"next-page"}]);
+    const page=await client.openJobs({cursor:"opaque+cursor&value",limit:10});
+    const url=new URL(calls[0]!.url);
+    expect(url.searchParams.get("cursor")).toBe("opaque+cursor&value");
+    expect(url.searchParams.get("limit")).toBe("10");
+    expect(new Headers(calls[0]!.init?.headers).has("authorization")).toBe(false);
+    expect(page.nextCursor).toBe("next-page");
+  });
+  it("rejects ignored discovery pagination and invalid page bounds", async () => {
+    const legacy=fixture([{jobs:[]}]);
+    await expect(legacy.client.openJobs({cursor:"next-page"})).rejects.toThrow("pagination");
+    for(const limit of [0,-1,1.5,51,Number.NaN]){
+      const {client,calls}=fixture([]);
+      await expect(client.openJobs({limit})).rejects.toThrow();expect(calls).toHaveLength(0);
+    }
+    const over=fixture([{jobs:[{},{}],nextCursor:null}]);
+    await expect(over.client.openJobs({limit:1})).rejects.toThrow("page");
+    const cycle=fixture([{jobs:[],nextCursor:"same-page"}]);
+    await expect(cycle.client.openJobs({cursor:"same-page"})).rejects.toThrow("advance");
+  });
   it("refuses credential transport over nonlocal HTTP, URL credentials and query bases", () => {
     for (const baseUrl of ["http://bounty.example", "https://u:p@bounty.example", "https://bounty.example/?key=x", "https://bounty.example/#x", "https://bounty.example/prefix"]) {
       expect(() => hostedClient({ baseUrl })).toThrow();
