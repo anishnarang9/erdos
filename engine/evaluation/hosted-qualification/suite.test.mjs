@@ -179,6 +179,9 @@ test('supported candidates match the independent oracle', async () => {
     'pier-drawers', 'pier-variance', 'tender-split', 'voyage-fee',
     'lot-range-1', 'lot-expiry-1', 'lot-sites-1', 'sensor-1',
     'category-1', 'indirect-1', 'crew-gear-1', 'cover-1',
+    'badge-zone-1', 'clearance-1', 'queue-1', 'purpose-1',
+    'nights-1', 'instrument-1', 'usable-1', 'programs-1',
+    'berth-fit-1', 'berth-fee-1', 'berth-open-1', 'berth-swap-1',
   ]);
   const directory = await mkdtemp(join(tmpdir(), 'ubc26-corpus-'));
   try {

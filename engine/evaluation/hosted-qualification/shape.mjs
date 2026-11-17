@@ -14,6 +14,7 @@ export const access = (source, file, field = 'rows') => ({source, file, field});
 export const count = (collection, where) => ({op: 'count', collection, ...(where ? {where} : {})});
 export const sum = (collection, value) => ({op: 'sum', collection, value});
 export const all = (collection, where) => ({op: 'all', collection, where});
+export const any = (collection, where) => ({op: 'any', collection, where});
 export const unique = (collection, field) => ({op: 'unique', collection, field});
 export const lookup = (collection, keyField, key, valueField) => ({op: 'lookup', collection, keyField, key, valueField});
 const fieldsOf = (spec) => Object.entries(spec).map(([name, type]) => ({name, type}));
