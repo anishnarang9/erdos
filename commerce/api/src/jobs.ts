@@ -4,6 +4,7 @@ import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { isoAt, type AppEnv, type Deps } from "./context.ts";
 import { ownerWallet } from "./ownership.ts";
+import { assertAuthoredApproval } from "./authored-approval.ts";
 import type { Idempotency } from "./idempotency.ts";
 import { EngineError, type Manifest } from "./engine.ts";
 import { chainViewFor } from "./market.ts";
@@ -37,6 +38,7 @@ export interface RevisionRow {
   structure_hash: string | null;
   rules_hash: string | null;
   source: Source;
+  draft_id: string | null;
   created_at: string;
 }
 
@@ -103,7 +105,7 @@ export function jobStore(deps: Deps) {
     ),
     job: db.prepare("SELECT id, state, current_revision_id FROM jobs WHERE id = ?"),
     revision: db.prepare(
-      "SELECT id, n, revision_json, reference_digest, revision_hash, structure_hash, rules_hash, source, created_at FROM revisions WHERE id = ?",
+      "SELECT id, n, revision_json, reference_digest, revision_hash, structure_hash, rules_hash, source, draft_id, created_at FROM revisions WHERE id = ?",
     ),
     approval: db.prepare(
       "SELECT revision_hash, reference_digest, structure_hash, rules_hash, at FROM approvals WHERE revision_id = ? AND voided_at IS NULL",
@@ -361,6 +363,9 @@ export function jobRoutes(deps: Deps, commit: Idempotency["commit"], newId: ULID
       });
     }
 
+    if (deps.deployment.mode === "public" && rev.source === "grok") {
+      assertAuthoredApproval(deps, rev.draft_id, rev.revision_hash, ownerWallet(c));
+    }
     const existing = store.approvalOf(rev.id);
     if (job.state === "approved" && existing) {
       return commit(c, 200, { state: "approved", approval: existing });

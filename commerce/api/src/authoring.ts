@@ -17,7 +17,7 @@ import { DRAFT_MAX_COMPLETION_TOKENS, DRAFT_TIMEOUT_MS, ModelError, draftCallTok
 import { authoringCharge, maxCallMicroUsd, noteDraftDispatch, noteDraftUsage, usageComplete } from "./tasks.ts";
 import { parseManifest, EngineError, isCliCompileResult, type Manifest } from "./engine.ts";
 import { artifactBinding, requireRealArtifact } from "./artifact.ts";
-import { parseExampleFixtures, resolveExample, exampleFiles, type ExampleFixture } from "./authoring-examples.ts";
+import { parseExampleFixtures, resolveExample, exampleFiles, usableExamples, type ExampleFixture, type ExampleLabel } from "./authoring-examples.ts";
 import {
   assertDraftOwner,
   engineFailure,
@@ -363,7 +363,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         };
       }
       const examples = await labelExamples(result, body.references, body.exampleFixtures);
-      const counts = exampleCounts(result.examples);
+      const counts = usableExamples(examples);
       const revision: Revision = {
         plan: result.plan,
         referenceDigest: referenceDigestOf(body.references),
@@ -382,14 +382,15 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
           : null,
         preview: verdict.preview ?? null,
         examples,
+        exampleApprovalReady: counts.positive > 0 && counts.negative > 0 && !counts.blocked,
         sourceQuotes: result.sourceQuotes,
         model: reply.model,
         traceId: reply.traceId,
       };
-      if (counts.positive > 0 && counts.negative > 0) return { attempt, response, hash, fatal: false };
+      if (counts.positive > 0 && counts.negative > 0 && !counts.blocked) return { attempt, response, hash, fatal: false };
       const errors: FieldError[] = [];
-      if (counts.positive === 0) errors.push({ path: "/examples", message: "A positive example is required" });
-      if (counts.negative === 0) errors.push({ path: "/examples", message: "A negative example is required" });
+      if (counts.positive === 0) errors.push({ path: "/examples", message: "An engine-checked passing example is required" });
+      if (counts.negative === 0) errors.push({ path: "/examples", message: "An engine-checked verdict-0 example is required" });
       const counterexamples = examples.flatMap((item) => {
         const name = item.name;
         const predicted = item.predictedVerdict;
@@ -485,31 +486,42 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       }));
       const rules = isPlainObject(result.plan) && Array.isArray(result.plan.rules) ? result.plan.rules.length : 0;
       const counts = exampleCounts(result.examples);
+      const evaluated = response.examples as ExampleLabel[];
+      const usable = usableExamples(evaluated);
       const omissions: string[] = [];
       if (quoteVerification.some((item) => !item.found)) omissions.push("A source quote was not found in the supplied text.");
       if (counts.positive === 0) omissions.push("No positive example is present.");
       if (counts.negative === 0) omissions.push("No negative example is present.");
       if (rules === 0) omissions.push("The plan has no rules.");
+      if (usable.positive === 0) omissions.push("No engine-checked passing example is present.");
+      if (usable.negative === 0) omissions.push("No engine-checked verdict-0 example is present.");
+      if (usable.blocked) omissions.push("An example is rejected, unevaluated or disagrees with its predicted verdict.");
       response = {
         ...response,
         quoteVerification,
         coverage: {
           ruleCount: rules,
+          ruleCoverageComplete: false,
           positiveExamples: counts.positive,
           negativeExamples: counts.negative,
+          usablePositiveExamples: usable.positive,
+          usableNegativeExamples: usable.negative,
           omissions,
           assumptions: rules > 0 ? ["The service does not map each rule to one requirement."] : [],
         },
-        qualification: {
-          model: reply.model,
-          promptVersion: draftPromptVersion(),
-          catalogVersion: CATALOG_VERSION,
-          latencyMs: Math.max(0, deps.now() - started),
-          repairCount: repairAttempted ? 1 : Math.max(0, attempts.length - 1),
-          usage: attempts.map((item) => item.reply.usage ?? null),
-        },
+
       };
     }
+    response = {
+      ...response,
+      qualification: {
+        model: reply.model, promptVersion: draftPromptVersion(), catalogVersion: CATALOG_VERSION,
+        latencyMs: Math.max(0, deps.now() - started), repairCount: repairAttempted ? 1 : Math.max(0, attempts.length - 1),
+        traceId: reply.traceId, traceIds: attempts.map(item => item.reply.traceId).filter(id => id.length > 0),
+        usage: attempts.map(item => item.reply.usage ?? null),
+      },
+      attempts: attempts.map(item => ({ kind: item.result.kind, model: item.reply.model, traceId: item.reply.traceId || null, usage: item.reply.usage ?? null })),
+    };
     const at = isoAt(deps.now());
     const stored = JSON.stringify({
       response,
@@ -526,7 +538,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
    * files the engine cannot read gets checkerVerdict null and the engine's message.
    */
   const labelExamples = async (result: Extract<ModelDraft, { kind: "draft" }>, references: BundleFile[], fixtures: ExampleFixture[] = []) => {
-    const out: Record<string, unknown>[] = [];
+    const out: ExampleLabel[] = [];
     for (const [i, e] of result.examples.entries()) {
       const base = { name: e.name, predictedVerdict: e.predictedVerdict };
       if (!deps.engine.eval || i >= MAX_EVAL_EXAMPLES) {

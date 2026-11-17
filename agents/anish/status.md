@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 23:39 -05:00 — Anish — Public authored approval now rejects unusable examples
+
+- Independent regression reproduced approval of a draft whose predicted negative actually passed. Actual example disagreement now permits one bounded repair, and usable counts include only evaluated, agreeing verdicts. Missing evaluators, invalid inputs and disagreements keep `exampleApprovalReady` false. Public Grok approval also requires the exact owner/draft/revision binding, source quotes and completed rule coverage. Coverage completion and buyer witness records remain in progress, so those approvals fail closed.
+- Clarification and unsupported terminals now include model, prompt/catalog versions, latency, usage, trace identifiers and separate attempt metadata. All five new qualification/approval regressions pass. Full combined API checks pass 840/840 and typecheck passes.
+- Integrated service executable-path guards `0d4a5e1` and report `242db5a` as `6295ea6` and `f9daf9b`. These reject simulated engines and command lookups before public listen. They are path/wrapper-shape guards. Binary digest readiness and graceful task draining still require work. The child exit hook prevents the previously observed surviving controlled compiler; the API still exits immediately rather than draining.
+- Worker B found a runner diagnostic gap: installed check rejection has only a generic signed-send recovery message. Review repair is next. No paid API call or chain transaction occurred. Public host/model access/budgets and live acceptance remain pending.
+
 ## 2026-11-16 23:32 -05:00 — Anish — Child isolation passes; UTF-8 boundary repaired
 
 - Integrated Worker A's child repair `cd558ea` as `9d414c7` and report `4d07eb5` as `6a7bd68`. The two independent environment/descendant regressions now pass. Combined API checks pass 831/831 with typecheck. Public pins, cancellation interfaces and graceful task drain remain pending Worker A.
