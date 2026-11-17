@@ -55,6 +55,8 @@ export interface Deps {
   expensiveDisabled: boolean;
   /** When set, a draft task reserves its ceiling before the handler runs. */
   budget?: AuthoringBudget;
+  /** Bearer token for an audited spend-halt resolution. Unset means resolution is unavailable. */
+  operatorToken?: string;
 }
 
 export interface IdempotencyScope {

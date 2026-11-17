@@ -215,10 +215,16 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
   const maxN = deps.db.prepare("SELECT MAX(n) AS n FROM revisions WHERE job_id = ?");
 
   /** POST /v1/drafts (§3) */
+  const openHalt = deps.db.prepare("SELECT id FROM spend_halts WHERE resolved_at IS NULL LIMIT 1");
+
   const draft: Handler<AppEnv> = async (c) => {
     const model = deps.draftModel;
     const owner = ownerWallet(c);
     if (!model) throw new ApiError("model_unavailable", "No draft model configured");
+    if ((c.get("taskId") ?? "") === "") {
+      const halt = openHalt.get() as { id: string } | undefined;
+      if (halt) throw new ApiError("service_disabled", "Authoring is halted after a spend breach", { haltId: halt.id });
+    }
     const body = parseDraftBody(c.get("json"));
     const requestJson = JSON.stringify(c.get("json"));
     const draftId = newId();

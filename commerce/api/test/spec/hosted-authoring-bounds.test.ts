@@ -278,6 +278,141 @@ describe("dispatch billing", () => {
     const again = await post(created.app, "/v1/tasks", { operation: "draft", input: { ...DRAFT_BODY, request: "Count the words in over-again.txt" } }, auth(key));
     expect(again.status).toBe(429);
   });
+
+  it("stops queued model work after an overrun until an operator resolves the halt", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-halt-"));
+    const dbPath = join(dir, "api.db");
+    const ticks = 125_000_000_000;
+    let calls = 0;
+    let releaseGate!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      releaseGate = resolve;
+    });
+    let markEntered!: () => void;
+    const entered = new Promise<void>((resolve) => {
+      markEntered = resolve;
+    });
+    const overrun = {
+      promptTokens: 10_000_000,
+      completionTokens: 0,
+      cachedTokens: 0,
+      reasoningTokens: null,
+      costInUsdTicks: ticks,
+    };
+    const model = {
+      async draft() {
+        calls += 1;
+        if (calls === 1) {
+          markEntered();
+          await gate;
+          return { result: { kind: "clarification" as const, questions: ["Which file?"] }, model: "spec", traceId: "over", usage: overrun };
+        }
+        return {
+          result: { kind: "clarification" as const, questions: ["Which file?"] },
+          model: "spec",
+          traceId: "next",
+          usage: { promptTokens: 1, completionTokens: 0, cachedTokens: null, reasoningTokens: null, costInUsdTicks: null },
+        };
+      },
+    };
+    const haltBudget = { ...budget, requestCeilingMicroUsd: 50_000, dailyCeilingMicroUsd: 100_000_000 };
+    const operatorToken = "operator-test-token-value";
+    const created = appWith({ dbPath, budget: haltBudget, draftModel: model, operatorToken }, dbPath);
+    const key = await issue(created.app);
+    const first = await post(created.app, "/v1/tasks", { operation: "draft", input: { ...DRAFT_BODY, request: "Count the words in halt-a.txt" } }, auth(key));
+    const firstView = await first.json() as { id: string };
+    expect(first.status, JSON.stringify(firstView)).toBe(202);
+    const pumping = created.pumpTasks();
+    await entered;
+    const second = await post(created.app, "/v1/tasks", { operation: "draft", input: { ...DRAFT_BODY, request: "Count the words in halt-b.txt" } }, auth(key));
+    const secondView = await second.json() as { id: string; state: string };
+    expect(second.status, JSON.stringify(secondView)).toBe(202);
+    expect(secondView.state).toBe("queued");
+    releaseGate();
+    await pumping;
+    expect(calls).toBe(1);
+    const raw = new DatabaseSync(dbPath);
+    const settled = raw.prepare("SELECT state, ceiling_micro_usd, settled_micro_usd, breach, usage_json FROM spend_reservations WHERE task_id = ?").get(firstView.id) as {
+      state: string;
+      ceiling_micro_usd: number;
+      settled_micro_usd: number;
+      breach: number;
+      usage_json: string;
+    };
+    const queuedReservation = raw.prepare("SELECT state, settled_micro_usd FROM spend_reservations WHERE task_id = ?").get(secondView.id) as {
+      state: string;
+      settled_micro_usd: number | null;
+    };
+    const halt = raw.prepare("SELECT id, settled_micro_usd, ceiling_micro_usd, resolved_at FROM spend_halts").get() as {
+      id: string;
+      settled_micro_usd: number;
+      ceiling_micro_usd: number;
+      resolved_at: string | null;
+    };
+    raw.close();
+    expect(settled).toMatchObject({ state: "settled", ceiling_micro_usd: 50_000, settled_micro_usd: 12_500_000, breach: 1 });
+    expect(settled.usage_json).toContain(String(ticks));
+    expect(queuedReservation).toEqual({ state: "reserved", settled_micro_usd: null });
+    expect(halt.settled_micro_usd).toBe(12_500_000);
+    expect(halt.ceiling_micro_usd).toBe(50_000);
+    expect(halt.resolved_at).toBeNull();
+    await created.pumpTasks();
+    expect(calls).toBe(1);
+    const blocked = await post(created.app, "/v1/tasks", { operation: "draft", input: { ...DRAFT_BODY, request: "Count the words in halt-c.txt" } }, auth(key));
+    await expectError(blocked, 503, "service_disabled");
+    const sync = await post(created.app, "/v1/drafts", { ...DRAFT_BODY, request: "Count the words in halt-sync.txt" }, auth(key));
+    await expectError(sync, 503, "service_disabled");
+    expect(calls).toBe(1);
+    const missing = await created.app.request("/v1/operator/spend-halts/missing/resolve", {
+      method: "POST",
+      headers: { authorization: "Bearer wrong-operator-token", "content-type": "application/json" },
+      body: JSON.stringify({ note: "not authorized" }),
+    });
+    expect(missing.status).toBe(401);
+    created.close();
+    const restarted = appWith({ dbPath, budget: haltBudget, draftModel: model, operatorToken }, dbPath);
+    restarted.reconcileTasks();
+    await restarted.pumpTasks();
+    expect(calls).toBe(1);
+    const stillQueued = await (await restarted.app.request(`/v1/tasks/${secondView.id}`, { headers: { authorization: `Bearer ${key}` } })).json() as { state: string };
+    expect(stillQueued.state).toBe("queued");
+    const resolved = await restarted.app.request(`/v1/operator/spend-halts/${halt.id}/resolve`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${operatorToken}`, "content-type": "application/json" },
+      body: JSON.stringify({ note: "Reviewed the provider invoice" }),
+    });
+    expect(resolved.status, await resolved.clone().text()).toBe(200);
+    const again = await restarted.app.request(`/v1/operator/spend-halts/${halt.id}/resolve`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${operatorToken}`, "content-type": "application/json" },
+      body: JSON.stringify({ note: "Reviewed the provider invoice again" }),
+    });
+    expect(again.status).toBe(409);
+    await restarted.pumpTasks();
+    expect(calls).toBe(2);
+    const after = new DatabaseSync(dbPath);
+    const kept = after.prepare("SELECT state, settled_micro_usd, breach, usage_json FROM spend_reservations WHERE task_id = ?").get(firstView.id) as {
+      state: string;
+      settled_micro_usd: number;
+      breach: number;
+      usage_json: string;
+    };
+    const history = after.prepare("SELECT resolved_at, resolved_by, resolution_note, settled_micro_usd FROM spend_halts WHERE id = ?").get(halt.id) as {
+      resolved_at: string | null;
+      resolved_by: string;
+      resolution_note: string;
+      settled_micro_usd: number;
+    };
+    const done = after.prepare("SELECT state FROM tasks WHERE id = ?").get(secondView.id) as { state: string };
+    after.close();
+    expect(kept).toMatchObject({ state: "settled", settled_micro_usd: 12_500_000, breach: 1 });
+    expect(kept.usage_json).toContain(String(ticks));
+    expect(history.resolved_at).toBeTruthy();
+    expect(history.resolved_by).toBe("operator");
+    expect(history.resolution_note).toBe("Reviewed the provider invoice");
+    expect(history.settled_micro_usd).toBe(12_500_000);
+    expect(done.state).toBe("succeeded");
+  });
 });
 
 describe("grok request bounds", () => {

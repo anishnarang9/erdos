@@ -328,8 +328,11 @@ describe("durable tasks", () => {
       ceiling_micro_usd: number;
       settled_micro_usd: number | null;
     };
+    const halts = after.prepare("SELECT COUNT(*) AS n FROM spend_halts").get() as { n: number };
     after.close();
     expect(uncertain).toEqual({ state: "uncertain", ceiling_micro_usd: 50_000, settled_micro_usd: null });
+    expect(uncertain.settled_micro_usd).not.toBe(0);
+    expect(halts.n).toBe(0);
     expect((await post(created.app, "/v1/tasks", draftTask("Count the words in second.txt"), auth(key))).status).toBe(202);
     await created.pumpTasks();
     await expectError(await post(created.app, "/v1/tasks", draftTask("Count the words in third.txt"), auth(key)), 429, "rate_limited");
