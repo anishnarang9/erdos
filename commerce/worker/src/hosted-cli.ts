@@ -9,6 +9,7 @@ import { evaluate } from "./engine.ts";
 import { loadOperatorKeystore } from "./operator-keystore.ts";
 import { createSprintEngineRunner, sprintEngineWrapperDigest } from "./sprint-runner.ts";
 import { object, privateDirectory, readOperatorJson, readSafeFile, requireSprint } from "./sprint-authorization.ts";
+import { assertInstalledRelease, workerRepositoryRoot } from "./release-integrity.ts";
 import { openClaimOperator } from "./open-claim/operator.ts";
 
 const common = ["api", "key-file"];
@@ -31,6 +32,7 @@ const commandFlags: Record<string, readonly string[]> = {
   "funding-link": [...common, "job", "input", "idempotency"],
   check: ["engine-config", "plan", "deliverables", "reference"],
   "wrapper-digest": [],
+  "verify-install": ["source-commit", "release-manifest-sha256"],
   configure: ["api", "job", "input", "engine-config", "manifest", "buyer", "solver", "work-dir", "package-dir", "reference", "deliverables", "source-commit", "release-manifest-sha256", "revision", "out"],
   operator: ["config", "password-fd", "key-file"],
 };
@@ -67,6 +69,10 @@ export async function hostedCli(args: string[]): Promise<unknown> {
     privacy: "Results become public when the release key is broadcast.",
     signing: "Passwords use inherited file descriptors. API credentials use private files. Mutations require an idempotency key.",
     workflow: "auth, draft or import, task, job, approve, compile, task, download, funding-preview, operator, funding-link, discover" };
+  if (command === "verify-install") {
+    assertInstalledRelease(workerRepositoryRoot(), need("source-commit"), need("release-manifest-sha256"));
+    return { status: "installation-verified", sourceCommit: need("source-commit") };
+  }
   if (command === "wrapper-digest") return { wrapperSha256: sprintEngineWrapperDigest(), authority: "candidate for independent review" };
   if (command === "configure") {
     const work = resolve(need("work-dir")); privateDirectory(work);

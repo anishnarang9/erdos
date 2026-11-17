@@ -16,7 +16,7 @@ npm install --prefix "$HOME/ubc26-client" ./ubc26-runner-0.2.0.tgz
 "$HOME/ubc26-client/node_modules/.bin/ubc26" help
 ```
 
-The package contains the runner and hosted TypeScript client. It does not need a Git checkout or development workspace dependencies. It does not include an engine binary. Keep the release manifest SHA-256 and source commit from the reviewed release metadata. Signing from an installed package requires both pins. The runner checks every installed file before protected operations. Modified, missing, extra or linked files fail the check.
+The package contains the runner and hosted TypeScript client. It does not need a Git checkout or development workspace dependencies. It does not include an engine binary. Keep the release manifest SHA-256 and source commit from the reviewed release metadata. Signing from an installed package requires both pins. Run `ubc26 verify-install --source-commit "$RELEASE_SOURCE_SHA" --release-manifest-sha256 "$RELEASE_MANIFEST_SHA256"` to check the installed files. The runner repeats this check before protected operations. Modified, missing, extra or linked files fail the check.
 
 The source build command is `node commerce/worker/scripts/package-runner.mjs /absolute/new/output-directory`. Run it from a clean committed source tree after installing locked commerce dependencies. It creates an archive locally. It does not publish to a registry.
 

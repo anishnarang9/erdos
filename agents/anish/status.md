@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 20:51 -05:00 — Anish — Installed runner and resource bounds checked
+
+- The corrected archive at `f8bef2d` passes independent local npm installation, help/wrapper JSON and client import. Its installed CLI evaluated the historical Meridian candidate with the real native engine and returned verdict 1 without proof or transaction. Exact-SHA [Linux commerce CI](https://github.com/anishnarang9/UBC-26/actions/runs/43997713872) passed full tests/typechecks, archive build and independent installation. See [the installation report](reports/hosted-runner-install-2026-11-16.json).
+- Added four failing package-boundary regressions. Package download now validates job identity and bounds file count, per-file size and total declared/downloaded bytes before writing. New `verify-install` exposes the existing full-file provenance check. Focused 60 package tests, 12 CLI/provenance tests and worker typecheck pass. Linux CI will also check the installed manifest pin.
+- [Dependency review](reports/hosted-dependency-triage-2026-11-16.md) records current npm advisories and RustSec candidates with actual source paths and reachability limits. No blanket clean-audit claim or proof-stack upgrade. The formal cargo-audit executable is unavailable.
+- Both original Grok worker invocations stopped at a shell tool under headless dontAsk permissions. Resumed the same two sessions with authorized tools enabled. No worker code was accepted from the cancelled attempts. Worker B now writes qualification tests. Coordinator started one sequential real-proof driver with pinned r0vm 3.1.0, current engine digest and the low-memory Docker wrapper. The first synthetic budget proof is running. No paid API call, live wallet use or public deployment occurred.
+
 ## 2026-11-16 20:43 -05:00 — Anish — Package entrypoint correction
 
 - The archive built from `d7dc7c9`, but its first installed CLI smoke produced no JSON. Node resolved the npm executable symlink differently from the module URL, so the source entrypoint guard did not invoke the command. This is a failed smoke, not an installation pass.

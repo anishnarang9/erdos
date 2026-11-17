@@ -11,3 +11,6 @@ it("parses a restart-safe compilation request", () => {
 it("shows a standalone help command without a checkout or network", async () => {
   expect(await hostedCli(["help"])).toMatchObject({ version: 1, privacy: "Results become public when the release key is broadcast." });
 });
+it("accepts independently pinned installation verification", () => {
+  expect(parseHostedArgs(["verify-install", "--source-commit", "a".repeat(40), "--release-manifest-sha256", "b".repeat(64)]).command).toBe("verify-install");
+});

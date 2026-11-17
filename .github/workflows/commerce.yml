@@ -30,6 +30,9 @@ jobs:
         run: |
           npm install --ignore-scripts --prefix "$RUNNER_TEMP/ubc26-runner-install" "$RUNNER_TEMP/ubc26-runner-release/ubc26-runner-0.2.0.tgz"
           cd "$RUNNER_TEMP/ubc26-runner-install"
+          RELEASE_MANIFEST_SHA256=$(node -p 'require(process.env.RUNNER_TEMP+"/ubc26-runner-release/release.json").releaseManifestSha256')
+          node_modules/.bin/ubc26 verify-install --source-commit "${{ github.sha }}" --release-manifest-sha256 "$RELEASE_MANIFEST_SHA256" > provenance.json
+          node -e 'const p=require("./provenance.json"); if(p.status!=="installation-verified")process.exit(1)'
           node_modules/.bin/ubc26 help > help.json
           node_modules/.bin/ubc26 wrapper-digest > wrapper.json
           node -e 'const fs=require("node:fs"); const h=JSON.parse(fs.readFileSync("help.json")); const w=JSON.parse(fs.readFileSync("wrapper.json")); if(h.version!==1 || !/^[0-9a-f]{64}$/.test(w.wrapperSha256))process.exit(1)'

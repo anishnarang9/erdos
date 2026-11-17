@@ -113,6 +113,15 @@ export async function checkRecovery(runner: EngineRunner, submission: string, ke
 export async function downloadPackage(client: ApiClient, jobId: string, dir: string): Promise<PackageListing["manifest"]> {
   checkArtifactAncestors(dirname(dir));
   const listing = await client.packageListing(jobId);
+  must(listing.jobId === jobId && Array.isArray(listing.files) && listing.files.length > 0 && listing.files.length <= 512,
+    "package_limits", "package identity or file count is invalid");
+  let declaredBytes = 0;
+  for (const file of listing.files) {
+    must(Number.isSafeInteger(file.size) && file.size >= 0 && file.size <= 33_554_432,
+      "package_limits", "package file size is invalid");
+    declaredBytes += file.size;
+    must(declaredBytes <= 134_217_728, "package_limits", "package exceeds its total byte limit");
+  }
   mkdirSync(dir, { mode: 0o700 });
   // Paths that differ only in case would overwrite each other on Windows and macOS filesystems.
   const folded = new Set<string>();
@@ -120,10 +129,14 @@ export async function downloadPackage(client: ApiClient, jobId: string, dir: str
     must(!folded.has(f.path.toLowerCase()), "package_path", `duplicate package path ${f.path} (case-insensitive)`);
     folded.add(f.path.toLowerCase());
   }
+  let downloadedBytes = 0;
   for (const f of listing.files) {
     const parts = f.path.split("/");
     must(parts.every((p) => p !== "" && p !== "." && p !== ".." && !p.includes("\\") && !p.includes(":")), "package_path", `unsafe package path ${f.path}`);
     const bytes = await client.packageFile(jobId, f.path);
+    downloadedBytes += bytes.byteLength;
+    must(bytes.byteLength <= 33_554_432 && downloadedBytes <= 134_217_728,
+      "package_limits", "downloaded package exceeds its byte limit");
     must(sha256(bytes) === f.sha256.toLowerCase(), "package_digest", `${f.path} does not match its listed SHA-256`);
     const target = join(dir, ...parts);
     checkArtifactAncestors(dirname(target));
