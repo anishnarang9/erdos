@@ -1,5 +1,11 @@
 # Current plan
 
+## 2026-11-17 15:42 -05:00 — Anish — Verify the public developer documentation candidate
+
+- Branch `codex/hosted-backend`, draft PR #8. The public guide and API contract document runner installation, wallet ownership, Bot review, compilation, funding, solver progress and recovery. The UI handoff distinguishes the API and runner source pins. No UI changes.
+- The candidate serves nine exact names at a versioned documentation URL, independent of buyer API readiness. Real Caddy tests reproduce the original 503 and the catalog's schema lookup 404. Both now pass. The catalog retains its original bytes and names the published `plan-v1.schema.json`. Existing runner, engine, callback and log checks pass. All eleven deployment tests pass. See the [proxy report](../anish/reports/hosted-public-docs-proxy-2026-11-17.json).
+- The quantity example matches the exact reviewed input and compiled rules hash. Native verdicts are 1 and 0. No paid calls, proofs or chain transactions ran for this checkpoint. Next: publish the exact checked bundle through the existing static mount. Public buyer readiness and authoring cost gates remain open.
+
 ## 2026-11-17 15:28 -05:00 — Anish — Verify three Bot-reviewed native compile/proof paths
 
 - Branch `codex/hosted-backend`, draft PR #8. All three genuinely passed Bot receipts permit buyer approval and native VPS compilation. Fresh local Groth16 proofs pass the pinned Solidity verifier. It rejects image, journal, seal and verdict mutations for each proof. SDK/engine recovery is byte-exact, and the independent oracle accepts each recovered output. Proof times are 365916, 320526 and 206612 ms. The scoped evidence review reruns all three local verifier checks and finds no material issue. See the [complete proof evidence](../anish/reports/hosted-bot-end-to-end-2026-11-17.json).

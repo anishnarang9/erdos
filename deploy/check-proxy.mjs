@@ -24,6 +24,10 @@ const engineAssets=new Map([['ubc26-engine-linux-x64',Buffer.concat([Buffer.from
 await mkdir(join(downloads,'engines',releaseSource),{recursive:true,mode:0o755});
 for(const[name,bytes]of engineAssets)await writeFile(join(downloads,'engines',releaseSource,name),bytes,{mode:0o444});
 await writeFile(join(downloads,'engines',releaseSource,'service.db'),'private-database-must-not-serve',{mode:0o444});
+const docsAssets=new Map([['README.md',Buffer.from('# Controlled developer guide\nStatic documentation remains readable while the API is gated.\n')],['api.md',Buffer.from('# Controlled API contract\n')],['capabilities.json',Buffer.from('{"controlled":"catalog","planSchema":"plan-v1.schema.json"}\n')],['plan-v1.schema.json',Buffer.from('{"controlled":"schema"}\n')],['example-revision.json',Buffer.from('{"controlled":"example-revision"}\n')],['example-review.json',Buffer.from('{"controlled":"example-review"}\n')],['open-claim-arc-testnet.json',Buffer.from('{"controlled":"deployment"}\n')],['release.json',Buffer.from('{"controlled":"documentation-release"}\n')],['SHA256SUMS',Buffer.from('controlled-documentation-checksums\n')]]);
+await mkdir(join(downloads,'docs',releaseSource),{recursive:true,mode:0o755});
+for(const[name,bytes]of docsAssets)await writeFile(join(downloads,'docs',releaseSource,name),bytes,{mode:0o444});
+await writeFile(join(downloads,'docs',releaseSource,'service.db'),'private-database-must-not-serve',{mode:0o444});
 const snapshot=join(root,'Caddyfile');await copyFile(join(dirname(fileURLToPath(import.meta.url)),'Caddyfile'),snapshot);await chmod(snapshot,0o444);
 const id=randomUUID(),network=`ubc26-proxy-${id}`,backend=`ubc26-proxy-api-${id}`,edge=`ubc26-proxy-edge-${id}`,created=[];
 let downloadPort;
@@ -82,10 +86,17 @@ try{
   {phase:'unready-still-blocked',...await awaitStatus(503)}];
  const runnerDownloads=await checkDownloads();
  const engineDownloads=await checkDownloads(engineAssets,'/downloads/engine','ubc26-engine-linux-x64','engine.json');
+ const documentationDownloads=await checkDownloads(docsAssets,'/downloads/docs','README.md','release.json');
+ const documentationCatalog=JSON.parse(Buffer.from((await assetRequest('/downloads/docs/'+releaseSource+'/capabilities.json')).body,'base64').toString('utf8'));
+ assert.match(documentationCatalog.planSchema,/^[A-Za-z0-9._-]+[.]json$/);
+ const documentationSchema=await assetRequest('/downloads/docs/'+releaseSource+'/'+documentationCatalog.planSchema);
+ assert.equal(documentationSchema.status,200,'published catalog schema reference must resolve');
+ assert.deepEqual(JSON.parse(Buffer.from(documentationSchema.body,'base64').toString('utf8')),{controlled:'schema'});
+
  await writeFile(join(state,'ready'),'1');phases.push({phase:'ready',...await awaitStatus(200)});await writeFile(join(state,'ready'),'0');phases.push({phase:'unready-again',...await awaitStatus(503)});
  const logs=await docker(['logs',edge],true),text=logs.stdout+logs.stderr;
  for(const token of ['synthetic-header-must-not-log','synthetic-query-must-not-log','synthetic-bot-service-must-not-log','/raw-private-path'])assert.ok(!text.includes(token),'Proxy logs retained private request fields');
- const report={status:'passed-controlled-proxy-readiness',caddyImage:caddy,backendImage:image,caddyFileSha256:createHash('sha256').update(await readFile(snapshot)).digest('hex'),phases,runnerDownloads,engineDownloads,privateRequestFieldsAbsentFromLogs:true,edgeCapabilities:['NET_BIND_SERVICE'],noNewPrivileges:true,network:'dedicated Docker bridge; one loopback-only ephemeral HTTP port',tls:'HTTP-only controlled test; public TLS is outside this check',realModelCalls:0,proofs:0,chainTransactions:0,scope:'Actual pinned Caddy with a controlled readiness and restricted-callback upstream. Not public hosted or genuine Bot acceptance.'};
+ const report={status:'passed-controlled-proxy-readiness',caddyImage:caddy,backendImage:image,caddyFileSha256:createHash('sha256').update(await readFile(snapshot)).digest('hex'),phases,runnerDownloads,engineDownloads,documentationDownloads,documentationCatalogSchemaReferenceResolves:true,privateRequestFieldsAbsentFromLogs:true,edgeCapabilities:['NET_BIND_SERVICE'],noNewPrivileges:true,network:'dedicated Docker bridge; one loopback-only ephemeral HTTP port',tls:'HTTP-only controlled test; public TLS is outside this check',realModelCalls:0,proofs:0,chainTransactions:0,scope:'Actual pinned Caddy with a controlled readiness and restricted-callback upstream. Not public hosted or genuine Bot acceptance.'};
  await writeFile(join(root,'report.json'),JSON.stringify(report,null,2)+'\n',{mode:0o600});process.stdout.write(JSON.stringify(report,null,2)+'\n');
 }catch(error){process.stderr.write(`Proxy check failed. Private diagnostics: ${root}\n`);throw error;}
 finally{

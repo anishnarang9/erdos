@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "status": "passed-public-documentation-examples-native-and-protocol",
+  "checkedAt": "2026-11-17T20:37:26.584Z",
+  "exampleRevisionHash": "0xc6fed5446d0090702e71f88f11255456f63c88a253a9016668bee7f7d4dc2d0d",
+  "inputHash": "0x42513997ebc4e32ec45674c73c6d26424ea720b5a82e12e9630a89461a119ba3",
+  "canonicalInputBytes": 1050,
+  "rulesHash": "0xc55f909c13ed1dabd912fb91e43efef69949aabce0de70119bae8951ab02b163",
+  "structureHash": "0x0df89231a72f920452f849925ac1e4a45e320eb46639425d89a65d2b7a190d3c",
+  "nativeExampleVerdicts": [
+    1,
+    0
+  ],
+  "existingGenuineReviewReusedAsEvidenceOnly": true,
+  "newBotReviews": 0,
+  "newApiGenerationCalls": 0,
+  "newProofs": 0,
+  "newChainTransactions": 0
+}
