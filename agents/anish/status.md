@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 23:28 -05:00 — Anish — Frozen generated-guest corpus passes
+
+- The [generated-guest report](reports/hosted-corpus-guests-2026-11-16.json) passes all 40 supported checker plans and 316 candidates. Actual guest executions: 236. Input rejections before guest: 80. Host/oracle/guest disagreements: 0. There are 39 structures/images, with one image per structure. The actual compiler runs in the bounded pinned Linux container. Native r0vm 3.1.0 executes the packages under a clean environment.
+- The report pins the corpus, both engine binaries, r0vm, compiler image/frontend/build identities and per-case results. It preserves the initial pre-build setup failure separately. The successful retry used a new output directory. Compiler/prover locks are released and the owned compiler container is stopped. This is synthetic finite evidence, not a Grok-authored or live funded pass.
+- Authoring input adapters now pass their focused regressions. Full API checks and the corrected 60-envelope probe are running. Immutable example approval, coverage, request-wide deadline and production service gates remain open. The same two Grok workers continue runtime repairs and runner review.
+
 ## 2026-11-16 23:23 -05:00 — Anish — Runtime and authoring API scopes separated
 
 - Worker A now owns service child execution, shutdown/readiness, tasks, identity/limits, discovery and hosted attempts. The coordinator owns authoring, model schema/prompt, jobs and immutable example checks. Worker B reviews runner evidence transport after completing context-lock/resource regressions. This uses the same two Grok sessions. Migration 016 stays with service backfill. Example records start at 017.
