@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 16:13 -05:00 — Anish — Deploy the public liveness route
+
+- The VPS now runs proxy source `6b4eec1`. External HTTPS returns 200 for GET /healthz, 503 for buyer readiness and 401 for the unauthenticated Bot callback. All nine public documentation hashes match. The API container stayed in place. The previous proxy is available at `0b98c3b`. See the [release ledger](reports/hosted-release-readiness-2026-11-17.json).
+
 ## 2026-11-17 16:11 -05:00 — Anish — Separate public liveness from buyer readiness
 
 - Public HTTPS returns 503 on /healthz and /readyz before the fix. All nine public documentation files match their recorded hashes. The pinned proxy regression fails before the fix, then passes with the exact GET /healthz route. Buyer traffic stays gated and callback authentication still applies. The proxy fix awaits deployment. See the [release ledger](reports/hosted-release-readiness-2026-11-17.json).
