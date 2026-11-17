@@ -212,6 +212,8 @@ Planning estimate: composition 3–5 focused hours, chamber 4–8, state/inspect
 
 **Research limitations:** repository files and Neil's pasted group discussion supplied product context; no new external group-chat history was accessed. Public pages are cited above; some visual sites could not be fetched and are labeled accordingly. No market-size estimate for the eligible niche is established. No customer interview, live funded human delivery, new production transaction, or current-laptop performance benchmark is claimed.
 
+**Preview verification completed:** isolated headless Chrome passed correct delivery, one-cent rejection, missing report, reset during a pending run, pause/resume and reduced-motion checks. Layout checks found no horizontal overflow at 1920×1080, 1280×720 and 390×844; the initial 1440-wide layout was also captured. Screenshots were visually inspected. The scene reported 18 finite-position bodies and 43 draw calls, with no JavaScript page errors. This is prototype QA, not a performance benchmark on the proving laptop or validation of a real payment. Evidence: `C:/Users/Neil/reports/proof-chamber/qa-results.json` and the adjacent PNGs.
+
 ### J. Conflicts and handoff to Claude
 
 1. **Visual hierarchy changes:** earlier equal buyer/vault/solver columns become a dominant chamber with contextual panels and evidence drawer. This is the proposed response to Neil's dissatisfaction.
