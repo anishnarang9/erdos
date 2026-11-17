@@ -51,7 +51,8 @@ export function EvidenceInspector({ onClose }: { onClose: () => void }) {
   if (!txs.some((t) => t.label === "fund") && job?.chain?.fundTx) txs.push({ label: "fund", hash: job.chain.fundTx });
   if (sub?.submitTx) txs.push({ label: "submit (proof accepted)", hash: sub.submitTx });
   if (sub?.releaseTx) txs.push({ label: "release (payout + key)", hash: sub.releaseTx });
-  if (refundOp?.steps[0]?.txHash) txs.push({ label: "refund", hash: refundOp.steps[0].txHash });
+  const refundTx = refundOp?.steps[0]?.txHash ?? sub?.refundTx;
+  if (refundTx) txs.push({ label: "refund", hash: refundTx });
 
   const tabs = (
     <div className="tabs" role="tablist">

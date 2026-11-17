@@ -713,6 +713,13 @@ export function registerMarketRoutes(ctx: RouteContext): void {
     const released = hookEvent("KeyReleased");
     const a = accepted ? (JSON.parse(accepted.args_json) as Record<string, string>) : null;
     const r = released ? (JSON.parse(released.args_json) as Record<string, string>) : null;
+    // The escrow core's Refunded event: lets any session show a refund, not only the one that claimed it.
+    const refunded = deps.db
+      .prepare(
+        `SELECT tx_hash FROM events WHERE chain_id = ? AND address = ? AND job_id = ? AND contract = 'core' AND name = 'Refunded'
+         ORDER BY block DESC, log_index DESC LIMIT 1`,
+      )
+      .get(link.chain_id, lower(link.core), link.chain_job_id) as { tx_hash: string } | undefined;
     const { status, source } = await chainStatus(deps, link);
     return c.json({
       jobId: job.id,
@@ -724,6 +731,7 @@ export function registerMarketRoutes(ctx: RouteContext): void {
       keyCommitment: a?.keyCommitment ?? null,
       releaseTx: released?.tx_hash ?? null,
       key: r?.key ?? null,
+      refundTx: refunded?.tx_hash ?? null,
     });
   };
 
