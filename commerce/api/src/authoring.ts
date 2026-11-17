@@ -4,6 +4,7 @@ import { readdir, readFile, rm, stat } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { join, relative, sep } from "node:path";
 import type { Handler } from "hono";
+import canonicalize from "canonicalize";
 import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { tx } from "./db.ts";
@@ -12,7 +13,8 @@ import { expensiveGuard } from "./limits.ts";
 import { ownerWallet, requireOwnedJob } from "./ownership.ts";
 import type { RouteContext } from "./routes.ts";
 import type { Idempotency } from "./idempotency.ts";
-import { ModelError, parseModelDraft, type DraftModelInput, type DraftOutput, type ModelDraft } from "./grok.ts";
+import { DRAFT_TIMEOUT_MS, ModelError, draftPromptVersion, parseModelDraft, type DraftModelInput, type DraftModelResult, type DraftOutput, type ModelDraft } from "./grok.ts";
+import { noteDraftDispatch, noteDraftUsage, quoteAuthoringCost, usageComplete } from "./tasks.ts";
 import { parseManifest, EngineError, isCliCompileResult, type Manifest } from "./engine.ts";
 import { artifactBinding, requireRealArtifact } from "./artifact.ts";
 import {
@@ -49,19 +51,26 @@ export const MAX_EVAL_EXAMPLES = 8;
 
 const DRAFT_KEYS = ["request", "outputs", "references", "clarifications", "expirySeconds", "maxBudget"];
 const MAX_REQUEST_CHARS = 8000;
-/** At most this many characters of each reference file are shown to the draft model. */
-export const MAX_REFERENCE_TEXT = 8192;
+const CATALOG_VERSION = createHash("sha256").update(canonicalize(ENGINE_CATALOG) ?? "", "utf8").digest("hex");
 
-/** A reference file as the model sees it: UTF-8 text (truncated), or a one-line summary for binary data. */
+/** The full UTF-8 text of a reference file. Binary data throws so the caller does not invent a summary. */
 export function referenceText(content: Uint8Array): string {
-  let text: string;
-  try {
-    text = new TextDecoder("utf-8", { fatal: true }).decode(content);
-  } catch {
-    return `<binary file, ${content.byteLength} bytes, sha256 ${createHash("sha256").update(content).digest("hex")}>`;
-  }
-  return text.length > MAX_REFERENCE_TEXT ? text.slice(0, MAX_REFERENCE_TEXT) + `
-<truncated: ${text.length} characters in total>` : text;
+  return new TextDecoder("utf-8", { fatal: true }).decode(content);
+}
+
+function quoteFound(path: string, quote: string, request: string, files: { name: string; text: string }[]): boolean {
+  if (quote.length === 0) return false;
+  if (path === "/request" || path === "request") return request.includes(quote);
+  const named = files.find((file) => file.name === path);
+  if (named) return named.text.includes(quote);
+  return false;
+}
+
+function exampleCounts(examples: { predictedVerdict: 0 | 1 }[]): { positive: number; negative: number } {
+  return {
+    positive: examples.filter((item) => item.predictedVerdict === 1).length,
+    negative: examples.filter((item) => item.predictedVerdict === 0).length,
+  };
 }
 const MAX_CLARIFICATION_ROUNDS = 2;
 
@@ -180,40 +189,118 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     const body = parseDraftBody(c.get("json"));
     const requestJson = JSON.stringify(c.get("json"));
     const draftId = newId();
-    const input: DraftModelInput = {
+    const referenceFiles: { name: string; text: string }[] = [];
+    const refErrors: FieldError[] = [];
+    body.references.forEach((file, index) => {
+      try {
+        referenceFiles.push({ name: file.name, text: referenceText(file.content) });
+      } catch {
+        refErrors.push({ path: `/references/${index}`, message: "file is not UTF-8 text" });
+      }
+    });
+    if (refErrors.length > 0) throw invalid(refErrors);
+    const baseInput: DraftModelInput = {
       request: body.request,
       outputs: body.outputs,
-      referenceNames: body.references.map((f) => f.name),
-      referenceFiles: body.references.map((f) => ({ name: f.name, text: referenceText(f.content) })),
+      referenceNames: body.references.map((file) => file.name),
+      referenceFiles,
       clarifications: body.clarifications,
       schema: PLAN_SCHEMA,
       catalog: ENGINE_CATALOG,
     };
+    const taskId = c.get("taskId") ?? "";
+    const started = deps.now();
+    const attempts: { reply: DraftModelResult; result: ModelDraft }[] = [];
 
-    let reply: { result: ModelDraft; model: string; traceId: string };
-    try {
-      reply = await model.draft(input);
+    const persistUsage = (): void => {
+      if (taskId === "" || !deps.budget) return;
+      noteDraftUsage(deps.db, taskId, JSON.stringify(attempts.map((item) => item.reply.usage ?? null)), isoAt(deps.now()));
+    };
+    const callModel = async (input: DraftModelInput): Promise<{ reply: DraftModelResult; result: ModelDraft }> => {
+      if (taskId !== "" && deps.budget) noteDraftDispatch(deps.db, taskId, isoAt(deps.now()));
+      const reply = await model.draft(input);
       if (typeof reply?.model !== "string" || typeof reply.traceId !== "string") throw new ModelError("invalid_reply");
-      reply = { ...reply, result: parseModelDraft(reply.result) };
-    } catch (err) {
-      // Every call is recorded, failures included. ModelError messages never carry the API key.
+      return { reply: { ...reply, result: parseModelDraft(reply.result) }, result: parseModelDraft(reply.result) };
+    };
+    const failCall = (err: unknown): never => {
       const reason = err instanceof ModelError ? err.reason : "error";
       const at = isoAt(deps.now());
       tx(deps.db, () => insertDraft.run(draftId, requestJson, JSON.stringify({ error: { code: "model_failed", reason } }), null, null, null, at, owner));
       throw modelFailure(reason);
-    }
+    };
 
-    const { result } = reply;
-    let response: Record<string, unknown>;
-    let hash: string | null = null;
-    if (result.kind === "clarification") {
-      response =
-        body.clarifications.length >= MAX_CLARIFICATION_ROUNDS
+    let first: { reply: DraftModelResult; result: ModelDraft };
+    try {
+      first = await callModel(baseInput);
+    } catch (err) {
+      first = failCall(err);
+    }
+    attempts.push(first);
+    persistUsage();
+
+    type Assessment = {
+      attempt: { reply: DraftModelResult; result: ModelDraft };
+      response: Record<string, unknown>;
+      hash: string | null;
+      fatal: boolean;
+      feedback?: NonNullable<DraftModelInput["repair"]>;
+    };
+    const assess = async (attempt: { reply: DraftModelResult; result: ModelDraft }): Promise<Assessment> => {
+      const { result, reply } = attempt;
+      if (result.kind === "clarification") {
+        const response = body.clarifications.length >= MAX_CLARIFICATION_ROUNDS
           ? { kind: "unsupported", draftId, reason: "clarification_limit" }
           : { kind: "clarification", draftId, questions: result.questions, round: body.clarifications.length + 1 };
-    } else if (result.kind === "unsupported") {
-      response = { kind: "unsupported", draftId, reason: result.reason };
-    } else {
+        return { attempt, response, hash: null, fatal: false };
+      }
+      if (result.kind === "unsupported") {
+        return { attempt, response: { kind: "unsupported", draftId, reason: result.reason }, hash: null, fatal: false };
+      }
+      const hashErrors = checkHashable(result.plan, "/plan");
+      if (hashErrors.length > 0) {
+        return {
+          attempt,
+          response: { kind: "unsupported", draftId, reason: "plan_invalid", errors: hashErrors },
+          hash: null,
+          fatal: true,
+          feedback: { attempt: 1, reason: "plan_invalid", errors: hashErrors, counterexamples: [] },
+        };
+      }
+      let verdict: Awaited<ReturnType<Deps["engine"]["validate"]>>;
+      try {
+        verdict = await deps.engine.validate(result.plan);
+      } catch (err) {
+        engineFailure(err);
+      }
+      if (!verdict.ok && verdict.kind === "unsupported") {
+        return {
+          attempt,
+          response: { kind: "unsupported", draftId, reason: "capability_unsupported", capabilityError: verdict.capabilityError },
+          hash: null,
+          fatal: false,
+        };
+      }
+      if (!verdict.ok) {
+        return {
+          attempt,
+          response: { kind: "unsupported", draftId, reason: "plan_invalid", errors: verdict.errors },
+          hash: null,
+          fatal: false,
+          feedback: { attempt: 1, reason: "plan_invalid", errors: verdict.errors, counterexamples: [] },
+        };
+      }
+      const fileErrors = checkPlanFiles(result.plan, body.outputs, body.references.length > 0 ? body.references.map((file) => file.name) : null);
+      if (fileErrors.length > 0) {
+        return {
+          attempt,
+          response: { kind: "unsupported", draftId, reason: "plan_invalid", errors: fileErrors },
+          hash: null,
+          fatal: false,
+          feedback: { attempt: 1, reason: "file_errors", errors: fileErrors, counterexamples: [] },
+        };
+      }
+      const examples = await labelExamples(result, body.references);
+      const counts = exampleCounts(result.examples);
       const revision: Revision = {
         plan: result.plan,
         referenceDigest: referenceDigestOf(body.references),
@@ -221,46 +308,120 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         expirySeconds: body.expirySeconds,
         maxBudget: body.maxBudget,
       };
-      // A plan JCS cannot hash is a reply that fails validation.
-      if (checkHashable(result.plan, "/plan").length > 0) throw modelFailure("plan_not_hashable");
-      let verdict: Awaited<ReturnType<Deps["engine"]["validate"]>>;
+      const hash = revisionHash(revision);
+      const response: Record<string, unknown> = {
+        kind: "draft",
+        draftId,
+        revision,
+        revisionHash: hash,
+        engine: verdict.hashes
+          ? { structureHash: verdict.hashes.structureHash.toLowerCase(), rulesHash: verdict.hashes.rulesHash.toLowerCase() }
+          : null,
+        preview: verdict.preview ?? null,
+        examples,
+        sourceQuotes: result.sourceQuotes,
+        model: reply.model,
+        traceId: reply.traceId,
+      };
+      if (counts.positive > 0 && counts.negative > 0) return { attempt, response, hash, fatal: false };
+      const errors: FieldError[] = [];
+      if (counts.positive === 0) errors.push({ path: "/examples", message: "A positive example is required" });
+      if (counts.negative === 0) errors.push({ path: "/examples", message: "A negative example is required" });
+      const counterexamples = examples.flatMap((item) => {
+        const name = item.name;
+        const predicted = item.predictedVerdict;
+        if (typeof name !== "string" || (predicted !== 0 && predicted !== 1)) return [];
+        const checker = item.checkerVerdict;
+        const checkerVerdict: 0 | 1 | null = checker === 0 ? 0 : checker === 1 ? 1 : null;
+        return [{
+          name,
+          predictedVerdict: predicted as 0 | 1,
+          checkerVerdict,
+          checkerError: typeof item.checkerError === "string" ? item.checkerError : null,
+        }];
+      });
+      return {
+        attempt,
+        response,
+        hash,
+        fatal: false,
+        feedback: { attempt: 1, reason: "examples", errors, counterexamples },
+      };
+    };
+
+    let chosen = await assess(first);
+    let repairFailed = false;
+    const canRepair = Boolean(chosen.feedback) && usageComplete(first.reply.usage) && deps.now() - started < DRAFT_TIMEOUT_MS;
+    if (chosen.fatal && !canRepair) throw modelFailure("plan_not_hashable");
+    if (canRepair && chosen.feedback) {
       try {
-        verdict = await deps.engine.validate(result.plan);
-      } catch (err) {
-        engineFailure(err);
-      }
-      const fileErrors = verdict.ok
-        ? checkPlanFiles(result.plan, body.outputs, body.references.length > 0 ? body.references.map((f) => f.name) : null)
-        : [];
-      if (!verdict.ok) {
-        response =
-          verdict.kind === "unsupported"
-            ? { kind: "unsupported", draftId, reason: "capability_unsupported", capabilityError: verdict.capabilityError }
-            : { kind: "unsupported", draftId, reason: "plan_invalid", errors: verdict.errors };
-      } else if (fileErrors.length > 0) {
-        response = { kind: "unsupported", draftId, reason: "plan_invalid", errors: fileErrors };
-      } else {
-        hash = revisionHash(revision);
-        response = {
-          kind: "draft",
-          draftId,
-          revision,
-          revisionHash: hash,
-          engine: verdict.hashes
-            ? { structureHash: verdict.hashes.structureHash.toLowerCase(), rulesHash: verdict.hashes.rulesHash.toLowerCase() }
-            : null,
-          preview: verdict.preview ?? null,
-          examples: await labelExamples(result, body.references),
-          sourceQuotes: result.sourceQuotes,
-          model: reply.model,
-          traceId: reply.traceId,
-        };
+        const second = await callModel({ ...baseInput, repair: chosen.feedback });
+        attempts.push(second);
+        persistUsage();
+        chosen = await assess(second);
+      } catch {
+        repairFailed = true;
       }
     }
+    if (chosen.fatal) throw modelFailure("plan_not_hashable");
+
+    const reply = chosen.attempt.reply;
+    const result = chosen.attempt.result;
+    let response = chosen.response;
+    if (deps.budget) {
+      let microUsd = 0;
+      let known = !repairFailed && attempts.length > 0;
+      for (const item of attempts) {
+        const cost = item.reply.usage && deps.budget ? quoteAuthoringCost(item.reply.usage, deps.budget) : null;
+        if (cost === null) known = false;
+        else microUsd += cost;
+      }
+      response = {
+        ...response,
+        billing: known && Number.isSafeInteger(microUsd) ? { state: "settled", microUsd } : { state: "uncertain" },
+      };
+    }
+    if (response.kind === "draft" && result.kind === "draft") {
+      const quoteVerification = result.sourceQuotes.map((item) => ({
+        path: item.path,
+        quote: item.quote,
+        found: quoteFound(item.path, item.quote, body.request, referenceFiles),
+      }));
+      const rules = isPlainObject(result.plan) && Array.isArray(result.plan.rules) ? result.plan.rules.length : 0;
+      const counts = exampleCounts(result.examples);
+      const omissions: string[] = [];
+      if (quoteVerification.some((item) => !item.found)) omissions.push("A source quote was not found in the supplied text.");
+      if (counts.positive === 0) omissions.push("No positive example is present.");
+      if (counts.negative === 0) omissions.push("No negative example is present.");
+      if (rules === 0) omissions.push("The plan has no rules.");
+      response = {
+        ...response,
+        quoteVerification,
+        coverage: {
+          ruleCount: rules,
+          positiveExamples: counts.positive,
+          negativeExamples: counts.negative,
+          omissions,
+          assumptions: rules > 0 ? ["The service does not map each rule to one requirement."] : [],
+        },
+        qualification: {
+          model: reply.model,
+          promptVersion: draftPromptVersion(),
+          catalogVersion: CATALOG_VERSION,
+          latencyMs: Math.max(0, deps.now() - started),
+          repairCount: repairFailed ? 1 : Math.max(0, attempts.length - 1),
+          usage: attempts.map((item) => item.reply.usage ?? null),
+        },
+      };
+    }
     const at = isoAt(deps.now());
-    const stored = JSON.stringify({ response, modelResult: result });
+    const stored = JSON.stringify({
+      response,
+      modelResult: result,
+      attempts: attempts.map((item) => ({ result: item.result, model: item.reply.model, traceId: item.reply.traceId, usage: item.reply.usage ?? null })),
+    });
     return commit(c, 200, response, () => {
-      insertDraft.run(draftId, requestJson, stored, reply.model, reply.traceId, hash, at, owner);
+      insertDraft.run(draftId, requestJson, stored, reply.model, reply.traceId, chosen.hash, at, owner);
     });
   };
 

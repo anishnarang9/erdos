@@ -5,6 +5,7 @@ import { ApiError, ERROR_STATUS, type ErrorCode } from "./errors.ts";
 import { tx } from "./db.ts";
 import { isoAt, parseJson, readBody, sha256, ULID_RE, type AppContext, type AppEnv, type Deps, type Principal } from "./context.ts";
 import { requireApiKey } from "./identity.ts";
+import type { ModelUsage } from "./grok.ts";
 import { expensiveGuard } from "./limits.ts";
 import { isPlainObject } from "./revision.ts";
 import type { RouteContext } from "./routes.ts";
@@ -79,12 +80,13 @@ function taskError(err: unknown): { code: string; message: string; details?: Rec
   return { code: "internal", message: "Internal server error" };
 }
 
-function taskContext(wallet: string, json: unknown, jobId = ""): AppContext {
+function taskContext(wallet: string, json: unknown, jobId = "", taskId = ""): AppContext {
   const principal: Principal = { kind: "wallet", wallet, keyId: "task", scopes: ["buyer"] };
   const values = new Map<string, unknown>([
     ["principal", principal],
     ["caller", wallet],
     ["json", json],
+    ["taskId", taskId],
   ]);
   return {
     get: (key: string) => values.get(key),
@@ -93,6 +95,48 @@ function taskContext(wallet: string, json: unknown, jobId = ""): AppContext {
     },
     req: { param: (name: string) => (name === "id" ? jobId : undefined) },
   } as unknown as AppContext;
+}
+
+export function usageComplete(usage: ModelUsage | null | undefined): usage is ModelUsage {
+  if (!usage) return false;
+  if (!Number.isSafeInteger(usage.promptTokens) || usage.promptTokens < 0) return false;
+  if (!Number.isSafeInteger(usage.completionTokens) || usage.completionTokens < 0) return false;
+  if (usage.cachedTokens !== null && (!Number.isSafeInteger(usage.cachedTokens) || usage.cachedTokens < 0 || usage.cachedTokens > usage.promptTokens)) return false;
+  if (usage.reasoningTokens !== null && (!Number.isSafeInteger(usage.reasoningTokens) || usage.reasoningTokens < 0 || usage.reasoningTokens > usage.completionTokens)) return false;
+  return true;
+}
+
+function ceilTokens(tokens: number, microUsdPerMillion: number): number | null {
+  if (tokens === 0) return 0;
+  if (microUsdPerMillion <= 0 || tokens > Math.floor(Number.MAX_SAFE_INTEGER / microUsdPerMillion)) return null;
+  return Math.ceil((tokens * microUsdPerMillion) / 1_000_000);
+}
+
+/** Prices the provider token counts. Missing or inconsistent usage returns null. Ticks are ignored. */
+export function quoteAuthoringCost(usage: ModelUsage, budget: NonNullable<Deps["budget"]>): number | null {
+  if (!usageComplete(usage)) return null;
+  const cached = usage.cachedTokens ?? 0;
+  const cachedPrice = budget.cachedInputMicroUsdPerMillion ?? budget.inputMicroUsdPerMillion;
+  const parts = [
+    ceilTokens(usage.promptTokens - cached, budget.inputMicroUsdPerMillion),
+    ceilTokens(cached, cachedPrice),
+    ceilTokens(usage.completionTokens, budget.outputMicroUsdPerMillion),
+  ];
+  if (parts.some((part) => part === null)) return null;
+  const sum = (parts as number[]).reduce((total, part) => total + part, 0);
+  return Number.isSafeInteger(sum) && sum >= 0 ? sum : null;
+}
+
+export function noteDraftDispatch(db: Deps["db"], taskId: string, at: string): void {
+  db.prepare(
+    "UPDATE spend_reservations SET dispatched_at = COALESCE(dispatched_at, ?), updated_at = ? WHERE task_id = ? AND state = 'reserved'",
+  ).run(at, at, taskId);
+}
+
+export function noteDraftUsage(db: Deps["db"], taskId: string, usageJson: string, at: string): void {
+  db.prepare(
+    "UPDATE spend_reservations SET usage_json = ?, updated_at = ? WHERE task_id = ? AND state = 'reserved'",
+  ).run(usageJson, at, taskId);
 }
 
 /** Accepts a positive integer price. Zero is not a price. */
@@ -162,9 +206,13 @@ export function registerTaskRoutes(
   const settleUnknown = db.prepare(
     "UPDATE spend_reservations SET state = 'uncertain', updated_at = ? WHERE task_id = ? AND state = 'reserved'",
   );
-  const releaseReservation = db.prepare(
-    "UPDATE spend_reservations SET state = 'released', updated_at = ? WHERE task_id = ? AND state = 'reserved'",
+  const settleKnown = db.prepare(
+    "UPDATE spend_reservations SET state = 'settled', settled_micro_usd = ?, updated_at = ? WHERE task_id = ? AND state = 'reserved' AND ? <= ceiling_micro_usd",
   );
+  const releaseReservation = db.prepare(
+    "UPDATE spend_reservations SET state = 'released', updated_at = ? WHERE task_id = ? AND state = 'reserved' AND dispatched_at IS NULL",
+  );
+  const dispatchState = db.prepare("SELECT dispatched_at FROM spend_reservations WHERE task_id = ?");
 
   const walletOf = (c: AppContext): string => {
     const principal = c.get("principal");
@@ -261,7 +309,7 @@ export function registerTaskRoutes(
       if (!owned || owned.owner_wallet !== row.owner_wallet) throw new ApiError("not_found", "Job not found");
     }
     const response = row.operation === "draft"
-      ? await handlers.draft(taskContext(row.owner_wallet, input), async () => {})
+      ? await handlers.draft(taskContext(row.owner_wallet, input, "", row.id), async () => {})
       : await handlers.compile(
           taskContext(row.owner_wallet, { revisionHash: (input as { revisionHash: string }).revisionHash }, (input as { jobId: string }).jobId),
           async () => {},
@@ -295,16 +343,26 @@ export function registerTaskRoutes(
 
   const runOne = async (row: TaskRow): Promise<void> => {
     const at = () => isoAt(deps.now());
+    const applyBilling = (result: unknown, id: string): void => {
+      const billing = isPlainObject(result) && isPlainObject(result.billing) ? result.billing : null;
+      const microUsd = billing?.microUsd;
+      if (billing?.state === "settled" && Number.isSafeInteger(microUsd) && (microUsd as number) >= 0) {
+        const updated = settleKnown.run(microUsd as number, at(), id, microUsd as number);
+        if (Number(updated.changes) === 1) return;
+      }
+      settleUnknown.run(at(), id);
+    };
     const work = async (): Promise<void> => {
       try {
         const result = await execute(row);
         finish.run("succeeded", JSON.stringify(result), null, at(), row.id);
-        if (row.operation === "draft") settleUnknown.run(at(), row.id);
+        if (row.operation === "draft") applyBilling(result, row.id);
       } catch (err) {
         const error = taskError(err);
         finish.run("failed", null, JSON.stringify(error), at(), row.id);
         if (row.operation !== "draft") return;
-        if (RELEASE_CODES.has(error.code)) releaseReservation.run(at(), row.id);
+        const dispatched = dispatchState.get(row.id) as { dispatched_at: string | null } | undefined;
+        if (!dispatched?.dispatched_at && RELEASE_CODES.has(error.code)) releaseReservation.run(at(), row.id);
         else settleUnknown.run(at(), row.id);
       }
     };
