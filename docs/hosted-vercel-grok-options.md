@@ -4,13 +4,31 @@ Reviewed 2026-11-17. The user selected Vercel and requested roughly $0.10 per us
 
 ## Current account and hosting recommendation
 
+Latest correction: Vercel is a viable target after adapting this backend. The user asked why it could not stay there. The initial recommendation did not inspect Sandbox's Docker support. The [official Docker announcement](https://vercel.com/changelog/run-docker-containers-inside-vercel-sandbox) explicitly supports installing Docker and running its daemon inside a Sandbox. Its August update uses Ubuntu-based managed images. Do not treat a second provider as a prerequisite.
+
+Prioritize a compatibility check for the user's Vercel preference. The proposed mapping is:
+
+| Current implementation | Vercel-oriented replacement |
+| --- | --- |
+| HTTP API process | Vercel HTTP service or Functions |
+| Local synchronous SQLite/WAL database | Managed relational database through Marketplace, such as Neon Postgres |
+| Local committed package files | Vercel Blob with immutable identities and controlled access |
+| Process-local task pump and compiler ownership | Durable queue/workflow with database-backed claims and spend reservations |
+| Host Docker socket and BuildKit cache | Bounded Vercel Sandbox running Docker, with reviewed snapshot/cache handling |
+
+[Marketplace storage](https://vercel.com/docs/storage) supports relational databases and Vercel-managed credentials. Sandbox Docker support establishes platform capability. It does not prove this RISC Zero toolchain's nested BuildKit settings, resource limits, native executable, image pulls, prewarm, cancellation or artifact round trip. Check those before the database migration. Preserve one compiler allocation and exact toolchain/image pins. Keep signers and model credentials outside the compiler sandbox.
+
+A Sandbox is not the primary database. Its [duration and persistence guide](https://vercel.com/kb/guide/vercel-sandbox-duration-and-persistence) describes session limits, snapshots and Drives. Keep durable ownership, idempotency, payments and spending state in the database. Keep accepted package bytes in durable object storage. A task restart must resume or reconcile instead of creating duplicate compiler work or model charges.
+
+This is a change from the current single-host deployment design. It requires implementation and new restart, concurrency, budget and recovery tests. No compatibility run or migration occurred. First confirm account quotas and a bounded test budget, then test the exact compiler in Sandbox. Keep the DigitalOcean quote below as an optional route that avoids migration. The user did not approve that paid server.
+
 Update 2026-11-17: The user completed Vercel login and asked for the best hosting provider. Read-only `vercel whoami` succeeds as `anishnarang9`. The selected team is `anishnarang9s-projects`. No UBC-26 project appears in its current project list. The team domain list is empty. Existing unrelated projects remain untouched.
 
-Recommend a DigitalOcean Basic Droplet for the API, SQLite state, packages and Docker compiler. The [current regular-CPU price](https://www.digitalocean.com/pricing/droplets) is $48/month for four shared vCPUs, 8 GiB RAM, 160 GiB SSD and 5,000 GiB transfer. Compute accrues at $0.07143/hour equivalent, about $1.71 for 24 hours, up to the plan's monthly cap. These are provider list prices, not measured compiler performance.
+The earlier minimal-migration recommendation was a DigitalOcean Basic Droplet for the API, SQLite state, packages and Docker compiler. The [current regular-CPU price](https://www.digitalocean.com/pricing/droplets) is $48/month for four shared vCPUs, 8 GiB RAM, 160 GiB SSD and 5,000 GiB transfer. Compute accrues at $0.07143/hour equivalent, about $1.71 for 24 hours, up to the plan's monthly cap. These are provider list prices, not measured compiler performance.
 
 [Weekly system backups](https://docs.digitalocean.com/products/backups/details/pricing/) cost 20% of compute, giving $9.60 for a full $48 month. Combined base compute and weekly backup cost is $57.60/month before tax, model use, domain charges or usage beyond the included allowances. The service's quiesced SQLite/package backup and restore procedure remains required. Provider image backups alone do not replace that procedure.
 
-This recommendation keeps the verified persistent-host architecture. It avoids the managed-database migration and unverified Docker execution boundary on Vercel. Keep Vercel available for Neil's later frontend. The current backend can serve HTTPS directly through its prepared Caddy ingress. No proxy or UI work is required to release the API.
+The VPS option keeps the verified persistent-host architecture. It avoids the managed-database migration and unverified Docker execution boundary on Vercel. Keep Vercel available for Neil's later frontend. The current backend can serve HTTPS directly through its prepared Caddy ingress. No proxy or UI work is required to release the API.
 
 The user has not selected or funded DigitalOcean. Neither `doctl` nor `hcloud` is installed. No paid server, backup plan, Vercel project or deployment was created. Requested approval of the concrete compute/backup budget or selection of a cheaper provider/Vercel migration. Once approved, establish the chosen provider's authenticated access before provisioning.
 
@@ -72,15 +90,15 @@ First optimize the existing plan format. Introduce a smaller intermediate format
 
 Vercel now offers a [Container Runtime](https://vercel.com/docs/functions/runtimes/container) and [Daemons](https://vercel.com/docs/daemons). A blanket claim that Vercel cannot run backend containers is stale. However, [daemon limits](https://vercel.com/docs/daemons/limits) exclude persistent local storage and inbound HTTP. Daemons need a separate HTTP service and durable external storage.
 
-The current backend stores SQLite state and packages locally. It also uses a host Docker socket and a dedicated BuildKit compiler with persistent cache. Building a Dockerfile on Vercel does not establish access to that production host socket. Compatibility with this compiler remains unverified.
+The current backend stores SQLite state and packages locally. It also uses a host Docker socket and a dedicated BuildKit compiler with persistent cache. Building a Dockerfile on Vercel does not establish access to that production host socket. Compatibility with this compiler remains unverified. Sandbox explicitly supports a Docker daemon, as described in the latest correction above.
 
 | Option | Work required | Assessment |
 | --- | --- | --- |
-| Vercel public app plus persistent Linux API/compiler | Deploy the verified backend, configure public origins and test ingress | Recommended shortest route. Keeps existing state and compiler recovery. Requires a second hosting provider. |
-| Vercel HTTP service plus managed database/artifacts and compiler service | Replace synchronous SQLite transactions, package storage and process-local task coordination. Review the compiler execution boundary. | Larger migration. Requires fresh runtime, restart, ownership and spending qualification. A compiler may still need another provider. |
+| Vercel public app plus persistent Linux API/compiler | Deploy the verified backend, configure public origins and test ingress | Least migration for the existing candidate. Keeps state and compiler recovery. Requires a second hosting provider. |
+| Vercel HTTP service plus managed database/artifacts and Sandbox compiler | Replace synchronous SQLite transactions, package storage and process-local task coordination. Verify exact compiler behavior inside Sandbox. | Larger migration. Requires fresh runtime, restart, ownership and spending qualification. Can potentially keep compute and orchestration on Vercel. |
 
 The user's Vercel preference is confirmed. Neither topology is a completed deployment. Confirm whether a supporting host is acceptable before starting a storage migration or provisioning infrastructure. Do not deploy local SQLite on disposable container storage.
 
 Initial read-only access discovery found Vercel CLI 49.1.0 without credentials. The later authenticated result appears above. No Vercel project was created. Hosting provider choice and budget remain pending. Use the account's assigned hostname first if no custom domain is needed. Credentials belong in a secure local or provider configuration, not repository files or chat.
 
-Next: select the deployment topology, authenticate the intended Vercel account, verify project limits, and implement the reviewed bounded-input/session-budget design. Public deployment, genuine model trials and final independent review remain open.
+Next: inspect Vercel account quotas and prepare a bounded exact-compiler Sandbox check. If that passes, implement the managed-state/task migration and reviewed bounded-input/session-budget design. Public deployment, genuine model trials and final independent review remain open.

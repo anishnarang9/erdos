@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 04:10 -05:00 — Anish — Correct the Vercel compiler assessment
+
+- The user asked why the backend cannot remain on Vercel. It can remain there after adapting the current single-host design. The earlier recommendation missed official Vercel Sandbox Docker-daemon support. A second hosting provider is not an established requirement. The user did not approve DigitalOcean spending.
+- The [updated options](../../docs/hosted-vercel-grok-options.md) prioritize a Vercel compatibility check: API service/Functions, managed relational database, Blob artifacts, durable task orchestration and Docker compilation inside Sandbox. Repository inspection confirms current synchronous SQLite/WAL, local files and host-socket dependencies. The exact RISC Zero/BuildKit limits and lifecycle still need a real compatibility run.
+- First inspect account limits and prepare a bounded Sandbox test. Preserve immutable compiler pins, one compiler, cancellation, owner isolation and uncertain-charge reconciliation. No managed resources, sandbox sessions, paid calls, deployments or chain actions ran. Source candidate remains `20b0dc2`. This is platform evidence and a corrected next action, not a migration or deployment pass. Existing host/model/budget/live acceptance and independent review gates stay open.
+
 ## 2026-11-17 04:08 -05:00 — Anish — Verify Vercel login and propose the backend host
 
 - The user completed Vercel login and asked which provider best fits the service. `vercel whoami` succeeds as `anishnarang9`. Team `anishnarang9s-projects` is selected. Current projects contain no UBC-26 deployment. The selected team lists no custom domains. No existing project changed.
