@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-16 23:54 -05:00 — Anish — Drain and signed example transport integrated
+
+- Integrated runtime `1b76ab9`, `c943cfb` and `e985a22` as `df64bfc`, `bfe6cf9` and `f225639`. Shutdown stops new work, cancels owned process groups and reconciles durable tasks before closing SQLite. Migration 016 preserves historical charges and creates missing unresolved breach halts. The engine adapter now passes bounded example evidence and exact context to the real CLI.
+- Preserved the independent UTF-8 stream decoder repair while resolving the integration conflict. API typecheck and all 851 API tests pass, including shutdown, cancellation, evidence/context transport and historical backfill. Integrated B's independent review as `e5a41b4`. Its concrete transport finding is addressed by the runtime change.
+- Worker A continues real digest pins and readiness. Worker B checks fractional micro-USD accounting in the qualification harness. The coordinator continues coverage, immutable buyer checks and the shared authoring deadline. No model call, guest compilation, proof or chain action occurred.
+
 ## 2026-11-16 23:53 -05:00 — Anish — Bound all billable model tokens before dispatch
 
 - Corrected the provider contract. Visible completion limits exclude reasoning. Public authoring now rejects reasoning or unknown live adapters without a reviewed total bound. Exact dated non-reasoning Grok also prices its full documented context maximum and highest tier. Low ceilings and underpriced config reject before dispatch. See [model spending bounds](../../docs/hosted-model-costs.md).
