@@ -2,6 +2,8 @@ import canonicalize from "canonicalize";
 import type { Address } from "viem";
 import { ApiError } from "./errors.ts";
 import { isoAt, parseJson, readBody, requireJobId, sha256hex0x, type AppContext, type AppEnv, type Deps } from "./context.ts";
+import { requireOwnedJob } from "./ownership.ts";
+import { expensiveGuard } from "./limits.ts";
 import { tx } from "./db.ts";
 import { isPlainObject } from "./revision.ts";
 import type { RouteContext } from "./routes.ts";
@@ -141,6 +143,7 @@ export function registerX402Routes(
   ctx: RouteContext,
   authoring: ReturnType<typeof authoringHandlers>,
   config: X402Config | undefined,
+  withCompileSlot: <T>(run: () => Promise<T>) => Promise<T>,
 ): void {
   if (config) validateConfig(config);
   const { app, deps, buyer } = ctx;
@@ -150,7 +153,7 @@ export function registerX402Routes(
   const settled = deps.db.prepare("UPDATE x402_payments SET state = 'settled', settlement_json = ?, updated_at = ? WHERE payment_id = ? AND state = 'settling'");
   const complete = deps.db.prepare("UPDATE x402_payments SET state = 'complete', response_status = ?, response_json = ?, updated_at = ? WHERE payment_id = ? AND state = 'settled'");
 
-  app.post("/v1/jobs/:id/paid-compile", readBody, buyer, parseJson, requireJobId, async (c) => {
+  app.post("/v1/jobs/:id/paid-compile", readBody, buyer, parseJson, requireJobId, requireOwnedJob(deps), expensiveGuard(deps), async (c) => {
     if (!config) throw new ApiError("payment_unavailable", "x402 is not configured");
     const body = c.get("json");
     if (!isPlainObject(body) || Object.keys(body).length !== 1 || typeof body.revisionHash !== "string") {
@@ -173,7 +176,7 @@ export function registerX402Routes(
     const quote = { x402Version: 2, resource, accepts: [requirement] };
     const challenge = () => c.json(quote, 402, { "payment-required": encodedHeader(quote) });
     const raw = validPayload(c.req.header("payment-signature"));
-    if (!raw) return stored ? authoring.compile(c, async () => {}) : challenge();
+    if (!raw) return stored ? withCompileSlot(() => authoring.compile(c, async () => {})) : challenge();
     if (!isPlainObject(raw) || raw.x402Version !== 2 || !isPlainObject(raw.payload) ||
         !isPlainObject(raw.resource) || !isPlainObject(raw.accepted) ||
         typeof raw.accepted.network !== "string" || typeof raw.accepted.asset !== "string") {
@@ -203,7 +206,7 @@ export function registerX402Routes(
     if (existing?.state === "settling" || existing?.state === "pending") {
       throw new ApiError("payment_pending", "Payment settlement needs reconciliation before retry");
     }
-    if (!existing && stored) return authoring.compile(c, async () => {});
+    if (!existing && stored) return withCompileSlot(() => authoring.compile(c, async () => {}));
     let settlementJson = existing?.settlement_json ?? null;
     if (!existing) {
       const at = isoAt(deps.now());
@@ -228,7 +231,7 @@ export function registerX402Routes(
       settled.run(settlementJson, isoAt(deps.now()), paymentId);
     }
     if (settlementJson === null) throw new ApiError("internal", "Settled payment has no receipt");
-    return await compileAfterPayment(c, deps, authoring.compile, settlementJson, paymentId, complete);
+    return await withCompileSlot(() => compileAfterPayment(c, deps, authoring.compile, settlementJson, paymentId, complete));
   });
 }
 

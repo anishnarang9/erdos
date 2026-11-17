@@ -25,3 +25,10 @@ The same call with `prompt_tokens` 32 and `completion_tokens` 9, still without t
 No other concrete issue.
 
 `cliEngine.eval` reads `evidence`, `context`, and `signal`. The child argv gains `--evidence` and `--job` when those values are present. Buyer `POST /v1/drafts/:draftId/example-checks` evaluates the stored plan and stored references. A foreign wallet receives 404. A different revision receives 409. An added plan field receives 400. Failed signatures stay at `checkerVerdict` null. `usableExamples` counts verdict 0 only when `agrees` is true. Approval stores the exact check id and coverage digest. SQL triggers abort update and delete of `example_checks`. One draft controller lasts 120000 ms through repair. Public mode rejects an adapter without `outputTokenBound`. The exact non-reasoning adapter prices `1000000` prompt tokens at the higher of the local estimate and that context cap. It also requires the documented highest tier rates.
+
+
+## Coordinator resolution — 2026-11-17
+
+The zero-prompt reproduction identifies a real tariff inconsistency. Every request contains a nonempty prompt and schema. Commit `49d56e9` therefore rejects zero prompt usage for tariff fallback and keeps the bill uncertain. Its regression failed before the fix. An explicit usable actual bill of zero remains authoritative.
+
+The missing reasoning field alone is not the defect for this exact reviewed non-reasoning model. Its documented model contract establishes zero reasoning. Complete positive prompt/output counts can still support a conservative tariff without actual billed ticks. Invalid or absent ticks are not converted to an actual zero charge. Raw billed ticks remain required by real qualification's cost evidence. Other reviewed ownership, witness and deadline checks remain as reported above.

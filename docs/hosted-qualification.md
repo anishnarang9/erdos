@@ -126,6 +126,32 @@ A fresh trial requires a POST, task state `succeeded`, one distinct task id, and
 
 The coordinator integrated request preflight `2a1248c` as `84f4252`. That commit rejects a model call unless the full provider payload fits. This report does not repeat the earlier prompt-budget finding. This worker did not re-test the API.
 
+The harness retains exact billed ticks for qualification. It rounds a known bill up to covering integer micro-USD for reservations. A tariff estimate or missing/invalid actual bill keeps the full reservation. Scope `benchmark` is the only scope that can reserve this ledger. See [current public model spending bounds](hosted-model-costs.md) for the separate service preflight contract.
+
+The harness checks a returned supported plan with the engine. It scores the hidden candidates with the independent oracle. The harness adds no nonce text to a frozen prompt.
+
+The aggregate stays closed without fresh live trials. A pass requires zero false accepts and zero malformed accepts. At least 95 percent of supported trials need semantic agreement after at most one repair. Quotes must be verbatim. Ambiguous drafts must invent no policy. Unsupported drafts must stay off the payable path. Mean actual cost must be below `100000` micro-USD. `fundingApproval` stays false. `qualificationPassed` stays false while `live` is false.
+
+The ledger reserves two attempt prices before the POST. The write is atomic and mode `0600`. A lock covers reservation and the create POST. A second process with the same ledger key performs a GET. The benchmark cap is separate from public service scope.
+
+## Current handler probe
+
+This worker posted the 60 `draftInput` bodies to the local handler from `createApp`. The draft model was a controlled stub. The probe reported `paidTrialsRan` false and `realModelCalls` 0. `controlledModelCalls` was 55. Five envelopes failed before the model.
+
+`seal-1`, `crate-1`, `transfer-1`, and `dual-seal-1` failed at `/exampleFixtures` with message `unknown field`. `firmware-opaque-1` failed at `/references/0` with message `file is not UTF-8 text`. The opaque reference stays in the corpus as raw bytes. The harness still sends those fixtures and that reference.
+
+This probe is a current-handler measurement. It is not the post-integration envelope check. It is not a semantic score. The adapter for fixtures, evidence, preview context, and non-UTF-8 references is absent from the coordinator API source. This worker left `commerce/api` unchanged.
+
+## API billing and metadata
+
+This worker read the coordinator source on 2026-11-16.
+
+`authoringCharge` uses `costInUsdTicks` when that value is a safe nonnegative integer. The conversion raises a partial micro-USD to the next micro-USD. `quoteAuthoringCost` ignores ticks. It remains the tariff fallback. Settlement can record source `actual`, `tariff`, or `mixed`.
+
+Coordinator checkpoint `84f4252` replaces the text-only estimate with the full serialized provider payload and the supported completion maximum. The repair bound includes its feedback. Independent model/task checks pass 6/6 and focused API checks pass 50/50 with typecheck. Spend halt `09a36d4` passes 29 focused API checks and typecheck. Historical-breach migration, child isolation and the request-wide deadline remain open. `loadDeployment` keeps dispatch false.
+
+The handler adds `result.qualification` only when the response kind and the model result kind are both `draft`. Clarification results and unsupported results omit repair count, usage, and trace ids. The public qualification object omits provider trace ids. The drafts table stores attempt trace ids. The task view returns the handler response.
+
 This worker read `commerce/api/src/authoring.ts` in the hosted-backend worktree on 2026-11-16. The draft key list there is `request`, `outputs`, `references`, `clarifications`, `expirySeconds`, and `maxBudget`. `exampleFixtures` is absent from that list. This worker did not edit that tree.
 
 ## Commands
@@ -158,6 +184,8 @@ The coordinator file `agents/anish/reports/hosted-corpus-guests-2026-11-16.json`
 
 Three distinct wallet-owned benchmark keys are absent. The user has not authorized a Grok call. Host, account, and benchmark caps remain pending.
 
+The API draft body still rejects `exampleFixtures`. It still rejects a non-UTF-8 reference before the model. Qualification metadata is still limited to draft results. Provider trace ids are still absent from the task result. The old incomplete prompt bound is repaired at `84f4252`. Signed public fixtures still bind the original checker rules hash. A valid semantically equivalent draft cannot reuse those signatures. See the coordinator signed-preview review. An immutable external witness completion step needs review. This harness keeps dispatch false across that gap.
+
 The buyer example route is a proposal. The coordinator API tree has no such route. `qualificationPassed` stays false. `fundingApproval` stays false.
 
 ## Remaining gaps
@@ -176,3 +204,10 @@ No server benchmark mode is present. Public semantic deduplication stays in plac
 - Frozen prompts gain no nonce text. Public semantic deduplication stays in place.
 - Illustrative fixture contexts stay previews of the hidden plan hash. They do not approve a different plan.
 - Real trials stay 0. Public access and model budgets remain pending.
+
+
+## New frozen signed proof — 2026-11-17
+
+The [signed proof report](../agents/anish/reports/hosted-corpus-signed-proof-2026-11-17.json) covers supported case `seal-1` from the unchanged frozen digest. Its actual Groth16 proof takes 722.818 seconds and 4,418,526 cycles. The pinned Solidity verifier accepts the receipt and rejects four commitment/seal mutations. Both SDK and engine recover exact original bytes. The independent oracle accepts the original and recovered files. The proof uses a synthetic qualification context and no external transaction.
+
+This is one finite new-corpus proof. It supplements the earlier three-schema passing proofs and verdict-0 proof. It does not establish real Grok authoring or a funded hosted-to-solver flow. The release key remains private. Public receipts contain only encrypted results and commitments.

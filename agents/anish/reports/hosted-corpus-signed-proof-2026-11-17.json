@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "status": "passed-frozen-signed-proof-and-dual-recovery",
+  "challenge": "seal-1",
+  "freshProof": true,
+  "syntheticQualificationContext": true,
+  "fundedContext": false,
+  "realModelCalls": 0,
+  "chainTransactions": 0,
+  "startedAt": "2026-11-17T05:34:52.781081+00:00",
+  "sourceCommit": "e7d6aa640e64d67735247790f234fd6956cc5e47",
+  "engineSha256": "fc91a0b12edcbeb0fe1b744a6b6f2b92c9895eecf7de3d9db097287078c9c934",
+  "r0vmSha256": "52651dc0fd0afbe6cf91bf6bf67f7da63c56a1d5f3fdcdda617f9c75e3eae5fd",
+  "dockerObserverWrapperSha256": "9b60ca23b6d6cc13e77d11268e896f6f0544c997bcf89014c852903cc409d414",
+  "r0vmVersion": "risc0-r0vm 3.1.0",
+  "corpusDigest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
+  "manifest": {
+    "imageId": "0x307b8fdbb8c5f079b40f6e0e2c3f164cd1d4813af1a571ceabd408f6556cb262",
+    "rulesHash": "0x3d60fa90aa6ef57319df67b5b34099a9f846d1a235f1b693a4c9564692a980c0",
+    "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+    "structureHash": "0x25ff8c53a712505816181530b0ca0dc7fa5ed8ae2747682f05f83e192505e93c",
+    "guestSha256": "0x9ba5a489a4f52ae899d51fa8fdff1ca98ef4929ce58050de7e1902f9cbecaeaf",
+    "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb"
+  },
+  "guestElfSha256": "9ba5a489a4f52ae899d51fa8fdff1ca98ef4929ce58050de7e1902f9cbecaeaf",
+  "candidate": "valid",
+  "expectedVerdict": 1,
+  "nativeEvalPassed": true,
+  "independentOracleEvidence": "frozen corpus host/oracle/guest report: candidate valid, expected pass",
+  "proveMillis": 722818,
+  "userCycles": 4418526,
+  "proofSha256": "ee9a8a27191319f18852b95df2ea0817d089ffd30324ef679b1d7273df946b75",
+  "recoveredHashes": {
+    "label.txt": "6346ddfb380ad2cffbdd7e3e41088d91e4b5900aeb80a5c5712e7ef381c1ec70"
+  },
+  "engineRecoveryPassed": true,
+  "finishedAt": "2026-11-17T05:46:59.505071+00:00",
+  "validatedAtSource": "2a648efc6038fe2b76f85208db0c1e4887dbcc47",
+  "sdkRecovery": {
+    "status": "sdk-byte-exact-recovery-passed",
+    "hashes": {
+      "label.txt": "6346ddfb380ad2cffbdd7e3e41088d91e4b5900aeb80a5c5712e7ef381c1ec70"
+    }
+  },
+  "independentOracleOriginal": {
+    "status": "pass",
+    "verdict": 1,
+    "violatedRequirements": []
+  },
+  "independentOracleRecovered": {
+    "status": "pass",
+    "verdict": 1,
+    "violatedRequirements": []
+  },
+  "solidityVerification": {
+    "status": "accepted",
+    "sourceRevision": "ff30da77ba4afdd496290ebebedb205348b15d83",
+    "environment": "ephemeral local Ganache Shanghai",
+    "selector": "0xe71e6620",
+    "journalDigest": "0x20c4c2a7251cb18f9a23795f343dd4aab3529b638fae8b1c1ffc9c7796d2fa40",
+    "gasEstimate": 257748,
+    "rejectedMutations": [
+      "image",
+      "journal",
+      "seal",
+      "verdict"
+    ]
+  },
+  "artifact": "hosted-corpus-proofs-2026-11-17/seal-1-proof.json",
+  "scope": "One new frozen signed workload. Synthetic qualification context, no hosted/Grok/funded acceptance. No real wallet or external chain transaction. The release key remains private.",
+  "nativeProverBackgroundNice": 10,
+  "compilerAndProverLocksReleased": true
+}

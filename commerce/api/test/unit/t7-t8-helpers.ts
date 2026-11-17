@@ -175,6 +175,7 @@ export interface Seeded {
 export async function seedCompiled(
   t: MarketApp,
   opts: { plan?: Record<string, unknown>; maxBudget?: string; expirySeconds?: number; manifest?: Partial<SeedManifest> } = {},
+  headers: Record<string, string> = {},
 ): Promise<Seeded> {
   const revision = {
     plan: opts.plan ?? { version: 1 },
@@ -183,7 +184,7 @@ export async function seedCompiled(
     expirySeconds: opts.expirySeconds ?? 600,
     maxBudget: opts.maxBudget ?? "5000000",
   };
-  const res = await buyerReq(t, "/v1/jobs", { revision, source: "import" });
+  const res = await buyerReq(t, "/v1/jobs", { revision, source: "import" }, headers);
   if (res.status !== 201) throw new Error(`seed create failed: ${res.status} ${await res.text()}`);
   const { jobId, revision: rv } = (await res.json()) as { jobId: string; revision: { revisionHash: string } };
   const manifest: SeedManifest = {

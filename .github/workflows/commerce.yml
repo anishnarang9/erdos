@@ -1,10 +1,11 @@
 name: commerce
 
 on:
+  workflow_dispatch:
   push:
-    paths: ["commerce/**", ".github/workflows/commerce.yml"]
+    paths: ["commerce/**", "deploy/**", "docs/hosted-client.md", ".github/workflows/commerce.yml"]
   pull_request:
-    paths: ["commerce/**", ".github/workflows/commerce.yml"]
+    paths: ["commerce/**", "deploy/**", "docs/hosted-client.md", ".github/workflows/commerce.yml"]
 
 permissions:
   contents: read
@@ -24,3 +25,32 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm test
+      - name: Check backup integrity and the relocated API bundle
+        run: |
+          node --test ../deploy/state.test.mjs
+          node ../deploy/build-api.mjs "$RUNNER_TEMP/ubc26-hosted-api/server.mjs"
+      - name: Build the standalone runner from the checked source
+        run: node worker/scripts/package-runner.mjs "$RUNNER_TEMP/ubc26-runner-release"
+      - name: Check an independent Linux installation
+        run: |
+          mkdir "$RUNNER_TEMP/ubc26-runner-download"
+          cp "$RUNNER_TEMP/ubc26-runner-release/ubc26-runner-0.2.0.tgz" "$RUNNER_TEMP/ubc26-runner-release/SHA256SUMS" "$RUNNER_TEMP/ubc26-runner-release/release.json" "$RUNNER_TEMP/ubc26-runner-release/ubc26-release.json" "$RUNNER_TEMP/ubc26-runner-download/"
+          cd "$RUNNER_TEMP/ubc26-runner-download"
+          sha256sum --check SHA256SUMS
+          npm install --ignore-scripts --prefix "$RUNNER_TEMP/ubc26-runner-install" ./ubc26-runner-0.2.0.tgz
+          cd "$RUNNER_TEMP/ubc26-runner-install"
+          RELEASE_MANIFEST_SHA256=$(node -p 'require(process.env.RUNNER_TEMP+"/ubc26-runner-release/release.json").releaseManifestSha256')
+          node_modules/.bin/ubc26 verify-install --source-commit "${{ github.sha }}" --release-manifest-sha256 "$RELEASE_MANIFEST_SHA256" > provenance.json
+          node -e 'const p=require("./provenance.json"); if(p.status!=="installation-verified")process.exit(1)'
+          node_modules/.bin/ubc26 help > help.json
+          node_modules/.bin/ubc26 wrapper-digest > wrapper.json
+          node -e 'const fs=require("node:fs"); const h=JSON.parse(fs.readFileSync("help.json")); const w=JSON.parse(fs.readFileSync("wrapper.json")); if(h.version!==1 || !/^[0-9a-f]{64}$/.test(w.wrapperSha256))process.exit(1)'
+          node --input-type=module -e 'import {hostedClient} from "@ubc26/runner/hosted"; if(typeof hostedClient !== "function")process.exit(1)'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ubc26-runner-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/ubc26-runner-release/*.tgz
+            ${{ runner.temp }}/ubc26-runner-release/SHA256SUMS
+            ${{ runner.temp }}/ubc26-runner-release/release.json
+            ${{ runner.temp }}/ubc26-runner-release/ubc26-release.json

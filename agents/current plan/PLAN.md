@@ -1,6 +1,42 @@
 # Current plan
 
+## 2026-11-17 00:08 -05:00 — Anish — Immutable witness completion and authoring controls implemented locally
+
+- The coordinator implemented the reviewed witness-completion design in `4f3ae05`. Owner-only checks append evidence for the exact returned plan and references. Initial and later records stay immutable. Public approval retains an exact successful check id and buyer-reviewed coverage digest. The original task response never changes. Four signed workloads pass real native API transport checks and reject changed contexts. See [the evidence](../anish/reports/hosted-native-buyer-checks-2026-11-17.json).
+- Coverage checks validate finite links, not completeness of natural-language intent. One 120-second deadline covers model, validation, examples and repair. Provider failures retain safe traces and reported bills. Shutdown cancellation now covers model and witness handlers as well as engine children. Local API checks pass 863 tests. Real Grok trials remain zero.
+- These changes close local implementation items. Public Linux deployment, cold installation, reviewed production readiness, 180 fresh Grok trials, final release artifacts and new funded acceptance remain open. Continue the same two Grok workers and one compiler/prover allocation. No new spending authority is inferred.
+
+## 2026-11-16 23:53 -05:00 — Anish — Correct public authoring spending contract
+
+- Current xAI docs make the visible completion limit insufficient for reasoning models. Only exact reviewed non-reasoning model `grok-4.20-0309-non-reasoning` advertises the live adapter's total output bound. Preflight prices its full context maximum and highest tier. Each 8,192-token call needs at least $2.54096 available. Actual costs remain separately measured. See [the contract](../../docs/hosted-model-costs.md).
+- No paid model trial ran. Grok 4.7 CLI development workers remain separate. Approved service and benchmark budgets are still pending. Public readiness must reject an unbounded live model. This correction supersedes earlier `max_tokens` total-bound claims. Final qualification thresholds and corpus stay unchanged.
+
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
+
+## 2026-11-16 23:05 -05:00 — Anish — Signed preview bindings need an explicit completion step
+
+- Corrected corpus digest `2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470` includes complete public metadata. All 31 Node checks and 326 native comparisons pass. No real Grok trial has run.
+- A public signed example commits the checker rules hash. Independent review proves that a semantically equivalent valid draft with an extra true rule cannot reuse it. Do not bypass guest bindings, leak hidden plans, relabel supported cases or change qualification thresholds. See [the signed-preview evidence](../anish/reports/hosted-signed-preview-review-2026-11-16.json). Worker B reviews an explicit immutable buyer-supplied witness completion step. API approval must reject incomplete examples. Semantic draft scoring and final approvability are separate measurements under the existing plan.
+- The pinned Linux prewarm passes with warm cache. The original cold timeout stays preserved. Public hosting, hard disk quotas, model access/budgets and fresh funded acceptance remain open. The goal remains active and PR #8 remains draft.
+
+## 2026-11-16 22:45 -05:00 — Anish — Complete authoring envelopes before paid qualification
+
+- The 60-request corpus passes 326 native host cases, and its corrected offline trial harness passes 24 local checks. This does not establish the 180 fresh Grok API trials. Public host/account, secure API configuration and approved service/benchmark caps are still pending user input.
+- Real API envelope review found missing output metadata, a binary-reference adapter gap and missing public signer policy in signed requests. Follow [the authoring example contract](../../docs/hosted-authoring-examples.md). Worker B owns complete public corpus inputs, separate illustrative signed fixtures, digest and harness. Worker A owns API encoding/example/evidence adapters and safe paid dispatch. Keep hidden answers out of author input. Preserve every predicate, the 40/10/10 split and acceptance thresholds. No engine, guest, verifier or contract extension is needed.
+- The coordinator retains SDK/runner, runtime assets, integration and the one compilation/prover allocation. The first cold bounded compiler smoke timed out and cancelled cleanly; preserve it. A warm retry now runs as a new local task. No paid model or chain action is configured. Keep PR #8 draft and final public/live gates open.
+
+## 2026-11-16 21:44 -05:00 — Anish — Queue integration and runtime ownership
+
+- Integration branch `codex/hosted-backend` includes durable tasks, wallet ownership, installed runner and reviewed corpus batches. Public synchronous authoring cannot bypass the queue. Paid compile shares its compiler slot. Local real HTTP queue/compilation/replay passed. Public deployment, real Grok calls and new live settlement remain open gates.
+- The coordinator takes `deploy/` and `docs/hosted-runtime.md` for Linux image, HTTPS topology, backup/restore and rollback. Worker A now owns `commerce/api/` and `docs/hosted-service-worker-report.md`. Worker B continues `engine/` qualification and its report. Reuse the same two Grok sessions. No extra workers or provers.
+- Current independent corpus comparison: 175 candidate evaluations, zero engine/oracle disagreement. The duplicate-key and non-finite-number oracle defects are repaired with regressions. This is a partial corpus, not completed 60-request qualification. Four fresh real proofs remain finite historical-schema engine evidence, separate from the new corpus and funded acceptance.
+
+## 2026-11-16 20:55 -05:00 — Anish — Hosted runner published; API and qualification continue
+
+- Integration branch `codex/hosted-backend` is pushed at `2a5e44f`. The wallet-owned SDK client and installed runner are implemented. Exact-head commerce/Linux package CI passed. [Runner installation evidence](../anish/reports/hosted-runner-install-2026-11-16.json) distinguishes a fresh installed real-engine check from the historical Meridian workload. The hosted workflow remains open.
+- The [sprint plan](../../docs/superpowers/plans/2026-11-16-hosted-backend-sprint.md) remains active. Worker A owns identity, durable tasks, hosted authoring and deployment assets. Worker B owns the independent frozen corpus. Their original headless shell permissions cancelled the first invocations. The same two Grok sessions resumed with authorized tools. Worker B's first qualification family is committed at `90ce162`; it is not the completed 60-request gate.
+- The coordinator owns one sequential proof driver. A fresh synthetic-context budget proof and byte-exact engine recovery passed. Its real verdict-0 proof runs next, followed by inventory and reconciliation. This is engine qualification, not funded Arc acceptance. No hosted Grok trial or new wallet action occurred.
+- Missing dependencies remain public host/account access, hosted Grok API access and approved benchmark/service budgets, plus current authority for fresh live acceptance. Complete the concrete runtime package and local gates before the consolidated external-input request. Keep UI and new contract deployments excluded.
 
 ## 2026-11-16 20:33 -05:00 — Anish — Hosted backend sprint started
 

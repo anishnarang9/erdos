@@ -14,8 +14,10 @@ import { JobStatus, withRetry } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { requireRealArtifact } from "./artifact.ts";
 import { readBody, parseJson, requireJobId, isoAt, type AppEnv, type Deps } from "./context.ts";
+import { requireOwnedJob } from "./ownership.ts";
 import type { RouteContext } from "./routes.ts";
 import { isPlainObject, type FieldError } from "./revision.ts";
+import { ownerWallet } from "./ownership.ts";
 import {
   afterCreateSteps,
   arcSelectionTiming,
@@ -312,6 +314,7 @@ function jobTypeOf(rev: RevisionFields): string | null {
 
 export function registerMarketRoutes(ctx: RouteContext): void {
   const { app, deps, buyer, provider, idem, notImplemented, newId } = ctx;
+  const owned = requireOwnedJob(deps);
   const { db } = deps;
   const commit = idem.commit;
 
@@ -493,6 +496,7 @@ export function registerMarketRoutes(ctx: RouteContext): void {
     }
     const manifest = loadManifest(rev);
     const cfg = chain.config;
+    const buyer = ownerWallet(c);
     const fundingTerms: FundingTerms = {
       chainId: cfg.chainId,
       core: checksum(cfg.core),
@@ -505,6 +509,7 @@ export function registerMarketRoutes(ctx: RouteContext): void {
       rulesHash: manifest.rules_hash as Hex,
       referenceHash: manifest.reference_hash as Hex,
       description: "ubc26:" + job.id,
+      ...(buyer ? { buyer: checksum(buyer) } : {}),
     };
     const resBody = {
       state: "selected",
@@ -613,6 +618,15 @@ export function registerMarketRoutes(ctx: RouteContext): void {
     const expiredAt = BigInt(terms.expiredAt);
     if (!isAddressEqual(onChain.provider, quote.provider as Address)) {
       throw mismatch("provider", quote.provider, onChain.provider);
+    }
+    const principal = c.get("principal");
+    if (principal?.kind === "wallet") {
+      if (!terms.buyer || !isAddressEqual(terms.buyer, principal.wallet as Address)) {
+        throw mismatch("buyer", principal.wallet, terms.buyer ?? "missing");
+      }
+      if (!isAddressEqual(onChain.client, principal.wallet as Address)) {
+        throw mismatch("client", principal.wallet, onChain.client);
+      }
     }
     if (!isAddressEqual(onChain.evaluator, cfg.hook)) throw mismatch("evaluator", cfg.hook, onChain.evaluator);
     if (!isAddressEqual(onChain.hook, cfg.hook)) throw mismatch("hook", cfg.hook, onChain.hook);
@@ -730,7 +744,7 @@ export function registerMarketRoutes(ctx: RouteContext): void {
   app.get("/v1/jobs", readBody, feed);
   app.get("/v1/assignments", readBody, provider, assignments);
   app.post("/v1/jobs/:id/quotes", readBody, provider, parseJson, requireJobId, idem.middleware, postQuote);
-  app.post("/v1/jobs/:id/select-quote", readBody, buyer, parseJson, requireJobId, idem.middleware, selectQuote);
-  app.post("/v1/jobs/:id/funding-receipt", readBody, buyer, parseJson, requireJobId, idem.middleware, fundingReceipt);
+  app.post("/v1/jobs/:id/select-quote", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, selectQuote);
+  app.post("/v1/jobs/:id/funding-receipt", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, fundingReceipt);
   app.get("/v1/jobs/:id/submission", readBody, requireJobId, submission);
 }

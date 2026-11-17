@@ -22,7 +22,7 @@ function flags(args: string[]): Record<string, string> {
   return out;
 }
 
-export async function prepareOpenClaimJobInput(args: string[]): Promise<void> {
+export async function prepareOpenClaimJobInput(args: string[]) {
   const a = flags(args);
   const url = new URL(a["--rpc-url"]!);
   const local = url.protocol === "http:" && ["127.0.0.1", "localhost", "::1"].includes(url.hostname);
@@ -61,12 +61,12 @@ export async function prepareOpenClaimJobInput(args: string[]): Promise<void> {
   const fd = openSync(a["--out"]!, "wx", 0o600);
   try { writeFileSync(fd, output); fsyncSync(fd); }
   finally { closeSync(fd); }
-  console.log(JSON.stringify({ status: "prepared-funded-job-input", network: manifest.network, jobId: jobText,
-    solver, blockNumber: snapshot.blockNumber.toString(), imageId: snapshot.terms.imageId }));
+  return { status: "prepared-funded-job-input", network: manifest.network, jobId: jobText,
+    solver, blockNumber: snapshot.blockNumber.toString(), imageId: snapshot.terms.imageId };
 }
 
 if (process.argv[1]?.endsWith("job-input-cli.ts")) {
-  prepareOpenClaimJobInput(process.argv.slice(2)).catch(error => {
+  prepareOpenClaimJobInput(process.argv.slice(2)).then(result => console.log(JSON.stringify(result))).catch(error => {
     console.error(error instanceof Error ? error.message : "job input failed");
     process.exitCode = 1;
   });

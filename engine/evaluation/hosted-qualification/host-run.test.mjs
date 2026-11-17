@@ -2,11 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {readFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
 import {buildCorpus} from './corpus.mjs';
 import {resolveEngine, runHost, selectChallenges} from './host-run.mjs';
 
 function runCli(args, env = {}) {
-  return spawnSync(process.execPath, ['engine/evaluation/hosted-qualification/host-run.mjs', ...args], {
+  return spawnSync(process.execPath, [fileURLToPath(new URL('./host-run.mjs', import.meta.url)), ...args], {
     encoding: 'utf8',
     env: {...process.env, UBC26_ENGINE: '', ...env},
   });
