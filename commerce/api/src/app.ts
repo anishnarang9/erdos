@@ -18,7 +18,9 @@ import { registerAttemptRoutes } from "./attempts.ts";
 import { registerIdentityRoutes } from "./identity.ts";
 import { requireOwnedJob } from "./ownership.ts";
 import { assertAuthoringBudget, registerTaskRoutes } from "./tasks.ts";
-import type { AuthoringBudget, DeploymentConfig, RateLimitConfig } from "./context.ts";
+import { resolveAuthLimit, resolveTaskQueue } from "./capacity.ts";
+import { emptyMetrics, registerObserve } from "./observe.ts";
+import type { AuthoringBudget, AuthLimitConfig, DeploymentConfig, RateLimitConfig, TaskQueueConfig } from "./context.ts";
 import type { ReadyReport } from "./ready.ts";
 
 export interface CreateAppOptions {
@@ -44,12 +46,26 @@ export interface CreateAppOptions {
   };
   /** Absent means expensive routes are not counted. */
   rateLimit?: RateLimitConfig;
+  /**
+   * Pending queued and running tasks. Omitted values use 100 global and 20 per wallet.
+   * A non-positive value is rejected. It does not mean unlimited.
+   */
+  taskQueue?: Partial<TaskQueueConfig>;
+  /**
+   * Auth challenge and key issuance per IP. Omitted values use 20 per 60 seconds.
+   * A non-positive value is rejected. It does not mean unlimited.
+   */
+  authLimit?: Partial<AuthLimitConfig>;
   /** When true, model and compiler routes return 503. */
   expensiveDisabled?: boolean;
   /** Prices and ceilings for draft tasks. Required before a public draft task is accepted. */
   budget?: AuthoringBudget;
-  /** Bearer token that may resolve a spend halt. Unset leaves a halt in force. */
+  /** Bearer token that may resolve a spend halt and read operator metrics. Unset leaves both unavailable. */
   operatorToken?: string;
+  /** Structured request lines. Off unless the server or a test enables it. */
+  requestLog?: boolean;
+  /** Local mode may print an unknown error value. Public mode ignores this flag. */
+  requestLogDebug?: boolean;
   /** Production readiness. Absent reports not configured and does not claim the process is ready. */
   ready?: (deps: Deps) => Promise<ReadyReport>;
 }
@@ -75,6 +91,8 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     throw new Error("createApp: buyerToken must be a string of at least 16 characters");
   }
   assertAuthoringBudget(opts.budget);
+  const taskQueue = resolveTaskQueue(opts.taskQueue);
+  const authLimit = resolveAuthLimit(opts.authLimit);
   const engine = opts.engine ?? (opts.validatePlan
     ? { mode: "simulated" as const, validate: opts.validatePlan, compile: simulatedEngine().compile }
     : simulatedEngine());
@@ -100,23 +118,22 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     ...(opts.packagesDir ? { packagesDir: opts.packagesDir } : {}),
     deployment,
     ...(opts.rateLimit ? { rateLimit: opts.rateLimit } : {}),
+    taskQueue,
+    authLimit,
+    metrics: emptyMetrics(),
+    requestLog: opts.requestLog ?? false,
+    requestLogDebug: opts.requestLogDebug ?? false,
     expensiveDisabled: opts.expensiveDisabled ?? false,
     ...(opts.budget ? { budget: opts.budget } : {}),
     ...(opts.operatorToken ? { operatorToken: opts.operatorToken } : {}),
   };
 
   const app = new Hono<AppEnv>();
+  registerObserve(app, deps);
 
   app.notFound((c) =>
     c.json(new ApiError("not_found", `No route for ${c.req.method} ${c.req.path}`).toBody(), 404),
   );
-  app.onError((err, c) => {
-    if (err instanceof ApiError) {
-      return c.json(err.toBody(), err.status as 400);
-    }
-    console.error("[api] unhandled error", err);
-    return c.json(new ApiError("internal", "Internal server error").toBody(), 500);
-  });
 
   // Middleware order per route: raw body (1 MiB cap) -> auth -> JSON parse (POST) -> :id check -> idempotency
   // (POST /v1/*) -> handler.

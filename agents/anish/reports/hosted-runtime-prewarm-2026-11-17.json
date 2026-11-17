@@ -1,0 +1,28 @@
+{
+  "status": "passed-warm-compiler-installation",
+  "sourceCommit": "c7a8c4478a0445d1555e3ae83e8efd99579e777d",
+  "imageId": "sha256:55a813b758dd6bfbd61d663230020c2b4901f4afc8d2ff32c181648dac224076",
+  "environment": "Linux amd64 emulated on arm64 macOS Docker Desktop",
+  "cacheState": "warm; prior compiled image and Cargo cache retained",
+  "initialAttempt": {
+    "status": "failed-before-compile",
+    "reason": "test selected the volume root instead of its existing restored subpath"
+  },
+  "prewarm": {
+    "version": 1,
+    "status": "compiler-warmed",
+    "sourceSha": "c7a8c4478a0445d1555e3ae83e8efd99579e777d",
+    "engineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+    "dockerfileFrontend": "docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e",
+    "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+    "imageId": "0x63b0098ad9e97bb1ec4a7d13875503ad9bbd129586ddd2ba8a24e07079e9489b",
+    "guestSha256": "0x535734f2894b386311ff1597c0a71b93f2377b43e5ea865621581fec1ee0db4c",
+    "elapsedSeconds": 1,
+    "checkedAt": "2026-11-17T06:17:12.935Z",
+    "passingVerdict": 1,
+    "failingVerdict": 0,
+    "proofGenerated": false,
+    "chainTransactionSent": false
+  },
+  "scope": "Real compile and native pass/verdict-0 eval. No proof, model call or chain transaction. Readiness consumption is verified separately."
+}

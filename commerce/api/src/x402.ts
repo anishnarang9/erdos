@@ -6,6 +6,7 @@ import { requireOwnedJob } from "./ownership.ts";
 import { expensiveGuard } from "./limits.ts";
 import { tx } from "./db.ts";
 import { isPlainObject } from "./revision.ts";
+import { logInternal } from "./observe.ts";
 import type { RouteContext } from "./routes.ts";
 import type { authoringHandlers } from "./authoring.ts";
 
@@ -248,7 +249,7 @@ async function compileAfterPayment(
   try {
     response = await compile(c, async () => {}) as Response;
   } catch (err) {
-    if (!(err instanceof ApiError)) console.error("[api] paid compile failed", err);
+    if (!(err instanceof ApiError)) logInternal(deps.deployment.mode, deps.requestLogDebug, "paid-compile", err);
     const apiError = err instanceof ApiError ? err : new ApiError("internal", "Internal server error");
     return new Response(JSON.stringify(apiError.toBody()), { status: apiError.status, headers: {
       "content-type": "application/json", "payment-response": paymentHeader,

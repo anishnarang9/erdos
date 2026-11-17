@@ -12,6 +12,8 @@ import { httpX402Facilitator, type X402Config } from "./x402.ts";
 import { createViemOpenClaimReader } from "./open-claim-reader.ts";
 import type { OpenClaimConfig } from "./open-claim.ts";
 import type { AuthoringBudget } from "./context.ts";
+import { authLimitFromEnv, taskQueueFromEnv } from "./capacity.ts";
+import { logInternal } from "./observe.ts";
 import {
   blocksPublicListen,
   createReadyCache,
@@ -243,6 +245,15 @@ const rateLimit = principalLimit === undefined && ipLimit === undefined
       expensivePerIp: ipLimit === undefined ? 0 : Number(ipLimit),
     };
 const budget = readBudget();
+let taskQueue: ReturnType<typeof taskQueueFromEnv>;
+let authLimit: ReturnType<typeof authLimitFromEnv>;
+try {
+  taskQueue = taskQueueFromEnv(process.env);
+  authLimit = authLimitFromEnv(process.env);
+} catch (err) {
+  console.error(err instanceof Error ? err.message : "Invalid capacity configuration");
+  process.exit(1);
+}
 const authoring = process.env.AUTHORING_REQUIRED === "0" ? "disabled" : "required";
 const runtime: { worker: "stopped" | "running" | "draining"; route: boolean } = { worker: "stopped", route: false };
 
@@ -293,9 +304,13 @@ const { app, close, reconcileTasks, pumpTasks, drainTasks, checkReady } = create
     trustProxy: process.env.TRUST_PROXY === "1",
   },
   ...(rateLimit ? { rateLimit } : {}),
+  taskQueue,
+  authLimit,
   expensiveDisabled: process.env.EXPENSIVE_OPS_DISABLED === "1",
   ...(budget ? { budget } : {}),
   ...(process.env.OPERATOR_TOKEN ? { operatorToken: process.env.OPERATOR_TOKEN } : {}),
+  requestLog: process.env.REQUEST_LOG !== "0",
+  requestLogDebug: process.env.REQUEST_LOG_DEBUG === "1",
   ready: (deps) => {
     readyCache ??= createReadyCache(() => evaluateReady(readyInput(deps.db)));
     return readyCache.current(runtime.worker, runtime.route);
@@ -324,7 +339,7 @@ if (chain) {
     confirmations: chain.mode === "arc" ? 3n : 0n,
   });
   indexTimer = setInterval(() => {
-    indexer.tick().catch((err: unknown) => console.error("[indexer] tick failed", err));
+    indexer.tick().catch((err: unknown) => logInternal(deploymentMode, process.env.REQUEST_LOG_DEBUG === "1", "indexer", err));
   }, INDEX_INTERVAL_MS);
 }
 
@@ -335,7 +350,7 @@ const taskTimer = setInterval(() => {
   if (pumping) return;
   pumping = true;
   pumpTasks()
-    .catch((err: unknown) => console.error("[tasks] pump failed", err))
+    .catch((err: unknown) => logInternal(deploymentMode, process.env.REQUEST_LOG_DEBUG === "1", "task-pump", err))
     .finally(() => {
       pumping = false;
     });

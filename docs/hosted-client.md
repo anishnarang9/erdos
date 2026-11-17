@@ -67,7 +67,7 @@ Reuse the same idempotency key only for the same request bytes and purpose. A ne
 
 The package downloader checks file hashes, package commitments and the guest digest. Reference download checks the complete canonical reference hash. Package and reference directories must be new paths inside a private parent directory.
 
-Discovery uses `ubc26 discover --api "$API"`. The new client also accepts `--limit 10` and `--cursor "$NEXT_CURSOR"` with a backend that implements the [paginated contract](hosted-api-contract.md#discovery-pagination--client-staged-server-integration-pending). Follow the returned `nextCursor` until it is null. The client stops if a server ignores pagination or repeats a cursor. Server pagination and expiry filtering remain pending integration in this sprint checkpoint.
+Discovery uses `ubc26 discover --api "$API"`. The client also accepts `--limit 10` and `--cursor "$NEXT_CURSOR"` under the [paginated contract](hosted-api-contract.md#discovery-pagination). Follow the returned `nextCursor` until it is null. The client stops if a server ignores pagination or repeats a cursor. The integrated server implements this contract with bounded scans and confirmed-time expiry. A 503 dependency failure requires retrying the same cursor; it does not mean the scan ended.
 
 ## Fund and run supplied deliverables
 
@@ -124,7 +124,7 @@ ubc26 operator recover --config "$WORK/operator.json"
 
 `prepare` generates a local proof for the actual funded context. `run` resumes the protected claim/release flow. A losing solver releases no key. Recovery reads confirmed public chain data and checks both SDK and engine output. Use `operator refund` with the approved buyer configuration after confirmed expiry. `operator circle` uses the existing separate paid-compilation authorization and exact-replay journal.
 
-Each new solver attempt receives a persistent UUID. `ubc26 attempt --state "$WORK/attempt/state.json" --after-cursor 0` returns a sanitized local status. Its events use `(attemptId,cursor)` pairs. Resume with the last cursor for that attempt. The view omits release keys, local paths and free-form details. A rejected attempt does not reject the entire bounty. Confirmed chain state remains authoritative for winner and payment. Hosted attempt publication remains a separate integration gate.
+Each new solver attempt receives a persistent UUID. `ubc26 attempt --state "$WORK/attempt/state.json" --after-cursor 0` returns a sanitized local status. Its events use `(attemptId,cursor)` pairs. Resume with the last cursor for that attempt. The view omits release keys, local paths and free-form details. A rejected attempt does not reject the entire bounty. Confirmed chain state remains authoritative for winner and payment. Publish progress only through the explicit command below.
 
 Preserve the private state directory, nonce journals and transaction hashes after interruption. Reconcile pending or uncertain sends before retrying. The runner never sends the real release key through simulation or gas estimation. A failed attempt does not reject the entire bounty.
 
@@ -164,3 +164,20 @@ ubc26 approve --api "$API" --key-file "$KEY_FILE" --job "$JOB" \
 ```
 
 Use only an actual successful `exampleCheckId` for that owner, draft and revision. Omit `--example-check` to select the immutable initial check. Public authored approval still requires the exact coverage digest. A later witness record cannot replace the original task response or qualify different rules. Signature rejection is not verdict 0. No command here authorizes funding or signing.
+
+## Publish and read solver progress
+
+Use an API key issued to the local attempt's solver wallet. The CLI checks that wallet before any upload. It reads the protected state file, selects only public progress fields, and submits one batch of at most 20 events. It omits release keys, signing state, private paths, plaintext and free-form details. Local history over 200 events rejects before publication. The command does not sign, prove or send a chain transaction.
+
+```sh
+ubc26 publish-attempt --api "$API" --key-file "$SOLVER_KEY_FILE" --job "$JOB" \
+  --state "$WORK/attempt/state.json" --after-cursor 0 --idempotency attempt-batch-001
+ubc26 attempts --api "$API" --job "$JOB" --limit 20
+ubc26 hosted-attempt --api "$API" --job "$JOB" --attempt "$ATTEMPT_ID" --after-cursor 0
+```
+
+If `resumeLocalCursor` is non-null, submit the next explicit batch with that `--after-cursor` and a new idempotency key. Preserve the exact cursor and request identity after uncertainty. Reusing the original key requires the same request body; a changed local file can change that body. Public history reads return up to 50 events. Follow their `resumeCursor` while non-null. Their `nextCursor` is the high-water mark, not an unfinished page's resume position.
+
+Published phases and transaction hashes remain solver reports. They cannot confirm a winner, payment or refund. Use the confirmed open-job snapshot for those claims. See the [attempt route contract](hosted-api-contract.md#hosted-solver-attempts).
+
+The native engine CI job also builds a standalone archive, installs it outside the checkout, checks its pinned provenance, and runs `commerce/worker/scripts/check-installed-native.mjs` against the actual native Linux engine. The script generates fresh synthetic signed fixtures for four frozen workloads, checks an independent oracle, and tests pass, valid verdict 0 and signature rejection. It performs no proof or chain action. Keep the CI report's platform and source SHA with release evidence. A Mac run or emulated container run does not substitute for that native Linux result.

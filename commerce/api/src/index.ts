@@ -113,6 +113,16 @@ export {
   type FilePin,
 } from "./ready.ts";
 export {
+  TASK_PENDING_GLOBAL_DEFAULT,
+  TASK_PENDING_WALLET_DEFAULT,
+  AUTH_IP_LIMIT_DEFAULT,
+  AUTH_IP_WINDOW_MS,
+  resolveTaskQueue,
+  taskQueueFromEnv,
+  resolveAuthLimit,
+  authLimitFromEnv,
+} from "./capacity.ts";
+export {
   ATTEMPT_VERSION,
   ATTEMPT_PHASES,
   ATTEMPT_EVENT_BATCH,

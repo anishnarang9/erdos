@@ -28,6 +28,37 @@ export interface RateLimitConfig {
   windowMs?: number;
 }
 
+/** Caps queued and running tasks. Zero is not a supported unlimited setting. */
+export interface TaskQueueConfig {
+  globalPending: number;
+  pendingPerWallet: number;
+}
+
+/** Caps challenge and key issuance per client IP. Zero is not a supported unlimited setting. */
+export interface AuthLimitConfig {
+  perIp: number;
+  windowMs: number;
+}
+
+export interface RouteMetric {
+  count: number;
+  errors: number;
+  latencyMsTotal: number;
+}
+
+/** Process counters. They do not enforce a host disk, CPU, or memory quota. */
+export interface ServiceMetrics {
+  requests: number;
+  errors: number;
+  latencyMsTotal: number;
+  queueRejected: number;
+  authLimited: number;
+  tasksAccepted: number;
+  tasksSucceeded: number;
+  tasksFailed: number;
+  routes: Record<string, RouteMetric>;
+}
+
 /** Operator prices in micro-USD. Absent in local mode. Public mode must not run drafts without it. */
 export interface AuthoringBudget {
   requestCeilingMicroUsd: number;
@@ -52,6 +83,16 @@ export interface Deps {
   chain?: ApiChain;
   deployment: DeploymentConfig;
   rateLimit?: RateLimitConfig;
+  /** Always set. Counts queued and running tasks only. */
+  taskQueue: TaskQueueConfig;
+  /** Always set. Applies to auth challenge and key issuance. */
+  authLimit: AuthLimitConfig;
+  /** Process counters. Reset on restart. They do not enforce a host quota. */
+  metrics: ServiceMetrics;
+  /** One JSON line per request. The line uses a fixed route label. */
+  requestLog: boolean;
+  /** Local mode may print an unknown error value. Public mode ignores this flag. */
+  requestLogDebug: boolean;
   expensiveDisabled: boolean;
   /** When set, a draft task reserves its ceiling before the handler runs. */
   budget?: AuthoringBudget;

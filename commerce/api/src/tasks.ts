@@ -10,6 +10,7 @@ import type { ModelUsage } from "./grok.ts";
 import { cancelEngineChildren } from "./engine.ts";
 import { cancelDraftRequests } from "./draft-deadline.ts";
 import { expensiveGuard } from "./limits.ts";
+import { noteQueueRejected, noteTaskAccepted, noteTaskFinished } from "./observe.ts";
 import { isPlainObject } from "./revision.ts";
 import type { RouteContext } from "./routes.ts";
 
@@ -57,6 +58,14 @@ type TaskHandlers = {
 
 function unauthorized(): ApiError {
   return new ApiError("unauthorized", "Missing or invalid API key");
+}
+
+function sqlCount(value: unknown): number {
+  const row = value as { n?: number | bigint } | undefined;
+  const raw = row?.n ?? 0;
+  const count = typeof raw === "bigint" ? Number(raw) : Number(raw);
+  if (!Number.isSafeInteger(count) || count < 0) return Number.POSITIVE_INFINITY;
+  return count;
 }
 
 function hashInput(value: unknown): string {
@@ -239,6 +248,10 @@ export function registerTaskRoutes(
   const findDup = db.prepare(
     `SELECT * FROM tasks WHERE owner_wallet = ? AND operation = ? AND input_hash = ? AND state IN (${DEDUP_STATES.map(() => "?").join(", ")}) ORDER BY created_at ASC, id ASC LIMIT 1`,
   );
+  const pendingGlobal = db.prepare("SELECT COUNT(*) AS n FROM tasks WHERE state IN ('queued', 'running')");
+  const pendingWallet = db.prepare(
+    "SELECT COUNT(*) AS n FROM tasks WHERE state IN ('queued', 'running') AND owner_wallet = ?",
+  );
   const byId = db.prepare("SELECT * FROM tasks WHERE id = ?");
   const jobOwner = db.prepare("SELECT owner_wallet FROM jobs WHERE id = ?");
   const queued = db.prepare(
@@ -353,9 +366,21 @@ export function registerTaskRoutes(
     const at = isoAt(deps.now());
     // Task, reservation, and the idempotency response commit together.
     // A later different body for this key must not keep orphan paid work.
-    return idem.commit(c, 202, null, () => {
+    let admitted = false;
+    const response = idem.commit(c, 202, null, () => {
       const existing = findDup.get(wallet, operation, inputHash, ...DEDUP_STATES) as TaskRow | undefined;
       if (existing) return { status: 202, body: taskView(existing) };
+      const pending = sqlCount(pendingGlobal.get());
+      const mine = sqlCount(pendingWallet.get(wallet));
+      const globalFull = pending >= deps.taskQueue.globalPending;
+      const walletFull = mine >= deps.taskQueue.pendingPerWallet;
+      if (globalFull || walletFull) {
+        noteQueueRejected(deps, operation);
+        throw new ApiError("rate_limited", "Task queue is full", {
+          queue: "pending",
+          scope: globalFull ? "global" : "wallet",
+        });
+      }
       const id = newId();
       if (operation === "draft" && deps.budget) {
         const spent = Number((spentToday.get(dayStart(deps.now())) as { spent: number }).spent);
@@ -371,8 +396,11 @@ export function registerTaskRoutes(
         insertReservation.run(newId(), wallet, id, deps.budget.requestCeilingMicroUsd, at, at);
       }
       insertTask.run(id, wallet, operation, inputJson, inputHash, at, at);
+      admitted = true;
       return { status: 202, body: taskView(byId.get(id) as unknown as TaskRow) };
     });
+    if (admitted) noteTaskAccepted(deps, operation);
+    return response;
   });
 
   app.post("/v1/operator/spend-halts/:id/resolve", readBody, parseJson, (c) => {
@@ -485,6 +513,7 @@ export function registerTaskRoutes(
       try {
         const result = await execute(row);
         finish.run("succeeded", JSON.stringify(result), null, at(), row.id);
+        noteTaskFinished(deps, row.operation, "succeeded");
         if (row.operation === "draft") applyBilling(result, row.id);
       } catch (err) {
         if (draining) {
@@ -504,6 +533,7 @@ export function registerTaskRoutes(
         }
         const error = taskError(err);
         finish.run("failed", null, JSON.stringify(error), at(), row.id);
+        noteTaskFinished(deps, row.operation, "failed", error.code);
         if (row.operation !== "draft") return;
         const details = err instanceof ApiError ? err.details : undefined;
         if (details && isPlainObject(details.billing)) {

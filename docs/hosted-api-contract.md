@@ -17,15 +17,15 @@ All JSON errors use the existing `{error:{code,message,details?}}` shape. Job an
 
 Task view: `{id,operation,state,attempt,createdAt,updatedAt,result?,error?}`. States: `queued`, `running`, `succeeded`, `failed`, `uncertain`. Results reuse existing draft/compile response bodies. Errors use sanitized API errors. Interrupted paid authoring becomes uncertain. Queued tasks resume. Compiler work is bounded and serialized. A task binds the owner and exact revision. Deduplicate before work starts.
 
-Existing job import, package, references and open-claim funding routes retain their documented body shapes. Public authored approval adds the review fields above. Discovery pagination is staged below. Public mutation routes require owner authorization. Funding buyer must equal the authenticated wallet. Compile approval and revision binding remain mandatory. Public results become readable according to the existing protocol.
+Existing job import, package, references and open-claim funding routes retain their documented body shapes. Public authored approval adds the review fields above. Discovery pagination is specified below. Public mutation routes require owner authorization. Funding buyer must equal the authenticated wallet. Compile approval and revision binding remain mandatory. Public results become readable according to the existing protocol.
 
-Worker A must document any necessary runtime contract correction before SDK integration. Worker A owns the API engine, server, task, identity, limits, discovery and attempt modules plus its service report. The coordinator owns `authoring.ts`, `grok.ts`, `jobs.ts`, example input/approval modules and their tests. Migration 016 is reserved for service spend-halt history. Coordinator example records start at 017. The coordinator owns `deploy/`, `docs/hosted-runtime.md`, this document, SDK exports and the runner. Worker B owns engine fixtures and reports. No worker may change shared catalog copies without coordinator agreement.
+Worker A must document any necessary runtime contract correction before SDK integration. Worker A owns service ingress, tasks, identity, limits, observation and attempt modules plus its service report. Worker B owns discovery during this phase. The coordinator owns `authoring.ts`, `grok.ts`, `jobs.ts`, example input/approval modules and their tests. Migration 016 is reserved for service spend-halt history. Coordinator example records start at 017. The coordinator owns `deploy/`, `docs/hosted-runtime.md`, this document, SDK exports and the runner. Worker B also owns engine fixtures and qualification reports. No worker may change shared catalog copies without coordinator agreement.
 
 ## Local solver attempt status
 
 The runner persists `attemptId` as a UUID for each attempt. Sanitized status contains `attemptId`, `job:{chainId,core,adapter,jobId}`, `solver`, `phase`, `paymentConfirmed`, `nextCursor`, and `events:[{attemptId,cursor,at,phase}]`. Optional fields are `winner`, `claimTx` and `releaseTx`. Cursors are local to an attempt. Compare `(attemptId,cursor)` pairs. Never merge two solvers' local sequence numbers into one global sequence.
 
-A rejected or lost attempt changes only that attempt. Confirmed chain state defines the bounty's winner, payout, expiry and refund. Local progress does not establish chain acceptance. This source checkpoint exposes local runner status. A hosted publication/query route remains pending service integration.
+A rejected or lost attempt changes only that attempt. Confirmed chain state defines the bounty's winner, payout, expiry and refund. Local progress does not establish chain acceptance. This source checkpoint exposes local runner status. Hosted publication and public reads use the routes below.
 
 ## Authored job submission and references
 
@@ -39,15 +39,15 @@ Task acceptance commits the durable task, spend reservation and idempotency resp
 
 Issuance checks the challenge's stored origin and action against the current service configuration. Restoring a database at another hostname does not make pending old-hostname signatures valid there. Existing credential digests remain owner records; review them as part of restore operations.
 
-## Discovery pagination — client staged, server integration pending
+## Discovery pagination
 
 The SDK accepts `openJobs({cursor?,limit?})`; the CLI accepts `discover --cursor CURSOR --limit LIMIT`. The wire request is `GET /v1/open-jobs?cursor=OPAQUE&limit=10`. Limit is an integer from 1 through 50. Treat cursors as opaque strings, URL-encode them and preserve them exactly.
 
-The paginated response is `{jobs:[...],nextCursor:string|null}`. A page may contain fewer jobs than its limit. Continue with `nextCursor` until it is null. Cursor order must be stable and advance through scanned links, including links excluded by confirmed expiry or winner state. Do not return an unchanged cursor. Bound scanning and RPC work per request.
+The paginated response is `{jobs:[...],nextCursor:string|null}`. A page may contain fewer jobs than its limit. Continue with `nextCursor` until it is null. The server orders API job IDs ascending. Its cursor advances through scanned links, including stale links and links excluded by confirmed expiry or winner state. It reads at most `limit` links and makes at most one confirmed snapshot request per scanned link. One extra SQL row determines whether another page exists; that row causes no chain read. A dependency failure returns sanitized 503 `chain_unavailable`; it does not claim an authoritative empty page. Retry the same cursor after that failure.
 
 The client rejects oversized pages, malformed or repeated cursors, and an explicit pagination request whose response omits `nextCursor`. This prevents a legacy server that ignores query arguments from appearing to return another page. A no-argument client call still reads the legacy `{jobs}` shape, which does not establish complete discovery. Wallet credentials are not sent for this public read.
 
-Worker A must implement and verify the server side, including confirmed-chain-time expiry filtering, before the discovery gate can close. Current client tests cover transport/response safety, not a completed paginated public service.
+The integrated server and client pass controlled pagination and expiry checks, including 55 open links. A confirmed snapshot must say `Funded`, with no accepted submission, no release and a timestamp strictly before its own job expiry. Both times come from that same snapshot. Detail remains readable after expiry and chain terminal outcomes while the immutable API/approval bindings remain valid. It adds `expired`, decimal `confirmedTimestamp` and decimal `confirmedBlockNumber`. An expired funded job has not necessarily been refunded. The existing indexer records logs/cursors and does not update API job state. Public RPC/host acceptance remains separate.
 
 
 ## Authoring review and failure metadata
@@ -61,3 +61,33 @@ The task result discriminant is `kind`: `draft`, `clarification` or `unsupported
 All model terminal classes retain `qualification:{model,promptVersion,catalogVersion,latencyMs,repairCount,traceId,traceIds,usage}` and separate `attempts`. Failed model replies put available metadata in sanitized error `details`. Unknown identity/usage remains null. A rejected repair uses `kind:"model_failed"` and its reason. Available billed ticks participate in accounting. Unknown bills remain uncertain. See [spending bounds](hosted-model-costs.md).
 
 One 120-second controller covers initial inference, validation, examples and repair. Service drain cancels active controllers and checker groups before closing durable state. A client timeout does not authorize a new paid request. Poll the original task and reconcile uncertainty.
+
+## Hosted solver attempts
+
+A live wallet API key can submit `POST /v1/jobs/:id/attempts` with an idempotency key. The key determines the solver; the solver need not own the buyer job. The request is `{version:1,attemptId,events:[{cursor,reportedAt,phase}],chain?,reportedClaimTx?,reportedReleaseTx?,reportedWinner?}`. `attemptId` is a UUID v4. Times are canonical UTC ISO strings with milliseconds. They must be at least 2024-01-01 and no more than five minutes ahead of server receipt. Unknown fields reject.
+
+First publication needs events starting at cursor 1. Later batches may repeat an identical stored prefix and append consecutive events. A conflicting repeat or gap rejects. Each batch permits 20 events; each attempt permits 200. An empty later batch can fill or repeat optional metadata. A different wallet cannot update the same attempt. Supplied chain bindings must match the linked open-claim job. Existing bindings and reported transaction hashes cannot be replaced.
+
+Allowed phases are `preparing`, `proving`, `proved`, `rejected`, `claim_broadcasting`, `claim_sent`, `claimed`, `lost`, `release_broadcasting`, `release_sent`, `released`, and `abandoned`. These are solver reports. They do not establish proof validity or settlement.
+
+Publication returns the summary plus `accepted` (new event count) and the acknowledged request events, each with `attemptId` and server `receivedAt`. First creation returns 201; append returns 200. Exact idempotent replay returns the stored response. Summary fields include `attemptId`, API `jobId`, `solver`, `phase`, `highWaterCursor`, `eventCount`, first `receivedAt`, nullable `chain` and optional reported transaction/winner fields. Every summary has `progress:"solver-reported"`, `confirmedPayment:false`, `confirmedWinner:null`, and `confirmedRefund:false`. These fixed fields mean this endpoint supplies no chain confirmation. Read the confirmed open-job snapshot for actual settlement.
+
+Public `GET /v1/jobs/:id/attempts?limit=20&cursor=OPAQUE` returns `{attempts,nextCursor}`. Limit is 1–50. The opaque cursor follows first receipt time and UUID. It differs from an attempt event cursor. Public `GET /v1/jobs/:id/attempts/:attemptId?afterCursor=0` returns a summary, up to 50 consecutive events, `nextCursor` and `resumeCursor`. Here `nextCursor` is the current event high-water mark. **Follow `resumeCursor` while it is non-null** to read an unfinished history page; using the high-water mark would skip unseen events. Once caught up, retain the last observed event cursor for polling.
+
+SDK methods are `publishAttempt`, `attempts` and `attempt`. Publication validates the outgoing allowlist before transport. Read decoders check job/attempt bindings, bounded pages, cursor continuity and the fixed confirmation boundary. Public reads send no bearer credential. Mutations have no automatic retry.
+
+## Admission and protected metrics
+
+Queued and running durable tasks default to 100 globally and 20 per wallet. A full queue returns 429 `rate_limited` with `{queue:"pending",scope:"global"|"wallet"}` in details. Exact replay and semantic deduplication still select the stored task before this admission check and reserve no new spend. `TASK_PENDING_GLOBAL` and `TASK_PENDING_PER_WALLET` configure positive limits.
+
+Auth challenge and key issuance share a separate 20-per-IP, 60-second window by default. `AUTH_LIMIT_IP` and `AUTH_LIMIT_WINDOW_MS` configure positive limits. Only the reviewed trusted proxy topology may supply client forwarding data. Public direct access shares a conservative fallback bucket. Expensive request limits remain separate.
+
+`GET /v1/operator/metrics` requires the operator bearer token. An absent token disables the route; buyer/solver API keys do not grant access. It returns fixed route/status/latency counts, durable queue counts, process task/auth counts and process memory/uptime. Process counters reset on restart. They do not establish historical billing or host disk quotas. Structured public logs omit request bodies, headers, query strings, identifiers and free-form error values. Routes use fixed labels. Local debug remains an explicit option.
+
+An expired, unrefunded detail can contain:
+
+```json
+{"status":"Funded","expired":true,"released":false,"winner":null,"confirmedTimestamp":"1800003600","expiry":"1800003600","confirmedBlockNumber":"73000000"}
+```
+
+This fragment omits the unchanged job, deployment and manifest fields. It deliberately makes no `refunded:true` claim. A failed list or detail dependency returns 503 with `error.code:"chain_unavailable"` and a fixed public message. Provider URLs and raw errors remain private.

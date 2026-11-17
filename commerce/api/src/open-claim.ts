@@ -325,7 +325,9 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     if (job.state !== "open_registered") termsMismatch("API state");
     const intent = q.intent.get(job.id) as Intent | undefined;
     if (!intent || intent.revision_id !== revision.id) termsMismatch("approval");
-    const snapshot = await config.reader.current(BigInt(link.chain_job_id));
+    let snapshot: OpenClaimSnapshot;
+    try { snapshot = await config.reader.current(BigInt(link.chain_job_id)); }
+    catch { throw new ApiError("chain_unavailable", "Open-claim chain is unavailable"); }
     assertSnapshot(snapshot, config, intent, manifest);
     // Expiry uses this snapshot's confirmed timestamp and this snapshot's job expiry together.
     const expired = snapshot.timestamp >= snapshot.job.expiry;

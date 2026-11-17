@@ -1,5 +1,41 @@
 # anish status
 
+## 2026-11-17 01:27 -05:00 — Anish — Integrate paginated discovery and confirmed-time expiry
+
+- Integrated Worker B `0e790cd`, `8246a80` and `3c59be0` as `e63199c`, `c75d205` and `e6a4d57`. Discovery scans a bounded keyset window, advances past stale/filtered links and excludes confirmed expiry, accepted submissions and releases. Detail carries confirmed time/block and preserves funded-but-expired status. A failed chain dependency returns 503 instead of a false empty feed.
+- API typecheck and the initial 19 discovery/open-claim/attempt checks passed. Integration review then reproduced a detail RPC failure returning generic 500 while list returned 503. A targeted regression failed first. The common snapshot boundary now sanitizes that failure consistently. All 14 discovery/open-claim checks and API typecheck pass after the repair.
+- Updated API, runner and UI discovery contracts and the source implementation checklist. Actual public RPC, hosting and settlement remain unverified. Worker A continues paid compile admission/drain and browser ingress. Native Linux installed-runner CI is running. No model call, proof, compiler or chain action occurred in this checkpoint.
+
+## 2026-11-17 01:26 -05:00 — Anish — Add installed-runner checks to native Linux CI
+
+- All 908 combined API checks and typecheck pass after service-control integration. Worker A's tree was refreshed by a normal merge `a4ecf01`; its tree equals coordinator `a95cad5`. The same session now owns exact browser-origin/preflight policy and bounded paid compiler admission before settlement, including drain/replay/concurrency. No new worker was created.
+- Added a reusable independent installed-runner/native-engine check. It verifies the release source/manifest, creates fresh synthetic signed fixtures from the frozen corpus, checks an independent oracle, and exercises four signed workloads with pass, valid verdict 0 and rejected signatures. Child environments include only the selected Node/system paths and HOME. No compiler, prover, API or wallet action occurs.
+- The twelve checks pass through an independently installed `b955545` archive with the actual native Mac engine. CI now repeats them with the native Linux engine and uploads its report. That Linux CI result remains pending; the prior Linux container evidence was emulated. Worker B has committed discovery changes for integration next. Public hosting, genuine Grok qualification and fresh funded acceptance remain open.
+
+## 2026-11-17 01:22 -05:00 — Anish — Verify public-mode runtime and integrate service controls
+
+- Image `92ef0c3` passed all configured readiness checks with actual engine/wrapper bytes and its real prewarm record. Independent synthetic wallet auth, legacy-token rejection, ownership, approval, sanitized solver attempts, public reads, real warm compile, replay, restart and revocation passed. Compile took 1.792 seconds; task attempt stayed 1. The local isolated container used an unused synthetic model credential. This does not verify public hosting or genuine Grok access. See [the report](reports/hosted-public-mode-image-2026-11-17.json).
+- The first host-port probe timed out on Docker Desktop's internal network while container health passed. The retry used container loopback and retained blocked external egress. The owned container is stopped and both compiler/prover locks are released. No paid model, proof or chain action occurred.
+- Integrated Worker A `d75ca79` as `5f1de9d` plus its report. Queue admission, auth IP limits and protected fixed-cardinality metrics/logs pass API typecheck and 24 focused checks with prior task/idempotency/readiness regressions. Root zero-prompt billing and draft cancellation functions remain present. Full combined checks, paid compile waiter bounds, browser-origin policy and the final image remain pending. Worker B continues discovery.
+
+## 2026-11-17 01:18 -05:00 — Anish — Consume the real compiler prewarm digest
+
+- Built image `c7a8c44` from committed source and ran the fixed-template prewarm with the real compiler, pass and valid verdict-0 evaluations. Warm cache completed in one second. The first test mount selected the volume root instead of its existing `restored` subpath and failed before compilation. The corrected mount preserved state and completed. Both compiler/prover locks are released. See [the report](reports/hosted-runtime-prewarm-2026-11-17.json).
+- The actual record exposed a readiness mismatch: engine guest hashes include `0x`, while the consumer accepted only bare hex. A regression using that recorded output failed before the repair. Readiness now accepts either exact 32-byte digest form and still rejects malformed lengths/characters. API typecheck and 35 focused readiness/startup checks pass.
+- The compiler image result is finite warm-cache evidence. The parser repair still needs a new image check. Worker A's active scope does not modify `ready.ts`; preserve this coordinator fix during its next integration. Public hosting, real Grok qualification and fresh funded acceptance remain pending.
+
+## 2026-11-17 01:15 -05:00 — Anish — Check public deployment pins before API startup
+
+- Added an image entrypoint guard for both committed Arc deployment manifests. Public startup rejects absent/wrong contract settings, unsafe RPC URL forms, mismatched manifest wiring and fewer than three open-claim confirmations before importing the API. It makes no external request. Current RPC availability, bytecode and roles remain separate checks.
+- New regressions failed before implementation. All nine deployment/startup/backup checks pass locally and in restricted Node 24/Linux. The first Linux test profile inherited an unmounted state temp path; explicitly selecting writable `/tmp` fixed that test launch. The environment template matches committed pins, keeps credentials/budget ceilings blank and leaves expensive work disabled. CI now runs the deployment guards.
+- The independent archive at `b955545` passes twelve native signed-evidence checks and five installed-client progress checks under restricted emulated Linux. Checksums/provenance pass. See [the report](reports/hosted-runner-linux-progress-2026-11-17.json). No real model call, new proof or chain transaction occurred. Combined final image and external gates remain open.
+
+## 2026-11-17 01:12 -05:00 — Anish — Integrate hosted solver progress end to end
+
+- Integrated Worker A's attempt contract/routes/report as `e97e4c4`, `ddb1742` and `133cc7d`. Added bounded SDK publication/list/history methods and explicit CLI publication. The CLI checks that the API key wallet matches the local solver before posting. Only allowlisted progress leaves the private state file. No keys, paths, plaintext, error text or local payment claims enter the request.
+- Regressions failed before the new client/CLI methods. All API 898, SDK 365 plus 13 wire, and worker 945 checks pass. All three typechecks pass. An actual SDK/API test covers a solver on another buyer's job, ownership rejection, exact replay, append, public reads and unchanged job state. SDK history tests distinguish the event high-water mark from the resume cursor and test the maximum uint256 chain job ID.
+- Updated route/client/UI contracts. Published phases remain solver reports; confirmed chain snapshots define settlement. Worker A continues queue/auth/metrics controls. Worker B continues paginated discovery and confirmed-time expiry. Public hosting, paid authoring qualification and fresh live acceptance remain open. No paid model call or chain action occurred.
+
 ## 2026-11-17 00:58 -05:00 — Anish — Verify proxy readiness transitions and private request logs
 
 - The controlled pinned-Caddy test passes 503 → 200 → 503 as readiness changes. It uses an isolated internal Docker network and HTTP only. Public TLS/hosting remain unverified. Added a reusable `deploy/check-proxy.mjs` command and [the report](reports/hosted-proxy-readiness-2026-11-17.json).

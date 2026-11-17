@@ -357,6 +357,11 @@ it("does not present a down reader or a missing chain config as an empty feed", 
   expect(downText).not.toContain("private.example");
   expect(JSON.parse(downText).error.code).toBe("chain_unavailable");
   expect(downText).not.toContain("\"jobs\"");
+  const detail = await linked.s.app.request(`/v1/open-jobs/${linked.jobs[0]!.jobId}`);
+  const detailText = await detail.text();
+  expect(detail.status, detailText).toBe(503);
+  expect(JSON.parse(detailText).error.code).toBe("chain_unavailable");
+  expect(detailText).not.toContain(SECRET_RPC);
   linked.s.close();
 
   const bare = createApp({ dbPath, buyerToken: BUYER_TOKEN, engine: countingEngine() } as never);

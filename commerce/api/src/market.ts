@@ -18,6 +18,7 @@ import { requireOwnedJob } from "./ownership.ts";
 import type { RouteContext } from "./routes.ts";
 import { isPlainObject, type FieldError } from "./revision.ts";
 import { ownerWallet } from "./ownership.ts";
+import { logInternal } from "./observe.ts";
 import {
   afterCreateSteps,
   arcSelectionTiming,
@@ -196,7 +197,7 @@ async function chainStatus(deps: Deps, link: LinkRow): Promise<{ status: string;
     const job = await readChain(chain).getJob(BigInt(link.chain_job_id));
     return { status: JobStatus[job.status] ?? UNKNOWN_STATUS, source: "live" };
   } catch (err) {
-    console.error("[api] live getJob failed", err);
+    logInternal(deps.deployment.mode, deps.requestLogDebug, "chain-read", err);
     return { status: UNKNOWN_STATUS, source: "live" };
   }
 }
@@ -568,7 +569,7 @@ export function registerMarketRoutes(ctx: RouteContext): void {
       if (err instanceof TransactionReceiptNotFoundError || err instanceof TransactionNotFoundError) {
         throw unconfirmed("not_found");
       }
-      console.error("[api] getTransactionReceipt failed", err);
+      logInternal(deps.deployment.mode, deps.requestLogDebug, "chain-read", err);
       throw new ApiError("chain_unavailable", "Chain RPC request failed");
     }
     if (receipt.status !== "success") throw unconfirmed("reverted");
@@ -611,7 +612,7 @@ export function registerMarketRoutes(ctx: RouteContext): void {
       }
     } catch (err) {
       if (err instanceof ApiError) throw err;
-      console.error("[api] getJob/getTerms failed", err);
+      logInternal(deps.deployment.mode, deps.requestLogDebug, "chain-read", err);
       throw new ApiError("chain_unavailable", "Chain RPC request failed");
     }
     const budget = BigInt(terms.budget);

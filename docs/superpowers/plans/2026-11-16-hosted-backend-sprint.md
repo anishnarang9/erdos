@@ -279,8 +279,8 @@ If a gate fails, repair and rerun. Do not lower the threshold to declare success
 
 - [x] Add an installed-package workflow that does not depend on the coordinator's personal paths or private operator JSON.
 - [x] Support authentication/key setup, job authoring/import, approval, compilation-task polling, funding preview, and confirmed funding linkage.
-- [ ] Support open-job discovery, pagination, exact job inspection, package download, and package/reference integrity checks.
-- [ ] Exclude expired-but-unrefunded jobs from the open feed using confirmed chain time.
+- [x] Support open-job discovery, pagination, exact job inspection, package download, and package/reference integrity checks.
+- [x] Exclude expired-but-unrefunded jobs from the open feed using confirmed chain time.
 - [x] Let a solver provide a local deliverable directory or its own solver command/adapter.
 - [x] Keep arbitrary solver execution outside the hosted API/compiler service.
 - [x] Provide check-only and prepare-only commands before signing.
@@ -306,11 +306,11 @@ The runner proves and settles files. It does not claim to solve arbitrary work a
 
 - [ ] Publish authentication, ownership, tasks, authoring, approval, compilation, open-bounty funding, discovery, and recovery contracts.
 - [ ] Publish representative success, pending, rejected, unsupported, expired, and error responses.
-- [ ] Expose per-job and per-solver attempt identifiers. A failed attempt does not mark the whole bounty rejected.
+- [x] Expose per-job and per-solver attempt identifiers. A failed attempt does not mark the whole bounty rejected.
 - [x] Reuse sanitized telemetry where useful. Prevent secret, plaintext, password, and filesystem-path disclosure.
 - [x] Use one authoritative event order or explicit per-attempt cursors. Do not collide independent solver sequence numbers.
 - [x] Define confirmed chain state as authoritative for winner, payment, expiry, and refund.
-- [ ] Document the five funding steps: create, set budget, approve, fund, register.
+- [x] Document the five funding steps: create, set budget, approve, fund, register.
 - [x] Keep demo signers and presenter-only routes disabled on the public service.
 - [x] Do not edit or merge Neil's UI wholesale. It still needs separate open-bounty adaptation.
 - [ ] Publish a concise UI handoff for Neil with final endpoints, examples, backend limitations, and the exact integration SHA.
