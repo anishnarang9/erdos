@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 16:39 -05:00 — Anish — Add a switch to disable automatic authoring repair
+
+- Branch `codex/hosted-backend` accepts `AUTHORING_REPAIRS=0` for the proposed pilot. The new regression failed with two billed calls before the change. It now verifies one call, settled usage and queued replay without another call. All 995 API tests and the API typecheck pass. Estimated-spend admission and paid approval remain pending. The change awaits deployment. See the [pilot preparation](reports/hosted-combined-authoring-pilot-proposal-2026-11-17.json).
+
 ## 2026-11-17 16:31 -05:00 — Anish — Prepare the revised complete-authoring pilot
 
 - The user selected a 5–10¢ average target and requested a bounded proposal. Exact full-payload tokenizer counts range from 3,330 to 3,375 text tokens. The proposal allows at most three drafts and three Bot reviews with a $0.50 planning allowance and possible in-flight overrun. Paid execution awaits approval. See the [pilot proposal](../../docs/grok-bot/combined-authoring-pilot.md).

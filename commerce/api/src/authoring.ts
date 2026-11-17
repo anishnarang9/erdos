@@ -476,7 +476,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       const remaining = deps.budget.requestCeilingMicroUsd - charge.microUsd;
       return supportedCallFits(model, { ...baseInput, repair: feedback }, limit.maxTokens, remaining, deps.budget);
     };
-    const canRepair = chosen.feedback !== undefined && usageComplete(first.reply.usage) && deps.now() - started < DRAFT_TIMEOUT_MS && repairFits(chosen.feedback);
+    const canRepair = deps.authoringRepairs && chosen.feedback !== undefined && usageComplete(first.reply.usage) && deps.now() - started < DRAFT_TIMEOUT_MS && repairFits(chosen.feedback);
     if (chosen.fatal && !canRepair) throw modelFailure("plan_not_hashable");
     if (canRepair && chosen.feedback) {
       repairAttempted = true;

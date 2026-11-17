@@ -69,6 +69,8 @@ export interface CreateAppOptions {
   expensiveDisabled?: boolean;
   /** Prices and ceilings for draft tasks. Required before a public draft task is accepted. */
   budget?: AuthoringBudget;
+  /** Defaults to true. False allows one draft call with no automatic repair. */
+  authoringRepairs?: boolean;
   /** Bearer token that may resolve a spend halt and read operator metrics. Unset leaves both unavailable. */
   operatorToken?: string;
   /** Structured request lines. Off unless the server or a test enables it. */
@@ -102,6 +104,9 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     throw new Error("createApp: buyerToken must be a string of at least 16 characters");
   }
   assertAuthoringBudget(opts.budget);
+  if (opts.authoringRepairs !== undefined && typeof opts.authoringRepairs !== "boolean") {
+    throw new Error("authoringRepairs must be a boolean");
+  }
   if (opts.botReview && (typeof opts.botReview.serviceToken !== "string" || opts.botReview.serviceToken.length < 32
     || opts.botReview.serviceToken.length > 512 || opts.botReview.serviceToken === opts.buyerToken
     || opts.botReview.serviceToken === opts.operatorToken)) throw new Error("Bot review requires a separate service credential of 32–512 characters");
@@ -134,6 +139,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     // Default: the simulated engine (fake hashes, never provable). server.ts passes the real one.
     engine,
     ...(opts.draftModel ? { draftModel: opts.draftModel } : {}),
+    authoringRepairs: opts.authoringRepairs ?? true,
     ...(opts.chain ? { chain: opts.chain } : {}),
     ...(opts.packagesDir ? { packagesDir: opts.packagesDir } : {}),
     deployment,

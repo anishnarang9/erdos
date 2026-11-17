@@ -126,6 +126,37 @@ describe("reference text", () => {
 });
 
 describe("one repair", () => {
+  it("keeps invalid draft usage settled without a second call when repairs are disabled", async () => {
+    const model = fakeModel(() => ({ ...draftReply({ version: 1 }), usage: { ...usage, cachedTokens: 0, reasoningTokens: 0, costInUsdTicks: null } }));
+    const engine = countingEngine({
+      validate: async () => ({ ok: false, kind: "invalid", errors: [{ path: "/version", message: "bad version" }] }),
+    });
+    const dbPath = join(mkdtempSync(join(tmpdir(), "ubc26-single-draft-")), "api.db");
+    const created = appWith({ draftModel: model, engine: engine as CreateAppOptions["engine"], authoringRepairs: false }, dbPath);
+    const response = await post(created.app, "/v1/drafts", DRAFT_BODY, auth(BUYER_TOKEN));
+    const body = await json(response);
+    expect(response.status, JSON.stringify(body)).toBe(200);
+    expect(body.kind).toBe("unsupported");
+    expect(body.billing).toMatchObject({ state: "settled", microUsd: ONE_CALL_MICRO_USD });
+    expect(model.calls).toHaveLength(1);
+
+    const key = await issue(created.app);
+    const headers = auth(key);
+    const input = { operation: "draft", input: DRAFT_BODY };
+    const queued = await post(created.app, "/v1/tasks", input, headers);
+    expect(queued.status).toBe(202);
+    const task = await queued.json() as { id: string };
+    await created.pumpTasks();
+    const replay = await post(created.app, "/v1/tasks", input, headers);
+    expect(replay.status).toBe(202);
+    expect((await replay.json() as { id: string }).id).toBe(task.id);
+    await created.pumpTasks();
+    expect(model.calls).toHaveLength(2);
+    expect(reservation(dbPath)).toMatchObject({
+      state: "settled", settled_micro_usd: ONE_CALL_MICRO_USD, breach: 0,
+    });
+  });
+
   it("repairs one invalid plan when usage is known and does not repair a capability refusal", async () => {
     let calls = 0;
     const model = fakeModel(() => {

@@ -15,7 +15,7 @@ Keep the input snapshots, native validation and review receipt bound to the gene
 - Allow at most three direct API draft calls and three Bot review runs.
 - Use the reviewed `grok-4.20-0309-non-reasoning` model, one completion and 2,048 completion tokens per API call.
 - Run one complete attempt at a time. Confirm its final usage before starting another.
-- Allow zero paid repair, clarification or automatic retry calls in this pilot. Record a clarification, truncated output or failed draft as an unsuccessful attempt.
+- Allow zero paid repair, clarification or automatic retry calls in this pilot. Set `AUTHORING_REPAIRS=0` in the pilot server. Record a clarification, truncated output or failed draft as an unsuccessful attempt.
 - Retain the existing $1 Bot monthly additional-usage limit and disabled auto top-up. Inspect the remaining allowance before dispatch.
 - Use a $0.50 incremental planning allowance across direct API and Bot usage. Stop before the next call if observed spend plus its estimate exceeds this allowance.
 - Stop after any single attempt's observed combined cost exceeds $0.15, any uncertain dispatch or charge, missing usage evidence, changed provider terms, or invalid callback.

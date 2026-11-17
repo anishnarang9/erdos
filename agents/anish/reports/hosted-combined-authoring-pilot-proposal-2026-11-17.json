@@ -41,5 +41,20 @@
   "maximumApiCalls": 3,
   "maximumBotRuns": 3,
   "repairs": 0,
-  "pilotDocument": "../../../docs/grok-bot/combined-authoring-pilot.md"
+  "pilotDocument": "../../../docs/grok-bot/combined-authoring-pilot.md",
+  "implementationPreparation": {
+    "authoringRepairSwitch": "AUTHORING_REPAIRS=0",
+    "defaultAllowsExistingRepair": true,
+    "normalRoutesVerified": [
+      "POST /v1/drafts",
+      "POST /v1/tasks with exact replay"
+    ],
+    "knownUsageSettlesAfterOneCall": true,
+    "apiTests": 995,
+    "focusedTests": 32,
+    "apiTypecheck": "passed",
+    "estimatedSpendingAdmission": "pending",
+    "deployed": false,
+    "paidExecutionApproved": false
+  }
 }

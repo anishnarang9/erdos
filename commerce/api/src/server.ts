@@ -34,6 +34,10 @@ const port = Number(process.env.PORT ?? 8787);
 const hostname = process.env.HOST;
 const dbPath = process.env.DB_PATH ?? "ubc26.db"; // *.db is gitignored
 const buyerToken = process.env.BUYER_API_TOKEN;
+const authoringRepairs = process.env.AUTHORING_REPAIRS ?? "1";
+if (authoringRepairs !== "0" && authoringRepairs !== "1") {
+  throw new Error("AUTHORING_REPAIRS must be 0 or 1");
+}
 if (!buyerToken) {
   console.error("BUYER_API_TOKEN is required (at least 16 characters)");
   process.exit(1);
@@ -302,6 +306,7 @@ let readyCache: ReturnType<typeof createReadyCache> | undefined;
 const { app, close, reconcileTasks, pumpTasks, drainTasks, checkReady } = createApp({
   dbPath,
   buyerToken,
+  authoringRepairs: authoringRepairs === "1",
   engine,
   ...(draftModel ? { draftModel } : {}),
   ...(packagesDir ? { packagesDir } : {}),
