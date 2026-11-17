@@ -1,0 +1,31 @@
+{
+  "initialSummary": {
+    "challenges": 60,
+    "supportedPlans": 40,
+    "unsupportedPlans": 10,
+    "candidateCases": 341,
+    "distinctStructures": 8,
+    "failures": 37
+  },
+  "findings": [
+    {
+      "kind": "fixture_format",
+      "cases": 30,
+      "cause": "Signed flat payload keys were not canonical JSON. The engine correctly rejected them.",
+      "regression": "harness.test.mjs: signed fixture payload encoding"
+    },
+    {
+      "kind": "runner_classification",
+      "cases": 7,
+      "cause": "Runner did not recognize bundle_input as an input rejection.",
+      "regression": "harness.test.mjs: input rejection classification"
+    },
+    {
+      "kind": "fixture_coverage",
+      "cases": 7,
+      "cause": "Pretty JSON exceeded the bundle limit before reaching the intended 257-row boundary. Compact JSON now isolates the collection boundary.",
+      "regression": "harness.test.mjs: 257-row fixture fits byte cap"
+    }
+  ],
+  "productionDefectsConfirmed": 0
+}

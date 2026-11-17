@@ -10,6 +10,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import type { PublicClient } from "viem";
+import { openDb } from "../../src/db.ts";
+import { requireRealArtifact } from "../../src/artifact.ts";
+import type { ApiChain } from "../../src/chain.ts";
+import { provider } from "../unit/helpers.ts";
+import { postQuote, quoteBody, type MarketApp } from "../unit/t7-t8-helpers.ts";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   ENGINE_CATALOG,
@@ -162,6 +168,60 @@ describe("typed import -> approve -> compile on the real engine", () => {
     expect(r.body.manifest).toMatchObject(EXPECT);
     expect(r.body.manifest.riscZero).toBe("3.1.0");
     expect(r.body.packageUrl).toBe(`/v1/jobs/${jobId}/package`);
+  });
+
+  it("real CLI artifact provenance survives restart, serves compile cache, and supports Arc selection", async () => {
+    // Locate the database containing this already-compiled job (request keys also increment key).
+    const candidates = readdirSync(dbDir).filter((name) => name.endsWith(".db"));
+    let persistedPath: string | undefined;
+    for (const name of candidates) {
+      const candidate = join(dbDir, name);
+      const db = openDb(candidate, () => Date.now());
+      try {
+        if (db.prepare("SELECT id FROM jobs WHERE id = ?").get(jobId)) persistedPath = candidate;
+      } finally { db.close(); }
+    }
+    expect(persistedPath).toBeDefined();
+    const db = openDb(persistedPath!, () => Date.now());
+    const current = db.prepare("SELECT current_revision_id FROM jobs WHERE id = ?").get(jobId) as { current_revision_id: string };
+    expect(() => requireRealArtifact(db, current.current_revision_id)).not.toThrow();
+    expect(db.prepare("SELECT compile_engine_mode FROM manifests WHERE revision_id = ?").get(current.current_revision_id)).toMatchObject({ compile_engine_mode: "real" });
+    const now = Date.now();
+    const timestamp = BigInt(Math.floor(now / 1000));
+    const config = { chainId: 31337, core: "0x1111111111111111111111111111111111111111", hook: "0x2222222222222222222222222222222222222222", usdc: "0x3333333333333333333333333333333333333333" } as const;
+    const chain: ApiChain = { mode: "arc", config, publicClient: {
+      getChainId: async () => config.chainId, getBlockNumber: async () => 42n,
+      getBlock: async () => ({ number: 42n, timestamp }), readContract: async () => 300n,
+    } as unknown as PublicClient, reader: {
+      decodeLogs: () => [], getTerms: async () => null,
+      getJob: async () => { throw new Error("selection must not read a job"); },
+      getSnapshot: async () => { throw new Error("selection must not fetch a funding snapshot"); },
+    } };
+    // A cache miss must fail this test rather than launch another guest compile.
+    const cachedEngine: Engine = { ...engine, compile: async () => { throw new Error("unexpected cache miss"); } };
+    const restarted = createApp({ dbPath: persistedPath!, buyerToken: TOKEN, engine: cachedEngine, chain, packagesDir, now: () => now });
+    try {
+      const cached = await restarted.app.request(`/v1/jobs/${jobId}/compile`, {
+        method: "POST", headers: { authorization: `Bearer ${TOKEN}`, "content-type": "application/json", "idempotency-key": "actual-engine-restart-cache" },
+        body: JSON.stringify({ revisionHash }),
+      });
+      expect(cached.status, await cached.clone().text()).toBe(200);
+      expect(await cached.json()).toMatchObject({ state: "compiled", manifest: EXPECT, packageUrl: `/v1/jobs/${jobId}/package` });
+      const market: MarketApp = { ...restarted, db, dbPath: persistedPath!, clock: { ms: now } };
+      const quote = await quoteBody(provider, config.chainId, { revisionHash }, now);
+      const quoted = await postQuote(market, jobId, provider, quote);
+      expect(quoted.status, await quoted.clone().text()).toBe(201);
+      const { quoteId } = await quoted.json() as { quoteId: string };
+      const selected = await restarted.app.request(`/v1/jobs/${jobId}/select-quote`, {
+        method: "POST", headers: { authorization: `Bearer ${TOKEN}`, "content-type": "application/json", "idempotency-key": "actual-engine-restart-select" },
+        body: JSON.stringify({ quoteId, revisionHash }),
+      });
+      expect(selected.status, await selected.clone().text()).toBe(200);
+      expect(await selected.json()).toMatchObject({ state: "selected", fundingTerms: {
+        imageId: EXPECT.imageId, rulesHash: EXPECT.rulesHash, referenceHash: EXPECT.referenceHash,
+        expiredAt: String(timestamp + 3600n), description: `ubc26:${jobId}`,
+      }, txRequests: [{ kind: "approve" }, { kind: "createJob" }], afterCreate: { order: ["createJob", "setBudget", "approve", "fund"] } });
+    } finally { restarted.close(); db.close(); }
   });
 
   it("the kept package is listed and served byte for byte; the guest digest matches the manifest", async () => {

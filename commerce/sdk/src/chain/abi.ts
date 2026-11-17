@@ -1110,4 +1110,3 @@ export const mockRiscZeroVerifierAbi = [
     "type": "function"
   }
 ] as const;
-

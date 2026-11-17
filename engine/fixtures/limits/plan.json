@@ -1,0 +1,25 @@
+{
+    "version": 1,
+    "deliverables": [
+        {
+            "name": "blob.bin",
+            "parser": "opaque/v1"
+        }
+    ],
+    "references": [],
+    "rules": [
+        {
+            "op": "eq",
+            "left": {
+                "op": "file_size",
+                "source": "deliverable",
+                "file": "blob.bin"
+            },
+            "right": {
+                "op": "literal",
+                "type": "i64",
+                "value": "16367"
+            }
+        }
+    ]
+}

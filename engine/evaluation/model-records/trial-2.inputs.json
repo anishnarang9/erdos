@@ -1,0 +1,1056 @@
+{
+  "version": 1,
+  "trial": 2,
+  "requests": [
+    {
+      "requestId": "q-91b567698225649b",
+      "input": {
+        "request": "Check the lab equipment claim in expenses.json. Amounts use integer cents as decimal strings. Include at least one expense. Use each expense ID once. Every amount must be zero or positive. Keep the total at or below 1100 cents. Keep each expense at or below 440 cents. Mark every expense approved.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"expenses.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"},{\"name\":\"approved\",\"type\":\"bool\"}]}]}],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [
+          {
+            "name": "expenses.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-85c2b1dd328e9529",
+      "input": {
+        "request": "Give everyone a fair schedule.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-6cace53c0a6dbc29",
+      "input": {
+        "request": "Reconcile charity receipts against ledger.json. IDs are case-sensitive. Amounts use integer cents as decimal strings. Use every result ID at most once. Match the reference row count. Match each ID and amount to the reference ledger. Set report.txt to exactly \"Reconciled charity receipts.\\n\".\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"result.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"}]}]},{\"name\":\"report.txt\",\"parser\":\"text/v1\"}],\"referenceFiles\":[{\"name\":\"ledger.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"ledger.json\",\"bytes\":205,\"sha256\":\"0xd242c50fff8ece3e2c99ee5cec74d79197286ccf42f725472f8a53288ab2d642\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAiaWQiOiAibGluZS1hIiwKICAgICAgImFtb3VudENlbnRzIjogIjQwMCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJsaW5lLWIiLAogICAgICAiYW1vdW50Q2VudHMiOiAiNDAwIgogICAgfSwKICAgIHsKICAgICAgImlkIjogImxpbmUtYyIsCiAgICAgICJhbW91bnRDZW50cyI6ICI4MDAiCiAgICB9CiAgXQp9Cg==\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"id\\\": \\\"line-a\\\",\\n      \\\"amountCents\\\": \\\"400\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"line-b\\\",\\n      \\\"amountCents\\\": \\\"400\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"line-c\\\",\\n      \\\"amountCents\\\": \\\"800\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "result.json",
+            "format": "json"
+          },
+          {
+            "name": "report.txt",
+            "format": "text"
+          }
+        ],
+        "referenceNames": [
+          "ledger.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-1cee562d5c8a790a",
+      "input": {
+        "request": "Compare an artifact with a SHA3-256 file hashing primitive inside the checker.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-d8330d9f1ee0e9ee",
+      "input": {
+        "request": "Compute the median quantity with a median primitive inside the checker.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-f780fb9d3954752c",
+      "input": {
+        "request": "Check the signed archive review result. All signers and data in this test are synthetic. The evidence uses the ed25519/v1 envelope and decimal-string scores. Accept only a valid Ed25519 signature from the pinned synthetic signer. Bind the evidence artifactHash to the exact note.txt bytes. Bind contextHash to SHA-256 of the funded context bytes. Require a signed score of at least 73. Require the signed issuer label \"synthetic-2\". Require the signed approved field to be true.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"note.txt\",\"parser\":\"text/v1\"}],\"referenceFiles\":[],\"evidence\":[{\"name\":\"attestation.json\",\"parser\":\"json/v1\",\"profile\":\"ed25519/v1\",\"trustedPublicSigner\":\"0x48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd\",\"authenticatedFields\":[{\"name\":\"artifactHash\",\"type\":\"string\"},{\"name\":\"contextHash\",\"type\":\"string\"},{\"name\":\"score\",\"type\":\"i64\"},{\"name\":\"issuer\",\"type\":\"string\"},{\"name\":\"approved\",\"type\":\"bool\"}]}]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [
+          {
+            "name": "note.txt",
+            "format": "text"
+          }
+        ],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-3beeacb42e70aa04",
+      "input": {
+        "request": "Check a feasible assignment for clinic staffing. All catalog workers are available for either shift. The catalog gives the full cost per assignment in cents. Assign each worker to at most one shift. Use only shift 0 or shift 1. Assign at least one worker to shift 0. Assign at least one worker to shift 1. Keep total worker cost at or below 600 cents. A feasible result does not claim an optimal schedule.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"assignments.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"worker\",\"type\":\"string\"},{\"name\":\"shift\",\"type\":\"i64\"}]}]}],\"referenceFiles\":[{\"name\":\"workers.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"costCents\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"workers.json\",\"bytes\":329,\"sha256\":\"0x4605b16faade31ca4db0bb314ff77c03732a946b6f813968af8012e339dac6c5\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAiaWQiOiAid29ya2VyLTAiLAogICAgICAiY29zdENlbnRzIjogIjEwMCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3b3JrZXItMSIsCiAgICAgICJjb3N0Q2VudHMiOiAiMTAwIgogICAgfSwKICAgIHsKICAgICAgImlkIjogIndvcmtlci0yIiwKICAgICAgImNvc3RDZW50cyI6ICIxMDAiCiAgICB9LAogICAgewogICAgICAiaWQiOiAid29ya2VyLTMiLAogICAgICAiY29zdENlbnRzIjogIjEwMCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3b3JrZXItNCIsCiAgICAgICJjb3N0Q2VudHMiOiAiNTAwIgogICAgfQogIF0KfQo=\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"id\\\": \\\"worker-0\\\",\\n      \\\"costCents\\\": \\\"100\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-1\\\",\\n      \\\"costCents\\\": \\\"100\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-2\\\",\\n      \\\"costCents\\\": \\\"100\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-3\\\",\\n      \\\"costCents\\\": \\\"100\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-4\\\",\\n      \\\"costCents\\\": \\\"500\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "assignments.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "workers.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-915395b3a4b30051",
+      "input": {
+        "request": "Check the release-2 delivery package. Parse artifact.dat with text/v1. Compare exact file bytes, including whitespace and newlines. appendix.bin is opaque binary data. Make artifact.dat match the exact SHA-256 bytes of approved.dat. Include at least 3 bytes in appendix.bin. Include at most 9 bytes in appendix.bin. Set metadata.json label to \"release-2\".\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"artifact.dat\",\"parser\":\"text/v1\"},{\"name\":\"appendix.bin\",\"parser\":\"opaque/v1\"},{\"name\":\"metadata.json\",\"parser\":\"json/v1\",\"fields\":[{\"name\":\"label\",\"type\":\"string\"}]}],\"referenceFiles\":[{\"name\":\"approved.dat\",\"parser\":\"opaque/v1\"}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"approved.dat\",\"bytes\":23,\"sha256\":\"0x6196b42dec95ca28128735b4b74dcfeb6de775baf2507922dc048305f381dcc9\",\"base64\":\"QXBwcm92ZWQgcmVsZWFzZS0yOiDOuwo=\",\"utf8\":\"Approved release-2: λ\\n\"}]",
+        "outputs": [
+          {
+            "name": "artifact.dat",
+            "format": "text"
+          },
+          {
+            "name": "appendix.bin",
+            "format": "binary"
+          },
+          {
+            "name": "metadata.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "approved.dat"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-b9a93a3edefe05ea",
+      "input": {
+        "request": "Deliver a small report in the expected format.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-b266794bfeb9630f",
+      "input": {
+        "request": "Check the volunteer meal claim in expenses.json. Amounts use integer cents as decimal strings. Include at least one expense. Use each expense ID once. Every amount must be zero or positive. Keep the total at or below 1600 cents. Keep each expense at or below 640 cents. Mark every expense approved.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"expenses.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"},{\"name\":\"approved\",\"type\":\"bool\"}]}]}],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [
+          {
+            "name": "expenses.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-a75b8394b849dfcc",
+      "input": {
+        "request": "Check a feasible assignment for festival support. All catalog workers are available for either shift. The catalog gives the full cost per assignment in cents. Assign each worker to at most one shift. Use only shift 0 or shift 1. Assign at least one worker to shift 0. Assign at least one worker to shift 1. Keep total worker cost at or below 1080 cents. A feasible result does not claim an optimal schedule.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"assignments.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"worker\",\"type\":\"string\"},{\"name\":\"shift\",\"type\":\"i64\"}]}]}],\"referenceFiles\":[{\"name\":\"workers.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"costCents\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"workers.json\",\"bytes\":329,\"sha256\":\"0x73a4365945b2fac525805b7d9bffa9580c05d509441b4e72452c2462112b12d6\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAiaWQiOiAid29ya2VyLTAiLAogICAgICAiY29zdENlbnRzIjogIjE4MCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3b3JrZXItMSIsCiAgICAgICJjb3N0Q2VudHMiOiAiMTgwIgogICAgfSwKICAgIHsKICAgICAgImlkIjogIndvcmtlci0yIiwKICAgICAgImNvc3RDZW50cyI6ICIxODAiCiAgICB9LAogICAgewogICAgICAiaWQiOiAid29ya2VyLTMiLAogICAgICAiY29zdENlbnRzIjogIjE4MCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3b3JrZXItNCIsCiAgICAgICJjb3N0Q2VudHMiOiAiOTAwIgogICAgfQogIF0KfQo=\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"id\\\": \\\"worker-0\\\",\\n      \\\"costCents\\\": \\\"180\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-1\\\",\\n      \\\"costCents\\\": \\\"180\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-2\\\",\\n      \\\"costCents\\\": \\\"180\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-3\\\",\\n      \\\"costCents\\\": \\\"180\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-4\\\",\\n      \\\"costCents\\\": \\\"900\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "assignments.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "workers.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-16907adc3afc62db",
+      "input": {
+        "request": "Check the proposed inventory for library stock. Quantities are indivisible units encoded as decimal strings. The catalog sets each SKU range. Use each SKU once. Match the catalog SKU count. Meet each SKU minimum from the catalog. Do not exceed each SKU maximum from the catalog. Store at most 32 units in total.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"stock.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"sku\",\"type\":\"string\"},{\"name\":\"quantity\",\"type\":\"i64\"}]}]}],\"referenceFiles\":[{\"name\":\"catalog.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"sku\",\"type\":\"string\"},{\"name\":\"minimum\",\"type\":\"i64\"},{\"name\":\"maximum\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"catalog.json\",\"bytes\":256,\"sha256\":\"0x2de7753a86a5cf93561b1cb7a5146c3367b757fea19154cac2c2911efb4fa449\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAic2t1IjogInNrdS0wIiwKICAgICAgIm1pbmltdW0iOiAiMyIsCiAgICAgICJtYXhpbXVtIjogIjExIgogICAgfSwKICAgIHsKICAgICAgInNrdSI6ICJza3UtMSIsCiAgICAgICJtaW5pbXVtIjogIjMiLAogICAgICAibWF4aW11bSI6ICIxMSIKICAgIH0sCiAgICB7CiAgICAgICJza3UiOiAic2t1LTIiLAogICAgICAibWluaW11bSI6ICIzIiwKICAgICAgIm1heGltdW0iOiAiMTEiCiAgICB9CiAgXQp9Cg==\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"sku\\\": \\\"sku-0\\\",\\n      \\\"minimum\\\": \\\"3\\\",\\n      \\\"maximum\\\": \\\"11\\\"\\n    },\\n    {\\n      \\\"sku\\\": \\\"sku-1\\\",\\n      \\\"minimum\\\": \\\"3\\\",\\n      \\\"maximum\\\": \\\"11\\\"\\n    },\\n    {\\n      \\\"sku\\\": \\\"sku-2\\\",\\n      \\\"minimum\\\": \\\"3\\\",\\n      \\\"maximum\\\": \\\"11\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "stock.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "catalog.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-8708d4af92b30015",
+      "input": {
+        "request": "Reconcile membership dues against ledger.json. IDs are case-sensitive. Amounts use integer cents as decimal strings. Use every result ID at most once. Match the reference row count. Match each ID and amount to the reference ledger. Set report.txt to exactly \"Reconciled membership dues.\\n\".\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"result.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"}]}]},{\"name\":\"report.txt\",\"parser\":\"text/v1\"}],\"referenceFiles\":[{\"name\":\"ledger.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"ledger.json\",\"bytes\":205,\"sha256\":\"0xef490ae4945934e3f6113ebe0c13983b8c39acd88c5358b3b5464518ee5ab85d\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAiaWQiOiAibGluZS1hIiwKICAgICAgImFtb3VudENlbnRzIjogIjI3NSIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJsaW5lLWIiLAogICAgICAiYW1vdW50Q2VudHMiOiAiMjc1IgogICAgfSwKICAgIHsKICAgICAgImlkIjogImxpbmUtYyIsCiAgICAgICJhbW91bnRDZW50cyI6ICI1NTAiCiAgICB9CiAgXQp9Cg==\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"id\\\": \\\"line-a\\\",\\n      \\\"amountCents\\\": \\\"275\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"line-b\\\",\\n      \\\"amountCents\\\": \\\"275\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"line-c\\\",\\n      \\\"amountCents\\\": \\\"550\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "result.json",
+            "format": "json"
+          },
+          {
+            "name": "report.txt",
+            "format": "text"
+          }
+        ],
+        "referenceNames": [
+          "ledger.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-262ea3d943f3d0a0",
+      "input": {
+        "request": "Parse free-form local date strings into time zones inside the checker.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-aa6a265dbfe7bf0e",
+      "input": {
+        "request": "Check the proposed inventory for event supplies. Quantities are indivisible units encoded as decimal strings. The catalog sets each SKU range. Use each SKU once. Match the catalog SKU count. Meet each SKU minimum from the catalog. Do not exceed each SKU maximum from the catalog. Store at most 41 units in total.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"stock.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"sku\",\"type\":\"string\"},{\"name\":\"quantity\",\"type\":\"i64\"}]}]}],\"referenceFiles\":[{\"name\":\"catalog.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"sku\",\"type\":\"string\"},{\"name\":\"minimum\",\"type\":\"i64\"},{\"name\":\"maximum\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"catalog.json\",\"bytes\":256,\"sha256\":\"0x09e14ea822b230e65f8bedfb3c7bd50c9d37cdf8100b2ff06ae5780cdb554b8b\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAic2t1IjogInNrdS0wIiwKICAgICAgIm1pbmltdW0iOiAiNiIsCiAgICAgICJtYXhpbXVtIjogIjE0IgogICAgfSwKICAgIHsKICAgICAgInNrdSI6ICJza3UtMSIsCiAgICAgICJtaW5pbXVtIjogIjYiLAogICAgICAibWF4aW11bSI6ICIxNCIKICAgIH0sCiAgICB7CiAgICAgICJza3UiOiAic2t1LTIiLAogICAgICAibWluaW11bSI6ICI2IiwKICAgICAgIm1heGltdW0iOiAiMTQiCiAgICB9CiAgXQp9Cg==\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"sku\\\": \\\"sku-0\\\",\\n      \\\"minimum\\\": \\\"6\\\",\\n      \\\"maximum\\\": \\\"14\\\"\\n    },\\n    {\\n      \\\"sku\\\": \\\"sku-1\\\",\\n      \\\"minimum\\\": \\\"6\\\",\\n      \\\"maximum\\\": \\\"14\\\"\\n    },\\n    {\\n      \\\"sku\\\": \\\"sku-2\\\",\\n      \\\"minimum\\\": \\\"6\\\",\\n      \\\"maximum\\\": \\\"14\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "stock.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "catalog.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-d154b3393bd8aff1",
+      "input": {
+        "request": "Fetch the current online exchange rate from an HTTPS API inside the guest.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-d91a7122e2b27103",
+      "input": {
+        "request": "Check the release-6 delivery package. Parse artifact.dat with json/v1. Compare exact file bytes, including whitespace and newlines. appendix.bin is opaque binary data. Make artifact.dat match the exact SHA-256 bytes of approved.dat. Include at least 7 bytes in appendix.bin. Include at most 13 bytes in appendix.bin. Set metadata.json label to \"release-6\".\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"artifact.dat\",\"parser\":\"json/v1\"},{\"name\":\"appendix.bin\",\"parser\":\"opaque/v1\"},{\"name\":\"metadata.json\",\"parser\":\"json/v1\",\"fields\":[{\"name\":\"label\",\"type\":\"string\"}]}],\"referenceFiles\":[{\"name\":\"approved.dat\",\"parser\":\"opaque/v1\"}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"approved.dat\",\"bytes\":29,\"sha256\":\"0x8192451bfab9a083edda4edc2fa689476fc105c69d65edddd1b3a213dde66451\",\"base64\":\"ewogICJyZWxlYXNlIjogInJlbGVhc2UtNiIKfQo=\",\"utf8\":\"{\\n  \\\"release\\\": \\\"release-6\\\"\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "artifact.dat",
+            "format": "json"
+          },
+          {
+            "name": "appendix.bin",
+            "format": "binary"
+          },
+          {
+            "name": "metadata.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "approved.dat"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-7522a8c5c704e145",
+      "input": {
+        "request": "Check the release-4 delivery package. Parse artifact.dat with opaque/v1. Compare exact file bytes, including whitespace and newlines. appendix.bin is opaque binary data. Make artifact.dat match the exact SHA-256 bytes of approved.dat. Include at least 5 bytes in appendix.bin. Include at most 11 bytes in appendix.bin. Set metadata.json label to \"release-4\".\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"artifact.dat\",\"parser\":\"opaque/v1\"},{\"name\":\"appendix.bin\",\"parser\":\"opaque/v1\"},{\"name\":\"metadata.json\",\"parser\":\"json/v1\",\"fields\":[{\"name\":\"label\",\"type\":\"string\"}]}],\"referenceFiles\":[{\"name\":\"approved.dat\",\"parser\":\"opaque/v1\"}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"approved.dat\",\"bytes\":5,\"sha256\":\"0xf9f97f2be9b95efdcb20c0abf5f3e8ee7b256efb00a2105d5c69dbf031fd3c32\",\"base64\":\"AP+AAyo=\",\"utf8\":null}]",
+        "outputs": [
+          {
+            "name": "artifact.dat",
+            "format": "binary"
+          },
+          {
+            "name": "appendix.bin",
+            "format": "binary"
+          },
+          {
+            "name": "metadata.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "approved.dat"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-e9b452d918f15106",
+      "input": {
+        "request": "Check the signed source inspection result. All signers and data in this test are synthetic. The evidence uses the ed25519/v1 envelope and decimal-string scores. Accept only a valid Ed25519 signature from the pinned synthetic signer. Bind the evidence artifactHash to the exact note.txt bytes. Bind contextHash to SHA-256 of the funded context bytes. Require a signed score of at least 79. Require the signed issuer label \"synthetic-4\". Require the signed approved field to be true.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"note.txt\",\"parser\":\"text/v1\"}],\"referenceFiles\":[],\"evidence\":[{\"name\":\"attestation.json\",\"parser\":\"json/v1\",\"profile\":\"ed25519/v1\",\"trustedPublicSigner\":\"0x48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd\",\"authenticatedFields\":[{\"name\":\"artifactHash\",\"type\":\"string\"},{\"name\":\"contextHash\",\"type\":\"string\"},{\"name\":\"score\",\"type\":\"i64\"},{\"name\":\"issuer\",\"type\":\"string\"},{\"name\":\"approved\",\"type\":\"bool\"}]}]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [
+          {
+            "name": "note.txt",
+            "format": "text"
+          }
+        ],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-02a1fe5df5b95ab9",
+      "input": {
+        "request": "Check the proposed inventory for emergency batteries. Quantities are indivisible units encoded as decimal strings. The catalog sets each SKU range. Use each SKU once. Match the catalog SKU count. Meet each SKU minimum from the catalog. Do not exceed each SKU maximum from the catalog. Store at most 47 units in total.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"stock.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"sku\",\"type\":\"string\"},{\"name\":\"quantity\",\"type\":\"i64\"}]}]}],\"referenceFiles\":[{\"name\":\"catalog.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"sku\",\"type\":\"string\"},{\"name\":\"minimum\",\"type\":\"i64\"},{\"name\":\"maximum\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"catalog.json\",\"bytes\":256,\"sha256\":\"0xf83d32edfde0035f28238f523297ff7de497bcf12cfc1494c007e68691a990e4\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAic2t1IjogInNrdS0wIiwKICAgICAgIm1pbmltdW0iOiAiOCIsCiAgICAgICJtYXhpbXVtIjogIjE2IgogICAgfSwKICAgIHsKICAgICAgInNrdSI6ICJza3UtMSIsCiAgICAgICJtaW5pbXVtIjogIjgiLAogICAgICAibWF4aW11bSI6ICIxNiIKICAgIH0sCiAgICB7CiAgICAgICJza3UiOiAic2t1LTIiLAogICAgICAibWluaW11bSI6ICI4IiwKICAgICAgIm1heGltdW0iOiAiMTYiCiAgICB9CiAgXQp9Cg==\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"sku\\\": \\\"sku-0\\\",\\n      \\\"minimum\\\": \\\"8\\\",\\n      \\\"maximum\\\": \\\"16\\\"\\n    },\\n    {\\n      \\\"sku\\\": \\\"sku-1\\\",\\n      \\\"minimum\\\": \\\"8\\\",\\n      \\\"maximum\\\": \\\"16\\\"\\n    },\\n    {\\n      \\\"sku\\\": \\\"sku-2\\\",\\n      \\\"minimum\\\": \\\"8\\\",\\n      \\\"maximum\\\": \\\"16\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "stock.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "catalog.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-85d62683381be6be",
+      "input": {
+        "request": "Reconcile ticket sales against ledger.json. IDs are case-sensitive. Amounts use integer cents as decimal strings. Use every result ID at most once. Match the reference row count. Match each ID and amount to the reference ledger. Set report.txt to exactly \"Reconciled ticket sales.\\n\".\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"result.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"}]}]},{\"name\":\"report.txt\",\"parser\":\"text/v1\"}],\"referenceFiles\":[{\"name\":\"ledger.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"ledger.json\",\"bytes\":205,\"sha256\":\"0x1056038e3d77c6987e14de458f600658c47cf7dcefb53d719b73c88122a67d28\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAiaWQiOiAibGluZS1hIiwKICAgICAgImFtb3VudENlbnRzIjogIjM1MCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJsaW5lLWIiLAogICAgICAiYW1vdW50Q2VudHMiOiAiMzUwIgogICAgfSwKICAgIHsKICAgICAgImlkIjogImxpbmUtYyIsCiAgICAgICJhbW91bnRDZW50cyI6ICI3MDAiCiAgICB9CiAgXQp9Cg==\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"id\\\": \\\"line-a\\\",\\n      \\\"amountCents\\\": \\\"350\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"line-b\\\",\\n      \\\"amountCents\\\": \\\"350\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"line-c\\\",\\n      \\\"amountCents\\\": \\\"700\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "result.json",
+            "format": "json"
+          },
+          {
+            "name": "report.txt",
+            "format": "text"
+          }
+        ],
+        "referenceNames": [
+          "ledger.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-4063db9817a279bf",
+      "input": {
+        "request": "Check the release-5 delivery package. Parse artifact.dat with text/v1. Compare exact file bytes, including whitespace and newlines. appendix.bin is opaque binary data. Make artifact.dat match the exact SHA-256 bytes of approved.dat. Include at least 6 bytes in appendix.bin. Include at most 12 bytes in appendix.bin. Set metadata.json label to \"release-5\".\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"artifact.dat\",\"parser\":\"text/v1\"},{\"name\":\"appendix.bin\",\"parser\":\"opaque/v1\"},{\"name\":\"metadata.json\",\"parser\":\"json/v1\",\"fields\":[{\"name\":\"label\",\"type\":\"string\"}]}],\"referenceFiles\":[{\"name\":\"approved.dat\",\"parser\":\"opaque/v1\"}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"approved.dat\",\"bytes\":23,\"sha256\":\"0xfd6b5c65c04b1acea78fe60f2e747929a26d6a4660faa8e147c6edda87105f68\",\"base64\":\"QXBwcm92ZWQgcmVsZWFzZS01OiDOuwo=\",\"utf8\":\"Approved release-5: λ\\n\"}]",
+        "outputs": [
+          {
+            "name": "artifact.dat",
+            "format": "text"
+          },
+          {
+            "name": "appendix.bin",
+            "format": "binary"
+          },
+          {
+            "name": "metadata.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "approved.dat"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-5966e342170212ed",
+      "input": {
+        "request": "Check the release-3 delivery package. Parse artifact.dat with json/v1. Compare exact file bytes, including whitespace and newlines. appendix.bin is opaque binary data. Make artifact.dat match the exact SHA-256 bytes of approved.dat. Include at least 4 bytes in appendix.bin. Include at most 10 bytes in appendix.bin. Set metadata.json label to \"release-3\".\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"artifact.dat\",\"parser\":\"json/v1\"},{\"name\":\"appendix.bin\",\"parser\":\"opaque/v1\"},{\"name\":\"metadata.json\",\"parser\":\"json/v1\",\"fields\":[{\"name\":\"label\",\"type\":\"string\"}]}],\"referenceFiles\":[{\"name\":\"approved.dat\",\"parser\":\"opaque/v1\"}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"approved.dat\",\"bytes\":29,\"sha256\":\"0xa7ab7daf87f094e6141550d621166efce53e78c71d9285d6cfa76ed2c1f26ece\",\"base64\":\"ewogICJyZWxlYXNlIjogInJlbGVhc2UtMyIKfQo=\",\"utf8\":\"{\\n  \\\"release\\\": \\\"release-3\\\"\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "artifact.dat",
+            "format": "json"
+          },
+          {
+            "name": "appendix.bin",
+            "format": "binary"
+          },
+          {
+            "name": "metadata.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "approved.dat"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-f4fe5596d8db7c90",
+      "input": {
+        "request": "Check a feasible assignment for security shifts. All catalog workers are available for either shift. The catalog gives the full cost per assignment in cents. Assign each worker to at most one shift. Use only shift 0 or shift 1. Assign at least one worker to shift 0. Assign at least one worker to shift 1. Keep total worker cost at or below 960 cents. A feasible result does not claim an optimal schedule.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"assignments.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"worker\",\"type\":\"string\"},{\"name\":\"shift\",\"type\":\"i64\"}]}]}],\"referenceFiles\":[{\"name\":\"workers.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"costCents\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"workers.json\",\"bytes\":329,\"sha256\":\"0xf4f588e18e1fe722a5435d6bf415e20ea4f381aa8c8beb841afa2f7fe20c7e13\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAiaWQiOiAid29ya2VyLTAiLAogICAgICAiY29zdENlbnRzIjogIjE2MCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3b3JrZXItMSIsCiAgICAgICJjb3N0Q2VudHMiOiAiMTYwIgogICAgfSwKICAgIHsKICAgICAgImlkIjogIndvcmtlci0yIiwKICAgICAgImNvc3RDZW50cyI6ICIxNjAiCiAgICB9LAogICAgewogICAgICAiaWQiOiAid29ya2VyLTMiLAogICAgICAiY29zdENlbnRzIjogIjE2MCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3b3JrZXItNCIsCiAgICAgICJjb3N0Q2VudHMiOiAiODAwIgogICAgfQogIF0KfQo=\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"id\\\": \\\"worker-0\\\",\\n      \\\"costCents\\\": \\\"160\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-1\\\",\\n      \\\"costCents\\\": \\\"160\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-2\\\",\\n      \\\"costCents\\\": \\\"160\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-3\\\",\\n      \\\"costCents\\\": \\\"160\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-4\\\",\\n      \\\"costCents\\\": \\\"800\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "assignments.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "workers.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-ed1cedf2a89cd1b5",
+      "input": {
+        "request": "Keep enough stock for the next event.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-294e0355002e080c",
+      "input": {
+        "request": "Check a feasible assignment for compute batch slots. All catalog workers are available for either shift. The catalog gives the full cost per assignment in cents. Assign each worker to at most one shift. Use only shift 0 or shift 1. Assign at least one worker to shift 0. Assign at least one worker to shift 1. Keep total worker cost at or below 1200 cents. A feasible result does not claim an optimal schedule.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"assignments.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"worker\",\"type\":\"string\"},{\"name\":\"shift\",\"type\":\"i64\"}]}]}],\"referenceFiles\":[{\"name\":\"workers.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"costCents\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"workers.json\",\"bytes\":330,\"sha256\":\"0x3ce637a135a3e5c0c4477eef0f1c49e3a6659aaea8c7dd903a914cb550bd1850\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAiaWQiOiAid29ya2VyLTAiLAogICAgICAiY29zdENlbnRzIjogIjIwMCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3b3JrZXItMSIsCiAgICAgICJjb3N0Q2VudHMiOiAiMjAwIgogICAgfSwKICAgIHsKICAgICAgImlkIjogIndvcmtlci0yIiwKICAgICAgImNvc3RDZW50cyI6ICIyMDAiCiAgICB9LAogICAgewogICAgICAiaWQiOiAid29ya2VyLTMiLAogICAgICAiY29zdENlbnRzIjogIjIwMCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3b3JrZXItNCIsCiAgICAgICJjb3N0Q2VudHMiOiAiMTAwMCIKICAgIH0KICBdCn0K\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"id\\\": \\\"worker-0\\\",\\n      \\\"costCents\\\": \\\"200\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-1\\\",\\n      \\\"costCents\\\": \\\"200\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-2\\\",\\n      \\\"costCents\\\": \\\"200\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-3\\\",\\n      \\\"costCents\\\": \\\"200\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-4\\\",\\n      \\\"costCents\\\": \\\"1000\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "assignments.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "workers.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-f64f521d0a3e2c01",
+      "input": {
+        "request": "Ask a language model inside the guest whether the prose is persuasive.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-25f6b2e447bcdec2",
+      "input": {
+        "request": "Check the field research claim in expenses.json. Amounts use integer cents as decimal strings. Include at least one expense. Use each expense ID once. Every amount must be zero or positive. Keep the total at or below 1300 cents. Keep each expense at or below 520 cents. Mark every expense approved.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"expenses.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"},{\"name\":\"approved\",\"type\":\"bool\"}]}]}],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [
+          {
+            "name": "expenses.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-9394e2cb7bac9b38",
+      "input": {
+        "request": "Reconcile the payments and ignore tiny differences.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-83857f3e669114aa",
+      "input": {
+        "request": "Validate an X.509 certificate chain and its revocation status as a native evidence profile.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-77150aacb3ba035a",
+      "input": {
+        "request": "Check a feasible assignment for warehouse coverage. All catalog workers are available for either shift. The catalog gives the full cost per assignment in cents. Assign each worker to at most one shift. Use only shift 0 or shift 1. Assign at least one worker to shift 0. Assign at least one worker to shift 1. Keep total worker cost at or below 720 cents. A feasible result does not claim an optimal schedule.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"assignments.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"worker\",\"type\":\"string\"},{\"name\":\"shift\",\"type\":\"i64\"}]}]}],\"referenceFiles\":[{\"name\":\"workers.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"costCents\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"workers.json\",\"bytes\":329,\"sha256\":\"0xf63428798a311e7943f3faf2284933714330ee475c557a629ed668b0caa228b9\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAiaWQiOiAid29ya2VyLTAiLAogICAgICAiY29zdENlbnRzIjogIjEyMCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3b3JrZXItMSIsCiAgICAgICJjb3N0Q2VudHMiOiAiMTIwIgogICAgfSwKICAgIHsKICAgICAgImlkIjogIndvcmtlci0yIiwKICAgICAgImNvc3RDZW50cyI6ICIxMjAiCiAgICB9LAogICAgewogICAgICAiaWQiOiAid29ya2VyLTMiLAogICAgICAiY29zdENlbnRzIjogIjEyMCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3b3JrZXItNCIsCiAgICAgICJjb3N0Q2VudHMiOiAiNjAwIgogICAgfQogIF0KfQo=\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"id\\\": \\\"worker-0\\\",\\n      \\\"costCents\\\": \\\"120\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-1\\\",\\n      \\\"costCents\\\": \\\"120\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-2\\\",\\n      \\\"costCents\\\": \\\"120\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-3\\\",\\n      \\\"costCents\\\": \\\"120\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-4\\\",\\n      \\\"costCents\\\": \\\"600\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "assignments.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "workers.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-43a0b56ea0b9c69d",
+      "input": {
+        "request": "Check the proposed inventory for food pantry boxes. Quantities are indivisible units encoded as decimal strings. The catalog sets each SKU range. Use each SKU once. Match the catalog SKU count. Meet each SKU minimum from the catalog. Do not exceed each SKU maximum from the catalog. Store at most 38 units in total.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"stock.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"sku\",\"type\":\"string\"},{\"name\":\"quantity\",\"type\":\"i64\"}]}]}],\"referenceFiles\":[{\"name\":\"catalog.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"sku\",\"type\":\"string\"},{\"name\":\"minimum\",\"type\":\"i64\"},{\"name\":\"maximum\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"catalog.json\",\"bytes\":256,\"sha256\":\"0x2ecb0a6a1599391ab8d292ce061559a16892a8fd68b5e9967f572642c590cc7b\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAic2t1IjogInNrdS0wIiwKICAgICAgIm1pbmltdW0iOiAiNSIsCiAgICAgICJtYXhpbXVtIjogIjEzIgogICAgfSwKICAgIHsKICAgICAgInNrdSI6ICJza3UtMSIsCiAgICAgICJtaW5pbXVtIjogIjUiLAogICAgICAibWF4aW11bSI6ICIxMyIKICAgIH0sCiAgICB7CiAgICAgICJza3UiOiAic2t1LTIiLAogICAgICAibWluaW11bSI6ICI1IiwKICAgICAgIm1heGltdW0iOiAiMTMiCiAgICB9CiAgXQp9Cg==\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"sku\\\": \\\"sku-0\\\",\\n      \\\"minimum\\\": \\\"5\\\",\\n      \\\"maximum\\\": \\\"13\\\"\\n    },\\n    {\\n      \\\"sku\\\": \\\"sku-1\\\",\\n      \\\"minimum\\\": \\\"5\\\",\\n      \\\"maximum\\\": \\\"13\\\"\\n    },\\n    {\\n      \\\"sku\\\": \\\"sku-2\\\",\\n      \\\"minimum\\\": \\\"5\\\",\\n      \\\"maximum\\\": \\\"13\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "stock.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "catalog.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-2f52e7516aa39798",
+      "input": {
+        "request": "Check the signed dataset audit result. All signers and data in this test are synthetic. The evidence uses the ed25519/v1 envelope and decimal-string scores. Accept only a valid Ed25519 signature from the pinned synthetic signer. Bind the evidence artifactHash to the exact note.txt bytes. Bind contextHash to SHA-256 of the funded context bytes. Require a signed score of at least 82. Require the signed issuer label \"synthetic-5\". Require the signed approved field to be true.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"note.txt\",\"parser\":\"text/v1\"}],\"referenceFiles\":[],\"evidence\":[{\"name\":\"attestation.json\",\"parser\":\"json/v1\",\"profile\":\"ed25519/v1\",\"trustedPublicSigner\":\"0x48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd\",\"authenticatedFields\":[{\"name\":\"artifactHash\",\"type\":\"string\"},{\"name\":\"contextHash\",\"type\":\"string\"},{\"name\":\"score\",\"type\":\"i64\"},{\"name\":\"issuer\",\"type\":\"string\"},{\"name\":\"approved\",\"type\":\"bool\"}]}]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [
+          {
+            "name": "note.txt",
+            "format": "text"
+          }
+        ],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-3baeda9b21f638e6",
+      "input": {
+        "request": "Reconcile bank payments against ledger.json. IDs are case-sensitive. Amounts use integer cents as decimal strings. Use every result ID at most once. Match the reference row count. Match each ID and amount to the reference ledger. Set report.txt to exactly \"Reconciled bank payments.\\n\".\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"result.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"}]}]},{\"name\":\"report.txt\",\"parser\":\"text/v1\"}],\"referenceFiles\":[{\"name\":\"ledger.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"ledger.json\",\"bytes\":205,\"sha256\":\"0xc8ef056e690219a9613884716f5d6a1455dbaa0290165c35d4900ea888385cbb\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAiaWQiOiAibGluZS1hIiwKICAgICAgImFtb3VudENlbnRzIjogIjI1MCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJsaW5lLWIiLAogICAgICAiYW1vdW50Q2VudHMiOiAiMjUwIgogICAgfSwKICAgIHsKICAgICAgImlkIjogImxpbmUtYyIsCiAgICAgICJhbW91bnRDZW50cyI6ICI1MDAiCiAgICB9CiAgXQp9Cg==\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"id\\\": \\\"line-a\\\",\\n      \\\"amountCents\\\": \\\"250\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"line-b\\\",\\n      \\\"amountCents\\\": \\\"250\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"line-c\\\",\\n      \\\"amountCents\\\": \\\"500\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "result.json",
+            "format": "json"
+          },
+          {
+            "name": "report.txt",
+            "format": "text"
+          }
+        ],
+        "referenceNames": [
+          "ledger.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-5b0509493b287974",
+      "input": {
+        "request": "Check the release-1 delivery package. Parse artifact.dat with opaque/v1. Compare exact file bytes, including whitespace and newlines. appendix.bin is opaque binary data. Make artifact.dat match the exact SHA-256 bytes of approved.dat. Include at least 2 bytes in appendix.bin. Include at most 8 bytes in appendix.bin. Set metadata.json label to \"release-1\".\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"artifact.dat\",\"parser\":\"opaque/v1\"},{\"name\":\"appendix.bin\",\"parser\":\"opaque/v1\"},{\"name\":\"metadata.json\",\"parser\":\"json/v1\",\"fields\":[{\"name\":\"label\",\"type\":\"string\"}]}],\"referenceFiles\":[{\"name\":\"approved.dat\",\"parser\":\"opaque/v1\"}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"approved.dat\",\"bytes\":5,\"sha256\":\"0x5ea41953a28e5d5576a305ff4f3799df1de8c02aea016a48c160dc8a907507ae\",\"base64\":\"AP+AACo=\",\"utf8\":null}]",
+        "outputs": [
+          {
+            "name": "artifact.dat",
+            "format": "binary"
+          },
+          {
+            "name": "appendix.bin",
+            "format": "binary"
+          },
+          {
+            "name": "metadata.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "approved.dat"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-5efb5becdda57481",
+      "input": {
+        "request": "Check the conference travel claim in expenses.json. Amounts use integer cents as decimal strings. Include at least one expense. Use each expense ID once. Every amount must be zero or positive. Keep the total at or below 1000 cents. Keep each expense at or below 400 cents. Mark every expense approved.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"expenses.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"},{\"name\":\"approved\",\"type\":\"bool\"}]}]}],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [
+          {
+            "name": "expenses.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-86948ea39d866310",
+      "input": {
+        "request": "Check the signed model evaluation result. All signers and data in this test are synthetic. The evidence uses the ed25519/v1 envelope and decimal-string scores. Accept only a valid Ed25519 signature from the pinned synthetic signer. Bind the evidence artifactHash to the exact note.txt bytes. Bind contextHash to SHA-256 of the funded context bytes. Require a signed score of at least 76. Require the signed issuer label \"synthetic-3\". Require the signed approved field to be true.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"note.txt\",\"parser\":\"text/v1\"}],\"referenceFiles\":[],\"evidence\":[{\"name\":\"attestation.json\",\"parser\":\"json/v1\",\"profile\":\"ed25519/v1\",\"trustedPublicSigner\":\"0x48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd\",\"authenticatedFields\":[{\"name\":\"artifactHash\",\"type\":\"string\"},{\"name\":\"contextHash\",\"type\":\"string\"},{\"name\":\"score\",\"type\":\"i64\"},{\"name\":\"issuer\",\"type\":\"string\"},{\"name\":\"approved\",\"type\":\"bool\"}]}]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [
+          {
+            "name": "note.txt",
+            "format": "text"
+          }
+        ],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-f8baa9190b9497c5",
+      "input": {
+        "request": "Check a feasible assignment for tutor sessions. All catalog workers are available for either shift. The catalog gives the full cost per assignment in cents. Assign each worker to at most one shift. Use only shift 0 or shift 1. Assign at least one worker to shift 0. Assign at least one worker to shift 1. Keep total worker cost at or below 840 cents. A feasible result does not claim an optimal schedule.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"assignments.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"worker\",\"type\":\"string\"},{\"name\":\"shift\",\"type\":\"i64\"}]}]}],\"referenceFiles\":[{\"name\":\"workers.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"costCents\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"workers.json\",\"bytes\":329,\"sha256\":\"0xcc1c98ae90e638a781ac1437835f32c27be2c9ad79d2ecb10c8d472c79ef783c\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAiaWQiOiAid29ya2VyLTAiLAogICAgICAiY29zdENlbnRzIjogIjE0MCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3b3JrZXItMSIsCiAgICAgICJjb3N0Q2VudHMiOiAiMTQwIgogICAgfSwKICAgIHsKICAgICAgImlkIjogIndvcmtlci0yIiwKICAgICAgImNvc3RDZW50cyI6ICIxNDAiCiAgICB9LAogICAgewogICAgICAiaWQiOiAid29ya2VyLTMiLAogICAgICAiY29zdENlbnRzIjogIjE0MCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3b3JrZXItNCIsCiAgICAgICJjb3N0Q2VudHMiOiAiNzAwIgogICAgfQogIF0KfQo=\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"id\\\": \\\"worker-0\\\",\\n      \\\"costCents\\\": \\\"140\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-1\\\",\\n      \\\"costCents\\\": \\\"140\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-2\\\",\\n      \\\"costCents\\\": \\\"140\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-3\\\",\\n      \\\"costCents\\\": \\\"140\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-4\\\",\\n      \\\"costCents\\\": \\\"700\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "assignments.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "workers.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-9c5e3560b5dce69c",
+      "input": {
+        "request": "Extract table cells directly from a PDF with a native PDF parser.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-aef78db8a3590d88",
+      "input": {
+        "request": "Reconcile supplier invoices against ledger.json. IDs are case-sensitive. Amounts use integer cents as decimal strings. Use every result ID at most once. Match the reference row count. Match each ID and amount to the reference ledger. Set report.txt to exactly \"Reconciled supplier invoices.\\n\".\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"result.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"}]}]},{\"name\":\"report.txt\",\"parser\":\"text/v1\"}],\"referenceFiles\":[{\"name\":\"ledger.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"ledger.json\",\"bytes\":205,\"sha256\":\"0xe580b3b2fe2e16a6514ba49f08595668e73a52d686f3718f05f28b5dcebf0218\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAiaWQiOiAibGluZS1hIiwKICAgICAgImFtb3VudENlbnRzIjogIjMwMCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJsaW5lLWIiLAogICAgICAiYW1vdW50Q2VudHMiOiAiMzAwIgogICAgfSwKICAgIHsKICAgICAgImlkIjogImxpbmUtYyIsCiAgICAgICJhbW91bnRDZW50cyI6ICI2MDAiCiAgICB9CiAgXQp9Cg==\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"id\\\": \\\"line-a\\\",\\n      \\\"amountCents\\\": \\\"300\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"line-b\\\",\\n      \\\"amountCents\\\": \\\"300\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"line-c\\\",\\n      \\\"amountCents\\\": \\\"600\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "result.json",
+            "format": "json"
+          },
+          {
+            "name": "report.txt",
+            "format": "text"
+          }
+        ],
+        "referenceNames": [
+          "ledger.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-038eb6aa61b0a441",
+      "input": {
+        "request": "Check the signed shipment certificate result. All signers and data in this test are synthetic. The evidence uses the ed25519/v1 envelope and decimal-string scores. Accept only a valid Ed25519 signature from the pinned synthetic signer. Bind the evidence artifactHash to the exact note.txt bytes. Bind contextHash to SHA-256 of the funded context bytes. Require a signed score of at least 85. Require the signed issuer label \"synthetic-6\". Require the signed approved field to be true.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"note.txt\",\"parser\":\"text/v1\"}],\"referenceFiles\":[],\"evidence\":[{\"name\":\"attestation.json\",\"parser\":\"json/v1\",\"profile\":\"ed25519/v1\",\"trustedPublicSigner\":\"0x48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd\",\"authenticatedFields\":[{\"name\":\"artifactHash\",\"type\":\"string\"},{\"name\":\"contextHash\",\"type\":\"string\"},{\"name\":\"score\",\"type\":\"i64\"},{\"name\":\"issuer\",\"type\":\"string\"},{\"name\":\"approved\",\"type\":\"bool\"}]}]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [
+          {
+            "name": "note.txt",
+            "format": "text"
+          }
+        ],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-056ed88ad41dcb42",
+      "input": {
+        "request": "Check a feasible assignment for delivery crews. All catalog workers are available for either shift. The catalog gives the full cost per assignment in cents. Assign each worker to at most one shift. Use only shift 0 or shift 1. Assign at least one worker to shift 0. Assign at least one worker to shift 1. Keep total worker cost at or below 1320 cents. A feasible result does not claim an optimal schedule.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"assignments.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"worker\",\"type\":\"string\"},{\"name\":\"shift\",\"type\":\"i64\"}]}]}],\"referenceFiles\":[{\"name\":\"workers.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"costCents\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"workers.json\",\"bytes\":330,\"sha256\":\"0xe8d9a5af0d4504a186080c8833e6427125b6a8b27444b14274d3c021ed1d216a\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAiaWQiOiAid29ya2VyLTAiLAogICAgICAiY29zdENlbnRzIjogIjIyMCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3b3JrZXItMSIsCiAgICAgICJjb3N0Q2VudHMiOiAiMjIwIgogICAgfSwKICAgIHsKICAgICAgImlkIjogIndvcmtlci0yIiwKICAgICAgImNvc3RDZW50cyI6ICIyMjAiCiAgICB9LAogICAgewogICAgICAiaWQiOiAid29ya2VyLTMiLAogICAgICAiY29zdENlbnRzIjogIjIyMCIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3b3JrZXItNCIsCiAgICAgICJjb3N0Q2VudHMiOiAiMTEwMCIKICAgIH0KICBdCn0K\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"id\\\": \\\"worker-0\\\",\\n      \\\"costCents\\\": \\\"220\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-1\\\",\\n      \\\"costCents\\\": \\\"220\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-2\\\",\\n      \\\"costCents\\\": \\\"220\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-3\\\",\\n      \\\"costCents\\\": \\\"220\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"worker-4\\\",\\n      \\\"costCents\\\": \\\"1100\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "assignments.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "workers.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-fc190bdcd0ee41f6",
+      "input": {
+        "request": "Check the proposed inventory for lab consumables. Quantities are indivisible units encoded as decimal strings. The catalog sets each SKU range. Use each SKU once. Match the catalog SKU count. Meet each SKU minimum from the catalog. Do not exceed each SKU maximum from the catalog. Store at most 44 units in total.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"stock.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"sku\",\"type\":\"string\"},{\"name\":\"quantity\",\"type\":\"i64\"}]}]}],\"referenceFiles\":[{\"name\":\"catalog.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"sku\",\"type\":\"string\"},{\"name\":\"minimum\",\"type\":\"i64\"},{\"name\":\"maximum\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"catalog.json\",\"bytes\":256,\"sha256\":\"0x216b0125ea286e37d2ec18283966edaada214620822100e5f7c923ebbd478e54\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAic2t1IjogInNrdS0wIiwKICAgICAgIm1pbmltdW0iOiAiNyIsCiAgICAgICJtYXhpbXVtIjogIjE1IgogICAgfSwKICAgIHsKICAgICAgInNrdSI6ICJza3UtMSIsCiAgICAgICJtaW5pbXVtIjogIjciLAogICAgICAibWF4aW11bSI6ICIxNSIKICAgIH0sCiAgICB7CiAgICAgICJza3UiOiAic2t1LTIiLAogICAgICAibWluaW11bSI6ICI3IiwKICAgICAgIm1heGltdW0iOiAiMTUiCiAgICB9CiAgXQp9Cg==\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"sku\\\": \\\"sku-0\\\",\\n      \\\"minimum\\\": \\\"7\\\",\\n      \\\"maximum\\\": \\\"15\\\"\\n    },\\n    {\\n      \\\"sku\\\": \\\"sku-1\\\",\\n      \\\"minimum\\\": \\\"7\\\",\\n      \\\"maximum\\\": \\\"15\\\"\\n    },\\n    {\\n      \\\"sku\\\": \\\"sku-2\\\",\\n      \\\"minimum\\\": \\\"7\\\",\\n      \\\"maximum\\\": \\\"15\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "stock.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "catalog.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-4e5189cbe412d0b3",
+      "input": {
+        "request": "Check the proposed inventory for robot parts. Quantities are indivisible units encoded as decimal strings. The catalog sets each SKU range. Use each SKU once. Match the catalog SKU count. Meet each SKU minimum from the catalog. Do not exceed each SKU maximum from the catalog. Store at most 35 units in total.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"stock.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"sku\",\"type\":\"string\"},{\"name\":\"quantity\",\"type\":\"i64\"}]}]}],\"referenceFiles\":[{\"name\":\"catalog.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"sku\",\"type\":\"string\"},{\"name\":\"minimum\",\"type\":\"i64\"},{\"name\":\"maximum\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"catalog.json\",\"bytes\":256,\"sha256\":\"0xbbaed3c24f548469a6c6924886117ce59325ecc41d8534c471aa28c37be0eca9\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAic2t1IjogInNrdS0wIiwKICAgICAgIm1pbmltdW0iOiAiNCIsCiAgICAgICJtYXhpbXVtIjogIjEyIgogICAgfSwKICAgIHsKICAgICAgInNrdSI6ICJza3UtMSIsCiAgICAgICJtaW5pbXVtIjogIjQiLAogICAgICAibWF4aW11bSI6ICIxMiIKICAgIH0sCiAgICB7CiAgICAgICJza3UiOiAic2t1LTIiLAogICAgICAibWluaW11bSI6ICI0IiwKICAgICAgIm1heGltdW0iOiAiMTIiCiAgICB9CiAgXQp9Cg==\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"sku\\\": \\\"sku-0\\\",\\n      \\\"minimum\\\": \\\"4\\\",\\n      \\\"maximum\\\": \\\"12\\\"\\n    },\\n    {\\n      \\\"sku\\\": \\\"sku-1\\\",\\n      \\\"minimum\\\": \\\"4\\\",\\n      \\\"maximum\\\": \\\"12\\\"\\n    },\\n    {\\n      \\\"sku\\\": \\\"sku-2\\\",\\n      \\\"minimum\\\": \\\"4\\\",\\n      \\\"maximum\\\": \\\"12\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "stock.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "catalog.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-cc386f3d8dfe941d",
+      "input": {
+        "request": "Approve reasonable travel expenses.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-18e85029f501881b",
+      "input": {
+        "request": "Check each line with the regular expression ^invoice-[0-9]+$.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-f45abef2e94bf432",
+      "input": {
+        "request": "Check the club workshop claim in expenses.json. Amounts use integer cents as decimal strings. Include at least one expense. Use each expense ID once. Every amount must be zero or positive. Keep the total at or below 1500 cents. Keep each expense at or below 600 cents. Mark every expense approved.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"expenses.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"},{\"name\":\"approved\",\"type\":\"bool\"}]}]}],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [
+          {
+            "name": "expenses.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-97b86d8a7f1ebcdf",
+      "input": {
+        "request": "Cover the morning shift before the deadline.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-bd0cb74c613c108a",
+      "input": {
+        "request": "Reconcile payroll adjustments against ledger.json. IDs are case-sensitive. Amounts use integer cents as decimal strings. Use every result ID at most once. Match the reference row count. Match each ID and amount to the reference ledger. Set report.txt to exactly \"Reconciled payroll adjustments.\\n\".\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"result.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"}]}]},{\"name\":\"report.txt\",\"parser\":\"text/v1\"}],\"referenceFiles\":[{\"name\":\"ledger.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"ledger.json\",\"bytes\":205,\"sha256\":\"0xb229f1832f7885d3dfdf17503a7042f765da84cd6913ef8cc6020cb97541df4d\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAiaWQiOiAibGluZS1hIiwKICAgICAgImFtb3VudENlbnRzIjogIjM3NSIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJsaW5lLWIiLAogICAgICAiYW1vdW50Q2VudHMiOiAiMzc1IgogICAgfSwKICAgIHsKICAgICAgImlkIjogImxpbmUtYyIsCiAgICAgICJhbW91bnRDZW50cyI6ICI3NTAiCiAgICB9CiAgXQp9Cg==\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"id\\\": \\\"line-a\\\",\\n      \\\"amountCents\\\": \\\"375\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"line-b\\\",\\n      \\\"amountCents\\\": \\\"375\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"line-c\\\",\\n      \\\"amountCents\\\": \\\"750\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "result.json",
+            "format": "json"
+          },
+          {
+            "name": "report.txt",
+            "format": "text"
+          }
+        ],
+        "referenceNames": [
+          "ledger.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-4a2458b4899db605",
+      "input": {
+        "request": "Reconcile grant reimbursements against ledger.json. IDs are case-sensitive. Amounts use integer cents as decimal strings. Use every result ID at most once. Match the reference row count. Match each ID and amount to the reference ledger. Set report.txt to exactly \"Reconciled grant reimbursements.\\n\".\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"result.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"}]}]},{\"name\":\"report.txt\",\"parser\":\"text/v1\"}],\"referenceFiles\":[{\"name\":\"ledger.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"ledger.json\",\"bytes\":205,\"sha256\":\"0x9ad328ea7b6c9dc5ae76753b6974f203026d37bab98b884df4a95556e41b3fcf\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAiaWQiOiAibGluZS1hIiwKICAgICAgImFtb3VudENlbnRzIjogIjMyNSIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJsaW5lLWIiLAogICAgICAiYW1vdW50Q2VudHMiOiAiMzI1IgogICAgfSwKICAgIHsKICAgICAgImlkIjogImxpbmUtYyIsCiAgICAgICJhbW91bnRDZW50cyI6ICI2NTAiCiAgICB9CiAgXQp9Cg==\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"id\\\": \\\"line-a\\\",\\n      \\\"amountCents\\\": \\\"325\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"line-b\\\",\\n      \\\"amountCents\\\": \\\"325\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"line-c\\\",\\n      \\\"amountCents\\\": \\\"650\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "result.json",
+            "format": "json"
+          },
+          {
+            "name": "report.txt",
+            "format": "text"
+          }
+        ],
+        "referenceNames": [
+          "ledger.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-c003d5341742bc33",
+      "input": {
+        "request": "Use a recent signed audit that scores well.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-1cae758f4699b703",
+      "input": {
+        "request": "Accept this result if a trusted reviewer signs it.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-10d4351413aefb3b",
+      "input": {
+        "request": "Sort arbitrary ledger rows by date inside the predicate before comparing them.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-275128fc6c3a7482",
+      "input": {
+        "request": "Check the student event claim in expenses.json. Amounts use integer cents as decimal strings. Include at least one expense. Use each expense ID once. Every amount must be zero or positive. Keep the total at or below 1200 cents. Keep each expense at or below 480 cents. Mark every expense approved.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"expenses.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"},{\"name\":\"approved\",\"type\":\"bool\"}]}]}],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [
+          {
+            "name": "expenses.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-05f78b726c592957",
+      "input": {
+        "request": "Compute a decimal reimbursement ratio with division inside the checker.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-1825030cedae50d2",
+      "input": {
+        "request": "Match transactions by date and description.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-5f6a44847b56a5a7",
+      "input": {
+        "request": "Check the proposed inventory for medical kits. Quantities are indivisible units encoded as decimal strings. The catalog sets each SKU range. Use each SKU once. Match the catalog SKU count. Meet each SKU minimum from the catalog. Do not exceed each SKU maximum from the catalog. Store at most 29 units in total.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"stock.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"sku\",\"type\":\"string\"},{\"name\":\"quantity\",\"type\":\"i64\"}]}]}],\"referenceFiles\":[{\"name\":\"catalog.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"sku\",\"type\":\"string\"},{\"name\":\"minimum\",\"type\":\"i64\"},{\"name\":\"maximum\",\"type\":\"i64\"}]}]}],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[{\"name\":\"catalog.json\",\"bytes\":256,\"sha256\":\"0x70ed6744e266a4c6fd088a8b0801f592947942cc15bee028aab90179456f6236\",\"base64\":\"ewogICJyb3dzIjogWwogICAgewogICAgICAic2t1IjogInNrdS0wIiwKICAgICAgIm1pbmltdW0iOiAiMiIsCiAgICAgICJtYXhpbXVtIjogIjEwIgogICAgfSwKICAgIHsKICAgICAgInNrdSI6ICJza3UtMSIsCiAgICAgICJtaW5pbXVtIjogIjIiLAogICAgICAibWF4aW11bSI6ICIxMCIKICAgIH0sCiAgICB7CiAgICAgICJza3UiOiAic2t1LTIiLAogICAgICAibWluaW11bSI6ICIyIiwKICAgICAgIm1heGltdW0iOiAiMTAiCiAgICB9CiAgXQp9Cg==\",\"utf8\":\"{\\n  \\\"rows\\\": [\\n    {\\n      \\\"sku\\\": \\\"sku-0\\\",\\n      \\\"minimum\\\": \\\"2\\\",\\n      \\\"maximum\\\": \\\"10\\\"\\n    },\\n    {\\n      \\\"sku\\\": \\\"sku-1\\\",\\n      \\\"minimum\\\": \\\"2\\\",\\n      \\\"maximum\\\": \\\"10\\\"\\n    },\\n    {\\n      \\\"sku\\\": \\\"sku-2\\\",\\n      \\\"minimum\\\": \\\"2\\\",\\n      \\\"maximum\\\": \\\"10\\\"\\n    }\\n  ]\\n}\\n\"}]",
+        "outputs": [
+          {
+            "name": "stock.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [
+          "catalog.json"
+        ],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-95dcb87f0898631f",
+      "input": {
+        "request": "Accept the claim if the total is under 100.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-3f75a3b8a8de07fa",
+      "input": {
+        "request": "Check the software purchase claim in expenses.json. Amounts use integer cents as decimal strings. Include at least one expense. Use each expense ID once. Every amount must be zero or positive. Keep the total at or below 1400 cents. Keep each expense at or below 560 cents. Mark every expense approved.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"expenses.json\",\"parser\":\"json/v1\",\"collections\":[{\"name\":\"rows\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amountCents\",\"type\":\"i64\"},{\"name\":\"approved\",\"type\":\"bool\"}]}]}],\"referenceFiles\":[],\"evidence\":[]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [
+          {
+            "name": "expenses.json",
+            "format": "json"
+          }
+        ],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    },
+    {
+      "requestId": "q-80df0918945988b8",
+      "input": {
+        "request": "Check the signed lab calibration result. All signers and data in this test are synthetic. The evidence uses the ed25519/v1 envelope and decimal-string scores. Accept only a valid Ed25519 signature from the pinned synthetic signer. Bind the evidence artifactHash to the exact note.txt bytes. Bind contextHash to SHA-256 of the funded context bytes. Require a signed score of at least 70. Require the signed issuer label \"synthetic-1\". Require the signed approved field to be true.\n\nPermitted file names and input types (no predicates are supplied):\n{\"outputFiles\":[{\"name\":\"note.txt\",\"parser\":\"text/v1\"}],\"referenceFiles\":[],\"evidence\":[{\"name\":\"attestation.json\",\"parser\":\"json/v1\",\"profile\":\"ed25519/v1\",\"trustedPublicSigner\":\"0x48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd\",\"authenticatedFields\":[{\"name\":\"artifactHash\",\"type\":\"string\"},{\"name\":\"contextHash\",\"type\":\"string\"},{\"name\":\"score\",\"type\":\"i64\"},{\"name\":\"issuer\",\"type\":\"string\"},{\"name\":\"approved\",\"type\":\"bool\"}]}]}\n\nBuyer-supplied reference bytes:\n[]",
+        "outputs": [
+          {
+            "name": "note.txt",
+            "format": "text"
+          }
+        ],
+        "referenceNames": [],
+        "clarifications": [],
+        "schema": {
+          "$ref": "authoring-schema.json"
+        }
+      }
+    }
+  ]
+}

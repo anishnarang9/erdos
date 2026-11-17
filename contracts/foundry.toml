@@ -1,0 +1,14 @@
+# Settlement contracts (workstream 2). See agents/current plan/SETTLEMENT-IMPLEMENTATION.md.
+# Compiler settings mirror Circle's verified AgenticCommerce build so the provenance test (S1)
+# compares like with like: solc 0.8.28, EVM cancun, optimizer off.
+[profile.default]
+src = "src"
+test = "test"
+script = "script"
+out = "out"
+libs = []
+solc_version = "0.8.28"
+evm_version = "cancun"
+optimizer = false
+ffi = false
+fs_permissions = [{ access = "read", path = "./" }, { access = "read-write", path = "./deployments" }]

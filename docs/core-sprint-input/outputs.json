@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "status": "proposed-rehearsal-buyer-approval-pending",
+  "files": [
+    {
+      "name": "allocations.json",
+      "parser": "json/v1",
+      "collections": [
+        {
+          "name": "allocations",
+          "fields": [
+            {"name": "task_id", "type": "string"},
+            {"name": "pool_id", "type": "string"},
+            {"name": "units", "type": "i64"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dispatch.json",
+      "parser": "json/v1",
+      "collections": [
+        {
+          "name": "dispatches",
+          "fields": [
+            {"name": "pool_id", "type": "string"},
+            {"name": "mode", "type": "string"},
+            {"name": "stamp", "type": "i64"}
+          ]
+        }
+      ]
+    }
+  ],
+  "maxEncodedBytes": 16384,
+  "maxRecordsPerCollection": 256,
+  "extraObjectMembers": "allowed-and-ignored",
+  "integerEncoding": "normalized signed i64 decimal strings"
+}

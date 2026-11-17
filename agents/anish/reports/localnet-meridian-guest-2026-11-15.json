@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-15",
+  "reviewer": "native Orca Grok 4.7 high, Meridian guest compile and execute",
+  "status": "passed",
+  "head": "e1aa6467c3b4802ab2cc36c1d58239ebafc9e6e6",
+  "liveArc": false,
+  "chainRpc": false,
+  "modelCalls": false,
+  "groth16": false,
+  "lowMemoryWrapper": false,
+  "guestOwnership": "released",
+  "provingSla": "not inferred from userCycles",
+  "tools": {
+    "engine": "engine/target/debug/engine",
+    "dockerClient": "29.1.3",
+    "dockerServer": "29.1.3",
+    "r0vm": "risc0-r0vm 3.1.0",
+    "risc0DevMode": "unset",
+    "rustLog": "unset"
+  },
+  "engineBinary": {
+    "path": "engine/target/debug/engine",
+    "preflightSha256": "abb34d8156cbe8c38984c53b8bc146745c53958e6752d5a667f01d98d8ccac9d",
+    "executeSha256": "2ae9b83b0450a845d2af0163e8a92b919a36d4622f6fcc805ed8a33a0f90eed0",
+    "executeMtime": "2026-11-15T23:41:21-0500",
+    "note": "The preflight hash was taken before compile. Compile ran from 23:40:29 to 23:40:45 local. The same path then had mtime 23:41:21 and the execute hash above. This run did not rebuild the engine. Host eval and all three executes used the later hash. The staged guest Dockerfile matches the repository file and its pinned FROM digest."
+  },
+  "hashes": {
+    "docs/fresh-exchange-input/plan.json": "8adab8d931f6065cd91fab141b8049d231fcb29ab438350118c4973c63b9238a",
+    "docs/fresh-exchange-input/reference/dataset.json": "6ccaaf06a64a68039dace223fc36fad9f60efce3f250d6044c5f7274b60fc06f",
+    "docs/fresh-exchange-input/candidates/valid/schedule.json": "0607a7b43bf95913d5561d1872b14df0e9ba3fce160946f0bfac99d76608fbc2",
+    "docs/fresh-exchange-input/candidates/alternative/schedule.json": "a6084c49e8fdef4e8fc0059df1f035126a496a634123a57c0447da35e35a7ecd",
+    "privateVerdict0Schedule": "60a8b69eeb6c9ff1d045db1959cee78d04e710ccb7a404098439cf29360709d5",
+    "engine/cli/src/checker-template/Dockerfile": "ff3221faebb85ff9377a069632cc387192e19daf8ca1311091cb2c7de99a5765",
+    "engine/target/debug/engine at execute": "2ae9b83b0450a845d2af0163e8a92b919a36d4622f6fcc805ed8a33a0f90eed0"
+  },
+  "imageIdentity": {
+    "distinction": "Image ID (.Id) and RepoDigest were inspected as separate fields. For both local images below, this daemon reports the same sha256 in .Id and .RepoDigests.",
+    "pinnedReference": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+    "beforePull": {
+      "exactReferencePresent": false,
+      "bareDigestPresent": false,
+      "exactInspect": "No such image: risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+      "bareInspect": "No such image: sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+      "localTagNotUsed": {
+        "reference": "risczero/risc0-guest-builder:r0.1.97.0",
+        "imageId": "sha256:7ae0a27fa72b10fb5c1066005bd949ae43dc4ead8a284f2d6572b99c82ab4468",
+        "repoDigests": [
+          "risczero/risc0-guest-builder@sha256:7ae0a27fa72b10fb5c1066005bd949ae43dc4ead8a284f2d6572b99c82ab4468"
+        ],
+        "os": "linux",
+        "architecture": "amd64"
+      }
+    },
+    "pull": {
+      "command": "docker pull --platform linux/amd64 risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+      "platform": "linux/amd64",
+      "exitCode": 0,
+      "elapsedSeconds": 0,
+      "status": "Downloaded newer image for risczero/risc0-guest-builder@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+      "registryDigest": "sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb"
+    },
+    "afterPull": {
+      "imageId": "sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+      "repoDigests": [
+        "risczero/risc0-guest-builder@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb"
+      ],
+      "os": "linux",
+      "architecture": "amd64",
+      "repoDigestMatchesPin": true,
+      "localTagImageIdUnchanged": "sha256:7ae0a27fa72b10fb5c1066005bd949ae43dc4ead8a284f2d6572b99c82ab4468"
+    }
+  },
+  "commands": [
+    {
+      "name": "refusedCompile",
+      "command": "engine/target/debug/engine compile --plan docs/fresh-exchange-input/plan.json --reference docs/fresh-exchange-input/reference --out <private-package>",
+      "exitCode": 3,
+      "elapsedSeconds": 0.44,
+      "stdoutEmpty": true,
+      "stderr": [
+        "pinned guest-builder digest is not local; refusing build before any pull",
+        "{\"code\":\"build_failure\",\"message\":\"Guest build failed with exit status: 1\"}"
+      ],
+      "dockerArgvAttempted": "build --platform linux/amd64 --output type=local,dest=<engine-temp> <engine-temp>",
+      "realDockerInvoked": false,
+      "cacheHit": false
+    },
+    {
+      "name": "pullPinnedGuestBuilder",
+      "command": "docker pull --platform linux/amd64 risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+      "exitCode": 0,
+      "elapsedSeconds": 0
+    },
+    {
+      "name": "compile",
+      "command": "engine/target/debug/engine compile --plan docs/fresh-exchange-input/plan.json --reference docs/fresh-exchange-input/reference --out <private-package>",
+      "exitCode": 0,
+      "elapsedSeconds": 16,
+      "compileMillis": 15445,
+      "cacheHit": false,
+      "fromResolved": "docker.io/risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+      "cargoFinishedSeconds": 9.6
+    },
+    {
+      "name": "hostEvalValid",
+      "command": "engine/target/debug/engine eval --plan docs/fresh-exchange-input/plan.json --deliverables docs/fresh-exchange-input/candidates/valid --reference docs/fresh-exchange-input/reference",
+      "exitCode": 0,
+      "elapsed": "under 1 second",
+      "verdict": 1
+    },
+    {
+      "name": "hostEvalAlternative",
+      "command": "engine/target/debug/engine eval --plan docs/fresh-exchange-input/plan.json --deliverables docs/fresh-exchange-input/candidates/alternative --reference docs/fresh-exchange-input/reference",
+      "exitCode": 0,
+      "elapsed": "under 1 second",
+      "verdict": 1
+    },
+    {
+      "name": "hostEvalVerdict0",
+      "command": "engine/target/debug/engine eval --plan docs/fresh-exchange-input/plan.json --deliverables <private-verdict0> --reference docs/fresh-exchange-input/reference",
+      "exitCode": 0,
+      "elapsed": "under 1 second",
+      "verdict": 0,
+      "invalidInput": false
+    },
+    {
+      "name": "executeValid",
+      "command": "RISC0_SERVER_PATH=<pinned risc0-r0vm 3.1.0> engine/target/debug/engine execute --package <private-package> --job <synthetic-job> --deliverables docs/fresh-exchange-input/candidates/valid --reference docs/fresh-exchange-input/reference",
+      "exitCode": 0,
+      "elapsedSeconds": 1.828,
+      "stdout": {"verdict": 1, "userCycles": 7053898},
+      "stderrEmpty": true,
+      "journalMatchesHost": true
+    },
+    {
+      "name": "executeAlternative",
+      "command": "RISC0_SERVER_PATH=<pinned risc0-r0vm 3.1.0> engine/target/debug/engine execute --package <private-package> --job <synthetic-job> --deliverables docs/fresh-exchange-input/candidates/alternative --reference docs/fresh-exchange-input/reference",
+      "exitCode": 0,
+      "elapsedSeconds": 1.818,
+      "stdout": {"verdict": 1, "userCycles": 7053842},
+      "stderrEmpty": true,
+      "journalMatchesHost": true
+    },
+    {
+      "name": "executeVerdict0",
+      "command": "RISC0_SERVER_PATH=<pinned risc0-r0vm 3.1.0> engine/target/debug/engine execute --package <private-package> --job <synthetic-job> --deliverables <private-verdict0> --reference docs/fresh-exchange-input/reference",
+      "exitCode": 0,
+      "elapsedSeconds": 1.718,
+      "stdout": {"verdict": 0, "userCycles": 7053898},
+      "stderrEmpty": true,
+      "journalMatchesHost": true
+    }
+  ],
+  "package": {
+    "retainedPrivately": true,
+    "mode": "700",
+    "inputVersion": 2,
+    "imageId": "0x9b6b32b79bee4fbe407a83ffe9161200dfe3c0392920db3e8477491ff325aa6a",
+    "rulesHash": "0x5d637c9b710c72857f7752f665ca08565eecc7d1c5b3877a5a8339d700a1f60b",
+    "referenceHash": "0x9c652686c37d6fd375c8b7f930eff54bdc7b67c1c23666f4eb3542f75bc30812",
+    "structureHash": "0xb06974923f9625535275905149690c636bbaa6e6e335365a2179907cbe3b85cf",
+    "guestSha256": "0x3a36a35ebcbc2e8f2de10ef8095168dbbebf623e0b5c730966f276cf50f57e68",
+    "parametersSha256": "0xe4baab55b2fbd1c125e0e638b7da65bf1edbef4e60b9d35f6f4696eea7608e30",
+    "structureSha256": "0x2b6ebb7741737a7079d87f294d28c3783537c8f91208f8db91008bf8800589f4",
+    "buildFingerprint": "47e691d42b49989b6b76e6865c2edce91734489cddb6ac50c74d4d9272262456",
+    "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+    "riscZero": "3.1.0",
+    "guestElfBytes": 1409456,
+    "cacheHit": false,
+    "compileMillis": 15445
+  },
+  "job": {
+    "synthetic": true,
+    "localOnly": true,
+    "chainId": 0,
+    "escrow": "0x1111111111111111111111111111111111111111",
+    "jobId": 1,
+    "provider": "0x2222222222222222222222222222222222222222",
+    "contextBytes": 169,
+    "imageId": "0x9b6b32b79bee4fbe407a83ffe9161200dfe3c0392920db3e8477491ff325aa6a",
+    "rulesHash": "0x5d637c9b710c72857f7752f665ca08565eecc7d1c5b3877a5a8339d700a1f60b",
+    "referenceHash": "0x9c652686c37d6fd375c8b7f930eff54bdc7b67c1c23666f4eb3542f75bc30812"
+  },
+  "verdict0": {
+    "basis": "private copy of the published valid schedule",
+    "change": "one charge clay_kg canonical decimal reduced by 1",
+    "hostVerdict": 0,
+    "guestVerdict": 0,
+    "lookupOrSchemaAbort": false
+  },
+  "executions": [
+    {
+      "name": "valid",
+      "verdict": 1,
+      "userCycles": 7053898,
+      "elapsedSeconds": 1.828,
+      "journalMatchesHost": true
+    },
+    {
+      "name": "alternative",
+      "verdict": 1,
+      "userCycles": 7053842,
+      "elapsedSeconds": 1.818,
+      "journalMatchesHost": true
+    },
+    {
+      "name": "verdict0",
+      "verdict": 0,
+      "userCycles": 7053898,
+      "elapsedSeconds": 1.718,
+      "journalMatchesHost": true
+    }
+  ],
+  "findings": [
+    "The first compile exited 3 in 0.44 seconds because the pinned guest-builder digest was not present as a local image. A wrapper recorded the engine docker build argv and refused it before any pull.",
+    "The local r0.1.97.0 tag is image ID and RepoDigest sha256:7ae0a27fa72b10fb5c1066005bd949ae43dc4ead8a284f2d6572b99c82ab4468. It was not used.",
+    "The authorized pull of the pinned digest for linux/amd64 exited 0. Post-pull image ID and RepoDigest are both sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb, os linux, architecture amd64. The local tag stayed on the other digest.",
+    "One later compile missed the ELF cache, resolved that same FROM digest, and exited 0. compileMillis was 15445 and the measured wall time was 16 seconds.",
+    "Host eval returned verdict 1, 1, and 0 for the valid schedule, the alternative schedule, and the private clay_kg reduction. The private case was not an invalid-input error.",
+    "Three sequential r0vm 3.1.0 executions returned the same verdicts. The engine reports that success only when the full guest journal equals the host journal and the guest halts with 0. Observed user cycles were 7053898, 7053842, and 7053898.",
+    "No Groth16 proof was produced. After the three executions, no r0vm, engine compile, or engine execute process remained. Guest build and execute ownership is released."
+  ]
+}

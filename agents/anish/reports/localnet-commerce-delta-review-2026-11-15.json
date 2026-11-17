@@ -1,0 +1,108 @@
+{
+  "report": "localnet-commerce-delta-review-2026-11-15",
+  "reviewedAt": "2026-11-15T23:40:00-0500",
+  "method": "Read-only git comparison and source reading. No merge, cherry-pick, source edit, dependency change, .env or wallet read, live RPC, or test rerun.",
+  "refs": {
+    "integrationHead": "2d9f2fdcff14c7dc581ba3c4c787cf6730589750",
+    "branch": "codex/engine-commerce",
+    "integratedAncestor": "8584b045f18996667419b8c6d7f965717b099f5e",
+    "ancestorIsInHead": true,
+    "neilBranch": "origin/neil/plan-architecture",
+    "neilHead": "85ca5bb929e2f31389cfb67029b73c9ca12cbacb",
+    "neilHeadIsInIntegration": false,
+    "commitsAfterAncestorNotInHead": [
+      {"sha": "fd818de", "subject": "feat(sdk): arc settlement client on Nick's deployed contracts"},
+      {"sha": "1edb74a", "subject": "feat: API reads Nick's Arc deployment; worker SettlementPort; first-funded-job runbook"},
+      {"sha": "e816dfb", "subject": "docs(status): Arc settlement connected"},
+      {"sha": "1533ce018b08e648bde7abb3dbff1a934f2c23bd", "subject": "fix(worker): re-check verdict, key, chain context and foreign submission; exact calldata"},
+      {"sha": "18869fa3e1e709a86f5c137d2a7dbead1e8d902f", "subject": "fix: UNC work dirs; indexer confirmations; API db off WSL share; verify-delivery"},
+      {"sha": "85ca5bb929e2f31389cfb67029b73c9ca12cbacb", "subject": "evidence: first funded jobs on Arc"}
+    ],
+    "citedSourcesMatchHead": [
+      "commerce/api/src/indexer.ts",
+      "commerce/api/src/server.ts",
+      "commerce/api/src/engine.ts",
+      "commerce/api/src/market.ts",
+      "commerce/sdk/src/chain/cursor.ts",
+      "commerce/worker/src/funded.ts",
+      "commerce/worker/src/policy.ts",
+      "commerce/worker/src/buyer-recovery.ts"
+    ]
+  },
+  "blockingDefect": true,
+  "findings": [
+    {
+      "id": "indexer-confirmation-lag",
+      "blocking": true,
+      "recommendation": "port",
+      "summary": "Neil's Arc indexer stays three blocks behind the head. The integration cursor supports that margin, but the API indexer never sets it, so a lagging eth_getLogs response can advance the cursor past logs it did not return.",
+      "neil": {
+        "commit": "18869fa3e1e709a86f5c137d2a7dbead1e8d902f",
+        "evidence": [
+          "commerce/api/src/indexer.ts:14-18 adds confirmations, default 0, and line 67 passes it to LogCursor",
+          "commerce/api/src/server.ts:109 sets confirmations to 3n when CHAIN_MODE is arc, else 0n"
+        ]
+      },
+      "integration": {
+        "evidence": [
+          "commerce/sdk/src/chain/cursor.ts:59 defaults confirmations to 0n",
+          "commerce/sdk/src/chain/cursor.ts:66-70 computes safe as head minus confirmations and returns before getLogs when safe is behind the cursor",
+          "commerce/sdk/src/chain/cursor.ts:77-89 calls getLogs through safe and then saves that block",
+          "commerce/api/src/indexer.ts:7-16 has no confirmations field",
+          "commerce/api/src/indexer.ts:58-64 constructs LogCursor without confirmations",
+          "commerce/api/src/indexer.ts:107 persists the saved block even when the window contains no events",
+          "commerce/api/src/server.ts:101-105 starts the indexer with only db, chain, and cursorStart"
+        ]
+      },
+      "effect": [
+        "commerce/api/src/market.ts:175-188 returns the latest indexed core status and calls live getJob only when no indexed status exists. A skipped later event leaves an older indexed status in place.",
+        "commerce/api/src/market.ts:691-727 reads ProofAccepted and KeyReleased only from the events table. It does not fall back to the chain for submitTx, envelopeHash, keyCommitment, releaseTx, or key.",
+        "commerce/api/src/market.ts:559-601 links funding from the named transaction receipt and, in arc mode, a snapshot at that receipt block. That path does not use the indexer."
+      ],
+      "minimalPort": "Add an optional confirmations field to IndexerOptions and pass it to LogCursor, leaving the default at 0n so current callers stay unchanged. In server.ts, pass 3n when chain.mode is arc. Use the existing ApiChain mode. Do not add CHAIN_MODE, do not change funding-receipt, and do not change worker or signer policy."
+    }
+  ],
+  "noPort": [
+    {
+      "id": "indexer-start-block-and-window",
+      "neil": "commerce/api/src/server.ts:106-108 at 85ca5bb defaults the Arc cursor to ARC_TESTNET.deployBlock and sets maxRange to MAX_LOG_WINDOW.",
+      "integration": "commerce/api/src/server.ts:104 starts at INDEX_FROM_BLOCK or 0. commerce/sdk/src/chain/cursor.ts:52 defaults maxRange to 10_000n, the same window.",
+      "reason": "Starting at 0 does not skip later logs. Copying a hardcoded deploy block could start past real history. No port."
+    },
+    {
+      "id": "worker-rechecks",
+      "neil": "1533ce018b08e648bde7abb3dbff1a934f2c23bd moves verdict, fresh context, image, key-commitment, and foreign-submission checks so they run before every submit or release.",
+      "integration": "commerce/worker/src/funded.ts:224-236 rechecks artifacts, proof context, image, saved verdict and commitments, and the release key on every resume before signing. Lines 271-284 recheck API identity and reject a foreign submission before signing. Lines 283-284 and 334-337 require the accepted submission to match the attempt before release.",
+      "reason": "The hardened runner already performs these checks and adds artifact, approval, deadline, and disclosure guards. Replacing funded.ts with Neil's version would remove those guards. No port."
+    },
+    {
+      "id": "exact-calldata-policy",
+      "neil": "1533ce0 commerce/worker/src/policy.ts decodes submit and release and requires the re-encoded calldata to match.",
+      "integration": "commerce/worker/src/policy.ts:34-69 requires chain 5042002, zero value, gas and fee caps, an explicit authorization, canonical re-encoding, and equality with the authorized envelope, seal, hash, or key commitment.",
+      "reason": "The current policy is stricter than selector-plus-reencode. Porting Neil's policy would drop authorization binding and fee limits. No port."
+    },
+    {
+      "id": "delivery-script",
+      "neil": "18869fa adds commerce/worker/scripts/verify-delivery.ts. It reads public job and settlement events, checks the envelope hash and key commitment, decrypts, and can write files. It uses CHAIN_RPC_URL or the deployment RPC.",
+      "integration": "commerce/worker/src/buyer-recovery.ts:102-212 recovers from caller-supplied submit and release transactions. It checks receipt identity, block anchors, canonical calldata, one ProofAccepted, one KeyReleased, the 1000000-unit payment, the key commitment, and pinned snapshots. Lines 225-249 also decrypt with the operator-selected engine and compare files. It does not read the indexer.",
+      "reason": "The script is a weaker live-RPC delivery path beside the hardened recovery. Porting it would not fix the indexer and could bypass recovery checks. No port. The API submission readout still needs the indexer confirmation port above."
+    },
+    {
+      "id": "wsl-unc-and-db-location",
+      "neil": "18869fa commerce/api/src/engine.ts:382 accepts //wsl.localhost as UNC, and lines 447-451 reject a collapsed single-separator wsl path. The first-funded-job script puts the API sqlite file on the local temp disk.",
+      "integration": "commerce/api/src/engine.ts:393-394 treats every path that starts with / as POSIX, including a double slash. engineConfigFromEnv at lines 454-466 stores ENGINE_WORK_DIR without that guard. The production server at commerce/api/src/server.ts:15 uses DB_PATH and does not place the database on a WSL share by itself.",
+      "reason": "This is a real WSL-mode footgun, not the Arc funding or delivery defect. The operator runner already fails closed for WSL. Do not port the live first-funded-job script. No port in this delta."
+    },
+    {
+      "id": "parallel-arc-client",
+      "neil": "fd818de and 1edb74a add commerce/sdk/src/chain/arc/reads.ts, send.ts, and commerce/worker/src/arc-port.ts, plus live RPC suites.",
+      "integration": "Funding and recovery use createArcReader, receipt-pinned snapshots, commerce/worker/src/arc-port.ts, and checkPolicy.",
+      "reason": "Neil's send path is a second broadcaster outside the current authorization policy. Copying that client would duplicate chain access and can regress the signer boundary. No port."
+    },
+    {
+      "id": "evidence-and-docs",
+      "neil": "e816dfb and 85ca5bb are status and funded-job evidence.",
+      "reason": "They do not change the settlement implementation. No code port. They are not evidence for this integration tree."
+    }
+  ]
+}

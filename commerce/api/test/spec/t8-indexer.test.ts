@@ -55,6 +55,7 @@ async function setup(ctx: ChainCtx): Promise<{ path: string; mk: () => Indexer; 
     if (db !== s!.raw.db) opened.push(db);
     // ambiguity: `chain` is given as a CommerceChain that also carries { config, publicClient }.
     const chainArg = Object.assign(Object.create(ctx.buyerChain), ctx.buyerChain, {
+      mode: "simulated",
       config: ctx.config,
       publicClient: ctx.dep.publicClient,
     });

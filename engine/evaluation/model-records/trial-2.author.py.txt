@@ -1,0 +1,118 @@
+import json,re,os
+IN='/tmp/ubc26-integration-authoring-inputs/trial-2.inputs.json'
+D=json.load(open(IN))
+
+def lit(t,v): return {'op':'literal','type':t,'value':str(v) if t=='i64' else v}
+def field(src,file,name): return {'op':'field','source':src,'file':file,'field':name}
+def rf(name,level=0): return {'op':'record_field','field':name,'level':level}
+def binop(op,a,b): return {'op':op,'left':a,'right':b}
+def coll(src,file,f='rows'): return {'source':src,'file':file,'field':f}
+def allc(c,p): return {'op':'all','collection':c,'where':p}
+def anyc(c,p): return {'op':'any','collection':c,'where':p}
+def count(c): return {'op':'count','collection':c}
+def unique(c,f): return {'op':'unique','collection':c,'field':f}
+def lookup(c,kf,key,vf): return {'op':'lookup','collection':c,'keyField':kf,'key':key,'valueField':vf}
+def conj(xs):
+ if len(xs)==1:return xs[0]
+ a=xs[0]
+ for x in xs[1:]: a=binop('and',a,x)
+ return a
+def sourcequote(s): return [{'path':'/rules/request','quote':s}]
+def draft(delivs,refs,rules,evidence=None,quotes=''):
+ p={'version':1,'deliverables':delivs,'references':refs,'rules':rules}
+ if evidence is not None:p['evidence']=evidence
+ return {'kind':'draft','plan':p,'examples':[],'sourceQuotes':sourcequote(quotes)}
+def file_from(x):
+ y={'name':x['name'],'parser':x['parser']}
+ if x.get('fields'):y['fields']=x['fields']
+ if x.get('collections'):y['collections']=x['collections']
+ return y
+results=[]
+for item in D['requests']:
+ rid=item['requestId']; inp=item['input']; raw=inp['request']; req=raw.split('\n\nPermitted file names')[0]
+ meta=json.loads(raw.split('Permitted file names and input types (no predicates are supplied):\n',1)[1].split('\n\nBuyer-supplied reference bytes:',1)[0])
+ refsbytes=json.loads(raw.split('Buyer-supplied reference bytes:\n',1)[1])
+ outs=[file_from(x) for x in meta['outputFiles']]; refs=[file_from(x) for x in meta['referenceFiles']]
+ evidence=[]; rules=[]; quotes=req
+ result=None
+ if 'Check the ' in req and 'expenses.json' in req:
+  c=coll('deliverable','expenses.json'); amount=rf('amountCents'); rows=[count(c),unique(c,'id'),allc(c,binop('gte',amount,lit('i64','0'))),{'op':'sum','collection':c,'value':amount},allc(c,binop('lte',amount,lit('i64',re.search(r'Keep each expense at or below (\d+) cents',req).group(1)))),allc(c,rf('approved'))]
+  rules=[binop('gte',count(c),lit('i64','1')),unique(c,'id'),allc(c,binop('gte',amount,lit('i64','0'))),binop('lte',{'op':'sum','collection':c,'value':amount},lit('i64',re.search(r'Keep the total at or below (\d+) cents',req).group(1))),allc(c,binop('lte',amount,lit('i64',re.search(r'Keep each expense at or below (\d+) cents',req).group(1)))),allc(c,rf('approved'))]
+  result=draft(outs,refs,rules,quotes=' '.join(req.split('. ')[:7])+'.')
+ elif req.startswith('Reconcile ') and 'Set report.txt to exactly' in req:
+  c=coll('deliverable','result.json'); rc=coll('reference','ledger.json'); f_id=rf('id'); refid=lookup(rc,'id',f_id,'id'); refamt=lookup(rc,'id',f_id,'amountCents')
+  pred=conj([binop('eq',f_id,refid),binop('eq',rf('amountCents'),refamt)])
+  exact=json.loads('\"'+re.search(r'Set report\.txt to exactly \"([^\"]*)\"',req).group(1)+'\"')
+  import hashlib
+  digest='0x'+hashlib.sha256(exact.encode()).hexdigest()
+  rules=[unique(c,'id'),binop('eq',count(c),count(rc)),allc(c,pred),binop('eq',{'op':'file_hash','source':'deliverable','file':'report.txt'},lit('string',digest))]
+  result=draft(outs,refs,rules,quotes=req)
+ elif req.startswith('Reconcile '):
+  result={'kind':'clarification','questions':['Which reference and result files should be reconciled, and what numeric tolerance defines a tiny difference?']}
+ elif req.startswith('Check the proposed inventory'):
+  c=coll('deliverable','stock.json'); rc=coll('reference','catalog.json'); sku=rf('sku'); q=rf('quantity')
+  pred=conj([binop('gte',q,lookup(rc,'sku',sku,'minimum')),binop('lte',q,lookup(rc,'sku',sku,'maximum'))])
+  rules=[unique(c,'sku'),binop('eq',count(c),count(rc)),allc(c,pred),binop('lte',{'op':'sum','collection':c,'value':q},lit('i64',re.search(r'Store at most (\d+) units',req).group(1)))]
+  result=draft(outs,refs,rules,quotes=req)
+ elif req.startswith('Check a feasible assignment'):
+  c=coll('deliverable','assignments.json'); wc=coll('reference','workers.json'); who=rf('worker'); shift=rf('shift')
+  cost=lookup(wc,'id',who,'costCents')
+  pred=conj([binop('eq',who,lookup(wc,'id',who,'id')),binop('or',binop('eq',shift,lit('i64','0')),binop('eq',shift,lit('i64','1')))])
+  rules=[unique(c,'worker'),allc(c,pred),anyc(c,binop('eq',shift,lit('i64','0'))),anyc(c,binop('eq',shift,lit('i64','1'))),binop('lte',{'op':'sum','collection':c,'value':cost},lit('i64',re.search(r'at or below (\d+) cents',req).group(1)))]
+  result=draft(outs,refs,rules,quotes=req)
+ elif req.startswith('Check the release-'):
+  low=int(re.search(r'Include at least (\d+) bytes',req).group(1)); high=int(re.search(r'Include at most (\d+) bytes',req).group(1)); label=re.search(r'label to "([^"]+)"',req).group(1)
+  rules=[binop('eq',{'op':'file_hash','source':'deliverable','file':'artifact.dat'},{'op':'file_hash','source':'reference','file':'approved.dat'}),binop('gte',{'op':'file_size','source':'deliverable','file':'appendix.bin'},lit('i64',low)),binop('lte',{'op':'file_size','source':'deliverable','file':'appendix.bin'},lit('i64',high)),binop('eq',field('deliverable','metadata.json','label'),lit('string',label))]
+  result=draft(outs,refs,rules,quotes=req)
+ elif req.startswith('Check the signed '):
+  signer=meta['evidence'][0]['trustedPublicSigner']; score=int(re.search(r'score of at least (\d+)',req).group(1)); issuer=re.search(r'issuer label "([^"]+)"',req).group(1)
+  evidence=[{'name':'attestation.json','parser':'json/v1','fields':meta['evidence'][0]['authenticatedFields'],'profile':'ed25519/v1','signer':signer,'bindings':[{'field':'artifactHash','file':'note.txt'}],'contextField':'contextHash'}]
+  ec=coll('evidence','attestation.json'); rules=[binop('gte',field('evidence','attestation.json','score'),lit('i64',score)),binop('eq',field('evidence','attestation.json','issuer'),lit('string',issuer)),field('evidence','attestation.json','approved')]
+  result=draft(outs,refs,rules,evidence,quotes=req)
+ elif req.startswith('Compare an artifact with a SHA3-256'):
+  result={'kind':'unsupported','reason':'The capability catalog provides SHA-256 file hashing, but it does not provide a SHA3-256 hashing primitive.'}
+ elif req.startswith('Compute the median'):
+  result={'kind':'unsupported','reason':'The capability catalog does not provide a median operation.'}
+ elif req.startswith('Parse free-form local date'):
+  result={'kind':'unsupported','reason':'The capability catalog does not provide date or time-zone parsing.'}
+ elif req.startswith('Fetch the current online exchange rate'):
+  result={'kind':'unsupported','reason':'The capability catalog does not provide HTTPS access or online data fetching.'}
+ elif req.startswith('Ask a language model'):
+  result={'kind':'unsupported','reason':'The capability catalog does not provide language-model inference inside the guest.'}
+ elif req.startswith('Validate an X.509'):
+  result={'kind':'unsupported','reason':'The capability catalog does not provide X.509 certificate-chain or revocation validation.'}
+ elif req.startswith('Check each line with the regular expression'):
+  result={'kind':'unsupported','reason':'The capability catalog does not provide regular-expression matching.'}
+ elif req.startswith('Extract table cells directly from a PDF'):
+  result={'kind':'unsupported','reason':'The capability catalog does not provide PDF parsing or table extraction.'}
+ elif req.startswith('Sort arbitrary ledger rows'):
+  result={'kind':'unsupported','reason':'The capability catalog does not provide sorting or ordering of collection rows.'}
+ elif req.startswith('Compute a decimal reimbursement ratio'):
+  result={'kind':'unsupported','reason':'The capability catalog has integer arithmetic but does not provide division or decimal arithmetic.'}
+ elif req.startswith('Give everyone a fair schedule'):
+  result={'kind':'clarification','questions':['What schedule data and fairness rule should the checker use?']}
+ elif req.startswith('Deliver a small report'):
+  result={'kind':'clarification','questions':['What output file, format, content, and acceptance conditions should the report use?']}
+ elif req.startswith('Keep enough stock'):
+  result={'kind':'clarification','questions':['Which inventory data and minimum stock levels should the checker require?']}
+ elif req.startswith('Approve reasonable travel expenses'):
+  result={'kind':'clarification','questions':['What expense fields, approval criteria, and spending limits define reasonable?']}
+ elif req.startswith('Cover the morning shift'):
+  result={'kind':'clarification','questions':['Which workers, shift coverage count, and deadline should the checker require?']}
+ elif req.startswith('Use a recent signed audit'):
+  result={'kind':'clarification','questions':['Which audit artifact, trusted signer, definition of recent, and score threshold should the checker require?']}
+ elif req.startswith('Accept this result if a trusted reviewer signs it'):
+  result={'kind':'clarification','questions':['What result fields, trusted reviewer key, and signature format should the checker require?']}
+ elif req.startswith('Match transactions by date and description'):
+  result={'kind':'clarification','questions':['Which input files and matching rules, including date format and duplicate handling, should the checker use?']}
+ elif req.startswith('Accept the claim if the total is under 100'):
+  result={'kind':'clarification','questions':['Which file and numeric field define the total, and what unit should 100 use?']}
+ elif req.startswith('Reconcile the payments and ignore tiny differences'):
+  result={'kind':'clarification','questions':['Which reference and result files should be reconciled, and what numeric tolerance defines a tiny difference?']}
+ else:
+  result={'kind':'clarification','questions':['What files and objective acceptance rules should the checker enforce?']}
+ results.append({'requestId':rid,'result':result})
+assert len(results)==60,len(results)
+out={'trial':2,'results':results}
+open('/tmp/ubc26-luna-trial-2/outputs.json','w').write(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
+print('wrote',len(results))

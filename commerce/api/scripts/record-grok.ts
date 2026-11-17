@@ -56,4 +56,3 @@ const text = JSON.stringify(summary, null, 2) + "\n";
 if (text.includes(apiKey)) throw new Error("refusing to write: the summary contains the API key");
 writeFileSync(join(OUT, "summary.json"), text);
 console.log(`Wrote ${OUT}summary.json.`);
-

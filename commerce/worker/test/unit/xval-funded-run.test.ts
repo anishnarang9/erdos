@@ -7,7 +7,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Address, Hex } from "viem";
 import { encodeContext, envelopeHash, keyCommitment, type FundedContext, type ProofPackage } from "@ubc26/sdk";
-import { runFunded, type ChainJob, type ChainSubmission, type ChainTerms, type FundedOptions, type FundedState, type Preflight, type SentTx, type SettlementPort } from "../../src/funded.ts";
+import { runFunded, type ChainJob, type ChainSubmission, type ChainTerms, type FundedOptions, type FundedState, type Preflight, type SentTx, type SettlementPort } from "../../src/demo/funded.ts";
 import { DELIVER, IMAGE_ID, JOB, PROVIDER, argOf, fakeClient, fakeEngine, fixture, solver, type EngineOpts, type Fixture } from "../support/fakes.ts";
 
 const CORE = "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8" as Address;

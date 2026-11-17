@@ -2,8 +2,8 @@
 // compiled package, solve, `engine prove`, check the proof with the SDK, and recover the files with both
 // `engine decrypt` and the SDK. A verdict-0 proof is recorded and never decrypted or released.
 import { createHash, randomBytes } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { chmodSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import type { Address, Hex } from "viem";
 import {
   decodeBundle,
@@ -43,23 +43,67 @@ function must(cond: boolean, check: string, message: string): void {
   if (!cond) throw new WorkerCheckError(check, message);
 }
 
-function writeFilesInto(dir: string, files: BundleFile[]): void {
-  mkdirSync(dir);
-  for (const f of files) {
-    must(SAFE_NAME.test(f.name) && f.name !== "." && f.name !== "..", "file_name", `unsafe file name ${JSON.stringify(f.name)}`);
-    writeFileSync(join(dir, f.name), f.content);
+/** Reject user-controlled ancestor links. macOS system /var and /tmp aliases are permitted. */
+export function checkArtifactAncestors(path: string): void {
+  for (let p = resolve(path); ; p = dirname(p)) {
+    const s = lstatSync(p, { throwIfNoEntry: false });
+    if (s?.isSymbolicLink()) {
+      must(process.platform === "darwin" && (p === "/var" || p === "/tmp"), "artifact_path", "artifact ancestor is a symlink");
+    } else if (s) must(s.isDirectory(), "artifact_path", "artifact ancestor is not a directory");
+    if (dirname(p) === p) break;
   }
 }
 
-function readFilesFrom(dir: string): BundleFile[] {
-  return readdirSync(dir)
-    .sort()
-    .map((name) => ({ name, content: new Uint8Array(readFileSync(join(dir, name))) }));
+/** Validate the entire tree before chmod, so external link targets are never modified. */
+export function privateArtifactTree(root: string): void {
+  const paths: { path: string; dir: boolean }[] = [];
+  const walk = (path: string) => {
+    const s = lstatSync(path);
+    must(!s.isSymbolicLink() && (s.isDirectory() || (s.isFile() && s.nlink === 1)), "artifact_path", "artifact tree contains a link or special file");
+    paths.push({ path, dir: s.isDirectory() });
+    if (s.isDirectory()) for (const name of readdirSync(path)) walk(join(path, name));
+  };
+  walk(root);
+  for (const { path, dir } of paths) chmodSync(path, dir ? 0o700 : 0o600);
 }
 
-function sameFiles(a: BundleFile[], b: BundleFile[]): boolean {
-  const key = (fs: BundleFile[]) => [...fs].sort((x, y) => (x.name < y.name ? -1 : 1)).map((f) => `${f.name}:${sha256(f.content)}`).join("|");
-  return key(a) === key(b);
+function writeFilesInto(dir: string, files: BundleFile[]): void {
+  mkdirSync(dir, { mode: 0o700 });
+  const names = new Set<string>();
+  for (const f of files) {
+    must(SAFE_NAME.test(f.name) && f.name !== "." && f.name !== ".." && !names.has(f.name.toLowerCase()), "file_name", "unsafe or duplicate file name");
+    names.add(f.name.toLowerCase());
+    writeFileSync(join(dir, f.name), f.content, { mode: 0o600, flag: "wx" });
+  }
+}
+
+export function readFilesFrom(dir: string): BundleFile[] {
+  return readdirSync(dir)
+    .sort()
+    .map((name) => {
+      const path = join(dir, name), s = lstatSync(path);
+      must(s.isFile() && !s.isSymbolicLink() && s.nlink === 1, "artifact_path", "bundle contains a link or non-file");
+      return { name, content: new Uint8Array(readFileSync(path)) };
+    });
+}
+
+export function sameFiles(a: BundleFile[], b: BundleFile[]): boolean {
+  const sort = (files: BundleFile[]) => [...files].sort((x, y) => x.name.localeCompare(y.name));
+  const aa = sort(a), bb = sort(b);
+  return aa.length === bb.length && aa.every((f, i) => f.name === bb[i]!.name && Buffer.from(f.content).equals(Buffer.from(bb[i]!.content)));
+}
+
+export function checkReferences(files: BundleFile[], expected: string): void {
+  must(referenceHash(encodeBundle(files)).toLowerCase() === expected.toLowerCase(), "reference_hash", "reference files do not hash to the manifest referenceHash");
+}
+
+/** Both independent recovery paths must reproduce the exact file names and bytes. */
+export async function checkRecovery(runner: EngineRunner, submission: string, keyFile: string, outDir: string, pkg: ReturnType<typeof parseProofJson>, key: Uint8Array, files: BundleFile[]): Promise<void> {
+  checkArtifactAncestors(dirname(outDir));
+  try { await decrypt(runner, { submission, keyFile, outDir }); }
+  finally { if (existsSync(outDir)) privateArtifactTree(outDir); }
+  must(sameFiles(readFilesFrom(outDir), files), "engineDecryptMatches", "engine decrypt did not recover the solver's files");
+  must(sameFiles(decodeBundle(decryptEnvelope(pkg.envelope, key, pkg.contextBytes)), files), "sdkDecryptMatches", "SDK decrypt did not recover the solver's files");
 }
 
 /**
@@ -67,8 +111,9 @@ function sameFiles(a: BundleFile[], b: BundleFile[]): boolean {
  * listing, and the listing's manifest against manifest.json and guest.elf. Returns the manifest.
  */
 export async function downloadPackage(client: ApiClient, jobId: string, dir: string): Promise<PackageListing["manifest"]> {
+  checkArtifactAncestors(dirname(dir));
   const listing = await client.packageListing(jobId);
-  mkdirSync(dir);
+  mkdirSync(dir, { mode: 0o700 });
   // Paths that differ only in case would overwrite each other on Windows and macOS filesystems.
   const folded = new Set<string>();
   for (const f of listing.files) {
@@ -81,9 +126,11 @@ export async function downloadPackage(client: ApiClient, jobId: string, dir: str
     const bytes = await client.packageFile(jobId, f.path);
     must(sha256(bytes) === f.sha256.toLowerCase(), "package_digest", `${f.path} does not match its listed SHA-256`);
     const target = join(dir, ...parts);
-    mkdirSync(dirname(target), { recursive: true });
-    writeFileSync(target, bytes);
+    checkArtifactAncestors(dirname(target));
+    mkdirSync(dirname(target), { recursive: true, mode: 0o700 });
+    writeFileSync(target, bytes, { mode: 0o600, flag: "wx" });
   }
+  privateArtifactTree(dir);
   const onDisk = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8")) as Record<string, unknown>;
   for (const k of ["imageId", "rulesHash", "referenceHash", "structureHash", "guestSha256"]) {
     const a = onDisk[k];
@@ -152,8 +199,10 @@ export interface RunReport {
 
 export async function runSynthetic(o: RunOptions): Promise<RunReport> {
   must(!existsSync(o.attemptDir), "attempt_dir", "the attempt directory must be new");
-  mkdirSync(dirname(o.attemptDir), { recursive: true });
-  mkdirSync(o.attemptDir); // not recursive: fails if another run created it meanwhile
+  checkArtifactAncestors(dirname(o.attemptDir));
+  mkdirSync(dirname(o.attemptDir), { recursive: true, mode: 0o700 });
+  mkdirSync(o.attemptDir, { mode: 0o700 }); // exclusive creation
+  try {
   const at = (p: string) => join(o.attemptDir, p);
 
   // 1. Package and references from the API, each checked against the commitments.
@@ -162,7 +211,7 @@ export async function runSynthetic(o: RunOptions): Promise<RunReport> {
   must(view.manifest?.imageId?.toLowerCase() === manifest.imageId.toLowerCase(), "job_manifest", "job view manifest differs from the package");
   if (view.approval?.rulesHash) must(view.approval.rulesHash.toLowerCase() === manifest.rulesHash.toLowerCase(), "approval", "package rulesHash differs from the approval");
   const refs = await o.client.references(o.jobId);
-  must(referenceHash(encodeBundle(refs.files)).toLowerCase() === manifest.referenceHash.toLowerCase(), "reference_hash", "reference files do not hash to the manifest referenceHash");
+  checkReferences(refs.files, manifest.referenceHash);
   writeFilesInto(at("reference"), refs.files);
 
   // 2. Solve.
@@ -171,14 +220,15 @@ export async function runSynthetic(o: RunOptions): Promise<RunReport> {
 
   // 3. Synthetic funded job and the real proof.
   const job = syntheticJob(manifest, o.provider, o.syntheticJobId);
-  writeFileSync(at("job.json"), JSON.stringify(job.jobJson));
-  const out = await prove(o.runner, {
+  writeFileSync(at("job.json"), JSON.stringify(job.jobJson), { mode: 0o600, flag: "wx" });
+  let out;
+  try { out = await prove(o.runner, {
     packageDir: at("package"),
     jobFile: at("job.json"),
     deliverablesDir: at("deliverables"),
     referenceDir: at("reference"),
     outDir: at("attempt"),
-  });
+  }); } finally { privateArtifactTree(o.attemptDir); }
 
   // 4. Check the proof independently with the SDK.
   const pkg = parseProofJson(readFileSync(join(at("attempt"), out.proofFile), "utf8"));
@@ -224,7 +274,7 @@ export async function runSynthetic(o: RunOptions): Promise<RunReport> {
       must(false, "verdict0_decrypt", "engine decrypt accepted a verdict-0 submission");
     }
     const report = { ...base, withheld: { reason: "verdict 0: the deliverable failed the approved rules", engineDecryptRefused: refused } };
-    writeFileSync(at("report.json"), JSON.stringify(report, null, 2) + "\n");
+    writeFileSync(at("report.json"), JSON.stringify(report, null, 2) + "\n", { mode: 0o600, flag: "wx" });
     return report;
   }
 
@@ -235,19 +285,16 @@ export async function runSynthetic(o: RunOptions): Promise<RunReport> {
   checks.keyCommitmentMatches = keyCommitment(job.contextBytes, key).toLowerCase() === pkg.keyCommitment.toLowerCase();
   must(checks.keyCommitmentMatches, "keyCommitmentMatches", "release key does not open the key commitment");
 
-  await decrypt(o.runner, { submission: join(at("attempt"), out.proofFile), keyFile: join(at("attempt"), out.keyFile), outDir: at("recovered-engine") });
-  const viaEngine = readFilesFrom(at("recovered-engine"));
-  const viaSdk = decodeBundle(decryptEnvelope(pkg.envelope, key, job.contextBytes));
-  checks.engineDecryptMatches = sameFiles(viaEngine, deliverables);
-  checks.sdkDecryptMatches = sameFiles(viaSdk, deliverables);
-  must(checks.engineDecryptMatches, "engineDecryptMatches", "engine decrypt did not recover the solver's files");
-  must(checks.sdkDecryptMatches, "sdkDecryptMatches", "SDK decrypt did not recover the solver's files");
+  await checkRecovery(o.runner, join(at("attempt"), out.proofFile), join(at("attempt"), out.keyFile), at("recovered-engine"), pkg, key, deliverables);
+  checks.engineDecryptMatches = true;
+  checks.sdkDecryptMatches = true;
 
   const report: RunReport = {
     ...base,
     checks,
     recovered: { files: deliverables.map((f) => ({ name: f.name, sha256: sha256(f.content) })), engineDecrypt: true, sdkDecrypt: true },
   };
-  writeFileSync(at("report.json"), JSON.stringify(report, null, 2) + "\n");
+  writeFileSync(at("report.json"), JSON.stringify(report, null, 2) + "\n", { mode: 0o600, flag: "wx" });
   return report;
+  } finally { privateArtifactTree(o.attemptDir); }
 }

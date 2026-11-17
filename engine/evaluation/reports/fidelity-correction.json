@@ -1,0 +1,24 @@
+{
+  "correctedAt": "2026-11-15T05:25:46.589724+00:00",
+  "beforeReportSha256": "0xfff2e848aa7c0a98ad6f0958ae51c47168bd4088027565de5b319a7414fb6799",
+  "afterReportSha256": "0x3c04d2c5bd724c161babd2d45d66a81e7e705c793f33a6dc56d1457233e6d1dd",
+  "modelOutputsChanged": false,
+  "draftPredicatesAndCandidateResultsIdentical": true,
+  "modelCalls": 0,
+  "oldFinalCoveragePassed": 180,
+  "correctedSummary": {
+    "firstTrialResults": 180,
+    "repairAttempts": 35,
+    "firstDraftsValid": 85,
+    "classificationMatched": 180,
+    "finalDraftsValid": 120,
+    "nonDraftFidelityPassed": 21,
+    "nonDraftFidelityDefects": 39,
+    "firstCoveragePassed": 106,
+    "finalCoveragePassed": 141,
+    "candidateChecks": 1023,
+    "semanticMismatches": 0,
+    "selectedFamilies": 6
+  },
+  "explanation": "Previous non-draft coverage used response type alone. The fixed request-facet rubric detects 39 incomplete or unrelated responses. These remain measured model defects. The original report is retained byte for byte because the completed model guest report binds its hash. Draft predicates, candidate outcomes, selected structure set and proof inputs are unchanged."
+}

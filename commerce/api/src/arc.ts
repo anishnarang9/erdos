@@ -1,4 +1,5 @@
 // The API's chain reads on Nick's deployed contracts (Arc testnet), through @ubc26/sdk `arc`.
+import { createApiArcChain } from "./chain.ts";
 import { createPublicClient, getAddress, http, isAddressEqual, type PublicClient } from "viem";
 import { arc, JobStatus, type DecodedEvent, type FrozenTerms, type JobView } from "@ubc26/sdk";
 import type { ApiChain, ChainReader } from "./chain.ts";
@@ -51,12 +52,9 @@ export function arcReader(pc: PublicClient, d: arc.Deployment): ChainReader {
   };
 }
 
-/** ApiChain for a deployment: config, a public client on its RPC (or CHAIN_RPC_URL), and the Arc reader. */
+/** ApiChain for a deployment: config, a public client on its RPC (or CHAIN_RPC_URL), and the SDK Arc reader
+ * (snapshot reads at one block, as Arc mode requires). */
 export function arcChain(d: arc.Deployment = arc.ARC_TESTNET, rpcUrl: string = d.rpcUrl): ApiChain {
   const publicClient = createPublicClient({ transport: http(rpcUrl) }) as PublicClient;
-  return {
-    config: { chainId: d.chainId, core: getAddress(d.core), hook: getAddress(d.hook), usdc: getAddress(d.usdc) },
-    publicClient,
-    reader: arcReader(publicClient, d),
-  };
+  return createApiArcChain({ chainId: d.chainId, core: getAddress(d.core), hook: getAddress(d.hook), usdc: getAddress(d.usdc) }, publicClient);
 }

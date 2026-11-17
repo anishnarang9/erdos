@@ -10,8 +10,10 @@ export interface PackageListing {
 export interface JobView {
   jobId: string;
   state: string;
+  /** Funded identity returned by the API; the worker cross-checks it against the chain. */
+  chain?: { chainId: number; core: string; jobId: string } | null;
   revision: { n: number; revisionHash: string; revision: { plan: unknown; outputs: { name: string; format: string }[] } };
-  approval: { rulesHash: string | null; structureHash: string | null; referenceDigest: string } | null;
+  approval: { revisionHash?: string; rulesHash: string | null; structureHash: string | null; referenceDigest: string } | null;
   manifest: PackageListing["manifest"] | null;
 }
 

@@ -15,7 +15,7 @@ export const apiMod = api as unknown as Record<string, unknown>;
 export const EMPTY_REF = referenceHash(encodeBundle([])) as Hex;
 export const DEFAULT_CHAIN_ID = 5042002;
 
-export type ChainOpt = { config: ChainConfig; publicClient: PublicClient };
+export type ChainOpt = { mode: "simulated"; config: ChainConfig; publicClient: PublicClient };
 
 export type App78 = SpecApp & { raw: Record<string, unknown> };
 
@@ -362,7 +362,7 @@ export async function chainNowMs(ctx: ChainCtx): Promise<number> {
 
 export async function makeChainApp(ctx: ChainCtx, dbPath?: string): Promise<App78> {
   return makeApp78({
-    chain: { config: ctx.config, publicClient: ctx.dep.publicClient },
+    chain: { mode: "simulated", config: ctx.config, publicClient: ctx.dep.publicClient },
     t: await chainNowMs(ctx),
     ...(dbPath ? { dbPath } : {}),
   });

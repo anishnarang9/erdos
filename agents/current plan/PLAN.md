@@ -2,11 +2,354 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 11:04 -05:00 — Anish — Prepared Arc acceptance complete; publish final evidence
+
+- The [live report](../anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) closes the prepared buyer-to-solver Arc run at runtime source `8fe6dc5`. Job 7 confirms buyer approval, five signed funding steps, fresh funded-context proof acceptance, winning claim, key release, exact 0.01-USDC payout and byte-exact SDK/engine recovery. Both recovered directories pass the independent oracle. A second solver abstains after observing the winner. The separate invalid claim and job-6 expiry refund passed. Failed job 5 was preserved and refunded.
+- Official Circle Gateway completed the separate one-atomic paid API charge and exact HTTP replay in a confirmed Arc batch. Buyer/seller Gateway balances match the charge. All 24 receipts and sender native balances match. Aggregate gas was 0.145837525 USDC, below the 0.25-USDC ceiling. The low-memory compression repair passed on the actual funded proof. Keep one prover for future runs.
+- Publish the final reports and status to PR #7, then require commerce, engine and contracts CI at that exact head. Keep the PR draft for review. This acceptance uses the existing approved Meridian workload through CLI/API. Fresh natural-language authoring and buyer browser UI remain separate work. Contracts/deployment stay with their owner. No additional adapter deployment or live spending is needed to close this Goal.
+
+## 2026-11-16 10:20 -05:00 — Anish — Retry after proven Docker OOM with preserved budgets
+
+- Job 6 passed the live invalid-claim and exact separate expiry-refund checks. Job 5's fresh proof stopped at Docker Groth16 OOM, before any claim or key release. Preserve it and refund its bounty after expiry. Use the repo's documented low-memory Docker wrapper for the new positive attempt. Docker now has 12 GiB, and the wrapper's Go limits/env are verified. One prover only.
+- The user explicitly authorized continued testnet spending without another permission question. One extra 0.01-USDC positive job and one cleanup refund use bounded cumulative reservations: buyer funding 0.10875 USDC, refunds 0.0075 USDC, aggregate gas ceiling 0.25 USDC. All prior entries, nonces and maximum charges remain. Per-call and 25-gwei caps stay unchanged.
+- New API job `01M7JEZTWQ3DP0NWNKHVJB56SK` repeats the approved workload. Require current combined CI, a fresh 4,500-second expiry, actual funded context, fresh proof, payout and byte-exact recovery. The first failed attempt remains evidence of a failed attempt. The earlier real Circle call/replay remains accepted with batch settlement pending.
+
+## 2026-11-16 09:18 -05:00 — Anish — Adapter verified and real paid API accepted
+
+- Integrate the contract chat's published `ed50964` manifest. Adapter `0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8` passed independent checks and the real worker read-only gates. A separately approved deployer paid 0.063471175 testnet USDC. The buyer nonce remains 3. The unused buyer creation authority/config is superseded and disabled. Do not deploy another adapter.
+- Official Circle Gateway accepted one atomic unit for a real native paid compile and exact HTTP replay. Buyer unified balance decreased by that unit and seller pendingBatch gained it. Transfer `845d3e15-cfb7-405d-a08f-7ca3911c737e` is received, with no onchain hash yet. Keep batch acceptance distinct from later onchain settlement.
+- Code `88c69a2` passed every CI group. The manifest-combined tree passes full workspace checks. Publish and require exact combined-head CI before funding. Then run one fresh proof for the actual funded job, exact payout/recovery, rejection and separate expiry refund. Keep existing spending limits and one prover.
+
+## 2026-11-16 09:07 -05:00 — Anish — Arc adapter deployed and verified; PR #7 integration next
+
+- After explicit user approval, one Arc Testnet creation deployed the [open-claim adapter](https://explorer.testnet.arc.io/address/0x1fed5e532a1405facd45b4096ad1abf25bba0cb8) in [transaction `0x30a8bc27…72e14`](https://explorer.testnet.arc.io/tx/0x30a8bc27f9cecf068eeaf5c822196c5149f825671c4e65013d559de353572e14), block 72563239. The actual fee was 0.063471175 testnet USDC, within the approved 0.075 ceiling. Receipt, creation bytes, constructor getters, compiler-listed immutables and complete runtime matched. Blockscout source verification passed. The [deployment report](../anish/reports/open-claim-arc-deployment-2026-11-16.md) and [manifest](../../contracts/deployments/open-claim-arc-testnet.json) contain the exact evidence.
+- The contract handoff remains on `codex/overnight-open-escrow`. “Complete UBC-26 proof commerce” owns PR #7 integration and final CI. Fresh funded Arc proof, buyer/solver policies, live claim/release and Circle Gateway payment are separate gates; they are not established by the adapter deployment. Preserve the selected-provider deployment. No commerce code changed in this worktree checkpoint.
+
+## 2026-11-16 09:06 -05:00 — Anish — Setup confirmed and exact deployment approved
+
+- The solver received 0.04 USDC and Gateway received its separate 0.01-USDC deposit. Setup gas was 0.004098525 USDC. The real service authorization was rejected for insufficient remaining validity. Preserve it and repair only the same nonce after definitive rejection and an empty exact transfer search. Use Circle's official 100-second buffer.
+- The user separately approved the exact adapter deployment and a 0.201-USDC aggregate gas ceiling. The live-run chat remains the sole wallet signer. The contract/integration chat independently verifies the deployment receipt and manifest because the original deployment chat stopped. The approved initcode hash is `0xad7f68985c4978a117d467a8e89321f0b6d4b539492cd34beb1280f104b321d6`. Caps remain 3,072,197 gas and 25 gwei. Bounty and service amounts remain unchanged.
+- Publish the reviewed creation/payment checkpoint and finish its checks/combined CI. Deploy once and independently verify the manifest. Then fund both jobs and start one fresh proof. Final evidence still requires accepted claim, payout, exact recovery, rejection, separate refund and real paid API replay.
+
+## 2026-11-16 09:01 -05:00 — Anish — Arc deployer ready; one spending decision remains
+
+- The user authorized creation of a reusable CLI wallet and use of Circle's public faucet. The new encrypted Foundry keystore unlocked successfully; the faucet transaction confirmed 20 Arc Testnet USDC for its public address. [Updated preflight](../anish/reports/open-claim-arc-preflight-2026-11-16.md) verifies the actual signer at block 72563030 with nonce 0, 2,560,164-gas estimate, unchanged code/fee pins and no new privilege events.
+- The user's wallet instruction did not explicitly approve a live broadcast limit. One adapter creation remains pending a clear 3,000,000-gas, 25-gwei maximum fee authorization (0.075 testnet USDC ceiling). Keep adapter manifest fields null until confirmed deployment. The contract handoff to PR #7 integration is already published; this chat owns the live adapter decision and, if approved, verification.
+
+## 2026-11-16 08:54 -05:00 — Anish — Contract handoff published; live adapter operator gate
+
+- The corrected adapter, deployment guard, ABI and adversarial tests are pushed on `codex/overnight-open-escrow` at `3f0ecbf`. The exact interface was sent to “Complete UBC-26 proof commerce” for PR #7 integration and final CI. An independent source/ABI review found no concrete P1/P2 issue. This branch made no commerce edits.
+- [Arc preflight](../anish/reports/open-claim-arc-preflight-2026-11-16.md) checked core, verifier, USDC, fees and complete role history at fixed block 72554683. The standard verification script stopped at HTTP 429; a slower replay completed with no admin holders. The unsigned adapter creation hash and neutral-sender gas estimate are recorded in that report and the [operator handoff](../../docs/overnight/open-claim-testnet-operator.md).
+- Live deployment needs one approved Foundry keystore and deployer address plus explicit approval of the prepared 3,000,000 gas limit and 25-gwei max fee (0.075 USDC maximum). The template keeps adapter deployment fields null until a confirmed transaction and independent runtime check. No live signer or transaction is recorded.
+
+## 2026-11-16 08:42 -05:00 — Anish — Buyer funded and one signing owner
+
+- The buyer received 20 testnet USDC. Direct human instructions authorize transfers among the generated wallets as needed. PR #7's live-run chat owns all wallet signatures and nonce journals. The contract chat prepares the adapter deployment and verifies its manifest. A separate deployment-gas approval is pending.
+- A fixed setup path transfers only 0.04 USDC for solver gas and performs the approved 0.01-USDC Gateway deposit. Ten buyer call caps decrease to 290,000 gas. The entire existing flow, setup and Gateway allocate at most 0.121625 USDC gas within the approved 0.1235 ceiling. Two bounties remain 0.01 USDC each and the service charge remains one atomic unit.
+- Require reviewed source, combined-head checks/CI and receipt/balance evidence. Role-log reads now use pacing and canonical incremental audit checks. The Goal stays active for the real Circle call, deployed funded proof, payout, recovery, rejection and expiry refund.
+
+## 2026-11-16 08:10 -05:00 — Anish — Fractional live authority and real API staged
+
+- The user approved two 0.01-USDC jobs, a separate 0.01-USDC Gateway deposit, a 0.000001-USDC service charge, and at most 0.1235 USDC total gas at 25 gwei. The [main preview](../anish/reports/open-claim-arc-spend-preview-2026-11-16.json) and [Gateway calls](../anish/reports/circle-gateway-deposit-preview-2026-11-16.json) record the exact authority.
+- Protected buyer, solver, rejection, refund and recovery paths pass local checks. Review fixes cover journal initialization, fractional approval uncertainty and cross-journal nonce reservations. [Real API preflight](../anish/reports/open-claim-live-preflight-2026-11-16.json) staged approval, real compilation and the unpaid Gateway challenge. No live payment or funded proof is established.
+- Complete final combined-head CI. The user will fund the generated wallets when notified. The separate contract/deployment chat must publish the verified adapter manifest before the fresh Arc-funded proof can begin. Keep one prover. The Goal remains incomplete until the required receipts, balance changes, exact recovery and separate refund exist.
+
+## 2026-11-16 07:44 -05:00 — Anish — Prepare the live open-claim run
+
+- The current Goal assigns API, SDK, worker, proof execution and buyer recovery to PR #7 on `codex/open-escrow-rescue`. The separate escrow chat owns contracts and deployment. Integrate only its published commits after `8b9589d`, starting with `3f0ecbf`.
+- Protected buyer and solver commands, durable send recovery, chain-based dual recovery and Circle Gateway UUID handling now pass local checks. Require combined-head CI and complete live receipts/balance evidence before claiming the Goal complete.
+- The user requested generated testnet wallets and smaller runs. The proposed bounty is 0.01 USDC per job. The separate API charge is 0.000001 USDC. See the [revised spend preview](../anish/reports/open-claim-arc-spend-preview-2026-11-16.json). Generated public addresses are in Anish's status. Wallet funding, exact spending approval, verified adapter deployment and Gateway deposit remain external inputs.
+
+## 2026-11-16 07:34 -05:00 — Anish — Open-claim contract and agent paths combined
+
+- Draft PR #7 now combines the corrected adapter and guarded local deploy script (`3f0ecbf`) with protected solver signing (`843f842`) and five-step protected buyer execution (`e29da7d`). The signed buyer helper requires a deployment-pin check (`01e418f`). The selected-provider path remains intact.
+- Combined local commerce checks passed (SDK 342, API 777, worker 873, three typechecks). Pinned non-fork Forge passed 168 tests; ABI parity, 16 contract examples, contract typecheck, and the 15-test real-engine API suite passed. The actual local proof/payout/recovery/refund report is tied to earlier source `0cce487`; it does not establish a new full proof at the merged head. Final pushed-head CI is pending.
+- Keep PR #7 draft. Live work still needs a verified adapter manifest, approved buyer and solver identities, protected keystores, exact bounty and gas limits, and separate Circle service-payment authority. The [spend preview](../anish/reports/open-claim-arc-spend-preview-2026-11-16.json) is not approval. The live role-log read was rate limited; do not infer chain state from that incomplete replay. Continue operator wiring and the exact-head PR check before handoff.
+
+
+## 2026-11-16 07:22 -05:00 — Anish — Open-claim contract checkpoint under review
+
+- The contract branch has the constructor fee correction, local-only deployment guard, adversarial regressions and ABI parity check. Pinned local Foundry passed 168 tests with one fork-only skip. The independent standards review documents current ERC-8183 draft differences and the separate x402 API-fee boundary.
+- `codex/open-escrow-rescue` still owns proof/commerce integration and PR #7. This branch will publish only scoped contract/docs/check changes. Chat 1 will receive the corrected SHA and verified interface.
+- A current read-only Arc freeze replay was incomplete because the public RPC returned HTTP 429. Fixed-block checks and an unsigned gas preview are in progress. Live adapter deployment still needs exact signer and spending approval. No live transaction is authorized yet.
+
+## 2026-11-16 04:08 -05:00 — Anish — Overnight local acceptance handed off
+
+- The open-claim local goal has [exit-0 real-proof evidence](../anish/reports/open-claim-local-acceptance-2026-11-16.json), a passing selected-provider baseline, and a separate local test-facilitator x402 check. [Draft PR #7](https://github.com/anishnarang9/UBC-26/pull/7) is mergeable against `codex/engine-commerce`. [Commerce](https://github.com/anishnarang9/UBC-26/actions/runs/43835708063) and [core-fast](https://github.com/anishnarang9/UBC-26/actions/runs/43835708011) CI passed at `015996b`. A native fallback reviewer found no concrete P1/P2 issue in the main paths, with static-review limits recorded in Anish's status.
+- The live operator owns the next gate: approve and deploy the adapter, supply protected buyer and solver signing, confirm exact bounty and gas limits, and configure Circle Gateway for a live x402 charge if desired. Keep PR #7 draft until that separate review and operator decision. No local proof or synthetic USDC movement authorizes a live write.
+
+## 2026-11-16 03:59 -05:00 — Anish — Local gate published for review
+
+- [Draft PR #7](https://github.com/anishnarang9/UBC-26/pull/7) carries the open-claim adapter, buyer API and SDK, worker, local proof evidence and operator handoff over `codex/engine-commerce`. The [commerce](https://github.com/anishnarang9/UBC-26/actions/runs/43834594179) and [core-fast](https://github.com/anishnarang9/UBC-26/actions/runs/43834594018) PR checks passed at `7804d23`. A later local API loopback-bind correction is under its final checkpoint check.
+- The local combined gate is closed by [exit-0 evidence](../anish/reports/open-claim-local-acceptance-2026-11-16.json). No main merge or live testnet transaction is part of this checkpoint. The next operator action is to supply approved live adapter deployment, protected buyer and solver signing, exact bounty and gas limits, and Circle Gateway configuration if a live x402 test is desired.
+
+## 2026-11-16 03:40 -05:00 — Anish — Open-claim local gate complete
+
+- The [combined local acceptance report](../anish/reports/open-claim-local-acceptance-2026-11-16.json) records exit 0 on forkless Arc Anvil with the released RISC Zero 3.1.0 verifier. A fresh funded-context proof won the claim, the adapter paid exactly 1,000,000 local USDC units to that solver, the second solver sent no key or claim after losing, both recovery paths matched the original bytes and independent oracle, and another funded job refunded exactly 1,000,000 units. An independent receipt audit confirmed the chain and API outcomes.
+- This closes the local combined gate from the 01:27 plan. The selected-provider Meridian baseline also exited 0. A separate [local x402 report](../anish/reports/open-claim-x402-local-2026-11-16.json) covers paid compile with a test facilitator. Final report publication, documentation checks and final pushed-head CI remain in progress.
+- The live testnet gate still needs the operator's approved adapter deployment, wallet and exact spending authority, and Circle Gateway configuration. Local synthetic accounts and local USDC do not supply those inputs. Continue the prepared operator handoff without live writes.
+
+## 2026-11-16 01:33 -05:00 — Anish — Open-claim overnight extension
+
+- The user approved the [open-claim plan](../../docs/overnight/open-claim-plan.md). Branch `codex/overnight-open-escrow` starts at reviewed integration `ae1295a`, including Nick `57c387f`. The separate proof and commerce chat owns shared proving resources.
+- [Interface checkpoint `43b4fca`](../../docs/overnight/open-claim-v1.md) freezes the buyer registration, candidate claim, winning key release and funded reads. The new adapter uses the frozen core with provider and evaluator set to the adapter and hook zero. Preserve the selected-provider path.
+- Actual solver identity replaces selected provider in the v1 journal. The adapter address supplies its domain. The proof image remains separately bound by verification. First accepted proof reserves one winner. Core expiry refunds continue to pay the original buyer.
+- Keep x402 API payment separate from bounty funding. Current Circle Gateway exact support does not establish a direct `core.fund` path. No direct-bounty claim follows from an API payment.
+- Limit external Grok concurrency after the user's rate-limit instruction. Use native fallback after worker cancellation. Contract acceptance, independent reviews, ABI parity, local deploy checks and Chat 1 fresh-proof exchange remain pending. No live spending or deployment is authorized.
+
+## 2026-11-16 01:27 -05:00 — Anish — Overnight proof commerce execution
+
+- The user supplied and authorized the [overnight execution plan](../../docs/overnight/proof-commerce-plan.md). Integration runs on `codex/overnight-proof-commerce` with separate Grok 4.7 High worker, API/x402 and SDK/buyer tracks.
+- Chat 2 owns the new open-claim adapter on `codex/overnight-open-escrow`. Interface checkpoint `43b4fca` binds the existing v1 proof domain to adapter and actual solver. Funding remains direct ERC-8183 USDC. x402 pays a separate API operation in the first run.
+- Preserve the original Meridian run and its source/scratch. It owns the single proving slot until completion. Integration owns the first combined real open-claim run afterward.
+- Require actual-contract proof acceptance, two solver identities with one paid winner, autonomous release, byte-exact dual recovery/oracle and separate refund evidence. Local fixture and test-facilitator results do not establish live acceptance.
+- Handoff target: 2026-11-16 08:00 Eastern. Live deployment/wallet authorization remains external. Continue authorized local work if that gate remains absent.
+
+## 2026-11-16 00:59 -05:00 — Anish — Resumed local exchange passed; clean fresh rerun next
+
+- The initial new-workload run produced two real proofs but exited 1 at the separate refund job's receipt read. Its [immutable failure record](../anish/reports/fresh-exchange-failed-attempt-2026-11-16.json) remains separate from later attempts.
+- The [same-job continuation](../anish/reports/fresh-exchange-continuation-2026-11-16.json) restored the exact chain and reused those proofs. It exited 0 in 2.095 seconds with accepted proof, exact payout, key release, indexed delivery, dual recovery/oracle, pending restart and both refund paths. A resumed exchange is not a clean fresh-suite pass.
+- The local fixture now handles delayed receipt visibility with bounded read-only waits. It never resends to obtain a receipt. Refund helper cleanup runs on failure. Parent repeated 32 preflight tests and worker typecheck. Production contracts, engine, signing and funding guards remain unchanged.
+- Run the corrected full fresh suite immediately after this source checkpoint. Defer extra recorded regression work. Final fresh-process evidence, final-head CI and clean-checkout verification still precede the live-workload phase.
+
+## 2026-11-16 00:10 -05:00 — Anish — Execute now; defer extra replay
+
+- The user requested immediate local execution after preparation took too long. Started the actual full Meridian acceptance suite after its 31 cheap preflight tests and worker typecheck passed. Run independent read-only review concurrently, rather than delaying this local-only run further. Do not weaken guards or claim final acceptance before review and process completion.
+- Extra recorded-engine replay is deferred and did not run. The actual funded suite owns guest/proof resources exclusively. Freeze source bytes during the run. Record its true launch HEAD and two-file candidate hashes, then publish the reviewed source and results separately.
+- This changes execution order, not the local acceptance requirements or live-spending boundary. No live Arc call, wallet access or final on-chain settlement is authorized by it.
+
+## 2026-11-15 23:54 -05:00 — Anish — Arc indexer margin reviewed
+
+- The minimal API correction passes the configured confirmation margin to `LogCursor`. Arc server startup uses three blocks. Simulation uses zero. Independent specification and quality reviews approved the exact four-file candidate, with 12 focused tests passing in each review. The implementer passed all 762 API tests and API typecheck.
+- This preserves signer/recovery hardening and avoids replacing integration with Neil's weaker parallel broadcast path. Existing persisted cursors are not reset. Use a fresh local database for the rehearsal. An already skipped history requires deliberate approved reindexing.
+- Three blocks handles the observed bounded RPC lag, not arbitrary missing logs. Local acceptance also checks the real indexer and API delivery response on the successful payout history.
+
+## 2026-11-15 23:50 -05:00 — Anish — Local guest gate and measured rehearsal budgets
+
+- Meridian's real guest returned verdicts 1, 1 and 0 for the two valid solutions and a well-formed mass violation. Complete guest/host journals matched. The [guest report](../anish/reports/localnet-meridian-guest-2026-11-15.json) records about 7.05 million cycles and exact image/input commitments. No new Groth16 proof or funded exchange is established by execution alone.
+- Set local fixture timing from the observed workload: Meridian gets a 1,800-second proving allowance and a 7,200-second synthetic expiry. Legacy stays at 900/3,600. This is a bounded local allowance, not a latency guarantee or a change to production signing/expiry controls.
+- The [commerce delta review](../anish/reports/localnet-commerce-delta-review-2026-11-15.json) identified a missing Arc indexer lag setting. The minimal candidate forwards confirmations and passes three at Arc startup. It is under independent review. Keep a fresh database for local acceptance. Existing skipped log history requires deliberate approved reindexing.
+- Integration retains one owner for guest/proof resources and separate owners for non-overlapping code/reviews. Require final source publication before proving. Protected live identities and exact spending approval remain separate.
+
+## 2026-11-15 23:10 -05:00 — Anish — Execute the local-first acceptance gate
+
+- The user approved execution of the local-first readiness actions and requested parallel Grok 4.7 High work. Finish the new Meridian workload locally before another live Arc run for it. Integration owns completion and reviewed checkpoint publication.
+- Preserve the unpublished workload, oracle, selector and documentation changes. Review and publish them before the complete new-workload proof rehearsal. Do not count the previous process-exit-1 report as a clean pass.
+- Parallelize non-overlapping implementation and independent checks. Keep guest builds and proofs under one owner and sequential. Require a real verifier and actual local contracts, fresh funded context/proof, exact payout, independent dual recovery/oracle, rejection/refund/restart evidence, exit 0 and final source/CI evidence.
+- The operator retains live identity, protected-signing and exact-spending approval. This execution request does not authorize live Arc transactions or wallet access.
+
+## 2026-11-15 19:12 -05:00 — Anish — User delegates a new English-to-proof exchange workload
+
+- The user updated the active goal. Integration selects one new synthetic problem through a separate agent, records its English request, and uses a low-cost model call to produce constraints. A separate agent solves it. An independent oracle checks semantic validity.
+- This replaces the need for a user-supplied workload for the next local run. It does not approve an unknown wallet, address, deadline or gas cap. The user may operate both buyer and seller. Use distinct public identities when available.
+- Retain the current engine/API/SDK/ERC-8183 architecture and proof-gated key release. No new UI, marketplace, optimizer or protocol is required. Keep oracle and candidate answers outside authoring inputs.
+- The [goal tracker](GOAL-2026-11-15.md) records this change and its remaining safety gates. The new English challenge is being written under `docs/fresh-exchange-input/`. The prior full local rehearsal is still running as a regression check.
+
+## 2026-11-15 19:07 -05:00 — Anish — Reviewed source published; fresh local acceptance running
+
+- Published reviewed oracle correction `22c1a3b` and portable rehearsal source `9458a81` to `codex/engine-commerce`. Independent Grok reviews approved both. Parent checks passed 56 runner tests, 24 portable preflight tests, worker typecheck and 15 real-engine API tests.
+- Grok 4.7 is available through Orca. The user requested continued delegation with high reasoning. Keep no more than two workers active and run guest builds/proofs sequentially. Earlier statements that this session cannot access Grok are historical.
+- A new full forkless local proof, payout and independent recovery rehearsal is running against committed source. The earlier 592.4-second result does not certify this tree. Final-head CI and documentation publication remain pending.
+- Fresh [read-only deployment verification](../anish/reports/core-sprint-deployment-refresh-2026-11-15.json) passed 60 checks at block `72490082`. It used 81 serialized calls at two-second intervals with no retries. This is deployment evidence only.
+- The [goal tracker](GOAL-2026-11-15.md) retains the live acceptance boundary. Buyer approval, actual identities, protected signing access and exact spending authorization remain external inputs. No live write or wallet access is authorized. Do not merge a code-only candidate as the completed funded goal.
+
+## 2026-11-15 18:17 -05:00 — Anish — Proposed goal and completion tracker
+
+- Added the proposed [funded-proof goal tracker](GOAL-2026-11-15.md) at the user's request. It records finished integration, the local-only funded proof and payout, the pending oracle/suite/documentation review, final candidate checks, external live authorization, and the normal `main` merge gates. It does not change the acceptance contract or approve a wallet.
+- Latest PR #6 query shows commerce and both core-fast Linux jobs green at pushed `1099519`; this is not a check of the current uncommitted work. Full engine replay and real-engine API integration passed locally. A reviewer found and the implementer corrected a missing oracle reference snapshot. The slow-suite reviewer found two isolation/cleanup issues, and the implementer reports fixes. Both changes remain uncommitted and need final candidate review.
+- The proposed allocation/dispatch workload still needs buyer approval. No live funded job, fresh Grok authoring for this workload, or authorized signing is recorded. Integration owns final review and publication. The buyer/operator owns approvals and protected signing access.
+
+## 2026-11-15 17:16 -05:00 — Anish — Owner histories merged; integration owns remaining work
+
+- Neil `8584b04`, Nick `57c387f` and engine `adda3a3` are now ancestors of `codex/engine-commerce`. Consolidated [PR #6](https://github.com/anishnarang9/UBC-26/pull/6) preserves all three histories. Main is not merged yet.
+- Independent [deployment evidence](../anish/reports/core-sprint-deployment-2026-11-15.json) passed 60 checks at block 72478546. All four creation inputs and runtime builds match exactly, including metadata and immutables. Role/history, whitelist, fee, wiring and freeze receipt checks passed. This replaces the old current freeze blocker, not the historical observations below.
+- The user delegated missing prerequisites to integration. Anish now owns unpublished critical-path work rather than waiting for owners. A new synthetic [problem/dataset/semantic oracle](../../docs/core-sprint-input/README.md) is proposed for approval. It is not a previously checked-in example or answer-specific checker.
+- Independent native authoring used only the request, reference and declared outputs. The 14-rule plan has 77 nodes. The oracle accepts different valid solutions. Native authoring is not live Grok/API-inference evidence. The model catalog exposes no Grok model in this session.
+- Provider signing, protected keystore loading, real Poster funding, private state and independent chain recovery now have reviewed checkpoints. Permanent maximum gas reservations avoid reuse before finality. General funded CLI broadcasts remain disabled.
+- A first fresh local proof reached actual-contract acceptance. Release/recovery were not completed in that attempt. The corrected full local rehearsal is running. No funded live acceptance is claimed.
+- Real buyer/provider assignment, protected signing access, exact approval/spending files and live payment/recovery evidence remain external acceptance gates. No existing deployer identity or manifest flag grants those permissions.
+- CI found Linux keystore fixtures outside the production path policy. The fixture-only correction is pushed. Require green CI before main integration.
+
+## 2026-11-15 16:08 -05:00 — Anish — Sprint execution authorized
+
+- Execute the approved core-engine and funded-settlement sprint on `codex/engine-commerce`. The user authorized delegation, tested checkpoint commits/pushes, and normal integration into main. Preserve engine, Neil and Nick ancestry through merge commits.
+- Current remote heads: main `9a1b444`, engine `adda3a3`, Neil `8584b04`, Nick `57c387f`. Integration starts at `04f15ff`.
+- Nick resolved the all-admin script defect and froze the existing Arc core. Earlier unfrozen observations below are historical. Import the manifest, preserve source/build pins, and independently verify live history before broadcasting.
+- Anish owns remaining critical-path integration. Continue independent engineering now and take ownership of unfinished critical-path code at T+60 minutes rather than waiting for teammates.
+- Final acceptance still needs the user's new problem/dataset/oracle, public buyer/provider identities, protected signing access, approved exact terms and live spending caps. Do not substitute a fixture or broadcast without authorization. The existing funded CLI remains read-only.
+
+## 2026-11-15 14:00 -05:00 — Anish — Local Arc integration verified; live gates remain
+
+- Imported Neil `8584b045` and Nick `80c8a4af` source into `codex/engine-commerce` working tree, not committed/merged to main. [Verification evidence](../anish/reports/arc-integration-verification.json). No live transaction/deployment, new inference/proof, commit or push.
+- Implemented real SDK snapshots/ABIs, coherent API funding linkage and indexer, explicit chain/engine guards and durable genuine CLI compile provenance. Old simulated artifacts cannot be reused for real funding after a mode switch, including cached/idempotent responses; migration 006 keeps legacy provenance untrusted. Affects Neil's API/database integration and existing embedded callers, which must now specify chain mode explicitly.
+- Implemented capability-gated Arc worker signing with hash/receipt separation, durable private restart state, exact recovery, pending/uncertain no-resend behavior and explicit disclosure/payment confirmation. Real-key simulations/estimates are forbidden. Final deadline and identity checks occur after long deployment checks; RPC/signing/inclusion are not atomic. Library writes require externally managed safe signer; funded CLI is read-only.
+- Final commerce test/typecheck: 1,357 passed. Actual Rust-engine API integration: 15 passed. Complete engine replay passed 12 real receipts, 12 archived guest executions, six exact recoveries and existing deterministic/model-record checks. Known model fidelity defects unchanged. Eighteen actual local Solidity settlement checks passed with the real verifier and pinned core/hook; artificial synthetic address/provider and mock token mean this is not a live/fresh-funded-context or complete service/prover/signer run.
+- Timing: selection uses chain timestamp and rejects approved expiries below 1,200 seconds or deployed funding margin plus 120 seconds, whichever is larger; it does not silently modify buyer terms. Worker proving/submit/release budgets remain separately enforced and must use measured timings, not a latency guarantee.
+- **Nick-owned blocker:** `_checkFrozen` checks only the broadcaster's admin roles and cannot certify absence of other role holders. Fix before irreversible authorized freeze. Manifest `frozen:true` alone is insufficient; worker requires approved runtime/verifier/implementation pins, complete initialization/role history, zero fees, and no privileged holders. Recorded deployment stays unfrozen and broadcasts remain blocked. No Solidity source or deployment script was changed by this integration.
+- Next live gate remains buyer approval, real provider, authorized funding, actual frozen terms and a newly context-bound proof, followed by separately authorized payout/refund and exact recovery. Advisory triage and native Linux timing remain production-readiness work. No blind proof-stack upgrade. User subsequently authorized committing this integration and pushing `codex/engine-commerce`; the earlier unstaged verification state is historical. No main merge or live action is implied.
+- Neil's remaining readiness work: adopt/review this integration, run migration 006 with real-engine configuration and private persistent storage, connect an externally managed restricted signer, verify buyer retrieval/recovery, and measure Linux/WSL proving/deadline budgets. Anish supplies the fresh proof after real funded terms are confirmed. Nick owns freeze-checker correction and independently verifiable deployment/code/role evidence.
+
+## 2026-11-15 11:54 -05:00 — Anish — Midday readiness review and proposed integration order
+
+- [Current report](../anish/2026-11-15-readiness.md): Nick stays `80c8a4af`, Neil advanced to `8584b045`. Neil delivered real CLI integration, Grok recordings and worker proof/decryption evidence. His earlier deployment dependency is now available. Remaining work is concrete chain/worker wiring, not waiting for addresses. PR5 is red in CI. Do not merge it as a completed live workflow.
+- Proposed order: review the engine baseline with prototype scope, correct Nick's current freeze/role documentation and verify contract checks, then integrate Neil after CI and live-mode guards are fixed. Dry merges have no textual conflict. No merge occurred. Require real engine mode whenever real-chain funding is enabled and implement the real ChainReader and SettlementPort.
+- Engine answer to Neil: duplicate lookup keys abort as invalid input. Rules evaluate eagerly, so an earlier unique failure does not suppress a later lookup error. Handle this in API example labels and workers. Do not silently change evaluation semantics for the demo.
+- New dependency review matched seven locked package versions against advisories. Some are maintenance warnings, while timing, conditional memory unsafety and log injection need reachability review. This changes production-readiness priorities. Anish owns triage and controlled remediation with new guest/proof compatibility checks. No blind proof-stack upgrade.
+- Today's proposed product gate is one buyer-approved reconciliation lifecycle with actual provider/funded terms, real proof/key release and exact buyer recovery, plus rejection/refund tests. Nick owns authorized chain broadcasts and freeze. This chat remains read-only on chain. UI/model review must not present finite tests or signatures as proof of unexpressed intent or external truth.
+
+## 2026-11-15 00:47 -05:00 — Anish — Engine evaluation complete
+
+- The [three-phase evaluation](../../engine/evaluation/REPORT.md) completed on `codex/engine-commerce`. Twelve new real receipts, six byte-exact recoveries, all 16 accepted model guest structures, 10,000 seeded cases, and the complete independent replay passed. Engine PR #3 remains separate at `adda3a3`.
+- The tested local adapter implements Neil's current `Engine` interface. The saved model adapter implements `DraftModel`. Production route injection and live Grok remain Neil's integration work. Authoring still needs buyer review: 39 non-draft responses failed the fixed fidelity rubric and 13 final source annotations were nonverbatim.
+- Tomorrow settlement inputs can use the published package manifests after actual buyer approval. Existing receipts use synthetic jobs. Obtain the real provider and funded terms, build the live context, and prove again. Nick's core remains unfrozen at the inspected revision. Eighteen read-only Arc checks include a fresh receipt verification. No live transaction occurred in this run.
+
+## 2026-11-15 00:38 -05:00 — Anish — Live deployment review and measured deadline budget
+
+- Hourly review found Nick settlement at `80c8a4af68f0cf00e4177c98e9c435d869716edd`, advanced from `fe27c200`. Neil remains `3013d736`; `origin/nick` remains `9a1b4444`. No code was merged. Engine PR #3 remains at `adda3a3`. [Review](../../engine/evaluation/reports/team-review-2026-11-15.json).
+- Live addresses are now available: core proxy `0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8`, hook/evaluator `0x699d0e4a067F31229Be67C534B37dE964b6eDbAb`, verifier `0xCf8D70A203b40D3A17d023c0CDDF752870BC3992`. Eighteen independent read-only checks passed, including a fresh engine receipt and changed-image/journal/seal rejections. [RPC requests and responses](../../engine/evaluation/reports/arc-readonly.json). No transaction was sent.
+- The core is whitelisted and unfrozen. Live calls confirm the deployer holds both admin roles. The manifest policy prose still describes renounced roles, so clients must use current state and `core.frozen`. Nick owns the pending freeze. No funded job appears in the inspected manifest. Next integration still needs actual funded terms and a real provider, then fresh context-bound proving and settlement transactions.
+- Timing affects Neil and Nick: signed-evidence proofs took about 744 seconds each on this host. A 600-second funding margin does not cover that proof alone. Set deadlines from the measured proof budget plus submit and release time. These local measurements are not latency guarantees.
+
+## 2026-11-15 00:27 -05:00 — Anish — Authoring fidelity correction
+
+- Review found that non-draft coverage used response kind alone. The corrected request-specific rubric covers 21/60 non-draft responses. Twenty-nine clarifications omit details or add unrelated assumptions. Ten unsupported explanations are generic. Classification still matches 180/180. These measured model defects remain unresolved.
+- All 120 final draft plans retain their validated predicates and all 1,023 candidate outcomes. The correction changes no guest structures or proof inputs. [Correction and preserved source report](../../engine/evaluation/reports/fidelity-correction.json). The buyer still must review normalized rules and source annotations.
+- The replay gate now rejects new failures across every measured request, including cases outside the six proof selections. Known model defects are explicit expected measurements, not evidence of model correctness. Eight new receipts and four exact recoveries are complete. Four receipts and final replay remain pending.
+
+## 2026-11-14 23:40 -05:00 — Anish — Settlement source review and first model-derived proof pair
+
+- Reviewed Nick's new branch `nick-settlement` at `fe27c2003ac6b50264113fee4fa45b357c1a63e3` and [PR #4](https://github.com/anishnarang9/UBC-26/pull/4). No code was merged. The [pinned handoff](https://github.com/anishnarang9/UBC-26/blob/fe27c2003ac6b50264113fee4fa45b357c1a63e3/contracts/HANDOFF.md) and source match the engine context, journal, seal selector, and submit ABI.
+- The source/config envelope cap is 16,412 bytes. This equals the engine's proven 16,384 encoded bytes plus its 12-byte nonce and 16-byte tag. Read the actual deployed immutable after Nick supplies an address. Deployment addresses remain null, and funded terms remain unavailable.
+- Clients must check `job.hook`, `job.evaluator`, and `terms.funded`. Funding parameters are exactly 96 bytes. The source funding margin is 600 seconds, which does not replace a measured proving and release budget. At exact expiry, refund is available and submit/release are closed.
+- The first new [model-authored inventory proof pair](../../engine/evaluation/proofs/inventory) passed real local verification and exact recovery. Ten new receipts remain in the active queue. These synthetic receipts cannot settle a separately funded Arc job.
+- Model source annotations require review: 13 final outputs contain nonverbatim quotes. Predicate checks passed their finite counterexamples, while annotations remain untrusted. Actual buyer approval remains required.
+
+## 2026-11-14 23:31 -05:00 — Anish — Tested local adapters and authoring records
+
+- `codex/engine-commerce` now contains a [local engine adapter](../../engine/evaluation/engine-adapter.ts) implementing Neil's current `Engine` type. Successful validation retains `report.preview` and commitments. Compilation returns the commerce manifest plus `engineManifest`, `packagePath`, and `compileReport`. Packages persist after staging cleanup. The package directory must be private.
+- The [recorded model adapter](../../engine/evaluation/recorded-draft-model.ts) implements `DraftModel` and binds each replay to the exact input. Its provenance identifies Luna. This does not establish live Grok behavior or connect the production HTTP routes. The `jobs.ts` validator still needs explicit adapter injection.
+- Three Luna batches produced 180 first outcomes and 35 permitted validation repairs. All 1,023 independent candidate checks matched after validation. All 16 accepted rule structures ran in the actual guest. [Evaluation report](../../engine/evaluation/reports/authoring.json).
+- Twelve new proof receipts are in progress using selected model-authored plans. Settlement still requires Nick's deployed manifest, final caps, and actual funded terms. Native Linux timing and live payment remain unverified.
+
+## 2026-11-14 22:46 -05:00 — Anish — Isolated engine and commerce evaluation
+
+- `codex/engine-commerce` combines engine `adda3a3` with commerce `3013d736` for evaluation. Engine PR #3 remains separate. Engine fixes will use separate commits.
+- The [execution plan](../anish/execution-plan.md) covers 60 challenges, 10,000 independent generated cases, failure-driven hardening, Luna authoring trials, and 12 new local proof receipts. These are targets, not completed results.
+- Commerce's current `Engine` and `DraftModel` files are interface declarations. Their simulated output assumptions differ from the published CLI. The evaluation adapter will preserve normalized approvals, packages, typed errors, and model provenance. The production API and worker remain Neil's scope.
+- Nick's deployed manifest, final envelope cap, and funded terms remain external integration dependencies. This run performs no live transactions.
+
+## 2026-11-14 21:18 -05:00 — Anish — Commerce codec replay
+
+- The [SDK replay check](../../engine/tests/check-commerce-sdk.mjs) passed against Neil's revision 3013d736. All six real engine receipts produced matching context, journal, digest, and submit calldata bytes. It covers the full 16 KiB encoded delivery and both verdicts.
+- The SDK's captured calls preserve the real seals. Its mock verifier and local envelope cap still need the settlement workstream's final configuration. Confirm live acceptance through the deployed evaluator for the actual funded terms.
+
+## 2026-11-14 20:48 -05:00 — Anish — Settlement and commerce integration
+
+- Nick's [settlement plan](SETTLEMENT-IMPLEMENTATION.md) uses Circle's verified core with the Poster-only budget patch. Use the caller-first callback layouts from that plan for `fund` and `submit`. The external submit ABI and engine wire format stay the same. The released verifier pin is `ff30da77ba4afdd496290ebebedb205348b15d83`.
+- Publish the encoded delivery and encrypted envelope limits in the deployment manifest. The engine accepts 16,384 encoded bytes, which produces a 16,412-byte envelope. A 16,384-byte envelope limit would allow at most 16,356 encoded bytes. Nick sets the final cap after measuring Arc submit gas.
+- Before proving a funded job, use the manifest's core proxy as the escrow address. Read the core job and evaluator terms at one block. Confirm the job is funded and unexpired. Match the provider, image ID, rules hash, and reference hash to the proof inputs. Use the [job helper and funded preflight](../../engine/README.md#prepare-job-json-from-funded-terms) after those checks.
+- Neil can wire the engine through the [commerce interface](../../engine/README.md#connect-commerce). It answers the engine questions in the commerce plan and identifies the fields the adapter needs to retain.
+
+## 2026-11-15 00:14 -05:00 — Nick workstream — Settlement stack live on Arc (unfrozen)
+
+- **Live on Arc Testnet:**
+
+  | Contract | Address |
+  | --- | --- |
+  | Core (the address clients call) | `0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8` |
+  | SettlementHook (hook and evaluator) | `0x699d0e4a067F31229Be67C534B37dE964b6eDbAb` |
+  | Verifier | `0xCf8D70A203b40D3A17d023c0CDDF752870BC3992` |
+  | Core implementation | `0x55A3C9319EEe607579855880b5651766eBF103d7` |
+
+- **The hook is whitelisted, but the core is not frozen yet.** The addresses and rules are in [contracts/HANDOFF.md](../../contracts/HANDOFF.md), and the manifest is `contracts/deployments/arc-testnet.json`.
+- **For Neil:** point the client at these addresses. Start log scans at block 72393888. Jobs on this deployment are integration tests until the freeze.
+- **For Anish:** the funded test job needs the image ID, rules hash and reference hash, plus a provider (Solver) address. Nick then runs `08_CreateTestJob`.
+
+## 2026-11-15 00:04 -05:00 — Nick workstream — Core freeze held for now
+
+- **Decision.** The core will be deployed and the hook whitelisted, but the admin roles will not be renounced yet, so the core is **not frozen**.
+  - **Reason:** the freeze is irreversible, and holding it keeps room to fix configuration before the Nov 16 demo. Job creation only needs the hook whitelisted.
+  - **Affects** Neil and Anish. Until the freeze, the deployer `0x27f9…A35a` can upgrade the core or change fees. Test jobs on the unfrozen core are for integration only.
+- **TODO (Nick).** Run the full freeze (`05_Freeze` without the whitelist-only flag, then `SETTLEMENT_EXPECT_FROZEN=1 06_Verify`) before the Nov 16 live settlement.
+- **Progress.** The core implementation is live at `0x55A3C9319EEe607579855880b5651766eBF103d7`. The proxy and the hook are next.
+
+## 2026-11-14 23:54 -05:00 — Nick workstream — Arc verifier live
+
+- **Verifier deployed.** The pinned RISC Zero verifier (v3.1.0, selector `0xe71e6620`) is live on Arc Testnet at [`0xCf8D70A203b40D3A17d023c0CDDF752870BC3992`](https://explorer.testnet.arc.io/address/0xCf8D70A203b40D3A17d023c0CDDF752870BC3992), deployed in block 72392474.
+- **Checks pass.** The real upstream receipt verifies, and every altered input reverts: 20 of 20 read-only checks pass, recorded in `contracts/research/ARC-VERIFIER-LIVE.md`.
+- **For Anish and Neil:** use this address as `contracts.verifier.address` in `contracts/deployments/arc-testnet.json`.
+- **Still to deploy:** the core, the hook and the freeze. They are next, followed by the funded test job, which needs Anish's image ID, rules hash and reference hash.
+
+## 2026-11-14 23:30 -05:00 — Nick workstream — Tonight's settlement deliverables
+
+### Status
+- **Delivered:**
+  - the settlement contracts;
+  - passing local tests (120 pass);
+  - the interface handoff in [contracts/HANDOFF.md](../../contracts/HANDOFF.md): ABIs, events and read methods, expiry rules, and the **16,412-byte** envelope cap.
+- **Arc verifier: fork evidence only.** On a fork of live Arc at block 72389800:
+  - the upstream receipt verifies, using 242,661 gas;
+  - changing any journal byte, the image ID, any proof byte, or any selector byte reverts.
+
+  **The live deployment and its address are pending Nick.** The commands are in `contracts/research/ARC-VERIFIER.md`.
+
+### Decisions
+- **Envelope cap:** 16,412 bytes, which replaces 16,384. A full `submit` at the cap is 16,996 bytes of calldata, about 700k gas on Arc. Affects Neil and Anish.
+
+### Next handoff
+The full manifest plus one funded test job, created by `contracts/script/08_CreateTestJob.s.sol`. Anish must supply its image ID, rules hash and reference hash.
+
+## 2026-11-14 23:06 -05:00 — Nick workstream — Settlement contracts built and tested locally
+
+### Status
+- `contracts/` on branch `nick-settlement` contains:
+  - the core, a copy of Circle's verified core with the one-line client-only `setBudget` patch;
+  - the RISC Zero v3.1.0 verifier;
+  - `SettlementHook`, the deploy scripts, ABIs and viem examples.
+- `arc-forge test --network arc` passes 119 of 119, and the examples pass 12 of 12.
+- The live Arc deployment is pending Nick.
+- The full decision log is in [Nick's status](../nick/status.md).
+
+### For Neil (commerce)
+- **Handoff material:**
+  - `contracts/abi/`;
+  - the manifest template `contracts/deployments/arc-testnet.json`, with `SCHEMA.md`;
+  - `contracts/examples/`: encoders, preflight, event decoders and paged `getLogs`;
+  - `contracts/examples/README.md`.
+- **Before working on a job, check three things:**
+  - `job.hook == hook`;
+  - `job.evaluator == hook`;
+  - `terms(jobId).funded`.
+
+  The frozen core still accepts jobs created with no hook, and the hook cannot protect those. Also check `terms.expiry` against real proving time; the on-chain floor is only `MIN_EXPIRY_MARGIN` (600 s).
+- **Sending `submit`:** always set an explicit gas limit and preflight it with `eth_call`. A tampered Groth16 seal burns nearly all forwarded gas.
+- **New hook additions:**
+  - the event `TermsFrozen(jobId, provider, imageId, rulesHash, referenceHash, budget, expiry)`;
+  - the views `contextOf(jobId)` and `expectedJournal(jobId, envelopeHash, keyCommitment)`;
+  - `fund` optParams must be exactly `abi.encode(bytes32, bytes32, bytes32)`, 96 bytes.
+- **Arc facts:**
+  - USDC supports EIP-2612 `permit`, and `approve` overwrites;
+  - 16 KiB of calldata costs about 676k gas;
+  - the expected transaction size limit is 128 KiB, but this is UNVERIFIED.
+
+### For Anish (engine)
+- The calldata cap stays at 16384 bytes for now. A submit at the cap measured 142,810 gas plus about 243k to verify, measured locally.
+- The hook's codec reproduces the shared fixture digest `9ae8cca7…115e`.
+- The verifier's control root is `e6feef13…551d` and its BN254 control ID is `0ac2eaf9…81de`. Both are read from v3.1.0 `ControlID.sol`.
+
+### Residual risk for everyone
+If USDC blocklists a Poster after funding, that refund is stuck forever. Neither the spec nor this build has an admin or sweep path to recover it.
+
 ## 2026-11-14 — Nick workstream — Settlement plan: Poster naming and push rules
 
 - Decision: the settlement plan calls the buyer role the **Poster** (posts the problem and locks the bounty). The Solver term is unchanged.
 - Decision: settlement subagents push after each checkpoint and open detailed PRs without asking Nick. They record progress in `status.md` and team-affecting decisions here. Nick pushes `SETTLEMENT-IMPLEMENTATION.md` himself. It reached `main` in the `264fa5d` merge, and subagents still do not push changes to it. Affects settlement subagents.
 - Terminology: the **Poster** in the settlement plan is the **buyer** in the commerce, architecture, and marketplace documents. The **Solver** is the worker or provider.
+
+## 2026-11-14 20:00 -05:00 — Anish — Engine release measurements
+
+- The [release measurements](../../engine/fixtures/release-report.json) use real receipts for reconciliation, signed text, and the 16 KiB delivery limit. The local verifier and Arc state override accepted the original receipts. The engine recovered each passing delivery byte for byte.
+- The full-size envelope used 16,996 bytes of calldata under the documented submit ABI. The deployed evaluator still needs to confirm the cap and report settlement gas. The funded submit preflight is ready for the November 16 gate.
 
 ## 2026-11-14 — Nick workstream — Settlement implementation plan
 
@@ -15,6 +358,33 @@ Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 - Decision: pin hook data to the deployed layout, which starts with the caller address. [WORK-SPLIT.md](WORK-SPLIT.md) sections 2.4 and 2.6 decode a different layout and need correcting. Section 10 of the new plan lists this and six other corrections: the core source to use (Circle's verified source plus the patch, not draft revision `a078cab5`), the four Poster funding transactions, the 5-minute minimum expiry, the 20 Gwei fee floor and 10,000-block log range, the stale verifier pin in Anish's context, and that our core is frozen by role renunciation while Circle's stays upgradeable.
 - Answers to Neil's open questions for Nick (Q-N), from the settlement plan: the core is Circle's verified source with one patch, and our hook is whitelisted once before the admin roles are renounced (Q-N1, Q-N13). Only the Poster calls `setBudget` (Q-N2). Expiry must be more than 5 minutes ahead, and submit and release need `block.timestamp < expiry` (Q-N5). Only the funded Solver calls `release` (Q-N11). `claimRefund` works from Funded or Submitted once expired (Q-N12). The event names, selectors, and ABI stub (Q-N4, Q-N6, Q-N9, Q-N10) arrive with the Nov 15 manifest. The commerce plan's `setBudget` wording (provider-only, "if the pinned core has it") needs updating to match.
 - Subagents work locally and read-only against Arc. Nick runs every live deployment. Real proof verification and the full settlement path on Arc are pending.
+
+## 2026-11-14 18:56 -05:00 — Anish — Funded submit preflight
+
+- The [reconciliation proof pair](../../engine/fixtures/reconciliation) now uses the reviewed checker. The local Solidity test accepted both original journals and rejected a failing receipt against a passing journal.
+- A [read-only submit preflight](../../engine/tests/verify-funded-arc.mjs) uses the documented `submit` ABI. It simulates the exact passing proof from the funded provider, checks that a changed seal reverts, and requests a gas estimate at the same block.
+- Run the preflight after verifying the deployed core, evaluator, and job terms. The November 16 settlement test still requires a funded job for the chosen engine package.
+
+## 2026-11-14 18:49 -05:00 — Anish — Engine release handoff
+
+- The engine now builds typed Rust checkers for record and signed-evidence workloads. The [catalog](../../engine/capabilities-v1.json), [plan schema](../../engine/plan-v1.schema.json), and [CLI guide](../../engine/README.md) are ready for commerce integration.
+- Published [reconciliation](../../engine/fixtures/reconciliation) and [signed-text](../../engine/fixtures/signed-text) fixtures. Verifier and journal tests run on a local EVM. [Arc RPC reports](../../engine/fixtures/arc-rpc) record temporary verifier simulations at specific testnet blocks.
+- Nick supplies the deployed core, evaluator, verifier, ABI, delivery cap, and confirmed funded terms. The engine consumes the exact funded provider and job ID with matching package commitments. Use the job JSON helper to prepare the input after confirming those terms.
+
+## 2026-11-14 16:07 -05:00 — Anish — Scalar proof fixtures for settlement
+
+- The engine produced real [passing](../../engine/fixtures/scalar-proof-pass-v1.json) and [failing](../../engine/fixtures/scalar-proof-fail-v1.json) Groth16 receipts with the full 234-byte journal. Both use the same checker image and synthetic funded context. The local Solidity verifier accepted each original journal. It rejected the failing receipt when tested against a passing journal.
+- The local script proved both cases and recovered the passing delivery byte for byte. Neil can use the [host preview command](../../engine/README.md#evaluate-an-example) to label authoring examples. Nick can use the pair for local Solidity tests before supplying the live funded context.
+
+## 2026-11-14 16:03 -05:00 — Anish — Scalar engine and commerce interface
+
+- The [scalar plan schema](../../engine/plan-v1.schema.json) and [CLI contract](../../engine/README.md) answer the current authoring, compiler, proof, and recovery format questions. The CLI builds a checker package from approved structure and reference data.
+- A threshold-only edit changed the rules hash and preserved the guest image ID. Real funded-job receipt generation is in progress. The current guest evaluates scalar fields and whole text files. Record collections and signed evidence remain pending.
+
+## 2026-11-14 15:47 -05:00 — Anish — First real proof
+
+- The digest-pinned Docker guest produced a [real Groth16 smoke receipt](../../engine/fixtures/groth16-smoke-v1.json). The released v3.1.0 Solidity verifier accepted it and rejected altered inputs on a local EVM.
+- The receipt uses the fixed smoke journal. Settlement can use it to check the verifier on Arc. A funded payout requires an engine-generated receipt with the 234-byte job journal.
 
 ## 2026-11-14 15:45 -05:00 — Neil — Proposed: workstream 3 commerce plan, aligned with main
 
@@ -40,6 +410,11 @@ Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
   - First funded job: Nov 16, end of day
   - Demo: feature freeze Nov 17, rehearsal Nov 18
 - **Pending:** Anish and Nick review this. The Q-A and Q-N questions are unanswered. No commerce code exists yet. Next is T1–T3: workspace, SDK codec against the engine fixture, and a chain adapter on Nick's ABI stub.
+
+## 2026-11-14 15:42 -05:00 — Anish — Engine interface checkpoint
+
+- Engine branch `codex/anish-engine` publishes the [wire fixture](../../engine/fixtures/wire-v1.json) and the [first plan validator](../../engine/README.md). Solidity and TypeScript can use the fixture to check the context, journal, and encryption bytes.
+- The validator accepts scalar rules and returns typed capability requests for operations and evidence beyond its current support. The generated checker, real funded-job proofs, and Arc verification remain pending.
 
 ## 2026-11-14 — Anish workstream — RISC Zero plan and team handoff
 

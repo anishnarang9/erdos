@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { createPublicClient, createWalletClient, http, type PublicClient } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { arc } from "@ubc26/sdk";
-import { arcPort } from "../../src/arc-port.ts";
+import { arcPort } from "../../src/demo/arc-port.ts";
 
 const d = arc.ARC_TESTNET;
 const pc = createPublicClient({ transport: http(d.rpcUrl) }) as PublicClient;

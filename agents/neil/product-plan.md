@@ -1,4 +1,230 @@
-# Product plan and Claude handoff
+﻿# Product plan and Claude handoff
+
+## 2026-11-16 — Codex — Product research and proposed Proof Chamber redesign
+
+**Status:** Design and implementation plan, following Neil's request for an impressive website with real physics and a clearer UI structure. This is a proposed visual replacement for the earlier equal-column presentation, not a change to the reconciled payment protocol or D1–D4. Claude continues to own `ui-intent.md`; no files under `commerce/` were changed for this study. Earlier decisions and implementation handoff are preserved below.
+
+**Review artifact:** [interactive local concept](http://127.0.0.1:4178), with source at `C:/Users/Neil/reports/proof-chamber/`. Start instructions are in its README. It is an original website composition with an interactive physical chamber, scenario controls, visible checks, receipt, use-case taxonomy and reference desk. Every settlement state is explicitly simulated. “Proof Chamber” is the name of the visual metaphor, not a required product rename. The standalone experiment uses Three.js plus an original planar collision solver; the production recommendation is R3F plus Rapier v2.
+
+### A. Product decision: what the website should sell
+
+Lead with **“Define what done means. Pay when the checks pass.”** The buyer commissions a specified data deliverable; the selected solver returns files; a proof establishes that the committed artifact satisfies the approved checker; the payment and delivery key release under the contract conditions. The browser then recovers the files.
+
+The contractor-substitution idea is useful as a starting point, but “replace contractors” is too broad. Hiring includes judgment, ambiguous requirements, evolving scope, confidentiality, and relationship management. Our proposed wedge is **repeatable, machine-checkable work on public or shareable data**. It reduces a particular acceptance/payment problem; it does not eliminate writing a good specification or finding a capable supplier.
+
+Keep humans eligible at the product level. Use “solver” for the provider and “agent” or “human-prepared” as a capability attribute, not two separate marketplaces. The current funded path remains an autonomous solver selected after quotes. The human adapter remains next unless its separate funded acceptance run succeeds. Never show two agents racing for a first-winner payout: that is a different allocation mechanism.
+
+**Evidence boundary:** the existing ledger-copy fixture proves the payment/delivery mechanism, not commercial demand or a difficult outsourced task. The report rule checks nonempty presence, not writing quality. An exact approved reference is not proof that the underlying real-world source is true or current. Public release of the key makes the encrypted delivery public. These limits belong in concise “What is checked” and “Data visibility” disclosures.
+
+### B. Audience and market scope
+
+These are hypotheses to validate, not customer interviews or measured traction.
+
+| Audience | Job to be done | Fit and obstacle | Website treatment |
+| --- | --- | --- | --- |
+| Small data/software agencies handling repeat exports and migrations | Commission a repeatable transformation with an explicit acceptance checklist | Best discovery target; templates amortize setup. Public/shareable data requirement narrows eligibility | Primary use-case language and example brief |
+| Crypto analytics and public-data teams | Obtain a reproducible, bounded result from agreed public inputs | Familiar with wallets and public inputs; freshness, provenance and useful computation still need explicit rules | Early technical pilot audience |
+| Independent automation developers / agent operators | See exact requirements and earn payment for accepted work | Supply-side candidate; need predictable compute cost and clear failure behavior | Secondary “Build a solver” documentation |
+| Human data contractors | Prepare files against the same acceptance contract | Plausible supply extension; funded upload/proving adapter not yet established | Clearly labeled upcoming capability |
+| General business owners commissioning subjective creative work | Buy design, strategy or writing | Weak initial fit; subjective acceptance does not become deterministic by adding ZK | Do not advertise as supported |
+| Private finance/health/customer-data workflows | Exchange sensitive files | Current public-key release conflicts with confidentiality | Excluded from current positioning |
+
+**What the market evidence supports.** Upwork reported roughly **$4.03 billion of 2025 gross services volume** and 785,000 active clients at year end. This shows a substantial adjacent market for paid online work; it is **not our TAM**, and Upwork's GSV definition is broader than payments for our eligible job types. Do not put an enormous freelance-market number on the landing page as if it were attainable demand. [Upwork FY2025 results](https://investors.upwork.com/news-releases/news-release-details/upwork-reports-fourth-quarter-and-full-year-2025-financial)
+
+**Competitive reality.** Topcoder already describes automated scoring of code/result submissions. Elgora advertises USDC bounties with Guardian consensus, and make.fun describes sandbox-graded coding competitions with USDC rewards. These are operator descriptions, not independent technical audits. Our defensible demonstration is the approved-checker commitment, proof-bound artifact and settlement/delivery trace—not the existence of bounties or AI workers. [Topcoder](https://help.topcoder.com/hc/en-us/articles/24958207325467-What-Are-Data-Science-Challenges), [Elgora](https://elgora.ai/), [make.fun](https://make.fun/guide/ai-agent-bounties)
+
+| Alternative | Why a buyer might use it | What we must demonstrate |
+| --- | --- | --- |
+| Contractor marketplace | Discovery, reputation and flexible work | Precise repeatable acceptance and payment behavior for an eligible task; do not claim superior discovery |
+| Scored competition | Many entrants, measurable ranking | Selected-provider workflow and proof-linked delivery; do not present it as an open competition |
+| Agent bounty platform | Agent discovery and digital payment | The concrete verification mechanism and what remains trusted |
+| Ordinary script + invoice | Cheap and familiar for deterministic transformations | Enough coordination/inspection cost saved to justify proving and integration |
+
+**Bottom-up planning example, not a forecast:** 20 pilot agencies × 5 eligible jobs/month × $200/job × 12 = $240,000 annual job value. An illustrative 5% fee yields $12,000 before proving, infrastructure, support, gas and acquisition. This deliberately small scenario shows why repeated valuable jobs matter. None of these inputs is measured, and 5% is not a recommended price.
+
+Measure contribution per delivery as fee revenue minus compute subsidy, paid gas, retries and variable support. Measure buyer benefit as inspection/dispute/coordination time saved minus specification/setup time and waiting cost. If a cheap local script solves and checks the whole task, the platform may add little value.
+
+**Discovery gate:** interview three agency leads and two suppliers; obtain two real repeatable acceptance checklists, one shareable fixture and one buyer willing to try a paid pilot. Ask what was purchased, actual price, review time, disagreements, privacy needs and repeat frequency. Validate whether an independently prepared good artifact passes and a plausible wrong artifact fails. No interviews or outreach were conducted in this task. Begin with curated pilots and two capable providers, not an empty public marketplace.
+
+### C. Reference shortlist: what Neil should open
+
+The recommendation is a small compatible scene toolkit, rather than a full decorative landing-page template. Reuse the existing React/Vite app and Motion; add physical behavior only where it explains the transaction.
+
+| Reference / live example | Take from it | Compatibility / reuse decision |
+| --- | --- | --- |
+| [Rapier + R3F demos](https://react-three-rapier.pmnd.rs/) · [source](https://github.com/pmndrs/react-three-rapier) | Bodies, collisions, bounded interaction and joints | **First choice.** v2 explicitly supports React 19 and R3F 9, matching this repo. MIT. Pin and test a v2 release; do not install latest blindly |
+| [pmndrs scene gallery](https://r3f.docs.pmnd.rs/getting-started/examples) | Material, lighting, annotations and scene composition | Fits the existing renderer. Review each linked example's dependency and asset licenses separately |
+| [Bruno Simon](https://bruno-simon.com/) · [source](https://github.com/brunosimon/folio-2025) | Tangible cause and effect, physical affordances, reset/quality controls | Source is offered under MIT. A whole game world is too much for our buyer flow; study interactions rather than transplant the site |
+| [Lusion](https://lusion.co/) | Strong art direction, one dominant scene and careful material contrast | Visual inspiration, not a licensed drop-in template. Do not copy branded assets or assume reuse rights |
+| [Magic UI Animated Beam](https://magicui.design/docs/components/animated-beam) · [source](https://github.com/magicuidesign/magicui) | One short transfer cue and compact receipt transitions | Open-source repo is MIT; Pro templates are separate. Adapt only needed components to existing CSS/Motion; no full Tailwind migration |
+| [Matter.js demos](https://brm.io/matter-js/demo/) · [engine](https://brm.io/matter-js/) | Springs, collision response and physical constraints in 2D | Alternate implementation if 3D fails laptop targets. Do not run two physics engines in the same scene |
+| [React Flow examples](https://reactflow.dev/examples) | Inspectable node/edge diagrams | Useful later for complex rule graphs; unnecessary for the initial three-check inspector |
+| [Codrops: When Cells Collide](https://tympanus.net/codrops/2025/09/11/when-cells-collide-the-making-of-an-organic-particle-experiment-with-rapier-three-js/) | Optional research lead for collision-driven organic arrangements | Search surfaced this case study, but direct access was blocked; no code/license or visual behavior was verified here |
+
+Your references translated into decisions:
+- **Figma:** give the outcome one dominant region, put technical details behind disclosure, and keep input/check/receipt proximity consistent. Keyboard access and readable contrast apply even when WebGL is present. [UI principles](https://www.figma.com/resource-library/ui-design-principles/)
+- **Leadde:** its page describes narrated animated explainer videos, not a browser rigid-body engine. Borrow the scene-by-scene teaching approach; use R3F/Rapier for actual interactive physics. [Physics animation](https://leadde.ai/solutions/physics-animation)
+- **Awwwards:** useful as a discovery board for motion references. Direct fetching timed out here; no award, ranking, or specific visual inspection is claimed. The shortlist above links the actual studios/examples to inspect. [Animation collection](https://www.awwwards.com/websites/animation/)
+
+Avoid a framework upgrade to WebGPU/R3F 10 for this deadline, a full physics game, fluid simulation, cursor replacement, scroll hijacking, autoplay sound, or a generic “AI agent SaaS” template. None is necessary to explain the mechanism.
+
+### D. Visual direction and hierarchy
+
+**Direction: an editorial verification studio with a physical proof chamber.** Warm off-white page, deep forest scene, pale lime verified state, restrained coral failures, ordinary clear typography and one mechanical object with weight. A large headline explains the promise; the experiment earns the visual spectacle.
+
+The current inspected frontend allocates similar visual weight to buyer, vault and solver. Its dense cards, small labels and fixed minimum width make the result compete with implementation details. Preserve those useful components, but reorganize them around the buyer's current question.
+
+**Design tokens (starting values, not measured accessibility results):**
+- Background `#EEEFE8`, main ink `#172D28`, secondary ink `#51665D`, separators `#CBD2C7`.
+- Scene `#102D29`, surface `#1B3830`, light text `#E5EBDF`, verified accent `#C6ED91`.
+- Rejected coral is for the scene accent; dark error text `#A13923` on light surfaces. Locked/pending uses amber plus a label.
+- Body: existing Inter/system sans; identifiers: existing monospace; optional serif italic limited to the marketing headline.
+- Public landing: headline 64–112 px responsive, body 16–18, labels 12 minimum in production. The local composition study uses some smaller secondary annotations that should be enlarged for projector mode.
+- Demo at 1080p: current outcome 40–48, principal values 32–40, primary instructions and captions 22–28, secondary labels at least 16. Hashes stay collapsed.
+- Spacing: 8-px rhythm, 24–32 between related sections, 64–96 between marketing sections. Border radius 8–12 for the chamber, 4–6 for controls. Reserve shadows for physical depth, not every text group.
+
+**Layout 1 — public website, 1440 desktop:**
+- 80–100 high header: product identity, Experiment, Use cases, Evidence/docs. One primary CTA, “Try the proof lab.”
+- Hero: roughly 36% editorial copy / 64% chamber. Visible simulation badge and concise disclaimer. No wallet or account needed to understand it.
+- Under the scene: input comparison, three explicit acceptance checks, outcome receipt. These form one aligned evidence strip, not many unrelated cards.
+- Next: why one cent changes the outcome; supported work; how the real proof differs from the local illustration; real evidence/limitations; developer path.
+- No fabricated counters, customer logos, “AI thinking” terminal, or unsupported “trustless” headline.
+- Mobile: single-column copy → scene/controls → input/check/result. Keep the DOM result usable without WebGL. Do not require dragging.
+
+**Layout 2 — real transaction workspace, 1920×1080:**
+
+```text
+72 px    identity | LIVE · ARC TESTNET | job identifier | presenter controls
+76 px    current outcome + exact next action                         mode/connection
+620 px   brief / approved checks     physical chamber      selected solver / details
+         360 px                     flexible ~1000 px     360 px
+         contextual; scroll         dominant, quiet      collapsed by default
+120 px   event timeline + single release receipt + files when recoverable
+72 px    narration / wait label / recoverable error
+         remaining height for gutters and padding
+```
+
+Use CSS grid with `minmax(0,1fr)`, not a global 1280-px minimum width. On 1280–1535 widths, the inspector becomes a drawer; retain the buyer task and main outcome. On small screens, use stacked HTML summaries. Full mobile wallet/presenter UX remains outside the agreed hackathon scope.
+
+**Layout 3 — proof/evidence inspector:** a normal HTML drawer with tabs **Checks / Files / Transactions**. Checks show the engine's canonical rule and expected versus actual values. Files show names, sizes and recovery status. Transactions show network, status and explorer links. Raw hashes and journal details are a further disclosure. Closing returns focus to its trigger.
+
+### E. Information architecture and classification
+
+Organize by a buyer's intent and progress, not by underlying protocols.
+
+| Location | Purpose | Availability |
+| --- | --- | --- |
+| `/` | Promise, interactive explanation and eligible work | Proposed public landing |
+| `/lab` | Standalone local simulation; same scene and controls | Proposed route; current isolated preview demonstrates it |
+| `/app/jobs/new` | Brief → reviewed checks → quotes → selected solver → funding | Existing behavior reorganized, route naming proposed |
+| `/app/jobs/:id` | Status, current action, evidence and recovered files | Live data only |
+| `/replay/:recordingId` | Recorded real-run playback with persistent label | Signed actions unavailable |
+| `/docs` | What is checked, data visibility, solver integration, limitations | Public explanatory content |
+
+**Global navigation:** Experiment, Use cases, Evidence, Docs. “Create a job” becomes the product CTA only when the integrated path works; avoid dead links in the prototype. Do not add an empty Marketplace, Pricing page or dashboard analytics to fill a menu.
+
+**Work templates:** classify by deliverable, then readiness.
+1. **Record reconciliation — demo available:** exact IDs/amounts/total plus nonempty report. State the current fixture's simplicity.
+2. **Catalog/schema conversion — proposed pilot:** fixed schema, identifiers, required fields, explicit integrity rules. Needs real customer fixture and engine capability check.
+3. **Signed evidence bundles — product exploration:** signed input and named-file checks; engine-domain coverage is not proof of a complete buyer template.
+4. **Constraint/optimization output — later research:** feasibility checks do not establish optimality. Keep off the primary landing until real.
+
+A template detail always shows input eligibility, output files, exact acceptance rules, unchecked properties, data visibility and provider availability. Future filtering should use **deliverable type**, **readiness**, and **solver capability**, not “blockchain / AI / human” as mutually exclusive job categories.
+
+**Job status taxonomy:** Draft; Awaiting quotes; Ready to fund; Funding; Funded; Producing/proving; Proof ready; Submission pending; Accepted; Release pending; Paid/key released; Delivery recovered. Rejected checks, transport error, expired and refunded are distinct branches, not one red “failed” state.
+
+### F. The signature physical interaction
+
+**The wow moment is causal:** change invoice-b from 2,000¢ to 2,001¢, run the same checks, see the exact amount rule fail, and see the gate remain locked. Reset to the correct file and the same gate opens. Then show the fresh real run with its actual receipts.
+
+The scene is a bounded machine, not a screen-wide swarm. Data glyphs approach a mechanical barrier. They have weight, damping and collision response. The barrier expresses acceptance; the escrow amount remains an ordinary authoritative text value. The glyph count is decorative and never encodes money, rows, proof bytes or progress.
+
+**Production physics specification:**
+- Reuse React 19.1.1, R3F 9.3.0, drei 10.7.4, Three 0.179.1 and Motion 12.23.12. Add a tested/pinned Rapier v2 wrapper. Avoid competing tween/physics owners on the same transform.
+- 12–24 instanced simple bodies; sphere/cuboid colliders, no runtime triangle-mesh collider generation.
+- Rapier fixed simulation step 1/60 s, maximum four catch-up steps; clamp elapsed time after backgrounding. Render interpolation separate from simulation.
+- Initial tuning: mass 1, restitution 0.25–0.4, friction around 0.5, linear damping around 1.5. Treat these as tuning inputs, not physical validation.
+- Mouse drag applies a damped spring toward a raycast plane; cap force and speed. Pointer release/cancel releases the body. No drag required for any task.
+- Gate is a **kinematic collider commanded by semantic state**. Simulation checks may command it in the lab; only the accepted/released state projection may command it in live mode. Collision callbacks have no access to signing, funding or settlement methods.
+- Camera remains stable. Optional hover tilt is capped to ~3 degrees, disabled for reduced motion, touch and presenter recording.
+- Pause offscreen/hidden, let bodies sleep at rest, and dispose geometry/materials on route exit. Keep a consistent reset seed for the visual arrangement; blockchain outcomes never depend on it.
+
+**Motion choreography:**
+- A rule moves from brief to approved-check list only after actual engine validation; 180–240 ms transform/opacity.
+- Funding: one 600–900 ms transfer cue after confirmed funding. Never animate money arriving while a wallet request is pending.
+- Proving: subtle indeterminate activity with a real elapsed clock. No invented percent, cycle counter, or execute/prove/Groth16 stage.
+- Proof finished: a compact chip appears with actual reported cycle count and seal size, 250–400 ms.
+- Accepted proof: gate indicator changes on verified state; payout is still pending until release.
+- Release receipt: payment and key enter one semantic state transition. A ~900 ms visual sequence may draw attention to each part, while one receipt identifies both.
+- Rejection: failed rule and text appear immediately; a small rebound emphasizes a closed gate. No “on-chain rejection transaction” if only preflight rejected.
+- Decryption: show recovered files only after the existing hash/commitment and authenticated-decryption checks succeed.
+- Refund: separate expiry and refund-confirmation state. Never accelerate a real refund with simulation time.
+- Reduced motion: no travel, shaking, orbiting or counter interpolation; show stable state icons, text and receipt. Audio is off by default and never the only signal.
+
+The isolated prototype implements genuine planar contact impulses, boundary constraints, drag springs and damping rendered as 3D spheres. Its 1/120-step solver is a visual study, not a production physics library or cryptographic implementation. It cannot send money.
+
+### G. Live, simulation and replay must remain separate
+
+| Mode | Source of truth | Available action | Permanent label |
+| --- | --- | --- | --- |
+| Simulation | Local sample fixture and illustrative state machine | Change input, run local checks, reset, pause visuals | “Simulation · no proof or payment” |
+| Live | Existing API, engine events and confirmed Arc chain state | Authorized buyer flow; presenter signer only under server capability | “Live · Arc testnet” |
+| Replay | Allowlisted versioned recording | Play, pause, seek and reset; no signer methods | “Recorded run · date/job” |
+
+Use separate stores/adapters or a discriminated mode union that makes signing unavailable to simulation/replay. Never switch to a recording invisibly after RPC failure. Offer a clearly labeled replay and keep the last known live status visible.
+
+Do not add a new backend requirement for the chamber: it consumes the already agreed snapshot/event envelope. Useful input events remain draft/validation, quote selection, funded, proof.started, proof.finished, submit/preflight result, accepted, release receipt, delivery recovered, expiry and refund. No continuous engine telemetry is assumed.
+
+Use the existing quote listing endpoint. The signer UI reflects `GET /v1/demo/capabilities`; a client-side presenter toggle grants no authority. Live financial state remains chain-derived. Decryption output stays out of sanitized telemetry.
+
+**Frontend decomposition proposal:** `ExperienceShell`, `ModeBanner`, `OutcomeHeader`, `BriefAndChecks`, `ProofChamber`, `EvidenceInspector`, `SettlementReceipt`, `DeliveryFiles`, `PresenterControls`. Keep the present API/chain/store modules as the business-logic boundary; refactor visual hierarchy before changing business behavior.
+
+### H. Hackathon narrative and implementation order
+
+Protect the agreed 2–3 minute fresh-run video. The simulation is an optional website/booth teaching tool, not a substitute for the real proof or mandatory video footage.
+
+**Suggested 150-second edit:** 0–15 buyer problem and explicit deliverable; 15–40 real English draft and approved checks; 40–60 selected quote and funding; 60–85 real proving time-lapse with elapsed label; 85–110 accepted proof, release receipt and recovered files; 110–135 one-cent rejection plus refund filmed after actual expiry; 135–150 buyer benefit and honest human/public-data scope. Adjust to actual footage rather than inventing timing. If a lab clip is used, label it simulation and remove other exposition to stay within the limit.
+
+| Slice | Result | Gate before moving on |
+| --- | --- | --- |
+| 1 — composition | New typography, spacing, dominant outcome, contextual panels; existing live data preserved | 1080p readability and no covered controls |
+| 2 — chamber | Bounded physics, restrained materials, reduced-motion/static fallback | Controls usable under proving load; no business effects from collisions |
+| 3 — state integration | Existing accepted/funded/release/reject/refund states mapped to scene and receipt | No paid-before-release, duplicate funding, invented stages or false rejection |
+| 4 — evidence UX | Checks/Files/Transactions drawer, copy/explorer actions, recoverable errors | Keyboard/focus, long filenames/hashes, disconnected API tested |
+| 5 — rehearsal | Fresh full path and act-two capture; controls Space/R/D/M/F preserved | Existing D1–D4 and C1–C14 acceptance gates pass |
+| 6 — public wrapper | Landing, eligible use cases, lab, docs/evidence links | Every CTA works; planned features visibly marked |
+
+Integrate the four agreed backend additions in their existing order: polled run events, constrained signer, recorded replay, dedicated tampered-solver orchestration. Visual work can progress against fixture adapters but must not claim those additions are complete.
+
+Planning estimate: composition 3–5 focused hours, chamber 4–8, state/inspector wiring 4–8, QA/rehearsal 3–6, public wrapper 3–5. These are rough engineering ranges, not commitments; backend work is separate. With the Nov 20 deadline, prioritize the real transaction view and recording over a multi-page marketing site.
+
+**Cut order:** elaborate materials/refraction → camera tilt → drag interaction → physical particles (retain static gate) → extra landing sections. Preserve mode labels, exact failed check, receipts, file recovery, accessibility and the real-run evidence. A minimal coherent scene is preferable to an unstable complicated one.
+
+### I. Acceptance bar and limitations
+
+**Comprehension:** in a five-person informal test, at least four should identify who pays, what is checked, when payment releases and what the one-cent failure means without explanation. This is a proposed test, not a result.
+
+**Browser/interaction:** check 1920×1080, 1440×900, 1280×720 and a 390-px mobile landing. No horizontal overflow; long filenames and errors wrap; controls stay reachable at 200% zoom. Keyboard works without interacting with canvas. Focus is visible, dialogs restore focus, and live announcements describe important outcomes only. Verify contrast rather than assuming token choices pass.
+
+**Performance targets, pending measurement on the actual proving laptop:** aim for 60 fps; target p95 visible frame interval below 20 ms during the selected workload, under 100 scene draw calls, and initial DPR at most 1.5. Sample before and during proving. If sustained frame intervals exceed 33 ms, reduce quality or switch to static/SVG. Measure with production assets; a local browser screenshot cannot certify the laptop target.
+
+**Correctness:** test separate mode adapters, no signing in simulation/replay, out-of-order/duplicate events, reset during animation, preflight versus transport errors, indexer lag, expiry before refund and release before decryption. Preserve existing transaction tests; add integration tests for new behavior, not tests that merely duplicate animation constants.
+
+**Research limitations:** repository files and Neil's pasted group discussion supplied product context; no new external group-chat history was accessed. Public pages are cited above; some visual sites could not be fetched and are labeled accordingly. No market-size estimate for the eligible niche is established. No customer interview, live funded human delivery, new production transaction, or current-laptop performance benchmark is claimed.
+
+### J. Conflicts and handoff to Claude
+
+1. **Visual hierarchy changes:** earlier equal buyer/vault/solver columns become a dominant chamber with contextual panels and evidence drawer. This is the proposed response to Neil's dissatisfaction.
+2. **Style changes:** dark terminal styling becomes an editorial light shell with a dark physical stage. Keep semantic success/pending/failure labels and established chain facts.
+3. **New teaching surface:** the lab is explicitly simulated and isolated from live/replay; the existing store's two-mode model needs an adapter boundary before integrating it.
+4. **Mobile:** responsive public landing is proposed; full mobile presenter/wallet UX remains outside D1–D4 scope.
+5. **Dependency:** Rapier v2 is proposed; the current app has R3F but not the physics wrapper. Prototype physics does not imply that package was installed.
+6. **Unchanged agreements:** selected provider, public/shareable inputs, human adapter gate, server-authorized signer, one release receipt, truthful telemetry, genuine expiry and fresh video all remain.
+
+**Next owner:** Claude can reconcile these visual proposals against the existing components and record the chosen implementation in its own Decisions section. No additional backend endpoint is required solely for physics. Preserve the original product handoff below; this section supplies the new product/design direction and research, not a parallel protocol.
+
+---
+
 
 ## 2026-11-16 02:52 -05:00 — Codex — Reconciled with Neil's D1–D4 decisions
 
@@ -304,3 +530,4 @@ All fourteen conflict resolutions are accepted as recorded in §5. The prior rec
 **Remaining gates are implementation/evidence work, not unresolved product choices:** fresh integrated UI run, telemetry and signer/replay tests, actual expiry refund, laptop performance, edited-video/source audit, and Nick's live admin-role confirmation before stronger escrow claims. The human funded run applies only if the optional showcase is included. Customer demand and commercial economics remain unvalidated, as §10 explains.
 
 **Handoff state:** Product-plan reconciliation complete. Claude can use this updated plan alongside the Decisions section as the implementation handoff. Only `agents/neil/product-plan.md` was edited by Codex; ownership of `ui-intent.md` and application source remains unchanged. The earlier 166-test result is preserved as prior evidence, not a claim that the planned additions have passed tests.
+

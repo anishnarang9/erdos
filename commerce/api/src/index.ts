@@ -1,5 +1,7 @@
 // @ubc26/api public entry. See ../CONTRACT.md.
 export { createApp, type CreateAppOptions, type CreatedApp } from "./app.ts";
+export { httpX402Facilitator, type X402Config, type X402Facilitator, type PaymentRequirements, type PaymentPayload, type SettlementResponse } from "./x402.ts";
+export { type OpenClaimConfig, type OpenClaimReader, type OpenClaimReceipt, type OpenClaimSnapshot } from "./open-claim.ts";
 export {
   simulatedValidatePlan,
   revisionHash,
@@ -70,12 +72,12 @@ export {
   EVENT_STATUS,
   type ChainView,
 } from "./market.ts";
-export { DEFAULT_QUOTE_CHAIN_ID, fundingTxRequests, type ApiChain, type FundingTerms, type TxRequest } from "./chain.ts";
+export { DEFAULT_QUOTE_CHAIN_ID, fundingTxRequests, createApiArcChain, type ApiChain, type ChainReader, type ChainSnapshot, type FundingTerms, type TxRequest } from "./chain.ts";
 export { createIndexer, type Indexer, type IndexerOptions } from "./indexer.ts";
 export { PLAN_SCHEMA, ENGINE_CATALOG } from "./authoring.ts";
 export { checkPlanFiles, FORMAT_PARSER } from "./revision.ts";
 export { arcReader, arcChain } from "./arc.ts";
-export { readChain, type ChainReader } from "./chain.ts";
+export { readChain } from "./chain.ts";
 export { runEventLog, readRunEvents, type RunEvent, type RunEventType, type Emit } from "./run-events.ts";
 export { registerDemoSignerRoutes, type DemoSignerOptions, type PosterChain } from "./demo-signer.ts";
 export { arcPosterChain } from "./demo-arc.ts";

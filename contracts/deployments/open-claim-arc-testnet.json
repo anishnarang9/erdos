@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "interfaceVersion": "open-claim-v1",
+  "network": "arc-testnet",
+  "status": "deployed-verified",
+  "chainId": 5042002,
+  "usdc": {
+    "address": "0x3600000000000000000000000000000000000000",
+    "decimals": 6
+  },
+  "core": {
+    "address": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
+    "implementation": "0x55A3C9319EEe607579855880b5651766eBF103d7",
+    "runtimeCodeHash": "0xdac3085f81cca92bb363b27a29074c33a338ba3c89cc395dc097ba20fac576d7",
+    "deployBlock": 72393888,
+    "frozen": true
+  },
+  "coreImplementationRuntimeCodeHash": "0x7bdd6ba79fb1560523b2228edf03bef923f33edf41de728044de5ccae4037d13",
+  "verifier": {
+    "address": "0xCf8D70A203b40D3A17d023c0CDDF752870BC3992",
+    "runtimeCodeHash": "0x0b496507a375b268f944877d4057cb475d412ea3f9376d406ae40a13fea49012",
+    "version": "3.1.0",
+    "selector": "0xe71e6620"
+  },
+  "adapter": {
+    "address": "0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8",
+    "runtimeCodeHash": "0x469a337cfb28530e01426274e353792fee03ea8cc7f9663a63c5f9c2a4e13f20",
+    "deployTx": "0x30a8bc27f9cecf068eeaf5c822196c5149f825671c4e65013d559de353572e14",
+    "deployBlock": 72563239,
+    "contract": "src/OpenClaimAdapter.sol:OpenClaimAdapter",
+    "abi": "abi/OpenClaimAdapter.json",
+    "deployBlockHash": "0x666c97bfadec79f87ab407dafd3dd714dc37b79638a6611b0e904eff0373ea32",
+    "deployer": "0xA2416Eb8159606C133298fF113a472608E6F9Fb7",
+    "constructorArgs": {
+      "core": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
+      "verifier": "0xCf8D70A203b40D3A17d023c0CDDF752870BC3992",
+      "usdc": "0x3600000000000000000000000000000000000000"
+    },
+    "creationDataHash": "0xad7f68985c4978a117d467a8e89321f0b6d4b539492cd34beb1280f104b321d6",
+    "runtimeLengthBytes": 11311,
+    "sourceCommit": "3f0ecbf",
+    "sourceSha256": "ebf15d533353db02227ddbd0ef940cdfa318c7f8d2488197eed45d7bee2e611b",
+    "gas": {
+      "limit": 3000000,
+      "used": 2538847,
+      "maxFeePerGasWei": 25000000000,
+      "maxPriorityFeePerGasWei": 25000000000,
+      "effectiveGasPriceWei": 25000000000,
+      "paidNativeUsdc": "0.063471175"
+    },
+    "explorerUrl": "https://explorer.testnet.arc.io/address/0x1fed5e532a1405facd45b4096ad1abf25bba0cb8"
+  },
+  "policy": {
+    "provider": "adapter",
+    "evaluator": "adapter",
+    "hook": "0x0000000000000000000000000000000000000000",
+    "platformFeeBP": 0,
+    "evaluatorFeeBP": 0,
+    "minRegistrationExpiryMarginSeconds": 600,
+    "maxEnvelopeBytes": 16412,
+    "contextEscrow": "adapter",
+    "contextProvider": "actual solver and payout address",
+    "wireVersion": 1,
+    "releaseBeforeExpiry": true,
+    "refundAtOrAfterExpiry": true,
+    "bountyFunding": "buyer approves and funds authentic core directly",
+    "x402": "separate API operation fee; direct bounty funding unproven"
+  },
+  "abis": {
+    "core": "abi/AgenticCommerce.json",
+    "adapter": "abi/OpenClaimAdapter.json",
+    "verifier": "abi/IRiscZeroVerifier.json"
+  },
+  "evidence": {
+    "adapterDeployed": true,
+    "freshFundedProof": false,
+    "liveArcExchange": false,
+    "note": "Adapter creation confirmed. Receipt, calldata, gas bounds, runtime bytes and immutable getters were checked independently at the deployment block. Fresh funded proof and live exchange remain separate gates.",
+    "preflightBlock": 72563220,
+    "preflightBlockHash": "0xb5f89f04d059956e5ca5d9d5c6e7cf52ecbea7c6590e71709082c7cbd066c62a",
+    "receiptStatus": 1,
+    "receiptTransactionValueWei": 0,
+    "receiptNonce": 0,
+    "creationInputMatchesCompiledArtifact": true,
+    "runtimeMatchesCompiledArtifactAfterImmutableSubstitution": true,
+    "constructorGettersMatch": true,
+    "confirmationsObservedAtBlock": 72563331,
+    "explorerSourceVerified": true,
+    "explorerVerifiedAt": "2026-11-16T14:05:31.492297Z",
+    "explorerCompilerVersion": "v0.8.28+commit.7893614a",
+    "explorerOptimizationEnabled": false,
+    "explorerEvmVersion": "cancun",
+    "explorerSourceSha256": "ebf15d533353db02227ddbd0ef940cdfa318c7f8d2488197eed45d7bee2e611b"
+  }
+}

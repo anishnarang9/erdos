@@ -1,0 +1,31 @@
+{
+  "chainId": 5042002,
+  "adapter": "0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8",
+  "blockNumber": "72564050",
+  "blockHash": "0x6507c7b31d2cd6239b9b6bd2517a24600fa1b4a7aebba276d654114946b92aee",
+  "runtimeHashes": {
+    "core": "0xdac3085f81cca92bb363b27a29074c33a338ba3c89cc395dc097ba20fac576d7",
+    "implementation": "0x7bdd6ba79fb1560523b2228edf03bef923f33edf41de728044de5ccae4037d13",
+    "adapter": "0x469a337cfb28530e01426274e353792fee03ea8cc7f9663a63c5f9c2a4e13f20",
+    "verifier": "0x0b496507a375b268f944877d4057cb475d412ea3f9376d406ae40a13fea49012"
+  },
+  "observation": {
+    "chainId": 5042002,
+    "token": "0x3600000000000000000000000000000000000000",
+    "evaluatorFeeBP": "0",
+    "platformFeeBP": "0",
+    "adapterCode": "present",
+    "adapterCore": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
+    "adapterVerifier": "0xCf8D70A203b40D3A17d023c0CDDF752870BC3992",
+    "adapterUsdc": "0x3600000000000000000000000000000000000000",
+    "maxEnvelopeBytes": "16412",
+    "minExpiryMargin": "600"
+  },
+  "completeRoleHistory": true,
+  "creationVerified": true,
+  "manifestSha256": "310176e7c03b2b0accf149e98033d054f7311a0ba3d08d084f96666190b7ba22",
+  "schemaVersion": 1,
+  "status": "verified-live-read-only",
+  "contractSourceCommit": "3f0ecbf",
+  "publishedManifestCommit": "ed509648842005e6c0ca970d4c1184e4b1137047"
+}

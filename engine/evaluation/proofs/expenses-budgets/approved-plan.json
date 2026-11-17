@@ -1,0 +1,126 @@
+{
+  "deliverables": [
+    {
+      "collections": [
+        {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "amountCents",
+              "type": "i64"
+            },
+            {
+              "name": "approved",
+              "type": "bool"
+            }
+          ],
+          "name": "rows"
+        }
+      ],
+      "name": "expenses.json",
+      "parser": "json/v1"
+    }
+  ],
+  "references": [],
+  "rules": [
+    {
+      "left": {
+        "collection": {
+          "field": "rows",
+          "file": "expenses.json",
+          "source": "deliverable"
+        },
+        "op": "count"
+      },
+      "op": "gte",
+      "right": {
+        "op": "literal",
+        "type": "i64",
+        "value": "1"
+      }
+    },
+    {
+      "collection": {
+        "field": "rows",
+        "file": "expenses.json",
+        "source": "deliverable"
+      },
+      "field": "id",
+      "op": "unique"
+    },
+    {
+      "collection": {
+        "field": "rows",
+        "file": "expenses.json",
+        "source": "deliverable"
+      },
+      "op": "all",
+      "where": {
+        "left": {
+          "left": {
+            "field": "amountCents",
+            "op": "record_field"
+          },
+          "op": "gte",
+          "right": {
+            "op": "literal",
+            "type": "i64",
+            "value": "0"
+          }
+        },
+        "op": "and",
+        "right": {
+          "left": {
+            "left": {
+              "field": "amountCents",
+              "op": "record_field"
+            },
+            "op": "lte",
+            "right": {
+              "op": "literal",
+              "type": "i64",
+              "value": "560"
+            }
+          },
+          "op": "and",
+          "right": {
+            "left": {
+              "field": "approved",
+              "op": "record_field"
+            },
+            "op": "eq",
+            "right": {
+              "op": "literal",
+              "type": "bool",
+              "value": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "left": {
+        "collection": {
+          "field": "rows",
+          "file": "expenses.json",
+          "source": "deliverable"
+        },
+        "op": "sum",
+        "value": {
+          "field": "amountCents",
+          "op": "record_field"
+        }
+      },
+      "op": "lte",
+      "right": {
+        "op": "literal",
+        "type": "i64",
+        "value": "1400"
+      }
+    }
+  ],
+  "version": 1
+}

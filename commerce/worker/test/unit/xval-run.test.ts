@@ -1,6 +1,6 @@
 // Cross-validation of the synthetic worker run with an in-memory API and a fake engine (no real prover).
 import { createHash, randomBytes } from "node:crypto";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, linkSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -83,6 +83,17 @@ describe("xval downloadPackage", () => {
     f.files.set("guest.elf", g);
     f.listing.files = f.listing.files.map((e) => (e.path === "guest.elf" ? { ...e, sha256: sha(g) } : e));
     await checkErr(downloadPackage(fakeClient(f), JOB, join(tmp, "pkg")), "guest_digest");
+  });
+
+  it("rejects a package callback inserting a symlink ancestor before writing", async () => {
+    const f = fixture(), c = fakeClient(f), get = c.packageFile;
+    const outside = join(tmp, "outside"); mkdirSync(outside);
+    c.packageFile = async (id, path) => {
+      if (path === "params/rules.bin") symlinkSync(outside, join(tmp, "pkg/params"));
+      return get(id, path);
+    };
+    await checkErr(downloadPackage(c, JOB, join(tmp, "pkg")), "artifact_path");
+    expect(readdirSync(outside)).toEqual([]);
   });
 
   it("refuses an existing target directory", async () => {
@@ -215,6 +226,73 @@ describe("xval runSynthetic", () => {
   it("solver file with an unsafe name is rejected", async () => {
     const eng = fakeEngine();
     await checkErr(runSynthetic(opts(fixture(), eng, { solver: solver([{ name: "../x", content: utf8("x") }]) })), "file_name");
+    expect(eng.calls).toEqual([]);
+  });
+});
+
+describe("xval synthetic private artifacts", () => {
+  function privateTree(path: string): void {
+    const s = lstatSync(path);
+    expect(s.isSymbolicLink()).toBe(false);
+    expect(s.mode & 0o777, path).toBe(s.isDirectory() ? 0o700 : 0o600);
+    if (s.isDirectory()) for (const name of readdirSync(path)) privateTree(join(path, name));
+  }
+  for (const verdict of [0, 1] as const) {
+    it(`umask 022 leaves all verdict-${verdict} artifacts private including resource children`, async () => {
+      const previous = process.umask(0o022);
+      try {
+        const f = fixture(), eng = fakeEngine({ verdict });
+        const run = eng.run;
+        eng.run = async (...args) => {
+          const r = await run(...args);
+          if (args[0][0] === "prove") {
+            const resources = join(argOf(args[0], "--out"), "resources");
+            mkdirSync(resources); writeFileSync(join(resources, "trace.bin"), "private");
+          }
+          return r;
+        };
+        const o = opts(f, eng);
+        await runSynthetic(o);
+        privateTree(o.attemptDir);
+      } finally { process.umask(previous); }
+    });
+  }
+  it("failure after engine output still tightens plaintext resources", async () => {
+    const eng = fakeEngine(), run = eng.run;
+    eng.run = async (...args) => {
+      await run(...args);
+      throw new Error("engine interrupted");
+    };
+    const o = opts(fixture(), eng);
+    await expect(runSynthetic(o)).rejects.toThrow("engine interrupted");
+    privateTree(o.attemptDir);
+  });
+  for (const kind of ["symlink", "hardlink"] as const) {
+    for (const command of ["prove", "decrypt"] as const) {
+      it(`rejects ${kind} from ${command} without changing external permissions`, async () => {
+        const target = join(tmp, "outside.txt");
+        writeFileSync(target, "external", { mode: 0o644 });
+        const eng = fakeEngine(), run = eng.run;
+        eng.run = async (...args) => {
+          const r = await run(...args);
+          if (args[0][0] === command) {
+            const link = join(argOf(args[0], "--out"), "linked-resource");
+            if (kind === "symlink") symlinkSync(target, link); else linkSync(target, link);
+          }
+          return r;
+        };
+        await checkErr(runSynthetic(opts(fixture(), eng)), "artifact_path");
+        expect(statSync(target).mode & 0o777).toBe(0o644);
+        expect(readFileSync(target, "utf8")).toBe("external");
+      });
+    }
+  }
+  it("rejects a symlinked user-controlled ancestor before creating artifacts", async () => {
+    const actual = join(tmp, "actual"), linked = join(tmp, "linked");
+    mkdirSync(actual); symlinkSync(actual, linked);
+    const eng = fakeEngine();
+    await checkErr(runSynthetic(opts(fixture(), eng, { attemptDir: join(linked, "attempt") })), "artifact_path");
+    expect(readdirSync(actual)).toEqual([]);
     expect(eng.calls).toEqual([]);
   });
 });

@@ -1,0 +1,32 @@
+{
+  "syntheticControls": true,
+  "modelCalls": 0,
+  "independentOracle": "Direct buyer rule: integer cents <=10000 and markedComplete.",
+  "controls": [
+    {
+      "control": "omitted_requirement",
+      "expected": "fail",
+      "actual": "pass",
+      "detected": true
+    },
+    {
+      "control": "weakened_predicate",
+      "expected": "fail",
+      "actual": "pass",
+      "detected": true
+    },
+    {
+      "control": "changed_units",
+      "expected": "pass",
+      "actual": "fail",
+      "detected": true
+    },
+    {
+      "control": "invented_constant",
+      "sampleLabelsUnchanged": true,
+      "detected": true
+    }
+  ],
+  "passed": 4,
+  "expected": 4
+}

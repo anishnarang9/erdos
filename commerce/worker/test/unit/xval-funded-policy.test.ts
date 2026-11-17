@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { concatHex, encodeFunctionData, getAddress, parseAbi, toFunctionSelector, type Address, type Hex } from "viem";
 import { arc } from "@ubc26/sdk";
-import { checkPolicy, PolicyError, RELEASE_SELECTOR, SUBMIT_SELECTOR, type OutgoingTx, type PolicyConfig } from "../../src/policy.ts";
+import { checkPolicy, PolicyError, RELEASE_SELECTOR, SUBMIT_SELECTOR, type OutgoingTx, type PolicyConfig } from "../../src/demo/policy.ts";
 
 const CORE = getAddress("0x4992b29bc494a6d9a33d153850c0e40f15f0e9c8");
 const HOOK = getAddress("0x699d0e4a067f31229be67c534b37de964b6edbab");

@@ -1,64 +1,41 @@
-// T9/T10: prove a REAL funded job and settle it (COMMERCE-IMPLEMENTATION §5.1, Nick's lifecycle in
-// commerce/sdk/src/chain/arc). The chain is the source of truth: every check reads confirmed chain state.
-//
-//   check job + frozen terms -> package == terms -> time budget -> context = hook.contextOf(jobId)
-//   -> solve -> engine prove -> SDK checks -> verdict 0: never submit (optionally preflight to show the revert)
-//   -> preflight submit -> submit -> confirm ProofAccepted -> release margin -> preflight release (dummy key)
-//   -> release(key) -> confirm KeyReleased
-//
-// Progress is persisted in <attemptDir>/state.json before and after every transaction, so a restarted worker
-// resumes from the chain state and pays out at most once. The release key stays in the attempt directory.
-// A crash between sending a transaction and saving its hash can make a resumed run send it again; the chain
-// reads first (submissions, released), so a duplicate can only revert (AlreadyAccepted / AlreadyReleased).
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+// Funded attempts are private durable journals, not an exactly-once broadcast guarantee.
+// An intent without a persisted hash is uncertain and requires manual reconciliation.
+import { createHash } from "node:crypto";
+import { chmodSync, closeSync, existsSync, fsyncSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, renameSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Address, Hex } from "viem";
-import { decodeContext, keyCommitment, parseProofJson, type ProofPackage } from "@ubc26/sdk";
+import { decodeContext, keyCommitment, parseProofJson, type BundleFile, type ProofPackage } from "@ubc26/sdk";
 import type { ApiClient } from "./client.ts";
 import { prove, type EngineRunner } from "./engine.ts";
-import { downloadPackage, WorkerCheckError } from "./run.ts";
+import { checkArtifactAncestors, checkRecovery, checkReferences, downloadPackage, readFilesFrom, sameFiles, WorkerCheckError } from "./run.ts";
 import type { Solver } from "./solvers/index.ts";
-import type { Emit } from "@ubc26/api";
 
-const SAFE_NAME = /^[A-Za-z0-9._-]{1,128}$/;
-const lower = (h: string) => h.toLowerCase();
+const lower = (s: string) => s.toLowerCase();
+const equal = (a: unknown, b: string) => typeof a === "string" && lower(a) === lower(b);
 const hex = (b: Uint8Array) => ("0x" + Buffer.from(b).toString("hex")) as Hex;
-
-export interface ChainJob {
-  provider: Address;
-  evaluator: Address;
-  hook: Address;
-  budget: bigint;
-  expiredAt: bigint;
-  status: string; // Open | Funded | Submitted | Completed | Rejected | Expired
-}
-export interface ChainTerms {
-  imageId: Hex;
-  rulesHash: Hex;
-  referenceHash: Hex;
-  provider: Address;
-  budget: bigint;
-  expiry: bigint;
-  funded: boolean;
-}
-export interface ChainSubmission {
-  envelopeHash: Hex;
-  keyCommitment: Hex;
-  accepted: boolean;
-}
+const bytes = (h: Hex) => new Uint8Array(Buffer.from(h.slice(2), "hex"));
+const digest = (b: Uint8Array | string) => createHash("sha256").update(b).digest("hex");
+const HASH = /^0x[0-9a-fA-F]{64}$/;
+const PHASES = ["preparing", "proving", "proved", "submit_broadcasting", "submit_sent", "submitted", "release_broadcasting", "release_sent", "released", "rejected", "abandoned"] as const;
+export interface ChainJob { provider: Address; evaluator: Address; hook: Address; budget: bigint; expiredAt: bigint; status: string }
+export interface ChainTerms { imageId: Hex; rulesHash: Hex; referenceHash: Hex; provider: Address; budget: bigint; expiry: bigint; funded: boolean }
+export interface ChainSubmission { envelopeHash: Hex; keyCommitment: Hex; accepted: boolean }
 export type Preflight = { ok: true } | { ok: false; reason: string };
-export interface SentTx {
-  hash: Hex;
-  /** Decoded settlement events from the receipt (name and args). */
-  events: { name: string; args: Record<string, unknown> }[];
+/** Receipt data only. Broadcast methods return a hash, never wait for inclusion. */
+export interface SentTx { hash: Hex; events: { name: string; args: Record<string, unknown> }[] }
+/** All fields must be read at blockNumber, including its timestamp. */
+export interface SettlementSnapshot {
+  job: ChainJob;
+  terms: ChainTerms;
+  context: Uint8Array;
+  submission: ChainSubmission;
+  released: boolean;
+  timestamp: bigint;
+  blockNumber: bigint;
 }
-
-/** What the worker needs from the settlement contracts. Implemented over @ubc26/sdk `arc` (see arc-port.ts). */
 export interface SettlementPort {
-  chainId: number;
-  core: Address;
-  hook: Address;
-  self: Address;
+  snapshot?(id: bigint): Promise<SettlementSnapshot>;
+  chainId: number; core: Address; hook: Address; self: Address;
   now(): Promise<bigint>;
   job(id: bigint): Promise<ChainJob>;
   terms(id: bigint): Promise<ChainTerms>;
@@ -66,287 +43,313 @@ export interface SettlementPort {
   submission(id: bigint): Promise<ChainSubmission>;
   released(id: bigint): Promise<boolean>;
   preflightSubmit(id: bigint, p: ProofPackage): Promise<Preflight>;
-  /** With a dummy key: ok means only the key would be wrong (the real key is never sent to eth_call). */
+  /** Dummy-key simulation only: never pass the release key to eth_call. */
   preflightRelease(id: bigint): Promise<Preflight>;
-  submit(id: bigint, p: ProofPackage): Promise<SentTx>;
-  release(id: bigint, key: Hex): Promise<SentTx>;
-  /** Receipt of a sent transaction, or null while it is unknown or pending. */
+  submit(id: bigint, p: ProofPackage): Promise<Hex>;
+  release(id: bigint, key: Hex): Promise<Hex>;
   receipt(hash: Hex): Promise<{ status: "success" | "reverted"; events: SentTx["events"] } | null>;
 }
-
 export interface FundedOptions {
-  client: ApiClient;
-  runner: EngineRunner;
-  port: SettlementPort;
-  /** API job id (for the package and references). */
-  jobId: string;
-  chainJobId: bigint;
-  solver: Solver;
-  /** The attempt directory: new on first run, existing on resume. It holds the release key: keep it private. */
-  attemptDir: string;
-  /** Seconds reserved for proving; measure it (reconciliation ~100 s on WSL2, signed evidence ~750 s on an M3). */
-  proveBudgetSec: number;
-  /** Seconds that must remain before expiry when release is sent. Default 120 (block timestamps can jump). */
-  releaseMarginSec?: number;
-  /** Seconds reserved for submit inclusion. Default 60. */
-  submitBudgetSec?: number;
-  /** Verdict 0: also run the submit preflight to record the on-chain rejection (never sends). Default true. */
-  preflightRejected?: boolean;
-  /** Demo run events (allowlisted, public fields only). */
-  emit?: Emit;
+  client: ApiClient; runner: EngineRunner; port: SettlementPort; jobId: string; chainJobId: bigint;
+  solver: Solver; attemptDir: string; proveBudgetSec: number; releaseMarginSec?: number;
+  submitBudgetSec?: number; preflightRejected?: boolean;
+  /** Validate and persist the private proof only. Refuse any settlement history. */
+  stopAfterProof?: boolean;
 }
-
-export type Phase = "proved" | "submit_sent" | "submitted" | "release_sent" | "released" | "rejected" | "abandoned";
-
+export type Phase = typeof PHASES[number];
 export interface FundedState {
-  jobId: string;
-  chainJobId: string;
-  phase: Phase;
-  verdict?: 0 | 1;
-  proveMillis?: number;
-  userCycles?: number;
-  envelopeHash?: Hex;
-  keyCommitment?: Hex;
-  submitTx?: Hex;
-  releaseTx?: Hex;
-  rejectedPreflight?: string;
-  abandonReason?: string;
+  version: 2; jobId: string; chainJobId: string; phase: Phase;
+  binding: { chainId: number; core: string; hook: string; self: string };
+  revision?: string; context?: Hex; termsDigest?: string;
+  artifacts?: Record<string, string>;
+  verdict?: 0 | 1; proveMillis?: number; userCycles?: number;
+  envelopeHash?: Hex; keyCommitment?: Hex; submitTx?: Hex; releaseTx?: Hex;
+  rejectedPreflight?: string; abandonReason?: string;
+  /** Durable from release intent onward, independent of phase or receipt availability. */
+  releaseDisclosure?: "potentially_public";
+  paymentConfirmed: boolean;
   log: { at: string; event: string; detail?: string }[];
 }
-
-function must(cond: boolean, check: string, message: string): asserts cond {
-  if (!cond) throw new WorkerCheckError(check, message);
+function must(c: boolean, check: string, message: string): asserts c { if (!c) throw new WorkerCheckError(check, message); }
+function syncDir(dir: string): void { const fd = openSync(dir, "r"); try { fsyncSync(fd); } finally { closeSync(fd); } }
+function privateTree(path: string, tighten = false): void {
+  const s = lstatSync(path);
+  must(!s.isSymbolicLink() && (s.isFile() || s.isDirectory()) && (s.isDirectory() || s.nlink === 1), "artifact_path", "attempt contains a link or special file");
+  if (tighten) chmodSync(path, s.isDirectory() ? 0o700 : 0o600);
+  must((lstatSync(path).mode & 0o077) === 0, "permissions", "attempt files and directories must be private");
+  if (s.isDirectory()) for (const name of readdirSync(path)) privateTree(join(path, name), tighten);
+  if (tighten) { const fd = openSync(path, "r"); try { fsyncSync(fd); } finally { closeSync(fd); } }
 }
-
-function writeFilesInto(dir: string, files: { name: string; content: Uint8Array }[]): void {
-  mkdirSync(dir);
+function writeFiles(dir: string, files: BundleFile[]): void {
+  const names = new Set<string>();
+  mkdirSync(dir, { mode: 0o700 });
   for (const f of files) {
-    must(SAFE_NAME.test(f.name) && f.name !== "." && f.name !== "..", "file_name", `unsafe file name ${JSON.stringify(f.name)}`);
-    writeFileSync(join(dir, f.name), f.content);
+    must(/^[A-Za-z0-9._-]{1,128}$/.test(f.name) && f.name !== "." && f.name !== ".." && !names.has(lower(f.name)), "file_name", "unsafe or duplicate file name");
+    names.add(lower(f.name));
+    writeFileSync(join(dir, f.name), f.content, { mode: 0o600, flag: "wx" });
   }
 }
-
-/** Checks that the job is ours, funded through the hook, and that its frozen terms are what we will prove. */
+function treeDigests(root: string): Record<string, string> {
+  const result: Record<string, string> = {};
+  const walk = (rel: string) => {
+    const path = join(root, rel), s = lstatSync(path);
+    must(!s.isSymbolicLink() && (s.isFile() || s.isDirectory()), "artifact_path", "invalid artifact path");
+    if (s.isDirectory()) for (const name of readdirSync(path).sort()) walk(`${rel}/${name}`);
+    else result[rel] = digest(readFileSync(path));
+  };
+  for (const rel of ["package", "reference", "deliverables", "job.json", "attempt/proof.json"]) if (existsSync(join(root, rel))) walk(rel);
+  return result;
+}
+function termsDigest(t: ChainTerms): string { return digest(JSON.stringify(t, (_k, v: unknown) => typeof v === "bigint" ? v.toString() : typeof v === "string" ? lower(v) : v)); }
 export function checkJobAndTerms(port: SettlementPort, job: ChainJob, terms: ChainTerms): void {
-  must(lower(job.provider) === lower(port.self), "provider", `job provider ${job.provider} is not this worker ${port.self}`);
-  must(lower(job.evaluator) === lower(port.hook) && lower(job.hook) === lower(port.hook), "hook", "job evaluator and hook must both be the settlement hook");
-  must(terms.funded, "terms", "the hook has not frozen terms for this job");
-  must(lower(terms.provider) === lower(port.self), "terms_provider", "frozen terms name another provider");
-  must(terms.budget === job.budget && terms.expiry === job.expiredAt, "terms_budget", "frozen terms disagree with the core job");
+  must(equal(job.provider, port.self), "provider", "job belongs to another provider");
+  must(equal(job.evaluator, port.hook) && equal(job.hook, port.hook), "hook", "job evaluator and hook must be the settlement hook");
+  must(terms.funded, "terms", "terms are not frozen");
+  must(equal(terms.provider, port.self), "terms_provider", "terms belong to another provider");
+  must(terms.budget === job.budget && terms.expiry === job.expiredAt && job.budget > 0n, "terms_budget", "terms disagree with core job");
 }
 
 export async function runFunded(o: FundedOptions): Promise<FundedState> {
-  const { port } = o;
-  const emit: Emit = o.emit ?? (() => {});
-  const releaseMargin = BigInt(o.releaseMarginSec ?? 120);
-  const submitBudget = BigInt(o.submitBudgetSec ?? 60);
+  for (const n of [o.proveBudgetSec, o.submitBudgetSec ?? 60, o.releaseMarginSec ?? 120]) must(Number.isSafeInteger(n) && n > 0, "time_budget", "timing budgets must be positive safe integers");
+  const submitBudget = BigInt(o.submitBudgetSec ?? 60), margin = BigInt(o.releaseMarginSec ?? 120);
+  const { port } = o, id = o.chainJobId;
   const at = (p: string) => join(o.attemptDir, p);
-  const statePath = at("state.json");
-  const resume = existsSync(statePath);
-  let state: FundedState;
-  const save = () => {
-    // write-then-rename so a crash never leaves a truncated state file
-    writeFileSync(statePath + ".tmp", JSON.stringify(state, null, 2) + "\n");
-    renameSync(statePath + ".tmp", statePath);
-  };
-  const note = (event: string, detail?: string) => {
-    state.log.push({ at: new Date().toISOString(), event, ...(detail ? { detail } : {}) });
-    save();
-  };
-
+  const binding = { chainId: port.chainId, core: lower(port.core), hook: lower(port.hook), self: lower(port.self) };
+  checkArtifactAncestors(join(o.attemptDir, ".."));
+  const resume = existsSync(o.attemptDir);
   if (resume) {
-    state = JSON.parse(readFileSync(statePath, "utf8")) as FundedState;
-    must(state.chainJobId === o.chainJobId.toString() && state.jobId === o.jobId, "resume", "state.json belongs to another job");
-    note("resume", state.phase);
-  } else {
-    must(!existsSync(o.attemptDir), "attempt_dir", "a new attempt directory is required");
-    mkdirSync(o.attemptDir, { recursive: false });
-    state = { jobId: o.jobId, chainJobId: o.chainJobId.toString(), phase: "proved", log: [] };
-  }
-
-  const id = o.chainJobId;
-  const job = await port.job(id);
-  const terms = await port.terms(id);
-  if (resume) {
-    // Re-check ownership on every run; then let the chain decide what is left to do.
-    checkJobAndTerms(port, job, terms);
-    if (state.phase !== "released" && state.phase !== "rejected" && (job.status === "Expired" || job.status === "Rejected")) {
-      if (!(await port.released(id))) {
-        state.phase = "abandoned";
-        state.abandonReason = `job is ${job.status} on chain`;
-        note("abandoned", state.abandonReason);
-      emit("run.abandoned", { reason: state.abandonReason });
-        return state;
+    must(existsSync(at("state.json")), "attempt_dir", "existing attempt has no state; manual recovery required");
+    const root = lstatSync(o.attemptDir);
+    must(root.isDirectory() && !root.isSymbolicLink(), "artifact_path", "attempt must be a real directory");
+    must((root.mode & 0o077) === 0, "permissions", "attempt directory must be private");
+  } else mkdirSync(o.attemptDir, { mode: 0o700 });
+  let lock: number;
+  try { lock = openSync(at(".lock"), "wx", 0o600); } catch { throw new WorkerCheckError("attempt_lock", "attempt is locked; stale locks require manual reconciliation"); }
+  try {
+    if (resume) privateTree(o.attemptDir);
+    writeFileSync(lock, `${process.pid}\n`); fsyncSync(lock); syncDir(o.attemptDir);
+    let state: FundedState;
+    if (resume) {
+      try { state = JSON.parse(readFileSync(at("state.json"), "utf8")) as FundedState; } catch { throw new WorkerCheckError("resume", "invalid attempt state"); }
+      must(state.version === 2 && PHASES.includes(state.phase) && Array.isArray(state.log) && state.jobId === o.jobId && state.chainJobId === id.toString() && JSON.stringify(state.binding) === JSON.stringify(binding), "resume", "state version, job or chain binding differs");
+    } else state = { version: 2, jobId: o.jobId, chainJobId: id.toString(), binding, phase: "preparing", paymentConfirmed: false, log: [] };
+    const save = () => {
+      const fd = openSync(at("state.json.tmp"), "wx", 0o600);
+      try { writeFileSync(fd, JSON.stringify(state, null, 2) + "\n"); fsyncSync(fd); } finally { closeSync(fd); }
+      renameSync(at("state.json.tmp"), at("state.json")); syncDir(o.attemptDir);
+    };
+    const phase = (p: Phase, detail?: string) => { state.phase = p; state.log.push({ at: new Date().toISOString(), event: p, ...(detail ? { detail } : {}) }); save(); };
+    // Older version-2 attempts can predate the disclosure fields. Conservatively repair
+    // release history before any RPC or artifact validation can fail.
+    const releaseHistory = state.releaseDisclosure === "potentially_public" || !!state.releaseTx || state.phase === "release_broadcasting" || state.phase === "release_sent" || state.phase === "released" || state.log.some(e => e.event.startsWith("release"));
+    if (releaseHistory) state.releaseDisclosure = "potentially_public";
+    if (!resume || releaseHistory || state.paymentConfirmed === undefined) { state.paymentConfirmed = false; save(); }
+    if (o.stopAfterProof) must(
+      ["preparing", "proving", "proved", "rejected"].includes(state.phase) && !state.submitTx && !state.releaseTx && !releaseHistory && !state.log.some(e => e.event.startsWith("submit")),
+      "stop_after_proof", "proof-only mode refuses settlement phases or transaction history; use normal resume for reconciliation",
+    );
+    let lastBlock: bigint | undefined;
+    let lastTimestamp: bigint | undefined;
+    const readChain = async (): Promise<Omit<SettlementSnapshot, "blockNumber"> & { blockNumber?: bigint }> => {
+      const fallback = async () => {
+        const job = await port.job(id), terms = await port.terms(id);
+        checkJobAndTerms(port, job, terms);
+        return { job, terms, context: await port.contextOf(id), submission: await port.submission(id), released: await port.released(id), timestamp: await port.now() };
+      };
+      const s = port.snapshot ? await port.snapshot(id) : await fallback();
+      must(typeof s.timestamp === "bigint" && s.timestamp >= 0n && (lastTimestamp === undefined || s.timestamp >= lastTimestamp), "snapshot", "snapshot timestamp regressed or is invalid");
+      lastTimestamp = s.timestamp;
+      if ("blockNumber" in s) {
+        must(typeof s.blockNumber === "bigint" && s.blockNumber >= 0n && (lastBlock === undefined || s.blockNumber >= lastBlock), "snapshot", "snapshot block regressed or is invalid");
+        lastBlock = s.blockNumber;
       }
-    }
-  }
-
-  // ---- 1. Fresh attempt: check, solve, prove. ----
-  if (!resume) {
-    must(job.status === "Funded", "status", `job status is ${job.status}, not Funded`);
-    checkJobAndTerms(port, job, terms);
-    const now = await port.now();
-    const need = BigInt(o.proveBudgetSec) + submitBudget + releaseMargin;
-    must(job.expiredAt - now >= need, "time_budget", `only ${job.expiredAt - now} s left; need ${need} s (prove + submit + release margin)`);
-
-    const manifest = await downloadPackage(o.client, o.jobId, at("package"));
-    for (const k of ["imageId", "rulesHash", "referenceHash"] as const) {
-      must(lower(manifest[k]) === lower(terms[k]), "terms_package", `package ${k} differs from the frozen on-chain terms`);
-    }
+      checkJobAndTerms(port, s.job, s.terms);
+      const c = decodeContext(s.context);
+      must(c.chainId === BigInt(port.chainId) && c.jobId === id && equal(c.escrow, port.core) && equal(c.provider, port.self) && equal(c.rulesHash, s.terms.rulesHash) && equal(c.referenceHash, s.terms.referenceHash), "context", "snapshot context differs from funded identity");
+      if (state.context) must(hex(s.context) === state.context && termsDigest(s.terms) === state.termsDigest, "resume_binding", "snapshot context or terms changed");
+      return s;
+    };
+    const initial = await readChain();
+    const { job, terms, context } = initial;
+    const ctx = decodeContext(context);
+    must(ctx.chainId === BigInt(port.chainId) && ctx.jobId === id && equal(ctx.escrow, port.core) && equal(ctx.provider, port.self) && equal(ctx.rulesHash, terms.rulesHash) && equal(ctx.referenceHash, terms.referenceHash), "context", "chain context does not match funded identity and terms");
+    const view = await o.client.job(o.jobId), listing = await o.client.packageListing(o.jobId);
+    // The public job view binds the latest API revision to this real chain job.
+    const chain = (view as unknown as { chain?: { chainId: number; core: string; jobId: string } }).chain;
+    must(view.jobId === o.jobId && listing.jobId === o.jobId && chain?.chainId === port.chainId && equal(chain.core, port.core) && chain.jobId === id.toString(), "api_identity", "API job is not linked to this funded chain job");
+    must(Number.isSafeInteger(view.revision.n) && view.revision.n > 0 && typeof view.revision.revisionHash === "string", "api_revision", "invalid API revision");
+    const revisionOf = (v: typeof view) => digest(JSON.stringify({ n: v.revision.n, hash: v.revision.revisionHash, revision: v.revision.revision }));
+    const revision = revisionOf(view);
+    const approval = view.approval as (NonNullable<typeof view.approval> & { revisionHash?: string }) | null;
+    must(approval !== null && equal(approval.revisionHash, view.revision.revisionHash), "api_revision", "approval is not for the latest revision");
+    for (const k of ["imageId", "rulesHash", "referenceHash"] as const) must(equal(listing.manifest[k], terms[k]) && equal(view.manifest?.[k], terms[k]), "terms_package", "API package differs from frozen terms");
+    must(equal(approval.rulesHash, terms.rulesHash) && equal(approval.structureHash, listing.manifest.structureHash) && equal(approval.referenceDigest, terms.referenceHash), "approval", "approval differs from package commitments");
     const refs = await o.client.references(o.jobId);
-    writeFilesInto(at("reference"), refs.files);
-
-    // The exact context the hook will rebuild the journal from; cross-checked field by field.
-    const contextBytes = await port.contextOf(id);
-    const ctx = decodeContext(contextBytes);
-    must(ctx.chainId === BigInt(port.chainId), "context", "context chainId differs");
-    must(ctx.jobId === id, "context", "context jobId differs");
-    must(lower(ctx.provider) === lower(port.self), "context", "context provider differs");
-    must(lower(ctx.rulesHash) === lower(terms.rulesHash) && lower(ctx.referenceHash) === lower(terms.referenceHash), "context", "context hashes differ from the terms");
-    // SettlementHook.contextOf: SettlementCodec.context(block.chainid, address(core), jobId, provider, rulesHash, referenceHash)
-    must(lower(ctx.escrow) === lower(port.core), "context", "context escrow is not the core");
-
-    emit("solver.started", { solver: o.solver.name, provider: port.self, chainJobId: id });
-    const view = await o.client.job(o.jobId);
-    const deliverables = await o.solver.solve({ plan: view.revision.revision.plan, references: refs.files });
-    writeFilesInto(at("deliverables"), deliverables);
-    writeFileSync(at("job.json"), JSON.stringify({ context: hex(contextBytes), imageId: lower(terms.imageId) }));
-    emit("proof.started", { imageId: terms.imageId, proveBudgetSec: o.proveBudgetSec });
-    let out: Awaited<ReturnType<typeof prove>>;
-    try {
-      out = await prove(o.runner, { packageDir: at("package"), jobFile: at("job.json"), deliverablesDir: at("deliverables"), referenceDir: at("reference"), outDir: at("attempt") });
-    } catch (err) {
-      emit("proof.failed", { code: (err as { code?: string }).code ?? "error", message: (err as Error).message });
-      throw err;
-    }
-    const proved = parseProofJson(readFileSync(at("attempt/proof.json"), "utf8"));
-    must(proved.verdict === out.verdict, "verdict_stdout", "engine stdout verdict differs from proof.json");
-    Object.assign(state, { verdict: proved.verdict, proveMillis: out.proveMillis, userCycles: out.userCycles, envelopeHash: proved.envelopeHash, keyCommitment: proved.keyCommitment });
-    note("proved", `verdict ${proved.verdict}`);
-    emit("proof.finished", {
-      verdict: proved.verdict,
-      proveMillis: out.proveMillis,
-      userCycles: out.userCycles,
-      sealBytes: (proved.seal.length - 2) / 2,
-      envelopeHash: proved.envelopeHash,
-      keyCommitment: proved.keyCommitment,
-    });
-  }
-
-  if (state.phase === "rejected" || state.phase === "released" || state.phase === "abandoned") return state;
-
-  // ---- 2. Checks that run on EVERY invocation, fresh or resumed, before anything is sent. ----
-  const pkg = parseProofJson(readFileSync(at("attempt/proof.json"), "utf8"));
-  const chainContext = await port.contextOf(id);
-  must(Buffer.from(pkg.contextBytes).equals(Buffer.from(chainContext)), "proof_context", "proof context differs from the chain context");
-  must(lower(pkg.imageId) === lower(terms.imageId), "proof_image", "proof imageId differs from the frozen imageId");
-  if (pkg.verdict !== 1 || state.verdict === 0) {
-    // Never submit or release a failing proof. The preflight records that the chain would reject it too; it is
-    // evidence only, so an RPC failure there does not block reaching "rejected".
-    if (o.preflightRejected ?? true) {
-      try {
-        const pf = await port.preflightSubmit(id, pkg);
-        must(!pf.ok, "verdict0_preflight", "the chain would accept a verdict-0 proof");
-        state.rejectedPreflight = pf.reason;
-      } catch (err) {
-        if (err instanceof WorkerCheckError) throw err;
-        state.rejectedPreflight = "preflight_unavailable";
-      }
-    }
-    state.phase = "rejected";
-    note("rejected", state.rejectedPreflight);
-    emit("submission.preflight_rejected", { reason: state.rejectedPreflight ?? "not_submitted" });
-    return state;
-  }
-  const key = readKey(at("attempt/release-key.hex"));
-  must(lower(keyCommitment(chainContext, hexToBytes(key))) === lower(pkg.keyCommitment), "key", "release key does not open the key commitment");
-
-  // ---- 2. Submit (exactly once). ----
-  if (state.phase === "submit_sent" && state.submitTx) {
-    const r = await port.receipt(state.submitTx);
-    if (r?.status === "success") {
-      state.phase = "submitted";
-      note("submit_confirmed_on_resume", state.submitTx);
-    } else if (r?.status === "reverted") {
-      state.phase = "proved";
-      note("submit_reverted", state.submitTx);
-    }
-    // r === null: unknown or pending; the chain read below decides.
-  }
-  if (state.phase === "proved" || state.phase === "submit_sent") {
-    const sub = await port.submission(id);
-    if (sub.accepted) {
-      must(lower(sub.envelopeHash) === lower(pkg.envelopeHash) && lower(sub.keyCommitment) === lower(pkg.keyCommitment), "foreign_submission", "the job has an accepted submission that is not ours");
-      state.phase = "submitted";
-      note("submission_found_on_chain");
+    checkReferences(refs.files, terms.referenceHash);
+    must(equal(refs.referenceDigest, terms.referenceHash), "reference_hash", "API reference digest differs");
+    if (resume) {
+      must(state.context === hex(context) && state.termsDigest === termsDigest(terms) && state.revision === revision, "resume_binding", "context, frozen terms or API revision changed");
+      must(state.phase !== "preparing" && state.phase !== "proving", "resume_incomplete", "preparation or proving was interrupted; manual recovery required");
     } else {
-      const now = await port.now();
-      must(job.expiredAt - now > releaseMargin, "time_budget", "too close to expiry to submit");
-      const pf = await port.preflightSubmit(id, pkg);
-      must(pf.ok, "submit_preflight", `submit preflight failed: ${pf.ok ? "" : pf.reason}`);
-      const sent = await port.submit(id, pkg);
-      state.submitTx = sent.hash;
-      state.phase = "submit_sent";
-      note("submit_sent", sent.hash);
-      emit("submission.broadcast", { txHash: sent.hash });
-      const accepted = sent.events.find((e) => e.name === "ProofAccepted");
-      must(accepted !== undefined, "proof_accepted", "submit receipt has no ProofAccepted event");
-      must(lower(String(accepted.args.envelopeHash)) === lower(pkg.envelopeHash) && lower(String(accepted.args.keyCommitment)) === lower(pkg.keyCommitment), "proof_accepted", "ProofAccepted does not match our proof");
-      state.phase = "submitted";
-      note("submitted", sent.hash);
-      emit("submission.confirmed", { txHash: sent.hash, envelopeHash: pkg.envelopeHash, keyCommitment: pkg.keyCommitment });
+      must(job.status === "Funded", "status", "job is not Funded");
+      const need = BigInt(o.proveBudgetSec) + submitBudget + margin;
+      must(job.expiredAt - initial.timestamp >= need, "time_budget", "insufficient prove + submit + release reserve");
+      Object.assign(state, { context: hex(context), termsDigest: termsDigest(terms), revision }); save();
+      await downloadPackage(o.client, o.jobId, at("package"));
+      writeFiles(at("reference"), refs.files);
+      const files = await o.solver.solve({ plan: view.revision.revision.plan, references: refs.files });
+      writeFiles(at("deliverables"), files);
+      writeFileSync(at("job.json"), JSON.stringify({ context: hex(context), imageId: lower(terms.imageId) }), { mode: 0o600 });
+      privateTree(o.attemptDir, true);
+      state.artifacts = treeDigests(o.attemptDir);
+      phase("proving");
+      // Download and solver time consume the same chain deadline as the prover.
+      const beforeProve = await readChain();
+      must(beforeProve.job.status === "Funded", "status", "job is no longer Funded before proving");
+      const availableMs = (beforeProve.job.expiredAt - beforeProve.timestamp - submitBudget - margin) * 1000n;
+      must(availableMs > 0n, "time_budget", "insufficient prove + submit + release reserve before proving");
+      const timeoutMs = Number([availableMs, BigInt(o.proveBudgetSec) * 1000n, BigInt(Number.MAX_SAFE_INTEGER)].reduce((a, b) => a < b ? a : b));
+      let out;
+      try { out = await prove(o.runner, { packageDir: at("package"), jobFile: at("job.json"), deliverablesDir: at("deliverables"), referenceDir: at("reference"), outDir: at("attempt") }, timeoutMs); }
+      catch { throw new WorkerCheckError("prove", "engine proving failed; inspect private artifacts"); }
+      finally { privateTree(o.attemptDir, true); }
+      const after = treeDigests(o.attemptDir);
+      for (const [path, hash] of Object.entries(state.artifacts!)) must(after[path] === hash, "artifacts", "proving inputs changed during engine execution");
+      must(Object.keys(after).length === Object.keys(state.artifacts!).length + 1, "artifacts", "proving input file set changed");
+      const pkg = parseProofJson(readFileSync(at("attempt/proof.json"), "utf8"));
+      must(pkg.verdict === out.verdict, "verdictMatchesStdout", "proof and engine verdict differ");
+      Object.assign(state, { verdict: pkg.verdict, proveMillis: out.proveMillis, userCycles: out.userCycles, envelopeHash: pkg.envelopeHash, keyCommitment: pkg.keyCommitment, artifacts: treeDigests(o.attemptDir) });
+      phase("proved");
     }
-  }
-
-  // ---- 3. Release (exactly once). ----
-  if (state.phase === "release_sent" && state.releaseTx) {
-    const r = await port.receipt(state.releaseTx);
-    if (r?.status === "reverted") {
-      state.phase = "submitted";
-      note("release_reverted", state.releaseTx);
-    }
-  }
-  if (await port.released(id)) {
-    state.phase = "released";
-    note("released_on_chain");
-    return state;
-  }
-  if (state.phase === "submitted" || state.phase === "release_sent") {
-    const now = await port.now();
-    if (job.expiredAt - now < releaseMargin) {
-      state.phase = "abandoned";
-      state.abandonReason = `only ${job.expiredAt - now} s before expiry (margin ${releaseMargin} s); the buyer can claim a refund`;
-      note("abandoned", state.abandonReason);
-      emit("run.abandoned", { reason: state.abandonReason });
+    // Every resume, including terminal states, validates all artifacts before any signing.
+    must(JSON.stringify(state.artifacts) === JSON.stringify(treeDigests(o.attemptDir)), "artifacts", "attempt artifacts changed");
+    const listedPaths = listing.files.map(f => `package/${f.path}`).sort();
+    must(JSON.stringify(listedPaths) === JSON.stringify(Object.keys(state.artifacts ?? {}).filter(p => p.startsWith("package/")).sort()), "artifacts", "package listing file set changed");
+    for (const f of listing.files) must(state.artifacts?.[`package/${f.path}`] === lower(f.sha256).replace(/^0x/, "") && readFileSync(at(`package/${f.path}`)).length === f.size, "artifacts", "package listing changed");
+    must(sameFiles(readFilesFrom(at("reference")), refs.files), "reference_hash", "local references differ from API references");
+    const pkg = parseProofJson(readFileSync(at("attempt/proof.json"), "utf8"));
+    must(hex(pkg.contextBytes) === hex(context), "proof_context", "proof context differs from chain context");
+    must(equal(pkg.imageId, terms.imageId), "proof_image", "proof image differs from frozen image");
+    must(pkg.verdict === state.verdict && equal(pkg.envelopeHash, state.envelopeHash ?? "") && equal(pkg.keyCommitment, state.keyCommitment ?? ""), "proof_state", "proof differs from saved commitments or verdict");
+    const key = readFileSync(at("attempt/release-key.hex"), "utf8").trim();
+    must(/^0x[0-9a-f]{64}$/.test(key), "key_format", "release key is not lowercase 32-byte hex");
+    must(equal(keyCommitment(context, bytes(key as Hex)), pkg.keyCommitment), "key", "release key does not open commitment");
+    const checkCurrentInputs = async () => {
+      privateTree(o.attemptDir);
+      must(JSON.stringify(state.artifacts) === JSON.stringify(treeDigests(o.attemptDir)), "artifacts", "artifacts changed before signing");
+      const current = await o.client.job(o.jobId);
+      const linked = (current as unknown as { chain?: { chainId: number; core: string; jobId: string } }).chain;
+      must(current.jobId === o.jobId && linked?.chainId === port.chainId && equal(linked.core, port.core) && linked.jobId === id.toString() && revisionOf(current) === state.revision, "api_revision", "API identity or revision changed before signing");
+      const latestApproval = current.approval as typeof approval;
+      must(latestApproval !== null && equal(latestApproval.revisionHash, current.revision.revisionHash) && equal(latestApproval.rulesHash, terms.rulesHash) && equal(latestApproval.referenceDigest, terms.referenceHash) && equal(latestApproval.structureHash, listing.manifest.structureHash), "approval", "latest API approval changed before signing");
+      for (const k of ["imageId", "rulesHash", "referenceHash"] as const) must(equal(current.manifest?.[k], terms[k]), "terms_package", "latest API manifest changed before signing");
+      must(readFileSync(at("attempt/release-key.hex"), "utf8").trim() === key, "key", "release key changed before signing");
+    };
+    const stopWithValidatedInputs = async () => {
+      await readChain();
+      await checkCurrentInputs();
+      privateTree(o.attemptDir);
+      must(JSON.stringify(state.artifacts) === JSON.stringify(treeDigests(o.attemptDir)), "artifacts", "artifacts changed during proof-only checks");
+    };
+    if (pkg.verdict === 0) {
+      must(!state.submitTx && !state.releaseTx, "verdict0", "verdict-0 state has transaction history; manual reconciliation required");
+      if (o.stopAfterProof) await stopWithValidatedInputs();
+      if (!o.stopAfterProof && state.phase !== "rejected" && (o.preflightRejected ?? true)) {
+        const pf = await port.preflightSubmit(id, pkg);
+        must(!pf.ok, "verdict0_preflight", "chain would accept verdict 0");
+        // Do not persist arbitrary RPC messages, which may contain private data.
+        state.rejectedPreflight = "VerifierRejected";
+      }
+      if (state.phase !== "rejected") phase("rejected");
       return state;
     }
-    // Never broadcast our key against a commitment that is not ours.
-    const sub = await port.submission(id);
-    must(sub.accepted, "not_accepted", "no accepted submission to release");
-    must(lower(sub.envelopeHash) === lower(pkg.envelopeHash) && lower(sub.keyCommitment) === lower(pkg.keyCommitment), "foreign_submission", "the accepted submission is not ours");
-    const pf = await port.preflightRelease(id);
-    must(pf.ok, "release_preflight", `release preflight failed: ${pf.ok ? "" : pf.reason}`);
-    state.phase = "release_sent";
-    save();
-    const sent = await port.release(id, key);
-    state.releaseTx = sent.hash;
-    note("release_sent", sent.hash);
-    emit("release.broadcast", { txHash: sent.hash });
-    const released = sent.events.find((e) => e.name === "KeyReleased");
-    must(released !== undefined && lower(String(released.args.key)) === lower(key), "key_released", "release receipt has no matching KeyReleased event");
-    state.phase = "released";
-    note("released", sent.hash);
-    emit("release.confirmed", { txHash: sent.hash });
-  }
-  return state;
-}
-
-function readKey(path: string): Hex {
-  const k = readFileSync(path, "utf8").trim();
-  must(/^0x[0-9a-f]{64}$/.test(k), "key_format", "release key file is not 32 bytes of lowercase hex");
-  return k as Hex;
-}
-
-function hexToBytes(h: Hex): Uint8Array {
-  return new Uint8Array(Buffer.from(h.slice(2), "hex"));
+    const recovery = mkdtempSync(at(".recovery-")); chmodSync(recovery, 0o700);
+    try { await checkRecovery(o.runner, at("attempt/proof.json"), at("attempt/release-key.hex"), join(recovery, "files"), pkg, bytes(key as Hex), readFilesFrom(at("deliverables"))); }
+    catch (e) { if (e instanceof WorkerCheckError) throw e; throw new WorkerCheckError("recovery", "private recovery validation failed"); }
+    finally { rmSync(recovery, { recursive: true, force: true }); }
+    if (o.stopAfterProof) { await stopWithValidatedInputs(); return state; }
+    const beforeSigning = async () => {
+      await checkCurrentInputs();
+      const latest = await readChain();
+      const reserve = state.phase === "proved" ? submitBudget + margin : margin + 1n;
+      must(latest.job.status === (state.phase === "proved" ? "Funded" : "Submitted") && latest.job.expiredAt - latest.timestamp >= reserve, "time_budget", "status or timing reserve changed before signing");
+      if (state.phase === "proved") must(!latest.submission.accepted && !latest.released, "foreign_submission", "unexpected settlement before submit");
+      else { matchingSubmission(latest.submission); must(!latest.released, "key_released", "unexpected release before signing"); }
+      // No await between this final local validation, durable intent and RPC dispatch.
+      privateTree(o.attemptDir);
+      must(JSON.stringify(state.artifacts) === JSON.stringify(treeDigests(o.attemptDir)), "artifacts", "artifacts changed during signing checks");
+      must(readFileSync(at("attempt/release-key.hex"), "utf8").trim() === key, "key", "release key changed during signing checks");
+    };
+    const matchingSubmission = (sub: ChainSubmission) => {
+      must(sub.accepted && equal(sub.envelopeHash, pkg.envelopeHash) && equal(sub.keyCommitment, pkg.keyCommitment), "foreign_submission", "chain submission does not match attempt");
+    };
+    const confirm = async (kind: "submit" | "release"): Promise<boolean> => {
+      const hash = kind === "submit" ? state.submitTx : state.releaseTx;
+      must(typeof hash === "string" && HASH.test(hash), "transaction", "missing full transaction hash; manual reconciliation required");
+      if (kind === "release") must(!equal(hash, state.submitTx ?? ""), "transaction", "submit and release hashes must differ");
+      let receipt: Awaited<ReturnType<SettlementPort["receipt"]>>;
+      try { receipt = await port.receipt(hash); } catch { throw new WorkerCheckError("receipt", state.releaseDisclosure ? "receipt unavailable; key potentially public, payout unconfirmed; durable hash retained, no automatic resend" : "receipt unavailable; durable hash retained, no automatic resend"); }
+      if (receipt === null) return false; // Never infer inclusion or resend while pending.
+      if (receipt.status === "reverted") {
+        phase("abandoned", kind === "release" ? "release reverted: key was revealed in transaction calldata; payout not confirmed" : "submit reverted; no automatic resend");
+        state.abandonReason = kind === "release" ? "release reverted; key already revealed, payout not confirmed" : "submit reverted; manual reconciliation required"; save();
+        return false;
+      }
+      const events = receipt.events.filter(e => e.name === (kind === "submit" ? "ProofAccepted" : "KeyReleased"));
+      must(events.length === 1, kind === "submit" ? "proof_accepted" : "key_released", "receipt lacks one exact settlement event");
+      const a = events[0]!.args;
+      const jobMatches = (typeof a.jobId === "bigint" || typeof a.jobId === "string") && String(a.jobId) === id.toString();
+      must(jobMatches && equal(a.envelopeHash, pkg.envelopeHash) && (kind === "submit" ? equal(a.keyCommitment, pkg.keyCommitment) : equal(a.provider, port.self) && equal(a.key, key)), kind === "submit" ? "proof_accepted" : "key_released", "settlement event identity or commitments differ");
+      const confirmed = await readChain();
+      matchingSubmission(confirmed.submission);
+      if (kind === "release") {
+        must(confirmed.released, "key_released", "release event not reflected in chain state");
+        state.paymentConfirmed = true;
+      }
+      if (kind === "release" || (state.phase !== "release_sent" && state.phase !== "released")) phase(kind === "submit" ? "submitted" : "released", hash);
+      return true;
+    };
+    must(state.phase !== "submit_broadcasting" && state.phase !== "release_broadcasting", "broadcast_uncertain", "broadcast intent has no durable outcome; manual reconciliation required (release intent may have revealed key)");
+    if (state.phase === "abandoned") return state;
+    if (state.phase === "released") {
+      state.paymentConfirmed = false; save();
+      must(await confirm("submit") && await confirm("release"), "transaction", "saved confirmed receipt is unavailable; key potentially public, payout unconfirmed"); return state;
+    }
+    if (state.phase === "submit_sent" && !await confirm("submit")) return state;
+    if (state.phase === "release_sent") { if (!await confirm("submit")) return state; state.phase = "release_sent"; if (!await confirm("release")) return state; return state; }
+    if (state.phase === "proved") {
+      must(!state.submitTx && !state.releaseTx, "transaction", "proved state contains prior transaction hashes");
+      const current = await readChain();
+      must(!current.submission.accepted, "foreign_submission", "an accepted submission already exists; reconcile manually");
+      must(current.job.status === "Funded" && current.job.expiredAt - current.timestamp >= submitBudget + margin, "time_budget", "insufficient submit + release reserve");
+      must((await port.preflightSubmit(id, pkg)).ok, "submit_preflight", "submit preflight failed");
+      await beforeSigning();
+      phase("submit_broadcasting");
+      let hash: Hex;
+      try { hash = await port.submit(id, pkg); } catch { throw new WorkerCheckError("broadcast_uncertain", "submit RPC failed; broadcast may have occurred, reconcile manually"); }
+      state.submitTx = hash;
+      try { phase("submit_sent"); } catch { throw new WorkerCheckError("broadcast_uncertain", "submit hash persistence failed; broadcast may have occurred, reconcile manually"); } // Before receipt RPC.
+      if (!await confirm("submit")) return state;
+    }
+    if (state.phase === "submitted") {
+      must(await confirm("submit"), "transaction", "confirmed submit receipt unavailable");
+      const current = await readChain();
+      matchingSubmission(current.submission);
+      if (current.job.status !== "Submitted" || current.job.expiredAt - current.timestamp <= margin) {
+        state.abandonReason = "release reserve exhausted or job no longer Submitted; no key broadcast"; phase("abandoned"); return state;
+      }
+      must(!current.released, "key_released", "unexpected chain release; reconcile manually");
+      must((await port.preflightRelease(id)).ok, "release_preflight", "release preflight failed");
+      await beforeSigning();
+      state.releaseDisclosure = "potentially_public";
+      state.paymentConfirmed = false;
+      phase("release_broadcasting");
+      let hash: Hex;
+      try { hash = await port.release(id, key as Hex); } catch { throw new WorkerCheckError("broadcast_uncertain", "release RPC failed; key may already be public, payout unconfirmed; reconcile manually"); }
+      state.releaseTx = hash;
+      try { phase("release_sent"); } catch { throw new WorkerCheckError("broadcast_uncertain", "release hash persistence failed; key potentially public, payout unconfirmed; reconcile manually"); }
+      await confirm("release");
+    }
+    return state;
+  } finally { closeSync(lock); unlinkSync(at(".lock")); syncDir(o.attemptDir); }
 }

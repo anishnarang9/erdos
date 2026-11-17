@@ -2,11 +2,18 @@
 // and expiry-gated refunds. A fake PosterChain models the core; a fake ApiChain reader serves the receipt.
 import { afterEach, describe, expect, it } from "vitest";
 import { createHash, randomBytes } from "node:crypto";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { openDb } from "../../src/db.ts";
+import { artifactBinding } from "../../src/artifact.ts";
+import { seedCompiled } from "./t7-t8-helpers.ts";
 import { getAddress, type Address, type Hex } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { JobStatus } from "@ubc26/sdk";
 import {
   createApp,
+  simulatedEngine,
   EMPTY_REFERENCE_DIGEST,
   providerAuthMessage,
   QUOTE_TYPES,
@@ -16,7 +23,7 @@ import {
   type PosterChain,
 } from "../../src/index.ts";
 
-const TOKEN = "demo-signer-buyer-token-000000";
+const TOKEN = "unit-test-buyer-token-0123"; // same as helpers.ts (seedCompiled uses it)
 const CORE = getAddress("0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8");
 const HOOK = getAddress("0x699d0e4a067F31229Be67C534B37dE964b6eDbAb");
 const USDC = getAddress("0x3600000000000000000000000000000000000000");
@@ -24,7 +31,7 @@ const POSTER = getAddress("0x389ADc17dE4353dBafD97387ef609EB97694808C");
 const solver = privateKeyToAccount(generatePrivateKey());
 const hx = (n: number) => (("0x" + n.toString(16).padStart(64, "0")) as Hex);
 
-interface CJob { client: Address; provider: Address; budget: bigint; expiredAt: bigint; status: string; terms?: FundingTerms }
+interface CJob { client: Address; provider: Address; budget: bigint; expiredAt: bigint; status: string; description: string; terms?: FundingTerms }
 
 class FakePoster implements PosterChain {
   poster = POSTER;
@@ -47,7 +54,7 @@ class FakePoster implements PosterChain {
   async createJob(t: FundingTerms) {
     const hash = this.tx("createJob");
     const id = BigInt(this.jobs.size + 1);
-    this.jobs.set(id, { client: POSTER, provider: getAddress(t.provider), budget: 0n, expiredAt: BigInt(t.expiredAt), status: "Open" });
+    this.jobs.set(id, { client: POSTER, provider: getAddress(t.provider), budget: 0n, expiredAt: BigInt(t.expiredAt), status: "Open", description: t.description });
     return { hash, chainJobId: id };
   }
   async setBudget(id: bigint, amount: bigint) { const hash = this.tx("setBudget"); this.jobs.get(id)!.budget = amount; return { hash }; }
@@ -68,13 +75,19 @@ class FakePoster implements PosterChain {
 /** An ApiChain whose receipt and reads come from the fake core, so funding-receipt runs its real checks. */
 function fakeApiChain(p: FakePoster): ApiChain {
   const byHash = (h: Hex) => [...p.fundTx.entries()].find(([, v]) => v === h)?.[0];
-  return {
+  const chain: ApiChain = {
+    mode: "arc",
     config: { chainId: 5042002, core: CORE, hook: HOOK, usdc: USDC },
     publicClient: {
+      // select-quote checks chain time and the hook's MIN_EXPIRY_MARGIN (300 s, as in main's arc tests).
+      getChainId: async () => 5042002,
+      getBlockNumber: async () => 1n,
+      getBlock: async () => ({ number: 1n, timestamp: p.time }),
+      readContract: async () => 300n,
       getTransactionReceipt: async ({ hash }: { hash: Hex }) => {
         const id = byHash(hash);
         if (id === undefined) throw new Error("unknown tx");
-        return { status: "success", to: CORE, logs: [{ id }], blockNumber: 1n };
+        return { status: "success", to: CORE, transactionHash: hash, logs: [{ id, address: CORE }], blockNumber: 1n };
       },
     } as never,
     reader: {
@@ -88,30 +101,43 @@ function fakeApiChain(p: FakePoster): ApiChain {
       },
       getJob: async (id) => {
         const j = p.jobs.get(id)!;
-        return { client: j.client, provider: j.provider, evaluator: HOOK, hook: HOOK, budget: j.budget, expiredAt: j.expiredAt, status: JobStatus[j.status as keyof typeof JobStatus], description: "" };
+        return { client: j.client, provider: j.provider, evaluator: HOOK, hook: HOOK, budget: j.budget, expiredAt: j.expiredAt, status: JobStatus[j.status as keyof typeof JobStatus], description: j.description };
       },
       getTerms: async (id) => {
         const j = p.jobs.get(id)!;
         if (!j.terms) return null;
         return { imageId: j.terms.imageId, rulesHash: j.terms.rulesHash, referenceHash: j.terms.referenceHash, provider: j.provider, budget: j.budget, expiredAt: j.expiredAt };
       },
+      // Arc mode reads one snapshot at the receipt block (block 1 in this fake).
+      getSnapshot: async (id) => {
+        const r = chain.reader!;
+        return { blockNumber: 1n, timestamp: p.time, job: await r.getJob(id), terms: await r.getTerms(id), context: new Uint8Array(),
+          submission: { envelopeHash: `0x${"0".repeat(64)}`, keyCommitment: `0x${"0".repeat(64)}`, accepted: false }, released: false };
+      },
     },
   };
+  return chain;
 }
 
-let created: ReturnType<typeof createApp> | undefined;
-afterEach(() => created?.close());
+const cleanups: (() => void)[] = [];
+afterEach(() => { while (cleanups.length) cleanups.pop()!(); });
 
 function makeApp(opts: { signer?: boolean; maxBudget?: bigint; session?: bigint } = {}) {
   const p = new FakePoster();
-  created = createApp({
-    dbPath: ":memory:",
+  const dir = mkdtempSync(join(tmpdir(), "demo-signer-"));
+  const dbPath = join(dir, "test.db");
+  const created = createApp({
+    dbPath,
     buyerToken: TOKEN,
     now: () => Number(p.time) * 1000,
     chain: fakeApiChain(p),
+    // Arc mode needs an engine marked real; compiled rows are seeded with real provenance below.
+    engine: { ...simulatedEngine(), mode: "real" },
     ...(opts.signer === false ? {} : { demoSigner: { chain: p, maxBudgetPerJob: opts.maxBudget ?? 100_000n, sessionBudget: opts.session ?? 1_000_000n } }),
   });
-  return { app: created.app, p };
+  const db = openDb(dbPath, () => Number(p.time) * 1000);
+  cleanups.push(() => { created.close(); db.close(); try { rmSync(dir, { recursive: true, force: true }); } catch { /* sqlite on Windows */ } });
+  return { app: created.app, p, db, dbPath };
 }
 
 type App = ReturnType<typeof makeApp>["app"];
@@ -136,21 +162,23 @@ async function providerPost(app: App, path: string, body: unknown, timestamp: nu
   return (await res.json()) as Record<string, any>;
 }
 
-/** A job in state `selected` with a 10000-unit quote from `solver`. */
-async function selectedJob(app: App, p: FakePoster, price = 10_000n) {
-  const revision = { plan: { version: 1 }, referenceDigest: EMPTY_REFERENCE_DIGEST, outputs: [{ name: "out.json", format: "json" }], expirySeconds: 3600, maxBudget: "1000000" };
-  const c = await req(app, "POST", "/v1/jobs", { revision, source: "import" });
-  const h = c.body.revision.revisionHash as Hex;
-  await req(app, "POST", `/v1/jobs/${c.body.jobId}/approve`, { revisionHash: h, referenceDigest: EMPTY_REFERENCE_DIGEST }, { "if-match": h });
-  await req(app, "POST", `/v1/jobs/${c.body.jobId}/compile`, { revisionHash: h });
+/** A job in state `selected` with a quote from `solver` (compiled with real provenance, as main's arc tests seed it). */
+async function selectedJob(t: ReturnType<typeof makeApp>, p: FakePoster, price = 10_000n) {
+  const { app, db, dbPath } = t;
+  const seeded = await seedCompiled({ app, db, dbPath, clock: { ms: Number(p.time) * 1000 }, close: () => {} } as never, { expirySeconds: 3600, maxBudget: "1000000" });
+  const { current_revision_id: revisionId } = db.prepare("SELECT current_revision_id FROM jobs WHERE id = ?").get(seeded.jobId) as { current_revision_id: string };
+  db.prepare("UPDATE revisions SET structure_hash = ?, rules_hash = ? WHERE id = ?").run(seeded.manifest.structureHash, seeded.manifest.rulesHash, revisionId);
+  db.prepare("UPDATE approvals SET structure_hash = ?, rules_hash = ? WHERE revision_id = ?").run(seeded.manifest.structureHash, seeded.manifest.rulesHash, revisionId);
+  db.prepare("UPDATE manifests SET compile_engine_mode = 'real', compile_binding = ? WHERE revision_id = ?").run(artifactBinding(db, revisionId), revisionId);
+  const h = seeded.revisionHash as Hex;
   const validUntil = Number(p.time) + 1800;
   const quote = { revisionHash: h, provider: solver.address, price: price.toString(), validUntil, nonce: "7" };
   const signature = await solver.signTypedData({ domain: quoteDomain(5042002), types: QUOTE_TYPES, primaryType: "Quote", message: { revisionHash: h, provider: solver.address, price, validUntil: BigInt(validUntil), nonce: 7n } });
-  const q = await providerPost(app, `/v1/jobs/${c.body.jobId}/quotes`, { quote, signature }, Number(p.time));
+  const q = await providerPost(app, `/v1/jobs/${seeded.jobId}/quotes`, { quote, signature }, Number(p.time));
   expect(q.quoteId, JSON.stringify(q)).toBeTruthy();
-  const sel = await req(app, "POST", `/v1/jobs/${c.body.jobId}/select-quote`, { quoteId: q.quoteId, revisionHash: h });
+  const sel = await req(app, "POST", `/v1/jobs/${seeded.jobId}/select-quote`, { quoteId: q.quoteId, revisionHash: h });
   expect(sel.status, JSON.stringify(sel.body)).toBe(200);
-  return c.body.jobId as string;
+  return seeded.jobId;
 }
 
 async function settle(app: App, opId: string) {
@@ -178,8 +206,9 @@ describe("demo signer", () => {
   });
 
   it("funds the selected quote in Nick's order and links the job through funding-receipt", async () => {
-    const { app, p } = makeApp();
-    const jobId = await selectedJob(app, p);
+    const t = makeApp();
+    const { app, p } = t;
+    const jobId = await selectedJob(t, p);
     const start = await req(app, "POST", `/v1/demo/jobs/${jobId}/fund`, {});
     expect(start.status).toBe(202);
     const op = await settle(app, start.body.opId);
@@ -194,8 +223,9 @@ describe("demo signer", () => {
   });
 
   it("a failed step resumes from chain state: no second createJob, no second escrow", async () => {
-    const { app, p } = makeApp();
-    const jobId = await selectedJob(app, p);
+    const t = makeApp();
+    const { app, p } = t;
+    const jobId = await selectedJob(t, p);
     p.failOnce.add("fund");
     const first = await settle(app, (await req(app, "POST", `/v1/demo/jobs/${jobId}/fund`, {})).body.opId);
     expect(first.status).toBe("failed");
@@ -209,20 +239,20 @@ describe("demo signer", () => {
 
   it("enforces the per-job and the session budget", async () => {
     const big = makeApp({ maxBudget: 5_000n });
-    const j1 = await selectedJob(big.app, big.p);
+    const j1 = await selectedJob(big, big.p);
     expect((await req(big.app, "POST", `/v1/demo/jobs/${j1}/fund`, {})).status).toBe(403);
     expect(big.p.calls).toEqual([]);
-    created?.close();
     const s = makeApp({ session: 15_000n });
-    const a = await selectedJob(s.app, s.p);
+    const a = await selectedJob(s, s.p);
     expect((await settle(s.app, (await req(s.app, "POST", `/v1/demo/jobs/${a}/fund`, {})).body.opId)).status).toBe("confirmed");
-    const b = await selectedJob(s.app, s.p);
+    const b = await selectedJob(s, s.p);
     expect((await req(s.app, "POST", `/v1/demo/jobs/${b}/fund`, {})).status).toBe(403);
   });
 
   it("refuses a non-local origin and a job that is not selected", async () => {
-    const { app, p } = makeApp();
-    const jobId = await selectedJob(app, p);
+    const t = makeApp();
+    const { app, p } = t;
+    const jobId = await selectedJob(t, p);
     expect((await req(app, "POST", `/v1/demo/jobs/${jobId}/fund`, {}, { origin: "https://evil.example" })).status).toBe(403);
     expect((await req(app, "POST", `/v1/demo/jobs/${jobId}/fund`, {}, { origin: "http://localhost:5173" })).status).toBe(202);
     const revision = { plan: { version: 1 }, referenceDigest: EMPTY_REFERENCE_DIGEST, outputs: [{ name: "o.json", format: "json" }], expirySeconds: 3600, maxBudget: "100" };
@@ -231,8 +261,9 @@ describe("demo signer", () => {
   });
 
   it("refund only after real chain expiry, once", async () => {
-    const { app, p } = makeApp();
-    const jobId = await selectedJob(app, p);
+    const t = makeApp();
+    const { app, p } = t;
+    const jobId = await selectedJob(t, p);
     await settle(app, (await req(app, "POST", `/v1/demo/jobs/${jobId}/fund`, {})).body.opId);
     const early = await req(app, "POST", `/v1/demo/jobs/${jobId}/refund`, {});
     expect(early.status).toBe(409);

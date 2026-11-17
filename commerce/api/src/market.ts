@@ -1,5 +1,5 @@
 // T7/T8 routes: job feed, quotes, select-quote, funding-receipt, assignments. Owner: Coder D.
-// Implements ../CONTRACT-T5-T8.md §5–6. SIMULATED: chain reads use the @ubc26/sdk stub ABI (Nick, settlement ABI).
+// Implements ../CONTRACT-T5-T8.md §5–6 with explicit real Arc / legacy simulated chain readers.
 import type { Handler } from "hono";
 import {
   isAddress,
@@ -12,11 +12,13 @@ import {
 } from "viem";
 import { JobStatus, withRetry } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
+import { requireRealArtifact } from "./artifact.ts";
 import { readBody, parseJson, requireJobId, isoAt, type AppEnv, type Deps } from "./context.ts";
 import type { RouteContext } from "./routes.ts";
 import { isPlainObject, type FieldError } from "./revision.ts";
 import {
   afterCreateSteps,
+  arcSelectionTiming,
   checksum,
   DEFAULT_QUOTE_CHAIN_ID,
   fundingTxRequests,
@@ -161,6 +163,8 @@ export const EVENT_STATUS: Record<string, string> = {
   JobSubmitted: "Submitted",
   JobCompleted: "Completed",
   Refunded: "Expired",
+  JobExpired: "Expired",
+  JobRejected: "Rejected",
 };
 
 /** Returned when nothing is indexed and no live read is possible (no chain configured, or the RPC failed). */
@@ -460,7 +464,7 @@ export function registerMarketRoutes(ctx: RouteContext): void {
   };
 
   /** POST /v1/jobs/:id/select-quote (buyer) */
-  const selectQuote: Handler<AppEnv> = (c) => {
+  const selectQuote: Handler<AppEnv> = async (c) => {
     const chain = requireChain(deps);
     const body = parseSelectBody(c.get("json"));
     const { job, rev, fields } = loadJob(c.req.param("id") ?? "");
@@ -471,8 +475,18 @@ export function registerMarketRoutes(ctx: RouteContext): void {
     // Quotes are only accepted for the current revision of a compiled job, and a compiled job's revision is
     // fixed, so this cannot fail today; kept so a stale quote can never fund a different revision.
     if (quote.revision_hash !== rev.revision_hash) throw revisionConflict(rev.revision_hash);
-    const now = nowSec(deps);
-    if (now >= quote.valid_until - SELECT_MARGIN_SEC) {
+    if (chain.mode === "arc") requireRealArtifact(db, rev.id);
+    let chainTimestamp = BigInt(nowSec(deps));
+    if (chain.mode === "arc") {
+      const timing = await arcSelectionTiming(chain);
+      chainTimestamp = timing.timestamp;
+      if (BigInt(fields.expirySeconds) < timing.minimumExpirySeconds) {
+        throw new ApiError("validation_failed", `Approved expirySeconds is too short for Arc proving, settlement and funding; at least ${timing.minimumExpirySeconds} seconds required. Revise and reapprove; expiry was not changed.`, {
+          reason: "expiry_too_short", minimumExpirySeconds: timing.minimumExpirySeconds.toString(), expirySeconds: fields.expirySeconds,
+        });
+      }
+    }
+    if (chainTimestamp >= BigInt(quote.valid_until - SELECT_MARGIN_SEC)) {
       throw new ApiError("quote_expired", "Quote is expired or within 60 s of validUntil", {
         validUntil: quote.valid_until,
       });
@@ -486,7 +500,7 @@ export function registerMarketRoutes(ctx: RouteContext): void {
       usdc: checksum(cfg.usdc),
       provider: checksum(quote.provider),
       budget: quote.price_units,
-      expiredAt: String(now + fields.expirySeconds),
+      expiredAt: String(chainTimestamp + BigInt(fields.expirySeconds)),
       imageId: manifest.image_id as Hex,
       rulesHash: manifest.rules_hash as Hex,
       referenceHash: manifest.reference_hash as Hex,
@@ -495,11 +509,15 @@ export function registerMarketRoutes(ctx: RouteContext): void {
     const resBody = {
       state: "selected",
       fundingTerms,
-      txRequests: fundingTxRequests(fundingTerms),
+      txRequests: fundingTxRequests(fundingTerms, chain.mode),
       afterCreate: afterCreateSteps(fundingTerms),
     };
     const at = isoAt(deps.now());
     return commit(c, 200, resBody, () => {
+      const current = loadJob(job.id);
+      if (current.job.state !== "compiled") throw wrongState(current.job.state);
+      if (current.rev.id !== rev.id) throw revisionConflict(current.rev.revision_hash);
+      if (chain.mode === "arc") requireRealArtifact(db, rev.id);
       q.insertSelection.run(job.id, quote.id, JSON.stringify(fundingTerms), at);
       q.setQuoteStatus.run("selected", quote.id);
       q.setState.run("selected", at, job.id);
@@ -513,6 +531,7 @@ export function registerMarketRoutes(ctx: RouteContext): void {
     const chain = requireChain(deps);
     const { txHash } = parseReceiptBody(c.get("json"));
     const { job, rev } = loadJob(c.req.param("id") ?? "");
+    if (chain.mode === "arc") requireRealArtifact(db, rev.id);
     const existing = linkRow(deps, job.id);
     if (job.state === "linked" && existing && existing.funding_tx === txHash) {
       return commit(c, 200, linkedBody(existing)); // repeat for the same transaction
@@ -527,6 +546,15 @@ export function registerMarketRoutes(ctx: RouteContext): void {
     // The terms were issued for a chain config; a reconfigured server must not link against another deployment.
     if (terms.chainId !== cfg.chainId) throw mismatch("chainId", terms.chainId, cfg.chainId);
     if (!isAddressEqual(terms.core, cfg.core)) throw mismatch("core", terms.core, cfg.core);
+    if (!isAddressEqual(terms.hook, cfg.hook)) throw mismatch("hook", terms.hook, cfg.hook);
+    if (!isAddressEqual(terms.usdc, cfg.usdc)) throw mismatch("usdc", terms.usdc, cfg.usdc);
+    if (quote.revision_hash !== rev.revision_hash) throw revisionConflict(rev.revision_hash);
+    if (!isAddressEqual(terms.provider, quote.provider as Address)) throw mismatch("provider", quote.provider, terms.provider);
+    if (terms.budget !== quote.price_units) throw mismatch("budget", quote.price_units, terms.budget);
+    if (terms.description !== "ubc26:" + job.id) throw mismatch("description", "ubc26:" + job.id, terms.description);
+    for (const [field, want] of [["imageId", manifest.image_id], ["rulesHash", manifest.rules_hash], ["referenceHash", manifest.reference_hash]] as const) {
+      if (lower(terms[field]) !== lower(want)) throw mismatch(field, want, terms[field]);
+    }
 
     let receipt;
     try {
@@ -542,13 +570,23 @@ export function registerMarketRoutes(ctx: RouteContext): void {
     if (!receipt.to || !isAddressEqual(receipt.to, cfg.core)) throw mismatch("to", cfg.core, receipt.to ?? "null");
 
     const rc = readChain(chain);
-    const events = rc.decodeLogs(receipt.logs);
+    if (chain.mode === "arc" && (typeof receipt.blockNumber !== "bigint" || lower(receipt.transactionHash) !== txHash)) {
+      throw mismatch("receipt", "mined receipt for requested transaction");
+    }
+    // Only logs emitted by this deployment may establish funding, even if another contract emits the same ABI.
+    const events = rc.decodeLogs(receipt.logs.filter((log) =>
+      isAddressEqual(log.address, cfg.core) || isAddressEqual(log.address, cfg.hook),
+    ));
+    if (chain.mode === "arc" && events.some((e) => e.blockNumber !== receipt.blockNumber || lower(e.transactionHash) !== txHash)) {
+      throw mismatch("events", "events from the funding receipt block and transaction");
+    }
     const funded = events.filter((e) => e.contract === "core" && e.name === "JobFunded");
     const frozen = events.filter((e) => e.contract === "hook" && e.name === "TermsFrozen");
     if (funded.length !== 1 || frozen.length !== 1 || funded[0]!.args.jobId !== frozen[0]!.args.jobId) {
       throw mismatch("events", "one JobFunded and one TermsFrozen for one jobId");
     }
-    const chainJobId = funded[0]!.args.jobId as bigint;
+    const chainJobId = funded[0]!.args.jobId;
+    if (typeof chainJobId !== "bigint" || chainJobId < 0n) throw mismatch("events", "uint256 jobId");
     const coreLower = lower(cfg.core);
     const linkedTo = (): string | undefined =>
       (q.linkByChainJob.get(cfg.chainId, coreLower, chainJobId.toString()) as { job_id: string } | undefined)?.job_id;
@@ -557,8 +595,17 @@ export function registerMarketRoutes(ctx: RouteContext): void {
 
     let onChain, frozenTerms;
     try {
-      [onChain, frozenTerms] = await Promise.all([rc.getJob(chainJobId), rc.getTerms(chainJobId)]);
+      if (chain.mode === "arc") {
+        if (!rc.getSnapshot) throw new Error("Arc reader has no snapshot support");
+        const snapshot = await rc.getSnapshot(chainJobId, receipt.blockNumber);
+        if (snapshot.blockNumber !== receipt.blockNumber) throw mismatch("blockNumber", receipt.blockNumber, snapshot.blockNumber);
+        onChain = snapshot.job;
+        frozenTerms = snapshot.terms;
+      } else {
+        [onChain, frozenTerms] = await Promise.all([rc.getJob(chainJobId), rc.getTerms(chainJobId)]);
+      }
     } catch (err) {
+      if (err instanceof ApiError) throw err;
       console.error("[api] getJob/getTerms failed", err);
       throw new ApiError("chain_unavailable", "Chain RPC request failed");
     }
@@ -569,6 +616,7 @@ export function registerMarketRoutes(ctx: RouteContext): void {
     }
     if (!isAddressEqual(onChain.evaluator, cfg.hook)) throw mismatch("evaluator", cfg.hook, onChain.evaluator);
     if (!isAddressEqual(onChain.hook, cfg.hook)) throw mismatch("hook", cfg.hook, onChain.hook);
+    if (onChain.description !== terms.description) throw mismatch("description", terms.description, onChain.description);
     if (onChain.budget !== budget) throw mismatch("budget", budget, onChain.budget);
     if (onChain.expiredAt !== expiredAt) throw mismatch("expiredAt", expiredAt, onChain.expiredAt);
     if (onChain.status !== JobStatus.Funded) {
@@ -601,6 +649,12 @@ export function registerMarketRoutes(ctx: RouteContext): void {
       // Re-checked inside the write transaction: the chain reads above awaited.
       const cur = q.job.get(job.id) as unknown as JobRow;
       if (cur.state !== "selected") throw wrongState(cur.state);
+      if (cur.current_revision_id !== rev.id) throw revisionConflict(loadJob(job.id).rev.revision_hash);
+      const currentSelection = q.selection.get(job.id) as SelectionRow | undefined;
+      if (currentSelection?.quote_id !== selection.quote_id || currentSelection.funding_terms_json !== selection.funding_terms_json) {
+        throw mismatch("selection", "unchanged selection");
+      }
+      if (chain.mode === "arc") requireRealArtifact(db, rev.id);
       if (linkedTo() !== undefined) throw mismatch("jobId", "unlinked chain job", chainJobId);
       q.insertLink.run(link.job_id, link.chain_id, link.core, link.chain_job_id, link.funding_tx, at);
       q.setState.run("linked", at, job.id);

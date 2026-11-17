@@ -1,0 +1,19 @@
+{
+  "rows": [
+    {
+      "id": "expense-0",
+      "amountCents": "140",
+      "approved": true
+    },
+    {
+      "id": "expense-1",
+      "amountCents": "280",
+      "approved": true
+    },
+    {
+      "id": "expense-2",
+      "amountCents": "420",
+      "approved": true
+    }
+  ]
+}

@@ -2,6 +2,787 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 11:04 -05:00 — Anish — Full prepared Arc workflow passed
+
+- PR #7 runtime source `8fe6dc5` completed [live job 7](reports/open-claim-arc-live-acceptance-2026-11-16.md): buyer approval, all five protected funding calls, confirmed funded reads, one fresh real proof, winning claim, key release and exact 0.01-USDC payout. Proving plus private recovery validation took 1,095.026 seconds. Public-chain SDK and engine recovery matched the original bytes. Both recovered directories passed the independent oracle. The API reports Completed and excludes the job from the open market.
+- Job 6's invalid claim reverted without payout, then its separate expiry refund returned exactly 10,000 units. Failed job 5 remains a preserved Docker OOM attempt and also refunded exactly 10,000 units. A distinct second solver observed job 7's winner and returned lost before proof or signing. Its zero native balance stayed unchanged. This was abstention, not a second valid-proof race.
+- The real Circle paid compile passed 402, payment, 200 and identical replay. Its one-atomic service charge completed in canonical batch `a1b09da4…fdee6`. Buyer/seller Gateway balances are 0.009999/0.000001 USDC, with zero pending batches. The paid compile used the earlier API job and remains separate from bounty funding.
+- The [24-receipt audit](reports/open-claim-arc-receipts-2026-11-16.json) checks every canonical receipt and exact sender native balance change. Total gas is 0.145837525 USDC, including the separate 0.063471175-USDC adapter deployment, setup, failed attempt, invalid claim and both refunds. Successful job 7 used 0.0328806 USDC gas. The aggregate ceiling was 0.25 USDC. The repaired compression container exited 0 without OOM. Docker retains 12 GiB and the documented Go memory settings for future proofs. No prover remains active. Wallet material stays private. Zero Grok CLI workers ran.
+- Checks at runtime source passed: SDK 13 + 342, API 778, worker 901 and all typechecks. Every exact-head commerce, engine and contract CI group passed at `8fe6dc5`. This checkpoint adds reports and guidance only. Publish it and require all PR #7 CI groups at its exact final head before closing the Goal. Keep PR #7 draft for review. No main merge is part of this checkpoint.
+
+## 2026-11-16 10:25 -05:00 — Anish — Real low-memory Groth16 smoke passed
+
+- The [diagnostic proof](reports/open-claim-low-memory-groth16-smoke-2026-11-16.json) passed with the pinned backend and reviewed low-memory wrapper: 2,792 cycles, 141,558 ms, a real 260-byte Groth16 seal. The guest is the published smoke guest, not the funded workload. No live acceptance is claimed by this diagnostic.
+- Code `cb1a67a` passed commerce CI. Core CI's path filter omits worker-only changes, so added a manual dispatch trigger. This workflow edit triggers engine/contract CI at the new exact head. Runtime worker/API/SDK source is otherwise unchanged from the checked recovery checkpoint. Publish this checkpoint, verify all groups at its SHA, then use a fresh absolute expiry for the new positive job. Job 5 is now eligible for the separately planned cleanup refund.
+
+## 2026-11-16 10:20 -05:00 — Anish — Exact refund passed; Docker OOM repaired for fresh retry
+
+- Combined code `fb8a52a` passed every CI group. Both jobs completed all five protected buyer calls with exact receipt/native-balance checks and zero allowance. [Job 6 evidence](reports/open-claim-arc-refund-2026-11-16.json) confirms one reverted invalid claim, no payout, and the separate exact 10,000-atomic expiry refund in tx `4e030f22…75434d`.
+- The [job 5 attempt](reports/open-claim-arc-proof-oom-2026-11-16.json) failed before any claim. Docker emitted OOM and exit 137 in the pinned Groth16 container. The 8-GiB VM limit and missing documented low-memory wrapper caused the failure. The private failed attempt is preserved. Added the documented Go memory settings to the reviewed wrapper path, verified its digest/env, and raised Docker VM memory to 12 GiB. No second prover is running.
+- Direct human instruction permits further testnet funds without another question. [Retry limits](reports/open-claim-retry-budget-2026-11-16.json) keep every old entry/nonce/maximum reservation and raise only cumulative caps for one extra 0.01-USDC positive job and one extra refund. The conservative aggregate gas ceiling is 0.25 USDC. The extension held the shared lock, checked completed journals, and recorded unchanged entry hashes. Static review found no concrete issue. Added optional cumulative `refundTotal` and a two-refund nonce/reservation regression.
+- Fresh API job `01M7JEZTWQ3DP0NWNKHVJB56SK` is approved and real-compiled with the same image/rules/references. It will get a new 4,500-second expiry after combined-head CI. Source and failed-proof evidence remain distinct. Local workspace checks pass: SDK 13 + 342, API 778, worker 901 and all typechecks. Commit/push and exact-head CI next. The live positive proof, winning claim, payout/key release and buyer recovery remain pending. Job 5 needs cleanup refund after 10:24:47 -05:00.
+
+## 2026-11-16 09:18 -05:00 — Anish — Verified live adapter and real Circle paid compile
+
+- PR #7 merges only the four new contract-chat commits after shared ancestor `3f0ecbf`, ending at `ed50964`. All changes are manifest, reports and docs. Resolved shared status/plan conflicts by retaining both complete histories. [Adapter verification](reports/open-claim-live-adapter-verification-2026-11-16.json) passed the actual worker's creation, runtime, implementation, wiring, zero-fee and complete role-history gates at block 72564050. Runtime is the approved `469a337c…` hash. The independently approved deployer used its own nonce 0. Buyer pending nonce stays 3. This chat signed no creation and disabled its superseded buyer deploy config. No second adapter will be deployed.
+- [Real Circle paid API evidence](reports/circle-gateway-paid-api-2026-11-16.json) records 402, one-atomic live Gateway charge, HTTP 200 real native compilation and identical cached replay. Transfer UUID is `845d3e15-cfb7-405d-a08f-7ca3911c737e`. Buyer Gateway balance decreased from 0.010000 to 0.009999 USDC and seller pendingBatch increased by 0.000001. The rejected authorization is preserved and the repair retained its exact nonce/amount. Circle status is `received`; no onchain batch hash exists yet. This is official Gateway acceptance and balance evidence, not final batch settlement.
+- All CI groups passed at code SHA `88c69a2`. Full relevant combined-tree workspace checks pass after manifest integration: SDK 13 Node checks + 342 tests, API 778, worker 900, all typechecks. Combined merge-head CI is pending publication. Next: publish, check exact-head CI, enable the staged API's verified open-claim reader, prepare current absolute terms, and execute buyer funding plus the one fresh proof. Payout, byte-exact recovery, invalid claim and separate refund remain outstanding. One prover only.
+
+## 2026-11-16 09:07 -05:00 — Anish — Arc open-claim adapter deployed and source verified
+
+- The user approved one Arc Testnet deployment with a 3,000,000-gas limit and 25-gwei max fee. A final fixed-block preflight at 72563220 checked pinned code, proxy slot, zero fees, signer balance/nonce, 2,560,164-gas estimate and no new core privilege events. The single `forge create --broadcast` exited 0. [Transaction `0x30a8bc27…72e14`](https://explorer.testnet.arc.io/tx/0x30a8bc27f9cecf068eeaf5c822196c5149f825671c4e65013d559de353572e14) succeeded in block 72563239, deploying [adapter `0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8`](https://explorer.testnet.arc.io/address/0x1fed5e532a1405facd45b4096ad1abf25bba0cb8). It used 2,538,847 gas and paid 0.063471175 testnet USDC, below the approved 0.075 cap.
+- Independent receipt, creation-input, getter and runtime reads passed. The 11,311-byte runtime hash is `0x469a337cfb28530e01426274e353792fee03ea8cc7f9663a63c5f9c2a4e13f20`; every runtime byte matches the compiled artifact after substituting all 18 immutable references. Blockscout source verification passed and its published source SHA-256 equals the local file. The [deployment report](reports/open-claim-arc-deployment-2026-11-16.md) gives exact commands/results; the new [deployed manifest](../../contracts/deployments/open-claim-arc-testnet.json) records address, transaction, block, runtime, constructor values and gas.
+- No fresh funded proof, live buyer/solver exchange or Circle Gateway payment occurred. The contract and deployment handoff is ready for the “Complete UBC-26 proof commerce” chat, which owns PR #7 integration and final CI. Next: push this deployment checkpoint and send its SHA/address/interface to that chat. No commerce code changed here.
+
+## 2026-11-16 09:06 -05:00 — Anish — Live setup confirmed and deployment approved
+
+- PR #7 code `4a39930` passed every CI group. [Live setup](reports/open-claim-arc-wallet-setup-2026-11-16.json) confirms the 0.04-USDC solver transfer, exact 0.01-USDC Gateway deposit, receipts, native balance changes and zero remaining allowance. Setup gas was 0.004098525 USDC. Each transaction was sent once. Direct Node preserves the protected password FD. The pnpm script closed it and stopped before any signature. Resumes checked saved hashes after receipt waits stopped.
+- The real Circle call remains unpaid. Its [first attempt](reports/circle-gateway-live-attempt-2026-11-16.json) has a definitive short-validity rejection, no exact-nonce transfer and unchanged 0.010000-USDC Gateway balance. Added the official SDK's 100-second buffer and an explicit repair that requires the exact rejection and empty search, archives the attempt and retains the payment nonce/amount. Queued and ambiguous outcomes block another signature. Static review found no concrete defect in that repair.
+- Verified direct human approval for the exact adapter deployment, at most 3,072,197 gas at 25 gwei, within a 0.201-USDC aggregate ceiling. The [preview](reports/open-claim-arc-spend-preview-2026-11-16.json) allocates at most 0.198429925 USDC. Added durable creation raw/hash/nonce state, shared account guards and exact runtime/receipt/gas-loss checks. No deployment signature occurred. Review found missing independent binding to the approved initcode and a role-history gap. Both are corrected. A regression fails without the initcode fix and passes with it. The paced audit now covers privilege and whitelist history from the prior audit to the head.
+- Checks: full workspace passed before the final wrapper, final worker suite passed 899 tests, the new wrapper regression passed separately, and worker typecheck passed. Final combined CI remains pending after publication. Next: finish wrapper review, deploy once, obtain independent manifest verification, then fund and prove one actual Arc job. Keep one prover. Complete Circle repair/replay, rejection, payout, exact recovery and separate refund evidence before completing the Goal.
+
+## 2026-11-16 09:01 -05:00 — Anish — Dedicated Arc deployer funded; broadcast cap pending
+
+- The user asked for a reusable CLI wallet. A dedicated encrypted Foundry keystore was created locally, its password stored in macOS Keychain, and an unlock check passed without printing a secret. The public deployer is `0xA2416Eb8159606C133298fF113a472608E6F9Fb7`. After explicit faucet approval, Circle sent 20 Arc Testnet USDC; [the transaction](https://testnet.arcscan.app/tx/0x07dc82fda622993c71cce5d389f2e2aa141945e39ef5f1a87569055ed120e292) succeeded in block 72562912. No wallet transaction was signed here.
+- The [updated preflight](reports/open-claim-arc-preflight-2026-11-16.md) checks the actual signer at fixed block 72563030: balance 20 USDC, nonce 0, estimate 2,560,164 gas. Core/verifier/token pins and zero fees still match; no new privilege or upgrade events occurred since the earlier complete replay. The creation hash is unchanged.
+- The wallet-creation reply did not explicitly approve the live deployment gas cap. The single remaining decision is approval of one adapter creation at gas limit at most 3,000,000 and max fee at most 25 gwei (maximum 0.075 testnet USDC). The adapter remains undeployed and its manifest fields remain null. After approval, recheck current state, broadcast once, verify receipt/runtime/immutables and publish the deployed manifest.
+
+## 2026-11-16 08:54 -05:00 — Anish — Contract handoff and Arc deployment preflight
+
+- Branch `codex/overnight-open-escrow` pushed contract checkpoint `3f0ecbf`; the exact adapter ABI and selectors were sent to the “Complete UBC-26 proof commerce” chat, which owns PR #7 integration and final CI. An independent Grok 4.7 High source/ABI audit found no concrete P1/P2 issue and reran 48 offline open-claim tests with no failures. No commerce code was edited here.
+- [Arc preflight](reports/open-claim-arc-preflight-2026-11-16.md) verified the frozen core proxy, implementation, ERC-1967 slot, verifier, native USDC, both zero fees, and complete role history at block 72554683, hash `0x240f99565001722f6bfdbeb85e475c7cc0445b8b66ea482cda88fcf68c61192f`. The standard `06_Verify` stopped at RPC HTTP 429 during log replay; a slower independent 17-window replay completed with empty admin sets. The parent reproduced the fixed block, creation data hash and gas estimate.
+- The exact unsigned adapter creation data hash is `0xad7f68985c4978a117d467a8e89321f0b6d4b539492cd34beb1280f104b321d6`. The neutral-sender fixed-block estimate is 2,560,164 gas. The prepared 3,000,000 gas limit at max 25 gwei caps cost at 0.075 USDC. The [operator command](../../docs/overnight/open-claim-testnet-operator.md) uses those caps. The proposed manifest keeps adapter address, transaction, block and runtime hash null because there is no deployed adapter.
+- No live signer or spending authority is recorded. Next: obtain one approved Foundry keystore name, matching deployer address and explicit approval for that gas cap. Then recheck current chain state, estimate from that signer, broadcast once, verify the receipt and runtime, and publish a deployed manifest. Until then there is no live transaction.
+
+## 2026-11-16 08:42 -05:00 — Anish — Funded buyer and bounded setup signer
+
+- PR #7 at `7937ec4` passed commerce, engine and contract CI. Buyer funding is now verified as 20 USDC. Direct human instructions authorize transfers between the generated wallets for setup. This chat remains the sole signer. The contract chat has prepared a separate unsigned adapter deployment preview and requested its additional gas approval. No deployment is authorized here yet.
+- Added a fixed setup capability for 0.04 native USDC to the solver and the two approved Gateway calls. It shares the buyer lock, durable intent hashes and nonce reservations with funding/refund. Lower buyer call caps (290,000 each) retain the original aggregate gas authority: all allocated gas is at most 0.121625 USDC within the approved 0.1235 ceiling. Source tests cover changed calls, send-response loss, call order, journal deletion and cross-journal nonces. The funding journal can initialize once after setup.
+- Added two-second live role-log pacing and incremental full-history continuation. Each reuse checks the prior canonical audit anchor. Reorgs and new privileged authority fail closed. Independent static review found no concrete defect. Full workspace checks pass: SDK 13 Node checks plus 342 Vitest tests, API 778, worker 894 and all typechecks. Public-receipt dual recovery also passes. The native-engine API suite is running after correcting its missing ENGINE_MODE setting. No wallet transaction or payment signature occurred. Next: publish this checkpoint, pass combined-head CI, then execute setup and the real Circle API payment. Adapter manifest remains the funded-proof gate.
+
+## 2026-11-16 08:29 -05:00 — Anish — Combined CI green and wallets ready for funding
+
+- PR #7 is pushed at combined code SHA `4fc703c0ddbdfb8683e804872622962999556c87`. [Commerce CI](https://github.com/anishnarang9/UBC-26/actions/runs/43875067967) and [core-fast CI](https://github.com/anishnarang9/UBC-26/actions/runs/43875068035) passed at that exact SHA. The latter passed engine and contract jobs. Relevant local checks remain green as recorded above. No main or PR merge occurred.
+- Notified the user that the encrypted buyer `0x638202cCB15315dBc5b22e02717B908bEAc3AeBd` needs at least 0.12 Arc Testnet USDC and solver `0xfb7692d0BFb955E7EB727bf744b39F7B8441057F` needs at least 0.04. These cover the approved small-run ceilings. The separate seller wallet needs no direct funding for the service test. Private task authority and the prepared Circle config remain under the generated wallet directory outside Git.
+- Corrected the refund guide to 1,500 seconds because the API requires a 1,200-second terms margin. This changes no transaction code, bounty, fee authority or main proof expiry policy. The main job remains at 3,600 seconds with a 1,800-second prove budget and 600-second release margin.
+- The API is staged on loopback port 18790 with real compilation and a genuine unpaid 402 challenge. No signature, Gateway charge, funded proof or live settlement was produced. Continue after wallet funding. The separate contract/deployment chat must supply the verified adapter manifest before the fresh funded-context Arc proof. The Goal remains active and incomplete.
+
+## 2026-11-16 08:19 -05:00 — Anish — Linux CI fixture correction
+
+- Pushed combined source `d6172e2`. Its engine and contract CI passed. Both commerce runs passed SDK/API but failed two new cross-journal tests. Linux `/tmp` violates the existing private operator path policy, while this Mac's temporary directory does not.
+- Moved only those nonce fixtures under private checkout directories and added cleanup. Production path checks, signing, nonce guards and spending limits remain intact. The 81 affected tests and worker typecheck pass. Push this fixture checkpoint and require fresh commerce and core-fast CI at its exact SHA.
+- Real-engine API passed 15/15 at the combined source. No live spending or proof occurred. Wallet funding and a verified adapter manifest remain pending.
+
+## 2026-11-16 08:17 -05:00 — Anish — Linux fixture path correction
+
+- Draft PR #7 reached combined code head `d6172e2`. My exact-head local `pnpm check` passed all typechecks, SDK 342, API 778 and worker 886. Its contract CI job passed; engine CI is still running.
+- Commerce CI failed two new sibling-nonce tests because their `/tmp` fixtures reach `readSafeFile`, which rejects a world-writable ancestor on Linux. The same tests passed on macOS, where the temporary directory has a private ancestor. I moved only those two fixtures under the checkout, with cleanup after each test. Focused 81 tests, worker typecheck and `git diff --check` pass. Full CI for this correction is pending.
+- The correction changes test paths only. The historical real-proof local acceptance remains tied to `0cce487`. A verified Arc adapter manifest and funded buyer and solver wallets are still required for the live run; no live signature, deposit, proof or payout occurred in this checkpoint.
+
+## 2026-11-16 08:13 -05:00 — Anish — Final combined source checked
+
+- Integrated the separately published recovery-retry and launcher checks through `a37aa3c` with the reviewed refund, approval and nonce guards. The launcher also checks package files, TypeScript configuration and contract vendor source before signing. No contract or deployment change beyond published descendants of `8b9589d` was introduced.
+- Fresh combined-tree `pnpm check` passed SDK 342, API 778, worker 886 and all typechecks. The retained local-chain recovery test passed with repeated exact recovery and gas-adjusted balance checks. Forge, ABI parity, examples and the real-engine API checks remain recorded above. Push and exact-head PR #7 CI are the next checks.
+- The real loopback API and private prepared inputs remain available for the approved fractional run. No wallet was signed and no prover started. Wallet funding and the verified live adapter manifest remain the live gates. The user asked to receive the public wallet addresses when preparation is complete.
+
+## 2026-11-16 08:10 -05:00 — Anish — Refund, rejection and approved fractional run
+
+- The user approved two 0.01-USDC bounties, a separate 0.01-USDC Gateway deposit, a 0.000001-USDC API charge, and aggregate native gas capped at 0.1235 USDC at 25 gwei. Both [spend previews](reports/open-claim-arc-spend-preview-2026-11-16.json) record this authority. Keystores and private task authority remain outside Git. The user will fund the public buyer and solver addresses when preparation is complete.
+- Added restricted negative-claim and expired-job refund commands. The negative call contains a deliberately invalid seal and no release key. Both require canonical receipts and exact gas-adjusted balances. Refund requires the exact token transfer, refund event and expired core state.
+- Independent native static review identified three P2 issues. Regression tests reproduced each: refund initialization after funding, fractional approval uncertainty, and nonce reuse between funding/refund journals. The fixes preserve journal-loss guards, decode actual approval amounts, share the buyer lock, block unresolved sibling sends and retain all sibling nonce reservations. Follow-up static review found no remaining concrete P1/P2 in these fixes. No Grok CLI worker was used.
+- Checks passed: SDK 342, API 778, worker 886 and all typechecks; focused signing/funding tests 119; real-engine API 15/15; pinned Arc Forge 168 with one fork-only skip; ABI parity for five exports; contract examples 16 plus typecheck after locked dependency installation. Read-only local chain recovery also passed. Final combined-head CI and the separately published recovery retry correction remain to integrate/check.
+- [Live preflight](reports/open-claim-live-preflight-2026-11-16.json): a loopback API on port 18790 uses the real engine, imported and approved both Meridian jobs at a 10,000-unit maximum, compiled the refund package, and returned the expected unpaid 1-unit Gateway 402 for the main job. A fresh reviewed solver produced the expected bytes and the independent oracle accepted them. The API has no wallet capability. No live spending, Gateway deposit, new proof, claim or payout occurred.
+- Next: integrate the published launcher/recovery corrections, push the final combined SHA and check PR #7 CI. Then send the public wallets for funding. The verified live adapter manifest still belongs to the separate contract/deployment chat. The approved run covers the buyer-to-solver proof/payment/recovery workflow on the existing Meridian workload. Live acceptance remains pending.
+
+## 2026-11-16 07:44 -05:00 — Anish — Protected operator and Circle preparation
+
+- PR #7 adds protected commands for preview, buyer funding, proof preparation, solver run/resume, chain-based recovery, and Circle service payment. Live commands require clean pinned source, verified adapter creation/runtime/history, and an inherited keystore password descriptor. The engine receives an explicit clean environment. One shared host lock guards proving.
+- Fixed the Circle Gateway UUID incompatibility. Gateway batch acceptance carries `onchainConfirmed: false`. The payment client checks the exact 402 recipient, price and Gateway domain, persists one signature, checks a successful compile and exact replay, and never deposits or funds a bounty. The live supported endpoint advertises Arc USDC and 604,800-second minimum validity. Local facilitator and synthetic signing tests are not live payments.
+- Checks: workspace typechecks and tests pass (SDK 342, API 778, worker 880), real-engine API 15/15, and focused operator tests 28/28. A separate read-only test on retained local Arc receipts recovered exact SDK/engine bytes and checked the solver's gas-adjusted native USDC delta. No new prover or live write ran.
+- The user requested generated testnet wallets and fractional bounties. Generated and independently decrypted encrypted keystores outside Git. Buyer `0x638202cCB15315dBc5b22e02717B908bEAc3AeBd`; solver `0xfb7692d0BFb955E7EB727bf744b39F7B8441057F`. Both live balances remained zero on the latest read. Proposed bounty is now 0.01 USDC per job and service charge 0.000001 USDC. The revised preview records a conservative 0.11775-USDC whole-suite gas ceiling, while prior local gas counts imply about 0.03209 USDC for one successful job at the current 25-gwei live quote.
+- Remaining: integrate published escrow descendant `3f0ecbf`, rerun combined-head checks/CI, complete the negative/refund operator actions and Gateway deposit preview, then execute after verified deployment, wallet funding and exact spending authority. No verified live adapter manifest, funded wallet, Gateway deposit, Circle charge, live proof, or payout exists for this Goal yet.
+
+## 2026-11-16 07:34 -05:00 — Anish — Combined contract, buyer, and solver checkpoint
+
+- Branch `codex/open-claim-contract-integration` merges published contract `3f0ecbf`, protected solver `843f842`, and five-step buyer `e29da7d` work for draft PR #7. Added a fail-closed buyer guard at `01e418f`: a signed open-claim run now requires a deployment-pin callback. Its regression failed before the fix and passed after it.
+- Combined-head local checks exited 0: `pnpm check` passed three typechecks, SDK 13 Node plus 342 Vitest tests, API 777 tests, and worker 873 tests. The real-engine API suite passed 15/15. Pinned non-fork Arc Forge passed 168/168; ABI parity passed for five exports; contract examples passed 16/16 and typecheck. The latter contract and API engine checks ran before the buyer guard, which touches only the worker.
+- The [real-proof local acceptance report](reports/open-claim-local-acceptance-2026-11-16.json) remains source-stamped `0cce487`: one fresh funded-context proof, exact 1,000,000-unit local payout, losing-solver abstention, dual byte-exact recovery and independent oracle, and a separate exact refund. It used unlocked synthetic accounts. The new protected signing and buyer helper have unit checks but no fresh combined-head proof run.
+- [The spend preview](reports/open-claim-arc-spend-preview-2026-11-16.json) is a proposal, not authority. Live adapter deployment, protected identities and keystores, exact bounty/gas approval, and Circle configuration remain external. The separate contract chat's live Arc role-log replay hit HTTP 429; no live write or wallet signing occurred. Next: push the merged head, check exact-head CI, then complete operator wiring when verified live inputs arrive.
+
+## 2026-11-16 07:30 -05:00 — Anish — Five-step protected buyer flow
+
+- PR #7 now has a buyer helper for exact `createJob`, `setBudget`, USDC `approve`, `fund`, and adapter `register`. The helper checks transaction identity, confirmed receipts, exact funding transfers, zero hook, full budget, registered commitments, and final allowance. It retains gas reservations and saved hashes across retries.
+- Added fixed-block SDK reads so live deployment checks and job reads share one confirmed anchor while Arc produces new blocks. Added an independent deployment-pin check before each new buyer signature.
+- Checks: 71 buyer tests, 21 open-claim tests, the fixed-block SDK regression, and worker typecheck pass. Four buyer cases cover first completion and dropped responses at create, approval and registration. The prior protected-signer checkpoint is pushed at `843f842`.
+- Prepared a conservative spend preview for two 1-USDC jobs, at most 0.3025 USDC native gas, and a separate proposed 0.01-USDC API charge. Requested the missing protected signers, exact approval and Circle configuration in one question. No live transaction or Circle charge occurred. Next: operator commands, Circle UUID/batch handling, adapter descendant integration and combined-head CI.
+
+## 2026-11-16 07:25 -05:00 — Anish — Protected solver signing and RPC recovery
+
+- Branch `codex/open-escrow-rescue`, PR #7. Added an adapter-only local signer over the existing protected account journal. It checks exact claim/release calldata, reserves release gas, caps fees, and dispatches raw transactions once with retries disabled.
+- The worker can recover its exact hash from the signer's durable journal after a dropped response. It then reads receipts without another signature or send. A missing journal hash still requires manual reconciliation. Fixed zero-priority EIP-1559 parsing, which viem represents by an absent field.
+- Checks: 62 focused worker tests and worker typecheck pass. Before edits, the workspace baseline passed SDK 342, API 777, worker 863 tests and all typechecks. New tests failed before implementation.
+- The current Goal assigns contracts/deployment to the separate escrow chat. Continue from its published commits after `8b9589d` only. Buyer execution, operator commands, Circle Gateway preparation, combined-head checks and live evidence remain pending. No signer, spending limits, deployed adapter, or Circle configuration was supplied.
+
+
+## 2026-11-16 07:22 -05:00 — Anish — Open-claim contract correction and local verification
+
+- Branch `codex/overnight-open-escrow` imported the tested rescue source at `8b9589d`. Constructor now rejects nonzero core fees. Local deploy script checks the active Arc Anvil RPC and rejects a fork or another client before broadcast. It writes a simulated manifest with no invented receipt fields.
+- Pinned Arc Foundry `3e95efaeaaaca64d6ac9c1ee988968683dbd0d22`: 42 adversarial adapter tests, six checked-in real-receipt tests, and full local `forge test --network arc` passed 168, failed 0, skipped one fork-only test. Three fuzz cases ran 256 inputs each. Scoped format, ABI parity, 16 TypeScript examples/typecheck and safe local deploy simulation passed. The real-receipt suite uses checked-in proofs; the separate combined fresh-proof local run is recorded at `agents/anish/reports/open-claim-local-acceptance-2026-11-16.json`.
+- The full read-only Arc `06_Verify` rechecked verifier, core implementation, proxy and hook but hit RPC HTTP 429 during historical role-log replay. A complete current freeze claim is pending fixed-block evidence. No live adapter transaction, wallet or key was used. External live deployment signer and exact spending limits remain unapproved.
+- Standards review records pinned ERC-8183 draft gaps and confirms Circle Gateway x402 does not directly fund the core. Next: independent final source review, fixed-block Arc read, gas preview, contract handoff to Chat 1 and exact live operator blocker.
+
+## 2026-11-16 04:08 -05:00 — Anish — Final local open-claim handoff
+
+- Branch `codex/open-escrow-rescue` is pushed at code head `015996b`. [Draft PR #7](https://github.com/anishnarang9/UBC-26/pull/7) targets `codex/engine-commerce`; it is mergeable and unmerged. At that exact head, the [commerce run](https://github.com/anishnarang9/UBC-26/actions/runs/43835708063) and [core-fast run](https://github.com/anishnarang9/UBC-26/actions/runs/43835708011) passed. The local `pnpm check` and 15/15 real-engine API suite also passed after the final server edit. The checkout is clean before this status-only commit.
+- The [combined acceptance report](reports/open-claim-local-acceptance-2026-11-16.json) records exit 0 with a fresh adapter-domain real proof (1,052,647 ms, 7,053,898 cycles), one accepted winner, exact 1,000,000-unit local USDC payout, losing-solver key abstention, byte-exact SDK and engine recovery plus oracle acceptance, and a separate exact 1,000,000-unit refund. The [selected-provider Meridian baseline](reports/fresh-exchange-local-2026-11-15.json) also exited 0. The [x402 local result](reports/open-claim-x402-local-2026-11-16.json) used a test facilitator and one charge.
+- One native fallback reviewer found no concrete P1/P2 issue in the main adapter, API, SDK, worker and runbook trust boundaries. This was static review, not exhaustive review of every added line. The final Grok CLI review stalled and was canceled without a retry; no model API key was used in the local acceptance. The two forkless Arc nodes remain on loopback: PID 24900 at 18545 for the first attempt and PID 50632 at 18546 for the exit-0 attempt. Both API copies and the prover are stopped; private scratch evidence remains local.
+- Next owner: the live Arc operator. Supply an approved adapter deployment, buyer and solver wallet policy, exact bounty and gas limits, and Circle Gateway configuration if a live x402 check is desired. The [operator handoff](../../docs/overnight/open-claim-testnet-operator.md) has prepared read-only checks and deployment inputs. No live Arc write, real-wallet signature, Circle Gateway charge, production security approval, main merge or PR merge is recorded.
+
+## 2026-11-16 03:59 -05:00 — Anish — Draft PR and local API bind check
+
+- Branch `codex/open-escrow-rescue` at `7804d23` is pushed. [Draft PR #7](https://github.com/anishnarang9/UBC-26/pull/7) targets `codex/engine-commerce`, which remains open against main as PR #6. At `7804d23`, the [commerce PR run](https://github.com/anishnarang9/UBC-26/actions/runs/43834594179) and [core-fast PR run](https://github.com/anishnarang9/UBC-26/actions/runs/43834594018) passed. Core-fast ran Rust formatting, Clippy, host tests, wire/oracle checks, pinned Arc Forge tests and examples.
+- A final process check found that `commerce/api/src/server.ts` omitted a hostname in its `serve` call. With `HOST=127.0.0.1`, the old code still listened on `*:18789`. The server now forwards `HOST`, and the same local check showed `127.0.0.1:18789`; the public `GET /v1/open-jobs` route still responded. The local runbook sets this variable. I stopped the two old API copies that were listening on all interfaces. Their SQLite evidence is retained. Arc Anvil PID 24900 remains on loopback port 18545 for the first attempt at `f8e3516`; PID 50632 remains on 18546 for the exit-0 run launched at `0cce487`. No prover or API process remains.
+- After this server edit, `pnpm check` again exited 0: SDK 13 Node and 342 Vitest tests, API 777, worker 863 and all three typechecks. The real-engine API suite passed 15/15. Next: commit and push the bind/documentation checkpoint, then verify its exact GitHub CI. The live operator gates in the shared plan remain open.
+
+## 2026-11-16 03:50 -05:00 — Anish — Acceptance evidence and rerun handoff ready
+
+- Branch `codex/open-escrow-rescue`. Added the [passing local acceptance report](reports/open-claim-local-acceptance-2026-11-16.json), corrected the stale API and adapter status prose, and expanded the [local runbook](../../docs/overnight/open-claim-local-runbook.md) with typed import, real-engine API startup, private package handling, proof inputs and fresh report paths. The slow test now accepts fresh deployment and funding report paths and distinct positive job IDs; its recorded defaults remain unchanged.
+- `pnpm check` exited 0 on this candidate: SDK 13 Node and 342 Vitest tests, API 777 tests, worker 863 tests, and all three typechecks. The real-engine API suite passed 15/15. A fast negative smoke check confirmed that an overridden report with job ID zero fails before proving. JSON/audit comparison, Markdown links, eight shell-block syntax checks and `git diff --check` passed.
+- One additional read-only Grok 4.7 High review request used no parallel worker or retry. Its CLI did not return within the bounded wait, so I canceled it. It reported no rate-limit error and supplied no review finding. A prior single-response Grok review had no concrete finding, but it predates the final report-path edit. Next: commit and push this checkpoint, then verify CI at the pushed SHA. Live Arc, protected signing and Circle Gateway remain operator gates.
+
+## 2026-11-16 03:40 -05:00 — Anish — Combined local open-claim acceptance passed
+
+- Branch `codex/open-escrow-rescue`, launch source `0cce487`. The [full forkless local Arc run](reports/open-claim-local-acceptance-2026-11-16.json) exited 0 in 1,059.57 seconds. It used the real RISC Zero 3.1.0 verifier and a fresh job-3/solver-1 proof bound to the funded adapter context. That proof took 1,052,647 ms and 7,053,898 guest cycles. The two earlier context-bound proofs were reused on an identical replayed local setup for the losing solver and wrong-job check.
+- The real claim and release paid exactly 1,000,000 native local USDC units from core through adapter to solver 1. Solver 2's valid pre-claim proof lost the race; it sent no claim or key and received no transfer. SDK and engine recovered `schedule.json` byte for byte with SHA-256 `0607a7b43bf95913d5561d1872b14df0e9ba3fce160946f0bfac99d76608fbc2`, and the independent oracle accepted it. Separate job 2 refunded exactly 1,000,000 units to its buyer. An independent read-only receipt audit confirmed the events, transfers, core states and final API status.
+- The confirmed-head cache fix at `0cce487` passed `pnpm check` (SDK 13 Node and 342 Vitest tests, API 777, worker 863, all three typechecks) and the real-engine API suite (15/15). GitHub commerce CI [run 43829915543](https://github.com/anishnarang9/UBC-26/actions/runs/43829915543) passed at that exact source head. The selected-provider Meridian suite had already exited 0; contract source has not changed since its full Forge and 45 focused adapter tests.
+- A separate [local x402 compile](reports/open-claim-x402-local-2026-11-16.json) used one test-facilitator charge and replay. No further model call was made for this run. The local nodes on ports 18545 and 18546 and API copies on 18787 and 18788 preserve the two attempt states. Next: publish the final report and operator handoff, then check the final pushed head. Live Arc deployment, real-wallet signing and Circle Gateway settlement remain open operator gates.
+
+## 2026-11-16 03:15 -05:00 — Anish — Confirmed-head cache fix and clean replay staged
+
+- The first fresh open-claim test generated a real job-3/solver-1 proof, accepted its claim, released exactly 1,000,000 local USDC units to that solver, recovered the exact file through SDK and engine, passed the oracle, and confirmed a separate job-2 refund. The process exited 1 after 1,134.92 seconds at its final snapshot assertion: it saw Funded even though the successful refund transaction was in block 37 and `getJob(2)` at that block was Expired. No resend occurred.
+- Viem returned a cached head immediately after local blocks advanced. A direct reproduction returned cached block 40 and fresh block 41. The SDK and API open-claim readers now request `getBlockNumber({ cacheTime: 0 })`. Both regression tests failed before the fix and passed after it. `pnpm check` passed: SDK 13 Node and 342 Vitest tests, API 777 tests, worker 863 tests, and all three typechecks. The real-engine API suite passed 15/15 with no model call.
+- A second forkless local Arc node on port 18546 replayed only the first setup blocks. All 21 transaction hashes matched the original local deployment and funding, and the verifier confirmed the same adapter pins. A separate API copy on port 18788 lists job 3 as Funded. Its public solver input matches the first run byte for byte. The old node and first attempt remain intact. Next: checkpoint the fix, then run one fresh winner proof and the complete test against the new node.
+- One single-response Grok 4.7 High read-only review ended normally with no concrete finding. It used one model call and did not report a rate limit. The review prompt preceded the receipt-identity fix, so the current code still needs final checks. No live Arc deployment, wallet signing, or Circle Gateway payment occurred.
+
+## 2026-11-16 02:47 -05:00 — Anish — Receipt identity and exact payout gate
+
+- The worker now checks the expected job ID in the adapter claim and key events and the core submit and payout events. Payout also requires the core-to-adapter and adapter-to-solver USDC transfers for the exact budget. A receipt for another job or a partial transfer cannot confirm this attempt.
+- Two new receipt tests failed before the change and passed after it. The memory fixture now emits both transfers from the actual adapter flow. All 19 focused worker tests, the actual local port test and worker typecheck pass. A read-only `eth_call` through the real verifier accepted the job-2 proof, while using it for job 3 reverted. No claim transaction or key was sent.
+- The second proof still holds the prover slot. Next: run the staged real exchange after it exits, then inspect the final receipts and complete broader checks.
+
+## 2026-11-16 02:42 -05:00 — Anish — Confirmed solver job input command
+
+- Added `pnpm open-claim:job-input`. It reads a confirmed funded local Arc job and the verified local deployment manifest, checks pinned code and role history, then writes the engine's public context and image ID to a new private file. It cannot sign or send.
+- The first CLI run failed on a wrong import and made no output file. After the fix, worker typecheck passed and the command exited 0 for job 3, solver 2. Its JSON exactly matches the separately proven job-3 input. The runbook now gives the read-only command and sequential proof flags.
+- The second Groth16 proof remains in the sole prover slot. The combined exchange suite and independent review are still pending.
+
+## 2026-11-16 02:39 -05:00 — Anish — Combined local acceptance test staged
+
+- Branch `codex/open-escrow-rescue`. Added an explicit slow local Arc test for two real solver proofs, actual worker claim/release, losing-key abstention, exact token transfers, confirmed API status, two byte-exact recovery paths, the independent Meridian oracle and a separate expiry refund. Added the versioned open-claim API route contract and local runbook.
+- Worker typecheck and documentation link checks pass. The slow test has not run because the second proof still owns the sole prover slot. Its first source-bound job 2 proof is already complete. The test requires the current private local deployment, funded jobs and the second proof output; it does not touch live Arc or a real wallet.
+- A narrow read-only Grok 4.7 High review stopped at its six-turn cap before returning findings. It did not report a rate limit. Do not treat that attempt as a completed review. Next: wait for the second proof, run the slow suite through its process exit, then review and fix any concrete failures before final checks.
+
+## 2026-11-16 02:32 -05:00 — Anish — Confirmed local Arc worker port
+
+- Branch `codex/open-escrow-rescue`. Added a read-only confirmed-block worker port with injected restricted sending. It checks pinned contract code, the proxy slot, verifier version, adapter wiring, zero fees, core role history, registered terms, and solver context before an attempt. It decodes confirmed claim and payout receipts.
+- The local Arc port test passed against funded job 3 and rejected a wrong adapter runtime pin. All 17 focused worker tests and worker typecheck passed. This port has not sent a claim yet.
+- Job 2's fresh adapter-domain Groth16 proof completed with verdict 1 in 1,024,044 ms at 7,053,898 user cycles. A second proof for job 3 and solver 2 started only after the first process exited. The first proof has not been submitted. Next: run the combined real claim and release, prove a competing solver, test losing-key abstention, recover bytes and refund a separate job.
+
+## 2026-11-16 02:27 -05:00 — Anish — Worker adopted exported adapter ABI
+
+- The worker now takes its claim and release ABI from the SDK's compiled `OpenClaimAdapter.json` export. It checks the published selectors against that ABI and retains the independent synthetic context and journal vector. A resumed attempt must match the current ABI status and interface revision before any chain action.
+- The new resume test failed against the previous behavior and passed after the check. All 17 focused open-claim tests and worker typecheck passed. The actual Arc port and combined on-chain acceptance remain pending; local job 2's fresh proof is still running.
+
+## 2026-11-16 02:23 -05:00 — Anish — Worker fixture checkpoint integrated
+
+- Grok 4.7 High stopped at its 50-turn limit after writing the open-claim worker fixture and attempt runner. It made no commit. I reviewed the files, ran its 16 focused tests and typecheck, then ran all 860 worker unit tests across 19 files. All checks exited 0. The reviewed source is committed on `codex/overnight-proof-worker` at `e4792a5` and merged into this branch.
+- The runner binds the actual solver and adapter, stores private attempt state, blocks blind resends after uncertain sends, and releases a key only for a confirmed winner. Its current port is an in-memory fixture based on interface checkpoint `198e479`. The exported adapter ABI and actual Arc port still need integration before this runner can establish real-chain acceptance. The fresh job-2 proof remains active in the only prover slot.
+
+## 2026-11-16 02:19 -05:00 — Anish — Local x402 paid compile checked
+
+- A separate local API job used the real engine and an in-process test facilitator. The route returned HTTP 402, accepted a signed synthetic payment, compiled the approved Meridian image, and returned the same response on replay. The facilitator received one settlement call. [The report](reports/open-claim-x402-local-2026-11-16.json) records the quote and result. Nine focused x402 tests passed, including uncertain settlement and paid compile retry after a transient failure.
+- This is a test facilitator result. It did not call Circle Gateway or move live USDC. The funded ERC-8183 bounty remains a separate payment. The adapter-domain proof remains in progress, and the worker integration and actual claim/release/recovery gates remain open.
+
+## 2026-11-16 02:17 -05:00 — Anish — Meridian open-claim jobs funded locally
+
+- Branch `codex/open-escrow-rescue` at launch HEAD `ee9412a`. The pinned engine compiled the approved Meridian package with the recorded image and hashes. Local Arc job 2 holds an exact 1,000,000-unit USDC bounty, and the adapter's `contextOf(2, solver)` matches the engine job input. Its fresh Groth16 proof is still running in the only prover slot. No claim or payout is recorded.
+- The real API approved and compiled the same revision before funding local job 3. Five buyer transactions followed its returned order. After three local confirmation blocks, the API linked the registered job and listed it as open. [The funding and API report](reports/open-claim-local-funding-api-2026-11-16.json) records the public receipts and commitments. Arc native USDC pays gas, so the exact funding check uses the 1,000,000-unit `Transfer` event and core balance, not the buyer's total balance change.
+- The Grok worker remains the sole model process. The API used no draft model, and no model API key was read. Next: finish the proof, integrate the worker's reviewed changes, run the actual adapter claim/release/recovery path, and complete final checks. No live Arc transaction or Circle Gateway payment occurred.
+
+## 2026-11-16 02:09 -05:00 — Anish — Clean Meridian funded suite passed
+
+- The clean forkless local Arc Meridian suite at source `4fab765` exited 0 after 2,104.028 seconds. The [final report](reports/fresh-exchange-local-2026-11-15.json) records two fresh Groth16 proofs; the successful proof took 1,017,171 ms and 7,053,898 guest cycles. Its 12 source hashes match the launch HEAD.
+- Verified an exact 1,000,000-unit USDC payout, 20 indexed events, matching chain key release, SDK and engine recovery of `schedule.json` (SHA-256 `0607a7b43bf95913d5561d1872b14df0e9ba3fce160946f0bfac99d76608fbc2`), independent oracle acceptance, actual pending-send restart with one raw send, separate Submitted snapshot refund and Funded-job refund. Negative eth_calls reverted. No live Arc write or model call occurred in the suite.
+- Preserved the first clean-attempt environment failure as [a separate report](reports/overnight-meridian-env-failure-2026-11-16.json); the launcher then removed inherited `RISC0_DEV_MODE` and `RUST_LOG` and reran. This closes the Meridian baseline. Next: fresh adapter-domain proof and combined open-claim exchange, then final integration checks and review.
+
+## 2026-11-16 02:07 -05:00 — Anish — ABI and confirmed discovery integration
+
+- Merged the pushed API and SDK checkpoints into `codex/open-escrow-rescue` without source conflicts. Replaced the SDK signature fixture with the contract-exported JSON ABI and added a fixed-block read-only viem port. The API now has an Arc reader wired through explicit server environment variables.
+- The local Arc node confirmed a five-transaction buyer setup for job 1: creation, exact budget, exact USDC approval, funding and adapter registration. The [funded report](reports/open-claim-local-funded-2026-11-16.json) records successful receipts and a three-block-confirmed API snapshot with matching `JobFunded` and `TermsRegistered` events. No proof or payout occurred in this check.
+- Fixed SDK winner selection so a structurally invalid candidate cannot block a later valid candidate. A regression failed before the fix and passed afterward. SDK tests: 13 Node and 342 Vitest; API tests: 776; both typechecks and full Forge tests pass. The pending gates are a fresh adapter-domain proof and exact local claim/release/recovery, worker integration, final independent review and final-head checks.
+
+## 2026-11-16 01:56 -05:00 — Anish — Local open-claim deployment verified
+
+- Branch `codex/open-escrow-rescue` now includes a guarded local Arc deploy script, read-only confirmation verifier, local run instructions and [deployment report](reports/open-claim-local-deployment-2026-11-16.json). The testnet adapter address remains null.
+- A forkless Arc Anvil node confirmed six local transactions: real RISC Zero 3.1.0 verifier, patched core implementation and proxy, adapter, and two role renounces. Independent RPC reads confirmed code, proxy implementation slot, immutable wiring, native USDC, zero fees and the deployer's absent admin roles.
+- Full Forge tests, Python syntax check and the repeatable local verifier passed. This deployment has no fresh adapter-domain proof or actual bounty exchange yet. Next: integrate SDK/API/worker and run the fresh local exchange after Meridian's exclusive prover releases. No live wallet or Arc testnet transaction was used.
+
+## 2026-11-16 01:53 -05:00 — Anish — Open-claim adapter rescue checkpoint
+
+- Branch `codex/open-escrow-rescue` at `4c41a55` adds the adapter source, ABI and independent adversarial and checked-in real-receipt tests. It was pushed after the Chat 2 task stopped on a model rate limit; that worktree remains untouched.
+- The adapter checks exact funded buyer terms and zero fees, binds receipts to the actual solver, gives the first valid claim the job, and checks exact core-to-adapter and adapter-to-solver balance changes. It uses a reentrancy guard and refuses verifier addresses without code.
+- All 45 focused open-claim tests pass, including six real-verifier receipt checks and three 256-run fuzz cases. Full `forge test -q` exits 0. Two copied test harness assumptions were corrected before the pass. This is local evidence; no adapter is deployed on Arc.
+- Meridian's separate fresh suite remains at `fresh-groth16-proving` with one proof complete. One Grok proof-worker process is active. Next: local Arc deployment/exchange, API/SDK/worker integration, full review and final checks.
+
+## 2026-11-16 01:34 -05:00 — Anish — Interface vectors and deployment policy
+
+- Expanded [open-claim v1](../../docs/overnight/open-claim-v1.md) with computed function selectors, public event declarations and exact synthetic context/journal bytes. Added a proposed testnet template and its schema. Adapter deployment fields stay null.
+- Parent pinned Arc baseline passed 120 tests, zero failures and one fork-only skip. Existing TypeScript examples passed 13 tests and typecheck. Existing four exported ABIs match compiled artifacts.
+- Added new ABI/fixture/manifest checks. The adapter ABI test currently fails because implementation/export is pending. The separate real scalar-receipt suite also fails compilation until the adapter exists. These are explicit pending checks.
+- Grok standards and test workers exited cancelled without edits. Native fallbacks own those tracks. One Grok implementation worker remains. The user requested avoiding rate limits, so no parallel new Grok workers or direct model API calls are planned.
+- A separate forkless Arc node is ready for local-only deployment verification with native USDC. No live RPC or operator wallet is configured. Next: integrate the scoped source/tests, run full acceptance and hand source to Chat 1.
+
+## 2026-11-16 01:27 -05:00 — Anish — Proof host released without an exit result
+
+- The earlier Meridian process identities disappeared while its report still recorded `fresh-verdict0-proving`. No exit result or failure diagnostic appeared. The cause remains unknown. [Observation](reports/overnight-meridian-prior-process-2026-11-16.json).
+- Read-only checks found no remaining prover process or Docker container. The original checkout, process records and scratch remain unchanged. A separate clean full-suite run will use this worktree and the stamped unchanged engine binary.
+- The SDK reproduced all five public-vector checks. All six locked Rust wire tests passed. Contract comparison waits for Chat 2 implementation. [Vector evidence](reports/overnight-public-vector-2026-11-16.json).
+- Coordinator baseline commerce checks are running. Three Grok implementation tracks are running. No live call or signing occurred.
+
+## 2026-11-16 01:27 -05:00 — Anish
+
+- Started the supplied overnight proof-commerce plan on `codex/overnight-proof-commerce`, based on `ae1295a`. The original integration checkout and active Meridian rerun remain untouched.
+- Dispatched three Grok 4.7 High tracks in separate worktrees. Scopes are worker, API/x402 and SDK/buyer. Each returns scoped commits and checks for independent integration review.
+- Read Chat 2 interface checkpoint `43b4fca`. Open proofs bind the adapter escrow domain and actual solver address. Exact ABI adoption and byte comparison remain pending.
+- The active Meridian process owns the proving slot. No second prover, live wallet access or live signing started.
+- [Execution tracker](../../docs/overnight/proof-commerce-plan.md) records remaining acceptance gates. Next: public vector comparison, worker review and baseline evidence.
+
+## 2026-11-16 01:24 -05:00 — Anish — Open-claim interface
+
+- Branch `codex/overnight-open-escrow` starts at reviewed integration `ae1295a`, including Nick `57c387f`. Active proof worktrees remain intact.
+- Published [open-claim v1](../../docs/overnight/open-claim-v1.md). Reuse the frozen core through a hookless adapter job. The adapter binds the actual solver and its own address in the existing wire encoding.
+- Contract implementation, independent adversarial tests and standards review are next. Live deployment and spending remain unauthorized.
+
+## 2026-11-16 00:59 -05:00 — Anish
+
+- The first fresh Meridian run generated both Groth16 proofs, rejected verdict zero and completed the passing proof in 1,005,152 ms. It then exited 1 after a local receipt-visibility race while creating the separate refund-test job. The immutable [failure snapshot](reports/fresh-exchange-failed-attempt-2026-11-16.json) preserves the whole 2,056.599-second process result.
+- Restored the exact full local chain dump, confirmed the recorded second creation succeeded, and manually reviewed the stale synthetic-test lock. Old owners were absent or exited zombies. Preserved the lock under a new name, left the journal unchanged and reconciled the original hash without another creation transaction.
+- The [retained continuation](reports/fresh-exchange-continuation-2026-11-16.json) exited 0 in 2.095 seconds without new proving. It checked accepted proof, exact 1-USDC payment, key release, Completed indexed API readout, exact SDK/engine recovery, semantic oracle, actual pending/uncertain restart, Submitted snapshot refund and separate Funded refund. This is not a clean fresh-suite rerun. [Derivation and limits](reports/localnet-retained-run-provenance-2026-11-16.json).
+- Grok fixed only the local test fixture's receipt read and refund-helper cleanup. Its regression first timed out, then passed with bounded receipt re-reads and zero sends. Production funding and signing are unchanged. Parent repeated all 32 preflight checks and worker typecheck successfully, with the full integration explicitly skipped.
+- Publishing the correction and preserved evidence before immediately starting a new clean full run. No additional preparation/replay blocks that run. Independent receipt/evidence audit may continue read-only. No live Arc action or operator-wallet access occurred.
+
+## 2026-11-16 00:29 -05:00 — Anish
+
+- The exact frozen two-file suite candidate passed independent [specification](reports/localnet-suite-spec-review-2026-11-16.json) and [quality](reports/localnet-suite-quality-review-2026-11-16.json) review. Parent matched both reports' hashes to the current source. Specification reran 31 portable checks and worker typecheck successfully, with the expensive integration explicitly skipped.
+- Publishing those unchanged source bytes while the actual local run continues. Launch HEAD remains `8c41e3d`, with candidate hashes `f98b9cc9aa52ce7ce0c6cd962519054b5ece437642ff20882c7835a1a7ab61a2` for the suite and `ebf9bb5bbca5642245f505f26515274f9f7ac01ce96fdaac92cb1ce98446bd0c` for its helper. No source edit or test restart occurred.
+- The suite covers real pending submission, no blind resend, explicit manual reconciliation of the uncertain hash, separate canonical payout/indexed delivery, a reverted Submitted-refund branch, a separate Funded refund and fresh passing/failing proofs. These remain source-reviewed behaviors until the full run executes them.
+- Review found one nonblocking reversed-direction mutation comment. Retain it unchanged during the run and preserve the review note. No actual full-run result is claimed here. Final process exit, full-run evidence, final-head CI and clean-checkout reproduction remain pending.
+
+## 2026-11-16 00:10 -05:00 — Anish
+
+- The user requested actual local execution without further preparation delays. Started the complete Meridian funded suite in owned private scratch under background job `sh_1e2c1c871001IWYYGlSZWuLMr4`. It uses pinned Arc Anvil, the native engine, r0vm 3.1.0, real verifier/contracts and local native USDC. No live endpoint or operator wallet is configured.
+- The candidate has 31 passing portable preflight tests and a passing worker typecheck. Independent specification review continues read-only while the run executes. Source at launch is `8c41e3d` plus the explicitly stamped two-file suite candidate. No source file may change underneath the running test.
+- Paused the additional recorded-engine replay. Its worker confirms that no replay, build or proof command started. The full local suite has exclusive proving resources.
+- Whole-process exit status will be added to the public report only after the child exits. No fresh proof, payout or completion claim follows from starting the process. Remaining publication, review and CI gates still apply.
+
+## 2026-11-16 00:04 -05:00 — Anish
+
+- Publishing the six reviewed operator/reference documents and preserved legacy reports on `codex/engine-commerce`, base `e8b9273`. Documentation now separates the partial `9458a81` process result, `2d9f2fd` cleanup correction, Meridian semantic/guest evidence and the still-pending fresh exchange.
+- A Grok 4.7 High documentation worker checked command flags against the real parsers. Parent independently resolved all 104 relative links, checked the six docs and two preserved reports for private paths, parsed the reports and checked secret-field exclusions. Whitespace checks passed.
+- The current indexer fix is documented as implemented, with Arc startup at three confirmations, no automatic reset and explicit margins for embedded callers. The runbook records local-only timing allowances and the absence of a buyer web UI.
+- The suite implementer remains the sole pre-proof source owner and received a bounded source-stage completion request. Full Meridian proof, payout, indexed delivery, independent recovery and process exit 0 remain unverified. No live action occurred.
+
+## 2026-11-15 23:54 -05:00 — Anish
+
+- Publishing the minimal Arc indexer correction. `createIndexer` forwards optional confirmations. Server startup uses three blocks for Arc and zero for simulation. Cursor identity, atomic persistence, 10,000-block windows and signer/recovery paths remain unchanged.
+- TDD evidence records the lagging cursor advancing to 10 instead of 7 before the correction. The implementer passed all 762 API tests and typecheck. Separate [specification](reports/localnet-indexer-spec-review-2026-11-15.json) and [quality](reports/localnet-indexer-quality-review-2026-11-15.json) reviews approved. Each passed all 12 focused tests; quality also passed API typecheck.
+- Parent checked all four current source hashes against both reviews. Existing cursors are not rewound. Embedded callers must pass their intended margin explicitly. Three blocks is a bounded lag allowance, not protection from arbitrary RPC omissions.
+- Next: publish the independently reviewed slow-suite candidate and run actual local proof, indexed API delivery, payout, independent recovery and safety checks. No live write, wallet access or production-security approval occurred.
+
+## 2026-11-15 23:50 -05:00 — Anish
+
+- Publishing the sanitized [fast checks](reports/localnet-fast-verification-2026-11-15.json), [commerce delta review](reports/localnet-commerce-delta-review-2026-11-15.json) and [Meridian guest gate](reports/localnet-meridian-guest-2026-11-15.json). Parent parsed all three reports, checked public paths and matched the recorded guest input hashes to current files.
+- The exact pinned amd64 guest-builder image was absent. Authorized retrieval of that digest only succeeded. A subsequent real compile took 16 seconds. Actual guest executions returned verdicts 1, 1 and 0 with matching complete host journals and about 7.05 million cycles. No Groth16 proof was generated.
+- The guest report preserves an engine-binary hash change during host builds. Parent rebuilt the final native engine with locked Rust 1.98.1; its SHA-256 is `abb34d8156cbe8c38984c53b8bc146745c53958e6752d5a667f01d98d8ccac9d`. The full rehearsal must stamp its own actual binary and source. Guest cycles do not establish a proving SLA.
+- The delta review found the missing Arc indexer confirmation margin. Its minimal correction and regression pass are under independent specification review. No signer, recovery or upstream broadcaster replacement is needed. Existing skipped history needs deliberate reindexing, not an automatic cursor reset.
+- Approved local fixture configuration: legacy retains a 900-second proving allowance and 3,600-second expiry. Meridian uses 1,800 and 7,200 seconds respectively, based on observed workload size and earlier proof timings. Production signing/expiry guards, suite timeout and retry policy stay unchanged.
+- Next: finish suite source, obtain specification and quality review, publish it, then run the sequential fresh local proof/settlement gate. No live action or credential access occurred.
+
+## 2026-11-15 23:25 -05:00 — Anish
+
+- Meridian semantic checkpoint on `codex/engine-commerce`, base `2d9f2fd`. Independent Grok 4.7 High review mapped all 13 requirements to 19 predicates. Its [report](reports/localnet-semantic-review-2026-11-15.json) records 34 oracle tests, 53 agreeing engine/oracle cases, both passing solutions and a complete 19,609-visit enumeration with 3,200 accepted assignments.
+- Parent reviewed oracle file handling, checked all 19 report hashes against current bytes, and parsed/sanitized 17 workload artifacts. Authoring/solver provenance remains native Orca inference, not an HTTP draft call or autonomous runtime solver.
+- Parent real-engine API integration passed all 15 tests. Independent fast-stack verification passed 1,935 commerce tests, three typechecks, Rust format/Clippy/51 tests, the wire fixture, 120 contract tests, 13 examples/typecheck and 43 older-workload oracle tests. Three prepared guest tests and one fork suite were explicitly skipped. The fast report is under a separate sanitization/delta-review task.
+- Publishing only the reviewed static Meridian artifacts, semantic report and coordinator history. Acceptance-suite and documentation edits remain unpublished and under assigned review. No fresh Meridian proof, payment or live action occurred. Next: review suite changes, publish tested source, then run fresh local passing/failing proofs and settlement.
+
+## 2026-11-15 23:10 -05:00 — Anish
+
+- Resumed `codex/engine-commerce` at `2d9f2fd` under the user's local-first execution request. The user requests thorough, fast work with parallel Grok 4.7 High workers. Preserved all existing unpublished changes. The earlier coordinator is interrupted and no active worker owns these files according to Orca.
+- Initial work splits into bounded suite completion, independent semantic review, and fast-stack verification. Reviews and checks may run concurrently. Only one owner may build guests or generate proofs. No live write, credential access, or production-security claim is authorized.
+- Pending: review and publish Meridian/selector source, fresh passing and failing local proofs, actual-contract safety/refund/restart coverage, exact payout/dual recovery/oracle, clean process exit, final-head CI and clean-checkout reproduction. Follow-up live signing requires exact external approval.
+
+## 2026-11-15 19:28 -05:00 — Anish
+
+- Source `9458a81` completed a fresh local lifecycle: proof `583188` ms, `3313169` cycles, exact `1000000`-unit payment, dual exact recovery, independent oracle, nine negative calls and a separate Funded-job refund. The source-stamped report preserves two previous attempts.
+- The overall suite exited 1 after all 25 test assertions passed. A fake child's synchronous kill error left a timer armed, which later threw. The report now says `partial` with `lifecycleStatus: passed` and an explicit process failure. This is not a clean suite result or live Arc evidence.
+- Grok reproduced two cleanup regressions before correcting timer/listener disposal and explicit error rejection. Parent reviewed the diff and passed all 26 preflight cases. The worker also passed all 844 default worker tests and typecheck. No repeat proof was needed for this isolated cleanup correction.
+- CI is green at pushed `9458a81`: commerce runs `43778341479` and `43778335123`, core-fast run `43778341417`. These checks precede the timer fix.
+- The user delegated a fresh English-to-constraint challenge. A high-effort Grok designer published Meridian Kiln: 13 requirements, 37 reference records. Grok Build Fast low-effort authoring and a separate high-effort solver are active. Neither authoring nor solving grants live signing authority.
+- Next: publish the cleanup checkpoint. Complete independent semantic checks and generalize the local fixture selector before the new challenge's full rehearsal. Protected live signing and exact authorization remain absent.
+
+## 2026-11-15 19:07 -05:00 — Anish
+
+- Published oracle checkpoint `22c1a3b` to `origin/codex/engine-commerce`. Parent checks passed 56 runner/CLI/composed tests, worker typecheck and 15 real-engine API tests.
+- The corrected portable suite passed 24 preflight tests and worker typecheck. Four failing regressions preceded the evidence-writer fix. It now records observed tool pins and source hashes, omits the stale missing-runner claim and preserves previous attempts.
+- Independent Grok high-effort review approved the explicit suite, tool checks, cleanup and evidence changes. The proposed cleanup race did not reproduce with a real child process. No speculative timer-based cleanup change was made.
+- This checkpoint publishes the suite source before its new full local rehearsal. The earlier 592.4-second proof does not establish this candidate's full lifecycle. No live transaction or wallet access occurred.
+- Next: run one sequential fresh local proof, payout and recovery against this checkpoint. Publish sanitized results and corrected docs, then require final-head CI. Live approval gates remain unchanged.
+
+## 2026-11-15 18:48 -05:00 — Anish
+
+- Resumed `codex/engine-commerce` at `ee64e75` under the active goal. Used Grok 4.7 Orca workers for independent oracle, portable-suite, documentation, engine and contract checks. Reduced concurrency to at most two workers after the user's rate-limit warning.
+- The oracle review found no blocking defect. Parent verification passed 56 runner/CLI/composed tests and the worker typecheck. The independent full commerce check passed 1,935 tests and all three typechecks.
+- Engine checks passed format, locked Clippy, 51 workspace tests, wire checks and 43 oracle tests. The three prepared guest tests passed separately, including a new independent Docker rebuild. Recorded evaluation replay matched 180 outcomes and verified 12 receipts with six exact recoveries. Contract checks passed 120 tests with one fork-only suite skipped. Examples passed 13 tests and typecheck.
+- Portable-suite review passed 14 preflight cases but found stale evidence fields. A scoped correction is in progress. The reviewer also proposed a cleanup race. Parent requested a real reproduction before changing synchronous child-process handling.
+- Documentation corrections now distinguish green CI at `ee64e75` from the pending candidate. Publication, final candidate CI, a fresh local rehearsal and read-only deployment refresh remain pending. No live funding, submission, release, refund or credential access occurred.
+- The subsequent deployment refresh passed all 60 checks at block `72490082`, hash `0x58199c922279c535fcba994ef3e0a248a6f9435aa6e626479d68a3fb5b959093`. It used 81 serialized read-only RPC calls, two seconds apart, with no retries. This confirms deployment state, not spending authority.
+- Next: publish the reviewed oracle checkpoint, finish the suite correction, then run the final local rehearsal. Buyer approval, public identities and exact protected-signing authorization still block the live goal.
+
+## 2026-11-15 18:17 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, pushed head `1099519`, [PR #6](https://github.com/anishnarang9/UBC-26/pull/6) open. Created the [proposed goal and completion tracker](../current%20plan/GOAL-2026-11-15.md). No implementation or signing was authorized by this documentation update.
+- The latest PR query reports green commerce and core-fast engine/contract jobs on `1099519`. The parent reran 15 real-engine API integration tests and the full recorded engine replay. The uncommitted candidate needs new CI after review.
+- Real-workload smoke exposed an oracle-reference snapshot defect in the pushed runner. A scoped local correction passed valid and alternative deliveries and mutation/drift regressions; its implementer reports 70 focused and 844 worker tests. Separate slow-suite review found broad suite inclusion and Anvil setup cleanup defects. Its implementer reports fixes, 14 preflight checks and typechecks. Both need parent review before commit.
+- The successful 592.4-second fresh proof, payout and recovery remain **local-only**, recorded in an uncommitted report. The full proof was not rerun after portability edits. No buyer-approved workload, live wallet access, spending authority, or live exchange is recorded.
+- Next: review the oracle and slow-suite fixes; publish tested checkpoints and docs; rerun final checks and CI. Seek exact buyer/operator approval before any live write. Merge PR #6 normally when final gates permit it, and report a blocked live gate honestly if approvals do not arrive.
+
+## 2026-11-15 17:48 -05:00 — Anish
+
+- GitHub rejected the initial core workflow before running jobs. Actionlint reproduced the exact error: job-level `env` cannot reference `runner.temp`.
+- Moved the pinned Arc tool path into the installation shell and persisted it with `GITHUB_ENV`. All versions, checksums and test commands remain unchanged.
+- Pinned actionlint v1.7.7 changed from exit 1 to exit 0 with no diagnostics. Whitespace checks passed. Remote engine/contract jobs remain pending after this correction.
+- Next: obtain green final CI and complete clean-source checks before main merge.
+
+## 2026-11-15 17:47 -05:00 — Anish
+
+- Added the separate operator sprint CLI and real composition for inspect, prepare, deployment check, funding, proving/settlement, independent recovery and oracle verification. The existing funded CLI guard remains unchanged. Added a discoverable `sprint` package command.
+- Exact source/config/input/revision/selection/deployment/proof bindings and operator-owned approval files gate signing. Rules approval never grants funding. API drafts report unverified provenance, not live inference. Providers submit quotes externally.
+- Review found and fixed dirty-source authorization, late-bound engine identity, replay mislabelling and fixed-balance restart defects. Native POSIX executable/wrapper/environment pins now bind the input digest. Relevant source must be committed and clean. Existing hashes reconcile before remaining-obligation balance checks and new signing.
+- Parent reran 65 focused tests, including 14 composed funding/provider/restart cases, and worker typecheck. Independent medium-reasoning specification and security reviews approved. These composed tests use explicit local fixtures, not real live wallets.
+- The operator runner intentionally rejects WSL configuration. Existing WSL engine/API adapters are unchanged. An old run needs fresh configuration and approval when its source or engine identity changes.
+- Rechecked model access after the user's steering. Both the model tool and `opencode models` list no Grok/xAI models. Remaining dispatched reviews use explicit low/medium reasoning on the available model. No OAuth configuration or credentials changed.
+- Next: finish portable slow-test publication, full replay/CI, documentation and normal main integration. Live spending still needs exact external approval and protected accounts.
+
+## 2026-11-15 17:30 -05:00 — Anish
+
+- Added separate fast engine/contract CI with Rust 1.98.1, Node 24, locked checks, wire/oracle tests, and checksum/commit-pinned Arc Foundry v0.8.0-4. Contract CI uses local Arc, not Ethereum substitutes or live broadcasts. It also checks locked examples.
+- YAML/spec and every Bash command passed local validation. Independent review approved the workflow. Local Rust format/Clippy/51 tests, wire fixture, 43 oracle tests and 13 examples/typecheck passed. New Linux jobs remain pending after publication.
+- Commerce CI is green on `5fbfa28`, including the corrected Linux keystore fixtures. Final candidate CI still must be green before main merge.
+- Parent explicitly reran prepared guest evidence and maximum-delivery tests with actual packages and r0vm 3.1.0. Both passed. Their expected invalid-input guest panics are negative checks, not failed tests. Independent rebuild replay remains pending.
+- Next: finish the active local proof/recovery rehearsal, source-bound runner review, full replay and final docs/checks.
+
+## 2026-11-15 17:18 -05:00 — Anish
+
+- Added `runFunded({ stopAfterProof: true })` for private preparation without settlement preflight, signer construction, submit or release. It validates the saved proof and exact SDK/engine recovery before returning. Normal resume settles that same proof without proving again.
+- Proof-only mode rejects prior settlement phases or transaction history. It does not bypass any existing API approval, artifact, context, recovery or uncertain-write guard. The general funded CLI remains read-only.
+- The actual prover timeout now uses a fresh post-solver chain snapshot. It takes the smaller of the configured proving budget and remaining expiry after submit/release reserves, with positive safe-integer bounds.
+- Parent focused verification included all 127 funded tests and passed typecheck. Independent specification and quality review approved the two-file change. Tests first exposed 20 preparation failures and three additional history/guard cases.
+- Optional evidence-directory composition is still absent and unnecessary for this workload. No guest semantics, dependency pins or archived receipts changed.
+- Next: complete source/engine-bound runner review, remote CI and the active local actual-proof rehearsal.
+
+## 2026-11-15 17:16 -05:00 — Anish
+
+- Published a proposed fresh synthetic allocation/dispatch workload, separate known candidates and a semantic Python oracle. Independent authoring received only the request/reference/output declarations. No answer-specific hash or fixed assignment enters its rules.
+- Parent reran all 43 oracle tests and actual engine validation. Independent fidelity review replayed 58 oracle cases and 289 additional differential cases with zero acceptance disagreements. Both different valid solutions pass. The 14-rule checker uses 77 nodes at depth six. Specification and quality reviews approved the proposed workload, not buyer spending.
+- Added Python cache ignores so generated bytecode cannot enter this checkpoint. Native OpenCode provenance and pending buyer approval remain explicit.
+- Published the independent frozen-deployment report: 60 checks at block 72478546, exact local source/build matches for all four deployed contracts, no live writes. Parent checked report/input digests and absence of private paths. One truthful archive RPC remains a trust assumption.
+- Updated the shared plan with merged histories, resolved freeze dependency, integration ownership and remaining live authorization gates.
+- Next: continue bounded proving/runner checks and corrected full local settlement. No main merge or live exchange success is claimed.
+
+## 2026-11-15 17:15 -05:00 — Anish
+
+- Added independent buyer recovery from confirmed submit/release transactions and matching contract events. It validates chain/job/provider/terms, canonical calldata, accepted envelope/key commitments, Completed state and exact 1,000,000-unit payment.
+- Recovery obtains the key only from the confirmed release event. It reconstructs the proof fields, decrypts with SDK and engine into private directories, and compares exact names/bytes. No worker attempt key file or signer is needed.
+- Review reproduced acceptance of wrong intermediate snapshot hashes with unchanged timestamps. Added a required validated `ArcSnapshot.blockHash` and compared each snapshot with its saved canonical anchor. Four recovery regressions and SDK regressions first failed, then passed.
+- Specification re-review and independent quality review approved. Parent verification passed all 60 recovery tests within the 331-test focused run. SDK's 13 fixtures and 323 tests, API's 755 tests and all typechecks also passed in the implementation checks.
+- Reads remain number-pinned, not atomic or EIP-1898 hash-pinned. Trusted consistent archive RPC remains required. Chain acceptance establishes proof validity; recovery does not separately claim cryptographic seal verification.
+- Next: bound actual proving, publish the proposed workload/evidence, and finish the operator runner.
+
+## 2026-11-15 17:14 -05:00 — Anish
+
+- Added the resumable real-ABI Poster controller with a separate buyer-only local signing boundary. It preserves exact API terms and decodes the actual creation receipt ID. Calls are restricted to create, Poster budget, exact ERC-20 approval and exact-commitment funding.
+- Private journals persist nonce/gas reservations and signed hashes before raw dispatch. Pending or uncertain writes reconcile existing hashes without automatic resend. API linkage retries do not fund again.
+- Reviews found missing interrupted-allowance reporting, stale confirmation assumptions and post-open journal integrity gaps. Failing regressions drove fixes. Errors and signer-free inspection now require manual allowance review after recorded approval, even when the observed allowance is zero. Saves/signing/dispatch recheck owned locks and private file identity.
+- Specification and quality re-reviews approved. Parent focused verification passed 331 tests across signing/funding/recovery/proof orchestration, including all 67 Poster tests, and the worker typecheck.
+- These tests use synthetic accounts and RPC fixtures. Source review and unit tests do not establish live funding. No allowance cleanup, replacement or cancellation is automatic.
+- Next: publish independent recovery and bounded proof preparation, then validate complete runner/rehearsal composition.
+
+## 2026-11-15 17:13 -05:00 — Anish
+
+- PR #6 CI exposed a Linux-only fixture error: `/tmp` is a writable `1777` ancestor. The protected-keystore loader correctly rejected the test paths before password input. No production check was weakened.
+- A controlled writable temporary ancestor reproduced all five failures. Moved happy-path fixtures under the canonical home directory, checked their private modes and ancestor policy, and added explicit `0777`/`1777` rejection cases.
+- Independent review reran all 42 tests successfully. The implementer ran six focused repetitions, including unsafe `TMPDIR` cases, plus a 207-test concurrent subset and typecheck. Remote Linux CI remains pending after this fix.
+- The one-hour ownership checkpoint passed. Integration owns all remaining unpublished critical-path work. No owner absence blocks engineering.
+- One fresh local proof reached actual-contract acceptance. That first rehearsal stopped at missing test-side signer reconciliation before release. It remains partial evidence. A corrected full rerun is active, with one owned prover and no concurrent guest builds.
+- Next: continue checkpoint publication and correct the composed runner's reviewed source/engine/restart/provenance gaps. No main merge while CI is red.
+
+## 2026-11-15 17:02 -05:00 — Anish
+
+- Added an operator-owned encrypted V3 keystore loader with pinned `ethers@6.15.0`. Read-only mode performs no wallet or secret I/O. Signing mode accepts only an inherited descriptor or trusted secure-input callback and checks the exact expected account.
+- File checks reject symlinks, special files, secret-file hardlinks, unsafe ownership/permissions and oversized or changing inputs. Errors from decryption and subsequent local signing discard nested details.
+- Investigated intermittent full-suite keystore failures. Directory child creation changes ancestor link counts. Two deterministic regressions reproduced that false rejection. Directory identity checks now ignore only directory link counts. Secret-file and password-descriptor link checks remain strict.
+- Parent verification passed the earlier 36 focused tests. Independent final review reran all 39 corrected tests successfully. The implementer also ran eight concurrent subsets and two full worker runs of 813 tests, plus typecheck. No actual operator keystore was accessed.
+- Added [new host dependency disposition](reports/core-sprint-signer-dependencies-2026-11-15.json). Two `ws@8.17.1` advisories remain outside this local decryption path. No WebSocket provider/server is constructed. Existing engine findings remain separate. No production-security approval.
+- Next: publish remaining reviewed funding/recovery/preparation units and verify the composed runner.
+
+## 2026-11-15 16:59 -05:00 — Anish
+
+- Added the concrete provider-only local broadcaster. It validates exact authorizations, chain/account/job/destination, canonical calldata, explicit EIP-1559 fields, gas/fee caps and deadlines. It signs locally and calls raw RPC once with retries disabled.
+- Private account-wide locks and durable journals reserve nonce and maximum gas before signing. Signed hashes and disclosure intents persist before dispatch. Uncertain writes never automatically resend. Reconciliation records observed gas cost separately.
+- Quality review caught unsafe budget reuse before finality and accepted journal hardlinks. Failing regressions drove fixes. Maximum reservations now remain charged permanently, including after canonical receipt observations. Private file checks bind inode/device/owner/mode and require one hardlink.
+- Specification and quality re-reviews approved. Parent focused verification passed 157 tests across provider signing, Poster funding and recovery, including all 38 provider tests. Full typecheck at that instant failed only in the separately unfinished sprint runner. The implementer subsequently reported 760 worker tests and typecheck passing.
+- No actual wallet, chain broadcast or live payout was used. The concrete capability still needs an externally approved authorization and injected protected local account.
+- Next: keystore, Poster and independent recovery checkpoints, then full runner verification and local fresh-context rehearsal.
+
+## 2026-11-15 16:41 -05:00 — Anish
+
+- Added strict sprint input/state schemas, private atomic storage, exclusive owned locks, phase and approval guards, and a model-input projection that excludes candidate/oracle paths.
+- Review found two missing approval guards and an integration mismatch that required a job ID before creation. Fixed all three with failing regression tests. Selected terms stay immutable. A separate positive chain job ID requires a persisted creation hash and becomes immutable once assigned.
+- Parent reran all 80 state tests and the worker typecheck successfully. Specification and separate quality reviews approved the corrected state module.
+- This is local state validation, not receipt verification. The funding controller must establish receipt authenticity before recording the actual ID. Stale locks and uncertain writes still require explicit reconciliation.
+- Next: finish provider/Poster signer and recovery reviews, publish their separate checkpoints, then compose the operator flow.
+
+## 2026-11-15 16:35 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding checkpoint `fff74ce`. Both owner heads and engine `adda3a3` are ancestors. Opened consolidated [PR #6](https://github.com/anishnarang9/UBC-26/pull/6) into main. Owner branches remain intact.
+- Added a pure manifest-to-policy parser with explicit `not-authorized` candidate output. It validates deployment identity, frozen claims, verifier pins and runtime hashes. It starts history at the proxy creation block, never the freeze block. Added a byte-copy regression for the SDK and contract manifests.
+- Independent specification and quality reviews approved the parser. Parent verification passed 378 focused tests across deployment policy/history, private state, local broadcaster and keystore. The parser suite accounts for 189 tests, including manifest equality. This is not live signer or payout evidence.
+- Other modules remain in their own uncommitted review checkpoints. Fresh workload has two valid semantic solutions, 14 rules and 77 nodes. Independent review found zero disagreements across 58 oracle cases and 289 additional engine differential cases. Native agent authoring is not Grok evidence. Buyer approval remains pending.
+- Next: finish signer/state/recovery reviews and funding composition. Rate-aware live deployment and exact source/build checks are running read-only.
+
+## 2026-11-15 16:26 -05:00 — Anish
+
+- Resolved Nick history merge into `codex/engine-commerce`, parent `b36b588`, incoming `57c387f`. Imported corrected all-holder scripts/tests and frozen manifest. Preserved both parents' plan history and independent verification requirements. SDK and contract manifests now match byte for byte.
+- Independently reran pinned Arc Foundry on the exact merged contracts: 120 passed, one fork-only skip. The separate fork suite at block 72474240 passed all seven tests. The merge implementer also ran both script tests, 13 examples tests and the examples typecheck. Specification and quality reviews approved.
+- Production contract source, ABI, compiler settings and proof pins remain unchanged. No live write, role action, wallet access or new deployment occurred.
+- An initial read-only worker deployment probe reached chain 5042002 and block 72476976, then failed closed on Arc RPC rate limit `-32005`. This is not a passed deployment gate. Rate-aware read-only verification remains pending.
+- Next: publish this merge and start consolidated integration PR/CI. Continue signer, run-state, policy and independent recovery implementation. No final funded-exchange success is claimed.
+
+## 2026-11-15 16:20 -05:00 — Anish
+
+- Completed Neil history-merge review on `codex/engine-commerce`, parent `30f507a`, incoming `8584b04`. Reviewed each of 29 conflicts. Commerce remains byte-identical to the integrated parent. Imported Neil's newer status and corrected commerce plan through the normal merge.
+- `pnpm check` passed all three typechecks and 1,357 tests: 13 Node fixtures, 315 SDK, 755 API, 274 worker. Independent specification and quality reviews approved the merge. An earlier overlapping baseline check encountered merge markers and is not a passing baseline result.
+- Rust format, Clippy and 51 workspace tests passed. Three prepared guest tests remain explicitly ignored pending their separate inputs. The wire fixture passed. The upstream `block` future-compatibility warning remains.
+- Installed checksum-verified Apple Silicon Arc Foundry v0.8.0-4 in private sprint tooling. Forge, Cast and Anvil report the required `3e95efae` commit. Installed missing libusb runtime. r0vm reports 3.1.0. The pinned Groth16 image is present.
+- User delegated production of missing workload and operator artifacts. Separate agents are preparing a synthetic workload/oracle, private run state and deployment policy parser. These untracked changes are excluded from this merge checkpoint. Live spending authorization remains absent.
+- Next: commit/push this reviewed merge, then merge Nick `57c387f` and run exact-tree Arc contract checks.
+
+## 2026-11-15 16:08 -05:00 — Anish
+
+- Execution started at 16:08 -05:00 on `codex/engine-commerce`, HEAD `04f15ff`. The user authorized sprint execution, delegation, checkpoint commits/pushes, and a normal merge into main.
+- Refreshed origin: engine `adda3a3`, Neil `8584b04`, Nick `57c387f`, main `9a1b444`. The integration worktree is clean. Owner histories still need actual merges.
+- Nick completed the freeze and all-admin script fixes. Import his current manifest and independently check the deployment. Do not repeat the freeze.
+- Node is 24.10.0. Rust 1.98.1 is installed. Docker reports Linux/aarch64 and 8,217,305,088 bytes of memory. Run pnpm from `commerce/` to avoid the parent directory's Yarn configuration. Baseline checks are running.
+- Continue engineering without waiting for owners. At T+60 minutes, take ownership of unresolved critical-path code in this branch. Final user problem/dataset/oracle, buyer/provider identities, signing access, and exact live spending authorization remain external inputs. No live write is authorized yet.
+- Grok is absent from the available model catalog. Default subagents can review and implement isolated tasks. No credentials were read.
+
+## 2026-11-15 14:00 -05:00 — Anish
+
+- Publication addendum: user subsequently authorized committing all integration work and pushing `codex/engine-commerce`. This entry and the handoff are included in that checkpoint; the unstaged state and zero-commit counts below describe the verification snapshot before publication. No main merge, PR creation or live-chain action is authorized. The handoff now explicitly separates Nick's settlement/freeze work, Neil's service/signer/deadline work, and our fresh-proof/dependency work.
+- Branch `codex/engine-commerce`, base HEAD `4fc21457`. Imported Neil `8584b045` commerce and Nick `80c8a4af` contracts into the working tree; all work remains unstaged/uncommitted. No push or live-chain action. [Verification](reports/arc-integration-verification.json) and refreshed [handoff](ORCA-HANDOFF.md).
+- Built real Arc snapshots/ABIs, API funding/indexer wiring, explicit engine/chain guards, durable CLI artifact provenance, and a restricted settlement port. Hardened restart/uncertain transaction handling, exact recovery, private attempts, disclosure tracking, deployment trust/freeze/zero-fee checks and final deadline revalidation. Independent reviews found and drove regression fixes; final API and worker reviews passed within scope.
+- Final commerce checks: 1,357 passed (13 fixture, 315 SDK, 755 API, 274 worker), all typechecks. Actual Rust-engine API suite passed 15 tests including real compile provenance/cache reuse after restart and selection. No new model calls. Eight concrete-port lifecycle tests use mocked engine/RPC and are not proof evidence.
+- Full fresh engine replay exited 0: 51 Rust, 38 Node, 11 TypeScript tests, typecheck, 10,000 seeded cases, 341 host candidates, 180 saved outcomes and 1,023 candidate checks. All 12 real receipts and archived guest executions verified; six passing deliveries recovered all nine files exactly. Fixed only the evaluation adapter's narrowed metadata types after an initial integration typecheck failure. Rust production, locks, public receipts and checker packages unchanged.
+- Repeated 18 actual local Solidity settlement checks with pinned core/hook/real Groth16 verifier: rejected verdict/ciphertext/replay mutations, correct payout/events, exact recovery, duplicate/wrong key and Funded/Submitted refunds. This is an artificial synthetic-address Anvil fixture with mock ERC20, not live Arc or a complete fresh service/prover/signer run. Contract examples passed 13 tests/typecheck; Foundry was not rerun.
+- [Dependency triage](reports/integration-dependency-triage.json) retains seven findings and controlled remediation limits. Existing freeze script can miscertify by checking only its broadcaster; Nick owns correction and actual verified role renunciation. Current recorded deployment is unfrozen, so new worker broadcast policy blocks it. No production-security approval.
+- Five requested GPT-6 Sol workers failed before execution because that model is unsupported by the active ChatGPT account. Confirmed stopped/released; native subagents performed parallel work without exposed model selection. Credentials unchanged. Twelve private keys scanned with zero matches in public changed/untracked files; pinned root ignores exclude dependency and secret artifacts.
+- Next gates: explicit commit instructions if desired; Nick's complete freeze/code/role evidence; buyer-approved real provider and actual funded terms; fresh context-bound proof and separately authorized live payout/refund. CLI funded mode stays read-only; externally managed safe signing capability required for library broadcasts.
+
+## 2026-11-15 11:54 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `ad2dab1`. Wrote the requested [engine/team readiness report](2026-11-15-readiness.md) and [Orca handoff](ORCA-HANDOFF.md). Core engine crates and generated guests are Rust. Commerce is TypeScript, settlement is Solidity, and external proof tools use a mixed stack.
+- Fetched and reviewed Nick `80c8a4af` and Neil `8584b045`. Two bounded Sol reviews inspected source and current PR checks. Neil now has real engine/Grok/worker evidence, but PR5 CI fails at the setAAD typecheck. Real-chain startup can retain a simulated engine, and the real reader/worker settlement port remain unwired. Nick is a source integration candidate after current-state documentation corrections and repeatable checks. Neither is a production-ready lifecycle. [Review record](reports/team-review-2026-11-15-midday.json).
+- Dry merge checks for engine/main, Nick/main, and Neil/current integration exited0 without conflicts. They did not merge branches or establish semantic compatibility. No owner status file changed. No model trial or proof suite was repeated.
+- New [advisory scan](../../engine/evaluation/reports/dependency-advisories-2026-11-15.json) queried498 locked registry package versions. The six published guest lockfiles are subsets. Seven package versions matched seven distinct issues: four security/soundness findings and three maintenance warnings. Initial source/dependency review found no demonstrated proof-forgery or RSA private-key attack path. Reachability and compatible remediation remain open, so production security is not approved.
+- Orca already registered this exact worktree and indexed this conversation. Renamed its card to Anish engine integration, marked it in review, and opened the readiness report. Prepared a compact fresh-chat handoff. Orca detects system-default API-key credentials and no managed Codex account. The report gives the isolated ChatGPT account setup and switching commands. No credentials or global config changed. The user must complete the one-time ChatGPT authorization.
+- Repeated all 18 Arc read-only checks at a current fixed block. The fresh receipt still verifies and changed inputs fail. The core remains whitelisted and unfrozen, with both deployer admin roles retained. [Current chain evidence](reports/arc-readiness-2026-11-15-midday.json). No transaction was sent.
+- Proposed today: CI and live-mode guard first, dependency triage, then real Arc reader/settlement wiring and one buyer-approved reconciliation lifecycle. Keep human approval and the no-live-transaction constraint. Existing engine evaluation remains complete; service/settlement integration and security remediation remain distinct pending work.
+
+## 2026-11-15 00:47 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `250519c`. All three evaluation phases are complete. The complete `engine/evaluation/evaluate.sh` replay exited 0 in fresh private scratch. [Final report](../../engine/evaluation/REPORT.md) and [machine summary](../../engine/evaluation/reports/final-replay.json).
+- Fresh replay: 51 Rust tests, 38 Node tests, 11 TypeScript tests, typecheck, 10,000 seeded cases, and all 341 host candidates passed. Three prepared guest tests are ignored by default and passed explicitly earlier. All 180 authoring outcomes and 1,023 candidate checks reproduced the measured results. No new inference or proof generation occurred during replay.
+- Proof replay independently executed all 12 archived candidates, verified all 12 real receipts with the pinned Solidity verifier, ran all six pair checks, and freshly decrypted all six passing deliveries. All nine files matched exactly. Zero engine/proof failures. All 120 public package files, including 96 source files, match their private originals. Release keys remain private.
+- Known model defects remain explicit: 39 non-draft fidelity failures and 13 nonverbatim source annotations. Classification matched 180/180 and all 120 final supported drafts passed their finite candidate checks. The corrected rubric and strict replay gate passed independent Sol review. The initial umask-sensitive fixture failure and corrected full rerun remain preserved.
+- Hourly review and 18 independent Arc read-only checks are complete. Nick settlement is pinned at `80c8a4af`, Neil at `3013d736`; no remote code was merged. Core freeze, real provider/funded terms, and live acceptance/payment/refund remain integration work. Existing synthetic receipts cannot settle a new funded job. No live deployment, live transaction, owner-status edit, or message to another chat/person occurred.
+- Final audit verified every required completion criterion and raw model input/schema/first/repair hash. Engine PR #3 remains at `adda3a3`. Next action is tomorrow settlement/API integration from these pinned artifacts. No required evaluation check remains pending.
+
+## 2026-11-15 00:44 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `62f7739`. The full replay stopped at a permissions-test fixture after Rust tests and all 38 Node tests passed. Ten TypeScript tests passed and one failed. Preserved the complete [failure record](../../engine/evaluation/reports/replay-first-attempt.json).
+- Root cause: the replay uses `umask 077`, so `mkdir(mode0755)` created a private0700 directory. The fixture reached its deliberately missing engine instead of testing readable-directory rejection. Added explicit `chmod0755` and a fixture-mode assertion. The exact test now passes under both077and022. The production adapter and all proof artifacts remain unchanged.
+- The [public artifact audit](../../engine/evaluation/reports/public-artifact-audit.json) passed for all six packages:120 exported files, including96 source files, match private originals byte for byte. Receipt hashes and all recorded negative results match. Its first ad hoc check used guessed code names, which the report records as a corrected audit assumption. No source or engine result changed.
+- Next: rerun the complete command in fresh private scratch, then publish the actual final results and complete the requirement audit. All12receipts and6exact recoveries remain complete.
+
+## 2026-11-15 00:41 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `3a82ca8`. The sequential real proof queue exited 0. All 12 new receipts across six families passed local Solidity verification and mutations. All six passing deliveries recovered byte for byte, including all nine files. Every pair passed wire checks and all four decryption negatives. No historical or unresolved proof failure is recorded.
+- Published file-integrity pass/fail receipts, measured plan, full checker package/source, and synthetic inputs. Proving took 217,296 / 219,101 ms and used 521,211 / 520,766 user cycles. [Complete proof index](../../engine/evaluation/proofs/index.json). Release keys remain private.
+- Completed the second hourly [remote review](../../engine/evaluation/reports/team-review-2026-11-15.json). Nick settlement advanced from `fe27c200` to `80c8a4af`; Nick/main remain `9a1b4444`, Neil remains `3013d736`. Inspected changed status, plans, PR4, deployment manifest, handoff, scripts, tests, and evidence. Engine PR3 remains `adda3a3`. No remote code was merged and no owner status file changed.
+- Independently ran 18 read-only [Arc checks](../../engine/evaluation/reports/arc-readonly.json) at a fixed block. A fresh inventory receipt verified; changed image/journal/seal reverted. Code, wiring, cap16412, margin600, whitelist, and both retained deployer admin roles matched. No transaction was sent. The core remains unfrozen, and no funded job appears in the manifest. Its policy prose still describes renounced roles, so the explicit freeze field and live reads govern readiness.
+- Updated the shared plan with addresses, freeze/funded-job dependencies, and the measured deadline budget. The full replay with fresh private-key recovery is now starting in private scratch. Its actual result and final requirement audit remain pending. Model counts and all recorded defects remain unchanged.
+
+## 2026-11-15 00:33 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `b89e60b`. Published the expenses proof pair. Current total: 10/12 real receipts and 5/6 byte-exact passing recoveries. Pass/fail proving took 230,448 / 219,391 ms and used 759,068 / 685,005 user cycles. Both pinned Solidity checks, pair wire checks, and all four negative recovery checks passed.
+- The final focused Sol review passed both harness fixes. Twelve focused tests passed. The strict gate rejects new non-draft defects and regressions outside the proof selections. Added a regression that checks the published report against its explicit defect list. All source-report hashes still match. No new model trials occurred.
+- Added the [evaluation report](../../engine/evaluation/REPORT.md) with completed deterministic and model results, model defects, batch/isolation limits, proof requirements, and settlement readiness. Its final queue and replay sections remain explicitly pending.
+- Integration timing finding: signed-evidence proofs took about 744 seconds each here. The settlement source permits a 600-second minimum funding margin. That minimum is insufficient for these measurements. Clients must budget proving, submission, and release time. No live settlement was attempted.
+- File-integrity pass is active under PID 25783 at this checkpoint. Only that final pair, full replay, and final audit remain. The hourly remote review is due near 00:40 at the next safe boundary.
+
+## 2026-11-15 00:27 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `b39c807`. Published allocation's two new receipts and exact assignments.json recovery. Current total: 8 of 12 verified receipts and 4 of 6 completed recoveries. Pass/fail proving took 283,293 / 300,237 ms and used 1,210,483 / 1,210,241 user cycles. Both real Solidity checks, pair wire checks, and all four decryption negatives passed.
+- Fixed two review findings in the evaluation harness. Replay now checks every trial, candidate identity/outcome, count, and repair constraint before it can succeed. New negative tests cover an unselected draft regression, missing/duplicate candidates, count changes, missing fidelity, and inconsistent coverage.
+- Corrected non-draft scoring with explicit request-specific facets. Kinds matched 180/180, final draft validity remains 120/120, and all 1,023 candidate outcomes still match. Only 21/60 non-draft responses cover all checked facets: 1/30 clarifications and 20/30 capability explanations. The other 39 remain measured model defects. Combined final coverage is 141/180 before the separate 13 source-quote defects. Saved model outputs did not change.
+- Preserved the original report byte for byte because the completed guest report binds its hash. The [correction evidence](../../engine/evaluation/reports/fidelity-correction.json) confirms identical draft predicates, validations, and candidate results. All 37 Node tests passed with real CLI controls enabled. The strict authoring replay passed. No model calls were added.
+- Expenses pass is active under PID 22978 at this checkpoint. File integrity follows. Full twelve-receipt replay, final report, and completion audit remain pending. The next team review is due near 00:40 at a safe boundary.
+
+## 2026-11-15 00:16 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `ded8ba5`. Published the [reconciliation proof pair](../../engine/evaluation/proofs/ledger-reconciliation), its measured Luna plan, package, synthetic inputs, and results. Current total: 6 of 12 verified new receipts and 3 of 6 completed recoveries.
+- Pass/fail proving took 221,277 / 225,942 ms and used 827,609 / 827,462 user cycles. Both pinned-verifier runs, all pair wire checks, and all four negative decryption checks passed. The two delivered files recovered byte for byte.
+- Added four [semantic scoring controls](../../engine/evaluation/reports/semantic-controls.json). Real CLI calls confirmed detection of an omitted requirement, a weakened predicate, changed units, and an invented constant. These are synthetic test controls, not extra model trials. All four passed.
+- Active process at this checkpoint: allocation-scheduling pass under engine PID 19029. No terminal failure is recorded. The remaining required families are allocation, expenses, and file integrity. Final complete replay and the requirement audit remain pending.
+
+## 2026-11-15 00:09 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `a2eaea0`. Published the [signed-evidence proof pair](../../engine/evaluation/proofs/signed-evidence-bindings), its model-authored plan, checker package, public synthetic inputs, and verification results. Release keys remain private.
+- Pass/fail proving took 744,814 / 744,260 ms and used 4,440,879 / 4,423,979 user cycles. Both passed the pinned Solidity verifier and changed-input checks. Same-job wire checks and passing-only rejection of verdict 0 passed.
+- Decryption recovered the exact 36-byte note.txt. Wrong key, changed ciphertext, changed context, and verdict-0 decryption all failed correctly. Current total: 4 of 12 verified new receipts and 2 of 6 completed recoveries.
+- Active process at this checkpoint: ledger-reconciliation pass under engine PID 17821. No terminal failure is recorded. The next proof families are reconciliation, allocation, expenses, and file integrity. The final complete replay and audit remain pending.
+
+## 2026-11-15 00:03 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `2af9fce`. Corrected the preceding entry's process description: the signed passing receipt was already verified. The signed failing-verdict proof is active under engine PID 16200. The prover's durable report always recorded the correct stage. No proof was restarted.
+- Current count: 3 of 12 new receipts verified. The signed passing receipt took 744,814 ms and 4,440,879 user cycles. It passed the pinned Solidity verifier and its changed-input checks. Its pair and recovery checks remain pending. [Live checkpoint summary](../../engine/evaluation/reports/proof-progress.json).
+- Next: continue the active proof and the remaining four families, then run the complete replay. The native model and deterministic test results remain unchanged.
+
+## 2026-11-14 23:56 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `ee0dbee`. Added regression checks for public proof replay from a clean checkout. Git omits empty reference/evidence directories, so replay now creates them in private scratch space. It rejects partial receipt sets before claiming a complete replay.
+- The replay verifier also binds every published package to the exact measured Luna response and the compiler's normalized commitments. Source export now refuses an unrecognized build-source path. Compared the inventory source export against its private package: all 16 files match byte for byte.
+- Documented deterministic checks, recorded authoring replay, package preservation, public proof checks, and optional fresh private-key recovery. No model call is required for replay. The final full replay remains pending until all twelve receipts exist.
+- Current fresh receipt count: 3 of 12. Inventory's pair and exact recovery remain complete. The signed-evidence pass proof is active under engine PID 14701 and r0vm PID 14705. Its guest used about 4.45 million cycles, compared with inventory's 0.85 million. The process remains live and uses CPU. No proof was stopped or restarted.
+- The latest remote review remains the 23:40 checkpoint: Nick settlement source `fe27c200`, Neil `3013d736`, no deployment addresses or funded terms. Next review is due near 00:40 at a safe proof boundary.
+- Next: finish the remaining proof queue, export each completed family, then run the independent full replay with private-key recovery and audit every completion criterion.
+
+## 2026-11-14 23:40 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `701a546`. Published the first two new real receipts under [inventory evidence](../../engine/evaluation/proofs/inventory). The complete checker package, approved Luna plan, synthetic job, and public fixture inputs accompany them. Release keys stay private.
+- Passing/failing proofs took 231,052 / 234,174 ms and used 850,853 / 850,713 user cycles. Both passed the pinned real Solidity verifier. Changed image, journal, seal, and verdict failed. The pair's context and image match. Context-field replay, envelope substitution, key commitment changes, and passing-only verification against verdict 0 failed.
+- Decryption recovered the exact 190-byte stock.json. Wrong key, modified ciphertext, changed context, and verdict-0 decryption all failed with the expected codes. The exporter checked artifact hashes and its key-exclusion test passed. Current coverage: 2 of 12 new receipts, 1 of 6 passing recoveries. The proof worker waits at this safe boundary until this checkpoint completes, then continues immediately.
+- [First hourly review](../../engine/evaluation/reports/team-review-2026-11-14.json): `origin/nick` stays `9a1b4444`; Neil stays `3013d736`. Found the new `origin/nick-settlement` at `fe27c200` and inspected PR #4, status, plans, hook/core/codec, ABI handoff, config, and manifest template. No remote code was merged.
+- Source handoff now confirms a 16,412-byte envelope cap, exact 96-byte fund parameters, a 600-second funding margin, and strict submit/release expiry. The manifest still contains null deployment addresses. Nick's reported settlement tests were not rerun here. Actual deployment, funded terms, and live acceptance/payment/refund remain pending.
+- Model counts remain 180 first outcomes and 35 allowed validation repairs. All 16 accepted model structures and all 1,023 host candidate checks passed their defined coverage checks. Thirteen nonverbatim source annotations remain recorded. No new model calls are needed for scoring or replay.
+- Added the final replay command and public-proof verification code. Their full 12-receipt run remains pending until the proof queue completes. Next: signed evidence and the remaining four families, then independent replay and the final audit.
+
+## 2026-11-14 23:31 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `9c4dcff`. Phase 3 is active. The full deterministic reproduction command completed with zero failures. It reproduced all 40 packages, eight images, 262 actual guest executions, 79 pre-guest rejections, and all six commitment checks.
+- Added `LocalEngineAdapter` against Neil's imported `Engine` interface and `RecordedDraftModel` against his `DraftModel`. The adapter preserves normalized reports, typed errors, actual manifests, and private persistent packages. Nine real-CLI/contract tests, two replay tests, and the TypeScript check passed.
+- Completed three fresh GPT-6 Luna low-reasoning batches, 60 opaque requests each. Initial classification matched all 180 requests. The engine accepted 85 of 120 first draft plans. The one allowed validation repair corrected the remaining 35. The [authoring report](../../engine/evaluation/reports/authoring.json) records every first and repaired result separately. Native usage was unavailable. These are three shared-context batches, not 180 isolated API calls.
+- All 1,023 candidate evaluations matched independent outcomes. A conservative screen initially flagged 14 hash constants. Each was independently derived from the exact requested report text. Added the derivation regression and preserved the [review](../../engine/evaluation/reports/constant-screen-review.json). These variants assume SHA-256 collision resistance. No model output changed, and no semantic counterexample reached a model.
+- Source annotation quality remains imperfect: 13 final request results contain 13 nonverbatim source quotes. These annotations do not alter the committed predicates. They remain model-output defects for a buyer to review. Finite candidate coverage does not establish universal request equivalence.
+- The [model guest run](../../engine/evaluation/reports/authoring-guests.json) compiled all 16 distinct accepted model-authored structures. All 134 candidate checks matched, including 102 actual guest executions and 32 pre-guest rejections.
+- The first fresh inventory proof started at 23:29 -05:00. Its live process and private progress report are tracked by the Sol proof worker. No new receipt is complete at this checkpoint. Twelve real receipts, local verifier checks, recovery, final report, and final audit remain pending. No Arc transaction ran.
+
+## 2026-11-14 23:09 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, preceding pushed commit `fe7ea15`. Phase 2 completed its correctness checks. No production engine defect appeared in the tested corpus. Engine production code remains at baseline `adda3a3`.
+- Compiled all 40 supported plans. The eight normalized structures produced eight images. Parameter variants preserved their corresponding image IDs. [Compilation results](../../engine/evaluation/reports/package-compilations.json).
+- [Actual guest execution](../../engine/evaluation/reports/guests.json): 262 successful guest executions and 79 input rejections before guest execution. All 341 outcomes matched. The [independent artifact audit](../../engine/evaluation/reports/guest-audit.json) matched every delivery, evidence file, context, and expected requirement outcome to a fresh bound host run. No native result was counted as guest execution.
+- The pinned real Solidity verifier accepted all six existing engine receipts locally. Changed proof inputs and failing receipts against passing-only journals failed. [Verifier results](../../engine/evaluation/reports/baseline-verifier.json). Initial missing Node dependencies were installed from the lockfile.
+- Added `engine/evaluation/run-engine-checks.sh` as the deterministic reproduction command. Its complete run is active and has reached package preparation. Treat that command's final result as pending. The earlier environment failure remains recorded in its own report.
+- Commerce typechecks and replay of the six receipts through the SDK passed. No commerce production routes changed.
+- Model authoring trials: 0. New proofs: 0. Phase 3 now proceeds. To reduce model traffic, use three independent Luna batches with 60 opaque request IDs each. Record that batching permits shared context across requests. Do not report those as 180 isolated API calls. Further implementation helpers use GPT-6 Sol. The native batch route avoids the rejected public API credential.
+- Next: adapter and bounded authoring records, semantic checks, and twelve new real proof receipts. No live settlement is authorized.
+
+## 2026-11-14 23:00 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, latest pushed checkpoint `8bb1a9d`. Phase 2 remains active. Added actual guest execution, package reuse, and commitment-invariant commands.
+- One GPT-6 Sol helper completed a batched read-only review. Phase-1 scope passed review. The helper identified missing artifact binding between host and guest reports. Added per-candidate hashes, suite hashes, and exact expectation checks. A fresh host run again passed all 341 cases.
+- Six [commitment checks](../../engine/evaluation/reports/invariants.json) passed: parameter edits preserve image/source and change rules, reference edits preserve image/rules and change reference commitment, altered packages/data reject original terms, and a rule-shape edit changes its commitments.
+- All three [prepared guest checks](../../engine/evaluation/reports/prepared-guests.json) passed against unchanged production code. They cover six signature profiles, direct guest frame limits, and an independently rebuilt guest.
+- The first new guest runner inherited `RUST_LOG` and hit the engine's setup guard. It still prepares the 40 packages. A separate execution process uses those packages with the variable unset. No proof or build was interrupted. Actual execution results remain provisional until completion and an artifact audit. No production engine defect is confirmed.
+- Model authoring trials: 0. New Groth16 receipts: 0. Authoring trials remain held for rate-limit pressure. No live settlement ran. Next: finish and audit actual guest coverage, then continue phase 3.
+
+## 2026-11-14 22:53 -05:00 — Anish
+
+- Branch `codex/engine-commerce`, integration baseline `3f4f8c4`. Phase 1 completed. Engine and commerce pins remain `adda3a3` and `3013d736`.
+- Added the reproducible 60-request suite: 40 supported, 10 ambiguous, and 10 unsupported requests across six families. All 341 candidate deliveries matched independent reference checks and the real CLI. Supported plans form eight normalized structures. All ten unsupported drafts returned the expected capability kind and name. Ambiguous requests have expected clarification labels but no model result yet.
+- Added 10,000 seeded compiler/runtime cases. Fresh workspace run passed 51 Rust tests with three prepared-guest tests ignored. The generated corpus covered 40 families, 95 input categories, and all 23 runtime operations with zero oracle mismatches. [Coverage](../../engine/evaluation/reports/seeded.json).
+- `node --test engine/evaluation/challenges.test.mjs engine/evaluation/harness.test.mjs` passed 12 tests. `node engine/evaluation/run-challenges.mjs ENGINE OUTPUT` completed with zero failures after three harness corrections. [Host results](../../engine/evaluation/reports/host.json) and [initial findings](../../engine/evaluation/reports/harness-corrections.json) preserve the actual evidence. No production correctness defect is confirmed by this corpus.
+- User requested fewer model calls and GPT-6 Sol for further helpers. Existing helpers finished. No Luna trials or new proofs ran. The 180 planned authoring trials remain pending while rate limits are tight.
+- Next: compile all accepted structures, compare guest execution with independent expectations, and check commitment/image invariants. Settlement remains pending and outside this run's transaction scope.
+
+## 2026-11-14 22:46 -05:00 — Anish
+
+- Integration branch `codex/engine-commerce` starts from engine `adda3a3` and commerce `3013d73624c3cf279015b25ec17497d7394ab70f`. The managed worktree is separate from the engine PR. The merge changed commerce files only and has no conflicts.
+- Recovered the three-phase specification from the preceding planning chat. [Execution plan](execution-plan.md) records the full targets and pending checks.
+- Initial remote review: Nick and main remain `9a1b444`. Neil remains `3013d736`. No new deployment manifest or funded terms arrived. No live transactions are authorized.
+- Challenge and seeded-test subagents are working in temporary copies. The seeded helper reports 10,000 cases with no mismatches. Root verification remains pending. Challenge coverage and model trials are not yet measured. No new proof exists.
+- Model access: the environment API credential returned HTTP 401 on a read-only model lookup. Native Luna subagent access remains available to test later. This does not block deterministic engine work.
+- Next: finish phase 1, record independent oracle coverage, then investigate confirmed failures before model trials.
+
+## 2026-11-14 21:19 -05:00 — Anish
+
+- Branch codex/anish-engine. Opened [draft PR #3](https://github.com/anishnarang9/UBC-26/pull/3) with the engine, real proof fixtures, replay commands, and pending integration gates. GitHub reports the branch can merge cleanly.
+- The wire fixture, scalar journal check, script syntax, and diff checks passed after the SDK replay commit. The workspace is clean. Earlier guest and Solidity evidence still matches the checked-in receipts.
+- The remaining release gates need the deployed evaluator and funded terms from Nick, final cap confirmation, and native Linux proving measurements. Actual Arc settlement remains unverified.
+
+## 2026-11-14 21:18 -05:00 — Anish
+
+- Branch codex/anish-engine. Added a repeatable SDK check against Neil's revision 3013d736. All six real receipts matched the SDK's context, journal, SHA-256 digests, and submit calldata. The test preserves the original 260-byte seals. It rejects changed ciphertext and journal bytes.
+- The SDK capture stub serializes both verdicts. Actual rejection still needs the deployed evaluator. The synthetic key fixture recovered its exact bundle and rejected a changed job context.
+- Independent review found no further defect in CLI file handling, package validation, cache concurrency, receipt verification, or this SDK check. The deployment manifest, funded terms, and native Linux timing remain pending.
+
+## 2026-11-14 20:59 -05:00 — Anish
+
+- Branch codex/anish-engine. Merged the settlement and commerce plans from main. Kept the owners' plan entries and resolved the shared plan conflict.
+- Updated the work split to match Nick's caller-first hooks and Poster-only budget patch. The settlement and engine docs now distinguish the encoded bundle and encrypted envelope limits. The deployed cap remains pending.
+
+## 2026-11-14 20:48 -05:00 — Anish
+
+- Branch codex/anish-engine. A separate build from the exported signed-text source with empty build caches reproduced the package program and image ID. The reviewed guest ran all six signature profiles and rejected a separate invalid signature for each.
+- Added the exact engine CLI handoff for Neil. Recorded Nick's caller-first hook layout and the distinction between encoded bundle and encrypted envelope caps in the shared plan.
+- Nick owns the deployment manifest, cap confirmation, and funded terms. Confirm them before creating the Arc-bound proof. Native Linux proving time also remains unmeasured.
+
+## 2026-11-14 20:00 -05:00 — Anish
+
+- Branch codex/anish-engine. Published the reviewed signed-text receipt and [release measurements](../../engine/fixtures/release-report.json). The signed-text guest used 4,232,914 cycles. Host sleep interrupted the proving run, which reported 1,102.373 seconds.
+- Local Solidity and the Arc state override accepted the original receipt and rejected changed inputs. Decryption recovered the original note byte for byte.
+- An independent build from the exported checker source is running. The deployed evaluator check still needs the funded job terms.
+
+## 2026-11-14 19:02 -05:00 — Anish
+
+- Branch codex/anish-engine. The full 16 KiB delivery produced a passing proof in 548.906 seconds and 3,273,441 guest cycles. Decryption recovered the exact 16,367-byte file.
+- The documented submit ABI encoded 16,996 bytes of calldata for the 16,412-byte envelope. The offline calldata gas component was 268,228 under the 4 and 16 gas per byte assumptions. The Arc state override accepted the proof and rejected the changed inputs. Deployed settlement gas remains pending.
+- The signed-text proof is running with the reviewed guest.
+
+## 2026-11-14 18:58 -05:00 — Anish
+
+- Branch codex/anish-engine. The Arc submit preflight can test a verdict-0 receipt for the same funded job and image. A mock RPC confirmed that an endpoint accepting that receipt fails the preflight.
+- The current proof measurements use Apple Silicon with an amd64 compression container. Native Linux x86-64 timing remains unmeasured. The full-cap and signed proofs are still queued locally.
+
+## 2026-11-14 18:56 -05:00 — Anish
+
+- Branch codex/anish-engine. Added the funded submit preflight. It tests the original and changed seal in read-only calls at one Arc block. The mock RPC test checked both outcomes. Arc rejected the synthetic fixture address because it has no deployed core code.
+- All 50 default workspace tests passed. Three guest integration tests require prepared packages. Clippy passed with an upstream future compatibility warning.
+- The maximum-delivery proof is running. The deployment manifest and actual funded terms remain pending for the Arc integration check.
+
+## 2026-11-14 18:53 -05:00 — Anish
+
+- Branch codex/anish-engine. Published reviewed reconciliation receipts for both verdicts. Passing proof took 260.506 seconds and failing proof took 276.134 seconds. Each used 812,703 guest cycles. The passing delivery recovered both original files byte for byte.
+- The local Solidity wire harness accepted both originals and rejected the failing receipt against a passing journal. Arc state override calls accepted both originals and rejected changes to the proof inputs.
+- The reproduction driver checks both builds for each fixture selection. The metrics report checks exact job context and delivery limit. The maximum-size and signed fixture proofs are in the active queue.
+
+## 2026-11-14 18:48 -05:00 — Anish
+
+- Branch codex/anish-engine. Added a read-only probe for the deployed verifier and a report generator for compile and proof measurements.
+- The reviewed guest produced a passing reconciliation receipt in 260.506 seconds. The released verifier accepted it locally and through a read-only Arc state override. Warm compiles for reconciliation, signed text, and the full delivery cap reproduced the corresponding image IDs and guest digests.
+- The verdict-0 proof is running. The live probe needs the deployed verifier address from the settlement workstream.
+
+## 2026-11-14 18:46 -05:00 — Anish
+
+- Branch codex/anish-engine. The Solidity wire harness reconstructs the journal and matches the independent key commitment vector. It verified both scalar receipts locally and rejected the verdict-0 receipt against a passing journal.
+- The current guest accepted a full 16 KiB encoded delivery and rejected oversized delivery, reference, evidence, and parameter frames. Real proofs for the reviewed build are running sequentially.
+- The Arc replay script verified the recorded signed-text result at its original block using temporary verifier code. Deployed settlement is still pending.
+
+## 2026-11-14 18:45 -05:00 — Anish
+
+- Branch codex/anish-engine. Added a job JSON encoder for confirmed terms, a demo reproduction driver, and an offline submit calldata measurement tool.
+- The job encoder reproduced the fixture context. The scalar submit calldata is 708 bytes under the documented ABI. The maximum-size fixture will be measured after real proof generation.
+- Main and Nick's branch still contain the settlement plan only. A live proof needs the deployment manifest, funded job ID and provider, and matching image, rules, and reference commitments. The current guest proof queue is active.
+
+## 2026-11-14 18:43 -05:00 — Anish
+
+- Branch codex/anish-engine. Checked in real signed-text and multi-file reconciliation receipts, public inputs, and verifier replay scripts. The released verifier accepted both receipts. Both deliveries decrypted to the original bytes.
+- A clean independent build reproduced the signed-text program byte for byte. Arc Testnet state override calls accepted the upstream, tiny guest, scalar, reconciliation, and signed-text receipts. The calls rejected changed proof inputs. Deployed settlement remains pending.
+- A newer receipt run is in progress with the post-review guest and lower-memory prover. The catalog and unsupported-operation example now match the CLI.
+
+## 2026-11-14 18:38 -05:00 — Anish
+
+- Branch codex/anish-engine. Subagent review added schema-aware guest type checking for empty collections and fixed concurrent repair of damaged cache entries. Cache writes now reject different binaries under the same fingerprint.
+- The workspace tests and Clippy passed. New tests cover invalid selectors and types under empty quantifiers, exact 256-node and 256-row boundaries, nested scopes, concurrent cache repair, and interprocess locking.
+- The receipt retry hit Docker OOM at four threads. Direct Groth16 compression succeeded with two threads, GOGC 25, and a 4 GiB Go memory target. The wrapper now uses those settings.
+
+## 2026-11-14 18:15 -05:00 — Anish
+
+- Branch codex/anish-engine. Added a machine-readable capability catalog and normalized approval preview. Revalidating the preview reproduces both plan commitments.
+- Added exact file hash and byte size rules for opaque, text, JSON, and authenticated evidence payloads. All 40 workspace tests and Clippy passed. The CLI catalog matches the published JSON.
+- The signed-text proof and independent clean build continue. Actual funded Arc terms become necessary for the November 16 integration gate. The user can provide them on November 15.
+
+## 2026-11-14 18:11 -05:00 — Anish
+
+- Branch codex/anish-engine. The compiler now emits allowlisted Rust nodes from normalized operations and indices. The guest checks emitted nodes against the approved structure. The package exports its source tree and lockfile.
+- All six evidence profiles passed actual RISC Zero guest execution. A direct guest test rejected an invalid signature for each profile. The suite also checks valid recovery bytes with a high-S EIP-712 signature.
+- Cache checks showed source and threshold cache hits, stable image IDs, changed rules hashes, and recovery from a damaged cache entry. Default workspace tests and Clippy passed.
+- A clean isolated rebuild and the signed-text Groth16 proof are running. A concurrent Docker build exhausted memory during the earlier failing reconciliation proof. Its retry will run sequentially.
+
+## 2026-11-14 18:02 -05:00 — Anish
+
+- Branch codex/anish-engine. Added signed evidence declarations, committed signer slots, artifact and context bindings, and evidence projection into rules. The CLI passes evidence to the guest and supports guest execution without proving.
+- All 35 workspace tests and Clippy passed. Independent Node signatures check Ed25519, EIP-712, and compact JWS Ed25519, legacy EdDSA, ES256, and RS256. Host tests reject changed signers, artifacts, headers, and contexts.
+- Pinned guest validation for all six evidence profiles is running. The record guest produced a passing proof. Its failing receipt is still running. Input version metadata preserves proving compatibility for earlier checker packages.
+
+## 2026-11-14 17:55 -05:00 — Anish
+
+- Branch codex/anish-engine. Added bounded record collections, sum, count, all, any, uniqueness, and exact lookup. Published a multi-file reconciliation fixture.
+- Workspace tests and Clippy passed. Host evaluation returns 1 for the valid ledger reconciliation and 0 for the changed amount. Record tests cover duplicate and missing matches, 257-record rejection, empty quantifiers, repeated parameters, and checked overflow.
+- Two subagents stopped at the account usage limit before edits. Root continued implementation. Real collection guest proofs and signed evidence remain in progress.
+
+## 2026-11-14 16:07 -05:00 — Anish
+
+- Branch `codex/anish-engine`. Published the real [verdict-0 receipt](../../engine/fixtures/scalar-proof-fail-v1.json). It shares the passing receipt's context and image ID.
+- The verdict-0 proof took 134.142 seconds and 252,816 user cycles. The released Solidity verifier accepted its original journal on a local EVM and rejected the journal after the verdict changed to 1. The Node checker reconstructed both journal byte strings from the submission fields.
+- Nick can use the fixture pair for local settlement tests. The next engine work extends the checker to record collections and signed evidence. Arc verification still needs a deployed evaluator and a receipt for the actual funded job context.
+
+## 2026-11-14 16:05 -05:00 — Anish
+
+- Branch `codex/anish-engine`. The expense report checker produced a real [passing Groth16 receipt](../../engine/fixtures/scalar-proof-pass-v1.json) with a 234-byte journal for a synthetic job context.
+- The proof took 138.264 seconds and 252,709 user cycles. The low-memory Docker retry succeeded. The released verifier accepted the receipt on a local EVM and rejected changes to the image ID, journal, seal, and verdict. The direct call estimated 257,760 gas. Decryption recovered the original file byte for byte.
+- Nick can test the full journal layout with this receipt. Its synthetic context cannot match an independently funded Arc job. The verdict-0 receipt is in progress.
+
+## 2026-11-14 16:04 -05:00 — Anish
+
+- Branch `codex/anish-engine`. Added `engine eval` for Neil's buyer preview. It uses the same scalar evaluator as the guest and returns a numeric verdict without a receipt.
+- All 27 workspace tests and Clippy passed. The low-memory proof retry reached Groth16 compression.
+
+## 2026-11-14 16:03 -05:00 — Anish
+
+- Branch `codex/anish-engine`. Added a scalar checker guest and the compile, prove, and decrypt commands. Published the authoring schema and CLI input and output formats for Neil.
+- All 26 workspace tests passed. Clippy and schema validation passed. Two compiled packages with different thresholds produced the same image ID and guest digest, with distinct rules hashes.
+- The funded-job test reached Groth16 compression. Docker reported an out-of-memory kill at its current RAM limit. A retry with fewer prover threads is running. Arc, collection rules, and signed evidence remain pending.
+
+## 2026-11-14 15:47 -05:00 — Anish
+
+- Branch `codex/anish-engine`. Published a fresh [Groth16 smoke receipt](../../engine/fixtures/groth16-smoke-v1.json) for the digest-pinned Docker guest.
+- Proving took 106.922 seconds on an arm64 Mac with the amd64 CPU prover in Docker. The guest ran for 2,792 user cycles. Rust and the released Solidity verifier accepted the receipt. The local EVM rejected changes to the image ID, journal, and seal. It estimated 257,760 gas for the direct verifier call.
+- The next engine step is to evaluate validated rules in the guest and commit the full job journal. The settlement owner can use the smoke receipt for Arc verifier checks.
+
+## 2026-11-14 15:46 -05:00 — Anish
+
+- Branch `codex/anish-engine`. Added the [RISC Zero proof smoke check](../../engine/proof-smoke/README.md) with locked dependencies and pinned Docker images.
+- The host-built guest produced a real Groth16 receipt in 104.678 seconds and ran for 2,792 user cycles. The released verifier accepted the receipt on a local EVM and rejected changes to the journal, image ID, and seal. The direct verifier call estimated 257,772 gas on the local EVM.
+- The pinned Docker guest passed execution and produced a different image ID. Proving for that image is in progress. Arc verification belongs to the settlement workstream.
+
+## 2026-11-14 15:42 -05:00 — Anish
+
+- Branch `codex/anish-engine`. Added the Rust wire protocol, shared synthetic fixture, and first scalar plan validator. The validator emits canonical JSON and commitment hashes.
+- All 15 Rust tests passed. Clippy passed. The protocol built for generic RISC-V, and Node reproduced the fixture and rejected decryption with a different job ID.
+- The generated checker and funded-job CLI still need guest integration. The separate RISC Zero proof smoke test is in progress.
+
 ## 2026-11-14 15:25 -05:00 — Anish
 
 - Branch `main`. Added shared rules for checkpoint commits, pushes, and status entries. Updated all three status file instructions.

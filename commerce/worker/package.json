@@ -11,12 +11,19 @@
     "test:engine": "vitest run --config vitest.engine.config.ts",
     "typecheck": "tsc -p tsconfig.json",
     "prove-synthetic": "tsx src/cli.ts",
-    "test:arc": "vitest run --config vitest.arc.config.ts",
-    "agent": "tsx scripts/agent.ts"
+    "funded": "tsx src/cli.ts funded",
+    "inspect-funded": "tsx src/cli.ts funded inspect",
+    "preflight-funded": "tsx src/cli.ts funded preflight",
+    "prepare-funded": "tsx src/cli.ts funded prepare",
+    "sprint": "tsx src/sprint-cli.ts",
+    "open-claim:job-input": "tsx src/open-claim/job-input-cli.ts",
+    "open-claim:operator": "tsx src/open-claim/operator.ts",
+    "test:open-claim-recovery": "vitest run --config vitest.open-claim-recovery.config.ts"
   },
   "dependencies": {
     "@ubc26/api": "workspace:*",
     "@ubc26/sdk": "workspace:*",
+    "ethers": "6.15.0",
     "viem": "2.57.19"
   },
   "devDependencies": {

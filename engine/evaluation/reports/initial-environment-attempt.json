@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "summary": {
+    "compiledPlans": 40,
+    "distinctStructures": 8,
+    "distinctImages": 8,
+    "guestExecutions": 0,
+    "inputRejectionsBeforeGuest": 79,
+    "candidateCases": 341,
+    "failures": 262
+  },
+  "cause": "Inherited RUST_LOG triggered the engine setup guard in all 262 non-rejected candidates. No guest ran in this attempt.",
+  "errorCode": "prover_setup",
+  "recoveries": "All 40 completed packages were retained. A new execution process unset RUST_LOG and completed all cases. No running build, guest, or proof was interrupted.",
+  "verifiedRecovery": "guests.json and guest-audit.json"
+}

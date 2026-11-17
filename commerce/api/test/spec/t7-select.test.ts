@@ -199,4 +199,3 @@ describe("§5 select-quote: success", () => {
     expect(items.some((i) => i.jobId === r.jobId)).toBe(false);
   });
 });
-

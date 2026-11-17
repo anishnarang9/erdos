@@ -9,8 +9,7 @@
     "./test-support": "./test/support/anvil.ts"
   },
   "scripts": {
-    "test": "vitest run",
-    "test:arc": "vitest run --config test/live/vitest.config.ts",
+    "test": "node --experimental-strip-types --test src/chain/arc/nick-examples/fixture.test.ts && vitest run",
     "typecheck": "tsc -p tsconfig.json",
     "build:contracts": "node scripts/build-contracts.mjs"
   },

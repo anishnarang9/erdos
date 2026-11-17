@@ -18,6 +18,9 @@ export type ErrorCode =
   | "model_failed"
   | "model_unavailable"
   | "chain_unavailable"
+  | "payment_pending"
+  | "payment_conflict"
+  | "payment_unavailable"
   | "forbidden"
   | "conflict";
 
@@ -41,6 +44,9 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   model_failed: 502,
   model_unavailable: 503,
   chain_unavailable: 503,
+  payment_pending: 409,
+  payment_conflict: 409,
+  payment_unavailable: 503,
   forbidden: 403,
   conflict: 409,
 };

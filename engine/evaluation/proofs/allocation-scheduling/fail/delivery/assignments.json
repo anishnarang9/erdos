@@ -1,0 +1,20 @@
+{
+  "rows": [
+    {
+      "worker": "worker-0",
+      "shift": "0"
+    },
+    {
+      "worker": "worker-1",
+      "shift": "1"
+    },
+    {
+      "worker": "worker-0",
+      "shift": "0"
+    },
+    {
+      "worker": "worker-3",
+      "shift": "1"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "verifiedAt": "2026-11-15 00:47 -05:00",
+  "evaluatedRevision": "250519c",
+  "integrationBranch": "codex/engine-commerce",
+  "command": "engine/evaluation/evaluate.sh /tmp/ubc26-final-replay-2 /tmp/ubc26-risc0-ethereum-v310 /tmp/ubc26-integration-new-proofs",
+  "exitCode": 0,
+  "newModelCalls": 0,
+  "newProofsDuringReplay": 0,
+  "engineSha256": "0x12d6acaf5c79698c92e3dfe272676d48d61155f86b88d82c59123c3d198eadbf",
+  "rust": {
+    "passed": 51,
+    "failed": 0,
+    "preparedTestsIgnoredByDefault": 3,
+    "preparedTestsExplicitlyPassedEarlier": 3
+  },
+  "node": {
+    "passed": 38,
+    "failed": 0,
+    "skipped": 0
+  },
+  "typescript": {
+    "passed": 11,
+    "failed": 0,
+    "typecheckPassed": true
+  },
+  "seededCases": 10000,
+  "host": {
+    "challenges": 60,
+    "supportedPlans": 40,
+    "unsupportedPlans": 10,
+    "candidateCases": 341,
+    "distinctStructures": 8,
+    "failures": 0
+  },
+  "authoring": {
+    "firstTrialResults": 180,
+    "repairAttempts": 35,
+    "firstDraftsValid": 85,
+    "classificationMatched": 180,
+    "finalDraftsValid": 120,
+    "nonDraftFidelityPassed": 21,
+    "nonDraftFidelityDefects": 39,
+    "firstCoveragePassed": 106,
+    "finalCoveragePassed": 141,
+    "candidateChecks": 1023,
+    "semanticMismatches": 0,
+    "selectedFamilies": 6
+  },
+  "proofs": {
+    "families": 6,
+    "receipts": 12,
+    "actualGuestExecutions": 12,
+    "freshRecoveries": 6,
+    "failures": 0
+  },
+  "logs": {
+    "authoring.log": {
+      "sha256": "0x9927f4bd826bbb354eeedfbf2b583648dd40968109dcb092af4796ab0d1614bd",
+      "bytes": 1041
+    },
+    "build.log": {
+      "sha256": "0xaffe898bb70561314decb7089b36f4e7ae9ca2359f136dd4a41841ea4ea3c180",
+      "bytes": 315
+    },
+    "host.log": {
+      "sha256": "0xbfc02112de5d159ee95c59a930c1fe3fd601644120fc27159c29403583a1cf23",
+      "bytes": 117
+    },
+    "node.log": {
+      "sha256": "0xa6993874906efc807456b9eb7b30f0d6b20dcbc35cee94ec39c9058753d53a3a",
+      "bytes": 3181
+    },
+    "proofs.log": {
+      "sha256": "0x310bf4a616e2ec9b760c3c4c648275da6ca6ef4069ff77a892950b335af5947c",
+      "bytes": 768
+    },
+    "rust.log": {
+      "sha256": "0x23158e2c665e6935c10baa17ab757b119b5d45f71f65a32d09fc473664087481",
+      "bytes": 8638
+    },
+    "typecheck.log": {
+      "sha256": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "typescript-tests.log": {
+      "sha256": "0xa184e2d369c017745ae451854e10ebc923abfea87f7f69310cf286e59c93008e",
+      "bytes": 1365
+    }
+  },
+  "proofReplayReportSha256": "0x621b9a3480d395108dac1a8e1e3038bf0e7591f3e119c6751c76ab8c108bed63",
+  "limitations": [
+    "Synthetic contexts and approval; finite challenge and facet coverage.",
+    "Three shared-context Luna batches, not180 isolated API calls; native token usage unavailable.",
+    "39 non-draft fidelity defects and13 nonverbatim source annotations remain measured model failures.",
+    "Native Linux timing, live Grok/API injection, core freeze, funded terms, and live settlement remain outside this completed evaluation."
+  ],
+  "privateKeyPublicationScan": {
+    "keysChecked": 12,
+    "publicFilesChecked": 258,
+    "matches": 0
+  }
+}

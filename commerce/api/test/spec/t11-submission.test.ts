@@ -37,7 +37,7 @@ async function setup(ctx: ChainCtx) {
   s = await makeChainApp(ctx, path);
   const db = new DatabaseSync(path);
   opened.push(db);
-  const indexer = createIndexer({ db: db as never, chain: { config: ctx.config, publicClient: ctx.dep.publicClient }, cursorStart: 0n });
+  const indexer = createIndexer({ db: db as never, chain: { mode: "simulated", config: ctx.config, publicClient: ctx.dep.publicClient }, cursorStart: 0n });
   return { indexer };
 }
 

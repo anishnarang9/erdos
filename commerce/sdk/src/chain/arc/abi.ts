@@ -1,8 +1,9 @@
-// ABIs of the deployed settlement contracts (Nick's export, `abi/*.json`). Browser-safe.
-// The JSON files are plain arrays cast to viem's generic `Abi`: viem checks call arguments at run
-// time, and this module checks every decoded value itself (see reads.ts and events.ts).
-import { erc20Abi as viemErc20Abi } from "viem";
-import type { Abi } from "viem";
+// Reuse Nick's exported contract artifacts; do not substitute the simulated SDK ABI.
+export { coreAbi as arcCoreAbi, settlementHookAbi as arcHookAbi } from "./nick-examples/abi.ts";
+export { erc20Abi as arcErc20Abi } from "viem";
+
+// Settlement client names (index.ts, reads.ts, tx.ts, events.ts, errors.ts). Same exported artifacts.
+import { erc20Abi as viemErc20Abi, type Abi } from "viem";
 import agenticCommerce from "./abi/AgenticCommerce.json" with { type: "json" };
 import riscZeroGroth16Verifier from "./abi/RiscZeroGroth16Verifier.json" with { type: "json" };
 import settlementHook from "./abi/SettlementHook.json" with { type: "json" };
@@ -13,13 +14,10 @@ export const coreAbi = agenticCommerce as unknown as Abi;
 export const hookAbi = settlementHook as unknown as Abi;
 /** RiscZeroGroth16Verifier (a superset of IRiscZeroVerifier). */
 export const verifierAbi = riscZeroGroth16Verifier as unknown as Abi;
-/** Standard ERC-20 ABI for USDC. Amounts are 6-decimal units; never mix them with native 18-decimal gas values. */
+/** Standard ERC-20 ABI for USDC (6-decimal units). */
 export const erc20Abi = viemErc20Abi;
 
-/**
- * Every custom error of the core, the hook and the verifier, de-duplicated by signature. Hook and
- * verifier errors bubble up unchanged through core calls, so one list decodes any revert.
- */
+/** Every custom error of the core, the hook and the verifier, de-duplicated by signature. */
 export const errorsAbi: Abi = (() => {
   const seen = new Set<string>();
   const out: Abi[number][] = [];

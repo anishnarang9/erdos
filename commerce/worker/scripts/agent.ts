@@ -11,7 +11,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { arc } from "@ubc26/sdk";
 import { engineConfigFromEnv, engineFromConfig } from "@ubc26/api";
 import { createAgent } from "../src/agent.ts";
-import { arcPort } from "../src/arc-port.ts";
+import { arcPort } from "../src/demo/arc-port.ts";
 import { apiClient } from "../src/client.ts";
 import { engineRunner } from "../src/engine.ts";
 import { reconciliationSolver } from "../src/solvers/index.ts";

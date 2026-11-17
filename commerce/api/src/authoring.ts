@@ -11,7 +11,8 @@ import { isoAt, readBody, parseJson, requireJobId, type AppEnv, type Deps } from
 import type { RouteContext } from "./routes.ts";
 import type { Idempotency } from "./idempotency.ts";
 import { ModelError, parseModelDraft, type DraftModelInput, type DraftOutput, type ModelDraft } from "./grok.ts";
-import { parseManifest, EngineError, type Manifest } from "./engine.ts";
+import { parseManifest, EngineError, isCliCompileResult, type Manifest } from "./engine.ts";
+import { artifactBinding, requireRealArtifact } from "./artifact.ts";
 import {
   engineFailure,
   insertRevision,
@@ -61,7 +62,7 @@ export function referenceText(content: Uint8Array): string {
 }
 const MAX_CLARIFICATION_ROUNDS = 2;
 
-export function registerAuthoringRoutes(ctx: RouteContext): void {
+export function registerAuthoringRoutes(ctx: RouteContext): ReturnType<typeof authoringHandlers> {
   const { app, buyer, idem } = ctx;
   const h = authoringHandlers(ctx.deps, idem.commit, ctx.newId);
   app.post("/v1/drafts", readBody, buyer, parseJson, idem.middleware, h.draft);
@@ -71,6 +72,7 @@ export function registerAuthoringRoutes(ctx: RouteContext): void {
   app.get("/v1/jobs/:id/package", readBody, requireJobId, h.packageListing);
   app.get("/v1/jobs/:id/package/file", readBody, requireJobId, h.packageFile);
   app.get("/v1/jobs/:id/references", readBody, requireJobId, h.references);
+  return h;
 }
 
 interface DraftBody {
@@ -325,7 +327,9 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     if (!approval || approval.revisionHash !== rev.revision_hash) {
       throw new ApiError("approval_required", "The current revision is not approved", { state: job.state });
     }
-    return { job, rev, stored: job.state === "compiled" ? store.manifestOf(rev.id) : null };
+    const stored = job.state === "compiled" ? store.manifestOf(rev.id) : null;
+    if (stored && deps.engine.mode === "real") requireRealArtifact(deps.db, rev.id);
+    return { job, rev, stored };
   };
 
   /** POST /v1/jobs/:id/compile (§4) */
@@ -364,6 +368,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       if (packageDir) await rm(packageDir, { recursive: true, force: true }).catch(() => undefined);
     };
     let manifest: Manifest;
+    let cliOrigin = false;
     try {
       const result = await deps.engine.compile({ plan, reference, ...(packageDir ? { packageDir } : {}) });
       if (!result.ok) {
@@ -375,6 +380,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         throw invalid(result.errors);
       }
       manifest = parseManifest(result.manifest);
+      cliOrigin = isCliCompileResult(result);
     } catch (err) {
       await discard(); // the engine may have published the package before failing (e.g. a bad manifest)
       if (err instanceof ApiError) throw err;
@@ -393,6 +399,12 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         reason: mismatched[0] === "referenceHash" ? "reference_mismatch" : "rules_mismatch",
         mismatched,
       });
+    }
+
+    if (deps.engine.mode === "real" && (!cliOrigin || !approval.rulesHash || !approval.structureHash ||
+        (manifest.toolchain as { engine?: unknown } | undefined)?.engine === "simulated")) {
+      await discard();
+      throw new ApiError("approval_required", "Real compilation requires CLI-origin artifacts and buyer-approved engine hashes", { reason: "untrusted_compile_provenance" });
     }
 
     // The engine call awaited; re-check that nothing changed meanwhile (a revision, or a parallel compile).
@@ -420,6 +432,10 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         packageDir ?? null,
         at,
       );
+      const binding = cliOrigin && deps.engine.mode === "real" ? artifactBinding(deps.db, rev.id) : null;
+      if (deps.engine.mode === "real" && !binding) throw new ApiError("approval_required", "Compiled artifact bindings no longer match the buyer approval");
+      deps.db.prepare("UPDATE manifests SET compile_engine_mode = ?, compile_binding = ? WHERE revision_id = ?")
+        .run(binding ? "real" : deps.engine.mode === "simulated" ? "simulated" : null, binding, rev.id);
       q.setState.run("compiled", at, job.id);
     });
   };
@@ -487,5 +503,5 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     });
   };
 
-  return { draft, revise, compile, packageListing, packageFile, references };
+  return { draft, revise, compile, compileGate, packageListing, packageFile, references };
 }

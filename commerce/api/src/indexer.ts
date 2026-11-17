@@ -1,5 +1,5 @@
 // T8 indexer (CONTRACT-T5-T8 §6). Owner: Coder D.
-// SIMULATED: decodes with the @ubc26/sdk stub ABI until Nick publishes the settlement ABI.
+// Uses the configured Arc reader in real mode, or the legacy SDK stub adapter for simulations.
 import { LogCursor, type DecodedEvent } from "@ubc26/sdk";
 import { tx, type Db } from "./db.ts";
 import { readChain, type ApiChain } from "./chain.ts";
@@ -32,6 +32,7 @@ function argsJson(args: Record<string, unknown>): string {
 
 export function createIndexer(opts: IndexerOptions): Indexer {
   const { db, chain } = opts;
+  const reader = readChain(chain); // Fail closed at construction, not after polling begins.
   const cfg = chain.config;
   const core = cfg.core.toLowerCase();
   const hook = cfg.hook.toLowerCase();
@@ -62,7 +63,7 @@ export function createIndexer(opts: IndexerOptions): Indexer {
   const cursor = new LogCursor(chain.publicClient, {
     addresses: [cfg.core, cfg.hook],
     fromBlock: opts.cursorStart,
-    decode: (logs) => readChain(chain).decodeLogs(logs),
+    decode: (logs) => reader.decodeLogs(logs),
     maxRange: opts.maxRange,
     confirmations: opts.confirmations,
     store,
@@ -93,6 +94,10 @@ export function createIndexer(opts: IndexerOptions): Indexer {
   let running: Promise<number> | null = null;
 
   async function run(): Promise<number> {
+    // Verify the transport before LogCursor even loads its persisted position.
+    if (chain.mode === "arc" && await chain.publicClient.getChainId() !== cfg.chainId) {
+      throw new Error(`Arc indexer RPC chain ID does not match configured chain ${cfg.chainId}`);
+    }
     const maxWindows = opts.maxWindowsPerTick ?? 50;
     let total = 0;
     for (let i = 0; i < maxWindows; i++) {

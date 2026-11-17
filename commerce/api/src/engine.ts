@@ -40,6 +40,12 @@ export type EvalResult =
   | { ok: false; kind: "invalid"; errors: { path: string; message: string }[] }
   | { ok: false; kind: "unsupported"; capabilityError: unknown };
 
+// Private result identity: mode and manifest.toolchain are caller-writable and cannot attest CLI execution.
+const cliCompileResults = new WeakSet<object>();
+export function isCliCompileResult(result: CompileResult): boolean {
+  return cliCompileResults.has(result);
+}
+
 export type CompileResult =
   | { ok: true; manifest: Manifest; packageDir?: string; cacheHit?: boolean; compileMillis?: number }
   | { ok: false; kind: "invalid"; errors: { path: string; message: string }[] }
@@ -56,6 +62,8 @@ export interface CompileInput {
 }
 
 export interface Engine {
+  /** Explicit execution provenance. Unidentified embedded engines are allowed only off real chains. */
+  readonly mode?: "real" | "simulated";
   validate(plan: unknown): Promise<ValidateResult>;
   /** Host-side check of example deliverables (`engine eval`). Optional: absent means examples stay unlabelled. */
   eval?(input: { plan: unknown; deliverables: BundleFile[]; reference: BundleFile[] }): Promise<EvalResult>;
@@ -130,6 +138,7 @@ export function simulatedEngine(): Engine {
     return { structureHash: hex0x(structure), rulesHash: hex0x(sha("UBC26/rules/v1", structure, params)) };
   };
   return {
+    mode: "simulated",
     async validate(plan) {
       const v = await simulatedValidatePlan(plan);
       return v.ok ? { ok: true, hashes: hashesOf(plan) } : v;
@@ -314,6 +323,7 @@ export function cliEngine(opts: CliEngineOptions): Engine {
   };
 
   return {
+    mode: "real",
     validate: (plan) =>
       withTemp(async (dir) => {
         const r = await run(["validate", "--plan", ep(await writePlan(dir, plan))], timeoutMs);
@@ -360,13 +370,15 @@ export function cliEngine(opts: CliEngineOptions): Engine {
         } catch {
           throw new EngineError("bad_manifest", "manifest.json is not JSON");
         }
-        return {
+        const result: CompileResult = {
           ok: true,
           manifest: parseManifest(raw),
           ...(packageDir ? { packageDir } : {}),
           ...(typeof report.cacheHit === "boolean" ? { cacheHit: report.cacheHit } : {}),
           ...(typeof report.compileMillis === "number" ? { compileMillis: report.compileMillis } : {}),
         };
+        cliCompileResults.add(result);
+        return result;
       }),
   };
 }

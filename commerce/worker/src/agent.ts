@@ -9,7 +9,7 @@ import type { Hex, LocalAccount } from "viem";
 import { providerAuthMessage, QUOTE_TYPES, quoteDomain, runEventLog } from "@ubc26/api";
 import type { ApiClient } from "./client.ts";
 import type { EngineRunner } from "./engine.ts";
-import { runFunded, type FundedState, type SettlementPort } from "./funded.ts";
+import { runFunded, type FundedState, type SettlementPort } from "./demo/funded.ts";
 import type { Solver } from "./solvers/index.ts";
 
 export interface FeedJob {

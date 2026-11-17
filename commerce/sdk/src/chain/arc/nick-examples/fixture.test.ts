@@ -1,6 +1,6 @@
 // @ts-nocheck -- UBC-26 SDK: the only change to Nick's file. It is a node:test file that does not typecheck under this package's @types/node (setAAD overload, line 107 of the original) and is not run by vitest.
 // Offline checks that the encoders reproduce the engine fixture (ZKVM-IMPLEMENTATION.md Section 3).
-// Run: `npm test` (node --test, no extra test dependencies).
+// Run: `pnpm test` (Node fixture checks, then Vitest; no extra test dependencies).
 import assert from "node:assert/strict";
 import { createDecipheriv } from "node:crypto";
 import { test } from "node:test";
@@ -105,7 +105,7 @@ test("fixture envelope decrypts with the fixture key, nonce and context as AAD",
   const decipher = createDecipheriv("chacha20-poly1305", Buffer.from(FIXTURE.key.slice(2), "hex"), nonce, {
     authTagLength: 16,
   });
-  decipher.setAAD(Buffer.from(context().slice(2), "hex"));
+  decipher.setAAD(Buffer.from(context().slice(2), "hex"), { plaintextLength: ciphertext.length });
   decipher.setAuthTag(tag);
   const plain = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
   assert.equal(`0x${plain.toString("hex")}`, FIXTURE.bundle);

@@ -9,9 +9,11 @@ import { simulatedValidatePlan, type PlanValidator } from "./revision.ts";
 import { jobRoutes } from "./jobs.ts";
 import { simulatedEngine, type Engine } from "./engine.ts";
 import type { DraftModel } from "./grok.ts";
-import type { ApiChain } from "./chain.ts";
+import { assertChainEngine, type ApiChain } from "./chain.ts";
 import { registerAuthoringRoutes } from "./authoring.ts";
 import { registerMarketRoutes } from "./market.ts";
+import { registerX402Routes, type X402Config } from "./x402.ts";
+import { registerOpenClaimRoutes, type OpenClaimConfig } from "./open-claim.ts";
 import { registerDemoRoutes } from "./demo.ts";
 import { registerDemoSignerRoutes, type DemoSignerOptions } from "./demo-signer.ts";
 
@@ -26,6 +28,10 @@ export interface CreateAppOptions {
   chain?: ApiChain;
   /** Keep compiled packages here (see Deps.packagesDir). */
   packagesDir?: string;
+  /** Optional x402 service charge for the separate paid compile route. */
+  x402?: X402Config;
+  /** Optional open-claim registration and public discovery reader. */
+  openClaim?: OpenClaimConfig;
   /** Serve worker run events from here (demo routes). */
   runEventsDir?: string;
   /** Presenter-mode Poster signer; see demo-signer.ts. */
@@ -41,6 +47,11 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   if (typeof opts.buyerToken !== "string" || opts.buyerToken.length < 16) {
     throw new Error("createApp: buyerToken must be a string of at least 16 characters");
   }
+  const engine = opts.engine ?? (opts.validatePlan
+    ? { mode: "simulated" as const, validate: opts.validatePlan, compile: simulatedEngine().compile }
+    : simulatedEngine());
+  // Fail before opening/migrating a database, including for embedded applications.
+  assertChainEngine(opts.chain, engine);
   const now = opts.now ?? (() => Date.now());
   const db = openDb(opts.dbPath, now);
   const validatePlan = opts.validatePlan ?? simulatedValidatePlan;
@@ -50,7 +61,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     now,
     validatePlan,
     // Default: the simulated engine (fake hashes, never provable). server.ts passes the real one.
-    engine: opts.engine ?? (opts.validatePlan ? { validate: opts.validatePlan, compile: simulatedEngine().compile } : simulatedEngine()),
+    engine,
     ...(opts.draftModel ? { draftModel: opts.draftModel } : {}),
     ...(opts.chain ? { chain: opts.chain } : {}),
     ...(opts.packagesDir ? { packagesDir: opts.packagesDir } : {}),
@@ -91,7 +102,9 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   // Route modules (one owner each): authoring.ts (T5/T6), market.ts (T7/T8). Register literal paths such as
   // GET /v1/jobs before the parameterised GET /v1/jobs/:id below.
   const ctx = { app, deps, buyer, provider, idem, notImplemented, newId };
-  registerAuthoringRoutes(ctx);
+  const authoring = registerAuthoringRoutes(ctx);
+  registerX402Routes(ctx, authoring, opts.x402);
+  registerOpenClaimRoutes(ctx, opts.openClaim);
   registerMarketRoutes(ctx);
   registerDemoRoutes(ctx);
   registerDemoSignerRoutes(ctx);

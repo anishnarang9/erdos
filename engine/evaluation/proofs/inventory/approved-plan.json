@@ -1,0 +1,152 @@
+{
+  "deliverables": [
+    {
+      "collections": [
+        {
+          "fields": [
+            {
+              "name": "sku",
+              "type": "string"
+            },
+            {
+              "name": "quantity",
+              "type": "i64"
+            }
+          ],
+          "name": "rows"
+        }
+      ],
+      "name": "stock.json",
+      "parser": "json/v1"
+    }
+  ],
+  "references": [
+    {
+      "collections": [
+        {
+          "fields": [
+            {
+              "name": "sku",
+              "type": "string"
+            },
+            {
+              "name": "minimum",
+              "type": "i64"
+            },
+            {
+              "name": "maximum",
+              "type": "i64"
+            }
+          ],
+          "name": "rows"
+        }
+      ],
+      "name": "catalog.json",
+      "parser": "json/v1"
+    }
+  ],
+  "rules": [
+    {
+      "left": {
+        "collection": {
+          "field": "rows",
+          "file": "stock.json",
+          "source": "deliverable"
+        },
+        "op": "count"
+      },
+      "op": "eq",
+      "right": {
+        "collection": {
+          "field": "rows",
+          "file": "catalog.json",
+          "source": "reference"
+        },
+        "op": "count"
+      }
+    },
+    {
+      "collection": {
+        "field": "rows",
+        "file": "stock.json",
+        "source": "deliverable"
+      },
+      "field": "sku",
+      "op": "unique"
+    },
+    {
+      "collection": {
+        "field": "rows",
+        "file": "stock.json",
+        "source": "deliverable"
+      },
+      "op": "all",
+      "where": {
+        "left": {
+          "left": {
+            "field": "quantity",
+            "op": "record_field"
+          },
+          "op": "gte",
+          "right": {
+            "collection": {
+              "field": "rows",
+              "file": "catalog.json",
+              "source": "reference"
+            },
+            "key": {
+              "field": "sku",
+              "op": "record_field"
+            },
+            "keyField": "sku",
+            "op": "lookup",
+            "valueField": "minimum"
+          }
+        },
+        "op": "and",
+        "right": {
+          "left": {
+            "field": "quantity",
+            "op": "record_field"
+          },
+          "op": "lte",
+          "right": {
+            "collection": {
+              "field": "rows",
+              "file": "catalog.json",
+              "source": "reference"
+            },
+            "key": {
+              "field": "sku",
+              "op": "record_field"
+            },
+            "keyField": "sku",
+            "op": "lookup",
+            "valueField": "maximum"
+          }
+        }
+      }
+    },
+    {
+      "left": {
+        "collection": {
+          "field": "rows",
+          "file": "stock.json",
+          "source": "deliverable"
+        },
+        "op": "sum",
+        "value": {
+          "field": "quantity",
+          "op": "record_field"
+        }
+      },
+      "op": "lte",
+      "right": {
+        "op": "literal",
+        "type": "i64",
+        "value": "47"
+      }
+    }
+  ],
+  "version": 1
+}

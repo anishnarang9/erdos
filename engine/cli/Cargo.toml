@@ -1,0 +1,26 @@
+[package]
+name = "ubc26-engine-cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "engine"
+path = "src/main.rs"
+
+[dependencies]
+serde_json = "1.0"
+ubc26-compiler = { path = "../compiler" }
+
+hex = "0.4"
+libc = "0.2"
+tempfile = "3"
+getrandom = "0.3"
+serde = { version = "1", features = ["derive"] }
+risc0-ethereum-contracts = { version = "=3.1.0", default-features = false }
+risc0-zkvm = { version = "=3.1.0", default-features = false, features = ["client", "disable-dev-mode"] }
+ubc26-protocol = { path = "../protocol" }
+ubc26-guest-runtime = { path = "../guest-runtime" }
+include_dir = "0.7"
+risc0-binfmt = "=3.0.6"
+risc0-zkos-v1compat = "=2.2.3"
+rustix = { version = "1", features = ["fs"] }

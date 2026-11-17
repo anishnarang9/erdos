@@ -33,8 +33,8 @@ import {
 import { openDb } from "../../api/src/db.ts";
 import { apiClient } from "../src/client.ts";
 import { engineRunner } from "../src/engine.ts";
-import { arcPort } from "../src/arc-port.ts";
-import { runFunded } from "../src/funded.ts";
+import { arcPort } from "../src/demo/arc-port.ts";
+import { runFunded } from "../src/demo/funded.ts";
 import { reconciliationSolver } from "../src/solvers/index.ts";
 
 if (existsSync(".env")) process.loadEnvFile(".env");

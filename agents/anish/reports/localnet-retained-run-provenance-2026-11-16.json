@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-16",
+  "scope": "Retained synthetic local continuation provenance, not a clean fresh rerun",
+  "generatedFromSourceCommit": "8e5d383",
+  "sha256": {
+    "generator": "540429796390e15dc46a2e69cfdff9877bf799016ac898a5e1a1c63a448135ba",
+    "derivedHarness": "436343ab0af953e7d3634d4d5d59a836aa8a8b41c5e191ebb52a0f55d03a576c",
+    "privateVitestConfig": "aad855a86534ad76629e830ecfc25e51ca03ef4b85e1dd33b14b5521eb1631c4",
+    "originalFailedReport": "681250878a8e4bdee2ad503796d4345196b1b0ef7e6e2dfa6f45b560fda10dfa",
+    "continuationReport": "17910a282bb740158d19d47fa3ba5580d7dec9d684a6f441ad4b53793f0e1794"
+  },
+  "originalFailedReport": "agents/anish/reports/fresh-exchange-failed-attempt-2026-11-16.json",
+  "continuationReport": "agents/anish/reports/fresh-exchange-continuation-2026-11-16.json",
+  "transformations": [
+    "Restore exact retained full Anvil dump instead of redeploying.",
+    "Reuse original private SQLite, confirmed terms and two proof artifacts.",
+    "Forbid any new prove invocation.",
+    "Wait for local receipt inclusion without resending.",
+    "Run canonical payout, indexed API readout, dual recovery, oracle and refund/restart checks."
+  ],
+  "manualLocalLockReview": {
+    "previousOwners": "absent or exited zombie",
+    "recordedCreateReceipt": "success",
+    "exactCalldataAndIdentityMatch": true,
+    "originalLockPreserved": true,
+    "journalUnchanged": true,
+    "automaticStaleLockDeletion": false
+  },
+  "limitations": [
+    "Private continuation inputs are intentionally not published.",
+    "The original full test exited1 and is preserved in the immutable failure snapshot.",
+    "The continuation process exited0 but is not a clean fresh-suite rerun.",
+    "The primary report filename is reused for later attempts; use this immutable failure snapshot to audit the original run."
+  ]
+}

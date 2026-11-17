@@ -1,0 +1,75 @@
+{
+  "task": "localnet-indexer-spec-review",
+  "date": "2026-11-15",
+  "kind": "spec-review",
+  "base": "e1aa6467c3b4802ab2cc36c1d58239ebafc9e6e6",
+  "implementerReport": "agents/anish/reports/localnet-indexer-fix-2026-11-15.json",
+  "implementerReportSha256": "394183871d5569c1aeefb450ca1c1878c42eb86293f092e54a462d2551b3d8e5",
+  "verdict": "approved",
+  "blockers": [],
+  "candidate": {
+    "stat": "4 files changed, 210 insertions, 3 deletions",
+    "files": [
+      {
+        "path": "commerce/api/src/indexer.ts",
+        "sha256": "2f487f7b0f3a712b5416692bbcb0197e1dcf32534e8c718f512678c9f1a8cb4e"
+      },
+      {
+        "path": "commerce/api/src/server.ts",
+        "sha256": "2a4fb92317c94959e6cdbbc2d93851fb966aeb2245fb191c1323649bd4314cc9"
+      },
+      {
+        "path": "commerce/api/test/unit/arc-reader-indexer.test.ts",
+        "sha256": "ce01af5bf66c036e96bc7277f33b555361c2bdcbad8e299f17166dd71d067282"
+      },
+      {
+        "path": "commerce/api/test/unit/server-provenance.test.ts",
+        "sha256": "eb694e39a9cbf60867e1376e793e9be8abd525f79713c608044918e351aa1f1e"
+      }
+    ]
+  },
+  "requirements": [
+    {
+      "id": "optional-confirmations",
+      "result": "met",
+      "evidence": "IndexerOptions.confirmations is optional. createIndexer passes opts.confirmations into the LogCursor constructor. The SDK uses opts.confirmations ?? 0n, so an omitted value stays 0n."
+    },
+    {
+      "id": "server-margin",
+      "result": "met",
+      "evidence": "Startup sets confirmations to 3n when chain.mode is arc and 0n otherwise. ApiChain.mode is only arc or simulated, so the other arm is simulation. cursorStart remains INDEX_FROM_BLOCK or 0. maxRange stays unset."
+    },
+    {
+      "id": "lagging-new-cursor",
+      "result": "met",
+      "evidence": "With confirmations 3n, cursorStart 0n, head 10, and an empty getLogs, the cursor test saves last_block 7 and requests toBlock 7. Blocks 8 through 10 stay unread. After the provider catches up and head is 13, the same indexer reads ProofAccepted and KeyReleased and saves 10, which is head minus 3. Arc startup supplies that 3n."
+    },
+    {
+      "id": "preserved-policies",
+      "result": "met",
+      "evidence": "The arc chain-id check still runs before getBlockNumber and getLogs, including when confirmations is set. One window remains the SDK default of 10000 blocks: head 20000, confirmations 3n, and maxWindowsPerTick 1 read through block 9999. Events and the cursor still commit in one transaction. A thrown getLogs leaves both tables empty. Nothing deletes or rewinds index_cursor. LogCursor does not save when the stored position is already past head minus confirmations."
+    }
+  ],
+  "redThenFixed": {
+    "redReplayed": false,
+    "reason": "Replaying the red command would require reverting the candidate. This review did not edit source.",
+    "baseBehavior": "At e1aa646, createIndexer did not pass confirmations, so LogCursor stayed at 0n. The new lagging assertion would have observed last_block 10 and toBlock 10 instead of 7. Server startup did not pass confirmations, so the new assertions would have observed undefined instead of 3n and 0n.",
+    "implementerRecord": "The implementer report records the pre-fix command exiting 1: 3 failed and 9 passed. The failures are saved 10 versus expected 7, arc startup confirmations undefined versus 3n, and the simulated startup double undefined versus 0n. It also records that an earlier fourth failure, expecting an omitted cursor to stay at 10, was corrected to 13 before that red run and before production edits.",
+    "currentAssertions": "The omitted-confirmations test still expects the 0n skip: first cursor 10, then cursor 13 and no events. That is the preserved default, not the arc margin."
+  },
+  "thisReview": {
+    "command": "cd commerce && pnpm --filter @ubc26/api exec vitest run test/unit/arc-reader-indexer.test.ts test/unit/server-provenance.test.ts",
+    "exitCode": 0,
+    "result": "2 files passed, 12 tests passed. arc-reader-indexer.test.ts ran 8. server-provenance.test.ts ran 4.",
+    "notRun": [
+      "The historical red command was not replayed.",
+      "The full API suite, typecheck, guest builds, proofs, and network calls were not run."
+    ]
+  },
+  "gaps": [
+    "No one test boots server.ts and then drives a lagging getLogs. The startup test checks the 3n or 0n argument. The cursor test calls createIndexer with confirmations 3n. The connection is the single field server passes through.",
+    "No test seeds an existing index_cursor row and shows that confirmations 3n neither deletes nor rewinds it. The candidate adds no delete, and LogCursor does not save when safe head is behind the stored position.",
+    "The simulated 0n expectation rewrites the test double of createApiArcChain. chainFromEnv still returns arc mode whenever a chain URL is set. That matches the required mode split and does not add a production simulation switch.",
+    "commerce/worker/test/integration/funded-real.test.ts also differs from e1aa646. It is outside this candidate and was not reviewed."
+  ]
+}

@@ -21,3 +21,51 @@ export type {
 export { fundJob } from "./fund.ts";
 export type { FundingTerms, FundJobResult } from "./fund.ts";
 export { mockRiscZeroVerifierAbi, mockUsdcAbi, stubCoreAbi, stubProofGateAbi } from "./abi.ts";
+export { createArcReader } from "./arc/reader.ts";
+export type { ArcReader, ArcSnapshot } from "./arc/reader.ts";
+export { arcCoreAbi, arcHookAbi, arcErc20Abi } from "./arc/abi.ts";
+export {
+  OPEN_CLAIM_ABI_STATUS,
+  OPEN_CLAIM_INTERFACE_REVISION,
+  OPEN_CLAIM_MAX_ENVELOPE_BYTES,
+  OPEN_CLAIM_MIN_EXPIRY_MARGIN_SEC,
+  OPEN_CLAIM_ONE_USDC,
+  OpenClaimError,
+  discoverOpenClaimJob,
+  createViemOpenClaimPort,
+  judgeOpenClaimClaims,
+  openClaimClaimTransaction,
+  openClaimContext,
+  openClaimReleaseTransaction,
+  openClaimSignatureAbi,
+  planOpenClaimFunding,
+  prepareOpenClaimFunding,
+  recoverOpenClaimDelivery,
+  verifyOpenClaimCandidate,
+} from "./open-claim/index.ts";
+export type {
+  OpenClaimAcceptedClaim,
+  OpenClaimApproval,
+  OpenClaimCandidate,
+  OpenClaimChainPort,
+  OpenClaimChainSnapshot,
+  OpenClaimClaimJudgment,
+  OpenClaimCompiledImage,
+  OpenClaimContextInput,
+  OpenClaimDeployment,
+  OpenClaimDiscoveryInput,
+  OpenClaimErrorCode,
+  OpenClaimFundingPlan,
+  OpenClaimFundingProgress,
+  OpenClaimFundingStep,
+  OpenClaimImageCompiler,
+  OpenClaimLog,
+  OpenClaimObservation,
+  OpenClaimPlanInput,
+  OpenClaimPrepareInput,
+  OpenClaimReceipt,
+  OpenClaimReleaseEvidence,
+  OpenClaimSignableTransaction,
+  PublishedOpenClaimJob,
+  VerifiedOpenClaim,
+} from "./open-claim/index.ts";

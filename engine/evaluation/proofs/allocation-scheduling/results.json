@@ -1,0 +1,66 @@
+{
+  "family": "allocation-scheduling",
+  "challenge": "schedule-7",
+  "trial": 1,
+  "attempt": "first",
+  "imageId": "0x3b4b644580e4cd8b954bf9966a33753680a4fc3f717488b4163416c6fa5b306a",
+  "rulesHash": "0x7504e32ca830c7b80573c95a27d28993fba42be93d9d097bafb88070903c6338",
+  "referenceHash": "0x84fa71efefd2cf8541f7893ed03de9de811e18ba56d5560206eaa45c2aa658d0",
+  "packageManifestSha256": "0x665eec19e4c2083f4c87b134a12a0455b3e94d7060624fd2c65cbd0d1d8afef3",
+  "proofs": {
+    "pass": {
+      "proofSha256": "0xde6aabbea2fbc50010e1f88451135b787ced9c41d803e953055f5a10ce46709b",
+      "proveMillis": 283293,
+      "userCycles": 1210483,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x7ab3206e61908e12992c4aa6ebdcd2bf7e6c3c41c326c61a94b94c89240db6be",
+        "journalSha256": "0xa1d5e3df591b9ee44b3b1c7583760dd77812e4b7f1f664c1fff5a6cab390ff1c",
+        "envelopeSha256": "0x4a43782d5000f4be06874ee1d93b268d3c894c83d1136cc1e04e6c58cd4354b1"
+      },
+      "solidityVerified": true,
+      "mutationsRejected": [
+        "image",
+        "journal",
+        "seal",
+        "verdict"
+      ]
+    },
+    "fail": {
+      "proofSha256": "0x512cd81d55e30c92478db1542feb7ce1096f265609ac60e8e2857abcf5604530",
+      "proveMillis": 300237,
+      "userCycles": 1210241,
+      "wire": {
+        "selector": "0xe71e6620",
+        "sealBytes": 260,
+        "journalBytes": 234,
+        "sealSha256": "0x0d49e1f0286fe3a3428f17e56feb1ea3282d30fbd5ad7fcdc15ae94c5985c824",
+        "journalSha256": "0xd6bc63b3a86673275c7390cfd05fc75e1045756c1768807d5de250cd89f9c10b",
+        "envelopeSha256": "0x4bddc1b9f33c239bd2f1e06b30f76cbd24fd202b21d4d0898a0bbce3a0d6d1cc"
+      },
+      "solidityVerified": true,
+      "mutationsRejected": [
+        "image",
+        "journal",
+        "seal",
+        "verdict"
+      ]
+    }
+  },
+  "sameJobWireChecks": true,
+  "recoveryFiles": [
+    {
+      "name": "assignments.json",
+      "bytes": 259,
+      "sha256": "0xdc423ab12311759d4430e21285d1922a3fdfca405cd8bd9f6bcce0f7f40d05d0"
+    }
+  ],
+  "negativeDecryptionCodes": {
+    "wrongKey": "key_mismatch",
+    "ciphertext": "journal_mismatch",
+    "context": "journal_mismatch",
+    "verdictZero": "invalid_submission"
+  }
+}

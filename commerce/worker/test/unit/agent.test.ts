@@ -9,7 +9,7 @@ import { createApp, EMPTY_REFERENCE_DIGEST } from "@ubc26/api";
 import { createAgent } from "../../src/agent.ts";
 import { apiClient } from "../../src/client.ts";
 import { reconciliationSolver } from "../../src/solvers/index.ts";
-import type { SettlementPort } from "../../src/funded.ts";
+import type { SettlementPort } from "../../src/demo/funded.ts";
 import type { EngineRunner } from "../../src/engine.ts";
 
 const TOKEN = "agent-test-buyer-token-000000";
