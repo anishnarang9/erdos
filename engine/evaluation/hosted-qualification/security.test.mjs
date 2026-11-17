@@ -4,11 +4,14 @@ import {mkdtemp, readFile, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {buildCorpus, writeChallenge} from './corpus.mjs';
+import {resolveEngine} from './host-run.mjs';
 import {classifyEvaluation, encodeDirectory, runEngine, sha256, syntheticJob} from '../run-challenges.mjs';
 
-const engine = process.env.UBC26_ENGINE ?? '/Users/anishnarang/UBC-26/engine/target/debug/engine';
+const resolved = resolveEngine();
+const engine = resolved.engine;
 
 test('substituted commitments and deep delivery JSON reject', async () => {
+  assert.equal(resolved.ok, true, resolved.message);
   const challenge = buildCorpus().find((item) => item.id === 'pier-drawers');
   const directory = await mkdtemp(join(tmpdir(), 'ubc26-security-'));
   try {
