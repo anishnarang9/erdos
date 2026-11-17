@@ -3,7 +3,7 @@ import { serve } from "@hono/node-server";
 import { createPublicClient, getAddress, http, type PublicClient } from "viem";
 import { createApp } from "./app.ts";
 import { TASK_DRAIN_MS } from "./tasks.ts";
-import { openDb } from "./db.ts";
+import { migrationVersions, openDb, type Db } from "./db.ts";
 import { createIndexer } from "./indexer.ts";
 import { assertChainEngine, createApiArcChain, type ApiChain } from "./chain.ts";
 import { engineConfigFromEnv, engineFromConfig, simulatedEngine, type Engine } from "./engine.ts";
@@ -11,6 +11,15 @@ import { grokDraftModel, recordingDraftModel, replayDraftModel, type DraftModel 
 import { httpX402Facilitator, type X402Config } from "./x402.ts";
 import { createViemOpenClaimReader } from "./open-claim-reader.ts";
 import type { OpenClaimConfig } from "./open-claim.ts";
+import type { AuthoringBudget } from "./context.ts";
+import {
+  blocksPublicListen,
+  evaluateReady,
+  formatReadyFailure,
+  probeDatabase,
+  type ProviderCostBound,
+  type ReadyInput,
+} from "./ready.ts";
 
 // Secrets live in a gitignored .env next to where the server starts. Real environment variables win.
 if (existsSync(".env")) process.loadEnvFile(".env");
@@ -144,6 +153,66 @@ function openClaimFromEnv(): OpenClaimConfig | undefined {
   return { ...config, reader: createViemOpenClaimReader(client, config, confirmations) };
 }
 
+function readBudget(): AuthoringBudget | undefined {
+  const names = [
+    "AUTHORING_REQUEST_CEILING_MICRO_USD",
+    "AUTHORING_DAILY_CEILING_MICRO_USD",
+    "AUTHORING_INPUT_MICRO_USD_PER_MILLION",
+    "AUTHORING_OUTPUT_MICRO_USD_PER_MILLION",
+    "AUTHORING_CACHED_INPUT_MICRO_USD_PER_MILLION",
+  ];
+  if (names.every((name) => process.env[name] === undefined)) return undefined;
+  const read = (name: string): number => {
+    const raw = process.env[name];
+    if (raw === undefined || !/^[0-9]+$/.test(raw)) return Number.NaN;
+    const value = Number(raw);
+    return Number.isSafeInteger(value) ? value : Number.NaN;
+  };
+  return {
+    requestCeilingMicroUsd: read("AUTHORING_REQUEST_CEILING_MICRO_USD"),
+    dailyCeilingMicroUsd: read("AUTHORING_DAILY_CEILING_MICRO_USD"),
+    inputMicroUsdPerMillion: read("AUTHORING_INPUT_MICRO_USD_PER_MILLION"),
+    outputMicroUsdPerMillion: read("AUTHORING_OUTPUT_MICRO_USD_PER_MILLION"),
+    ...(process.env.AUTHORING_CACHED_INPUT_MICRO_USD_PER_MILLION === undefined
+      ? {}
+      : { cachedInputMicroUsdPerMillion: read("AUTHORING_CACHED_INPUT_MICRO_USD_PER_MILLION") }),
+  };
+}
+
+/** Reads advertisement fields from the model object. The model id env var is not that advertisement. */
+function modelReadyInput(model: DraftModel | undefined): ReadyInput["model"] {
+  if (process.env.GROK_REPLAY_DIR) return { state: "replay" };
+  if (process.env.GROK_RECORD_DIR) return { state: "recording" };
+  if (!model) return { state: "absent" };
+  const advertised = model as DraftModel & { id?: string; providerCostBound?: ProviderCostBound };
+  return {
+    state: "live",
+    ...(typeof advertised.id === "string" ? { id: advertised.id } : {}),
+    ...(advertised.outputTokenBound ? { outputTokenBound: advertised.outputTokenBound } : {}),
+    ...(advertised.providerCostBound ? { providerCostBound: advertised.providerCostBound } : {}),
+  };
+}
+
+function engineReadyInput(): ReadyInput["engine"] {
+  const config = engineConfigFromEnv(process.env);
+  if (!config) return { mode: "simulated" };
+  const executable = {
+    path: config.enginePath,
+    ...(process.env.ENGINE_SHA256 ? { sha256: process.env.ENGINE_SHA256 } : {}),
+  };
+  if (config.mode === "wsl") {
+    return {
+      mode: "real",
+      executable,
+      wrapper: {
+        path: config.wslBin ?? "",
+        ...(process.env.ENGINE_WRAPPER_SHA256 ? { sha256: process.env.ENGINE_WRAPPER_SHA256 } : {}),
+      },
+    };
+  }
+  return { mode: "real", executable };
+}
+
 const chain = chainFromEnv();
 const deploymentMode = process.env.DEPLOYMENT_MODE === "public" ? "public" : "local";
 const { engine, label: engineLabel } = engineFromEnv(deploymentMode);
@@ -161,7 +230,35 @@ const rateLimit = principalLimit === undefined && ipLimit === undefined
       expensivePerPrincipal: principalLimit === undefined ? 0 : Number(principalLimit),
       expensivePerIp: ipLimit === undefined ? 0 : Number(ipLimit),
     };
-const { app, close, reconcileTasks, pumpTasks, drainTasks } = createApp({
+const budget = readBudget();
+const authoring = process.env.AUTHORING_REQUIRED === "0" ? "disabled" : "required";
+const runtime: { worker: "stopped" | "running" | "draining"; route: boolean } = { worker: "stopped", route: false };
+
+function readyInput(db?: Db): ReadyInput {
+  return {
+    mode: deploymentMode,
+    authoring,
+    origin: process.env.SERVICE_ORIGIN ?? "http://localhost",
+    engine: engineReadyInput(),
+    model: modelReadyInput(draftModel),
+    ...(budget ? { budget } : {}),
+    chain: chain?.mode ?? "absent",
+    ...(rateLimit ? { rateLimit } : {}),
+    ...(db ? { database: { ...probeDatabase(db, dbPath), expected: migrationVersions() } } : {}),
+    packages: { path: packagesDir },
+    worker: runtime.worker,
+    requireWorker: runtime.route,
+    expensiveDisabled: process.env.EXPENSIVE_OPS_DISABLED === "1",
+  };
+}
+
+const configReport = await evaluateReady(readyInput());
+const budgetFailed = budget !== undefined && configReport.checks.some((item) => item.name === "budget" && !item.ok);
+if (budgetFailed || (deploymentMode === "public" && blocksPublicListen(configReport))) {
+  console.error(formatReadyFailure(configReport));
+  process.exit(1);
+}
+const { app, close, reconcileTasks, pumpTasks, drainTasks, checkReady } = createApp({
   dbPath,
   buyerToken,
   engine,
@@ -177,8 +274,16 @@ const { app, close, reconcileTasks, pumpTasks, drainTasks } = createApp({
   },
   ...(rateLimit ? { rateLimit } : {}),
   expensiveDisabled: process.env.EXPENSIVE_OPS_DISABLED === "1",
+  ...(budget ? { budget } : {}),
   ...(process.env.OPERATOR_TOKEN ? { operatorToken: process.env.OPERATOR_TOKEN } : {}),
+  ready: (deps) => evaluateReady(readyInput(deps.db)),
 });
+const liveReport = await checkReady();
+if (deploymentMode === "public" && blocksPublicListen(liveReport)) {
+  console.error(formatReadyFailure(liveReport));
+  close();
+  process.exit(1);
+}
 
 // Indexer (§6): ticks every 5 s when a chain is configured. It uses its own connection to the same database
 // file, because createApp does not expose its handle.
@@ -213,9 +318,17 @@ const taskTimer = setInterval(() => {
     });
 }, TASK_INTERVAL_MS);
 
+runtime.worker = "running";
+runtime.route = true;
 const server = serve({ fetch: app.fetch, port, ...(hostname ? { hostname } : {}) }, (info) => {
-  console.log(`[api] listening on ${hostname ?? "all interfaces"}:${info.port} (db: ${dbPath}, chain: ${chain ? chain.config.chainId : "none"})`);
-  console.log(`[api] engine: ${engineLabel}; draft model: ${modelLabel}; packages: ${packagesDir ?? "not kept"}`);
+  const where = `${hostname ?? "all interfaces"}:${info.port}`;
+  if (deploymentMode === "public") {
+    console.log(`[api] listening on ${where} (chain: ${chain ? chain.config.chainId : "none"})`);
+    console.log(`[api] engine: ${engine.mode}; authoring: ${authoring}; packages: ${packagesDir ? "configured" : "not kept"}`);
+  } else {
+    console.log(`[api] listening on ${where} (db: ${dbPath}, chain: ${chain ? chain.config.chainId : "none"})`);
+    console.log(`[api] engine: ${engineLabel}; draft model: ${modelLabel}; packages: ${packagesDir ?? "not kept"}`);
+  }
   console.log(`[api] x402: ${x402 ? `${x402.network} ${x402.amount} units` : "off"}`);
   console.log(`[api] open claim: ${openClaim ? `Arc chain ${openClaim.chainId}` : "off"}`);
 });
@@ -224,6 +337,7 @@ let stopping = false;
 function shutdown(): void {
   if (stopping) return;
   stopping = true;
+  runtime.worker = "draining";
   clearInterval(taskTimer);
   if (indexTimer) clearInterval(indexTimer);
   const drained = drainTasks(TASK_DRAIN_MS);
