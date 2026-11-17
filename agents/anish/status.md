@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 21:44 -05:00 — Anish — Durable tasks integrated and native queue checked
+
+- Integrated Worker A's durable queue, emergency-disable repair and public sync gate through `5e6b5d8`. Public clients use tasks. Paid compilation shares one compiler slot and retains completed Circle replay. My separate SDK/restart regression first reproduced queued dispatch despite emergency disable, then passed after the repair. Full combined commerce checks are running; all typechecks, SDK 357 and API 799 have passed so far.
+- Integrated Worker B's current corpus through `2d5f60f` after the two oracle parser repairs. Five Node regressions pass. An independent native host run compared all 175 current candidates with zero disagreement. This remains a partial corpus. It does not close the frozen 60-request or 180 real API-trial gates.
+- A relocated bundled API passed real HTTP wallet authentication, reference-preserving import, explicit approval, queued native compilation, exact task replay, cross-key deduplication and package integrity checks. One build attempt completed. Its first staging attempt failed because the package output directory was absent; that failure is preserved. No model call or chain action occurred. Restart/restore checks remain pending.
+- The coordinator now owns `deploy/` and `docs/hosted-runtime.md`. Pinned Linux amd64 engine/API container preparation is running. Worker A retains `commerce/api/` and its service report, including Grok bounds and production checks. Public hosting access and Grok API budgets remain unavailable. Keep PR #8 draft.
+
 ## 2026-11-16 21:19 -05:00 — Anish — Buyer linkage repaired; authored inputs preserved
 
 - Integrated Worker A's reviewed buyer-binding fix `9237298` and contract record `ad37950` as `b4e07a8` and `6bb7604`. Wallet-key selected-provider terms now name the buyer. Receipt linkage rejects another confirmed client. The local legacy shape remains compatible. Fresh API suite passed 789 tests. The integrated identity checkpoint also passed all 15 native-engine API tests.

@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-16 21:44 -05:00 — Anish — Queue integration and runtime ownership
+
+- Integration branch `codex/hosted-backend` includes durable tasks, wallet ownership, installed runner and reviewed corpus batches. Public synchronous authoring cannot bypass the queue. Paid compile shares its compiler slot. Local real HTTP queue/compilation/replay passed. Public deployment, real Grok calls and new live settlement remain open gates.
+- The coordinator takes `deploy/` and `docs/hosted-runtime.md` for Linux image, HTTPS topology, backup/restore and rollback. Worker A now owns `commerce/api/` and `docs/hosted-service-worker-report.md`. Worker B continues `engine/` qualification and its report. Reuse the same two Grok sessions. No extra workers or provers.
+- Current independent corpus comparison: 175 candidate evaluations, zero engine/oracle disagreement. The duplicate-key and non-finite-number oracle defects are repaired with regressions. This is a partial corpus, not completed 60-request qualification. Four fresh real proofs remain finite historical-schema engine evidence, separate from the new corpus and funded acceptance.
+
 ## 2026-11-16 20:55 -05:00 — Anish — Hosted runner published; API and qualification continue
 
 - Integration branch `codex/hosted-backend` is pushed at `2a5e44f`. The wallet-owned SDK client and installed runner are implemented. Exact-head commerce/Linux package CI passed. [Runner installation evidence](../anish/reports/hosted-runner-install-2026-11-16.json) distinguishes a fresh installed real-engine check from the historical Meridian workload. The hosted workflow remains open.
