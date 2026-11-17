@@ -175,7 +175,11 @@ test('pier drawer family has an independent oracle and isolated failures', async
 test('supported candidates match the independent oracle', async () => {
   const {corpus, oracle} = await load();
   const challenges = corpus.buildCorpus().filter((item) => item.classification === 'supported');
-  assert.deepEqual(challenges.map((item) => item.id), ['pier-drawers', 'pier-variance', 'tender-split', 'voyage-fee']);
+  assert.deepEqual(challenges.map((item) => item.id), [
+    'pier-drawers', 'pier-variance', 'tender-split', 'voyage-fee',
+    'lot-range-1', 'lot-expiry-1', 'lot-sites-1', 'sensor-1',
+    'category-1', 'indirect-1', 'crew-gear-1', 'cover-1',
+  ]);
   const directory = await mkdtemp(join(tmpdir(), 'ubc26-corpus-'));
   try {
     for (const challenge of challenges) {
