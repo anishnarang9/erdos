@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 15:57 -05:00 — Anish — Check the owner and funding balances
+
+- The hosted API key matches the existing fee job's recorded owner. That wallet has zero testnet USDC. The previous solver has 0.0255801 native testnet USDC at block 0x455eb33. A read-only estimate gives 21,000 gas for transferring 0.055 testnet USDC from the previous funded buyer to this job's owner. The proposed transfer ceiling is 30,000 gas at 25 gwei. The preview preserves the existing Bot receipt. It still requires protected buyer signing setup and explicit authority. See [wallet preflight](reports/hosted-arc-fee-wallet-preflight-2026-11-17.json).
+
 ## 2026-11-17 15:55 -05:00 — Anish — Verify the Arc Testnet fee-case preview
 
 - The VPS returns the expected fee-case manifest and lists 20 package files. A pinned block read matches the core, adapter and verifier runtime hashes. The deployed verifier accepts the existing fee proof via eth_call. The preview proposes 0.01 testnet USDC for the bounty and 0.06775 testnet USDC for maximum gas, including one refund. Wallet ownership and durable funding terms remain pending. No signing or chain transaction occurred. See [read-only preview](reports/hosted-arc-fee-read-only-preview-2026-11-17.json).
