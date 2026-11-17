@@ -26,7 +26,9 @@ const commandFlags: Record<string, readonly string[]> = {
   job: ["api", "job"],
   discover: ["api", "cursor", "limit"],
   "open-job": ["api", "job"],
-  approve: [...common, "job", "revision", "reference-digest", "coverage-digest", "example-check", "idempotency"],
+  approve: [...common, "job", "revision", "reference-digest", "coverage-digest", "example-check", "bot-review", "idempotency"],
+  "request-bot-review": [...common, "job", "revision", "input", "idempotency"],
+  "bot-review": [...common, "job", "review", "wait-ms"],
   compile: [...common, "job", "revision", "idempotency"],
   task: [...common, "task", "wait-ms"],
   download: ["api", "job", "out"],
@@ -77,7 +79,7 @@ export async function hostedCli(args: string[]): Promise<unknown> {
   if (command === "help") return { version: 1, commands: Object.keys(commandFlags),
     privacy: "Results become public when the release key is broadcast.",
     signing: "Passwords use inherited file descriptors. API credentials use private files. Mutations require an idempotency key.",
-    workflow: "auth, draft or import, task, job, approve, compile, task, download, funding-preview, operator, funding-link, discover" };
+    workflow: "auth, draft or import, task, job, request-bot-review, bot-review, approve, compile, task, download, funding-preview, operator, funding-link, discover" };
   if (command === "job-input") return prepareOpenClaimJobInput(["--rpc-url", need("rpc-url"), "--manifest", need("manifest"),
     "--job-id", need("job-id"), "--solver", need("solver"), "--out", need("out")]);
   if (command === "attempt") {
@@ -177,7 +179,20 @@ export async function hostedCli(args: string[]): Promise<unknown> {
       requireSprint(Object.keys(input).length === 1 && Array.isArray(input.examples));
       return client.checkExamples(need("draft"), { revisionHash: need("revision"), examples: input.examples }, need("idempotency"));
     }
-    case "approve": need("key-file"); return client.approve(need("job"), { revisionHash: need("revision"), referenceDigest: need("reference-digest"), ...(f["coverage-digest"] ? { coverageDigest: f["coverage-digest"] } : {}), ...(f["example-check"] ? { exampleCheckId: f["example-check"] } : {}) }, need("idempotency"));
+    case "request-bot-review": {
+      need("key-file"); const body = object(input());
+      requireSprint(Object.keys(body).every(key => ["request", "examples"].includes(key)) && Array.isArray(body.examples)
+        && (body.request === undefined || typeof body.request === "string"));
+      return client.requestBotReview(need("job"), { revisionHash: need("revision"), examples: body.examples,
+        ...(typeof body.request === "string" ? { request: body.request } : {}) }, need("idempotency"));
+    }
+    case "bot-review": {
+      need("key-file");
+      if (!f["wait-ms"]) return client.botReview(need("job"), need("review"));
+      requireSprint(/^[1-9][0-9]*$/.test(f["wait-ms"]) && Number(f["wait-ms"]) <= 3_600_000);
+      return client.waitForBotReview(need("job"), need("review"), { timeoutMs: Number(f["wait-ms"]) });
+    }
+    case "approve": need("key-file"); return client.approve(need("job"), { revisionHash: need("revision"), referenceDigest: need("reference-digest"), ...(f["coverage-digest"] ? { coverageDigest: f["coverage-digest"] } : {}), ...(f["example-check"] ? { exampleCheckId: f["example-check"] } : {}), ...(f["bot-review"] ? { botReviewId: f["bot-review"] } : {}) }, need("idempotency"));
     case "compile": need("key-file"); return client.compile(need("job"), need("revision"), need("idempotency"));
     case "task": {
       need("key-file");

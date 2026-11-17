@@ -6,6 +6,7 @@ import { createHash } from "node:crypto";
 import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, posix, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { stageHostedTypes } from "./stage-hosted-types.mjs";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const output = resolve(process.argv[2] ?? join(root, "dist/hosted-runner"));
 if (existsSync(output)) throw new Error("Release output directory already exists");
@@ -25,7 +26,7 @@ chmodSync(join(stage, "bin/ubc26.mjs"), 0o755);
 for (const path of ["commerce/package.json", "commerce/worker/src/engine.ts", "commerce/api/src/engine.ts", "contracts/deployments/open-claim-arc-testnet.json"]) {
   mkdirSync(dirname(join(stage, path)), { recursive: true }); copyFileSync(join(root, path), join(stage, path));
 }
-copyFileSync(join(root, "commerce/sdk/src/hosted/client.ts"), join(stage, "sdk/hosted.ts"));
+stageHostedTypes(root, stage);
 const readme = readFileSync(join(root, "docs/hosted-client.md"), "utf8").replace(/\]\(([^)\s]+)\)/g, (link, href) => {
   if (href.startsWith("#") || /^[A-Za-z][A-Za-z0-9+.-]*:/.test(href)) return link;
   const [path, ...anchor] = href.split("#");

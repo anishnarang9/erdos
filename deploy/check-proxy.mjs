@@ -20,25 +20,30 @@ async function docker(args,allowFailure=false){
  try{return{...await exec('docker',args,{timeout:20000,maxBuffer:2*1024*1024}),code:0};}
  catch(error){if(!allowFailure)throw error;return{stdout:error.stdout??'',stderr:error.stderr??'',code:error.code??1};}
 }
-async function awaitStatus(expected){
+async function awaitStatus(expected,path='/raw-private-path?token=synthetic-query-must-not-log',token){
  const deadline=Date.now()+16000;let last;
  do{
-  last=await docker(['exec',edge,'wget','-S','-T','2','-O','-','--header','Host: proxy:8080','--header','X-Test-Private: synthetic-header-must-not-log','http://127.0.0.1:8080/raw-private-path?token=synthetic-query-must-not-log'],true);
+  last=await docker(['exec',edge,'wget','-S','-T','2','-O','-','--header','Host: proxy:8080','--header','X-Test-Private: synthetic-header-must-not-log',...(token?['--header',`Authorization: Bearer ${token}`]:[]),...(path==='/integrations/grok-bot/mcp'?['--post-data','{}']:[]),'http://127.0.0.1:8080'+path],true);
   const match=last.stderr.match(/HTTP\/\d(?:\.\d)?\s+(\d+)/);
-  if(match&&Number(match[1])===expected){if(expected===200)assert.ok(last.stdout.includes('controlled-upstream-forwarded'));return{status:expected};}
+  if(match&&Number(match[1])===expected){if(expected===200)assert.ok(last.stdout.includes(path==='/integrations/grok-bot/mcp'?'controlled-restricted-callback':'controlled-upstream-forwarded'));return{status:expected};}
   await new Promise(resolve=>setTimeout(resolve,500));
  }while(Date.now()<deadline);
  await writeFile(join(root,'last-probe.json'),JSON.stringify(last,null,2)+'\n',{mode:0o600});throw Error('Proxy did not reach the required readiness state');
 }
 try{
  await docker(['network','create','--internal',network]);created.push(['network',network]);
- const code="import http from 'node:http';import{readFileSync}from'node:fs';http.createServer((q,r)=>{if(q.url==='/readyz'){const ok=readFileSync('/test/ready','utf8')==='1';r.writeHead(ok?200:503);r.end(JSON.stringify({ready:ok}));}else{r.end('controlled-upstream-forwarded');}}).listen(8080,'0.0.0.0');";
- await docker(['run','-d','--pull','never','--platform','linux/amd64','--name',backend,'--network',network,'--network-alias','api','--read-only','--user','1000:1000','--memory','128m','--cpus','0.25','--pids-limit','32','--cap-drop','ALL','--security-opt','no-new-privileges:true','-v',`${state}:/test:ro`,'--entrypoint','node',image,'--input-type=module','-e',code]);created.push(['container',backend]);
+ const code="import http from 'node:http';import{readFileSync}from'node:fs';http.createServer((q,r)=>{if(q.url==='/healthz'){r.end('ok');}else if(q.url==='/readyz'){const ok=readFileSync('/test/ready','utf8')==='1';r.writeHead(ok?200:503);r.end(JSON.stringify({ready:ok}));}else if(q.url==='/integrations/grok-bot/mcp'){if(q.headers.authorization!=='Bearer synthetic-bot-service-must-not-log'){r.writeHead(401);r.end('denied');}else{r.end('controlled-restricted-callback');}}else{r.end('controlled-upstream-forwarded');}}).listen(8080,'0.0.0.0');";
+ await docker(['run','-d','--pull','never','--platform','linux/amd64','--name',backend,'--network',network,'--network-alias','api','--network-alias','bot-review-ingress','--read-only','--user','1000:1000','--memory','128m','--cpus','0.25','--pids-limit','32','--cap-drop','ALL','--security-opt','no-new-privileges:true','-v',`${state}:/test:ro`,'--entrypoint','node',image,'--input-type=module','-e',code]);created.push(['container',backend]);
  await docker(['run','-d','--pull','never','--name',edge,'--network',network,'--read-only','--memory','128m','--cpus','0.25','--pids-limit','32','--cap-drop','ALL','--cap-add','NET_BIND_SERVICE','--security-opt','no-new-privileges:true','--tmpfs','/data:size=32m','--tmpfs','/config:size=16m','--tmpfs','/tmp:size=16m','-e','UBC26_HOSTNAME=http://proxy:8080','-e','UBC26_TLS_EMAIL=ops@example.test','-v',`${snapshot}:/etc/caddy/Caddyfile:ro`,caddy]);created.push(['container',edge]);
- const phases=[{phase:'unready',...await awaitStatus(503)}];await writeFile(join(state,'ready'),'1');phases.push({phase:'ready',...await awaitStatus(200)});await writeFile(join(state,'ready'),'0');phases.push({phase:'unready-again',...await awaitStatus(503)});
+ const phases=[{phase:'unready',...await awaitStatus(503)},
+  {phase:'unready-callback-auth-required',...await awaitStatus(401,'/integrations/grok-bot/mcp')},
+  {phase:'unready-authenticated-callback',...await awaitStatus(200,'/integrations/grok-bot/mcp','synthetic-bot-service-must-not-log')},
+  {phase:'unready-callback-prefix-not-a-bypass',...await awaitStatus(503,'/integrations/grok-bot/mcp/extra')},
+  {phase:'unready-still-blocked',...await awaitStatus(503)}];
+ await writeFile(join(state,'ready'),'1');phases.push({phase:'ready',...await awaitStatus(200)});await writeFile(join(state,'ready'),'0');phases.push({phase:'unready-again',...await awaitStatus(503)});
  const logs=await docker(['logs',edge],true),text=logs.stdout+logs.stderr;
- for(const token of ['synthetic-header-must-not-log','synthetic-query-must-not-log','/raw-private-path'])assert.ok(!text.includes(token),'Proxy logs retained private request fields');
- const report={status:'passed-controlled-proxy-readiness',caddyImage:caddy,backendImage:image,caddyFileSha256:createHash('sha256').update(await readFile(snapshot)).digest('hex'),phases,privateRequestFieldsAbsentFromLogs:true,edgeCapabilities:['NET_BIND_SERVICE'],noNewPrivileges:true,network:'dedicated internal Docker network',tls:'HTTP-only controlled test; public TLS remains unverified',realModelCalls:0,proofs:0,chainTransactions:0,scope:'Actual pinned Caddy with a controlled readiness upstream. Not public hosted acceptance.'};
+ for(const token of ['synthetic-header-must-not-log','synthetic-query-must-not-log','synthetic-bot-service-must-not-log','/raw-private-path'])assert.ok(!text.includes(token),'Proxy logs retained private request fields');
+ const report={status:'passed-controlled-proxy-readiness',caddyImage:caddy,backendImage:image,caddyFileSha256:createHash('sha256').update(await readFile(snapshot)).digest('hex'),phases,privateRequestFieldsAbsentFromLogs:true,edgeCapabilities:['NET_BIND_SERVICE'],noNewPrivileges:true,network:'dedicated internal Docker network',tls:'HTTP-only controlled test; public TLS is outside this check',realModelCalls:0,proofs:0,chainTransactions:0,scope:'Actual pinned Caddy with a controlled readiness and restricted-callback upstream. Not public hosted or genuine Bot acceptance.'};
  await writeFile(join(root,'report.json'),JSON.stringify(report,null,2)+'\n',{mode:0o600});process.stdout.write(JSON.stringify(report,null,2)+'\n');
 }catch(error){process.stderr.write(`Proxy check failed. Private diagnostics: ${root}\n`);throw error;}
 finally{

@@ -36,6 +36,8 @@ jobs:
         run: |
           node --test ../deploy/state.test.mjs ../deploy/start-api.test.mjs ../deploy/public-deployment.test.mjs ../deploy/warm-compiler.test.mjs ../deploy/compose.test.mjs
           node ../deploy/build-api.mjs "$RUNNER_TEMP/ubc26-hosted-api/server.mjs"
+      - name: Check the standalone hosted TypeScript entry
+        run: node --test worker/scripts/stage-hosted-types.test.mjs
       - name: Check runner payload reproducibility across caller directories
         run: node worker/scripts/check-package-reproducibility.mjs "$RUNNER_TEMP/ubc26-package-reproducibility.json"
       - uses: actions/upload-artifact@v4
@@ -59,6 +61,7 @@ jobs:
           node_modules/.bin/ubc26 wrapper-digest > wrapper.json
           node -e 'const fs=require("node:fs"); const h=JSON.parse(fs.readFileSync("help.json")); const w=JSON.parse(fs.readFileSync("wrapper.json")); if(h.version!==1 || !/^[0-9a-f]{64}$/.test(w.wrapperSha256))process.exit(1)'
           node --input-type=module -e 'import {hostedClient} from "@ubc26/runner/hosted"; if(typeof hostedClient !== "function")process.exit(1)'
+          node "$GITHUB_WORKSPACE/commerce/worker/scripts/check-installed-types.mjs" "$RUNNER_TEMP/ubc26-runner-install"
           node --input-type=module - <<'NODE'
           import {readFileSync} from 'node:fs';
           import assert from 'node:assert/strict';

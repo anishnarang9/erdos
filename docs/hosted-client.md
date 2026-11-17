@@ -69,6 +69,31 @@ The package downloader checks file hashes, package commitments and the guest dig
 
 Discovery uses `ubc26 discover --api "$API"`. The client also accepts `--limit 10` and `--cursor "$NEXT_CURSOR"` under the [paginated contract](hosted-api-contract.md#discovery-pagination). Follow the returned `nextCursor` until it is null. The client stops if a server ignores pagination or repeats a cursor. The integrated server implements this contract with bounded scans and confirmed-time expiry. A 503 dependency failure requires retrying the same cursor; it does not mean the scan ended.
 
+## Review constraints with Grok Bot
+
+When Bot review is enabled, request it before buyer approval. `review.json` contains `examples` and an optional `request`. Each example supplies its exact files and predicted verdict. Supply one passing and one failing example. The server checks both before dispatch. For Grok revisions, the server uses the stored buyer brief and answers. Imports must supply their brief.
+
+```sh
+ubc26 request-bot-review --api "$API" --key-file "$KEY_FILE" --job "$JOB" \
+  --revision "$REVISION_HASH" --input review.json --idempotency review-001
+ubc26 bot-review --api "$API" --key-file "$KEY_FILE" --job "$JOB" \
+  --review "$BOT_REVIEW_ID" --wait-ms 60000
+```
+
+HTTP 202 saves acceptance and can still report queued. Polling reads the existing review. A webhook acknowledgement never counts as a pass. Uncertain delivery stops automatic dispatch. If Bot requests changes or clarification, revise the job and review the new revision.
+
+After inspecting a passed result, explicitly select its receipt during buyer approval:
+
+```sh
+ubc26 approve --api "$API" --key-file "$KEY_FILE" --job "$JOB" \
+  --revision "$REVISION_HASH" --reference-digest "$REFERENCE_DIGEST" \
+  --bot-review "$BOT_REVIEW_ID" --idempotency approve-001
+```
+
+Grok drafts still require the separate coverage digest and native example-check selection described below. Add those flags to this approval. Bot cannot sign, fund or approve a job.
+
+The current production profile supports callback bootstrap with paid dispatch disabled. Real Bot acceptance and the five-to-ten-cent cost target remain unverified. See the [live Bot design](hosted-grok-bot-authoring.md). The SDK exposes `requestBotReview`, `botReview` and `waitForBotReview` through the same owner credential.
+
 ## Fund and run supplied deliverables
 
 The buyer executes five funding operations: create job, set budget, approve the exact token amount, fund, and register. Service charges and escrow bounties are separate.

@@ -1,3 +1,5 @@
+import { hostedBotReview, type HostedBotReviewInput, type HostedBotReview } from "./bot-review.ts";
+export type { HostedBotDecision, HostedBotResult, HostedBotReview, HostedBotReviewInput } from "./bot-review.ts";
 /** Wallet-owned hosted API. Mutations require caller-chosen replay keys. */
 export interface HostedClientOptions {
   baseUrl: string;
@@ -223,6 +225,8 @@ export function hostedClient(options: HostedClientOptions) {
     return boundedBody(response, maxBytes);
   };
   const task = async (id: string, signal?: AbortSignal) => taskView(await request("GET", `/v1/tasks/${encodeURIComponent(id)}`, undefined, undefined, true, undefined, signal), id);
+  const botReview = async (jobId: string, reviewId: string, signal?: AbortSignal) => hostedBotReview(await request("GET",
+    `/v1/jobs/${encodeURIComponent(jobId)}/bot-reviews/${encodeURIComponent(reviewId)}`, undefined, undefined, true, undefined, signal), jobId, reviewId);
   const client = {
     challenge: async (wallet: string, replayKey: string): Promise<AuthChallenge> => {
       const v = object(await request("POST", "/v1/auth/challenge", { wallet }, replayKey, false));
@@ -253,7 +257,19 @@ export function hostedClient(options: HostedClientOptions) {
     importJob: (revision: unknown, replayKey: string, references?: HostedReference[]) => request("POST", "/v1/jobs", { revision, source: "import", ...(references ? { references } : {}) }, replayKey),
     job: (id: string) => request("GET", `/v1/jobs/${encodeURIComponent(id)}`, undefined, undefined, false),
     revise: (id: string, body: unknown, replayKey: string, revisionHash: string) => request("POST", `/v1/jobs/${encodeURIComponent(id)}/revisions`, body, replayKey, true, { "if-match": `"${revisionHash}"` }),
-    approve: (id: string, body: { revisionHash: string; referenceDigest: string; coverageDigest?: string; exampleCheckId?: string }, replayKey: string) => request("POST", `/v1/jobs/${encodeURIComponent(id)}/approve`, body, replayKey, true, { "if-match": `"${body.revisionHash}"` }),
+    approve: (id: string, body: { revisionHash: string; referenceDigest: string; coverageDigest?: string; exampleCheckId?: string; botReviewId?: string }, replayKey: string) => request("POST", `/v1/jobs/${encodeURIComponent(id)}/approve`, body, replayKey, true, { "if-match": `"${body.revisionHash}"` }),
+    requestBotReview: async (jobId: string, input: HostedBotReviewInput, replayKey: string): Promise<HostedBotReview> => hostedBotReview(
+      await request("POST", `/v1/jobs/${encodeURIComponent(jobId)}/bot-reviews`, input, replayKey), jobId, undefined, input.revisionHash.toLowerCase()),
+    botReview,
+    waitForBotReview: async (jobId: string, reviewId: string, wait: WaitTaskOptions = {}): Promise<HostedBotReview> => {
+      const interval = positive(wait.intervalMs ?? 1000, "intervalMs"), deadline = AbortSignal.timeout(positive(wait.timeoutMs ?? 900_000, "timeoutMs"));
+      const signal = wait.signal ? AbortSignal.any([wait.signal, deadline]) : deadline;
+      for (;;) {
+        signal.throwIfAborted(); const result = await botReview(jobId, reviewId, signal);
+        if (["completed", "expired", "uncertain"].includes(result.status)) return result;
+        await pause(interval, signal);
+      }
+    },
     checkExamples: (draftId: string, body: { revisionHash: string; examples: unknown[] }, replayKey: string) => request("POST", `/v1/drafts/${encodeURIComponent(draftId)}/example-checks`, { draftId, ...body }, replayKey, true, { "if-match": `"${body.revisionHash}"` }),
     draft: async (input: unknown, replayKey: string) => taskView(await request("POST", "/v1/tasks", { operation: "draft", input }, replayKey)),
     compile: async (jobId: string, revisionHash: string, replayKey: string) => taskView(await request("POST", "/v1/tasks", { operation: "compile", jobId, revisionHash }, replayKey)),

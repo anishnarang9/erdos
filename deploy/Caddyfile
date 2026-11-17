@@ -21,12 +21,23 @@
 		Referrer-Policy no-referrer
 		-Server
 	}
-	reverse_proxy api:8080 {
-		health_uri /readyz
-		health_interval 5s
-		health_timeout 3s
-		health_status 2xx
-		health_fails 1
-		health_passes 1
+	# Only the authenticated result endpoint may bootstrap while authoring is disabled.
+	handle /integrations/grok-bot/mcp {
+		reverse_proxy bot-review-ingress:8080 {
+			health_uri /healthz
+			health_interval 5s
+			health_timeout 3s
+			health_status 2xx
+		}
+	}
+	handle {
+		reverse_proxy api:8080 {
+			health_uri /readyz
+			health_interval 5s
+			health_timeout 3s
+			health_status 2xx
+			health_fails 1
+			health_passes 1
+		}
 	}
 }

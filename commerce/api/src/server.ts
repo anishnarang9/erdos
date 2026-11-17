@@ -4,6 +4,7 @@ import { createPublicClient, getAddress, http, type PublicClient } from "viem";
 import { createApp } from "./app.ts";
 import { TASK_DRAIN_MS } from "./tasks.ts";
 import { startPumpTimer } from "./pump-timer.ts";
+import { botReviewFromEnv, withBotReviewReady } from "./bot-review-config.ts";
 import { migrationVersions, openDb, type Db } from "./db.ts";
 import { createIndexer } from "./indexer.ts";
 import { assertChainEngine, createApiArcChain, type ApiChain } from "./chain.ts";
@@ -290,7 +291,8 @@ function readyInput(db?: Db): ReadyInput {
   };
 }
 
-const configReport = await evaluateReady(readyInput());
+const botReview = botReviewFromEnv(process.env);
+const configReport = withBotReviewReady(await evaluateReady(readyInput()), botReview);
 const budgetFailed = budget !== undefined && configReport.checks.some((item) => item.name === "budget" && !item.ok);
 if (budgetFailed || (deploymentMode === "public" && blocksPublicListen(configReport))) {
   console.error(formatReadyFailure(configReport));
@@ -319,11 +321,12 @@ const { app, close, reconcileTasks, pumpTasks, drainTasks, checkReady } = create
   expensiveDisabled: process.env.EXPENSIVE_OPS_DISABLED === "1",
   ...(budget ? { budget } : {}),
   ...(process.env.OPERATOR_TOKEN ? { operatorToken: process.env.OPERATOR_TOKEN } : {}),
+  ...(botReview ? { botReview } : {}),
   requestLog: process.env.REQUEST_LOG !== "0",
   requestLogDebug: process.env.REQUEST_LOG_DEBUG === "1",
-  ready: (deps) => {
+  ready: async (deps) => {
     readyCache ??= createReadyCache(() => evaluateReady(readyInput(deps.db)));
-    return readyCache.current(runtime.worker, runtime.route);
+    return withBotReviewReady(await readyCache.current(runtime.worker, runtime.route), botReview);
   },
 });
 const liveReport = await checkReady();

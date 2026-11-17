@@ -8,7 +8,7 @@ Status: implementation/preflight only. No genuine Bot review or chat export exis
 
 The candidate intentionally permits USD100 where the brief permits USD75. Native engine validation and both supplied examples pass. A separate held-out case exposes that semantic difference. The Bot's intended job is to identify the mismatch between intent and rules. See [native preflight](../../agents/anish/reports/hosted-bot-review-preflight-2026-11-17.json). Do not send this README or the expected-outcome report as Bot input.
 
-The [runtime design](../hosted-grok-bot-authoring.md) invokes a dedicated Bot routine through an authenticated webhook. A restricted MCP tool will return its result to our API. HTTP 200 from the trigger is not completed validation. The input/result contract exists; durable dispatch, callback authentication and approval gating remain unfinished.
+The [runtime design](../hosted-grok-bot-authoring.md) invokes a dedicated Bot routine through an authenticated webhook. A restricted MCP tool will return its result to our API. HTTP 200 from the trigger is not completed validation. The input/result contract, durable queue, callback authentication and approval gate pass controlled tests. Production configuration, deployment and a genuine Bot run remain unfinished.
 
 No task was sent to Bot, no credits were purchased and no API key was placed in Bot chat. The user installed Bot and reports exhausted usage. Real account connectivity, a genuine review/export and measured total cost remain pending. The direct xAI API key does not replace Bot's own usage allowance.
 

@@ -328,5 +328,22 @@
     "genuineReviews": 0,
     "measuredCost": null,
     "twentyDollarMassBudgetApproved": false
+  },
+  "botRuntimeIntegration": {
+    "requiredByUser": true,
+    "apiCheckpoint": "545b9e0c3547fab3eafa01a72b0eb0437dc9272a",
+    "apiCheckpointCi": 44077508305,
+    "localApiTests": 987,
+    "localSdkTests": 373,
+    "localWorkerTests": 950,
+    "publicMcpNativeAcceptance": false,
+    "genuineBotReviews": 0,
+    "conversationExport": false,
+    "measuredCostMicroUsd": null,
+    "approvedCompleteRunCeilingMicroUsd": 100000,
+    "paidDispatchDisabled": true,
+    "massQualificationApproved": false,
+    "currentNativeRuntime": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+    "next": "Verify committed archive/native callback-only candidate; retain public503 and no paid calls."
   }
 }

@@ -10,6 +10,7 @@ test('Compose preserves tmpfs paths and mount restrictions for each service',()=
  });
  assert.equal(result.status,0,result.stderr);
  const config=JSON.parse(result.stdout);
+ assert.ok(config.services.api.networks.backend.aliases.includes('bot-review-ingress'),'restricted Bot callback needs its own upstream health pool');
  for(const name of ['api','https']){
   const mounts=config.services[name].tmpfs;
   assert.equal(mounts.length,1,name+' needs one tmpfs mount');

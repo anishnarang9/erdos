@@ -3,6 +3,15 @@
 
 
 
+
+## 2026-11-17 07:04 -05:00 — Anish — Prepare the Bot client, runner and restricted production ingress
+
+- Branch `codex/hosted-backend`, draft PR #8. The SDK requests and polls an existing Bot review with owner authentication. The runner adds `request-bot-review`, `bot-review` and explicit `approve --bot-review`. Polling stops on uncertainty and never starts another review or approves a job. Callback-only server configuration rejects live webhook settings and keeps public readiness false.
+- API 987 tests across 69 files, SDK 373 plus 13 wire checks, worker 950 across 40 files and all three typechecks pass. Eleven deployment checks and an isolated installed-type fixture pass. The actual pinned Caddy passes seven controlled phases: public 503, callback 401 without a synthetic credential, callback 200 with it, longer-prefix 503, public still 503, ready 200 and unready 503. Private request fields are absent from its logs. This is controlled local HTTP evidence, not native/public Bot acceptance.
+- The independent SDK/ingress review found three SDK defects. Each received a failing regression and fix: canonical hash case, strict enum types and the missing packaged companion. The follow-up closes that review and passes SDK8/config5/CLI5/type-fixture1 plus typechecks. A further local regression removes the consumer's special TypeScript extension flag, observes TS5097 and fixes the staged import to normal NodeNext resolution. CI now checks the installed archive's public type entry.
+- API checkpoint `545b9e0` commerce CI `44077508305` passes. The new archive and production image still need exact committed-source build/installation checks. Native source remains `4a6a320`, with public HTTP 503. No Bot task, paid model call, proof or chain transaction ran. Bot is signed in, but the app's settings view did not expose a usable balance readout. No billing change or connector grant occurred.
+- Next: commit/push this checkpoint, verify its canonical archive and callback-only image, preserve a rollback snapshot and test public MCP authentication. Genuine Bot setup/export and measured combined cost remain external gates. The ten-cent complete-run ceiling remains unchanged. The $20 mass-test proposal stays unapproved.
+
 ## 2026-11-17 06:49 -05:00 — Anish — Wire durable Bot callbacks and mandatory approval receipts
 
 - Branch `codex/hosted-backend`, draft PR #8. The API now derives an owner-bound review from the stored revision and native example checks. Grok revisions use the saved brief and buyer answers. Atomic acceptance saves one review and its initial 202 response before any outbound trigger. The restricted authenticated MCP endpoint accepts one hash-bound result tool. Buyer approval stores the exact passed receipt and input/result hashes.

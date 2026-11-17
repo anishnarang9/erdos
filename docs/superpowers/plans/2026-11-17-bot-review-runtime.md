@@ -19,11 +19,13 @@ App flow: authenticate owner → load exact revision → native validation/examp
 - [x] Add at-most-once webhook dispatch with a bounded timeout, no redirects and no retry. A trigger acknowledgement never passes a review.
 - [x] Require the exact passed receipt at approval when enabled. Persist its identity with approval and recheck after asynchronous validation.
 - [x] Keep the integration disabled by default. Require explicit operator configuration before live dispatch. Cost remains unknown until genuine measurement.
-- [ ] Add SDK methods and isolated callback ingress. Preserve normal public readiness checks.
+- [x] Add SDK methods, explicit CLI review/approval flags and isolated callback ingress. Preserve normal public readiness checks.
 
 ## Acceptance
 
-- [ ] Run focused tests, API/SDK typechecks and the affected complete suites.
+- [x] Run focused tests, API/SDK/worker typechecks and the affected complete suites.
 - [ ] Review the changes, update status and checkpoint each ready part.
 - [ ] Configure a genuine Bot routine/custom MCP connector only after account access and spending scope permit it.
 - [ ] Measure total API plus Bot usage and preserve the genuine conversation export. No simulated test establishes Bot success or cost.
+
+- [ ] Verify the exact committed archive, its installed TypeScript entry, callback-only native image and public callback authentication before promotion.
