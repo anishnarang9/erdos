@@ -1,6 +1,13 @@
 # Current plan
 
 
+
+## 2026-11-17 06:29 -05:00 — Anish — Persist Bot review claims and immutable receipts
+
+- Branch `codex/hosted-backend`, draft PR #8. Migration 019 and the Bot review store bind one canonical review to an owned job revision. Dispatch claims persist before network access and store only a callback-ticket digest. Interrupted claims become uncertain and cannot be claimed again. Exact terminal replay preserves its receipt, including after expiry. Changed results are rejected.
+- Nine focused store checks pass. All 959 API tests across 66 files pass, and typecheck passes. A separate read-only review found no actionable defect and passed all twenty contract/store cases plus typecheck. Tests cover competing database connections, restart, stale revisions, substituted plans, expiry and callbacks before webhook acknowledgement.
+- No route, webhook, approval gate, live Bot review or paid call exists in this checkpoint. Continue with the restricted MCP callback and owner routes. The deployed `4a6a320` image remains separate and public HTTP remains 503. Ten-cent total-run authority is unchanged, and Bot cost is unmeasured. No new proof or chain action ran.
+
 ## 2026-11-17 06:26 -05:00 — Anish — Add the live Bot review protocol contract
 
 - Branch `codex/hosted-backend`, draft PR #8. Added canonical, hash-bound Bot review inputs and strict structured results. The contract binds the original brief, exact rules, revision, references, catalog and native example verdicts. It rejects incomplete passes, invented quotes, changed hashes and approval/billing fields.
