@@ -24,6 +24,7 @@ export {
   wslEngineBin,
   compilerProcessEnv,
   explicitSsl,
+  assertPublicExecutablePin,
   COMPILER_PATH,
   COMPILER_TMPDIR,
   windowsToWslPath,

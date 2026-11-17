@@ -49,17 +49,19 @@ function chainFromEnv(): ApiChain | undefined {
 }
 
 /** Engine from ENGINE_MODE and friends (see engineConfigFromEnv). The default is the simulated engine. */
-function engineFromEnv(): { engine: Engine; label: string } {
-  let config: ReturnType<typeof engineConfigFromEnv>;
+function engineFromEnv(pin: "public" | "local"): { engine: Engine; label: string } {
   try {
-    config = engineConfigFromEnv(process.env);
+    const config = engineConfigFromEnv(process.env);
+    if (!config) {
+      if (pin === "public") throw new Error("Public mode requires a native or wsl engine with an absolute executable");
+      return { engine: simulatedEngine(), label: "SIMULATED (fake hashes; set ENGINE_MODE=wsl for the real engine)" };
+    }
+    const { engine, label } = engineFromConfig(config, { pin });
+    return { engine, label };
   } catch (err) {
     console.error((err as Error).message);
     process.exit(1);
   }
-  if (!config) return { engine: simulatedEngine(), label: "SIMULATED (fake hashes; set ENGINE_MODE=wsl for the real engine)" };
-  const { engine, label } = engineFromConfig(config);
-  return { engine, label };
 }
 
 /**
@@ -142,14 +144,14 @@ function openClaimFromEnv(): OpenClaimConfig | undefined {
 }
 
 const chain = chainFromEnv();
-const { engine, label: engineLabel } = engineFromEnv();
+const deploymentMode = process.env.DEPLOYMENT_MODE === "public" ? "public" : "local";
+const { engine, label: engineLabel } = engineFromEnv(deploymentMode);
 // Must precede createApp/openDb, indexer construction, and listen. Labels are informational only.
 assertChainEngine(chain, engine);
 const { model: draftModel, label: modelLabel } = draftModelFromEnv();
 const x402 = x402FromEnv();
 const openClaim = openClaimFromEnv();
 const packagesDir = process.env.PACKAGES_DIR;
-const deploymentMode = process.env.DEPLOYMENT_MODE === "public" ? "public" : "local";
 const principalLimit = process.env.RATE_LIMIT_PRINCIPAL;
 const ipLimit = process.env.RATE_LIMIT_IP;
 const rateLimit = principalLimit === undefined && ipLimit === undefined

@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cliEngine, COMPILER_PATH, compilerProcessEnv } from "../../src/index.ts";
+import { cliEngine, COMPILER_PATH, compilerProcessEnv, engineFromConfig, wslEngineBin } from "../../src/index.ts";
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -86,5 +86,22 @@ describe("compiler child boundary", () => {
 
   it("rejects a compiler environment that is the server environment object", () => {
     expect(() => compilerProcessEnv({ extra: process.env })).toThrow(/cannot inherit process.env/);
+  });
+});
+
+describe("public executable pin", () => {
+  it("accepts an absolute native executable and the pinned WSL wrapper", () => {
+    expect(cliEngine({ bin: "/usr/local/bin/ubc26-engine", pin: "public" }).mode).toBe("real");
+    const bin = wslEngineBin({ distro: "Ubuntu", enginePath: "/opt/ubc26/engine", wslBin: "/usr/local/bin/wsl.exe", cacheDir: "/var/lib/ubc26/cache" });
+    expect(cliEngine({ bin, pin: "public" }).mode).toBe("real");
+    expect(engineFromConfig({ mode: "native", enginePath: "/usr/local/bin/ubc26-engine", distro: "Ubuntu" }, { pin: "public" }).engine.mode).toBe("real");
+  });
+
+  it("rejects a relative executable, a PATH lookup, and an arbitrary wrapper", () => {
+    expect(() => cliEngine({ bin: "ubc26-engine", pin: "public" })).toThrow(/absolute engine executable/);
+    expect(() => cliEngine({ bin: { command: "/usr/local/bin/ubc26-engine", args: ["bash", "-lc", "echo"] }, pin: "public" })).toThrow(/unpinned engine wrapper/);
+    expect(() => engineFromConfig({ mode: "native", enginePath: "relative-engine", distro: "Ubuntu" }, { pin: "public" })).toThrow(/ENGINE_PATH must be an absolute path/);
+    expect(() => engineFromConfig({ mode: "wsl", enginePath: "/opt/ubc26/engine", distro: "Ubuntu" }, { pin: "public" })).toThrow(/ENGINE_WSL_BIN must be an absolute path/);
+    expect(() => cliEngine({ bin: "/usr/local/bin/ubc26-engine", pin: "public", env: { FAKE_ENGINE_LOG: "/tmp/x" } })).toThrow(/extra compiler environment/);
   });
 });
