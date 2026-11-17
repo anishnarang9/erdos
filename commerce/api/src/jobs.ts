@@ -48,6 +48,8 @@ interface ApprovalRow {
   structure_hash: string | null;
   rules_hash: string | null;
   at: string;
+  example_check_id: string | null;
+  coverage_digest: string | null;
 }
 
 /** The engine commitments of a revision's plan (null when the validator does not compute them). */
@@ -63,6 +65,8 @@ export interface ApprovalView {
   structureHash: string | null;
   rulesHash: string | null;
   approvedAt: string;
+  exampleCheckId?: string;
+  coverageDigest?: string;
 }
 
 export function invalid(errors: FieldError[]): ApiError {
@@ -84,6 +88,8 @@ function approvalView(row: ApprovalRow): ApprovalView {
     structureHash: row.structure_hash,
     rulesHash: row.rules_hash,
     approvedAt: row.at,
+    ...(row.example_check_id ? { exampleCheckId: row.example_check_id } : {}),
+    ...(row.coverage_digest ? { coverageDigest: row.coverage_digest } : {}),
   };
 }
 
@@ -108,10 +114,10 @@ export function jobStore(deps: Deps) {
       "SELECT id, n, revision_json, reference_digest, revision_hash, structure_hash, rules_hash, source, draft_id, created_at FROM revisions WHERE id = ?",
     ),
     approval: db.prepare(
-      "SELECT revision_hash, reference_digest, structure_hash, rules_hash, at FROM approvals WHERE revision_id = ? AND voided_at IS NULL",
+      "SELECT revision_hash, reference_digest, structure_hash, rules_hash, at, example_check_id, coverage_digest FROM approvals WHERE revision_id = ? AND voided_at IS NULL",
     ),
     insertApproval: db.prepare(
-      "INSERT INTO approvals (job_id, revision_id, revision_hash, reference_digest, structure_hash, rules_hash, approved_by, at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO approvals (job_id, revision_id, revision_hash, reference_digest, structure_hash, rules_hash, approved_by, at, example_check_id, coverage_digest) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     ),
     voidApprovals: db.prepare("UPDATE approvals SET voided_at = ? WHERE job_id = ? AND voided_at IS NULL"),
     setState: db.prepare("UPDATE jobs SET state = ?, updated_at = ? WHERE id = ?"),
@@ -336,11 +342,12 @@ export function jobRoutes(deps: Deps, commit: Idempotency["commit"], newId: ULID
     if (!isPlainObject(body)) throw invalid([{ path: "", message: "body must be a JSON object" }]);
     const errors: FieldError[] = [];
     for (const k of Object.keys(body)) {
-      if (k !== "revisionHash" && k !== "referenceDigest" && k !== "rulesHash" && k !== "coverageDigest") errors.push({ path: "/" + k, message: "unknown field" });
+      if (k !== "revisionHash" && k !== "referenceDigest" && k !== "rulesHash" && k !== "coverageDigest" && k !== "exampleCheckId") errors.push({ path: "/" + k, message: "unknown field" });
     }
     if (typeof body.revisionHash !== "string") errors.push({ path: "/revisionHash", message: "required string" });
     if (typeof body.referenceDigest !== "string") errors.push({ path: "/referenceDigest", message: "required string" });
     if ("rulesHash" in body && typeof body.rulesHash !== "string") errors.push({ path: "/rulesHash", message: "must be a string" });
+    if ("exampleCheckId" in body && (typeof body.exampleCheckId !== "string" || body.exampleCheckId.length > 128)) errors.push({ path: "/exampleCheckId", message: "must be a check id" });
     if ("coverageDigest" in body && (typeof body.coverageDigest !== "string" || !/^[0-9a-f]{64}$/.test(body.coverageDigest))) errors.push({ path: "/coverageDigest", message: "must be a lowercase SHA-256 digest" });
     const ifMatchRaw = c.req.header("if-match");
     if (ifMatchRaw === undefined || ifMatchRaw.trim() === "") {
@@ -364,9 +371,9 @@ export function jobRoutes(deps: Deps, commit: Idempotency["commit"], newId: ULID
       });
     }
 
-    if (deps.deployment.mode === "public" && rev.source === "grok") {
-      assertAuthoredApproval(deps, rev.draft_id, rev.revision_hash, ownerWallet(c), body.coverageDigest as string | undefined);
-    }
+    const qualification = deps.deployment.mode === "public" && rev.source === "grok"
+      ? assertAuthoredApproval(deps, rev.draft_id, rev.revision_hash, ownerWallet(c), body.coverageDigest as string | undefined, body.exampleCheckId as string | undefined)
+      : undefined;
     const existing = store.approvalOf(rev.id);
     if (job.state === "approved" && existing) {
       return commit(c, 200, { state: "approved", approval: existing });
@@ -409,10 +416,11 @@ export function jobRoutes(deps: Deps, commit: Idempotency["commit"], newId: ULID
       structureHash: rev.structure_hash,
       rulesHash: rev.rules_hash,
       approvedAt: at,
+      ...(qualification ?? {}),
     };
     const approvedBy = ownerWallet(c) ?? "buyer";
     return commit(c, 200, { state: "approved", approval }, () => {
-      q.insertApproval.run(job.id, rev.id, current, rev.reference_digest, rev.structure_hash, rev.rules_hash, approvedBy, at);
+      q.insertApproval.run(job.id, rev.id, current, rev.reference_digest, rev.structure_hash, rev.rules_hash, approvedBy, at, qualification?.exampleCheckId ?? null, qualification?.coverageDigest ?? null);
       q.setState.run("approved", at, job.id);
     });
   };

@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 00:03 -05:00 — Anish — Append immutable buyer witness checks
+
+- Added migration 017 and owner-only example checks for the exact stored draft revision and references. Initial wallet drafts also create records. Failures stay recorded. Database triggers prevent changes or deletion. Public approvals select the initial or explicit later check and retain its id plus the reviewed coverage digest. Original draft task replay remains unchanged.
+- API typecheck and all 861 API tests pass. SDK typecheck and 18 hosted checks pass. Worker typecheck and seven CLI/client checks pass. The backfill regression now checks migration 016 itself, rather than asserting that future migration 017 is absent. Buyer ownership, changed revision, idempotent replay, immutable records and checked approval pass.
+- Four signed workloads pass the real native API adapter with initial and buyer pass/verdict-0 examples. Changed contexts reject. [The report](reports/hosted-native-buyer-checks-2026-11-17.json) pins tested files and the native engine. No real Grok call, guest compilation, proof or chain transaction occurred. Complete failed-call metadata and remaining production controls are next. Public deployment/model budget/live gates remain open.
+
 ## 2026-11-16 23:58 -05:00 — Anish — Share one deadline across draft checks and repair
 
 - One 120-second controller now covers the initial model, validation, all examples and repair. Real model and engine adapters receive cancellation. The pipeline checks cancellation before its final commit. Recording identity and saved input exclude the runtime signal. The frozen prompt/schema still participates in full cost preflight.

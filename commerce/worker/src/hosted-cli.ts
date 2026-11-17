@@ -26,7 +26,7 @@ const commandFlags: Record<string, readonly string[]> = {
   job: ["api", "job"],
   discover: ["api", "cursor", "limit"],
   "open-job": ["api", "job"],
-  approve: [...common, "job", "revision", "reference-digest", "coverage-digest", "idempotency"],
+  approve: [...common, "job", "revision", "reference-digest", "coverage-digest", "example-check", "idempotency"],
   compile: [...common, "job", "revision", "idempotency"],
   task: [...common, "task", "wait-ms"],
   download: ["api", "job", "out"],
@@ -39,6 +39,7 @@ const commandFlags: Record<string, readonly string[]> = {
   "wrapper-digest": [],
   "verify-install": ["source-commit", "release-manifest-sha256"],
   configure: ["api", "job", "input", "engine-config", "manifest", "buyer", "solver", "work-dir", "package-dir", "reference", "deliverables", "evidence", "source-commit", "release-manifest-sha256", "revision", "out"],
+  "check-examples": [...common, "draft", "revision", "input", "idempotency"],
   operator: ["config", "password-fd", "key-file"],
 };
 const operatorCommands = ["preview", "fund", "prepare", "run", "recover", "refund", "circle"];
@@ -157,7 +158,12 @@ export async function hostedCli(args: string[]): Promise<unknown> {
     case "job": return client.job(need("job"));
     case "discover": return client.openJobs({ ...(f.cursor ? { cursor: f.cursor } : {}), ...(f.limit ? { limit: Number(f.limit) } : {}) });
     case "open-job": return client.openJob(need("job"));
-    case "approve": need("key-file"); return client.approve(need("job"), { revisionHash: need("revision"), referenceDigest: need("reference-digest"), ...(f["coverage-digest"] ? { coverageDigest: f["coverage-digest"] } : {}) }, need("idempotency"));
+    case "check-examples": {
+      need("key-file"); const input = object(readOperatorJson(resolve(need("input"))));
+      requireSprint(Object.keys(input).length === 1 && Array.isArray(input.examples));
+      return client.checkExamples(need("draft"), { revisionHash: need("revision"), examples: input.examples }, need("idempotency"));
+    }
+    case "approve": need("key-file"); return client.approve(need("job"), { revisionHash: need("revision"), referenceDigest: need("reference-digest"), ...(f["coverage-digest"] ? { coverageDigest: f["coverage-digest"] } : {}), ...(f["example-check"] ? { exampleCheckId: f["example-check"] } : {}) }, need("idempotency"));
     case "compile": need("key-file"); return client.compile(need("job"), need("revision"), need("idempotency"));
     case "task": {
       need("key-file");

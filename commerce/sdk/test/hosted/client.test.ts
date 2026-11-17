@@ -129,3 +129,9 @@ it("preserves an authored draft ID and references in the job submission",async()
   await client.createJob(submission,"accept-draft-1");
   expect(JSON.parse(String(calls[0]!.init?.body))).toEqual(submission);
 });
+it('binds buyer example checks and reviewed approval to exact immutable identifiers',async()=>{
+ const {client,calls}=fixture([{exampleCheckId:'check-1'},{state:'approved'}]);
+ await client.checkExamples('../draft',{revisionHash:'abc',examples:[{name:'one'}]},'check-1');
+ expect(calls[0]!.url).toContain('..%2Fdraft/example-checks');expect(JSON.parse(String(calls[0]!.init?.body))).toEqual({draftId:'../draft',revisionHash:'abc',examples:[{name:'one'}]});expect(new Headers(calls[0]!.init?.headers).get('if-match')).toBe('"abc"');
+ await client.approve('job',{revisionHash:'abc',referenceDigest:'def',coverageDigest:'review',exampleCheckId:'check-1'},'approval');expect(JSON.parse(String(calls[1]!.init?.body))).toMatchObject({coverageDigest:'review',exampleCheckId:'check-1'});
+});

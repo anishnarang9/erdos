@@ -9,6 +9,7 @@ import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { assessCoverage } from "./coverage.ts";
 import { withinDraftDeadline } from "./draft-deadline.ts";
+import { appendExampleCheck, exampleCheckView } from "./example-checks.ts";
 import { tx } from "./db.ts";
 import { isoAt, readBody, parseJson, requireJobId, type AppEnv, type Deps } from "./context.ts";
 import { expensiveGuard } from "./limits.ts";
@@ -89,6 +90,7 @@ export function registerAuthoringRoutes(ctx: RouteContext): ReturnType<typeof au
     await next();
   };
   app.post("/v1/drafts", readBody, buyer, parseJson, rejectPublicSync, expensive, idem.middleware, h.draft);
+  app.post("/v1/drafts/:draftId/example-checks", readBody, buyer, parseJson, expensive, idem.middleware, h.checkExamples);
   app.post("/v1/jobs/:id/revisions", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, h.revise);
   app.post("/v1/jobs/:id/compile", readBody, buyer, parseJson, requireJobId, owned, rejectPublicSync, expensive, idem.middleware, h.compile);
   // Public: the package and reference files are the job's public commitments, which any solver needs.
@@ -542,6 +544,8 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       attempts: attempts.map(item => ({ kind: item.result.kind, model: item.reply.model, traceId: item.reply.traceId || null, usage: item.reply.usage ?? null })),
     };
     const at = isoAt(deps.now());
+    const initialCheckId = owner && response.kind === "draft" && chosen.hash ? newId() : null;
+    if (initialCheckId) response = { ...response, exampleCheckId: initialCheckId };
     const stored = JSON.stringify({
       response,
       modelResult: result,
@@ -550,6 +554,15 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     signal.throwIfAborted();
     return commit(c, 200, response, () => {
       insertDraft.run(draftId, requestJson, stored, reply.model, reply.traceId, chosen.hash, at, owner);
+      if (initialCheckId && owner && chosen.hash && result.kind === "draft") {
+        const view = exampleCheckView(initialCheckId, draftId, chosen.hash, response.examples as ExampleLabel[], at);
+        // Preserve the exact selected fixtures and generated examples, including rejected selections.
+        const fixtures = result.examples.map(example => {
+          try { return resolveExample(example, body.exampleFixtures); }
+          catch { return { rejectedSelection: example }; }
+        });
+        appendExampleCheck(deps.db, { id: initialCheckId, draftId, revisionHash: chosen.hash, owner, origin: "initial", fixtures, result: view, createdAt: at });
+      }
     });
     };
     try { return await execute(); }
@@ -595,6 +608,42 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       }
     }
     return out;
+  };
+
+  /** Buyer witnesses qualify the exact immutable draft. They never replace the original authoring result. */
+  const checkExamples: Handler<AppEnv> = async c => {
+    const owner = ownerWallet(c), draftId = c.req.param("draftId") ?? "";
+    const row = deps.db.prepare("SELECT owner_wallet,revision_hash,request_json,result_json FROM drafts WHERE id = ?").get(draftId) as
+      { owner_wallet: string | null; revision_hash: string | null; request_json: string; result_json: string } | undefined;
+    if (!owner || !row || row.owner_wallet !== owner) throw new ApiError("not_found", "Draft not found");
+    const body = c.get("json");
+    if (!isPlainObject(body) || Object.keys(body).some(key => !["draftId", "revisionHash", "examples"].includes(key))) throw invalid([{ path: "", message: "expected draftId, revisionHash and examples" }]);
+    if (body.draftId !== draftId || typeof body.revisionHash !== "string" || body.revisionHash !== row.revision_hash || normalizeIfMatch(c.req.header("if-match") ?? "") !== row.revision_hash) {
+      throw new ApiError("revision_conflict", "Example checks must match the exact draft revision");
+    }
+    const fixtures = parseExampleFixtures(body.examples, "/examples");
+    if (fixtures.length === 0) throw invalid([{ path: "/examples", message: "at least one complete example is required" }]);
+    const stored: unknown = JSON.parse(row.result_json), request: unknown = JSON.parse(row.request_json);
+    if (!isPlainObject(stored) || !isPlainObject(stored.response) || stored.response.kind !== "draft" || !isPlainObject(request)) throw new ApiError("approval_required", "Draft has no checker revision");
+    const shape = validateRevisionShape(stored.response.revision);
+    const refs = validateReferences(request.references ?? []);
+    if (!shape.ok || !refs.ok || revisionHash(shape.revision) !== row.revision_hash || referenceDigestOf(refs.files) !== shape.revision.referenceDigest) throw new ApiError("revision_conflict", "Stored draft bindings are invalid");
+    const controller = new AbortController(), timer = setTimeout(() => controller.abort(), DRAFT_TIMEOUT_MS);
+    timer.unref?.();
+    try {
+      const examples = await labelExamples({ kind: "draft", plan: shape.revision.plan, examples: fixtures, sourceQuotes: [] }, refs.files, [], controller.signal);
+      controller.signal.throwIfAborted();
+      const id = newId(), at = isoAt(deps.now()), view = exampleCheckView(id, draftId, row.revision_hash!, examples, at);
+      return commit(c, 201, view, () => appendExampleCheck(deps.db, { id, draftId, revisionHash: row.revision_hash!, owner, origin: "buyer", fixtures, result: view, createdAt: at }));
+    } catch (err) {
+      if (controller.signal.aborted || (err instanceof ModelError && err.reason === "timeout")) {
+        const id = newId(), at = isoAt(deps.now());
+        const examples = fixtures.map(example => ({ name: example.name, predictedVerdict: example.predictedVerdict, checkerVerdict: null, agrees: null, checkerError: "Example checks timed out" }));
+        const view = { ...exampleCheckView(id, draftId, row.revision_hash!, examples, at), failure: { reason: "timeout" } };
+        return commit(c, 201, view, () => appendExampleCheck(deps.db, { id, draftId, revisionHash: row.revision_hash!, owner, origin: "buyer", fixtures, result: view, createdAt: at }));
+      }
+      throw err;
+    } finally { clearTimeout(timer); }
   };
 
   /** POST /v1/jobs/:id/revisions (§4) */
@@ -815,5 +864,5 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     });
   };
 
-  return { draft, revise, compile, compileGate, packageListing, packageFile, references };
+  return { draft, checkExamples, revise, compile, compileGate, packageListing, packageFile, references };
 }

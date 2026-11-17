@@ -1,0 +1,94 @@
+{
+  "status": "passed-native-buyer-example-checks",
+  "corpusDigest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
+  "sourceFiles": {
+    "commerce/api/src/authoring.ts": "3e6da17e7d0dc72b9cde389a08b1d1e6ab0e9019a0b7dd8c3bcd1164256e793c",
+    "commerce/api/src/engine.ts": "e544738e5489544c590046427f864c056e02eaf2ae2c4d2ce2aada4a788f7f79",
+    "commerce/api/src/example-checks.ts": "92eb9a1aef01d01589cb995d7d9a1c6b8a08f5a8b35535261702e58674b6b785",
+    "commerce/api/src/authored-approval.ts": "71ff2fc987344be354799ac5ce63c1f9124f0674db35b382d3e020485a19e11c",
+    "commerce/api/migrations/017_example_checks.sql": "b8012df8c4b5512c61feb7f4d3caefe4b6132ac0a89bd09a13590ab32f8f8c98",
+    "commerce/sdk/src/hosted/client.ts": "27d0f4aeef4c077b5ee4b4a581eae24210dc360aeedaaa752a6c936bbf16d92f"
+  },
+  "engineSha256": "fc91a0b12edcbeb0fe1b744a6b6f2b92c9895eecf7de3d9db097287078c9c934",
+  "scope": "Controlled model returns canonical held-out plans only to test native API transport. This is not real Grok qualification, a proof or funded acceptance.",
+  "signedWorkloads": 4,
+  "realModelCalls": 0,
+  "proofs": 0,
+  "chainTransactions": 0,
+  "rows": [
+    {
+      "id": "seal-1",
+      "initial": {
+        "passing": 1,
+        "verdict0": 1,
+        "ready": true
+      },
+      "buyer": {
+        "passing": 1,
+        "verdict0": 1,
+        "ready": true
+      },
+      "changedContext": {
+        "ready": false,
+        "rejected": 2
+      },
+      "originalTaskUnchanged": true
+    },
+    {
+      "id": "crate-1",
+      "initial": {
+        "passing": 1,
+        "verdict0": 1,
+        "ready": true
+      },
+      "buyer": {
+        "passing": 1,
+        "verdict0": 1,
+        "ready": true
+      },
+      "changedContext": {
+        "ready": false,
+        "rejected": 2
+      },
+      "originalTaskUnchanged": true
+    },
+    {
+      "id": "transfer-1",
+      "initial": {
+        "passing": 1,
+        "verdict0": 1,
+        "ready": true
+      },
+      "buyer": {
+        "passing": 1,
+        "verdict0": 1,
+        "ready": true
+      },
+      "changedContext": {
+        "ready": false,
+        "rejected": 2
+      },
+      "originalTaskUnchanged": true
+    },
+    {
+      "id": "dual-seal-1",
+      "initial": {
+        "passing": 1,
+        "verdict0": 1,
+        "ready": true
+      },
+      "buyer": {
+        "passing": 1,
+        "verdict0": 1,
+        "ready": true
+      },
+      "changedContext": {
+        "ready": false,
+        "rejected": 2
+      },
+      "originalTaskUnchanged": true
+    }
+  ],
+  "testedParentCommit": "b0acab9",
+  "createdAt": "2026-11-17"
+}
