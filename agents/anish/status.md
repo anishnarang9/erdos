@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 16:02 -05:00 — Anish — Exercise Docker log rotation and restart
+
+- The VPS applies three-file rotation at 10 MB and restart unless stopped. An isolated drill hits the three-file limit and restarts after its process exits. The first test used Docker kill, which did not exercise automatic restart. All three bounded filesystems have free capacity. BuildKit reports GC enabled, with cache below its configured limit. Actual cache reclamation remains unverified. See the [operations drill](reports/hosted-log-rotation-restart-drill-2026-11-17.json).
+
 ## 2026-11-17 16:00 -05:00 — Anish — Exercise the previous API image on restored state
 
 - The prior API image boots from its separate restored snapshot with network disabled. Liveness passes, readiness returns 503, and the database reports zero foreign-key errors and two compiled manifests. The restored instance stops after the check. Production API and HTTPS container identities match their pre-drill values. See the [rollback drill](reports/hosted-previous-image-rollback-drill-2026-11-17.json).
