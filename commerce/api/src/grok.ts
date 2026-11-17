@@ -42,13 +42,23 @@ export interface DraftModelInput {
       checkerError: string | null;
     }[];
   };
+  /**
+   * Requested completion cap for this call. A hint only.
+   * The provider may ignore it. Spend checks use the supported maximum.
+   */
+  maxCompletionTokens?: number;
   /** The engine's plan JSON Schema (engine-contract/plan-v1.schema.json). */
   schema: unknown;
   /** The engine's capability catalog (`engine capabilities`). Optional for callers that predate it. */
   catalog?: unknown;
 }
 
-/** Token counts from the provider. `costInUsdTicks` is stored and is not a price. */
+/**
+ * Token counts from one provider response.
+ * `costInUsdTicks` is the actual amount billed for that response when it is a safe nonnegative integer.
+ * xAI defines 10^10 ticks per USD, including discounts. It is not a tariff rate.
+ * Null means the provider did not report a usable charge.
+ */
 export interface ModelUsage {
   promptTokens: number;
   completionTokens: number;
@@ -75,6 +85,8 @@ export class ModelError extends Error {
   readonly code: string;
   /** Same as `code`; surfaced as `details.reason` on 502 model_failed. */
   readonly reason: string;
+  /** Present when a refused or truncated reply still reported charged usage. */
+  usage?: ModelUsage;
   constructor(code: string, message: string = code) {
     super(message);
     this.name = "ModelError";
@@ -213,7 +225,10 @@ function wholeNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? value : null;
 }
 
-/** Reads provider usage. Missing or inconsistent counts return null. Tick values are not prices. */
+/** Reads provider usage. Missing or inconsistent token counts return null.
+ *  A tick count is kept only when it is a safe nonnegative integer. Any other tick value becomes null
+ *  and does not discard the token counts.
+ */
 export function readModelUsage(root: Record<string, unknown>): ModelUsage | null {
   if (!isPlainObject(root.usage)) return null;
   const usage = root.usage;
@@ -231,8 +246,9 @@ export function readModelUsage(root: Record<string, unknown>): ModelUsage | null
     if (reasoningTokens === null || reasoningTokens > completionTokens) return null;
   }
   let costInUsdTicks: number | null = null;
-  if (typeof usage.cost_in_usd_ticks === "number" && Number.isFinite(usage.cost_in_usd_ticks)) {
-    costInUsdTicks = usage.cost_in_usd_ticks;
+  if ("cost_in_usd_ticks" in usage) {
+    const ticks = usage.cost_in_usd_ticks;
+    if (typeof ticks === "number" && Number.isSafeInteger(ticks) && ticks >= 0) costInUsdTicks = ticks;
   }
   return { promptTokens, completionTokens, cachedTokens, reasoningTokens, costInUsdTicks };
 }
@@ -338,10 +354,14 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
         clarifications: input.clarifications,
         ...(input.repair ? { repair: input.repair } : {}),
       };
+      const requestedCap = input.maxCompletionTokens;
+      const callCap = typeof requestedCap === "number" && Number.isSafeInteger(requestedCap) && requestedCap > 0
+        ? Math.min(requestedCap, maxCompletionTokens)
+        : maxCompletionTokens;
       const body = {
         model: opts.model,
         temperature: 0,
-        max_completion_tokens: maxCompletionTokens,
+        max_completion_tokens: callCap,
         messages: [
           { role: "system", content: DRAFT_SYSTEM_PROMPT },
           {
@@ -399,30 +419,41 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
         throw fail("invalid_reply", "Draft model response is not JSON");
       }
       const root = isPlainObject(json) ? json : {};
+      const usage = readModelUsage(root);
+      const failUsed = (reason: string, message: string): ModelError => {
+        const err = fail(reason, message);
+        if (usage) err.usage = usage;
+        return err;
+      };
       const choices = Array.isArray(root.choices) ? root.choices : [];
       const first = isPlainObject(choices[0]) ? choices[0] : {};
       const finish = first.finish_reason;
-      if (finish === "length") throw fail("finish_length", "Draft model output reached the token limit");
-      if (finish === "content_filter") throw fail("content_filter", "Draft model stopped for a content filter");
-      if (finish != null && finish !== "stop") throw fail("finish_reason", "Draft model stopped for an unexpected reason");
+      if (finish === "length") throw failUsed("finish_length", "Draft model output reached the token limit");
+      if (finish === "content_filter") throw failUsed("content_filter", "Draft model stopped for a content filter");
+      if (finish != null && finish !== "stop") throw failUsed("finish_reason", "Draft model stopped for an unexpected reason");
       const message = isPlainObject(first.message) ? first.message : {};
       const content = message.content;
       if (typeof content !== "string" || content === "") {
-        throw fail("missing_content", "Draft model response has no choices[0].message.content");
+        throw failUsed("missing_content", "Draft model response has no choices[0].message.content");
       }
-      if (content.length > maxOutputChars) throw fail("output_too_large", "Draft model output exceeds the size limit");
+      if (content.length > maxOutputChars) throw failUsed("output_too_large", "Draft model output exceeds the size limit");
       let parsed: unknown;
       try {
         parsed = JSON.parse(content);
       } catch {
-        throw fail("invalid_reply", "Draft model content is not JSON");
+        throw failUsed("invalid_reply", "Draft model content is not JSON");
       }
-      const result = parseModelDraft(fromWireReply(parsed));
+      let result: ReturnType<typeof parseModelDraft>;
+      try {
+        result = parseModelDraft(fromWireReply(parsed));
+      } catch (err) {
+        if (err instanceof ModelError && usage) err.usage = usage;
+        throw err;
+      }
       if (typeof root.id !== "string" || root.id === "") {
-        throw fail("invalid_reply", "Draft model response has no id");
+        throw failUsed("invalid_reply", "Draft model response has no id");
       }
       const model = typeof root.model === "string" && root.model !== "" ? root.model : opts.model;
-      const usage = readModelUsage(root);
       return {
         result,
         model: scrub(model),
