@@ -42,7 +42,7 @@ The open-claim policy hook is a zero address because the adapter is the evaluato
 
 A local corpus load found four supported signed workloads. Each has a pass candidate, a fail candidate with expected status `fail`, and `invalid-signature` with expected status `reject`. The script requires 12 rows. A reject result must exit 1 with status `check-rejected`, `proofGenerated` false, and `transactionSent` false. A pass or fail result must exit 0 with verdict 1 or 0. `CORPUS_DIGEST` is `2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470`.
 
-`.github/workflows/commerce.yml` builds the archive, installs it outside the checkout, and runs `verify-install` against the job commit and the manifest pin. It does not run `check-installed-native.mjs`. That missing engine job is the pending native Linux CI. It is not a new defect. This review did not execute the native engine.
+`.github/workflows/commerce.yml` builds the archive, installs it outside the checkout, and runs `verify-install` against the job commit and the manifest pin. It does not run `check-installed-native.mjs`. The native engine invocation belongs to `.github/workflows/core-fast.yml`, outside this report's workflow inspection. Its current CI result is not established by this review. This review did not execute the native engine.
 
 ## Spend, drain, and replay
 
@@ -73,3 +73,9 @@ From `commerce/api`, vitest 5.1.0 ran `test/spec/hosted-billable-bound.test.ts`,
 From `commerce/sdk`, vitest ran `test/hosted/attempts.test.ts`. 5 tests passed and 0 failed.
 
 From `commerce/worker`, vitest ran `test/unit/hosted-attempt-publication.test.ts` and `test/unit/attempt-status.test.ts`. 6 tests passed and 0 failed.
+
+## Coordinator verification after this review
+
+Native Linux push run [44032104126](https://github.com/anishnarang9/UBC-26/actions/runs/44032104126) later passed at `5991bd2`. Its report is [committed separately](../agents/anish/reports/hosted-runner-native-linux-2026-11-17.json). The first job rejected Cargo's two-link build binary. Installing a separate protected copy fixed that setup. The native engine workflow already existed in the reviewed tree; the workflow paragraph above now distinguishes what this review inspected from the separate native result.
+
+This review does not cover the forthcoming browser/paid-waiter implementation or the benchmark trace/freshness integration issue reproduced after the review. Those require their own checks.

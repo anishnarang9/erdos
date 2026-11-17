@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 01:53 -05:00 — Anish — Verify runtime observation and identify benchmark metadata mismatch
+
+- Integrated Worker B's read-only security report `c1da4bb` as `1814f2d`. It found no new material defect in the reviewed `8c98d6b` attempt, pin, backup and spend/replay paths. Corrected its workflow-inspection wording: native engine CI is in `core-fast.yml` and separately passed at `5991bd2`. The report does not review future service changes.
+- Image `5d0f8b6` passes configured readiness, auth/ownership, attempt publication, real warm compile (0.901 seconds), replay/restart and revocation. Added actual public-mode checks for protected metrics, auth limits, spoofed IP handling without trusted proxy, and privacy across both log streams. A controlled indexer error included a synthetic RPC secret; no secret appeared in logs. See [the report](reports/hosted-observation-image-2026-11-17.json). This remains emulated, isolated local evidence with an unused synthetic model credential.
+- Separate harness review reproduced a real metadata mismatch: `collectTraceIds` repeats the same provider id from `qualification.traceId`, `traceIds` and `attempts`; `markFresh` rejects that normal single-call result as missing a trace. The same qualification worker will repair this with freshness/replay regressions before any real application inference trial. Frozen corpus and thresholds must stay unchanged. No application model request or chain action occurred.
+
 ## 2026-11-17 01:43 -05:00 — Anish — Installed guide links pass; ingress/payment contract staged
 
 - Clean archive `10164d1` built and installed independently. Provenance passes, and all four README document links use the archive's exact 40-character source SHA. Every target exists in that Git tree. Tar SHA-256 is `05774686a13ba119caa2a79f393dfe2f690bf18a9812c3eafc9876b6cd4feb4c`; manifest SHA-256 is `40b2bec926136e61023974d71ca49eb366e095059c10832a17c5981256a8a0a7`. Runtime source is unchanged.

@@ -98,6 +98,14 @@
       "status": "implemented-and-tested",
       "documentation": "../../../docs/hosted-service-worker-report.md",
       "limit": "Process counters reset on restart. Host quotas are not enforced by these metrics."
+    },
+    {
+      "gate": "actual public-mode observation/auth controls",
+      "status": "passed-local-image",
+      "report": "hosted-observation-image-2026-11-17.json",
+      "imageSource": "5d0f8b6f0313433be65f058ad8156954717068a1",
+      "warmCompileMs": 901,
+      "limit": "Emulated Linux, isolated network and unused synthetic model credential. Later ingress/paid-waiter code still needs verification."
     }
   ],
   "activeImplementation": [
@@ -107,7 +115,7 @@
     },
     {
       "owner": "same Grok worker B",
-      "work": "Independent review of integrated auth/spend, attempt privacy, pins, installed runner and recovery boundaries."
+      "work": "Repair actual API trace mirrors and verify benchmark freshness/cached-task protection, then review the later paid-waiter/origin changes."
     },
     {
       "owner": "coordinator",
@@ -201,5 +209,14 @@
       "status": "success"
     },
     "finalRelease": false
+  },
+  "independentReview": {
+    "source": "8c98d6b",
+    "status": "no-new-material-defect-in-reviewed-paths",
+    "report": "../../../docs/hosted-integrated-security-review.md",
+    "excludes": [
+      "forthcoming browser/paid-waiter code",
+      "newly reproduced benchmark metadata mismatch"
+    ]
   }
 }
