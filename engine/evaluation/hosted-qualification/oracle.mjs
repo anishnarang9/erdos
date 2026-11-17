@@ -46,9 +46,16 @@ function strictParse(bytes) {
     reject('input-types', 'Expected UTF-8 JSON');
   }
   let index = 0;
+  let depth = 0;
   const fail = () => reject('input-types', 'Expected strict JSON');
   const skip = () => {
     while (text[index] === ' ' || text[index] === '\n' || text[index] === '\r' || text[index] === '\t') index += 1;
+  };
+  const hexUnit = () => {
+    const hex = text.slice(index, index + 4);
+    if (!/^[0-9a-fA-F]{4}$/.test(hex)) fail();
+    index += 4;
+    return Number.parseInt(hex, 16);
   };
   const parseString = () => {
     if (text[index] !== '"') fail();
@@ -68,10 +75,16 @@ function strictParse(bytes) {
         else if (next === 'r') value += '\r';
         else if (next === 't') value += '\t';
         else if (next === 'u') {
-          const hex = text.slice(index, index + 4);
-          if (!/^[0-9a-fA-F]{4}$/.test(hex)) fail();
-          value += String.fromCharCode(Number.parseInt(hex, 16));
-          index += 4;
+          const unit = hexUnit();
+          if (unit >= 0xD800 && unit <= 0xDBFF) {
+            if (text[index] !== '\\' || text[index + 1] !== 'u') reject('input-types', 'Lone UTF-16 surrogate');
+            index += 2;
+            const low = hexUnit();
+            if (low < 0xDC00 || low > 0xDFFF) reject('input-types', 'Lone UTF-16 surrogate');
+            value += String.fromCharCode(unit, low);
+          } else if (unit >= 0xDC00 && unit <= 0xDFFF) {
+            reject('input-types', 'Lone UTF-16 surrogate');
+          } else value += String.fromCharCode(unit);
         } else fail();
       } else if (char >= '\u0000' && char <= '\u001f') fail();
       else value += char;
@@ -99,6 +112,15 @@ function strictParse(bytes) {
     return Number(text.slice(start, index));
   };
   const parseValue = () => {
+    depth += 1;
+    if (depth > 32) reject('input-types', 'JSON nesting exceeds 32');
+    try {
+      return parseOne();
+    } finally {
+      depth -= 1;
+    }
+  };
+  const parseOne = () => {
     skip();
     const char = text[index];
     if (char === '{') return parseObject();
@@ -122,7 +144,7 @@ function strictParse(bytes) {
   const parseObject = () => {
     index += 1;
     skip();
-    const object = {};
+    const object = Object.create(null);
     if (text[index] === '}') {
       index += 1;
       return object;
@@ -134,7 +156,8 @@ function strictParse(bytes) {
       skip();
       if (text[index] !== ':') fail();
       index += 1;
-      object[key] = parseValue();
+      const member = parseValue();
+      Object.defineProperty(object, key, {value: member, enumerable: true, writable: true, configurable: true});
       skip();
       if (text[index] === ',') {
         index += 1;
