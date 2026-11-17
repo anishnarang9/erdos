@@ -1,7 +1,7 @@
 {
   "version": 1,
   "status": "incomplete",
-  "workingSource": "0070c3bfd16476599ec06c54ee9433e264f4876c",
+  "workingSource": "41341adfba1819fea613daeb66c272d625f08ee3",
   "finalReleaseSource": null,
   "publicUrl": null,
   "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/8",
@@ -114,12 +114,20 @@
       "apiTests": 939,
       "focusedTests": 11,
       "limit": "No external settlement occurred. Combined image and independent final review remain pending."
+    },
+    {
+      "gate": "campaign provenance and actual API integration",
+      "status": "passed-controlled-source-checks",
+      "report": "hosted-campaign-api-integration-2026-11-17.json",
+      "offlineNativeChecks": 57,
+      "genuineApplicationTrials": 0,
+      "limit": "Synthetic wallets and controlled model. Exact-source CI, final artifacts/image and independent review remain pending."
     }
   ],
   "activeImplementation": [
     {
       "owner": "coordinator",
-      "work": "Finish benchmark trace metadata, fresh-campaign/resume and bounded polling fixes; then final source/image/artifact checks."
+      "work": "Verify final combined source with Linux CI, new image and runner artifacts. Then update evidence and final UI/operations handoff."
     },
     {
       "owner": "independent reviewer pending",

@@ -1,5 +1,12 @@
 # Current plan
 
+## 2026-11-17 02:34 -05:00 — Anish — Bind qualification campaigns to verified principals and original dispatches
+
+- The harness now verifies distinct wallet principals before any task POST. The ledger persists campaign/origin/corpus/owner/input/time bindings before dispatch. Original results remain fresh on GET resume. Unknown POSTs keep their reservation and key. Stale semantic caches, reused task/traces, changed terminal results and changed bindings stop further work. The entrypoint remains dispatch-disabled.
+- All 57 qualification Node checks pass with the existing native engine and unchanged corpus digest. New regressions exposed and fixed origin verification ordering, malformed reservations, unsafe empty-lock removal and reuse of partial cost as a final unknown bill. File locks now require verified operator cleanup after an orphan. Default polling permits normal async tasks and stays bounded.
+- Actual Hono/SQLite integration passes three controlled wallet trials and a GET-only resume without more model calls. A new ledger rejects a stale semantic cache. Three keys for one wallet reject before task work. The same check passes restricted Node 24/Linux under emulation with no external network. Two initial container profiles needed enum transformation and writable `/tmp`. CI now runs the reusable check and uploads exact-source evidence.
+- `6245404` paid controls and `41341ad` trace controls both pass their exact-source commerce/core CI. Next: campaign checkpoint CI, final combined image/runner artifacts, evidence and handoff. Final independent review and missing host/model/budget/live inputs remain open. Genuine application trials remain zero. Push this checkpoint; keep PR #8 draft.
+
 ## 2026-11-17 02:21 -05:00 — Anish — Bound paid compiler work before settlement
 
 - The coordinator completed preserved worker work after both sessions stopped. A positive global cap counts active plus waiting external handlers. One compiler serves paid and durable work. Admission precedes payment insertion and settlement. Completed exact replay bypasses capacity and current approval. Cached compiled reads remain free. A settled unfinished payment resumes without another charge.

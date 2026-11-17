@@ -10,14 +10,22 @@ export function reservationFor(attemptPriceMicroUsd) {
 }
 
 export function committedMicroUsd(ledger) {
+  const invalid = () => Object.assign(new Error('invalid-ledger'), {code: 'invalid-ledger'});
+  if (!ledger.entries || typeof ledger.entries !== 'object' || Array.isArray(ledger.entries)) throw invalid();
   return Object.values(ledger.entries).reduce((total, entry) => {
-    if (entry.state === 'reconciled' && Number.isSafeInteger(entry.costMicroUsd)) return total + entry.costMicroUsd;
-    return total + entry.reservedMicroUsd;
+    if (!entry || !['reserved', 'spent', 'reconciled'].includes(entry.state) ||
+        !Number.isSafeInteger(entry.reservedMicroUsd) || entry.reservedMicroUsd <= 0 ||
+        (entry.costMicroUsd !== null && (!Number.isSafeInteger(entry.costMicroUsd) || entry.costMicroUsd < 0)) ||
+        (entry.state === 'reconciled' && (entry.costSource !== 'actual-ticks' || actualMicroUsdFromTicks(entry.costInUsdTicks) !== entry.costMicroUsd))) throw invalid();
+    const cost = entry.state === 'reconciled' ? entry.costMicroUsd : entry.reservedMicroUsd;
+    const next = total + cost;
+    if (!Number.isSafeInteger(next)) throw invalid();
+    return next;
   }, 0);
 }
 
 export function newLedger({scope, capMicroUsd, attemptPriceMicroUsd}) {
-  return {scope, capMicroUsd, attemptPriceMicroUsd, entries: {}};
+  return {scope, capMicroUsd, attemptPriceMicroUsd, campaign: null, entries: {}};
 }
 
 export function dispatchDecision(ledger) {
@@ -45,11 +53,15 @@ export async function persistLedger(path, ledger) {
 export async function readLedger(path, fallback) {
   try {
     const stored = JSON.parse(await readFile(path, 'utf8'));
-    if (!stored || typeof stored !== 'object' || !stored.entries) return fallback;
+    if (!stored || typeof stored !== 'object' || !stored.entries || typeof stored.entries !== 'object' || Array.isArray(stored.entries)) {
+      throw Object.assign(new Error('invalid-ledger'), {code: 'invalid-ledger'});
+    }
+    committedMicroUsd(stored);
     fallback.scope = stored.scope;
     fallback.capMicroUsd = stored.capMicroUsd;
     fallback.attemptPriceMicroUsd = stored.attemptPriceMicroUsd;
     fallback.entries = stored.entries;
+    fallback.campaign = stored.campaign ?? null;
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
   }
@@ -66,21 +78,8 @@ async function acquireFileLock(lockPath) {
       return handle;
     } catch (error) {
       if (error.code !== 'EEXIST') throw error;
-      let owner = null;
-      try {
-        owner = JSON.parse(await readFile(lockPath, 'utf8')).pid;
-      } catch {
-        await unlink(lockPath).catch(() => {});
-        continue;
-      }
-      if (owner !== process.pid) {
-        try {
-          process.kill(owner, 0);
-        } catch {
-          await unlink(lockPath).catch(() => {});
-          continue;
-        }
-      }
+      // Never delete another lock automatically. PID reuse and concurrent stale-lock recovery
+      // cannot prove ownership. An operator must inspect an orphan before removing it.
       await new Promise((resolve) => setTimeout(resolve, 5));
     }
   }
@@ -157,10 +156,11 @@ export function actualMicroUsdFromTicks(ticks) {
 export function applyTaskView(entry, view) {
   if (typeof view?.id === 'string' && view.id) entry.taskId = view.id;
   if (Number.isSafeInteger(view?.attempt) && view.attempt >= 0) entry.attempt = view.attempt;
-  const tariff = view?.result?.billing?.microUsd;
+  const result = view?.result ?? view?.error?.details;
+  const tariff = result?.billing?.microUsd;
   if (Number.isSafeInteger(tariff) && tariff >= 0) entry.tariffMicroUsd = tariff;
-  const ticks = sumAttemptTicks(view?.result?.qualification?.usage);
-  if (ticks != null) entry.costInUsdTicks = ticks;
+  const ticks = sumAttemptTicks(result?.qualification?.usage);
+  entry.costInUsdTicks = ticks;
   const terminal = view?.state === 'succeeded' || view?.state === 'failed' || view?.state === 'uncertain';
   if (!terminal) {
     entry.state = 'reserved';

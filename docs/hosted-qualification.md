@@ -1,5 +1,7 @@
 # Hosted qualification
 
+Current coordinator state: the source harness passes 57 offline/native checks. Actual-API integration uses three synthetic wallets and a controlled model. It verifies task acceptance, unchanged results on resume, stale semantic-cache rejection and same-wallet credential rejection. Genuine application trials remain zero. Later sections retain historical worker probes at their stated source checkpoints.
+
 Worker B owns `engine/` and this report on branch `codex/hosted-qualification`. The source base is `c21ec6e`. The reviewed main is `6ed9d2d`. Qualification is not complete.
 
 ## Frozen corpus
@@ -120,7 +122,7 @@ Real model trials are 0. `node engine/evaluation/hosted-qualification/trials.mjs
 
 The harness reads `UBC26_BENCHMARK_API_KEY_1`, `UBC26_BENCHMARK_API_KEY_2`, and `UBC26_BENCHMARK_API_KEY_3`. `loadDeployment` sets `dispatch` false and `live` false. A closed deployment makes no service call.
 
-A fresh trial requires a POST, task state `succeeded`, one distinct task id, and distinct provider trace ids. `result.qualification.repairCount` is the repair count. `task.attempt` is the queue attempt count.
+An original fresh trial needs a persisted campaign dispatch, task state `succeeded`, one distinct task id, and distinct provider trace ids. A later GET can recover that original trial within the same campaign. It does not create another trial. `result.qualification.repairCount` is the repair count. `task.attempt` is the queue attempt count.
 
 `cost_in_usd_ticks` is the billed charge. `10000000000` ticks equal 1 USD. A known safe tick total reserves the smallest integer micro-USD that covers the charge. The qualification mean uses the raw tick total. A missing or invalid tick total leaves the reservation at the ceiling. A legacy report without tick fields rejects a negative bill.
 
@@ -132,15 +134,15 @@ The harness checks a returned supported plan with the engine. It scores the hidd
 
 The aggregate stays closed without fresh live trials. A pass requires zero false accepts and zero malformed accepts. At least 95 percent of supported trials need semantic agreement after at most one repair. Quotes must be verbatim. Ambiguous drafts must invent no policy. Unsupported drafts must stay off the payable path. Mean actual cost must be below `100000` micro-USD. `fundingApproval` stays false. `qualificationPassed` stays false while `live` is false.
 
-The ledger reserves two attempt prices before the POST. The write is atomic and mode `0600`. A lock covers reservation and the create POST. A second process with the same ledger key performs a GET. The benchmark cap is separate from public service scope.
+The ledger reserves two attempt prices before the POST. The write is atomic and mode `0600`. A lock covers reservation and the create POST. A later process with the same ledger and accepted task uses GET. Concurrent writers serialize through the file lock. The benchmark cap is separate from public service scope.
 
-## Current handler probe
+## Historical handler probe before integration
 
 This worker posted the 60 `draftInput` bodies to the local handler from `createApp`. The draft model was a controlled stub. The probe reported `paidTrialsRan` false and `realModelCalls` 0. `controlledModelCalls` was 55. Five envelopes failed before the model.
 
 `seal-1`, `crate-1`, `transfer-1`, and `dual-seal-1` failed at `/exampleFixtures` with message `unknown field`. `firmware-opaque-1` failed at `/references/0` with message `file is not UTF-8 text`. The opaque reference stays in the corpus as raw bytes. The harness still sends those fixtures and that reference.
 
-This probe is a current-handler measurement. It is not the post-integration envelope check. It is not a semantic score. The adapter for fixtures, evidence, preview context, and non-UTF-8 references is absent from the coordinator API source. This worker left `commerce/api` unchanged.
+This probe is a current-handler measurement. It is not the post-integration envelope check. It is not a semantic score. At that checkpoint, the coordinator API lacked the fixture, evidence, preview-context and binary-reference adapters. Later authoring integration added these paths. This worker left `commerce/api` unchanged.
 
 ## API billing and metadata
 
@@ -150,7 +152,7 @@ This worker read the coordinator source on 2026-11-16.
 
 Coordinator checkpoint `84f4252` replaces the text-only estimate with the full serialized provider payload and the supported completion maximum. The repair bound includes its feedback. Independent model/task checks pass 6/6 and focused API checks pass 50/50 with typecheck. Spend halt `09a36d4` passes 29 focused API checks and typecheck. Historical-breach migration, child isolation and the request-wide deadline remain open. `loadDeployment` keeps dispatch false.
 
-The handler adds `result.qualification` only when the response kind and the model result kind are both `draft`. Clarification results and unsupported results omit repair count, usage, and trace ids. The public qualification object omits provider trace ids. The drafts table stores attempt trace ids. The task view returns the handler response.
+At the historical source read below, the handler added qualification metadata only when both result kinds were draft. Those earlier clarification and unsupported results omitted repair count, usage and trace ids. Current terminal results carry this metadata, including failed-task details. The public qualification object omits provider trace ids. The drafts table stores attempt trace ids. The task view returns the handler response.
 
 This worker read `commerce/api/src/authoring.ts` in the hosted-backend worktree on 2026-11-16. The draft key list there is `request`, `outputs`, `references`, `clarifications`, `expirySeconds`, and `maxBudget`. `exampleFixtures` is absent from that list. This worker did not edit that tree.
 
@@ -213,4 +215,22 @@ The [signed proof report](../agents/anish/reports/hosted-corpus-signed-proof-202
 This is one finite new-corpus proof. It supplements the earlier three-schema passing proofs and verdict-0 proof. It does not establish real Grok authoring or a funded hosted-to-solver flow. The release key remains private. Public receipts contain only encrypted results and commitments.
 
 
-Trace collection normalizes the current API aliases: `qualification.traceId`, ordered `qualification.traceIds`, and ordered `attempts[].traceId`. These fields describe the same provider calls. Initial inference needs one distinct call. A repair needs two. Conflicting aliases, repeated repair identities and mismatched attempt/usage counts fail closed. Task and trace uniqueness apply across all challenges, not only each group of three. Controlled regressions pass. Principal verification, campaign freshness/resume and polling repairs remain active. No real application trial ran.
+Trace collection normalizes the current API aliases: `qualification.traceId`, ordered `qualification.traceIds`, and ordered `attempts[].traceId`. These fields describe the same provider calls. Initial inference needs one distinct call. A repair needs two. Conflicting aliases, repeated repair identities and mismatched attempt/usage counts fail closed. Task and trace uniqueness apply across all challenges, not only each group of three. Controlled regressions pass. Principal verification, campaign freshness/resume and polling controls now pass source and actual-API checks. No real application trial ran.
+
+## Campaign identity and safe resume
+
+Before any task POST, the harness inspects every credential with `GET /v1/auth/keys/current`. Each credential must have a valid wallet identity and buyer scope. The three trials require three distinct wallets. Different keys for one wallet do not supply independent trials. A new campaign needs dedicated fresh owners. Do not alter frozen prompts to bypass server deduplication.
+
+The mode-0600 ledger persists a campaign UUID, start time, exact origin, corpus pin and ordered wallet/key identities. Each trial records its input hash, owner, original dispatch time and request key before dispatch. An origin change rejects before credentials leave the bound host. Input, owner, budget or terminal-result changes fail closed. Legacy ledgers without campaign provenance cannot establish fresh qualification.
+
+Task creation must be at or after the original dispatch time. Task identifiers and creation times cannot change while polling. Server and runner clocks must agree. Invalid or backward timestamps fail closed. A new ledger cannot relabel an old completed semantic-cache result as fresh, even without an idempotent replay header.
+
+An unknown POST keeps its full reservation and original request key. Resume retries only that identity if no task id was recorded. Once a task id exists, resume uses GET. An idempotent replay can recover an original unknown dispatch only with saved campaign provenance. Unknown work blocks unrelated paid dispatch. Global task/trace reuse halts the campaign and invalidates affected trials. A changed terminal response cannot replace its recorded bill. Failed-task details retain available billed ticks. Missing terminal usage cannot reuse an earlier partial bill.
+
+Polling defaults to 180 reads at two-second intervals, with a six-minute wall-time bound. The request timeout is capped by the remaining poll time. Task POSTs default to at least three seconds apart. A timeout stops further work and leaves the original task/reservation for resume. No automatic retry creates a new mutation identity. The CLI entrypoint and environment loader still disable dispatch and live scoring.
+
+The ledger lock never deletes another writer's lock automatically. A crashed process can leave an orphan. Inspect its recorded PID, verify the writer stopped, and preserve the ledger before removing only that orphan lock. Then resume the same ledger. An empty or uncertain lock fails closed. This avoids a second writer during lock creation or stale-lock recovery.
+
+`qualificationPassed` also requires the complete pinned corpus and three trials per request. A passing partial score cannot claim the 180-trial gate. Controlled fixtures and API integration remain separate from genuine provider trials and live spending authority.
+
+Run `pnpm exec tsx scripts/check-hosted-qualification.mjs <full-source-sha> <report-path>` from `commerce/api` for controlled API integration. Commerce CI runs it with the checked source SHA and uploads its report. The `paidTrialsRan` result field means a task POST was attempted. It does not establish a provider charge. See [the controlled report](../agents/anish/reports/hosted-campaign-api-integration-2026-11-17.json).

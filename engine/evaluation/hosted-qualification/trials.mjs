@@ -1,8 +1,10 @@
 import {pathToFileURL} from 'node:url';
-import {CORPUS_ID} from './corpus.mjs';
+import {CORPUS_ID, CORPUS_DIGEST, canonicalCorpus} from './corpus.mjs';
 import {assessSupportedDraft} from './assess.mjs';
 import {scoreTrial} from './score.mjs';
-import {applyTaskView, newLedger, persistLedger, readLedger, reserveTrial, TICKS_PER_MICRO_USD, withLedgerLock} from './budget.mjs';
+import {applyTaskView, committedMicroUsd, dispatchDecision, newLedger, persistLedger, readLedger, reserveTrial, TICKS_PER_MICRO_USD, withLedgerLock} from './budget.mjs';
+
+import {bindCampaign, bindTrial, campaignError, clock, failCampaign, fingerprint, principal, validateGlobalEvidence, validateTaskBinding} from './campaign.mjs';
 
 const MAX_BYTES = 4_194_304;
 const TERMINAL = new Set(['succeeded', 'failed', 'uncertain']);
@@ -100,14 +102,17 @@ export function principalKeys(config, trialsPerRequest) {
   return {ok: true, keys};
 }
 
+function terminalData(view) { return view?.result ?? view?.error?.details; }
+
 export function readRepairCount(view) {
-  const value = view?.result?.qualification?.repairCount;
+  const value = terminalData(view)?.qualification?.repairCount;
   if (!Number.isSafeInteger(value) || value < 0) return null;
   return value;
 }
 
 export function collectTraceIds(view) {
-  const qualification = view?.result?.qualification;
+  const result = terminalData(view);
+  const qualification = result?.qualification;
   const repairCount = readRepairCount(view);
   if (repairCount !== 0 && repairCount !== 1) return [];
   const needed = repairCount + 1;
@@ -117,9 +122,9 @@ export function collectTraceIds(view) {
     if (!Array.isArray(qualification.traceIds)) return [];
     ids = qualification.traceIds;
   }
-  if (Object.hasOwn(view.result, 'attempts')) {
-    if (!Array.isArray(view.result.attempts)) return [];
-    const attempts = view.result.attempts.map(item => item?.traceId);
+  if (Object.hasOwn(result, 'attempts')) {
+    if (!Array.isArray(result.attempts)) return [];
+    const attempts = result.attempts.map(item => item?.traceId);
     if (ids && JSON.stringify(ids) !== JSON.stringify(attempts)) return [];
     ids = attempts;
   }
@@ -136,8 +141,9 @@ export function collectTraceIds(view) {
 }
 
 function artifactPair(view) {
-  const usage = Array.isArray(view?.result?.qualification?.usage) ? view.result.qualification.usage : [];
-  const attempts = Array.isArray(view?.result?.attempts) ? view.result.attempts : [];
+  const result = terminalData(view);
+  const usage = Array.isArray(result?.qualification?.usage) ? result.qualification.usage : [];
+  const attempts = Array.isArray(result?.attempts) ? result.attempts : [];
   const initialUsage = attempts[0]?.usage ?? usage[0] ?? null;
   const repairUsage = attempts[1]?.usage ?? usage[1] ?? null;
   return {
@@ -156,8 +162,9 @@ export function markFresh(group) {
     const uniqueTraces = new Set(item.traceIds ?? []);
     let reason = null;
     if (!item.terminal) reason = 'not-terminal';
-    else if (item.method !== 'POST') reason = 'cached-task';
-    else if (item.replayed) reason = 'replayed-task';
+    else if (item.taskState !== 'succeeded') reason = 'task-failed';
+    else if (item.provenanceAccepted !== true && item.method !== 'POST') reason = 'cached-task';
+    else if (item.provenanceAccepted !== true && item.replayed) reason = 'replayed-task';
     else if (!item.taskId || copies !== 1) reason = 'replayed-task';
     else if (item.repairCount > 1) reason = 'repair-limit';
     else if (needed == null) reason = 'qualification-metadata-missing';
@@ -357,182 +364,184 @@ function closedResult(reason, ledger = null) {
 export async function runBenchmark({challenges, config, ledgerPath, fetchImpl, trialsPerRequest = 3}) {
   const reason = deploymentReason(config, trialsPerRequest);
   if (reason) return closedResult(reason, config?.ledger ?? null);
-  if (trialsPerRequest === 0) return closedResult('no-trials', config.ledger ?? null);
+  if (!Number.isSafeInteger(trialsPerRequest) || trialsPerRequest < 1 || challenges.length === 0) return closedResult('no-trials', config.ledger ?? null);
   const origin = checkOrigin(config.baseUrl).origin;
-  const keys = principalKeys(config, trialsPerRequest).keys;
+  const keys = principalKeys(config, trialsPerRequest).keys.slice(0, trialsPerRequest);
   const ledger = config.ledger ?? newLedger(config);
   const trials = [];
   let paidTrialsRan = false;
+  const maxPolls = config.maxPolls ?? 180;
+  const pollIntervalMs = config.pollIntervalMs ?? 2_000;
+  const minPostIntervalMs = config.minPostIntervalMs ?? 3_000;
+  const pollDeadlineMs = config.pollDeadlineMs ?? 360_000;
+  if (!Number.isSafeInteger(maxPolls) || maxPolls < 1 || maxPolls > 1_000 ||
+      ![pollIntervalMs, minPostIntervalMs].every(value => Number.isSafeInteger(value) && value >= 0 && value <= 60_000) ||
+      !Number.isSafeInteger(pollDeadlineMs) || pollDeadlineMs < 1 || pollDeadlineMs > 3_600_000) return closedResult('invalid-poll-config', ledger);
 
-  const finish = (stopReason) => {
+  const finish = stopReason => {
     markFresh(trials.filter(item => item.dispatched && item.terminal));
+    for (const item of trials) {
+      const failed = ledger.entries[item.key]?.failureReason;
+      if (failed) { item.fresh = false; item.freshReason = failed; }
+    }
     const aggregate = aggregateGates(trials);
-    return {
-      paidTrialsRan,
-      freshTrials: aggregate.freshTrials,
-      qualificationPassed: aggregate.passed,
-      reason: stopReason ?? aggregate.reason,
-      trials,
-      ledger,
-      aggregate,
-    };
+    const complete = trialsPerRequest === 3 && config.corpusId === CORPUS_ID && fingerprint(canonicalCorpus(challenges)) === CORPUS_DIGEST;
+    return {paidTrialsRan, freshTrials: aggregate.freshTrials, qualificationPassed: !stopReason && complete && aggregate.passed,
+      reason: stopReason ?? (aggregate.passed && !complete ? 'incomplete-corpus' : aggregate.reason), trials, ledger, aggregate};
   };
+  let campaign;
+  let principals;
+  const firstKey = trialKey(config.corpusId, challenges[0].id, 1);
+  try {
+    const blocked = await withLedgerLock(ledgerPath, async () => {
+      await readLedger(ledgerPath, ledger);
+      committedMicroUsd(ledger);
+      if (ledger.campaign && (ledger.campaign.origin !== origin || ledger.campaign.corpusId !== config.corpusId || ledger.campaign.corpusDigest !== CORPUS_DIGEST)) return 'campaign-binding-changed';
+      if (!ledger.campaign && Object.keys(ledger.entries).length > 0) return 'campaign-provenance-missing';
+      if (ledger.campaign?.halted) return ledger.campaign.halted;
+      // Reject invalid prices/scope/caps before sending even a credential inspection request.
+      const decision = dispatchDecision(ledger);
+      if (!decision.ok && (decision.reason !== 'cap-exhausted' || !ledger.entries[firstKey])) return decision.reason;
+      if (ledger.scope !== config.scope || ledger.capMicroUsd !== config.capMicroUsd || ledger.attemptPriceMicroUsd !== config.attemptPriceMicroUsd) return 'campaign-budget-changed';
+      return null;
+    });
+    if (blocked) {
+      trials.push({challengeId: challenges[0].id, trial: 1, key: firstKey, dispatched: false, fresh: false, reason: blocked, freshReason: blocked});
+      return finish(blocked);
+    }
+    const startedAt = new Date(clock(config)).toISOString();
+    principals = [];
+    for (const key of keys) {
+      const response = await transport(fetchImpl, `${origin}/v1/auth/keys/current`, {method: 'GET', headers: authHeaders(key)}, config);
+      const owner = principal(response.value);
+      if (principals.some(item => item.wallet === owner.wallet)) throw campaignError('duplicate-wallet-principals');
+      principals.push(owner);
+    }
+    campaign = await withLedgerLock(ledgerPath, async () => {
+      await readLedger(ledgerPath, ledger);
+      const bound = bindCampaign(ledger, {config, origin, principals, startedAt});
+      await persistLedger(ledgerPath, ledger);
+      return bound;
+    });
+  } catch (error) { return finish(error.code ?? 'campaign-preflight-failed'); }
 
+  const locked = callback => withLedgerLock(ledgerPath, async () => {
+    await readLedger(ledgerPath, ledger);
+    if (ledger.campaign?.id !== campaign.id) throw campaignError('campaign-binding-changed');
+    if (ledger.campaign.halted) throw campaignError(ledger.campaign.halted);
+    return callback();
+  });
   for (const challenge of challenges) {
-    const group = [];
-    let stopReason = null;
     for (let trial = 1; trial <= trialsPerRequest; trial += 1) {
       const key = trialKey(config.corpusId, challenge.id, trial);
       const apiKey = keys[trial - 1];
       const input = draftInput(challenge);
-      const outcome = await withLedgerLock(ledgerPath, async () => {
-        await readLedger(ledgerPath, ledger);
-        const reserved = await reserveTrial(ledgerPath, ledger, key);
-        if (!reserved.ok) return {blocked: reserved.reason};
+      const base = {challengeId: challenge.id, classification: challenge.classification, trial, key, inputKeys: Object.keys(input)};
+      let outcome;
+      const acceptView = async (view, {response = null, recovering = false} = {}) => {
         const entry = ledger.entries[key];
-        if (entry.taskId) return {entry, method: 'GET'};
-        try {
-          const response = await transport(fetchImpl, `${origin}/v1/tasks`, {
-            method: 'POST',
-            headers: authHeaders(apiKey, key),
-            body: JSON.stringify({operation: 'draft', input}),
-          }, config);
-          paidTrialsRan = true;
-          const view = parseTaskView(response.value);
-          if (response.replayed) entry.replayed = true;
-          applyTaskView(entry, view);
-          await persistLedger(ledgerPath, ledger);
-          return {entry, method: 'POST', view, status: response.status, replayed: response.replayed};
-        } catch (error) {
-          entry.state = 'reserved';
-          paidTrialsRan = true;
-          await persistLedger(ledgerPath, ledger);
-          return {entry, method: 'POST', error};
+        validateTaskBinding(entry, view, config);
+        if (response?.replayed && !recovering) throw campaignError('replayed-task');
+        const traces = collectTraceIds(view);
+        validateGlobalEvidence(ledger, key, entry, view, traces);
+        entry.provenance.accepted = true;
+        entry.provenance.taskCreatedAt = view.createdAt;
+        if (response?.replayed) entry.replayed = true;
+        applyTaskView(entry, view);
+        if (TERMINAL.has(view.state)) {
+          entry.traceIds = traces;
+          entry.terminalFingerprint = fingerprint(view);
         }
-      });
-      if (outcome.blocked) {
-        group.push({
-          challengeId: challenge.id,
-          classification: challenge.classification,
-          trial,
-          key,
-          dispatched: false,
-          reason: outcome.blocked,
-          fresh: false,
-          freshReason: outcome.blocked,
+        await persistLedger(ledgerPath, ledger);
+        return entry;
+      };
+      try {
+        outcome = await locked(async () => {
+          const unresolved = Object.entries(ledger.entries).find(([otherKey, entry]) => otherKey !== key && entry.provenance?.dispatchStartedAt && !entry.terminalFingerprint);
+          if (unresolved) return {blocked: 'unresolved-trial'};
+          const reserved = await reserveTrial(ledgerPath, ledger, key);
+          if (!reserved.ok) return {blocked: reserved.reason};
+          const entry = ledger.entries[key];
+          const provenance = bindTrial(entry, {campaign: ledger.campaign, owner: principals[trial - 1], input, challenge, trial});
+          if (entry.taskId) return {method: 'GET', entry};
+          const recovering = provenance.postAttempts > 0;
+          if (ledger.campaign.lastDispatchAt !== null) {
+            const remaining = Date.parse(ledger.campaign.lastDispatchAt) + minPostIntervalMs - clock(config);
+            if (remaining > 0) await new Promise(resolve => setTimeout(resolve, remaining));
+          }
+          const dispatchAt = new Date(clock(config)).toISOString();
+          provenance.dispatchStartedAt ??= dispatchAt;
+          provenance.postAttempts += 1;
+          ledger.campaign.lastDispatchAt = dispatchAt;
+          await persistLedger(ledgerPath, ledger);
+          paidTrialsRan = true;
+          try {
+            const response = await transport(fetchImpl, `${origin}/v1/tasks`, {method: 'POST', headers: authHeaders(apiKey, key), body: JSON.stringify({operation: 'draft', input})}, config);
+            const view = parseTaskView(response.value);
+            await acceptView(view, {response, recovering});
+            return {method: 'POST', entry, view, status: response.status};
+          } catch (error) {
+            // Unknown outcomes retain the reservation and the original request key.
+            if (['stale-task', 'invalid-task-time', 'task-binding-changed', 'task-result-changed', 'replayed-task', 'reused-task', 'reused-provider-trace', 'invalid-task'].includes(error.code)) failCampaign(ledger, entry, error.code);
+            await persistLedger(ledgerPath, ledger);
+            return {method: 'POST', entry, error};
+          }
         });
-        stopReason = outcome.blocked;
-        break;
+      } catch (error) { outcome = {blocked: error.code ?? 'campaign-state-failed'}; }
+      if (outcome.blocked) {
+        trials.push({...base, dispatched: false, fresh: false, reason: outcome.blocked, freshReason: outcome.blocked});
+        return finish(outcome.blocked);
       }
       if (outcome.error) {
-        group.push({
-          challengeId: challenge.id,
-          classification: challenge.classification,
-          trial,
-          key,
-          dispatched: true,
-          method: outcome.method,
-          state: 'uncertain',
-          reason: outcome.error.code || 'network-error',
-          message: publicError(outcome.error),
-          repairCount: null,
-          cost: null,
-          fresh: false,
-          freshReason: 'not-terminal',
-          inputKeys: Object.keys(input),
-        });
-        continue;
+        trials.push({...base, dispatched: true, method: outcome.method, state: 'uncertain', reason: outcome.error.code ?? 'network-error', message: publicError(outcome.error), repairCount: null, fresh: false, freshReason: outcome.error.code ?? 'not-terminal'});
+        return finish(outcome.error.code ?? 'network-error');
       }
       let view = outcome.view ?? null;
-      const method = outcome.method;
-      if (method === 'GET' || (view && !TERMINAL.has(view.state))) {
-        const maxPolls = config.maxPolls ?? 5;
-        for (let poll = 0; poll < maxPolls && (!view || !TERMINAL.has(view.state)); poll += 1) {
-          if (config.pollIntervalMs) await new Promise((resolve) => setTimeout(resolve, config.pollIntervalMs));
+      if (outcome.method === 'GET' || !TERMINAL.has(view.state)) {
+        const deadline = performance.now() + pollDeadlineMs;
+        for (let poll = 0; poll < maxPolls && (!view || !TERMINAL.has(view.state)) && performance.now() < deadline; poll++) {
+          if (pollIntervalMs > 0) await new Promise(resolve => setTimeout(resolve, Math.min(pollIntervalMs, Math.max(0, deadline - performance.now()))));
+          if (performance.now() >= deadline) break;
           try {
-            const response = await transport(fetchImpl, `${origin}/v1/tasks/${encodeURIComponent(outcome.entry.taskId)}`, {
-              method: 'GET',
-              headers: authHeaders(apiKey),
-            }, config);
+            const response = await transport(fetchImpl, `${origin}/v1/tasks/${encodeURIComponent(ledger.entries[key].taskId)}`, {method: 'GET', headers: authHeaders(apiKey)},
+              {...config, timeoutMs: Math.max(1, Math.min(config.timeoutMs ?? 30_000, Math.floor(deadline - performance.now())))});
             view = parseTaskView(response.value);
+            await locked(() => acceptView(view));
+          } catch (error) {
             await withLedgerLock(ledgerPath, async () => {
-              applyTaskView(outcome.entry, view);
+              await readLedger(ledgerPath, ledger);
+              if (['stale-task', 'invalid-task-time', 'task-binding-changed', 'task-result-changed', 'reused-task', 'reused-provider-trace', 'invalid-task'].includes(error.code)) failCampaign(ledger, ledger.entries[key], error.code);
               await persistLedger(ledgerPath, ledger);
             });
-          } catch (error) {
-            group.push({
-              challengeId: challenge.id,
-              classification: challenge.classification,
-              trial,
-              key,
-              dispatched: true,
-              method,
-              state: 'uncertain',
-              taskId: outcome.entry.taskId,
-              reason: error.code || 'network-error',
-              message: publicError(error),
-              repairCount: null,
-              fresh: false,
-              freshReason: 'not-terminal',
-              inputKeys: Object.keys(input),
-            });
-            view = null;
-            break;
+            trials.push({...base, dispatched: true, method: outcome.method, taskId: ledger.entries[key].taskId, state: 'uncertain', reason: error.code ?? 'network-error', message: publicError(error), fresh: false, freshReason: error.code ?? 'not-terminal'});
+            return finish(error.code ?? 'network-error');
           }
         }
       }
-      if (!view) continue;
+      const entry = ledger.entries[key];
+      if (!view || !TERMINAL.has(view.state)) {
+        trials.push({...base, dispatched: true, method: outcome.method, taskId: entry.taskId, taskState: view?.state, fresh: false, freshReason: 'not-terminal'});
+        return finish('polling-incomplete');
+      }
       const repairCount = readRepairCount(view);
       const traceIds = collectTraceIds(view);
-      const metadataDependency = repairCount == null
-        ? 'qualification-metadata-missing'
-        : traceIds.length === 0 ? 'provider-trace-missing' : null;
+      const metadataDependency = repairCount == null ? 'qualification-metadata-missing' : repairCount > 1 ? 'repair-limit' : traceIds.length === 0 ? 'provider-trace-missing' : null;
       let assessment = {engineValid: null, candidateResults: []};
-      if (view.state === 'succeeded' && view.result?.kind === 'draft' && challenge.classification === 'supported') {
-        assessment = config.assessImpl
-          ? await config.assessImpl(challenge, view.result)
-          : await assessSupportedDraft(challenge, view.result.plan);
+      try {
+        if (view.state === 'succeeded' && view.result?.kind === 'draft' && challenge.classification === 'supported') assessment = config.assessImpl ? await config.assessImpl(challenge, view.result) : await assessSupportedDraft(challenge, view.result.plan);
+      } catch { return finish('assessment-failed'); }
+      const score = scoreTrial({challenge, response: view.result, candidateResults: assessment.candidateResults ?? [], repairCount, cost: entry.cost,
+        latencyMs: Number.isSafeInteger(view.result?.qualification?.latencyMs) ? view.result.qualification.latencyMs : null, live: config.live === true});
+      trials.push({...base, dispatched: true, method: outcome.method, state: entry.state, taskState: view.state, taskId: entry.taskId, attempt: entry.attempt,
+        statusCode: outcome.status ?? null, replayed: entry.replayed === true, provenanceAccepted: entry.provenance.accepted,
+        terminal: true, repairCount, traceIds, artifacts: artifactPair(view), cost: entry.cost,
+        actualCostMicroUsd: entry.costSource === 'actual-ticks' ? entry.costMicroUsd : null, costInUsdTicks: entry.costInUsdTicks,
+        tariffMicroUsd: entry.tariffMicroUsd, metadataDependency, engineValid: assessment.engineValid, score, fresh: false});
+      if (metadataDependency) {
+        await locked(async () => { failCampaign(ledger, ledger.entries[key], metadataDependency); await persistLedger(ledgerPath, ledger); });
+        return finish(metadataDependency);
       }
-      const score = scoreTrial({
-        challenge,
-        response: view.result,
-        candidateResults: assessment.candidateResults ?? [],
-        repairCount,
-        cost: outcome.entry.cost,
-        latencyMs: Number.isSafeInteger(view.result?.qualification?.latencyMs) ? view.result.qualification.latencyMs : null,
-        live: config.live === true,
-      });
-      group.push({
-        challengeId: challenge.id,
-        classification: challenge.classification,
-        trial,
-        key,
-        dispatched: true,
-        method,
-        state: outcome.entry.state,
-        taskState: view.state,
-        taskId: outcome.entry.taskId,
-        attempt: outcome.entry.attempt,
-        statusCode: outcome.status ?? null,
-        replayed: outcome.entry.replayed === true,
-        terminal: TERMINAL.has(view.state),
-        repairCount,
-        traceIds,
-        artifacts: artifactPair(view),
-        cost: outcome.entry.cost,
-        actualCostMicroUsd: outcome.entry.costSource === 'actual-ticks' ? outcome.entry.costMicroUsd : null,
-        costInUsdTicks: outcome.entry.costInUsdTicks,
-        tariffMicroUsd: outcome.entry.tariffMicroUsd,
-        metadataDependency,
-        engineValid: assessment.engineValid,
-        score,
-        fresh: false,
-        inputKeys: Object.keys(input),
-      });
     }
-    markFresh(group.filter((item) => item.dispatched && item.terminal));
-    trials.push(...group);
-    if (stopReason) return finish(stopReason);
   }
   return finish(null);
 }

@@ -25,6 +25,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm test
+      - name: Check qualification against actual API routes with a controlled model
+        working-directory: commerce/api
+        run: pnpm exec tsx scripts/check-hosted-qualification.mjs "${{ github.sha }}" "$RUNNER_TEMP/ubc26-qualification-api.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ubc26-qualification-api-${{ github.sha }}
+          path: ${{ runner.temp }}/ubc26-qualification-api.json
       - name: Check backup integrity and the relocated API bundle
         run: |
           node --test ../deploy/state.test.mjs ../deploy/start-api.test.mjs ../deploy/public-deployment.test.mjs

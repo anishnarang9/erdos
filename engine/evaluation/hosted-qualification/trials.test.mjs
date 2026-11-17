@@ -1,11 +1,23 @@
 import test from 'node:test';
+import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {mkdtemp, readFile, rm, stat} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {actualMicroUsdFromTicks, applyTaskView, committedMicroUsd, newLedger, persistLedger} from './budget.mjs';
 import {scoreTrial} from './score.mjs';
-import {collectTraceIds, markFresh, aggregateGates, draftInput, loadDeployment, runBenchmark, trialKey} from './trials.mjs';
+import {collectTraceIds, markFresh, aggregateGates, draftInput, loadDeployment, runBenchmark as runBenchmarkActual, trialKey} from './trials.mjs';
+
+// Legacy transport fixtures cover work requests. Principal preflight has separate direct tests.
+function runBenchmark(args) {
+  return runBenchmarkActual({...args, fetchImpl: async (url, options) => {
+    if (String(url).endsWith('/v1/auth/keys/current')) {
+      const digest = createHash('sha256').update(options.headers.authorization).digest('hex');
+      return Response.json({id: `key-${digest.slice(0, 16)}`, wallet: `0x${digest.slice(0, 40)}`, scopes: ['buyer'], createdAt: '2026-11-15T00:00:00.000Z'});
+    }
+    return args.fetchImpl(url, options);
+  }});
+}
 
 const challenge = {
   id: 'mass-1',
@@ -27,6 +39,8 @@ function config(extra = {}) {
     corpusId: 'hosted-qualification-2026-11-16',
     maxPolls: 2,
     pollIntervalMs: 0,
+    minPostIntervalMs: 0,
+    now: () => Date.parse("2026-11-16T00:00:00.000Z"),
     assessImpl: async () => ({engineValid: null, candidateResults: []}),
     ...extra,
   };
@@ -219,8 +233,8 @@ test('one post reserves a two-attempt charge and does not send a client repair',
     });
     assert.deepEqual(resumeCalls, ['GET']);
     assert.equal(resumed.paidTrialsRan, false);
-    assert.equal(resumed.freshTrials, 0);
-    assert.equal(resumed.trials[0].freshReason, 'cached-task');
+    assert.equal(resumed.freshTrials, 1);
+    assert.equal(resumed.trials[0].freshReason, null);
     assert.equal(resumed.qualificationPassed, false);
   } finally {
     await rm(directory, {recursive: true, force: true});
@@ -406,7 +420,7 @@ test('uncertain and unreported terminal costs keep the reservation', async () =>
       config: {...config(), ledger: quiet, capMicroUsd: 80_000},
       ledgerPath: capPath,
       trialsPerRequest: 1,
-      fetchImpl: async () => ({status: 200, json: async () => task({id: 'task-2', attempt: 1})}),
+      fetchImpl: async () => ({status: 200, json: async () => task({id: 'task-2', attempt: 1, result: {kind: 'draft', qualification: {repairCount: 0, traceId: 'trace-2', traceIds: ['trace-2']}, attempts: [{traceId: 'trace-2'}]}})}),
     });
     assert.equal(unreported.ledger.entries[unreported.trials[0].key].cost, 'unreported');
     assert.equal(committedMicroUsd(unreported.ledger), 80_000);
@@ -440,7 +454,7 @@ test('a 202 enqueue is polled and remote errors stay redacted', async () => {
       fetchImpl: async (url, options) => {
         calls.push(options.method);
         if (options.method === 'POST') {
-          return {status: 202, json: async () => task({state: 'queued', attempt: 0, result: undefined})};
+          return {status: 202, json: async () => task({id: 'task-polled', state: 'queued', attempt: 0, result: undefined})};
         }
         return {status: 200, json: async () => settledDraft('task-polled', ['trace-polled'], 0)};
       },
@@ -456,7 +470,7 @@ test('a 202 enqueue is polled and remote errors stay redacted', async () => {
     const denied = await runBenchmark({
       challenges: [{...challenge, id: 'yield-1'}],
       config: {...config(), ledger: newLedger(config())},
-      ledgerPath,
+      ledgerPath: ledgerPath + '-denied',
       trialsPerRequest: 1,
       fetchImpl: async () => ({
         status: 500,
@@ -475,7 +489,7 @@ test('a 202 enqueue is polled and remote errors stay redacted', async () => {
     const huge = await runBenchmark({
       challenges: [{...challenge, id: 'mixture-1'}],
       config: {...config(), ledger: newLedger(config())},
-      ledgerPath,
+      ledgerPath: ledgerPath + '-huge',
       trialsPerRequest: 1,
       fetchImpl: async () => ({
         status: 200,
@@ -534,7 +548,7 @@ test('three owners stay distinct and a replay is not a fresh model call', async 
         };
       },
     });
-    assert.equal(replayCalls.length, 3);
+    assert.equal(replayCalls.length, 1);
     assert.equal(replayed.freshTrials, 0);
     assert.equal(replayed.qualificationPassed, false);
     assert.equal(replayed.trials.every((item) => item.fresh === false), true);
@@ -543,71 +557,40 @@ test('three owners stay distinct and a replay is not a fresh model call', async 
   }
 });
 
-test('resume before task creation posts once and a lock prevents a second post', async () => {
+test('resume before task creation keeps the original reservation and a lock prevents a second post', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'ubc26-lock-'));
   const ledgerPath = join(directory, 'ledger.json');
   try {
-    const ledger = newLedger(config());
-    const key = trialKey(config().corpusId, 'mass-1', 1);
-    ledger.entries[key] = {
-      state: 'reserved',
-      reservedMicroUsd: 80_000,
-      taskId: null,
-      attempt: null,
-      costMicroUsd: null,
-      cost: null,
-      costInUsdTicks: null,
-      tariffMicroUsd: null,
-      costSource: null,
-      replayed: false,
-    };
-    await persistLedger(ledgerPath, ledger);
+    const first = await runBenchmark({challenges: [challenge], config: config(), ledgerPath, trialsPerRequest: 1,
+      fetchImpl: async () => { throw Error('original response lost'); }});
+    assert.equal(committedMicroUsd(first.ledger), 80_000);
     const calls = [];
-    const resumed = await runBenchmark({
-      challenges: [challenge],
-      config: {...config(), ledger},
-      ledgerPath,
-      trialsPerRequest: 1,
+    const resumed = await runBenchmark({challenges: [challenge], config: config(), ledgerPath, trialsPerRequest: 1,
       fetchImpl: async (url, options) => {
         calls.push(options.method);
         const stored = JSON.parse(await readFile(ledgerPath, 'utf8'));
         assert.equal(Object.keys(stored.entries).length, 1);
         return {status: 200, json: async () => settledDraft('task-resume', ['trace-resume'], 0)};
-      },
-    });
+      }});
     assert.deepEqual(calls, ['POST']);
     assert.equal(resumed.paidTrialsRan, true);
+    assert.equal(resumed.freshTrials, 1);
     assert.equal(Object.keys(resumed.ledger.entries).length, 1);
 
     const parallel = [];
     const shared = newLedger(config());
-    const first = runBenchmark({
-      challenges: [{...challenge, id: 'yield-1'}],
-      config: {...config(), ledger: shared},
-      ledgerPath,
-      trialsPerRequest: 1,
+    const launch = () => runBenchmark({challenges: [{...challenge, id: 'yield-1'}], config: {...config(), ledger: shared},
+      ledgerPath: join(directory, 'parallel.json'), trialsPerRequest: 1,
       fetchImpl: async (url, options) => {
         parallel.push(options.method);
-        await new Promise((resolve) => setTimeout(resolve, 30));
+        await new Promise(resolve => setTimeout(resolve, 30));
         return {status: 200, json: async () => settledDraft('task-lock', ['trace-lock'], 0)};
-      },
-    });
-    const second = runBenchmark({
-      challenges: [{...challenge, id: 'yield-1'}],
-      config: {...config(), ledger: shared},
-      ledgerPath,
-      trialsPerRequest: 1,
-      fetchImpl: async (url, options) => {
-        parallel.push(options.method);
-        return {status: 200, json: async () => settledDraft('task-lock', ['trace-lock'], 0)};
-      },
-    });
-    await Promise.all([first, second]);
+      }});
+    const results = await Promise.all([launch(), launch()]);
     assert.deepEqual(parallel, ['POST', 'GET']);
-    assert.equal(Object.keys(shared.entries).filter((item) => item.includes('yield-1')).length, 1);
-  } finally {
-    await rm(directory, {recursive: true, force: true});
-  }
+    assert.equal(results.every(item => item.freshTrials === 1), true);
+    assert.equal(Object.keys(shared.entries).length, 1);
+  } finally { await rm(directory, {recursive: true, force: true}); }
 });
 
 test('synthetic scores and aggregate gates stay closed without a live trial', () => {
@@ -750,7 +733,7 @@ test('synthetic scores and aggregate gates stay closed without a live trial', ()
   assert.equal(negativeTicks.meanCostMicroUsd, null);
 });
 
-test('clarification and unsupported terminals without qualification stay unfresh', async () => {
+test('a terminal without qualification halts further dispatch and stays unfresh', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'ubc26-terminal-'));
   const ledgerPath = join(directory, 'ledger.json');
   try {
@@ -779,8 +762,8 @@ test('clarification and unsupported terminals without qualification stay unfresh
     assert.equal(result.paidTrialsRan, true);
     assert.equal(result.freshTrials, 0);
     assert.equal(result.qualificationPassed, false);
-    assert.deepEqual(result.trials.map((item) => item.taskId), ['task-clarification', 'task-unsupported']);
-    assert.deepEqual(result.trials.map((item) => item.traceIds), [[], []]);
+    assert.deepEqual(result.trials.map((item) => item.taskId), ['task-clarification']);
+    assert.deepEqual(result.trials.map((item) => item.traceIds), [[]]);
     for (const trial of result.trials) {
       assert.equal(trial.terminal, true);
       assert.equal(trial.repairCount, null);
@@ -790,7 +773,7 @@ test('clarification and unsupported terminals without qualification stay unfresh
       assert.equal(trial.costInUsdTicks, null);
       assert.equal(trial.tariffMicroUsd, 1);
     }
-    assert.equal(committedMicroUsd(result.ledger), 160_000);
+    assert.equal(committedMicroUsd(result.ledger), 80_000);
   } finally {
     await rm(directory, {recursive: true, force: true});
   }
@@ -852,4 +835,14 @@ test('a provider trace reused in another challenge invalidates both trials', asy
     assert.equal(result.freshTrials, 0);
     assert.equal(result.trials.every(item => item.fresh === false), true);
   } finally { await rm(directory, {recursive: true, force: true}); }
+});
+
+test('an unreported terminal bill cannot reuse earlier partial cost metadata', () => {
+  const entry = {state: 'reserved', reservedMicroUsd: 80_000, taskId: null, attempt: null, costMicroUsd: null,
+    cost: null, costInUsdTicks: null, tariffMicroUsd: null, costSource: null, replayed: false};
+  applyTaskView(entry, {id: 'partial', state: 'running', attempt: 1, result: {qualification: {usage: [{costInUsdTicks: 10_000}]}}});
+  applyTaskView(entry, {id: 'partial', state: 'succeeded', attempt: 1, result: {qualification: {}}});
+  assert.equal(entry.costSource, null);
+  assert.equal(entry.costInUsdTicks, null);
+  assert.equal(entry.costMicroUsd, 80_000);
 });
