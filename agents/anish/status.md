@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 20:36 -05:00 — Anish — Hosted client checkpoint
+
+- Branch `codex/hosted-backend` adds a typed wallet-authenticated client for issuance, revocation, imports, approvals, durable authoring/compile tasks, funding and discovery. Mutation replay keys remain explicit. Polling never dispatches another paid operation. Remote errors omit raw bodies. Transport rejects remote HTTP, redirects and URL credentials. Responses have byte and time bounds.
+- New client tests pass 11/11. SDK typecheck and full SDK suite pass (353 Vitest tests plus 13 Node checks). Baseline full commerce passed (SDK 342, API 778, worker 901). Engine fmt/clippy/workspace tests and the 10,000-case suite passed. Native-engine API passed 15/15. Arc Foundry passed 168, with one fork-only skip. ABI parity and 16 contract examples passed.
+- Two Grok CLI workers remain active in exclusive service and qualification worktrees. Installed runner provenance checks are in progress. Public deployment, fresh API authoring, benchmark spending, and fresh settlement remain unverified.
+
 ## 2026-11-16 20:33 -05:00 — Anish — Hosted backend sprint started
 
 - Execute [the hosted backend sprint](../../docs/superpowers/plans/2026-11-16-hosted-backend-sprint.md) from reviewed main `6ed9d2d`. Integration branch: `codex/hosted-backend`. Preserve the deployed Arc adapter and historical acceptance. UI and new deployments remain excluded.
