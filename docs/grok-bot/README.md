@@ -8,9 +8,9 @@ Status: native callback bootstrap and review preflight pass. No genuine Bot revi
 
 The candidate intentionally permits USD100 where the brief permits USD75. Native engine validation and both supplied examples pass. A separate held-out case exposes that semantic difference. The Bot's intended job is to identify the mismatch between intent and rules. See [native preflight](../../agents/anish/reports/hosted-bot-review-preflight-2026-11-17.json). Do not send this README or the expected-outcome report as Bot input.
 
-The [runtime design](../hosted-grok-bot-authoring.md) invokes a dedicated Bot routine through an authenticated webhook. A restricted MCP tool accepts its result at our API. HTTP 200 from the trigger is not completed validation. The input/result contract, durable queue, callback authentication and approval gate pass controlled tests. The callback-only profile now runs on native source `fb45033`. Public HTTPS authentication and tool checks pass. The Bot account connection, routine and genuine run remain unfinished.
+The [runtime design](../hosted-grok-bot-authoring.md) invokes a dedicated Bot routine through an authenticated webhook. A restricted MCP tool accepts its result at our API. HTTP 200 from the trigger is not completed validation. The input/result contract, durable queue, callback authentication and approval gate pass controlled tests. The callback-only profile now runs on native source `fb45033`. Public HTTPS authentication and tool checks pass. The Bot connector reports Connected. The routine and genuine run remain unfinished.
 
-No task was sent to Bot, no credits were purchased and no API key was placed in Bot chat. The user installed Bot and reports exhausted usage. Real account connectivity, a genuine review/export and measured total cost remain pending. The direct xAI API key does not replace Bot's own usage allowance.
+No task was sent to Bot, no credits were purchased and no API key was placed in Bot chat. The user installed Bot and reports exhausted usage. The approved connector reports Connected. A genuine review/export and measured total cost remain pending. The direct xAI API key does not replace Bot's own usage allowance.
 
 ## Planned bounty README text
 
@@ -31,4 +31,4 @@ These pins identify an input. They do not establish Bot execution, semantic succ
 
 The prepared packet above hashes the raw catalog file bytes. The native API hashes canonical catalog JSON. Catalog contents agree, but these digests and input hashes differ. Preserve both labels. See the [native preflight](../../agents/anish/reports/hosted-bot-native-preflight-2026-11-17.json) and [public callback checks](../../agents/anish/reports/hosted-bot-public-callback-2026-11-17.json). Neither input establishes a genuine Bot review.
 
-The user approved connector setup and one measured review under a $1 account cap, accepting possible in-flight overrun. The cap and connection remain unconfigured. No credit purchase is authorized. Keep the production $0.10 complete-run ceiling.
+The user approved connector setup and one measured review under a $1 account cap, accepting possible in-flight overrun. The connection reports Connected. The account cap remains unconfigured. No credit purchase is authorized. Keep the production $0.10 complete-run ceiling.

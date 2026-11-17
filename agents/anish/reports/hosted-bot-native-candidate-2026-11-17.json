@@ -265,10 +265,12 @@
     "linuxEngineSha256": "a7d0cec0285258eda3debf9421e4ee8132fcaf784a4840fae0e86a822aed70ad",
     "nativeVpsReleaseEngineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
     "limit": "Current runner passes twelve signed cases on native Linux CI and the current native VPS release engine. The two environments retain their different debug/release engine digests. No proof or chain action ran.",
-    "publicDownloadPublished": false,
+    "publicDownloadPublished": true,
     "publicationDependency": "The source GitHub repository is private. A release there cannot provide anonymous downloads. Repository visibility remains unchanged. Publish only reviewed standalone assets through a separately prepared artifact route.",
     "nativeVpsSignedChecks": 12,
-    "nativeVpsReport": "hosted-runner-native-digitalocean-fb45033-2026-11-17.json"
+    "nativeVpsReport": "hosted-runner-native-digitalocean-fb45033-2026-11-17.json",
+    "publicDownloadBase": "https://ubc26-159-89-149-133.sslip.io/downloads/runner/fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "publicDownloadReport": "hosted-runner-public-download-2026-11-17.json"
   },
   "ci": {
     "head": "fb450331c014b59d037fb692496bdc4f72b11a9c",
@@ -287,12 +289,13 @@
     "dispatcherEnabled": false,
     "applicationXaiKeyOnHost": false,
     "publicBuyerApiStatus": 503,
-    "tlsVerified": true
+    "tlsVerified": true,
+    "ingressSource": "6351e0901312d6e15b5e5f221b9b4448cee50718"
   },
   "botAccount": {
     "connectorApprovedByUser": true,
-    "connectorName": "UBC26 Constraint Review",
-    "connectorState": "Definition saved; not connected; zero discovered tools. Credential entry remains pending.",
+    "connectorName": "UBC26 Result Callback",
+    "connectorState": "Connected in installed-plugin UI; actual Bot task has not run.",
     "capApprovedMicroUsd": 1000000,
     "capConfigured": false,
     "pilotScope": "Setup plus one measured review; user accepts an in-flight overrun.",
@@ -301,7 +304,7 @@
     "genuineReviews": 0,
     "conversationExport": false,
     "usageRestored": false,
-    "uiBlocker": "macOS exposes app controls but rejects some clicks as noWindowsAvailable or elementHasNoFrame. User window-focus assistance requested.",
+    "uiBlocker": "No active mouse/keyboard control. User completed connector credential entry manually.",
     "productionRunCeilingMicroUsd": 100000,
     "massTestingApproved": false
   },
@@ -316,9 +319,9 @@
   "proofs": 0,
   "chainTransactions": 0,
   "remaining": [
-    "Connect Bot result-only MCP account and confirm the approved account spending cap.",
+    "Confirm the approved account spending cap and available Bot usage.",
     "Create authenticated Bot routine, run one approved measured review, retain genuine export and receipt.",
-    "Review the production dispatch spending policy before enabling public authoring.",
+    "Review production dispatch spending and an account boundary without unrelated connected apps before enabling public authoring.",
     "Complete remaining sprint public release and live acceptance gates under their applicable authority."
   ],
   "evidenceReview": {

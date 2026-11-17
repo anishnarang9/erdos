@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-17 08:48 -05:00 — Anish — Publish verified runner assets and connect the Bot callback
+
+- Branch `codex/hosted-backend`, draft PR #8. Ingress checkpoint `6351e09` is pushed. Commerce CI `44095123461` passes. The native Caddy/Compose profiles validate. HTTPS alone was recreated with the new Caddy configuration and a read-only artifact mount. The API container, image `0141ba0c…` and dispatch settings did not change. Previous ingress files and protected host configuration remain preserved for rollback.
+- All four canonical `fb45033` assets are public through versioned HTTPS. Thirteen checks pass for exact bytes/hashes, HEAD, partial download, rejected paths and methods. Buyer readiness remains 503 and the callback remains authenticated. A fresh installation from the public archive passes offline npm installation, provenance and CLI help. The separate ten-case callback protocol recheck also passes. These are transport/install checks, not genuine Bot execution. See the [public report](reports/hosted-runner-public-download-2026-11-17.json).
+- The user completed `UBC26 Result Callback` manually. Read-only observation shows Connected in the installed-plugin UI. Tool details were not expanded. The public protocol client separately confirms one restricted result tool. The $1 account cap and available usage still need confirmation. No routine or paid Bot task ran. The service credential and API key stayed out of chat and Git. Mouse and keyboard control remains stopped.
+- The runner archive excludes the engine. Native engine distribution, complete external API acceptance, genuine Bot export/cost, later authorized mass qualification and fresh scoped funded acceptance remain open. The source repository stays private. No new model call, proof or chain transaction ran. Continue the approved single-review pilot after cap/access confirmation. Keep the goal active and PR draft.
+
 ## 2026-11-17 08:40 -05:00 — Anish — Prepare restricted runner downloads and verify the current VPS runner
 
 - Branch `codex/hosted-backend`, draft PR #8. The canonical `fb45033` runner now passes all twelve signed cases on the deployed native VPS release engine. Its isolated container has no network or Docker socket. Engine hash `be5c06f9…` and archive/manifest pins match. No proof, model call or chain transaction ran. See the [VPS runner report](reports/hosted-runner-native-digitalocean-fb45033-2026-11-17.json).

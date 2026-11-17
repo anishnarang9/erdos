@@ -1,10 +1,10 @@
 # Live Grok Bot constraint validation
 
-Status: native callback-only deployment and public HTTPS bootstrap pass on `fb45033`. Genuine Bot connection, routine execution and cost measurement remain pending.
+Status: native callback-only deployment and public HTTPS bootstrap pass on `fb45033`. The Bot connector reports Connected. Genuine routine execution and cost measurement remain pending.
 
 ## Current requirement
 
-The user explicitly rejected development-only Bot use. Grok Bot must participate in the live constraint-validation workflow. Keep the app's API boundary. The backend can invoke a dedicated Bot routine through an authenticated webhook. The proposed return channel is a small custom MCP tool on our backend. Official Bot docs support both mechanisms. The owner routes, durable store, restricted MCP tool and approval gate exist. The restricted callback runs in production. The Bot account connection, dispatch spending policy and one genuine end-to-end run remain pending.
+The user explicitly rejected development-only Bot use. Grok Bot must participate in the live constraint-validation workflow. Keep the app's API boundary. The backend can invoke a dedicated Bot routine through an authenticated webhook. The proposed return channel is a small custom MCP tool on our backend. Official Bot docs support both mechanisms. The owner routes, durable store, restricted MCP tool and approval gate exist. The restricted callback runs in production. The connector reports Connected. The dispatch spending policy and one genuine end-to-end run remain pending.
 
 Production flow: app → DigitalOcean API → deterministic plan/example checks → Grok Bot semantic review → explicit buyer approval → native compiler. Existing direct Grok API authoring can supply the candidate plan. Its calls and any repair count toward the same total refinement cost target. Typed imports can supply a candidate without another model call.
 
@@ -17,7 +17,7 @@ Bot checks whether the proposed predicates express the buyer's brief. It returns
 - Persist dispatch intent before the outbound webhook. A client replay must select the existing review. An uncertain delivery must not create another Bot run automatically.
 - Treat HTTP 200 from the trigger as acceptance only. The adapter accepts only that documented status. Wait for an authenticated, hash-bound structured result through the dedicated MCP tool. Its credential cannot approve, fund, sign or modify a revision.
 - Validate result shape, source quotes, rule indexes and decision consistency. A pass cannot carry questions, findings or unmapped rules. Failed or missing reviews block the app's approval path when the integration is enabled.
-- Keep the feature disabled until real callback authentication, account access, cost controls and acceptance pass. Do not weaken the existing public readiness gate for a synthetic result.
+- Keep paid dispatch disabled until account access, cost controls and acceptance pass. Do not weaken the existing public readiness gate for a synthetic result.
 
 ## Cost target
 
@@ -25,7 +25,7 @@ Target about $0.05–$0.10 for the entire refinement, including direct API draft
 
 Payload/output limits bound our protocol. They do not prove Bot token usage or impose a provider-enforced dollar ceiling. Bot chooses its model and has plan-dependent usage. A running Bot task can exceed a spend cap. Measure a small separately approved real sample before claiming a unit price. Keep API charges and Bot usage separate in that measurement. The proposed $20 mass-test budget remains unapproved.
 
-The user installed Grok Bot and reports exhausted usage. The app passes Apple signature/notarization checks and opens. No task was sent, no credits were purchased and no API key was placed in Bot chat. The API key does not replace Bot's own allowance. A genuine run needs restored Bot access or usage, plus the actual webhook and restricted MCP connection.
+The user installed Grok Bot and reports exhausted usage. The app passes Apple signature/notarization checks and opens. No task was sent, no credits were purchased and no API key was placed in Bot chat. The API key does not replace Bot's own allowance. The restricted MCP connector is connected. A genuine run still needs available Bot usage, the approved account cap and the actual routine webhook.
 
 ## Bounty evidence
 
@@ -64,6 +64,12 @@ Native source `fb45033`, image `sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343f
 
 The user approved the dedicated result-only connector and a $1 account cap for setup plus one measured review. The user accepts a possible in-flight overrun. The production complete-run ceiling remains $0.10. No credit purchase or mass test is authorized.
 
-The custom connector definition exists in Grok Bot, but it remains disconnected with zero tools. Credential entry and the account cap remain pending. macOS window automation currently rejects some clicks. No Bot task or paid generation ran. The API key remains outside the host and Bot chat.
+The user completed the approved connector as `UBC26 Result Callback`. The installed-plugin UI reports Connected. The account cap and available usage remain pending confirmation. Foreground automation stopped after the user's two-minute window. No Bot task or paid generation ran. The API key remains outside the host and Bot chat.
 
 The native review preflight uses the real engine and a 1,185-byte canonical input. Owner isolation, replay and approval/compilation blocking pass. Production restart and a separate offline restore preserve the queued review, active keys and twenty prior artifact hashes. The restored test container is stopped. Public buyer routes remain HTTP 503.
+
+## Account boundary before public dispatch
+
+Bot apps and cloud-computer state are shared across one account. A second Bot does not isolate that account's files, sessions or app access. The current account also shows GitHub and Origin connected. Public customer payloads must wait for a deployment account that exposes only the intended review tools and contains no unrelated private sessions. Our restricted callback credential limits backend actions. It does not isolate other tools on the Bot account. See the [official account-sharing rules](https://docs.x.ai/grok-bot/computer-and-apps#one-computer-shared-by-all-your-bots).
+
+The approved synthetic pilot can measure one review under the $1 account cap. It does not qualify public account isolation. Keep general dispatch disabled while that production boundary remains unresolved.

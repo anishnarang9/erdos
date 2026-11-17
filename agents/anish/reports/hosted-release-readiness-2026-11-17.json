@@ -7,7 +7,7 @@
   "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/8",
   "pullRequestState": "draft",
   "goal": "active",
-  "scope": "Native callback-only candidate, TLS, owner-bound review preflight, restart and offline restore pass. Genuine Bot account/run/cost, public buyer API and final acceptance remain incomplete.",
+  "scope": "Native callback-only candidate, TLS, owner-bound review preflight, restart/offline restore and public runner download/install pass. Bot cap/usage, genuine run/cost, public buyer API and final acceptance remain incomplete.",
   "corpus": {
     "digest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
     "supported": 40,
@@ -136,7 +136,7 @@
   "externalDependencies": [
     {
       "needed": "Approved Bot pilot setup and one measured review",
-      "inputStatus": "Result-only connector and $1 account cap with possible in-flight overrun approved. No credit purchase authorized. Account cap and connector are not configured.",
+      "inputStatus": "The approved result-only connector reports Connected. The $1 account cap and available usage are pending manual confirmation. No credit purchase or Bot task ran.",
       "productionRunCeilingMicroUsd": 100000,
       "pilotAccountCapMicroUsd": 1000000,
       "reviewsAuthorized": 1,
@@ -243,15 +243,18 @@
     "linuxEngineBuild": "CI debug engine",
     "linuxEngineSha256": "a7d0cec0285258eda3debf9421e4ee8132fcaf784a4840fae0e86a822aed70ad",
     "nativeVpsReleaseEngineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
-    "limit": "The current canonical runner passes native Linux CI and twelve signed cases on the deployed native VPS release engine. Public artifact hosting remains pending.",
-    "publicDownloadPublished": false,
+    "limit": "Current canonical runner passes native Linux CI, twelve signed VPS cases and public HTTPS download/offline installation checks. It excludes the engine. Standalone engine distribution and full public API acceptance remain incomplete.",
+    "publicDownloadPublished": true,
     "image": "sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8",
     "reports": [
       "hosted-bot-native-candidate-2026-11-17.json"
     ],
     "publicAuthoringReady": false,
     "nativeVpsSignedChecks": 12,
-    "nativeVpsReport": "hosted-runner-native-digitalocean-fb45033-2026-11-17.json"
+    "nativeVpsReport": "hosted-runner-native-digitalocean-fb45033-2026-11-17.json",
+    "publicDownloadBase": "https://ubc26-159-89-149-133.sslip.io/downloads/runner/fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "publicDownloadReport": "hosted-runner-public-download-2026-11-17.json",
+    "nativeEngineDownloadPublished": false
   },
   "developmentWorkerPolicy": "No further Grok CLI calls, per user reply. Both original sessions remain stopped.",
   "remainingWork": [
@@ -269,7 +272,7 @@
     },
     {
       "gate": "Public runner download and final combined artifact/handoff",
-      "status": "Canonical fb45033 archive matches local/Linux builds and passes installed native Linux checks. Native callback-only image is promoted. Public download and final release remain incomplete."
+      "status": "Four canonical fb45033 assets are public through versioned HTTPS. Thirteen download checks, two readiness/auth checks and an independent offline installation pass. Native engine binary distribution and final complete-service handoff remain open."
     },
     {
       "gate": "180 genuine deployed qualification trials",
@@ -322,7 +325,11 @@
       "hosted-bot-native-preflight-2026-11-17.json",
       "hosted-bot-native-restart-2026-11-17.json",
       "hosted-bot-native-restore-2026-11-17.json"
-    ]
+    ],
+    "ingressSource": "6351e0901312d6e15b5e5f221b9b4448cee50718",
+    "ingressReport": "hosted-runner-ingress-promotion-2026-11-17.json",
+    "runnerDownloadVerified": true,
+    "apiContainerUnchangedDuringIngressPromotion": true
   },
   "currentDeploymentCi": {
     "commerceSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
@@ -332,7 +339,10 @@
     "coreSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
     "coreRunId": 44079754552,
     "coreStatus": "success",
-    "installedArchiveTypeConsumer": true
+    "installedArchiveTypeConsumer": true,
+    "ingressSource": "6351e0901312d6e15b5e5f221b9b4448cee50718",
+    "ingressCommerceRunId": 44095123461,
+    "ingressCommerceStatus": "success"
   },
   "historicalVerificationSections": [
     "combinedCommerce",
@@ -360,8 +370,8 @@
     "twentyDollarMassBudgetApproved": false,
     "pilot": {
       "connectorApprovedByUser": true,
-      "connectorName": "UBC26 Constraint Review",
-      "connectorState": "Definition saved; not connected; zero discovered tools. Credential entry remains pending.",
+      "connectorName": "UBC26 Result Callback",
+      "connectorState": "Connected in installed-plugin UI. Tool details were not expanded. Authenticated public protocol client separately lists one result tool.",
       "capApprovedMicroUsd": 1000000,
       "capConfigured": false,
       "pilotScope": "Setup plus one measured review; user accepts an in-flight overrun.",
@@ -370,9 +380,16 @@
       "genuineReviews": 0,
       "conversationExport": false,
       "usageRestored": false,
-      "uiBlocker": "macOS exposes app controls but rejects some clicks as noWindowsAvailable or elementHasNoFrame. User window-focus assistance requested.",
+      "uiBlocker": "Foreground setup window ended. User completed credential entry manually. No further mouse/keyboard control is active.",
       "productionRunCeilingMicroUsd": 100000,
       "massTestingApproved": false
+    },
+    "productionAccountIsolation": {
+      "qualified": false,
+      "observation": "The current Bot account also shows GitHub and Origin connected. Official docs state that apps and cloud-computer state are shared account-wide. A second Bot is not an isolation boundary.",
+      "requiredBeforePublicDispatch": "Deployment account with only intended review tools and no unrelated private sessions.",
+      "syntheticPilotAllowed": true,
+      "source": "https://docs.x.ai/grok-bot/computer-and-apps#one-computer-shared-by-all-your-bots"
     }
   },
   "botRuntimeIntegration": {
@@ -390,13 +407,15 @@
     "paidDispatchDisabled": true,
     "massQualificationApproved": false,
     "currentNativeRuntime": "fb450331c014b59d037fb692496bdc4f72b11a9c",
-    "next": "Finish approved connector and $1 account cap, then routine setup plus one measured review. Preserve disabled general dispatch.",
+    "next": "Confirm the approved $1 account cap and available usage, then create the routine and run one measured review.",
     "candidateSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
     "pilotCapApprovedMicroUsd": 1000000,
     "pilotCapConfigured": false,
     "pilotInFlightOverrunAccepted": true,
     "pilotReviewsAuthorized": 1,
-    "creditsPurchaseAuthorized": false
+    "creditsPurchaseAuthorized": false,
+    "connectorConnectedInUi": true,
+    "connectorName": "UBC26 Result Callback"
   },
   "previousCombinedCandidate": {
     "source": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",

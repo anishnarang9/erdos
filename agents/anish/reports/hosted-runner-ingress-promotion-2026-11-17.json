@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "status": "passed-native-and-public-acceptance",
+  "ingressSource": "6351e0901312d6e15b5e5f221b9b4448cee50718",
+  "runtimeSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+  "runtimeImage": "sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8",
+  "sourceFiles": {
+    "Caddyfile": "278bcc0c08b45a85ee06108c15cdef6c1622657dd9352ff27bb8964aaf42cba3",
+    "compose.yaml": "d3028f3be61354d32f72b1220ac375a8fe7d9e0ba464523bb4334e0c12208ef8"
+  },
+  "caddyValidated": true,
+  "composeValidated": true,
+  "apiContainerUnchanged": true,
+  "apiHealthy": true,
+  "httpsRunning": true,
+  "runnerMountReadOnly": true,
+  "caddyFileMountReadOnly": true,
+  "priorIngressDirectory": "/opt/ubc26-release/source-fb45033/deploy",
+  "currentIngressDirectory": "/opt/ubc26-release/ingress-6351e09",
+  "publicRunnerDirectory": "/opt/ubc26-release/public-runner",
+  "operatorValidationCorrection": "Initial isolated validator omitted NET_BIND_SERVICE and failed before startup. Corrected validator matches the reviewed production capability set.",
+  "commerceCi": {
+    "runId": 44095123461,
+    "head": "6351e0901312d6e15b5e5f221b9b4448cee50718",
+    "status": "success"
+  },
+  "publicReport": "hosted-runner-public-download-2026-11-17.json",
+  "callbackReport": "hosted-runner-public-callback-recheck-2026-11-17.json",
+  "modelCalls": 0,
+  "proofs": 0,
+  "chainTransactions": 0
+}
