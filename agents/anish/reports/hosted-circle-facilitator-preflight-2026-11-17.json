@@ -36,7 +36,7 @@
     "token": "testnet USDC",
     "bountyChargeAtomic": "0",
     "requires": [
-      "Confirm current Gateway balance and signer availability before payment",
+      "Revalidate the observed Gateway balances and confirm protected signer availability before signing.",
       "Prepare one approved revision with no cached compiled artifact",
       "Verify the deployed 402 body and payment-required header before signing",
       "Obtain fresh scoped approval for one charge",
@@ -84,5 +84,16 @@
     "productionApiUnchanged": true,
     "disposableContainerRemoved": true,
     "firstProbeCorrection": "Add the required idempotency keys to the synthetic create and approval requests."
+  },
+  "currentGatewayBalances": {
+    "checkedAt": "2026-11-17T21:20:33.366716+00:00",
+    "endpoint": "https://gateway-api-testnet.circle.com/v1/balances",
+    "domain": 26,
+    "payerUsdc": "0.009999",
+    "recipientUsdc": "0.000001",
+    "payerPendingBatch": "0",
+    "recipientPendingBatch": "0",
+    "existingBalanceCoversCharge": true,
+    "newDepositRequiredForQuotedAmount": false
   }
 }

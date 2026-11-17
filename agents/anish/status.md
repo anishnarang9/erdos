@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 16:20 -05:00 — Anish — Confirm the Circle payer already has enough testnet USDC
+
+- The Gateway balance query returns 0.009999 testnet USDC for the proposed payer and 0.000001 for the recipient. Both report zero pending batch. The existing balance covers the one-unit quote without a new deposit. The check creates no payment. See the [Circle preflight](reports/hosted-circle-facilitator-preflight-2026-11-17.json).
+
 ## 2026-11-17 16:19 -05:00 — Anish — Verify an unsigned Circle quote on the VPS
 
 - An isolated copy of the deployed image imports and approves an uncompiled test revision, then returns the expected 402 twice. The payment header matches the body, and the payment table stays empty. The isolated container uses local mode, no network and a fresh temporary database. The production API stays in place. See the [quote evidence](reports/hosted-circle-facilitator-preflight-2026-11-17.json).
