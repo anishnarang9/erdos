@@ -14,7 +14,7 @@ The exact `20b0dc2` OCI index imported successfully after host-side archive veri
 
 Cold compilation passed under a retained systemd unit in 240 seconds. Both expected fixture verdicts pass. The first actual Compose start also exposed an unquoted tmpfs flow-list item. Quoting it preserves one absolute mount with all three restrictions. Its real-Compose regression failed before the fix. All eleven deployment checks now pass. The native API and Caddy run from corrected external deployment files in `operator-tools`. External TLS validates, and public requests return 503 while authoring readiness remains disabled. Operator access through pinned SSH passes auth, ownership, approval, compilation, replay and twenty artifact hashes. No usable public authoring service, genuine model call or new funded acceptance is established yet. See the [provisioning report](../agents/anish/reports/hosted-digitalocean-provision-2026-11-17.json) and native report for the evidence boundary.
 
-Current runtime: combined source `4a6a320`, image `sha256:28649464fae26aee9e56bad3c63bd0100e694042917a4f7b37b98597e0f5a4e5`. It passes native build, exact-source prewarm, API workflow and container restart. Sixty file hashes differ from the prior runtime only in the intended prewarm helper, with the source pin excluded explicitly. Its runner passes twelve native signed cases against the same engine bytes. See the [combined candidate](../agents/anish/reports/hosted-native-candidate-4a6a320-2026-11-17.json). The preceding cold-build/full-recovery evidence retains its original source. Public authoring remains unready.
+Current runtime: source `fb45033`, image `sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8`. Native build, 62 runtime hashes, cached compiler prewarm, owner-bound review gates, restart and separate offline restore pass. The compiler prewarm took one second with cache. The original 240-second cold result retains source `20b0dc2`. The current canonical runner passes twelve signed checks on native Linux CI. Prior VPS runner checks retain source `4a6a320` and use the byte-identical release engine. See the [native Bot candidate](../agents/anish/reports/hosted-bot-native-candidate-2026-11-17.json). Public authoring remains unready.
 
 ## Account and local access
 
@@ -57,7 +57,7 @@ Follow the existing [runtime runbook](hosted-runtime.md), the candidate's [relea
 - Start the API, test external auth/ownership/compilation/artifact retrieval, then exercise restart and backup/restore. Repeat external checks with the laptop API stopped.
 - Complete genuine model qualification, current live acceptance and independent review. Preserve the original sprint completion gates.
 
-Proving and signing remain on clients. The per-refinement model target is separate from server cost. Candidate code remains `20b0dc2`; documentation checkpoints do not establish a public release.
+Proving and signing remain on clients. The per-refinement model target is separate from server cost. Current runtime code is `fb45033`. Documentation checkpoints do not establish a public release.
 
 ## Prepared transfer artifact
 
@@ -77,3 +77,13 @@ The server now holds the archive, verified runtime image and original deployment
 The user approves at most $0.10 for a complete constraint-authoring run, including repair. The proposed $20 qualification budget and daily ceiling were rejected. Mass testing remains deferred. The application key stays in protected operator storage and is absent from the host environment. Its non-inference authentication check passed.
 
 The existing live model guard prices the full documented context. It cannot admit the approved ceiling. Keep authoring disabled until a reviewed complete-input/session bound fits ten cents. Do not substitute the local byte estimate for a provider guarantee. See [model cost controls](hosted-model-costs.md). No larger inference budget is implied by the hosting approval.
+
+## Restricted Bot callback bootstrap
+
+The exact `/integrations/grok-bot/mcp` path uses a separate healthy upstream. All buyer routes retain the readiness gate and HTTP 503. Ten checks through actual public TLS pass. The authenticated MCP exposes only `submit_constraint_review`. A per-review ticket is also mandatory. This is operator protocol evidence, not a genuine Bot review.
+
+`BOT_REVIEW_REQUIRED=1` enables callback authentication and mandatory review receipts. The production profile supplies no dispatcher. It rejects live webhook environment settings. The application xAI key remains absent from the host. The user approved saving the dedicated callback credential into Grok Bot. Its connector definition exists but remains disconnected.
+
+Before promotion, a quiesced snapshot preserved 41 files and 18 migrations. A later snapshot preserves 41 files, 19 migrations and one queued review. Production restart and an isolated restored API preserve owner isolation, authentication, the review hash, failed compile replay and twenty package hashes each. The restored container is stopped. Earlier full-host reboot and encrypted off-host recovery evidence retains its original source. Provider-managed restore remains untested.
+
+The approved Bot pilot permits setup and one measured review under a $1 account cap, with possible in-flight overrun. Cap configuration remains pending. No credit purchase or mass test is authorized. The production $0.10 complete-run ceiling remains unchanged.

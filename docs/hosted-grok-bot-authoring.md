@@ -1,10 +1,10 @@
 # Live Grok Bot constraint validation
 
-Status: implemented and tested through controlled transports. Production server configuration, deployment and a genuine Bot run remain pending. Bot cost is unmeasured.
+Status: native callback-only deployment and public HTTPS bootstrap pass on `fb45033`. Genuine Bot connection, routine execution and cost measurement remain pending.
 
 ## Current requirement
 
-The user explicitly rejected development-only Bot use. Grok Bot must participate in the live constraint-validation workflow. Keep the app's API boundary. The backend can invoke a dedicated Bot routine through an authenticated webhook. The proposed return channel is a small custom MCP tool on our backend. Official Bot docs support both mechanisms. The owner routes, durable store, restricted MCP tool and approval gate exist. This path still needs production configuration, a real account-level check and one genuine end-to-end run.
+The user explicitly rejected development-only Bot use. Grok Bot must participate in the live constraint-validation workflow. Keep the app's API boundary. The backend can invoke a dedicated Bot routine through an authenticated webhook. The proposed return channel is a small custom MCP tool on our backend. Official Bot docs support both mechanisms. The owner routes, durable store, restricted MCP tool and approval gate exist. The restricted callback runs in production. The Bot account connection, dispatch spending policy and one genuine end-to-end run remain pending.
 
 Production flow: app → DigitalOcean API → deterministic plan/example checks → Grok Bot semantic review → explicit buyer approval → native compiler. Existing direct Grok API authoring can supply the candidate plan. Its calls and any repair count toward the same total refinement cost target. Typed imports can supply a candidate without another model call.
 
@@ -50,7 +50,7 @@ The proxy configuration gives only the exact MCP endpoint a separate `/healthz` 
 
 ## Pending account setup
 
-Use the prepared [routine instructions](grok-bot/routine-instructions.md) when account usage and spending scope permit setup. Routine creation itself can consume Bot usage. Do not send the prepared instructions as a paid task yet. A genuine acceptance run also needs the callback service configured in Bot as a Remote HTTPS connector and a private webhook URL/key saved outside Git.
+Use the prepared [routine instructions](grok-bot/routine-instructions.md) when account usage and spending scope permit setup. Routine creation itself can consume Bot usage. The user approved setup plus one measured review under a $1 account cap, with possible in-flight overrun. Confirm the account cap before sending setup instructions. This pilot does not authorize buying credits, mass testing or a higher production authoring ceiling. A genuine acceptance run also needs the callback service configured in Bot as a Remote HTTPS connector and a private webhook URL/key saved outside Git.
 
 The callback ticket is a short-lived capability. Treat the webhook payload and original conversation export as private. Keep the original evidence private and redact credentials from any shared copy. Do not replace real Bot output with the prepared sample or a controlled transport result.
 
@@ -58,4 +58,12 @@ The callback ticket is a short-lived capability. Treat the webhook payload and o
 
 The environment profile defaults to `BOT_REVIEW_REQUIRED=0`. Set it to `1` only with a dedicated `BOT_REVIEW_SERVICE_TOKEN`. The authenticated MCP endpoint and mandatory receipt checks then activate. The profile supplies no dispatcher and explicitly rejects live webhook environment settings. Public readiness stays false with a nonfatal `bot_review: dispatch_disabled` check. This permits a connector handshake without starting inference.
 
-The native deployment still uses the earlier source until the new candidate is built and verified. The controlled proxy report does not establish public reachability. Do not put a credential in source, a command argument, a query string or ordinary Bot chat. Store the Remote HTTPS connector header through its protected account setup after access approval.
+Native source `fb45033`, image `sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8`, now runs this profile. Ten actual HTTPS checks pass, including service authentication, the single result tool, per-review ticket enforcement and rejection of longer path prefixes. This handshake used an operator protocol client. It does not establish genuine Bot execution. See the [native candidate report](../agents/anish/reports/hosted-bot-native-candidate-2026-11-17.json). Do not put a credential in source, a command argument, a query string or ordinary Bot chat. Store the Remote HTTPS connector header through its protected account setup after access approval.
+
+## Current account state
+
+The user approved the dedicated result-only connector and a $1 account cap for setup plus one measured review. The user accepts a possible in-flight overrun. The production complete-run ceiling remains $0.10. No credit purchase or mass test is authorized.
+
+The custom connector definition exists in Grok Bot, but it remains disconnected with zero tools. Credential entry and the account cap remain pending. macOS window automation currently rejects some clicks. No Bot task or paid generation ran. The API key remains outside the host and Bot chat.
+
+The native review preflight uses the real engine and a 1,185-byte canonical input. Owner isolation, replay and approval/compilation blocking pass. Production restart and a separate offline restore preserve the queued review, active keys and twenty prior artifact hashes. The restored test container is stopped. Public buyer routes remain HTTP 503.

@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "status": "passed-native-bot-state-recovery",
+  "source": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+  "checkedAt": "2026-11-17T12:33:28.736Z",
+  "target": "ubc26-bot-restored-fb45033",
+  "transport": "Pinned SSH to container loopback",
+  "reviewId": "01M7MQ51H80E205ZM6GEFRF09C",
+  "inputHash": "0xfbfef90132f5a8cbfb69ea3f0da0a6e4696ef245eb09cffaa607872aa8b09047",
+  "reviewStatus": "queued",
+  "reviewExpiresAt": 1794918859207,
+  "compilerTaskState": "failed",
+  "compilerTaskAttempt": 1,
+  "packageFilesHashChecked": 20,
+  "checks": {
+    "activeOwnerKeyPreserved": true,
+    "reviewSnapshotPreserved": true,
+    "ownerIsolation": true,
+    "compileFailurePreserved": true,
+    "compileReplayDoesNotDispatchAgain": true,
+    "buyerApprovalStillBlocked": true,
+    "reauthentication": true,
+    "scopedRevocation": true,
+    "priorCompiledArtifactHashes": true,
+    "paidDispatchDisabled": true
+  },
+  "genuineBotReviews": 0,
+  "paidModelCalls": 0,
+  "proofs": 0,
+  "chainTransactions": 0
+}

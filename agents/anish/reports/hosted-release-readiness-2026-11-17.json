@@ -1,13 +1,13 @@
 {
   "version": 1,
   "status": "incomplete",
-  "workingSource": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+  "workingSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
   "finalReleaseSource": null,
   "publicUrl": null,
   "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/8",
   "pullRequestState": "draft",
   "goal": "active",
-  "scope": "Native DigitalOcean compiler, operator-channel API, restart, restore, encrypted off-host copy and public TLS pass. Public API readiness, genuine model qualification and fresh funded acceptance remain incomplete.",
+  "scope": "Native callback-only candidate, TLS, owner-bound review preflight, restart and offline restore pass. Genuine Bot account/run/cost, public buyer API and final acceptance remain incomplete.",
   "corpus": {
     "digest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
     "supported": 40,
@@ -135,6 +135,14 @@
   "activeImplementation": [],
   "externalDependencies": [
     {
+      "needed": "Approved Bot pilot setup and one measured review",
+      "inputStatus": "Result-only connector and $1 account cap with possible in-flight overrun approved. No credit purchase authorized. Account cap and connector are not configured.",
+      "productionRunCeilingMicroUsd": 100000,
+      "pilotAccountCapMicroUsd": 1000000,
+      "reviewsAuthorized": 1,
+      "massTestingApproved": false
+    },
+    {
       "needed": "Ten-cent complete authoring input/session bound",
       "inputStatus": "Key authenticates for non-inference model listing. User permits 100000 micro-USD per complete run including repair. Current full-context reservation cannot fit. No generation ran.",
       "approvedRunCeilingMicroUsd": 100000,
@@ -224,14 +232,22 @@
     "apiTests": 928,
     "publicHostAcceptance": false
   },
-  "candidateCodeSource": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+  "candidateCodeSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
   "candidate": {
-    "image": "sha256:28649464fae26aee9e56bad3c63bd0100e694042917a4f7b37b98597e0f5a4e5",
-    "runnerTarSha256": "68e6ab3c196e8409b63fa33e856b62b4be481bf936f944bf3ef4adab5d01641f",
-    "runnerManifestSha256": "de82ad4ff799dc84d0ad4069f31f198581393391bdb4e67668de1ea4d389c008",
+    "source": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "tarSha256": "148366c2a62114a8c5d0696fa9c3ee990e06a217d815f4e50c506a856e5a793c",
+    "manifestSha256": "fbab4c2c6941115a099aab3b6ab6ca2b4e436066e483f21ce73bcaec1165e447",
+    "payloadFiles": 11,
+    "localAndLinuxArchiveIdentical": true,
+    "linuxSignedChecks": 12,
+    "linuxEngineBuild": "CI debug engine",
+    "linuxEngineSha256": "a7d0cec0285258eda3debf9421e4ee8132fcaf784a4840fae0e86a822aed70ad",
+    "nativeVpsReleaseEngineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+    "limit": "Current runner signed checks ran on native Linux CI. Prior 4a6a320 VPS signed checks used the byte-identical VPS release engine. No fresh twelve-case VPS run is claimed.",
+    "publicDownloadPublished": false,
+    "image": "sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8",
     "reports": [
-      "hosted-native-candidate-4a6a320-2026-11-17.json",
-      "hosted-runner-native-digitalocean-4a6a320-2026-11-17.json"
+      "hosted-bot-native-candidate-2026-11-17.json"
     ],
     "publicAuthoringReady": false
   },
@@ -239,7 +255,7 @@
   "remainingWork": [
     {
       "gate": "Live Bot semantic-validation step",
-      "status": "Required by latest user clarification. Bot is not a development-only add-on. Prepare durable at-most-once webhook, protected MCP return and approval binding; no genuine Bot call yet."
+      "status": "Durable store, native owner/gate checks and public callback bootstrap pass. Genuine Bot connector/routine, one measured review and authentic export remain pending."
     },
     {
       "gate": "Ten-cent complete authoring run",
@@ -251,7 +267,7 @@
     },
     {
       "gate": "Public runner download and final combined artifact/handoff",
-      "status": "Canonical 20b0dc2 runner remains verified in a private candidate bundle. Public release URL and final deployment identity still need completion."
+      "status": "Canonical fb45033 archive matches local/Linux builds and passes installed native Linux checks. Native callback-only image is promoted. Public download and final release remain incomplete."
     },
     {
       "gate": "180 genuine deployed qualification trials",
@@ -276,33 +292,45 @@
     ]
   },
   "nativeDeployment": {
-    "runtimeSource": "20b0dc282482ad22d7fff49ffe86de903576f547",
-    "outerHelperSource": "cff751c594724ea3693421060dd0478c5677f602",
-    "composeSource": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+    "runtimeSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "outerHelperSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "composeSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "image": "sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8",
     "url": "https://ubc26-159-89-149-133.sslip.io",
     "publicStatus": 503,
     "tlsVerified": true,
     "publicApiReady": false,
-    "coldCompilerSeconds": 240,
+    "callbackEndpointVerified": true,
+    "compilerPrewarmSeconds": 1,
+    "compilerPrewarmCache": "warm",
+    "coldCompilerBaseline": {
+      "source": "20b0dc282482ad22d7fff49ffe86de903576f547",
+      "seconds": 240
+    },
     "nativeApiTransport": "operator pinned SSH",
     "artifactHashesChecked": 20,
-    "snapshotFiles": 21,
-    "fullServerRebootPassed": true,
+    "snapshotFiles": 41,
+    "currentCandidateRestartPassed": true,
+    "currentCandidateOfflineRestorePassed": true,
+    "fullServerRebootBaselineSource": "20b0dc282482ad22d7fff49ffe86de903576f547",
+    "providerBackupRestoreTested": false,
     "reports": [
-      "hosted-digitalocean-native-2026-11-17.json",
-      "hosted-digitalocean-compiler-2026-11-17.json",
-      "hosted-digitalocean-api-2026-11-17.json",
-      "hosted-digitalocean-recovery-2026-11-17.json"
+      "hosted-bot-native-candidate-2026-11-17.json",
+      "hosted-bot-public-callback-2026-11-17.json",
+      "hosted-bot-native-preflight-2026-11-17.json",
+      "hosted-bot-native-restart-2026-11-17.json",
+      "hosted-bot-native-restore-2026-11-17.json"
     ]
   },
   "currentDeploymentCi": {
-    "commerceSource": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
-    "commerceRunId": 44063904208,
+    "commerceSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "commerceRunId": 44079754316,
     "status": "success",
     "deploymentChecks": 11,
-    "coreSource": "20b0dc282482ad22d7fff49ffe86de903576f547",
-    "coreRunId": 44042814682,
-    "coreStatus": "success"
+    "coreSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "coreRunId": 44079754552,
+    "coreStatus": "success",
+    "installedArchiveTypeConsumer": true
   },
   "historicalVerificationSections": [
     "combinedCommerce",
@@ -323,11 +351,27 @@
   },
   "runtimeBotValidation": {
     "requiredByUser": true,
-    "status": "contract-foundation-in-progress-not-deployed",
+    "status": "native-callback-bootstrap-passed-genuine-bot-pending",
     "role": "Live semantic validation of buyer brief against exact candidate rules; development-only use was rejected.",
     "genuineReviews": 0,
     "measuredCost": null,
-    "twentyDollarMassBudgetApproved": false
+    "twentyDollarMassBudgetApproved": false,
+    "pilot": {
+      "connectorApprovedByUser": true,
+      "connectorName": "UBC26 Constraint Review",
+      "connectorState": "Definition saved; not connected; zero discovered tools. Credential entry remains pending.",
+      "capApprovedMicroUsd": 1000000,
+      "capConfigured": false,
+      "pilotScope": "Setup plus one measured review; user accepts an in-flight overrun.",
+      "creditsPurchased": false,
+      "purchaseAuthorized": false,
+      "genuineReviews": 0,
+      "conversationExport": false,
+      "usageRestored": false,
+      "uiBlocker": "macOS exposes app controls but rejects some clicks as noWindowsAvailable or elementHasNoFrame. User window-focus assistance requested.",
+      "productionRunCeilingMicroUsd": 100000,
+      "massTestingApproved": false
+    }
   },
   "botRuntimeIntegration": {
     "requiredByUser": true,
@@ -336,14 +380,51 @@
     "localApiTests": 987,
     "localSdkTests": 373,
     "localWorkerTests": 950,
-    "publicMcpNativeAcceptance": false,
+    "publicMcpNativeAcceptance": true,
     "genuineBotReviews": 0,
     "conversationExport": false,
     "measuredCostMicroUsd": null,
     "approvedCompleteRunCeilingMicroUsd": 100000,
     "paidDispatchDisabled": true,
     "massQualificationApproved": false,
-    "currentNativeRuntime": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
-    "next": "Verify committed archive/native callback-only candidate; retain public503 and no paid calls."
+    "currentNativeRuntime": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "next": "Finish approved connector and $1 account cap, then routine setup plus one measured review. Preserve disabled general dispatch.",
+    "candidateSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "pilotCapApprovedMicroUsd": 1000000,
+    "pilotCapConfigured": false,
+    "pilotInFlightOverrunAccepted": true,
+    "pilotReviewsAuthorized": 1,
+    "creditsPurchaseAuthorized": false
+  },
+  "previousCombinedCandidate": {
+    "source": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+    "image": "sha256:28649464fae26aee9e56bad3c63bd0100e694042917a4f7b37b98597e0f5a4e5",
+    "runnerTarSha256": "68e6ab3c196e8409b63fa33e856b62b4be481bf936f944bf3ef4adab5d01641f",
+    "runnerManifestSha256": "de82ad4ff799dc84d0ad4069f31f198581393391bdb4e67668de1ea4d389c008",
+    "reports": [
+      "hosted-native-candidate-4a6a320-2026-11-17.json",
+      "hosted-runner-native-digitalocean-4a6a320-2026-11-17.json"
+    ],
+    "publicAuthoringReady": false
+  },
+  "previousNativeDeployment": {
+    "runtimeSource": "20b0dc282482ad22d7fff49ffe86de903576f547",
+    "outerHelperSource": "cff751c594724ea3693421060dd0478c5677f602",
+    "composeSource": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+    "url": "https://ubc26-159-89-149-133.sslip.io",
+    "publicStatus": 503,
+    "tlsVerified": true,
+    "publicApiReady": false,
+    "coldCompilerSeconds": 240,
+    "nativeApiTransport": "operator pinned SSH",
+    "artifactHashesChecked": 20,
+    "snapshotFiles": 21,
+    "fullServerRebootPassed": true,
+    "reports": [
+      "hosted-digitalocean-native-2026-11-17.json",
+      "hosted-digitalocean-compiler-2026-11-17.json",
+      "hosted-digitalocean-api-2026-11-17.json",
+      "hosted-digitalocean-recovery-2026-11-17.json"
+    ]
   }
 }
