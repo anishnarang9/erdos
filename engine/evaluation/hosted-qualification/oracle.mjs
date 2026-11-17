@@ -1,5 +1,5 @@
 // Domain oracle. It reads file bytes and challenge.spec. It does not evaluate plan.rules.
-import {createHash} from 'node:crypto';
+import {createHash, createPublicKey, verify} from 'node:crypto';
 import {readFile, readdir} from 'node:fs/promises';
 import {join} from 'node:path';
 
@@ -566,6 +566,113 @@ function berthChoice(delivery, reference) {
   ]);
 }
 
+function parseAuthenticated(bytes) {
+  try {
+    return strictParse(bytes);
+  } catch (error) {
+    if (error instanceof Rejected) reject('signature', error.message);
+    throw error;
+  }
+}
+
+function decodeHex(value) {
+  if (typeof value !== 'string' || !/^0x(?:[0-9a-fA-F]{2})+$/.test(value)) reject('signature', 'Expected hex');
+  return Buffer.from(value.slice(2), 'hex');
+}
+
+async function authenticateEvidence(challenge, candidateDirectory, delivery, contextHex) {
+  const declarations = challenge.schema.evidence ?? [];
+  if (!/^0x01[0-9a-fA-F]{336}$/.test(contextHex ?? '')) reject('signature', 'Expected a version-1 context');
+  const directory = join(candidateDirectory, 'evidence');
+  let names;
+  try {
+    names = await readdir(directory);
+  } catch {
+    reject('signature', 'The evidence directory is missing');
+  }
+  if (names.length !== declarations.length || declarations.some((item) => !names.includes(item.name))) {
+    reject('signature', 'The evidence files differ from the declaration');
+  }
+  const payloads = {};
+  for (const declaration of declarations) {
+    const envelope = parseAuthenticated(await readFile(join(directory, declaration.name)));
+    const keys = Object.keys(envelope);
+    if (keys.length !== 2 || !Object.hasOwn(envelope, 'payload') || !Object.hasOwn(envelope, 'signature')) {
+      reject('signature', 'The evidence envelope keys differ');
+    }
+    const payloadBytes = decodeHex(envelope.payload);
+    const signature = decodeHex(envelope.signature);
+    const payload = parseAuthenticated(payloadBytes);
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) reject('signature', 'Expected a payload object');
+    const payloadText = decoder.decode(payloadBytes);
+    if (JSON.stringify(payload, Object.keys(payload).sort()) !== payloadText) reject('signature', 'Payload bytes are not canonical');
+    const signer = declaration.signer ?? challenge.plan.evidence.find((item) => item.name === declaration.name)?.signer;
+    let publicKey;
+    try {
+      publicKey = createPublicKey({
+        key: Buffer.concat([Buffer.from('302a300506032b6570032100', 'hex'), Buffer.from(String(signer).slice(2), 'hex')]),
+        format: 'der',
+        type: 'spki',
+      });
+    } catch {
+      reject('signature', 'The signer is not an Ed25519 key');
+    }
+    const message = Buffer.concat([Buffer.from('UBC26/evidence/v1'), payloadBytes]);
+    if (!verify(null, message, publicKey, signature)) reject('signature', 'The signature does not verify');
+    for (const binding of declaration.bindings ?? []) {
+      const actual = `0x${createHash('sha256').update(delivery.raw[binding.file]).digest('hex')}`;
+      if (payload[binding.field] !== actual) {
+        reject(binding.field === 'artifactHash' ? 'artifact-binding' : 'second-binding', 'The signed hash does not bind the file');
+      }
+    }
+    const contextField = declaration.contextField;
+    if (contextField) {
+      const expected = `0x${createHash('sha256').update(Buffer.from(contextHex.slice(2), 'hex')).digest('hex')}`;
+      if (payload[contextField] !== expected) reject('context-binding', 'The payload binds a different context');
+    }
+    payloads[declaration.name] = payload;
+  }
+  return payloads;
+}
+
+function custodySeal(evidence, spec) {
+  const payload = evidence['custody.json'];
+  return violations([
+    ['seal-day', integer(payload.sealDay) >= BigInt(spec.minSealDay)],
+    ['custodian', payload.custodian === spec.approvedCustodian],
+    ['released', payload.released === true],
+  ]);
+}
+
+function custodyCrate(evidence, reference, spec) {
+  const payload = evidence['custody.json'];
+  const release = reference.values['release.json'];
+  return violations([
+    ['seal-day', integer(payload.sealDay) >= release.minSealDay],
+    ['custodian', payload.custodian === spec.approvedCustodian],
+    ['crate-id', payload.crateId === release.crateId],
+  ]);
+}
+
+function custodyTransfer(evidence, spec) {
+  const payload = evidence['custody.json'];
+  return violations([
+    ['seal-day', integer(payload.sealDay) >= BigInt(spec.minSealDay)],
+    ['custodian', payload.custodian === spec.approvedCustodian],
+    ['released', payload.released === true],
+    ['quantity', integer(payload.quantity) >= 1n],
+  ]);
+}
+
+function custodyDual(evidence, spec) {
+  const payload = evidence['custody.json'];
+  return violations([
+    ['seal-day', integer(payload.sealDay) >= BigInt(spec.minSealDay)],
+    ['custodian', payload.custodian === spec.approvedCustodian],
+    ['released', payload.released === true],
+  ]);
+}
+
 function massProduct(delivery) {
   const row = delivery.values['product.json'];
   return violations([
@@ -671,6 +778,9 @@ export async function evaluateCandidate(challenge, candidateDirectory, {referenc
       schema.references,
       32768,
     );
+    const evidence = schema.evidence?.length
+      ? await authenticateEvidence(challenge, candidateDirectory, delivery, contextHex)
+      : {};
     let violated;
     switch (challenge.spec.kind) {
       case 'drawer-exact':
@@ -766,6 +876,18 @@ export async function evaluateCandidate(challenge, candidateDirectory, {referenc
         break;
       case 'dilution-limit':
         violated = dilutionLimit(delivery, reference);
+        break;
+      case 'custody-seal':
+        violated = custodySeal(evidence, challenge.spec);
+        break;
+      case 'custody-crate':
+        violated = custodyCrate(evidence, reference, challenge.spec);
+        break;
+      case 'custody-transfer':
+        violated = custodyTransfer(evidence, challenge.spec);
+        break;
+      case 'custody-dual':
+        violated = custodyDual(evidence, challenge.spec);
         break;
       default:
         throw Error(`No independent domain oracle for ${challenge.spec.kind}`);
