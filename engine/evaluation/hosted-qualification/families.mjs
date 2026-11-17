@@ -1,3 +1,4 @@
+import {policyChallenges} from './policy-challenges.mjs';
 import {
   access, all, bin, candidate, count, finish, int, jsonText, lookup, mutate, planOf, requirement,
   rf, rowsFile, scalar, str, sum, table, textFile, unique,
@@ -643,5 +644,6 @@ export function buildChallenges() {
     pierDrawers(), pierVariance(), tenderSplit(), voyageFee(),
     lotRange(), lotExpiry(), lotSites(), lotSensor(),
     categoryCap(), indirectRate(), crewGear(), coverNote(),
+    ...policyChallenges(),
   ];
 }

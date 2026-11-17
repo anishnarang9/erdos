@@ -412,6 +412,160 @@ function coverNote(delivery, spec) {
   ]);
 }
 
+function withMembers(rows, table, key) {
+  return rows.map((row) => ({row, found: member(table, row[key])}));
+}
+
+function badgeZone(delivery, reference) {
+  const rows = delivery.values['scans.json'].rows;
+  const badges = keyed(reference.values['badges.json'].rows, 'badgeId');
+  const window = reference.values['window.json'];
+  const paired = withMembers(rows, badges, 'badgeId');
+  return violations([
+    ['unique-badge', distinct(rows, 'badgeId')],
+    ['zone-match', paired.every(({row, found}) => row.zone === found.zone)],
+    ['entry-window', paired.every(({row}) => row.minute >= window.minMinute && row.minute <= window.maxMinute)],
+  ]);
+}
+
+function clearanceLevel(delivery, reference) {
+  const rows = delivery.values['grants.json'].rows;
+  const posts = keyed(reference.values['posts.json'].rows, 'postId');
+  const paired = withMembers(rows, posts, 'postId');
+  return violations([
+    ['unique-post', distinct(rows, 'postId')],
+    ['post-count', rows.length === reference.values['posts.json'].rows.length],
+    ['clearance', paired.every(({row, found}) => row.level >= found.required)],
+  ]);
+}
+
+function queueCap(delivery, reference) {
+  const rows = delivery.values['tickets.json'].rows;
+  const desks = keyed(reference.values['desks.json'].rows, 'deskId');
+  const paired = withMembers(rows, desks, 'deskId');
+  return violations([
+    ['unique-ticket', distinct(rows, 'ticketId')],
+    ['queue-cap', BigInt(rows.length) <= reference.values['queue.json'].cap],
+    ['desk-open', paired.every(({found}) => found.open === true)],
+  ]);
+}
+
+function purposeAllow(delivery, reference) {
+  const rows = delivery.values['visits.json'].rows;
+  const purposes = keyed(reference.values['purposes.json'].rows, 'purpose');
+  const paired = withMembers(rows, purposes, 'purpose');
+  return violations([
+    ['unique-visit', distinct(rows, 'visitId')],
+    ['purpose-allowed', paired.every(({found}) => found.allowed === true)],
+  ]);
+}
+
+function programRows(delivery, reference) {
+  const rows = delivery.values['blocks.json'].rows;
+  const programs = keyed(reference.values['programs.json'].rows, 'programId');
+  return {rows, programs, paired: withMembers(rows, programs, 'programId')};
+}
+
+const inNights = (rows) => rows.every((row) => row.night >= 1n && row.night <= 2n);
+const hasNight = (rows, night) => rows.some((row) => row.night === night);
+
+function nightCover(delivery, reference) {
+  const {rows, programs} = programRows(delivery, reference);
+  return violations([
+    ['unique-program', distinct(rows, 'programId')],
+    ['program-count', rows.length === programs.size],
+    ['night-domain', inNights(rows)],
+    ['cover-night-1', hasNight(rows, 1n)],
+    ['cover-night-2', hasNight(rows, 2n)],
+  ]);
+}
+
+function instrumentMatch(delivery, reference) {
+  const {rows, programs, paired} = programRows(delivery, reference);
+  return violations([
+    ['unique-program', distinct(rows, 'programId')],
+    ['program-count', rows.length === programs.size],
+    ['night-domain', inNights(rows)],
+    ['instrument', paired.every(({row, found}) => row.instrument === found.instrument)],
+  ]);
+}
+
+function usableNight(delivery, reference) {
+  const {rows, paired} = programRows(delivery, reference);
+  return violations([
+    ['unique-program', distinct(rows, 'programId')],
+    ['night-domain', inNights(rows)],
+    ['usable', paired.every(({found}) => found.usable === true)],
+    ['cover-night-1', hasNight(rows, 1n)],
+    ['cover-night-2', hasNight(rows, 2n)],
+  ]);
+}
+
+function programBudget(delivery, reference) {
+  const {rows, paired} = programRows(delivery, reference);
+  const cost = checkedSum(paired.map(({found}) => found.costCents));
+  return violations([
+    ['unique-program', distinct(rows, 'programId')],
+    ['night-domain', inNights(rows)],
+    ['cover-night-1', hasNight(rows, 1n)],
+    ['cover-night-2', hasNight(rows, 2n)],
+    ['program-cost', cost <= reference.values['budget.json'].totalCents],
+  ]);
+}
+
+function berthRows(delivery, reference) {
+  const rows = delivery.values['allocations.json'].rows;
+  const vessels = keyed(reference.values['vessels.json'].rows, 'vesselId');
+  const berths = keyed(reference.values['berths.json'].rows, 'berthId');
+  const paired = rows.map((row) => ({
+    row,
+    vessel: member(vessels, row.vesselId),
+    berth: member(berths, row.berthId),
+  }));
+  return {rows, vessels, paired};
+}
+
+function berthShared(rows, vessels) {
+  return [
+    ['unique-vessel', distinct(rows, 'vesselId')],
+    ['unique-berth', distinct(rows, 'berthId')],
+    ['vessel-count', rows.length === vessels.size],
+  ];
+}
+
+function berthFit(delivery, reference) {
+  const {rows, vessels, paired} = berthRows(delivery, reference);
+  return violations([
+    ...berthShared(rows, vessels),
+    ['fit', paired.every(({vessel, berth}) => vessel.length <= berth.length)],
+  ]);
+}
+
+function berthFee(delivery, reference) {
+  const {rows, vessels, paired} = berthRows(delivery, reference);
+  return violations([
+    ...berthShared(rows, vessels),
+    ['fee-cap', checkedSum(paired.map(({berth}) => berth.fee)) <= reference.values['budget.json'].capCents],
+  ]);
+}
+
+function berthOpen(delivery, reference) {
+  const {rows, vessels, paired} = berthRows(delivery, reference);
+  return violations([
+    ...berthShared(rows, vessels),
+    ['berth-open', paired.every(({berth}) => berth.open === true)],
+  ]);
+}
+
+function berthChoice(delivery, reference) {
+  const {rows, vessels, paired} = berthRows(delivery, reference);
+  return violations([
+    ...berthShared(rows, vessels),
+    ['fit', paired.every(({vessel, berth}) => vessel.length <= berth.length)],
+    ['fee-cap', checkedSum(paired.map(({berth}) => berth.fee)) <= reference.values['budget.json'].capCents],
+  ]);
+}
+
 function drawerExact(delivery, reference, spec) {
   const rows = delivery.values['drawers.json'].rows;
   const floats = keyed(reference.values['floats.json'].rows, 'drawerId');
@@ -472,6 +626,42 @@ export async function evaluateCandidate(challenge, candidateDirectory, {referenc
         break;
       case 'cover-note':
         violated = coverNote(delivery, challenge.spec);
+        break;
+      case 'badge-zone':
+        violated = badgeZone(delivery, reference);
+        break;
+      case 'clearance-level':
+        violated = clearanceLevel(delivery, reference);
+        break;
+      case 'queue-cap':
+        violated = queueCap(delivery, reference);
+        break;
+      case 'purpose-allow':
+        violated = purposeAllow(delivery, reference);
+        break;
+      case 'night-cover':
+        violated = nightCover(delivery, reference);
+        break;
+      case 'instrument-match':
+        violated = instrumentMatch(delivery, reference);
+        break;
+      case 'usable-night':
+        violated = usableNight(delivery, reference);
+        break;
+      case 'program-budget':
+        violated = programBudget(delivery, reference);
+        break;
+      case 'berth-fit':
+        violated = berthFit(delivery, reference);
+        break;
+      case 'berth-fee':
+        violated = berthFee(delivery, reference);
+        break;
+      case 'berth-open':
+        violated = berthOpen(delivery, reference);
+        break;
+      case 'berth-choice':
+        violated = berthChoice(delivery, reference);
         break;
       default:
         throw Error(`No independent domain oracle for ${challenge.spec.kind}`);
