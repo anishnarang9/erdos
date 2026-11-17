@@ -1,6 +1,6 @@
 {
   "checkedAt": "2026-11-17T21:17:15.056582+00:00",
-  "status": "facilitator-compatible-hosted-route-unconfigured",
+  "status": "isolated-hosted-image-unsigned-challenge-passed",
   "runtimeSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
   "operatorObservedX402ConfigPresent": false,
   "publicBuyerReady": false,
@@ -46,5 +46,43 @@
   "liveChallengeObserved": false,
   "signedAuthorizations": 0,
   "facilitatorSettlementRequests": 0,
-  "transactionsSubmitted": 0
+  "transactionsSubmitted": 0,
+  "isolatedHostedImageQuote": {
+    "status": 402,
+    "quote": {
+      "x402Version": 2,
+      "resource": {
+        "url": "https://ubc26-159-89-149-133.sslip.io/v1/jobs/01M7NP1X7VM1XA16WFKD79FW5P/paid-compile",
+        "description": "Compile an approved proof job",
+        "mimeType": "application/json"
+      },
+      "accepts": [
+        {
+          "scheme": "exact",
+          "network": "eip155:5042002",
+          "asset": "0x3600000000000000000000000000000000000000",
+          "amount": "1",
+          "payTo": "0x5c8e2f73eb2a4e8222b381e2fcb84e5769ad8c85",
+          "maxTimeoutSeconds": 604800,
+          "extra": {
+            "name": "GatewayWalletBatched",
+            "version": "1",
+            "verifyingContract": "0x0077777d7eba4688bdef3e311b846f25870a19b9",
+            "paymentFlow": "upfront"
+          }
+        }
+      ]
+    },
+    "repeatIdentical": true,
+    "paymentRows": 0,
+    "checkedAt": "2026-11-17T16:19:39.147425-05:00",
+    "image": "sha256:4a69ca09aee0495c7214bffdd7d06fa689e92c26d5aa43159d80d2cf2d1d607a",
+    "headerMatchedBody": true,
+    "deploymentMode": "local",
+    "network": "none",
+    "database": "fresh disposable tmpfs",
+    "productionApiUnchanged": true,
+    "disposableContainerRemoved": true,
+    "firstProbeCorrection": "Add the required idempotency keys to the synthetic create and approval requests."
+  }
 }

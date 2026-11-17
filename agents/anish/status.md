@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 16:19 -05:00 — Anish — Verify an unsigned Circle quote on the VPS
+
+- An isolated copy of the deployed image imports and approves an uncompiled test revision, then returns the expected 402 twice. The payment header matches the body, and the payment table stays empty. The isolated container uses local mode, no network and a fresh temporary database. The production API stays in place. See the [quote evidence](reports/hosted-circle-facilitator-preflight-2026-11-17.json).
+
 ## 2026-11-17 16:17 -05:00 — Anish — Verify Circle Testnet payment prerequisites
 
 - The live facilitator advertises the Arc Testnet USDC parameters used by the previous acceptance. The current VPS image has no x402 configuration. All 22 focused local checks passed. The unsigned preview keeps the proposed separate compile charge at one atomic testnet USDC. See the [preflight](reports/hosted-circle-facilitator-preflight-2026-11-17.json).
