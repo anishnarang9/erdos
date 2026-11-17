@@ -20,7 +20,7 @@ const reject = (requirement, message) => {
 };
 
 function integer(value) {
-  if (typeof value !== 'string' || !/^(-?(?:0|[1-9][0-9]*))$/.test(value)) {
+  if (typeof value !== 'string' || !/^(?:0|-?[1-9][0-9]*)$/.test(value)) {
     reject('input-types', 'Expected a normalized decimal i64 string');
   }
   const number = BigInt(value);
@@ -566,6 +566,46 @@ function berthChoice(delivery, reference) {
   ]);
 }
 
+function massProduct(delivery) {
+  const row = delivery.values['product.json'];
+  return violations([
+    ['mass-identity', checked('mul', row.concentration, row.volume) === row.mass],
+  ]);
+}
+
+function yieldRatio(delivery, reference) {
+  const rows = delivery.values['yields.json'].rows;
+  const batches = keyed(reference.values['batches.json'].rows, 'batchId');
+  const paired = rows.map((row) => ({row, batch: member(batches, row.batchId)}));
+  return violations([
+    ['unique-batch', distinct(rows, 'batchId')],
+    ['batch-count', rows.length === batches.size],
+    ['mass-bound', paired.every(({row, batch}) => row.output <= batch.input)],
+    ['yield-ratio', paired.every(({row, batch}) => checked('mul', row.output, 100n) <= checked('mul', batch.input, batch.percent))],
+  ]);
+}
+
+function mixtureSplit(delivery, reference) {
+  const rows = delivery.values['parts.json'].rows;
+  const policy = reference.values['policy.json'];
+  return violations([
+    ['unique-part', distinct(rows, 'partId')],
+    ['part-cap', rows.every((row) => row.share <= policy.cap)],
+    ['part-sum', checkedSum(rows.map((row) => row.share)) === policy.total],
+  ]);
+}
+
+function dilutionLimit(delivery, reference) {
+  const rows = delivery.values['takes.json'].rows;
+  const samples = keyed(reference.values['samples.json'].rows, 'sampleId');
+  const paired = rows.map((row) => ({row, sample: member(samples, row.sampleId)}));
+  return violations([
+    ['unique-sample', distinct(rows, 'sampleId')],
+    ['sample-count', rows.length === samples.size],
+    ['dilution-limit', paired.every(({row, sample}) => checked('mul', sample.stock, row.take) <= checked('mul', sample.limit, sample.final))],
+  ]);
+}
+
 function routePairs(delivery, reference) {
   const rows = delivery.values['hops.json'].rows;
   const edges = keyed(reference.values['edges.json'].rows, 'edgeId');
@@ -714,6 +754,18 @@ export async function evaluateCandidate(challenge, candidateDirectory, {referenc
         break;
       case 'route-warehouse':
         violated = routeWarehouse(delivery, reference);
+        break;
+      case 'mass-product':
+        violated = massProduct(delivery);
+        break;
+      case 'yield-ratio':
+        violated = yieldRatio(delivery, reference);
+        break;
+      case 'mixture-split':
+        violated = mixtureSplit(delivery, reference);
+        break;
+      case 'dilution-limit':
+        violated = dilutionLimit(delivery, reference);
         break;
       default:
         throw Error(`No independent domain oracle for ${challenge.spec.kind}`);

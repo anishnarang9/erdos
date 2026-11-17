@@ -101,6 +101,35 @@ test('non-finite JSON numbers reject and finite unknown fields stay semantic', a
   assert.deepEqual(failed.violatedRequirements, ['unique-drawer']);
 });
 
+test('non-canonical i64 strings reject and ordinary integers stay semantic', async () => {
+  const oracle = await import('./oracle.mjs');
+  const negativeZero = pierRows.replace('"countedCents":"400"', '"countedCents":"-0"');
+  const rejectedZero = await evaluatePier(oracle, negativeZero);
+  assert.equal(rejectedZero.status, 'reject');
+  assert.deepEqual(rejectedZero.violatedRequirements, ['input-types']);
+
+  const leading = pierRows.replace('"countedCents":"400"', '"countedCents":"01"');
+  const rejectedLeading = await evaluatePier(oracle, leading);
+  assert.equal(rejectedLeading.status, 'reject');
+  assert.deepEqual(rejectedLeading.violatedRequirements, ['input-types']);
+
+  const zero = pierRows.replace('"countedCents":"400"', '"countedCents":"0"');
+  const zeroResult = await evaluatePier(oracle, zero);
+  assert.equal(zeroResult.status, 'fail');
+  assert.equal(zeroResult.verdict, 0);
+  assert.deepEqual(zeroResult.violatedRequirements, ['exact-count']);
+
+  const negative = pierRows.replace('"countedCents":"400"', '"countedCents":"-1"');
+  const negativeResult = await evaluatePier(oracle, negative);
+  assert.equal(negativeResult.status, 'fail');
+  assert.deepEqual(negativeResult.violatedRequirements, ['exact-count']);
+
+  const max = pierRows.replace('"countedCents":"400"', '"countedCents":"9223372036854775807"');
+  const maxResult = await evaluatePier(oracle, max);
+  assert.equal(maxResult.status, 'fail');
+  assert.deepEqual(maxResult.violatedRequirements, ['exact-count']);
+});
+
 test('JSON depth and lone surrogates reject without leaving the oracle', async () => {
   const oracle = await import('./oracle.mjs');
   let deep = '"x"';
@@ -183,6 +212,7 @@ test('supported candidates match the independent oracle', async () => {
     'nights-1', 'instrument-1', 'usable-1', 'programs-1',
     'berth-fit-1', 'berth-fee-1', 'berth-open-1', 'berth-swap-1',
     'route-1', 'route-open-1', 'route-fixed-1', 'route-penalty-1',
+    'mass-1', 'yield-1', 'mixture-1', 'dilution-1',
   ]);
   const directory = await mkdtemp(join(tmpdir(), 'ubc26-corpus-'));
   try {
