@@ -16,9 +16,20 @@ Keep the exact reviewed non-reasoning model, one completion, no search and no to
 
 The compiler and deterministic evaluator need no additional model call. A failed validation cannot silently obtain more paid attempts. A model-generated rule still needs the existing semantic, example and buyer-approval checks.
 
-## Conditional two-call profile
+## Combined budget after Bot review
 
-At the reviewed highest rates of $2.50 per million input tokens and $5 per million output tokens, one call with **12,000 complete input tokens and 4,000 output tokens** costs at most $0.05. Two such calls fit $0.10. This is tariff arithmetic, not a verified input bound or an enabled configuration. Each repair must fit the same complete-input limit. Clarification calls consume the same session balance.
+The follow-ups moved the rounded account meters by about 6¢ to 9¢ per review. That leaves about 1¢ to 4¢ for drafting and repair under the complete-run ceiling. The three-review mean of 7.7¢ already exceeds the 5¢ target before drafting.
+
+At the reviewed upper API rates of $2.50 per million input tokens and $5 per million output tokens, 1,000 output tokens cost 0.5¢. This leaves the following illustrative room for one draft.
+
+| Bot review assumption | API budget | Maximum complete input with 1,000 output tokens |
+| --- | ---: | ---: |
+| 6¢ | 4¢ | 14,000 tokens |
+| 7¢ | 3¢ | 10,000 tokens |
+| 8¢ | 2¢ | 6,000 tokens |
+| 9¢ | 1¢ | 2,000 tokens |
+
+These examples assume no repair or clarification call. The pilot's rounded meter changes do not guarantee any row's Bot cost. The API tokenizer omits provider-added framing. These figures are therefore useful for narrowing the prompt and schema, while the production admission check still requires enforceable bounds for both calls.
 
 ## Current unresolved dependency
 
@@ -36,3 +47,8 @@ The reviewed model reserves $2.54096 for one call under the current guard. This 
 The API key token limit applies per minute. The provider lets in-flight requests finish after they exceed it. The team postpaid limit applies after prepaid credits run out. Neither control establishes a maximum charge for one complete authoring run. [API key limits](https://docs.x.ai/developers/rest-api-reference/management/auth) · [Team billing limits](https://docs.x.ai/developers/rest-api-reference/management/billing)
 
 The cost guard test now checks the user's exact 100,000 micro-USD limit. It requires HTTP 503 and zero provider calls.
+
+
+The current pricing table lists `grok-build-0.1` with the smallest published context and lowest long-context input rate of the listed text models. Its 256,000-token context at $2 per million still produces a 51.2¢ input reservation under the same full-context method, before output. This screening result does not qualify the model for structured authoring or verify a per-request bound. [Text API pricing](https://docs.x.ai/developers/pricing#text-api)
+
+The Bot documentation describes a webhook body and an account-level monthly cap. The webhook starts an asynchronous run. The cap allows an in-flight run to finish after the account crosses it. The published controls do not supply a per-run token or dollar ceiling. Compact prompts and a single callback can reduce work in a future approved pilot, but Bot-only authoring still needs a verified run limit to satisfy the strict cap. [Bot webhook controls](https://docs.x.ai/grok-bot/skills-routines-and-automations#webhooks) · [Bot billing FAQ](https://docs.x.ai/grok-bot/faq)

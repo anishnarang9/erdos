@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 16:15 -05:00 — Anish — Screen current provider limits against the combined cost cap
+
+- The cheapest full-context input reservation in the current published xAI text catalog is 51.2¢. The Bot account cap permits an active run to finish after it crosses the limit. The cost policy now shows the API budget left after each observed Bot cost range. No inference ran. See the [cost policy](../../docs/hosted-ten-cent-authoring.md).
+
 ## 2026-11-17 16:14 -05:00 — Anish — Verify proxy CI and public artifact pins
 
 - Commerce CI passed at the deployed ingress source `6b4eec1`. Fresh HTTPS downloads match all 16 recorded hashes for the runner, native engine and documentation. Source and artifact pins still refer to their respective components. See the [release ledger](reports/hosted-release-readiness-2026-11-17.json).
