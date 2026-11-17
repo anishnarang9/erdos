@@ -13,6 +13,7 @@ let work: string;
 let packagesDir: string;
 let app: ReturnType<typeof createApp>;
 let n = 0;
+const childEnv: Record<string, string> = {};
 
 beforeAll(() => {
   work = mkdtempSync(join(tmpdir(), "ubc26-t6-package-"));
@@ -20,18 +21,19 @@ beforeAll(() => {
 afterAll(() => rmSync(work, { recursive: true, force: true }));
 beforeEach(() => {
   packagesDir = mkdtempSync(join(work, "packages-"));
-  process.env.FAKE_REFERENCE_HASH = EMPTY_REFERENCE_DIGEST;
+  delete childEnv.FAKE_RULES_HASH;
+  childEnv.FAKE_REFERENCE_HASH = EMPTY_REFERENCE_DIGEST;
   app = createApp({
     dbPath: ":memory:",
     buyerToken: TOKEN,
-    engine: cliEngine({ bin: { command: process.execPath, args: [SCRIPT, "ok"] }, workDir: work }),
+    engine: cliEngine({ bin: { command: process.execPath, args: [SCRIPT, "ok"] }, workDir: work, env: childEnv }),
     packagesDir,
   });
 });
 afterEach(() => {
   app.close();
-  delete process.env.FAKE_REFERENCE_HASH;
-  delete process.env.FAKE_RULES_HASH;
+  delete childEnv.FAKE_REFERENCE_HASH;
+  delete childEnv.FAKE_RULES_HASH;
 });
 
 async function post(path: string, body: unknown, headers: Record<string, string> = {}) {
@@ -80,7 +82,7 @@ describe("compile keeps the package", () => {
 describe("compile must reproduce what was approved", () => {
   it("a package with a different rulesHash -> 502 engine_failed rules_mismatch; nothing stored, package deleted", async () => {
     const { jobId, revisionHash } = await approvedJob();
-    process.env.FAKE_RULES_HASH = "0x" + "ee".repeat(32);
+    childEnv.FAKE_RULES_HASH = "0x" + "ee".repeat(32);
     const r = await post(`/v1/jobs/${jobId}/compile`, { revisionHash });
     expect(r.status).toBe(502);
     expect(r.body.error.details).toEqual({ reason: "rules_mismatch", mismatched: ["rulesHash"] });
@@ -92,7 +94,7 @@ describe("compile must reproduce what was approved", () => {
 
   it("a package with a different referenceHash -> 502 reference_mismatch; package deleted", async () => {
     const { jobId, revisionHash } = await approvedJob();
-    process.env.FAKE_REFERENCE_HASH = "0x" + "dd".repeat(32);
+    childEnv.FAKE_REFERENCE_HASH = "0x" + "dd".repeat(32);
     const r = await post(`/v1/jobs/${jobId}/compile`, { revisionHash });
     expect(r.status).toBe(502);
     expect(r.body.error.details.reason).toBe("reference_mismatch");
