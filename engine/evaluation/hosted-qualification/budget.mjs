@@ -148,9 +148,10 @@ export function sumAttemptTicks(usage) {
 }
 
 export function actualMicroUsdFromTicks(ticks) {
-  if (!Number.isSafeInteger(ticks) || ticks < 0 || ticks % TICKS_PER_MICRO_USD !== 0) return null;
-  const microUsd = ticks / TICKS_PER_MICRO_USD;
-  return Number.isSafeInteger(microUsd) ? microUsd : null;
+  if (!Number.isSafeInteger(ticks) || ticks < 0) return null;
+  const unit = BigInt(TICKS_PER_MICRO_USD);
+  const microUsd = (BigInt(ticks) + unit - 1n) / unit;
+  return microUsd <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(microUsd) : null;
 }
 
 export function applyTaskView(entry, view) {
