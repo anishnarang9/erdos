@@ -117,7 +117,11 @@ export function assertAuthoringBudget(budget: Deps["budget"]): void {
 export function registerTaskRoutes(
   ctx: RouteContext,
   handlers: TaskHandlers,
-): { reconcileTasks: () => void; pumpTasks: () => Promise<void> } {
+): {
+  reconcileTasks: () => void;
+  pumpTasks: () => Promise<void>;
+  withCompileSlot: <T>(run: () => Promise<T>) => Promise<T>;
+} {
   const { app, deps, buyer, idem, newId } = ctx;
   const { db } = deps;
   const expensive = expensiveGuard(deps);
@@ -278,19 +282,34 @@ export function registerTaskRoutes(
     return parsed;
   };
 
+  let compileLock: Promise<void> = Promise.resolve();
+  /** One compiler for queued compiles and paid compiles. The next caller waits for the current one. */
+  const withCompileSlot = <T>(run: () => Promise<T>): Promise<T> => {
+    const previous = compileLock;
+    let unlock!: () => void;
+    compileLock = new Promise<void>((resolve) => {
+      unlock = resolve;
+    });
+    return previous.then(run, run).finally(unlock);
+  };
+
   const runOne = async (row: TaskRow): Promise<void> => {
     const at = () => isoAt(deps.now());
-    try {
-      const result = await execute(row);
-      finish.run("succeeded", JSON.stringify(result), null, at(), row.id);
-      if (row.operation === "draft") settleUnknown.run(at(), row.id);
-    } catch (err) {
-      const error = taskError(err);
-      finish.run("failed", null, JSON.stringify(error), at(), row.id);
-      if (row.operation !== "draft") return;
-      if (RELEASE_CODES.has(error.code)) releaseReservation.run(at(), row.id);
-      else settleUnknown.run(at(), row.id);
-    }
+    const work = async (): Promise<void> => {
+      try {
+        const result = await execute(row);
+        finish.run("succeeded", JSON.stringify(result), null, at(), row.id);
+        if (row.operation === "draft") settleUnknown.run(at(), row.id);
+      } catch (err) {
+        const error = taskError(err);
+        finish.run("failed", null, JSON.stringify(error), at(), row.id);
+        if (row.operation !== "draft") return;
+        if (RELEASE_CODES.has(error.code)) releaseReservation.run(at(), row.id);
+        else settleUnknown.run(at(), row.id);
+      }
+    };
+    if (row.operation === "compile") await withCompileSlot(work);
+    else await work();
   };
 
   let pumping = false;
@@ -320,5 +339,5 @@ export function registerTaskRoutes(
     }
   };
 
-  return { reconcileTasks, pumpTasks };
+  return { reconcileTasks, pumpTasks, withCompileSlot };
 }

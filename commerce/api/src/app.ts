@@ -129,7 +129,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   const ctx = { app, deps, buyer, provider, idem, notImplemented, newId };
   const authoring = registerAuthoringRoutes(ctx);
   const tasks = registerTaskRoutes(ctx, authoring);
-  registerX402Routes(ctx, authoring, opts.x402);
+  registerX402Routes(ctx, authoring, opts.x402, tasks.withCompileSlot);
   registerOpenClaimRoutes(ctx, opts.openClaim);
   registerMarketRoutes(ctx);
 
