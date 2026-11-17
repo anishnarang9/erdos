@@ -121,3 +121,12 @@ A runner split (prove without auto-submit, §6.5) is **not** needed for the vide
 - **Lab (`lib/lab.ts`, tested):** local fixture only, no API/chain/signer import; permanent "Simulation · no proof or payment" labels.
 - **Replaced:** dark three-column layout, Vault3D, Beams, ProvingGrid (proving shows a real elapsed clock and the real proof chip on the chamber).
 - **Not done yet:** separate `/replay/:id` route (replay still enters via presenter keys R/Shift+R and is labelled), Rapier bundle code-splitting (3.9 MB dev bundle), comprehension test and on-laptop frame-time measurement.
+
+## 2026-11-17 02:35 -05:00 — Claude — Landing replaced by the globe site (supersedes the Proof Chamber landing)
+
+- **Why:** Neil rejected the Proof Chamber landing and asked for the chaingpt.org design language with the Dribbble ringed globe, a robot that changes on scroll, stacked system layers and a token-style page.
+- **Shipped in `commerce/web/public/site/`:** hero globe (arcs launch, land with ripples and respawn; inertial drag; pulses with the lab result), rotating briefs and a cycling pipeline, Solutions with a fixed centre robot whose pose and held object follow six steps, case studies with real Arc figures and links (jobs 1-4 and open-claim job 7), three sticky stacked layers with routed connectors and expanders, proof lab (simulation), USDC escrow coin with staggered text decode, materials, FAQ.
+- **Routing:** the app root redirects to `/site/index.html`; `#/app` is the live workspace. The old `Landing.tsx` and `lab.ts` are removed.
+- **Honesty rules kept:** network, robot, coin and lab are labelled illustrations; real runs link to the explorer; no logo, copy, model or imagery from the references is reused.
+- **Checked:** no console errors; desktop 1920, phone 390 (no horizontal overflow), reduced motion (globe paused, text static, layers visible), lab pass and fail, root redirect and workspace link.
+- **Not done:** the live workspace still uses the light Proof Chamber styling; job 4 refund hash is shown shortened without a link.

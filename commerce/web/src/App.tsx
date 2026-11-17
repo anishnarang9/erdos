@@ -1,7 +1,6 @@
-// Routes (hash-based, no server config): #/ landing + simulated lab; #/app live workspace; #/job/<id> a linked job.
-// Replay is entered from the workspace with the presenter keys and is always labelled.
+// Routes: the public landing is the static site in public/site (globe, solver robot, system layers, escrow coin).
+// #/app is the live workspace; #/job/<id> opens a linked job. Replay is entered from the workspace and always labelled.
 import { useEffect, useState } from "react";
-import { Landing } from "./pages/Landing";
 import { Workspace } from "./pages/Workspace";
 
 type Route = { page: "landing" } | { page: "app"; jobId: string | null };
@@ -16,14 +15,13 @@ function parse(hash: string): Route {
 export default function App() {
   const [route, setRoute] = useState(() => parse(location.hash));
   useEffect(() => {
-    const on = () => {
-      const next = parse(location.hash);
-      // In-page anchors (#experiment) keep the landing page.
-      setRoute((cur) => (next.page === "landing" && cur.page === "landing" ? cur : next));
-      if (next.page !== "landing" || location.hash === "" || location.hash === "#/") window.scrollTo(0, 0);
-    };
+    const on = () => setRoute(parse(location.hash));
     window.addEventListener("hashchange", on);
     return () => window.removeEventListener("hashchange", on);
   }, []);
-  return route.page === "app" ? <Workspace key={route.jobId ?? "new"} jobId={route.jobId} /> : <Landing />;
+  useEffect(() => {
+    if (route.page === "landing") location.replace("/site/index.html");
+  }, [route]);
+  if (route.page === "landing") return null;
+  return <Workspace key={route.jobId ?? "new"} jobId={route.jobId} />;
 }

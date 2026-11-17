@@ -1,5 +1,44 @@
 ﻿# Product plan and Claude handoff
 
+## 2026-11-17 01:44 -05:00 — Codex — Revision 2: Valery layout with luminous orbital Earth
+
+**Neil's latest direction:** combine [Valery — E Commerce Web Animation by Dhimas Mo / Emura](https://dribbble.com/shots/25099073-Valery-E-Commerce-Web-Animation) for the website composition and reveal rhythm with [3D globe — Website header by Tig Manukyan](https://dribbble.com/shots/26367677-3D-globe-Website-header) for stronger Earth glow and outer rings. This refines the globe revision below; the old proof chamber remains rejected.
+
+**Reference inspection:** public video frames at 1/2/3/4/6/8/10 seconds were inspected across the references. Valery uses a centered brand over a full-width visual hero, large bottom-aligned type, overlapping circular scroll cues, spacious white editorial copy, staggered visual panels, and a wide category banner followed by two smaller tiles. The globe reference uses a luminous cyan edge, violet/pink city lights, surrounding orbital structures and particles. The preview adapts these composition/motion patterns with original product copy and visuals; it does not reuse the fashion imagery or embed either reference video.
+
+**Implemented preview:** [open the revised website](http://127.0.0.1:4178/network.html). The root URL also redirects here. New `editorial.css` composes with the existing local preview files, all under `C:/Users/Neil/reports/proof-chamber/`.
+
+1. **Hero:** centered identity, large lower-left introduction, circular Discover cue, three staggered opening shutters, and a complete luminous Earth toward the upper right. The animation never locks scrolling or gates the controls.
+2. **Earth:** stronger cyan atmospheric rim, violet glow, pink/blue city lights, three independently tilted orbital rings, moving ring satellites, surrounding signal beacons, and the existing network trails. The expanded view now recenters explicitly even when entering fullscreen does not change viewport dimensions.
+3. **Introduction:** a left headline and right explanatory paragraph state the buyer's workflow: commission a data deliverable, review checks, compare quotes, select a solver, then release escrow under the agreed proof conditions. Public/shareable inputs and the upcoming human adapter remain explicit.
+4. **Editorial visuals:** staggered deliverable and acceptance illustrations use a sample JSON file and explicit check list. These are explanatory artifacts, not fake customer logos, photographs or live receipts.
+5. **Use-case collection:** one large record-reconciliation banner, then catalog/schema conversion and human-prepared delivery tiles. The first is demo-available; the others retain proposed-pilot / adapter-next labels.
+6. **Motion:** short masked hero entrance, staggered opacity/translation reveals as sections enter view, slow globe rotation, independent satellite movement, pause, pointer rotation, and reduced-motion support. No scroll hijacking, autoplay audio or fabricated live solver activity.
+
+**Verified:** isolated Chrome passed the root redirect, two local textures, shader/JavaScript error checks, three orbital rings, centered expanded view, pause/resume, all sample delivery outcomes, scroll reveal visibility, reduced motion, and no horizontal overflow at 1920×1080, 1280×720 and 390×844. Desktop and introduction screenshots were visually reviewed. The measured scene reports 252 network nodes, 38 decorative routes and 60 draw calls; this is not an FPS claim for the proving laptop. Evidence: `network-qa.json`, `network-desktop.png`, `editorial-introduction.png`, and `network-expanded.png` in the preview folder.
+
+**Implementation handoff:** this is the latest visual direction. Use the editorial composition and orbital Earth rather than the previous all-dark page. The underlying D1–D4, exact-check semantics, selected-provider flow, signer boundaries, live/replay distinction and receipt/decryption requirements remain unchanged. No real payment or cryptographic proof occurs in this isolated preview.
+
+---
+
+## 2026-11-17 — Codex — Revision: globe animation replaces the proof chamber
+
+**Neil rejected the proof-chamber preview and supplied a specific motion reference.** The new direction is a cinematic Earth/network scene based on [Storyblocks SBV-348419533](https://www.storyblocks.com/video/stock/abstract-tech-earth-globalization-in-3d-motion-graphic-concept-transmit-ai-networking-on-fiber-optic-transfer-5g-web-communications-signal-348419533). This supersedes the chamber, mechanical gate, colliding spheres, light editorial shell and Rapier recommendation below. Earlier audience research and D1–D4 remain applicable; the rejected visual proposal is retained as history.
+
+**Reference inspected:** the publicly available watermarked preview, including a captured frame at three seconds. Observed ingredients: close-up textured blue Earth, dark space, teal nodes, fine triangular network edges, luminous transfer trails and atmospheric depth. The preview is a WebGL recreation, not the licensed movie embedded or an exact frame-for-frame copy.
+
+**Revised preview:** [global proof network](http://127.0.0.1:4178/network.html), implemented in `C:/Users/Neil/reports/proof-chamber/network.html`, `network.css` and `network.js`. Use **Expand animation** for an unobstructed globe view, **Pause motion** to stop it, or mouse drag to turn the globe. Reduced motion starts paused. The previous directory name is retained so the local server remains usable.
+
+**Layout:** a full-width midnight-blue hero, large cropped Earth on the right, readable headline and CTA on the left, and subtle navigation. On mobile, copy appears above the lower hemisphere. The product steps and acceptance-check experiment sit below the hero, separate from the visual network.
+
+**Implementation:** use the existing Three.js/R3F renderer, sphere textures, shader materials, lines and point sprites. Rapier is unnecessary for this chosen animation. Cap DPR at 1.5, stop updates when hidden/offscreen, and provide reduced-motion/static fallback. The network is illustrative; never label its nodes as actual worker locations, active jobs or real transactions. Live acceptance and financial states remain API/chain-derived.
+
+**Assets and evidence:** Earth day/night maps are locally mirrored from the official Three.js example texture URLs listed in the preview README. No Storyblocks movie is embedded. Browser QA covers texture loading, shader/JavaScript errors, full-screen control, pause, all three sample scenarios, reduced motion and desktop/mobile overflow. Source and screenshots remain outside `commerce/`.
+
+**Claude handoff:** implement this globe direction instead of the earlier gate. Preserve selected-provider quotes, approved checks, separate simulation/live/replay modes, the single release receipt, presenter controls and D1–D4. No `commerce/` file was edited by Codex in this revision.
+
+---
+
 ## 2026-11-16 — Codex — Product research and proposed Proof Chamber redesign
 
 **Status:** Design and implementation plan, following Neil's request for an impressive website with real physics and a clearer UI structure. This is a proposed visual replacement for the earlier equal-column presentation, not a change to the reconciled payment protocol or D1–D4. Claude continues to own `ui-intent.md`; no files under `commerce/` were changed for this study. Earlier decisions and implementation handoff are preserved below.
