@@ -144,7 +144,6 @@ export function registerX402Routes(
   ctx: RouteContext,
   authoring: ReturnType<typeof authoringHandlers>,
   config: X402Config | undefined,
-  withCompileSlot: <T>(run: () => Promise<T>) => Promise<T>,
 ): void {
   if (config) validateConfig(config);
   const { app, deps, buyer } = ctx;
@@ -162,7 +161,6 @@ export function registerX402Routes(
     }
     const jobId = c.req.param("id") ?? "";
     const revisionHash = body.revisionHash.toLowerCase();
-    const { stored } = authoring.compileGate(jobId, revisionHash);
     const requestHash = sha256hex0x(stable({ jobId, revisionHash }));
     const resource = {
       url: new URL(`/v1/jobs/${jobId}/paid-compile`, config.resourceBaseUrl).href,
@@ -177,7 +175,10 @@ export function registerX402Routes(
     const quote = { x402Version: 2, resource, accepts: [requirement] };
     const challenge = () => c.json(quote, 402, { "payment-required": encodedHeader(quote) });
     const raw = validPayload(c.req.header("payment-signature"));
-    if (!raw) return stored ? withCompileSlot(() => authoring.compile(c, async () => {})) : challenge();
+    if (!raw) {
+      const { stored } = authoring.compileGate(jobId, revisionHash);
+      return stored ? authoring.compile(c, async () => {}) : challenge();
+    }
     if (!isPlainObject(raw) || raw.x402Version !== 2 || !isPlainObject(raw.payload) ||
         !isPlainObject(raw.resource) || !isPlainObject(raw.accepted) ||
         typeof raw.accepted.network !== "string" || typeof raw.accepted.asset !== "string") {
@@ -186,53 +187,88 @@ export function registerX402Routes(
     const payload = raw as unknown as PaymentPayload;
     // Bind a payment to the signed scheme payload. Changing outer metadata cannot create a second charge.
     const paymentId = sha256hex0x(stable({ network: payload.accepted.network, asset: payload.accepted.asset, payload: payload.payload }));
-    const existing = select.get(paymentId) as PaymentRow | undefined;
-    if (existing && (existing.job_id !== jobId || existing.revision_hash !== revisionHash || existing.request_hash !== requestHash)) {
-      throw new ApiError("payment_conflict", "This payment belongs to another request");
-    }
-    const expectedRequirement = existing?.requirement_json ? JSON.parse(existing.requirement_json) as unknown : requirement;
-    const expectedResource = existing?.resource_json ? JSON.parse(existing.resource_json) as unknown : resource;
-    if (stable(payload.accepted) !== stable(expectedRequirement) || stable(payload.resource) !== stable(expectedResource)) {
-      return challenge();
-    }
-    if (existing?.state === "complete") {
-      if (existing.response_status === null || existing.response_json === null || existing.settlement_json === null) {
+    const loadPayment = (): PaymentRow | undefined => {
+      const row = select.get(paymentId) as PaymentRow | undefined;
+      if (row && (row.job_id !== jobId || row.revision_hash !== revisionHash || row.request_hash !== requestHash)) {
+        throw new ApiError("payment_conflict", "This payment belongs to another request");
+      }
+      return row;
+    };
+    const matches = (row: PaymentRow | undefined): boolean => {
+      const expectedRequirement = row?.requirement_json ? JSON.parse(row.requirement_json) as unknown : requirement;
+      const expectedResource = row?.resource_json ? JSON.parse(row.resource_json) as unknown : resource;
+      return stable(payload.accepted) === stable(expectedRequirement) && stable(payload.resource) === stable(expectedResource);
+    };
+    const replay = (row: PaymentRow): Response => {
+      if (row.response_status === null || row.response_json === null || row.settlement_json === null) {
         throw new ApiError("internal", "Stored payment response is incomplete");
       }
-      return new Response(existing.response_json, { status: existing.response_status, headers: {
-        "content-type": "application/json", "payment-response": encodedHeader(JSON.parse(existing.settlement_json)),
+      return new Response(row.response_json, { status: row.response_status, headers: {
+        "content-type": "application/json", "payment-response": encodedHeader(JSON.parse(row.settlement_json)),
         "idempotent-replayed": "true",
       } });
-    }
-    if (existing?.state === "settling" || existing?.state === "pending") {
-      throw new ApiError("payment_pending", "Payment settlement needs reconciliation before retry");
-    }
-    if (!existing && stored) return withCompileSlot(() => authoring.compile(c, async () => {}));
-    let settlementJson = existing?.settlement_json ?? null;
-    if (!existing) {
-      const at = isoAt(deps.now());
-      tx(deps.db, () => insert.run(paymentId, jobId, revisionHash, requestHash, stable(requirement), stable(resource), at, at));
-      let settlement: SettlementResponse;
+    };
+    const assertRecoverable = (row: PaymentRow | undefined): void => {
+      if (row?.state === "settling" || row?.state === "pending") {
+        throw new ApiError("payment_pending", "Payment settlement needs reconciliation before retry");
+      }
+    };
+    const existing = loadPayment();
+    if (!matches(existing)) return challenge();
+    // An authenticated exact historical response does not require fresh capacity or approval.
+    if (existing?.state === "complete") return replay(existing);
+    assertRecoverable(existing);
+    const { stored } = authoring.compileGate(jobId, revisionHash);
+    if (!existing && stored) return authoring.compile(c, async () => {});
+
+    // Reserve bounded process capacity before creating a payment or calling the facilitator.
+    const lease = deps.compileAdmission.admitExternal();
+    const work = (async (): Promise<Response> => {
       try {
-        settlement = await config.facilitator.settle(payload, requirement);
-      } catch {
-        pending.run(isoAt(deps.now()), paymentId);
-        throw new ApiError("payment_pending", "Payment settlement outcome is unknown; reconcile before retry");
+        await lease.ready;
+        if (deps.compileAdmission.draining) throw deps.compileAdmission.closedError();
+        const current = loadPayment();
+        if (!matches(current)) return challenge();
+        if (current?.state === "complete") return replay(current);
+        assertRecoverable(current);
+        const gate = authoring.compileGate(jobId, revisionHash);
+        if (!current && gate.stored) return authoring.compile(c, async () => {});
+        let settlementJson = current?.settlement_json ?? null;
+        if (!current) {
+          const at = isoAt(deps.now());
+          tx(deps.db, () => insert.run(paymentId, jobId, revisionHash, requestHash, stable(requirement), stable(resource), at, at));
+          let settlement: SettlementResponse;
+          try {
+            settlement = await config.facilitator.settle(payload, requirement);
+          } catch {
+            if (!deps.compileAdmission.databaseClosed) pending.run(isoAt(deps.now()), paymentId);
+            throw new ApiError("payment_pending", "Payment settlement outcome is unknown; reconcile before retry");
+          }
+          // A timed-out drain may already have closed SQLite. Preserve the durable uncertain row.
+          if (deps.compileAdmission.databaseClosed) {
+            throw new ApiError("payment_pending", "Payment settlement needs reconciliation before retry");
+          }
+          const transactionPattern = config.settlementMode === "circle-gateway"
+            ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i : /^0x[0-9a-fA-F]{64}$/;
+          if (!settlement.success || settlement.network !== requirement.network ||
+              typeof settlement.payer !== "string" || !/^0x[0-9a-fA-F]{40}$/.test(settlement.payer) ||
+              typeof settlement.transaction !== "string" || !transactionPattern.test(settlement.transaction)) {
+            pending.run(isoAt(deps.now()), paymentId);
+            throw new ApiError("payment_pending", "Payment settlement was not confirmed; reconcile before retry");
+          }
+          settlementJson = JSON.stringify({ ...settlement, ...(config.settlementMode === "circle-gateway"
+            ? { settlementType: "gateway-batch-accepted", onchainConfirmed: false } : {}) });
+          settled.run(settlementJson, isoAt(deps.now()), paymentId);
+        }
+        if (deps.compileAdmission.draining) throw deps.compileAdmission.closedError();
+        if (settlementJson === null) throw new ApiError("internal", "Settled payment has no receipt");
+        return await compileAfterPayment(c, deps, authoring.compile, settlementJson, paymentId, complete);
+      } finally {
+        lease.release();
       }
-      const transactionPattern = config.settlementMode === "circle-gateway"
-        ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i : /^0x[0-9a-fA-F]{64}$/;
-      if (!settlement.success || settlement.network !== requirement.network ||
-          typeof settlement.payer !== "string" || !/^0x[0-9a-fA-F]{40}$/.test(settlement.payer) ||
-          typeof settlement.transaction !== "string" || !transactionPattern.test(settlement.transaction)) {
-        pending.run(isoAt(deps.now()), paymentId);
-        throw new ApiError("payment_pending", "Payment settlement was not confirmed; reconcile before retry");
-      }
-      settlementJson = JSON.stringify({ ...settlement, ...(config.settlementMode === "circle-gateway"
-        ? { settlementType: "gateway-batch-accepted", onchainConfirmed: false } : {}) });
-      settled.run(settlementJson, isoAt(deps.now()), paymentId);
-    }
-    if (settlementJson === null) throw new ApiError("internal", "Settled payment has no receipt");
-    return await withCompileSlot(() => compileAfterPayment(c, deps, authoring.compile, settlementJson, paymentId, complete));
+    })();
+    deps.compileAdmission.track(work);
+    return await work;
   });
 }
 
@@ -256,6 +292,12 @@ async function compileAfterPayment(
     } });
   }
   response.headers.set("payment-response", paymentHeader);
-  if (response.ok) complete.run(response.status, await response.clone().text(), isoAt(deps.now()), paymentId);
+  if (response.ok) {
+    const text = await response.clone().text();
+    if (deps.compileAdmission.databaseClosed) {
+      throw new ApiError("payment_pending", "Payment settlement needs reconciliation before retry");
+    }
+    complete.run(response.status, text, isoAt(deps.now()), paymentId);
+  }
   return response;
 }

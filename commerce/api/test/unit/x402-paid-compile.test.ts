@@ -9,6 +9,7 @@ import { verifyTypedData, type Address, type Hex } from "viem";
 import { BUYER_TOKEN, T0, freshKey, type SpecApp } from "../spec/helpers.ts";
 import { EMPTY_REF_HASH, approveOk, countingEngine, createJob56, json, req, revisionWith } from "../spec/helpers-t56.ts";
 
+const OPERATOR = "operator-token-0123456789";
 const asset = "0x3600000000000000000000000000000000000000" as Address;
 const payTo = "0x1111111111111111111111111111111111111111" as Address;
 const payer = privateKeyToAccount("0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d");
@@ -38,13 +39,13 @@ function facilitator() {
   };
 }
 function setup(engine = countingEngine(), f = facilitator(), dbPath = ":memory:", amount = "10000") {
-  const made = createApp({ dbPath, buyerToken: BUYER_TOKEN, now: () => T0, engine,
+  const made = createApp({ dbPath, buyerToken: BUYER_TOKEN, operatorToken: OPERATOR, now: () => T0, engine,
     deployment: { mode: "local", serviceOrigin: "https://api.example.test" },
     x402: { resourceBaseUrl: "https://api.example.test", network: "eip155:5042002", asset,
       payTo, amount, extra: { name: "USD Coin", version: "2" }, facilitator: f } } as any);
   const s: SpecApp = { app: made.app, close: made.close, clock: { t: T0 } };
   opened.push(s);
-  return { s, engine, f, pumpTasks: made.pumpTasks };
+  return { s, made, engine, f, pumpTasks: made.pumpTasks };
 }
 const opened: SpecApp[] = [];
 const dirs: string[] = [];
@@ -215,7 +216,7 @@ it("shares one compiler between a queued compile and a paid compile", async () =
       return inner.compile(input);
     },
   });
-  const { s, f, pumpTasks } = setup(engine);
+  const { s, made, f, pumpTasks } = setup(engine);
   const challenge = await s.app.request("/v1/auth/challenge", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -261,10 +262,15 @@ it("shares one compiler between a queued compile and a paid compile", async () =
   for (let i = 0; i < 50 && entered < 1; i += 1) await new Promise((resolve) => setTimeout(resolve, 10));
   expect(entered).toBe(1);
   const paid = request(s, paidJob, payload);
-  for (let i = 0; i < 50 && f.settlements < 1; i += 1) await new Promise((resolve) => setTimeout(resolve, 10));
-  expect(f.settlements).toBe(1);
-  expect(entered).toBe(1);
-  release();
+  try {
+    await vi.waitFor(async () => {
+      const response = await made.app.request("/v1/operator/metrics", { headers: { authorization: `Bearer ${OPERATOR}` } });
+      const view = await response.json() as { paidCompile: { waiting: number } };
+      expect(view.paidCompile.waiting).toBe(1);
+    });
+    expect(f.settlements).toBe(0);
+    expect(entered).toBe(1);
+  } finally { release(); }
   await pumping;
   const paidRes = await paid;
   expect(paidRes.status, await paidRes.clone().text()).toBe(200);

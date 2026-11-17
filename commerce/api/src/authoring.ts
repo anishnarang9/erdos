@@ -774,6 +774,10 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         reason: err instanceof EngineError ? err.reason : "crash",
       });
     }
+    if (deps.compileAdmission.draining) {
+      await discard();
+      throw deps.compileAdmission.closedError();
+    }
     // The package must commit to exactly what the buyer approved: the reference files and the rules.
     const mismatched: string[] = [];
     if (manifest.referenceHash !== rev.reference_digest || manifest.referenceHash !== approval.referenceDigest) mismatched.push("referenceHash");

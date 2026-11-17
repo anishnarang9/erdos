@@ -1,7 +1,7 @@
 {
   "version": 1,
   "status": "incomplete",
-  "workingSource": "5991bd2e876f64219a8d7e628adfb5f7a284daca",
+  "workingSource": "0070c3bfd16476599ec06c54ee9433e264f4876c",
   "finalReleaseSource": null,
   "publicUrl": null,
   "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/8",
@@ -106,12 +106,20 @@
       "imageSource": "5d0f8b6f0313433be65f058ad8156954717068a1",
       "warmCompileMs": 901,
       "limit": "Emulated Linux, isolated network and unused synthetic model credential. Later ingress/paid-waiter code still needs verification."
+    },
+    {
+      "gate": "bounded paid compiler admission and drain",
+      "status": "passed-source-checks",
+      "source": "checkpoint containing this entry",
+      "apiTests": 939,
+      "focusedTests": 11,
+      "limit": "No external settlement occurred. Combined image and independent final review remain pending."
     }
   ],
   "activeImplementation": [
     {
       "owner": "coordinator",
-      "work": "Finish bounded paid compiler admission/drain and benchmark metadata, fresh-campaign/resume and polling fixes; then final source/image/artifact checks."
+      "work": "Finish benchmark trace metadata, fresh-campaign/resume and bounded polling fixes; then final source/image/artifact checks."
     },
     {
       "owner": "independent reviewer pending",

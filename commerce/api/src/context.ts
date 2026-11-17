@@ -7,6 +7,8 @@ import type { Engine } from "./engine.ts";
 import type { DraftModel } from "./grok.ts";
 import type { ApiChain } from "./chain.ts";
 
+import type { CompileAdmission } from "./compile-admission.ts";
+
 export const MAX_BODY_BYTES = 1024 * 1024; // 1 MiB
 
 export type Principal =
@@ -89,6 +91,7 @@ export interface Deps {
   taskQueue: TaskQueueConfig;
   /** Always set. Applies to auth challenge and key issuance. */
   authLimit: AuthLimitConfig;
+  compileAdmission: CompileAdmission;
   /** Process counters. Reset on restart. They do not enforce a host quota. */
   metrics: ServiceMetrics;
   /** One JSON line per request. The line uses a fixed route label. */

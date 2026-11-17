@@ -12,7 +12,7 @@ import { httpX402Facilitator, type X402Config } from "./x402.ts";
 import { createViemOpenClaimReader } from "./open-claim-reader.ts";
 import type { OpenClaimConfig } from "./open-claim.ts";
 import type { AuthoringBudget } from "./context.ts";
-import { authLimitFromEnv, browserOriginFromEnv, resolveBrowserAllowlist, taskQueueFromEnv } from "./capacity.ts";
+import { paidCompileLimitFromEnv, authLimitFromEnv, browserOriginFromEnv, resolveBrowserAllowlist, taskQueueFromEnv } from "./capacity.ts";
 import { logInternal } from "./observe.ts";
 import {
   blocksPublicListen,
@@ -246,12 +246,14 @@ const rateLimit = principalLimit === undefined && ipLimit === undefined
     };
 const budget = readBudget();
 let taskQueue: ReturnType<typeof taskQueueFromEnv>;
+let paidCompileLimit: number;
 let authLimit: ReturnType<typeof authLimitFromEnv>;
 let browserOrigin: string | undefined;
 let serviceOrigin = process.env.SERVICE_ORIGIN ?? "http://localhost";
 try {
   taskQueue = taskQueueFromEnv(process.env);
   authLimit = authLimitFromEnv(process.env);
+  paidCompileLimit = paidCompileLimitFromEnv(process.env);
   browserOrigin = browserOriginFromEnv(process.env);
   serviceOrigin = resolveBrowserAllowlist({ mode: deploymentMode, serviceOrigin,
     ...(browserOrigin === undefined ? {} : { browserOrigin }) })[0]!;
@@ -311,6 +313,7 @@ const { app, close, reconcileTasks, pumpTasks, drainTasks, checkReady } = create
   ...(rateLimit ? { rateLimit } : {}),
   taskQueue,
   authLimit,
+  paidCompileLimit,
   ...(browserOrigin === undefined ? {} : { browserOrigin }),
   expensiveDisabled: process.env.EXPENSIVE_OPS_DISABLED === "1",
   ...(budget ? { budget } : {}),

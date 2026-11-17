@@ -183,6 +183,12 @@ function metricsBody(deps: Deps): Record<string, unknown> {
       succeeded: deps.metrics.tasksSucceeded,
       failed: deps.metrics.tasksFailed,
     },
+    paidCompile: {
+      active: deps.compileAdmission.activeExternal,
+      waiting: deps.compileAdmission.waiting,
+      rejected: deps.compileAdmission.rejected,
+      limit: deps.compileAdmission.limit,
+    },
     authLimited: deps.metrics.authLimited,
     admission: {
       globalPending: deps.taskQueue.globalPending,

@@ -237,7 +237,6 @@ export function registerTaskRoutes(
   reconcileTasks: () => void;
   pumpTasks: () => Promise<void>;
   drainTasks: (boundMs?: number) => Promise<void>;
-  withCompileSlot: <T>(run: () => Promise<T>) => Promise<T>;
 } {
   const { app, deps, buyer, idem, newId } = ctx;
   const { db } = deps;
@@ -475,17 +474,6 @@ export function registerTaskRoutes(
     return parsed;
   };
 
-  let compileLock: Promise<void> = Promise.resolve();
-  /** One compiler for queued compiles and paid compiles. The next caller waits for the current one. */
-  const withCompileSlot = <T>(run: () => Promise<T>): Promise<T> => {
-    const previous = compileLock;
-    let unlock!: () => void;
-    compileLock = new Promise<void>((resolve) => {
-      unlock = resolve;
-    });
-    return previous.then(run, run).finally(unlock);
-  };
-
   const runOne = async (row: TaskRow): Promise<void> => {
     const at = () => isoAt(deps.now());
     const applyBilling = (result: unknown, id: string): void => {
@@ -512,10 +500,12 @@ export function registerTaskRoutes(
     const work = async (): Promise<void> => {
       try {
         const result = await execute(row);
+        if (!db.isOpen) return;
         finish.run("succeeded", JSON.stringify(result), null, at(), row.id);
         noteTaskFinished(deps, row.operation, "succeeded");
         if (row.operation === "draft") applyBilling(result, row.id);
       } catch (err) {
+        if (!db.isOpen) return;
         if (draining) {
           const stamp = at();
           if (row.operation === "compile") {
@@ -549,8 +539,9 @@ export function registerTaskRoutes(
       requeueDraft.run(at(), row.id);
       return;
     }
-    if (row.operation === "compile") await withCompileSlot(work);
-    else await work();
+    if (row.operation === "compile") {
+      try { await work(); } finally { deps.compileAdmission.releaseDurable(); }
+    } else await work();
   };
 
   let pumping = false;
@@ -561,7 +552,10 @@ export function registerTaskRoutes(
     // Draining refuses a new claim so a restarted process cannot overlap a child this process still owns.
     if (deps.expensiveDisabled || pumping || draining) return;
     pumping = true;
+    deps.compileAdmission.beginPump();
     const run = (async () => {
+      let compilerClaimed = false;
+      let claimCommitted = false;
       try {
         const claimed = tx(db, () => {
           const rows: TaskRow[] = [];
@@ -572,16 +566,32 @@ export function registerTaskRoutes(
             const active = Number((runningCount.get(operation) as { n: number }).n);
             const room = limit - active;
             if (room <= 0) continue;
-            for (const row of queued.all(operation, room) as unknown as TaskRow[]) {
+            const candidates = queued.all(operation, room) as unknown as TaskRow[];
+            if (operation === "compile" && candidates.length === 0) deps.compileAdmission.noteNoQueuedCompile();
+            for (const row of candidates) {
+              if (operation === "compile") {
+                if (!deps.compileAdmission.tryDurable()) continue;
+                compilerClaimed = true;
+              }
               const updated = markRunning.run(row.attempt + 1, at, row.id);
-              if (Number(updated.changes) !== 1) continue;
+              if (Number(updated.changes) !== 1) {
+                if (operation === "compile") {
+                  deps.compileAdmission.releaseDurable();
+                  compilerClaimed = false;
+                }
+                continue;
+              }
               rows.push({ ...row, state: "running", attempt: row.attempt + 1, updated_at: at });
             }
           }
           return rows;
         });
+        claimCommitted = true;
+        deps.compileAdmission.finishPump();
         await Promise.all(claimed.map((row) => runOne(row)));
       } finally {
+        if (compilerClaimed && !claimCommitted) deps.compileAdmission.releaseDurable();
+        deps.compileAdmission.finishPump();
         pumping = false;
       }
     })();
@@ -595,15 +605,16 @@ export function registerTaskRoutes(
 
   const drainTasks = async (boundMs = TASK_DRAIN_MS): Promise<void> => {
     draining = true;
+    deps.compileAdmission.beginDrain();
     const drafts = cancelDraftRequests(deps);
     await cancelEngineChildren();
     await Promise.race([
-      Promise.allSettled([inflight, drafts]),
+      Promise.allSettled([inflight, drafts, ...deps.compileAdmission.owned()]),
       new Promise<void>((resolve) => setTimeout(resolve, boundMs)),
     ]);
     reconcileTasks();
     await cancelEngineChildren();
   };
 
-  return { reconcileTasks, pumpTasks, drainTasks, withCompileSlot };
+  return { reconcileTasks, pumpTasks, drainTasks };
 }

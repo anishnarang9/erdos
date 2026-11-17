@@ -113,6 +113,9 @@ export {
   type FilePin,
 } from "./ready.ts";
 export {
+  PAID_COMPILE_LIMIT_DEFAULT,
+  resolvePaidCompileLimit,
+  paidCompileLimitFromEnv,
   TASK_PENDING_GLOBAL_DEFAULT,
   TASK_PENDING_WALLET_DEFAULT,
   AUTH_IP_LIMIT_DEFAULT,

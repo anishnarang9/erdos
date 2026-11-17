@@ -1,5 +1,12 @@
 # Current plan
 
+## 2026-11-17 02:21 -05:00 — Anish — Bound paid compiler work before settlement
+
+- The coordinator completed preserved worker work after both sessions stopped. A positive global cap counts active plus waiting external handlers. One compiler serves paid and durable work. Admission precedes payment insertion and settlement. Completed exact replay bypasses capacity and current approval. Cached compiled reads remain free. A settled unfinished payment resumes without another charge.
+- Drain cancels waiters and tracks active paid work. Late facilitator responses preserve uncertain rows after database close. Late compiler responses cannot publish artifacts. A controlled database claim rollback exposed a compiler ownership leak; its failing regression now passes after the release fix.
+- All 939 API tests and API/SDK/worker typechecks pass. Eleven focused paid-path tests cover capacity, duplicate settlement, approval changes, replay, drain, late responses, rollback and configuration. One older compiler-sharing test expected payment before capacity; it now verifies no settlement while the compiler is occupied. No external payment occurred.
+- Next: repair benchmark trace aliases, global freshness, verified distinct principals, campaign resume and polling. Combined final image/artifacts, independent review, public hosting, 180 genuine application trials and fresh scoped live acceptance remain open. Commit and push this checkpoint to `codex/hosted-backend`; keep PR #8 draft.
+
 ## 2026-11-17 02:12 -05:00 — Anish — Coordinator owns remaining hosted source work
 
 - Both existing Grok worker sessions ended at their latest checkpoints. Preserve their managed worktrees and task files. The coordinator takes over browser ingress, paid compiler admission/drain and benchmark trace/freshness/polling. Do not spawn replacement workers. A later independent review remains open.

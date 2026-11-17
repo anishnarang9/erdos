@@ -108,3 +108,13 @@ export function browserOriginFromEnv(env: NodeJS.ProcessEnv): string | undefined
   if (raw.length === 0) throw new Error("BROWSER_ORIGIN must be an exact origin");
   return raw;
 }
+
+/** Counts active and waiting paid handlers. Zero is not unlimited. */
+export const PAID_COMPILE_LIMIT_DEFAULT = 2;
+export function resolvePaidCompileLimit(value = PAID_COMPILE_LIMIT_DEFAULT): number {
+  if (!isPositive(value)) throw new Error("paidCompileLimit must be a positive safe integer");
+  return value;
+}
+export function paidCompileLimitFromEnv(env: NodeJS.ProcessEnv): number {
+  return readOptional(env, "PAID_COMPILE_LIMIT", PAID_COMPILE_LIMIT_DEFAULT);
+}

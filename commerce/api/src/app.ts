@@ -18,10 +18,11 @@ import { registerAttemptRoutes } from "./attempts.ts";
 import { registerIdentityRoutes } from "./identity.ts";
 import { requireOwnedJob } from "./ownership.ts";
 import { assertAuthoringBudget, registerTaskRoutes } from "./tasks.ts";
-import { resolveAuthLimit, resolveBrowserAllowlist, resolveTaskQueue } from "./capacity.ts";
+import { resolveAuthLimit, resolveBrowserAllowlist, resolveTaskQueue, resolvePaidCompileLimit } from "./capacity.ts";
 import { emptyMetrics, registerObserve, registerOperatorMetrics } from "./observe.ts";
 import { registerBrowserOrigin } from "./browser-origin.ts";
 import type { AuthoringBudget, AuthLimitConfig, DeploymentConfig, RateLimitConfig, TaskQueueConfig } from "./context.ts";
+import { createCompileAdmission } from "./compile-admission.ts";
 import type { ReadyReport } from "./ready.ts";
 
 export interface CreateAppOptions {
@@ -59,6 +60,8 @@ export interface CreateAppOptions {
    * A non-positive value is rejected. It does not mean unlimited.
    */
   authLimit?: Partial<AuthLimitConfig>;
+  /** Active plus waiting paid compile handlers. Defaults to two. */
+  paidCompileLimit?: number;
   /** When true, model and compiler routes return 503. */
   expensiveDisabled?: boolean;
   /** Prices and ceilings for draft tasks. Required before a public draft task is accepted. */
@@ -96,6 +99,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   assertAuthoringBudget(opts.budget);
   const taskQueue = resolveTaskQueue(opts.taskQueue);
   const authLimit = resolveAuthLimit(opts.authLimit);
+  const compileAdmission = createCompileAdmission(resolvePaidCompileLimit(opts.paidCompileLimit));
   const mode = opts.deployment?.mode ?? "local";
   const browserOrigins = resolveBrowserAllowlist({ mode,
     serviceOrigin: opts.deployment?.serviceOrigin ?? "http://localhost",
@@ -128,6 +132,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     ...(opts.rateLimit ? { rateLimit: opts.rateLimit } : {}),
     taskQueue,
     authLimit,
+    compileAdmission,
     metrics: emptyMetrics(),
     requestLog: opts.requestLog ?? false,
     requestLogDebug: opts.requestLogDebug ?? false,
@@ -175,7 +180,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   const ctx = { app, deps, buyer, provider, idem, notImplemented, newId };
   const authoring = registerAuthoringRoutes(ctx);
   const tasks = registerTaskRoutes(ctx, authoring);
-  registerX402Routes(ctx, authoring, opts.x402, tasks.withCompileSlot);
+  registerX402Routes(ctx, authoring, opts.x402);
   registerOpenClaimRoutes(ctx, opts.openClaim);
   registerAttemptRoutes(ctx);
   registerMarketRoutes(ctx);
@@ -185,6 +190,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   return {
     app,
     close: () => {
+      compileAdmission.close();
       if (db.isOpen) db.close();
     },
     reconcileTasks: tasks.reconcileTasks,

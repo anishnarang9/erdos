@@ -119,7 +119,7 @@ Request lines are JSON. The server writes them unless `REQUEST_LOG=0`. Tests lea
 
 ## Browser origin
 
-This section is the contract. The implementation commits follow it.
+The coordinator implemented this contract after the worker stopped. Eleven focused paid-path checks and all 939 API tests pass. The final image and independent review remain pending.
 
 The allowlist defaults to the exact configured `SERVICE_ORIGIN`. The optional environment variable `BROWSER_ORIGIN` adds one extra exact frontend origin. `createApp` accepts that same value as `browserOrigin`. The allowlist holds those exact origins and nothing else.
 
@@ -133,11 +133,11 @@ An `Origin` value outside the allowlist returns 403 `forbidden` with message `Or
 
 ## Paid compile admission
 
-This section is the contract. The implementation commits follow it.
+The coordinator implemented this contract after the worker stopped. Eleven focused paid-path checks and all 939 API tests pass. The final image and independent review remain pending.
 
 `PAID_COMPILE_LIMIT` and the `createApp` option `paidCompileLimit` set the maximum number of external paid-compile handlers that are active or waiting. The default is 2. The value is a positive safe integer. Zero is not unlimited. An invalid value throws before the database opens. The server process exits before `createApp` when the environment value is invalid. The error omits the raw value. The cap is one global number. There is no per-wallet map.
 
-The cap counts external `POST /v1/jobs/:id/paid-compile` handlers that still need the shared compiler. The count includes a new settlement, a settled payment that is not yet complete, and a stored compile that has no payment row. The count excludes an exact `complete` replay, a `settling` or `pending` response, a 402 challenge, and a validation failure.
+The cap counts external `POST /v1/jobs/:id/paid-compile` handlers that still need the shared compiler. The count includes a new settlement and a settled payment that is not yet complete. A stored compiled artifact remains a free cached read and does not enter the compiler queue. The count excludes an exact `complete` replay, a `settling` or `pending` response, a 402 challenge, and a validation failure.
 
 A new external request at the cap returns 429 `rate_limited` with message `Paid compile queue is full`. The details are `queue` `paid-compile` and `scope` `global`. That response is produced before `facilitator.settle` and before an insert into `x402_payments`. An exact `complete` replay still returns the stored status, body, `payment-response`, and `idempotent-replayed` header at the cap. It does not take a slot and it does not settle again.
 
@@ -150,6 +150,8 @@ Drain sets the closed flag first. A new admission after that flag returns 429 `r
 The durable task pump uses the same compiler. It marks a compile `running` only after it owns the compiler. When an external handler owns the compiler, the durable task stays `queued`. It is not marked `running` and it is not marked `failed` because the external cap is full. One pump turn may run one durable compile before the next waiting external handler starts. `COMPILE_LIMIT` stays 1. `DRAFT_LIMIT` stays 2. A dispatched draft that is interrupted still becomes `uncertain`.
 
 `GET /v1/operator/metrics` adds `paidCompile` with `active`, `waiting`, `rejected`, and `limit`. `resources.hostQuota` stays `not_enforced`. These counters do not enforce a host disk quota.
+
+A facilitator response after the shutdown bound cannot access a closed database. The durable `settling` row remains for reconciliation. A response received before close records a confirmed settlement but does not start compilation after drain. An uncooperative compiler response cannot publish an artifact after drain. Failed database claiming also releases compiler ownership.
 
 ## Checkpoints
 
