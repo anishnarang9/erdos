@@ -1,5 +1,13 @@
 # anish status
 
+## 2026-11-17 04:42 -05:00 — Anish — Provision the selected DigitalOcean backend
+
+- Followed the user's DigitalOcean onboarding guide. Upgraded Homebrew `doctl` to 2.5.2. Context `ubc26` is active. Initial read-only scope caused a definitive SSH-key import 403. The user completed corrected read/write OAuth. The MCP router is configured and OAuth-authenticated, but its tools are not exposed in this live caller. Native CLI reads and writes work. Do not claim MCP docs/account tool verification.
+- Created tagged Droplet `620224382`, `ubc26-hosted-backend`, in `sfo2`: four shared vCPUs, 8 GiB RAM, 160 GiB disk, Ubuntu 24.04 LTS x64 and $48/month compute. New York lacked the regular size, so San Francisco preserves the selected hardware and price. Weekly backups are confirmed for Sunday 08:00 UTC, 28-day retention. The selected full-month compute plus weekly backup remains $57.60 before tax and separate usage.
+- Created the deployment public-key record, ownership tag and cloud firewall. Verified exact SSH operator `/32`, public TCP 80/443 and no public API 8080 rule. All POST retries were disabled. The private operation journal records IDs and requests. A successful empty firewall-rule response was reconciled by GET after the local JSON parser expected a body. No rule was blindly repeated. See the [provider report](reports/hosted-digitalocean-provision-2026-11-17.json).
+- Public IPv4 is `159.89.149.133`. Temporary hostname `ubc26-159-89-149-133.sslip.io` resolves correctly. API and TLS are not running. Browser automation conflicted with active browsing, so requested the public Ed25519 fingerprint from the provider console. The network keyscan is untrusted pending that result. No native SSH command, compiler/prover run, model request, wallet access or chain action occurred.
+- Next: verify SSH host identity, apply native storage/Docker limits, import the exact verified image, run compiler prewarm, then deploy and test the public API. Model credential/budgets, genuine trials, fresh scoped live acceptance and final review stay open. The goal remains active. Current candidate code stays `20b0dc2`; this checkpoint records real infrastructure progress, not a completed release.
+
 ## 2026-11-17 04:21 -05:00 — Anish — Prepare verified server transfer and dedicated SSH access
 
 - DigitalOcean context `ubc26` is not authenticated yet. Account signup/browser authorization remains pending. Prepared the existing `20b0dc2` image for native-host transfer without a registry subscription. The private archive is 127,415,689 bytes, SHA-256 `7289a46d…`. The [transfer report](reports/hosted-image-transfer-2026-11-17.json) verifies all 32 OCI blobs and 26 uncompressed runtime layers, platform and source label.

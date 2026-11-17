@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "checkedAt": "2026-11-17T09:42:39.071591+00:00",
+  "status": "provisioned-awaiting-ssh-host-identity-and-native-acceptance",
+  "sourceCommit": "20b0dc282482ad22d7fff49ffe86de903576f547",
+  "provider": "DigitalOcean",
+  "cli": {
+    "version": "2.5.2",
+    "context": "ubc26",
+    "authenticated": true,
+    "writeAccessVerified": true,
+    "initialReadOnly403Reconciled": true
+  },
+  "droplet": {
+    "id": 620224382,
+    "name": "ubc26-hosted-backend",
+    "status": "active",
+    "region": "sfo2",
+    "size": "s-4vcpu-8gb",
+    "vcpus": 4,
+    "memoryMiB": 8192,
+    "diskGiB": 160,
+    "baseMonthlyUsd": 48,
+    "publicIpv4": "159.89.149.133",
+    "image": {
+      "id": 252242095,
+      "slug": "ubuntu-24-04-x64"
+    },
+    "tag": "ubc26-hosted-backend"
+  },
+  "backupPolicy": {
+    "droplet_id": 620224382,
+    "backup_enabled": true,
+    "backup_policy": {
+      "plan": "weekly",
+      "weekday": "SUN",
+      "hour": 8,
+      "window_length_hours": 4,
+      "retention_period_days": 28
+    },
+    "next_backup_window": {
+      "start": "2026-11-22T08:00:00Z",
+      "end": "2026-11-22T12:00:00Z"
+    }
+  },
+  "firewall": {
+    "id": "a93fcdad-85f4-4171-9476-1cfea591c7fb",
+    "status": "succeeded",
+    "pendingChanges": [],
+    "inbound": [
+      {
+        "protocol": "tcp",
+        "ports": "22",
+        "source": "operator-public-ipv4/32"
+      },
+      {
+        "protocol": "tcp",
+        "ports": "80",
+        "source": "0.0.0.0/0"
+      },
+      {
+        "protocol": "tcp",
+        "ports": "443",
+        "source": "0.0.0.0/0"
+      }
+    ],
+    "apiPort8080PubliclyExposed": false
+  },
+  "temporaryHostname": {
+    "name": "ubc26-159-89-149-133.sslip.io",
+    "dnsResolvesToExpectedIpv4": true,
+    "tlsVerified": false,
+    "apiRunning": false
+  },
+  "mcp": {
+    "serverName": "digitalocean",
+    "url": "https://mcp.digitalocean.com/mcp",
+    "configured": true,
+    "oauthAuthenticated": true,
+    "runtimeToolsAvailableInThisCaller": false,
+    "docsToolVerified": false,
+    "accountToolVerified": false,
+    "fallback": "Authenticated doctl works. Do not restart the active goal only to load MCP tools."
+  },
+  "scope": {
+    "nativeSshHostKeyVerified": false,
+    "nativeSshCommandExecuted": false,
+    "nativeCompilerVerified": false,
+    "imageTransferred": false,
+    "publicApiDeployed": false,
+    "genuineModelTrials": 0,
+    "grokCliCalls": 0,
+    "walletAccess": false,
+    "chainTransactions": false
+  },
+  "pending": [
+    "Provider-console SSH host fingerprint",
+    "Native host storage/Docker/image/compiler setup and external API checks",
+    "Secure application Grok access and approved inference ceilings",
+    "180 genuine qualification trials, fresh scoped acceptance and final independent review"
+  ]
+}
