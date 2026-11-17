@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-16 20:42 -05:00 — Anish — Standalone runner source checkpoint
+
+- Branch `codex/hosted-backend` adds the local hosted CLI, private-file API credentials, password-FD wallet authentication, durable task polling, package/reference downloads, local checking and the existing protected funding/proof/recovery/refund runner. Generated configuration disables signing until the operator reviews exact limits. The installed source path requires an independently pinned release manifest and verifies all files. Checkout source validation still rejects dirty and untracked source.
+- Downloader regressions first reproduced remote HTTP, missing deadlines, unbounded responses and raw-error disclosure. All four now pass. Release integrity tests reject changed manifests, changed files, extra files, symlinks and unsafe paths. Worker typecheck and all 912 default tests pass. The focused source/operator checks passed 52 tests before this full run.
+- Added a locked esbuild 0.27.7 build dependency already present transitively. The packaging script creates a self-contained archive, client export, source metadata and checksums. Source syntax passes. Actual archive build and clean-install smoke remain pending until this source checkpoint commits. Linux CI will exercise the independent installation.
+- Public service, hosted Grok, fresh qualification proofs and live spending remain open gates. Two Grok CLI workers continue within their assigned write scopes. No model API request, prover or transaction started in this chat.
+
 ## 2026-11-16 20:36 -05:00 — Anish — Hosted client checkpoint
 
 - Branch `codex/hosted-backend` adds a typed wallet-authenticated client for issuance, revocation, imports, approvals, durable authoring/compile tasks, funding and discovery. Mutation replay keys remain explicit. Polling never dispatches another paid operation. Remote errors omit raw bodies. Transport rejects remote HTTP, redirects and URL credentials. Responses have byte and time bounds.

@@ -1,7 +1,7 @@
 // Runs the engine's prove, decrypt and eval commands (engine/README.md, "Compile, prove, and decrypt").
 // Fixed argument lists, no shell. The release key is only ever read from the file the engine writes.
 import { execFile } from "node:child_process";
-import { parseEngineError, type EngineBin, type EngineErrorBody } from "@ubc26/api";
+import { parseEngineError, type EngineBin, type EngineErrorBody } from "../../api/src/engine.ts";
 
 export class WorkerEngineError extends Error {
   readonly code: string;

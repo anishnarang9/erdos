@@ -24,3 +24,19 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm test
+      - name: Build the standalone runner from the checked source
+        run: node worker/scripts/package-runner.mjs "$RUNNER_TEMP/ubc26-runner-release"
+      - name: Check an independent Linux installation
+        run: |
+          npm install --ignore-scripts --prefix "$RUNNER_TEMP/ubc26-runner-install" "$RUNNER_TEMP/ubc26-runner-release/ubc26-runner-0.2.0.tgz"
+          cd "$RUNNER_TEMP/ubc26-runner-install"
+          node_modules/.bin/ubc26 help
+          node_modules/.bin/ubc26 wrapper-digest
+          node --input-type=module -e 'import {hostedClient} from "@ubc26/runner/hosted"; if(typeof hostedClient !== "function")process.exit(1)'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ubc26-runner-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/ubc26-runner-release/*.tgz
+            ${{ runner.temp }}/ubc26-runner-release/SHA256SUMS
+            ${{ runner.temp }}/ubc26-runner-release/release.json

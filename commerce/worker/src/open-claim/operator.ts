@@ -1,7 +1,7 @@
 import { closeSync, existsSync, fsyncSync, mkdirSync, openSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { assertWorkerSource, workerRepositoryRoot } from "../release-integrity.ts";
 import { bytesToHex, createPublicClient, decodeEventLog, encodeFunctionData, http, zeroAddress, type Hex } from "viem";
 import { arcCoreAbi, arcErc20Abi, openClaimSignatureAbi, parseProofJson } from "@ubc26/sdk";
 import { arcSetupCalls, ARC_SETUP_GATEWAY, ARC_SETUP_USDC, createArcSetupBroadcaster, createOpenClaimBroadcaster, createOpenClaimRefundBroadcaster, type LocalBroadcaster, type LocalRawSend } from "../local-broadcaster.ts";
@@ -18,7 +18,7 @@ import { recoverOpenClaimFromChain } from "./recovery.ts";
 import { deployApprovedOpenClaim } from "./deploy.ts";
 import type { OpenClaimFundedJob } from "./types.ts";
 
-const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
+const repo = workerRepositoryRoot();
 const sourcePaths = ["commerce/package.json", "commerce/pnpm-workspace.yaml", "commerce/pnpm-lock.yaml", "commerce/tsconfig.base.json",
   ...["worker", "api", "sdk"].flatMap(name=>[`commerce/${name}/src`,`commerce/${name}/package.json`,`commerce/${name}/tsconfig.json`]),
   "contracts/src", "contracts/vendor", "contracts/abi"];
@@ -33,12 +33,10 @@ export function parseOpenClaimOperatorArgs(args: string[]) {
   return { command: command as typeof OPEN_CLAIM_OPERATOR_COMMANDS[number], config: resolve(config),
     passwordFd: rest.length ? Number(rest[1]) : undefined };
 }
-function cleanSource(commit: string) {
-  requireSprint(/^[0-9a-f]{40}$/.test(commit));
-  requireSprint(execFileSync("git", ["rev-parse", "HEAD"], { cwd: repo, encoding: "utf8" }).trim() === commit);
-  execFileSync("git", ["diff", "--quiet", "HEAD", "--", ...sourcePaths], { cwd: repo });
-  requireSprint(execFileSync("git", ["ls-files", "--others", "--exclude-standard", "--", ...sourcePaths], { cwd: repo, encoding: "utf8" }).trim() === "");
+function cleanSource(commit: string, releaseManifestSha256?: string) {
+  assertWorkerSource(repo, commit, sourcePaths, releaseManifestSha256);
 }
+
 function writeResult(directory: string, name: string, value: unknown) {
   privateDirectory(directory);
   const path = join(directory, name), body = json(value) + "\n";
@@ -50,19 +48,20 @@ function writeResult(directory: string, name: string, value: unknown) {
 /** Native operator entry. Signing requires an approved private config and an inherited password FD.
  * Keys never enter the engine environment, HTTP logs, stdout, or subprocess arguments.
  */
-export async function openClaimOperator(args: string[]) {
+export async function openClaimOperator(args: string[], credentials?: { buyerToken?: string }) {
+  const buyerApiToken = credentials?.buyerToken ?? process.env.BUYER_API_TOKEN;
   const parsed = parseOpenClaimOperatorArgs(args), c = readOperatorJson(parsed.config) as any;
   requireSprint(c.version === 1 && c.mode === "open-claim" && c.chainId === 5042002);
   const buyer = sprintAddress(c.buyer.address), solver = sprintAddress(c.solver.address);
   requireSprint(buyer !== solver);
   if(parsed.command==="deploy"){
-    cleanSource(c.sourceCommit);requireSprint(parsed.passwordFd!==undefined);
+    cleanSource(c.sourceCommit, c.releaseManifestSha256);requireSprint(parsed.passwordFd!==undefined);
     const result=await deployApprovedOpenClaim(c,parsed.passwordFd,repo);
     writeResult(c.directory,result.phase==="deployment_confirmed"?"adapter-deployment-result.json":"adapter-deployment-sent.json",result);
     return result;
   }
   if (parsed.command === "setup") {
-    cleanSource(c.sourceCommit); privateDirectory(c.directory); privateDirectory(c.journalRoot);
+    cleanSource(c.sourceCommit, c.releaseManifestSha256); privateDirectory(c.directory); privateDirectory(c.journalRoot);
     requireSprint(c.setup?.authorized === true && c.signingAuthorized === true && parsed.passwordFd !== undefined &&
       c.rpcUrl === "https://rpc.testnet.arc.io");
     const validUntil=positive(c.setup.validUntil);
@@ -110,14 +109,14 @@ export async function openClaimOperator(args: string[]) {
     } finally {await b.close();}
   }
   if (parsed.command === "circle") {
-    cleanSource(c.sourceCommit); privateDirectory(c.directory);
-    requireSprint(c.circle?.authorized === true && c.signingAuthorized === true && parsed.passwordFd !== undefined && process.env.BUYER_API_TOKEN);
+    cleanSource(c.sourceCommit, c.releaseManifestSha256); privateDirectory(c.directory);
+    requireSprint(c.circle?.authorized === true && c.signingAuthorized === true && parsed.passwordFd !== undefined && buyerApiToken);
     const loaded = await loadOperatorKeystore({ mode: "signing", keystorePath: c.buyer.keystorePath,
       expectedAddress: buyer, passwordSource: { kind: "fd", fd: parsed.passwordFd } });
     requireSprint(loaded.mode === "signing");
     return runCirclePaidCompile({ account: loaded.account, url: c.circle.url, payTo: sprintAddress(c.circle.payTo),
       amount: positive(c.circle.amount), revisionHash: sprintHash(c.circle.revisionHash ?? c.approval?.revision),
-      buyerToken: process.env.BUYER_API_TOKEN, directory: join(c.directory, "circle-payment"),refreshRejectedValidity:c.circle.refreshRejectedValidity===true });
+      buyerToken: buyerApiToken, directory: join(c.directory, "circle-payment"),refreshRejectedValidity:c.circle.refreshRejectedValidity===true });
   }
   const a = c.approval, budget = positive(a.budget), expiry = positive(a.expiry);
   const approval = { revision: sprintHash(a.revision), buyer, imageId: sprintHash(a.imageId), rulesHash: sprintHash(a.rulesHash),
@@ -132,7 +131,7 @@ export async function openClaimOperator(args: string[]) {
     calls: ["createJob", "setBudget", "approve", "fund", "register"], gas: c.gas,
     circle: c.circle ? { amountAtomic: c.circle.amount, payTo: c.circle.payTo, fundsBounty: false } : null };
   if (parsed.command === "preview") return preview;
-  cleanSource(c.sourceCommit);
+  cleanSource(c.sourceCommit, c.releaseManifestSha256);
   privateDirectory(c.directory); privateDirectory(c.journalRoot);
   const load = async (role: "buyer" | "solver") => {
     requireSprint(c.signingAuthorized === true && parsed.passwordFd !== undefined);
@@ -160,11 +159,11 @@ export async function openClaimOperator(args: string[]) {
   await readPort.verifyPins();
   if (parsed.command === "fund") {
     const account = await load("buyer");
-    requireSprint(process.env.BUYER_API_TOKEN && typeof c.apiUrl === "string" && typeof c.apiJobId === "string");
+    requireSprint(buyerApiToken && typeof c.apiUrl === "string" && typeof c.apiJobId === "string");
     const link = async (r: any) => {
       const response = await fetch(new URL(`/v1/jobs/${encodeURIComponent(c.apiJobId)}/open-claim-link`, c.apiUrl), {
         method: "POST", redirect: "error", signal: AbortSignal.timeout(30000), headers: {
-          authorization: `Bearer ${process.env.BUYER_API_TOKEN}`, "content-type": "application/json",
+          authorization: `Bearer ${buyerApiToken}`, "content-type": "application/json",
           "idempotency-key": `open-link-${c.apiJobId}-${r.registerTxHash}` },
         body: json({ revisionHash: approval.revision, chainJobId: r.jobId, fundingTx: r.fundTxHash, registrationTx: r.registerTxHash }),
       }); requireSprint(response.ok);
