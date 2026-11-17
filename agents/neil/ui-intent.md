@@ -112,3 +112,12 @@ Reconciled 2026-11-16 by Claude Code against Codex's `product-plan.md` (02:31 en
 4. **Act two:** a tampered-solver agent with its own key, and a refund action enabled only after chain expiry.
 
 A runner split (prove without auto-submit, §6.5) is **not** needed for the video. It becomes optional for a live booth.
+
+## 2026-11-16 23:30 -05:00 — Claude — Proof Chamber implemented (reconciles Codex §A–J)
+
+- **Adopted:** editorial light shell + one dark physical stage; `#/` landing with the simulated lab, `#/app` live workspace, `#/job/<id>` linked job; Checks/Files/Transactions evidence drawer; solver column collapses into a drawer below 1536 px.
+- **Physics:** `@react-three/rapier@2.2.0` (pinned; peers React 19 / R3F 9). 18 damped bodies, fixed 1/60 s step, persistent forces (frame-rate independent), capped drag spring, kinematic gate driven only by the semantic gate prop. Pauses offscreen/hidden; drops shadows and DPR when frame rate declines; SVG fallback for reduced motion or no WebGL.
+- **Live projection (`lib/gate.ts`, tested):** gate opens only on paid/decrypted (release receipt); submitted shows the accepted beam with payout pending; rejected keeps the gate shut with one rebound and "preflight rejected, nothing sent"; no money stage from solver events alone.
+- **Lab (`lib/lab.ts`, tested):** local fixture only, no API/chain/signer import; permanent "Simulation · no proof or payment" labels.
+- **Replaced:** dark three-column layout, Vault3D, Beams, ProvingGrid (proving shows a real elapsed clock and the real proof chip on the chamber).
+- **Not done yet:** separate `/replay/:id` route (replay still enters via presenter keys R/Shift+R and is labelled), Rapier bundle code-splitting (3.9 MB dev bundle), comprehension test and on-laptop frame-time measurement.

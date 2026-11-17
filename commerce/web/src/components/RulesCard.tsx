@@ -30,7 +30,7 @@ function Highlighted({ text, quotes, flown }: { text: string; quotes: string[]; 
         ) : flown ? (
           <span key={k} className="faint">{p.q}</span>
         ) : (
-          <motion.mark key={k} layoutId={`q-${p.i}`} style={{ background: "rgba(47,143,255,0.18)", color: "var(--text)", borderRadius: 3, padding: "0 2px" }}>
+          <motion.mark key={k} layoutId={`q-${p.i}`} style={{ background: "rgba(198,237,145,0.7)", color: "var(--text)", borderRadius: 3, padding: "0 2px" }}>
             {p.q}
           </motion.mark>
         ),

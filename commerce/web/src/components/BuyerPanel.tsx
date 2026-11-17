@@ -1,4 +1,4 @@
-// The buyer's column: request → rules → fund → (unlock | locked escrow and refund).
+// The buyer's column (BriefAndChecks): request → approved checks → quote and fund → (recovered files | locked escrow and refund).
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { actions } from "../lib/live";
@@ -54,8 +54,8 @@ export function BuyerPanel() {
   const error = useDemo((s) => s.error);
 
   return (
-    <div className="panel" aria-labelledby="buyer-title">
-      <div className="panel-title" id="buyer-title">◇ Buyer</div>
+    <>
+      <div className="panel-title" id="buyer-title">Brief and checks</div>
       {error && <div className="badge rejected" role="alert" style={{ whiteSpace: "normal" }}>✕ {error}</div>}
       {!job && draft?.kind !== "draft" && <RequestCard />}
       {draft?.kind === "clarification" && <Clarification draft={draft} />}
@@ -64,6 +64,6 @@ export function BuyerPanel() {
       {job && <FundCard />}
       {(stage === "rejected" || stage === "refunded") && <RefundCard />}
       <DeliveryCard />
-    </div>
+    </>
   );
 }
