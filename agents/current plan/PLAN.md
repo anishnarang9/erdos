@@ -1,5 +1,11 @@
 # Current plan
 
+## 2026-11-17 10:33 -05:00 — Anish — Preserve original Bot setup evidence
+
+- Pushed `c4d8ba2` and updated draft PR #8 with the genuine negative review and public engine evidence. Commerce CI `44114999273` and core-fast CI `44114999245` pass. The earlier deployed ingress CI still passes. The API runtime and general dispatch settings did not change.
+- Reopened the existing Bot window after macOS reported zero native windows. Native controls then responded. Copied the original 389-byte setup reply through the app's Copy action. The exact shared copy matches SHA-256 `069c0f41…`. This is setup evidence, not a runtime-review conversation export. The app's Share menu offers a template copy. Bot context actions and search expose no chat-export action. Preserved the separate authenticated review receipt.
+- Updated the Bot evidence README and its four-sentence role description to the actual pilot. The scoped follow-up review found no actionable issue. The exact reply hash, links, JSON and style checks pass. No new paid call, credit purchase, proof or chain transaction ran. Exact billing, the approximately five-cent target, runtime chat export and public acceptance remain open. No further pilot review is authorized.
+
 ## 2026-11-17 10:27 -05:00 — Anish — Publish the native engine and complete one real Bot review
 
 - Branch `codex/hosted-backend`, draft PR #8. Ingress `83d5b69` is pushed and commerce CI `44098699314` passes. Caddy alone now serves three native engine assets. The API image stays `0141ba0c…` on source `fb45033`. Twelve engine HTTP checks, four unchanged runner files and both buyer/callback gates pass. Public buyer routes remain 503.

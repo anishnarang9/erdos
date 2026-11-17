@@ -96,5 +96,14 @@
     "An accepted webhook is not treated as completion; this record uses the authenticated terminal result."
   ],
   "reviewLatencyMs": 25976,
-  "oneReviewPilotAuthorityConsumed": true
+  "oneReviewPilotAuthorityConsumed": true,
+  "originalSetupReply": {
+    "path": "../../../docs/grok-bot/setup-reply-original.txt",
+    "sha256": "069c0f41818cb4951eed44fde08a95bfd42b9d59cf1abbb72adc39a41b5927e5",
+    "bytes": 389,
+    "capture": "Copied the original Grok Bot message through its native Copy action, then saved exact clipboard bytes.",
+    "messageTime": "2026-11-17 09:53:22 -05:00",
+    "qualifiesRuntimeReviewChatExport": false
+  },
+  "conversationExportStatus": "Original setup reply preserved. Native Share offers only a template copy; Bot context actions and search expose no chat-export action. The semantic-review conversation export remains pending."
 }

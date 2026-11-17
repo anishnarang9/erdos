@@ -469,5 +469,13 @@
       "hosted-digitalocean-api-2026-11-17.json",
       "hosted-digitalocean-recovery-2026-11-17.json"
     ]
+  },
+  "evidenceCheckpointCi": {
+    "source": "c4d8ba253694dac27153e5bdc0605f067763a18d",
+    "commerceRunId": 44114999273,
+    "commerce": "success",
+    "coreFastRunId": 44114999245,
+    "coreFast": "success",
+    "runtimeImageUnchanged": true
   }
 }
