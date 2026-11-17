@@ -45,8 +45,8 @@ export interface DraftModelInput {
     }[];
   };
   /**
-   * Completion cap for this call. The Chat Completions adapter sends it as `max_tokens`.
-   * That field is the documented maximum tokens to generate. `max_completion_tokens` is not.
+   * Visible completion cap for this call. Chat Completions sends `max_completion_tokens`.
+   * This cap does not bound reasoning. Only a reviewed non-reasoning model has a total billable bound.
    */
   maxCompletionTokens?: number;
   /** The engine's plan JSON Schema (engine-contract/plan-v1.schema.json). */
@@ -77,19 +77,21 @@ export interface DraftModelResult {
   latencyMs?: number;
 }
 
-/** Chat Completions documents this field as the maximum tokens to generate. */
+/** A reviewed adapter guarantee for all billable generated tokens, including any reasoning. */
 export interface OutputTokenBound {
-  parameter: "max_tokens";
+  parameter: "max_tokens" | "max_completion_tokens";
   maxTokens: number;
 }
 
 export interface DraftModel {
   draft(input: DraftModelInput): Promise<DraftModelResult>;
   /**
-   * Set only when this adapter sends `max_tokens` and that value is the supported completion maximum.
+   * Set only when the configured cap bounds all billable generated tokens. A visible-output cap alone is insufficient.
    * Absent means the service has no reliable output bound for this model.
    */
   outputTokenBound?: OutputTokenBound;
+  /** Provider context maximum and highest applicable tariff. Do not substitute an unverified tokenizer estimate. */
+  providerCostBound?: { maxPromptTokens: number; inputMicroUsdPerMillion: number; outputMicroUsdPerMillion: number };
 }
 
 /** Draft model failure. The /v1/drafts route maps it to 502 model_failed. Never carries the API key. */
@@ -257,7 +259,9 @@ export function draftProviderPayload(input: DraftModelInput, model: string, maxT
   return JSON.stringify({
     model,
     temperature: 0,
-    max_tokens: maxTokens,
+    max_completion_tokens: maxTokens,
+    n: 1,
+    search_parameters: { mode: "off" },
     messages: [
       { role: "system", content: DRAFT_SYSTEM_PROMPT },
       {
@@ -274,9 +278,8 @@ export function draftProviderPayload(input: DraftModelInput, model: string, maxT
 }
 
 /**
- * Upper bound on prompt tokens for one serialized provider body.
- * A byte-level tokenizer needs at most one fallback token per byte, so UTF-8 length conservatively counts the body.
- * Framing tokens cover chat-template markers that the body does not contain.
+ * Local prompt estimate from the full serialized body and a framing allowance.
+ * This is not a verified provider tokenizer bound. Live preflight also prices the provider context maximum.
  */
 export function draftPromptTokenBound(payload: string): number {
   const tokens = Buffer.byteLength(payload, "utf8") + DRAFT_PROMPT_FRAMING_TOKENS;
@@ -325,7 +328,7 @@ export function readModelUsage(root: Record<string, unknown>): ModelUsage | null
   let reasoningTokens: number | null = null;
   if (isPlainObject(usage.completion_tokens_details) && "reasoning_tokens" in usage.completion_tokens_details) {
     reasoningTokens = wholeNumber(usage.completion_tokens_details.reasoning_tokens);
-    if (reasoningTokens === null || reasoningTokens > completionTokens) return null;
+    if (reasoningTokens === null) return null;
   }
   let costInUsdTicks: number | null = null;
   if ("cost_in_usd_ticks" in usage) {
@@ -425,9 +428,13 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
   const scrub = (s: string): string => (opts.apiKey ? s.split(opts.apiKey).join("[redacted]") : s);
   const fail = (reason: string, message: string): ModelError => new ModelError(reason, scrub(message));
   const rawCap = maxOutputChars + 8_192;
+  // Reviewed provider contract, 2026-11-16. Do not infer this from a visible-token parameter.
+  // Unknown slugs, aliases and reasoning models do not advertise a total spend bound.
+  const boundedOutput = opts.model === "grok-4.20-0309-non-reasoning";
 
   return {
-    outputTokenBound: { parameter: "max_tokens", maxTokens: maxCompletionTokens },
+    ...(boundedOutput ? { outputTokenBound: { parameter: "max_completion_tokens" as const, maxTokens: maxCompletionTokens } } : {}),
+    ...(boundedOutput ? { providerCostBound: { maxPromptTokens: 1_000_000, inputMicroUsdPerMillion: 2_500_000, outputMicroUsdPerMillion: 5_000_000 } } : {}),
     async draft(input) {
       const requestedCap = input.maxCompletionTokens;
       const callCap = typeof requestedCap === "number" && Number.isSafeInteger(requestedCap) && requestedCap > 0
@@ -479,6 +486,7 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
       }
       const root = isPlainObject(json) ? json : {};
       const usage = readModelUsage(root);
+      if (usage && boundedOutput && usage.reasoningTokens === null) usage.reasoningTokens = 0;
       const failUsed = (reason: string, message: string): ModelError => {
         const err = fail(reason, message);
         if (usage) err.usage = usage;

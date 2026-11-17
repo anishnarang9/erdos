@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-16 23:53 -05:00 — Anish — Bound all billable model tokens before dispatch
+
+- Corrected the provider contract. Visible completion limits exclude reasoning. Public authoring now rejects reasoning or unknown live adapters without a reviewed total bound. Exact dated non-reasoning Grok also prices its full documented context maximum and highest tier. Low ceilings and underpriced config reject before dispatch. See [model spending bounds](../../docs/hosted-model-costs.md).
+- Five billing regressions pass. API typecheck and all 845 API tests pass. Exact provider ticks remain authoritative. Missing reasoning usage without an actual bill stays uncertain. No paid model call occurred.
+- Runtime worker published shutdown drain, evidence/context transport and historical halt backfill. Integration follows this checkpoint. Coverage, immutable buyer checks and one request deadline remain open. Host access, approved model budgets and fresh live authority remain pending. PR #8 stays draft.
+
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
 ## 2026-11-16 23:44 -05:00 — Anish — Installed check rejection has a safe machine-readable result

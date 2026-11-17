@@ -177,10 +177,10 @@ function modelFailure(reason: string, billing?: Record<string, unknown>): ApiErr
   return new ApiError("model_failed", "The draft model failed", billing ? { reason, billing } : { reason });
 }
 
-/** Documented `max_tokens` cap when the adapter publishes one. Otherwise the service maximum, which is not a provider guarantee. */
+/** Reviewed total billable-token cap. Otherwise the service maximum is only a local estimate. */
 function outputLimit(model: DraftModel): { reliable: boolean; maxTokens: number } {
   const bound = model.outputTokenBound;
-  if (bound?.parameter === "max_tokens" && Number.isSafeInteger(bound.maxTokens) && bound.maxTokens > 0) {
+  if ((bound?.parameter === "max_tokens" || bound?.parameter === "max_completion_tokens") && Number.isSafeInteger(bound.maxTokens) && bound.maxTokens > 0) {
     return { reliable: true, maxTokens: Math.min(bound.maxTokens, DRAFT_MAX_COMPLETION_TOKENS) };
   }
   return { reliable: false, maxTokens: DRAFT_MAX_COMPLETION_TOKENS };
@@ -188,12 +188,16 @@ function outputLimit(model: DraftModel): { reliable: boolean; maxTokens: number 
 
 /** True when the serialized provider payload plus the supported completion maximum fits the ceiling. */
 function supportedCallFits(
+  model: DraftModel,
   input: DraftModelInput,
   completionTokens: number,
   ceiling: number,
   budget: NonNullable<Deps["budget"]>,
 ): boolean {
-  const cost = maxCallMicroUsd(draftCallTokenBound(input, completionTokens), completionTokens, budget);
+  const provider = model.providerCostBound;
+  if (provider && (budget.inputMicroUsdPerMillion < provider.inputMicroUsdPerMillion || budget.outputMicroUsdPerMillion < provider.outputMicroUsdPerMillion)) return false;
+  const promptTokens = Math.max(draftCallTokenBound(input, completionTokens), provider?.maxPromptTokens ?? 0);
+  const cost = maxCallMicroUsd(promptTokens, completionTokens, budget);
   return cost !== null && cost <= ceiling;
 }
 
@@ -287,7 +291,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       if (deps.deployment.mode === "public" && !limit.reliable) {
         throw new ApiError("model_unavailable", "Authoring output is not bounded");
       }
-      if (!supportedCallFits(baseInput, limit.maxTokens, deps.budget.requestCeilingMicroUsd, deps.budget)) {
+      if (!supportedCallFits(model, baseInput, limit.maxTokens, deps.budget.requestCeilingMicroUsd, deps.budget)) {
         throw new ApiError("model_unavailable", "Authoring budget cannot fund a model call");
       }
       firstInput = { ...baseInput, maxCompletionTokens: limit.maxTokens };
@@ -424,7 +428,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       const charge = authoringCharge(usage, deps.budget);
       if (!charge || charge.microUsd > deps.budget.requestCeilingMicroUsd) return false;
       const remaining = deps.budget.requestCeilingMicroUsd - charge.microUsd;
-      return supportedCallFits({ ...baseInput, repair: feedback }, limit.maxTokens, remaining, deps.budget);
+      return supportedCallFits(model, { ...baseInput, repair: feedback }, limit.maxTokens, remaining, deps.budget);
     };
     const canRepair = chosen.feedback !== undefined && usageComplete(first.reply.usage) && deps.now() - started < DRAFT_TIMEOUT_MS && repairFits(chosen.feedback);
     if (chosen.fatal && !canRepair) throw modelFailure("plan_not_hashable");

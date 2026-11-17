@@ -109,7 +109,7 @@ export function usageComplete(usage: ModelUsage | null | undefined): usage is Mo
   if (!Number.isSafeInteger(usage.promptTokens) || usage.promptTokens < 0) return false;
   if (!Number.isSafeInteger(usage.completionTokens) || usage.completionTokens < 0) return false;
   if (usage.cachedTokens !== null && (!Number.isSafeInteger(usage.cachedTokens) || usage.cachedTokens < 0 || usage.cachedTokens > usage.promptTokens)) return false;
-  if (usage.reasoningTokens !== null && (!Number.isSafeInteger(usage.reasoningTokens) || usage.reasoningTokens < 0 || usage.reasoningTokens > usage.completionTokens)) return false;
+  if (usage.reasoningTokens !== null && (!Number.isSafeInteger(usage.reasoningTokens) || usage.reasoningTokens < 0)) return false;
   return true;
 }
 
@@ -121,13 +121,16 @@ function ceilTokens(tokens: number, microUsdPerMillion: number): number | null {
 
 /** Tariff estimate from token prices. Missing or inconsistent usage returns null. Actual ticks are ignored. */
 export function quoteAuthoringCost(usage: ModelUsage, budget: NonNullable<Deps["budget"]>): number | null {
-  if (!usageComplete(usage)) return null;
+  if (!usageComplete(usage) || usage.reasoningTokens === null) return null;
+  // Provider formats differ on whether completion_tokens includes reasoning. Sum them for a conservative tariff.
+  const generated = usage.completionTokens + usage.reasoningTokens;
+  if (!Number.isSafeInteger(generated)) return null;
   const cached = usage.cachedTokens ?? 0;
   const cachedPrice = budget.cachedInputMicroUsdPerMillion ?? budget.inputMicroUsdPerMillion;
   const parts = [
     ceilTokens(usage.promptTokens - cached, budget.inputMicroUsdPerMillion),
     ceilTokens(cached, cachedPrice),
-    ceilTokens(usage.completionTokens, budget.outputMicroUsdPerMillion),
+    ceilTokens(generated, budget.outputMicroUsdPerMillion),
   ];
   if (parts.some((part) => part === null)) return null;
   const sum = (parts as number[]).reduce((total, part) => total + part, 0);

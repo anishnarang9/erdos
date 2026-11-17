@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-16 23:53 -05:00 — Anish — Correct public authoring spending contract
+
+- Current xAI docs make the visible completion limit insufficient for reasoning models. Only exact reviewed non-reasoning model `grok-4.20-0309-non-reasoning` advertises the live adapter's total output bound. Preflight prices its full context maximum and highest tier. Each 8,192-token call needs at least $2.54096 available. Actual costs remain separately measured. See [the contract](../../docs/hosted-model-costs.md).
+- No paid model trial ran. Grok 4.7 CLI development workers remain separate. Approved service and benchmark budgets are still pending. Public readiness must reject an unbounded live model. This correction supersedes earlier `max_tokens` total-bound claims. Final qualification thresholds and corpus stay unchanged.
+
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
 ## 2026-11-16 23:05 -05:00 — Anish — Signed preview bindings need an explicit completion step

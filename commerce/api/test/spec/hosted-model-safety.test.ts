@@ -422,7 +422,7 @@ describe("request spend ceiling", () => {
     };
     const usage = { promptTokens: 1000, completionTokens: 1000, cachedTokens: null, reasoningTokens: null, costInUsdTicks: 37_756_000 };
     expect(authoringCharge(usage, budget)).toEqual({ microUsd: 3776, source: "actual", costInUsdTicks: 37_756_000 });
-    expect(authoringCharge({ ...usage, costInUsdTicks: null }, budget)).toEqual({ microUsd: 3750, source: "tariff", costInUsdTicks: null });
+    expect(authoringCharge({ ...usage, reasoningTokens: 0, costInUsdTicks: null }, budget)).toEqual({ microUsd: 3750, source: "tariff", costInUsdTicks: null });
   });
 
   it("preserves charged usage on a length stop and settles the actual ticks", async () => {
@@ -478,8 +478,8 @@ describe("request spend ceiling", () => {
     const seen: number[] = [];
     const fetch = (async (_url: unknown, init?: RequestInit) => {
       const wire = JSON.parse(String(init?.body)) as { max_tokens?: number; max_completion_tokens?: number };
-      expect(wire.max_completion_tokens).toBeUndefined();
-      seen.push(wire.max_tokens ?? -1);
+      expect(wire.max_tokens).toBeUndefined();
+      seen.push(wire.max_completion_tokens ?? -1);
       return new Response(JSON.stringify({
         id: "trace-cap",
         model: "grok-4-spec",

@@ -234,7 +234,7 @@ describe("dispatch billing", () => {
       draftModel: {
         async draft() {
           repairCalls += 1;
-          return { ...draftReply(repairCalls === 1 ? { version: 1 } : { version: 2 }), usage: { ...usage, costInUsdTicks: null } };
+          return { ...draftReply(repairCalls === 1 ? { version: 1 } : { version: 2 }), usage: { ...usage, reasoningTokens: 0, costInUsdTicks: null } };
         },
       },
     }, repairPath);
@@ -251,7 +251,7 @@ describe("dispatch billing", () => {
     expect(settled.usage_json).toContain("1000");
   });
 
-  it("retains the actual cost when it exceeds the ceiling", async () => {
+  it("retains the full known tariff when it exceeds the ceiling", async () => {
     const dir = mkdtempSync(join(tmpdir(), "ubc26-over-"));
     const dbPath = join(dir, "api.db");
     const created = appWith({
@@ -263,7 +263,7 @@ describe("dispatch billing", () => {
             result: { kind: "clarification" as const, questions: ["Which file?"] },
             model: "spec",
             traceId: "t",
-            usage: { promptTokens: 10_000_000, completionTokens: 0, cachedTokens: 0, reasoningTokens: null, costInUsdTicks: null },
+            usage: { promptTokens: 10_000_000, completionTokens: 0, cachedTokens: 0, reasoningTokens: 0, costInUsdTicks: null },
           };
         },
       },
@@ -417,7 +417,7 @@ describe("dispatch billing", () => {
 });
 
 describe("grok request bounds", () => {
-  it("sends max_tokens, refuses a length stop, and keeps token prices separate from ticks", async () => {
+  it("sends the visible max_completion_tokens cap and keeps token prices separate from ticks", async () => {
     const seen: { body?: Record<string, unknown>; signal?: AbortSignal } = {};
     const fetch = (async (_url: unknown, init?: RequestInit) => {
       seen.body = JSON.parse(String(init?.body)) as Record<string, unknown>;
@@ -430,6 +430,7 @@ describe("grok request bounds", () => {
           prompt_tokens: 1_000_000,
           completion_tokens: 0,
           prompt_tokens_details: { cached_tokens: 400_000 },
+          completion_tokens_details: { reasoning_tokens: 0 },
           cost_in_usd_ticks: 12345,
         },
       }), { status: 200 });
@@ -443,8 +444,8 @@ describe("grok request bounds", () => {
       schema: { type: "object" },
     };
     const out = await model.draft(grokInput);
-    expect(seen.body?.max_tokens).toBe(8192);
-    expect(seen.body?.max_completion_tokens).toBeUndefined();
+    expect(seen.body?.max_completion_tokens).toBe(8192);
+    expect(seen.body?.max_tokens).toBeUndefined();
     expect(seen.body?.presence_penalty).toBeUndefined();
     expect(seen.body?.frequency_penalty).toBeUndefined();
     expect(seen.body?.stop).toBeUndefined();
