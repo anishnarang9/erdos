@@ -130,6 +130,8 @@ export interface FundingTerms {
   rulesHash: Hex;
   referenceHash: Hex;
   description: string;
+  /** Set for a wallet caller. Legacy local sessions omit it. */
+  buyer?: Address;
 }
 
 export interface TxRequest {
