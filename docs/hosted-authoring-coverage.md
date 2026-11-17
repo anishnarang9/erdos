@@ -8,4 +8,6 @@ Public approval of a model-authored revision requires the exact `coverage.covera
 
 A missing or different digest returns `approval_required`. An unresolved mapping can use the existing single repair attempt when time and budget permit. The service keeps legacy local records readable. Legacy records without links cannot pass the public model-authored approval gate.
 
-Immutable buyer-supplied example completion and one request-wide deadline remain separate open implementation items at this checkpoint. No real Grok qualification trial establishes coverage quality yet.
+Immutable buyer-supplied example completion remains an open implementation item at this checkpoint. No real Grok qualification trial establishes coverage quality yet.
+
+A single 120-second authoring deadline now covers the initial model call, validation, every example check and the optional repair. Each real adapter receives the shared cancellation signal. A repair does not restart that deadline. Runtime cancellation is excluded from provider payloads and recording identity. Unknown bills remain uncertain if cancellation prevents usage recovery.

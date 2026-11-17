@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-16 23:58 -05:00 — Anish — Share one deadline across draft checks and repair
+
+- One 120-second controller now covers the initial model, validation, all examples and repair. Real model and engine adapters receive cancellation. The pipeline checks cancellation before its final commit. Recording identity and saved input exclude the runtime signal. The frozen prompt/schema still participates in full cost preflight.
+- Both deadline regressions failed before implementation. The repair test now stops at 120 seconds across two model calls and all checks. API typecheck and 18 focused deadline/model/coverage checks pass. All 859 API checks pass. Worker typecheck and seven hosted CLI/client checks passed for the preceding coverage checkpoint.
+- Unknown paid usage remains uncertain. Immutable buyer checks and complete failed-call metadata are next. Public host, paid qualification and fresh funded acceptance remain open. No paid model request or chain action occurred.
+
 ## 2026-11-16 23:56 -05:00 — Anish — Add requirement links and explicit buyer review
 
 - Live draft schema now requires bounded requirement links. The service checks every rule and referenced source quote, rejects unresolved links and permits one cost-bounded repair. Public model-authored approval requires the exact reviewed coverage digest. SDK and runner pass that digest. See [the review contract](../../docs/hosted-authoring-coverage.md).

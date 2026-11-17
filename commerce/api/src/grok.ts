@@ -24,6 +24,8 @@ export type ModelDraft =
   | { kind: "unsupported"; reason: string };
 
 export interface DraftModelInput {
+  /** Runtime cancellation only. Excluded from payloads, recordings and persistent identities. */
+  signal?: AbortSignal;
   request: string;
   outputs: DraftOutput[];
   referenceNames: string[];
@@ -457,7 +459,9 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
         : maxCompletionTokens;
       const body = draftProviderPayload(input, opts.model, callCap);
       const started = Date.now();
-      const signal = AbortSignal.timeout(timeoutMs);
+      const ownTimeout = AbortSignal.timeout(timeoutMs);
+      const signal = input.signal ? AbortSignal.any([input.signal, ownTimeout]) : ownTimeout;
+      if (signal.aborted) throw fail("timeout", "Draft model request timed out");
       let res: Response;
       try {
         res = await doFetch(endpoint.href, {
@@ -549,7 +553,8 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
 
 /** Record key: lowercase hex sha256(JCS(input)), no 0x prefix (it is a file name). */
 export function draftRecordKey(input: DraftModelInput): string {
-  const text = canonicalize(input);
+  const { signal: _signal, ...persistent } = input;
+  const text = canonicalize(persistent);
   if (text === undefined) throw new ModelError("bad_input", "Draft input cannot be canonicalized (JCS)");
   return createHash("sha256").update(text, "utf8").digest("hex");
 }
@@ -565,10 +570,12 @@ interface Recording {
 export function recordingDraftModel(inner: DraftModel, dir: string): DraftModel {
   return {
     ...(inner.outputTokenBound ? { outputTokenBound: inner.outputTokenBound } : {}),
+    ...(inner.providerCostBound ? { providerCostBound: inner.providerCostBound } : {}),
     async draft(input) {
       const key = draftRecordKey(input);
       const out = await inner.draft(input);
-      const rec: Recording = { input, result: out.result, model: out.model, traceId: out.traceId };
+      const { signal: _signal, ...persistent } = input;
+      const rec: Recording = { input: persistent, result: out.result, model: out.model, traceId: out.traceId };
       await mkdir(dir, { recursive: true });
       await writeFile(join(dir, `${key}.json`), JSON.stringify(rec, null, 2) + "\n", "utf8");
       return out;

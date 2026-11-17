@@ -8,6 +8,7 @@ import canonicalize from "canonicalize";
 import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { assessCoverage } from "./coverage.ts";
+import { withinDraftDeadline } from "./draft-deadline.ts";
 import { tx } from "./db.ts";
 import { isoAt, readBody, parseJson, requireJobId, type AppEnv, type Deps } from "./context.ts";
 import { expensiveGuard } from "./limits.ts";
@@ -227,6 +228,11 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
   const openHalt = deps.db.prepare("SELECT id FROM spend_halts WHERE resolved_at IS NULL LIMIT 1");
 
   const draft: Handler<AppEnv> = async (c) => {
+    const deadline = new AbortController();
+    const timer = setTimeout(() => deadline.abort(), DRAFT_TIMEOUT_MS);
+    timer.unref?.();
+    const signal = deadline.signal;
+    const execute = async () => {
     const model = deps.draftModel;
     const owner = ownerWallet(c);
     if (!model) throw new ApiError("model_unavailable", "No draft model configured");
@@ -265,7 +271,8 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     };
     const callModel = async (input: DraftModelInput): Promise<{ reply: DraftModelResult; result: ModelDraft }> => {
       if (taskId !== "" && deps.budget) noteDraftDispatch(deps.db, taskId, isoAt(deps.now()));
-      const reply = await model.draft(input);
+      signal.throwIfAborted();
+      const reply = await withinDraftDeadline(model.draft({ ...input, signal }), signal);
       if (typeof reply?.model !== "string" || typeof reply.traceId !== "string") throw new ModelError("invalid_reply");
       return { reply: { ...reply, result: parseModelDraft(reply.result) }, result: parseModelDraft(reply.result) };
     };
@@ -336,7 +343,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       }
       let verdict: Awaited<ReturnType<Deps["engine"]["validate"]>>;
       try {
-        verdict = await deps.engine.validate(result.plan);
+        verdict = await withinDraftDeadline(deps.engine.validate(result.plan, { signal }), signal);
       } catch (err) {
         engineFailure(err);
       }
@@ -370,7 +377,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       const quoteVerification = result.sourceQuotes.map(item => ({ ...item, found: quoteFound(item.path, item.quote, body.request, textReferences) }));
       const rules = isPlainObject(result.plan) && Array.isArray(result.plan.rules) ? result.plan.rules.length : 0;
       const coverage = assessCoverage(rules, result.coverage, quoteVerification);
-      const examples = await labelExamples(result, body.references, body.exampleFixtures);
+      const examples = await labelExamples(result, body.references, body.exampleFixtures, signal);
       const counts = usableExamples(examples);
       const revision: Revision = {
         plan: result.plan,
@@ -455,6 +462,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         persistUsage();
         chosen = await assess(second);
       } catch (err) {
+        if (signal.aborted) throw new ModelError("timeout");
         const usage = chargedUsage(err);
         if (usage) {
           attempts.push({
@@ -539,16 +547,23 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       modelResult: result,
       attempts: attempts.map((item) => ({ result: item.result, model: item.reply.model, traceId: item.reply.traceId, usage: item.reply.usage ?? null })),
     });
+    signal.throwIfAborted();
     return commit(c, 200, response, () => {
       insertDraft.run(draftId, requestJson, stored, reply.model, reply.traceId, chosen.hash, at, owner);
     });
+    };
+    try { return await execute(); }
+    catch (err) {
+      if (signal.aborted || (err instanceof ModelError && err.reason === "timeout")) throw modelFailure("timeout");
+      throw err;
+    } finally { clearTimeout(timer); }
   };
 
   /**
    * Labels the model's examples with the checker (`engine eval`), never with the model. An example whose
    * files the engine cannot read gets checkerVerdict null and the engine's message.
    */
-  const labelExamples = async (result: Extract<ModelDraft, { kind: "draft" }>, references: BundleFile[], fixtures: ExampleFixture[] = []) => {
+  const labelExamples = async (result: Extract<ModelDraft, { kind: "draft" }>, references: BundleFile[], fixtures: ExampleFixture[] = [], signal?: AbortSignal) => {
     const out: ExampleLabel[] = [];
     for (const [i, e] of result.examples.entries()) {
       const base = { name: e.name, predictedVerdict: e.predictedVerdict };
@@ -558,12 +573,15 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       }
       let r: Awaited<ReturnType<NonNullable<Deps["engine"]["eval"]>>>;
       try {
+        signal?.throwIfAborted();
         const resolved = resolveExample(e, fixtures);
-        const input = { plan: result.plan, deliverables: exampleFiles(resolved.files, 16_384, "/examples/files"), reference: references,
+        const input = { plan: result.plan, ...(signal ? { signal } : {}), deliverables: exampleFiles(resolved.files, 16_384, "/examples/files"), reference: references,
           ...(resolved.evidence ? { evidence: exampleFiles(resolved.evidence, 32_768, "/examples/evidence") } : {}),
           ...(resolved.context ? { context: resolved.context } : {}) };
-        r = await deps.engine.eval(input);
+        const work = deps.engine.eval(input);
+        r = signal ? await withinDraftDeadline(work, signal) : await work;
       } catch (err) {
+        if (signal?.aborted) throw new ModelError("timeout");
         if (err instanceof EngineError || err instanceof ApiError) {
           out.push({ ...base, checkerVerdict: null, agrees: null, checkerError: err instanceof ApiError ? "Invalid example input" : "Engine example check failed" });
           continue;
