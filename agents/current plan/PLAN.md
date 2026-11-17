@@ -1,5 +1,13 @@
 # Current plan
 
+## 2026-11-17 05:10 -05:00 — Anish — Verify the native host and repair cold registry access
+
+- Verified the user-provided DigitalOcean console fingerprint and pinned SSH. The temporary public SSH window closed early. Its cleanup watchdog confirmed the restricted policy. Ubuntu 24.04 x86-64, NTP, key-only SSH, 32-GiB state and 80-GiB Docker/containerd filesystem ceilings pass native inspection. No extra paid resource was created.
+- Imported the exact `20b0dc2` OCI index after archive checksum verification. The pinned BuildKit worker enforces 4 GiB memory/swap total, two CPUs and 512 PIDs. The first operator profile used the wrong socket group and failed before building. The corrected profile found that a network-disabled Buildx client cannot fetch anonymous registry tokens on a cold host. The outer helper now uses bridge egress with no API credentials. Its regression failed before the fix. All ten deployment checks pass. Cold compilation is running under a retained unit. See the [native report](../anish/reports/hosted-digitalocean-native-2026-11-17.json).
+- One fresh-context read-only source reviewer found no actionable defect in `8c98d6b..20b0dc2`; all 106 targeted checks passed. See the [scoped review](../../docs/hosted-candidate-code-review-2026-11-17.md). This does not approve the later helper change, native configuration or public release. No further Grok CLI call ran.
+- Runtime source stays `20b0dc2`; the corrected outer helper has a separate reported hash. Public API/TLS, real application model access and approved budgets, 180 genuine trials and current funded acceptance remain open. Requested secure application-key setup and concrete qualification limits while native work continues. No genuine model request, proof or chain transaction ran. Next: observe cold compilation, configure ingress and exercise native API/recovery without weakening readiness.
+
+
 ## 2026-11-17 04:42 -05:00 — Anish — Provision the selected DigitalOcean backend
 
 - Followed the user's DigitalOcean onboarding guide. Upgraded Homebrew `doctl` to 2.5.2. Context `ubc26` is active. Initial read-only scope caused a definitive SSH-key import 403. The user completed corrected read/write OAuth. The MCP router is configured and OAuth-authenticated, but its tools are not exposed in this live caller. Native CLI reads and writes work. Do not claim MCP docs/account tool verification.

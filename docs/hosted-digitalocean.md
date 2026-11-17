@@ -6,9 +6,13 @@ The user selected DigitalOcean on 2026-11-17 after reviewing the $48/month compu
 
 Droplet `620224382`, `ubc26-hosted-backend`, is active in San Francisco (`sfo2`). The regular $48 size was unavailable in New York. The actual resource has four vCPUs, 8 GiB RAM, 160 GiB disk and Ubuntu 24.04 LTS x64. Weekly backups run Sunday at 08:00 UTC with 28-day retention. The cloud firewall permits SSH only from the operator's public IPv4 `/32`, plus public TCP 80/443. Port 8080 is not exposed.
 
-The temporary name `ubc26-159-89-149-133.sslip.io` resolves to `159.89.149.133`. No application is running and TLS is not verified. The [provisioning report](../agents/anish/reports/hosted-digitalocean-provision-2026-11-17.json) records current provider evidence. Native SSH host identity, Docker/storage setup, compilation, image import and external acceptance remain pending.
+The temporary name `ubc26-159-89-149-133.sslip.io` resolves to `159.89.149.133`. API and TLS are not running yet. The user supplied the Ed25519 fingerprint through the provider console. It matched the scanned key. Strict SSH pinning now works. The approved temporary console rule closed early and its watchdog confirmed cleanup. SSH again permits only the operator `/32`.
 
-The user must provide the public Ed25519 host fingerprint from the provider console. Browser automation encountered concurrent user interaction and could not complete that check. A network keyscan remains explicitly untrusted until it matches the provider-console result. No native SSH command has run.
+Native Ubuntu 24.04 x86-64 checks pass. Password authentication is disabled. Separate ext4 loop files cap state at 32 GiB and Docker/containerd data at 80 GiB. Both mount with `nodev,nosuid`. These limits cap filesystem growth. They do not reserve physical blocks, because formatting discarded unused extents. The root disk can hold both maximum sizes plus the operating system. Docker 29.10.0 and containerd 2.4.2 store all image/runtime data within the 80-GiB mount. Systemd requires those mounts before starting them.
+
+The exact `20b0dc2` OCI index imported successfully after host-side archive verification. The pinned BuildKit worker runs with 4 GiB memory and swap total, two CPUs and 512 processes. A first operator profile used the wrong socket group and stopped before building. The corrected profile exposed a real cold-start defect: the network-disabled helper could not obtain anonymous registry tokens. The daemon had working egress, but Buildx also needs client-side registry access. The outer helper now uses bridge networking with no API environment file or credential arguments. Its regression failed before the fix. All ten deployment checks pass afterward. The unchanged runtime image still identifies `20b0dc2`; the corrected outer deployment helper has its own hash in the [native host report](../agents/anish/reports/hosted-digitalocean-native-2026-11-17.json).
+
+Cold compilation is running under a retained systemd unit with its one-hour installation deadline. No compiler success, public API, TLS, genuine model call or new funded acceptance is established yet. See the [provisioning report](../agents/anish/reports/hosted-digitalocean-provision-2026-11-17.json) and native report for the evidence boundary.
 
 ## Account and local access
 
@@ -63,4 +67,4 @@ After copying, verify the archive checksum on the host before import. Record the
 
 A dedicated Ed25519 operator key is prepared outside the repository. Its private file has mode 0600 inside a mode-0700 directory. Upload only its public key through authenticated provider access. No key material or API credentials belong in the candidate bundle or Git.
 
-These checks establish local transfer readiness. They do not establish native compilation, public deployment or model access. No server was contacted.
+The server now holds the archive, verified runtime image and original deployment scripts. The corrected outer prewarm helper is separate from the archived candidate scripts. Native cold compilation is in progress. Public deployment and genuine model access remain open.

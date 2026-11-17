@@ -1,6 +1,6 @@
 # Final hosted candidate review
 
-Candidate code is `20b0dc282482ad22d7fff49ffe86de903576f547`. Final independent review is pending. PR #8 remains draft. The user directed no more Grok CLI calls.
+Candidate code is `20b0dc282482ad22d7fff49ffe86de903576f547`. The [scoped candidate source review](hosted-candidate-code-review-2026-11-17.md) is complete. One fresh-context reviewer found no actionable defect and passed 106 targeted checks. Native host configuration and public/live acceptance still need review. PR #8 remains draft. The user directed no more Grok CLI calls.
 
 The earlier [independent review](hosted-integrated-security-review.md) covers `8c98d6b`. It does not approve the later ingress, paid compiler, qualification campaign or packaging changes. Current passing tests are evidence for review. They do not replace independent approval.
 
@@ -17,4 +17,4 @@ Exact-source commerce and core CI pass. They include 939 API, 365 SDK, 945 worke
 
 Run commerce checks from `commerce/` with `pnpm typecheck` and `pnpm test`. Run the qualification suite from the repository root with an explicit reviewed `UBC26_ENGINE` and `node --test engine/evaluation/hosted-qualification/*.test.mjs`. These checks need no genuine model call, proof or chain transaction. Keep all signers and credentials outside the review environment.
 
-Public host/account/hostname, approved resource and model budgets, secure application credentials and current live-action authority remain missing inputs. Genuine trials remain zero. Final review must retain those open gates. No public release or new funded acceptance is established.
+The selected DigitalOcean host has verified SSH identity, bounded storage, Docker, an imported candidate image and the pinned BuildKit worker. Cold compilation and public API/TLS acceptance remain open. The later outer prewarm network fix needs a scoped review. Application model access and approved inference budgets, genuine qualification and current live-action authority remain pending. Genuine trials remain zero. The deployment review must retain those open gates. No public release or new funded acceptance is established.

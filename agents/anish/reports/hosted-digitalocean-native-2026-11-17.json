@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "status": "native-storage-image-and-builder-verified-cold-compile-running",
+  "runtimeSourceCommit": "20b0dc282482ad22d7fff49ffe86de903576f547",
+  "dropletId": 620224382,
+  "host": {
+    "architecture": "x86_64",
+    "ntpSynchronized": "yes",
+    "sshHostKeyVerifiedThroughProviderConsole": true,
+    "ed25519Fingerprint": "SHA256:DewD6tS1XaUI9dtYkP7py4OGxfxm9gIlFyZLZfoO944",
+    "passwordAuthentication": "no"
+  },
+  "storage": {
+    "status": "native-host-storage-and-docker-ready",
+    "stateFileBytes": 34359738368,
+    "dockerFileBytes": 85899345920,
+    "dockerRoot": "/srv/ubc26-docker/docker",
+    "containerdRoot": "/srv/ubc26-docker/containerd",
+    "dockerVersion": "29.10.0",
+    "compilerVerified": false
+  },
+  "mounts": {
+    "/srv/ubc26-state": {
+      "source": "/dev/loop0",
+      "target": "/srv/ubc26-state",
+      "fstype": "ext4",
+      "size": 33501757440,
+      "avail": 33484582912,
+      "options": "rw,nosuid,nodev,relatime"
+    },
+    "/srv/ubc26-docker": {
+      "source": "/dev/loop1",
+      "target": "/srv/ubc26-docker",
+      "fstype": "ext4",
+      "size": 83955703808,
+      "avail": 79430512640,
+      "options": "rw,nosuid,nodev,relatime"
+    }
+  },
+  "builder": {
+    "image": "moby/buildkit:v0.26.2@sha256:de10faf919fc71ba4eb1dd7bd6449566d012b0c9436b1c61bfee21d621b009aa",
+    "memoryBytes": 4294967296,
+    "memorySwapBytes": 4294967296,
+    "cpuQuota": 200000,
+    "cpuPeriod": 100000,
+    "pidsLimit": 512,
+    "running": true
+  },
+  "runtime": {
+    "importedImageId": "sha256:acc4eb148e89db6699437ecb2937bf8bfb9e552befd7c76c45ef277730a662d0",
+    "archiveSha256": "7289a46dbb583a41d74be33d725baf661a0a21538743b6d50b890d5acdf56f20"
+  },
+  "compiler": {
+    "status": "in-progress",
+    "unit": "ubc26-compiler-prewarm-bridge.service",
+    "initialFailures": [
+      "Wrong operator-supplied Docker group prevented socket access. No build began.",
+      "Network-none helper prevented client-side anonymous registry token access. Guest build did not begin."
+    ],
+    "outerHelperSha256": "629169d8a79f3e7d87b373b9a11ddf3fb5518efe428e1357cc9055a4d4b3eae0",
+    "fixedHelperNetwork": "bridge",
+    "apiCredentialsPassed": false
+  },
+  "publicApiVerified": false,
+  "tlsVerified": false,
+  "genuineModelCalls": 0,
+  "proofsGenerated": 0,
+  "chainTransactions": 0,
+  "checkedAt": "2026-11-17T10:10:23.209925+00:00",
+  "temporaryConsoleSsh": {
+    "approvedDurationSeconds": 300,
+    "status": "closed",
+    "openedAt": "2026-11-17T09:50:30.015515+00:00",
+    "closedAt": "2026-11-17T09:55:03.140051+00:00",
+    "cleanupComplete": true
+  }
+}

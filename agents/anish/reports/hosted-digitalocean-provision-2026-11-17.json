@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T09:42:39.071591+00:00",
-  "status": "provisioned-awaiting-ssh-host-identity-and-native-acceptance",
+  "checkedAt": "2026-11-17T10:10:48.106566+00:00",
+  "status": "native-storage-image-and-builder-verified-cold-compile-running",
   "sourceCommit": "20b0dc282482ad22d7fff49ffe86de903576f547",
   "provider": "DigitalOcean",
   "cli": {
@@ -83,10 +83,10 @@
     "fallback": "Authenticated doctl works. Do not restart the active goal only to load MCP tools."
   },
   "scope": {
-    "nativeSshHostKeyVerified": false,
-    "nativeSshCommandExecuted": false,
+    "nativeSshHostKeyVerified": true,
+    "nativeSshCommandExecuted": true,
     "nativeCompilerVerified": false,
-    "imageTransferred": false,
+    "imageTransferred": true,
     "publicApiDeployed": false,
     "genuineModelTrials": 0,
     "grokCliCalls": 0,
@@ -94,9 +94,9 @@
     "chainTransactions": false
   },
   "pending": [
-    "Provider-console SSH host fingerprint",
-    "Native host storage/Docker/image/compiler setup and external API checks",
+    "Native cold compiler completion and external API/TLS checks",
     "Secure application Grok access and approved inference ceilings",
-    "180 genuine qualification trials, fresh scoped acceptance and final independent review"
-  ]
+    "180 genuine qualification trials, fresh scoped acceptance and final deployment review"
+  ],
+  "nativeReport": "hosted-digitalocean-native-2026-11-17.json"
 }

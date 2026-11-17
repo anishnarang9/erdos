@@ -54,7 +54,9 @@ fi
 [ "${UBC26_API_QUIESCED:-}" = 1 ]
 [ "${UBC26_STATE_DIR#/}" != "$UBC26_STATE_DIR" ] && [ -d "$UBC26_STATE_DIR" ]
 # This process receives neither an API env file nor inherited model/admin credentials.
-exec docker run --rm --init --platform linux/amd64 --network none --read-only \
+# The Buildx client obtains anonymous registry tokens during a cold build.
+# It therefore needs bridge egress as well as the separate BuildKit daemon.
+exec docker run --rm --init --platform linux/amd64 --network bridge --read-only \
   --user 1000:1000 --group-add "$UBC26_DOCKER_GID" --memory 1g --memory-swap 1g --cpus 1 --pids-limit 128 \
   --tmpfs /tmp:size=64m,noexec,nosuid,nodev \
   --mount "type=bind,src=$UBC26_STATE_DIR,dst=/var/lib/ubc26" \
