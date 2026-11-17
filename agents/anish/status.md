@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 01:39 -05:00 — Anish — Native Linux installed runner and exact-source CI pass
+
+- GitHub push run [44032104126](https://github.com/anishnarang9/UBC-26/actions/runs/44032104126) passes engine and contracts at exact source `5991bd2`. The independent archive/native-engine check passes all twelve signed cases on native Linux x64, Node 24.22.2. The downloaded report matches that source and its release manifest/checksum. See [the evidence](reports/hosted-runner-native-linux-2026-11-17.json).
+- The actual CI log confirms the first failure's cause: the Cargo binary had two hard links, mode 0755, uid 1001. Installing a separate mode-0700 copy satisfies the existing engine guard. No runtime protection changed. The exact-source commerce push run [44032104152](https://github.com/anishnarang9/UBC-26/actions/runs/44032104152) also passes. These source checks do not close the later final release/host gates.
+- Updated the draft PR with current source, evidence and limitations. The release ledger now separates native Linux results from the earlier emulated image/progress tests. The same two workers continue ingress/payment admission and security review. No public deployment, paid authoring trial, new proof or chain action occurred.
+
 ## 2026-11-17 01:37 -05:00 — Anish — Verify restored attempt history and collect release gates
 
 - Full combined commerce checks pass at `5991bd2`: API 917, SDK 365 plus 13 wire, worker 945, and all three typechecks. The native Linux CI rerun remains pending after its stricter installed-engine setup repair. Both current Grok workers continue their assigned source/review work.

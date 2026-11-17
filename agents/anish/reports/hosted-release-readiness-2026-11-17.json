@@ -58,9 +58,12 @@
     },
     {
       "gate": "packaged installed runner",
-      "status": "passed-emulated-linux; native-linux-ci-pending",
-      "report": "hosted-runner-linux-progress-2026-11-17.json",
-      "limit": "Twelve native engine checks and five controlled installed progress checks. Final source artifact still required."
+      "status": "passed-native-linux-and-emulated-linux",
+      "limit": "Twelve signed checks pass on native Linux and emulated Linux; five installed progress checks use controlled emulated Linux. Final source release artifacts still required.",
+      "reports": [
+        "hosted-runner-linux-progress-2026-11-17.json",
+        "hosted-runner-native-linux-2026-11-17.json"
+      ]
     },
     {
       "gate": "runtime pins, configured readiness and warm compilation",
@@ -159,7 +162,7 @@
     "Public HTTPS and external/laptop-independent acceptance",
     "Genuine Grok qualification at frozen corpus and thresholds",
     "Remaining ingress/paid-waiter implementation and independent review",
-    "Actual final source native Linux runner/CI checks",
+    "Final source CI and installed-runner verification after remaining source changes",
     "Final combined image, public artifacts and exact UI handoff SHA",
     "Fresh hosted Arc and Circle acceptance under current authority"
   ],
@@ -177,5 +180,26 @@
       "sdk",
       "worker"
     ]
+  },
+  "nativeLinuxCI": {
+    "sourceCommit": "5991bd2e876f64219a8d7e628adfb5f7a284daca",
+    "runId": 44032104126,
+    "status": "passed",
+    "report": "hosted-runner-native-linux-2026-11-17.json",
+    "checks": 12
+  },
+  "sourceCI": {
+    "sourceCommit": "5991bd2e876f64219a8d7e628adfb5f7a284daca",
+    "engineAndContracts": {
+      "runId": 44032104126,
+      "event": "push",
+      "status": "success"
+    },
+    "commerce": {
+      "runId": 44032104152,
+      "event": "push",
+      "status": "success"
+    },
+    "finalRelease": false
   }
 }
