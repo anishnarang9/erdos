@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 16:55 -05:00 — Anish — Pause the sprint and prepare the next-chat handoff
+
+- The user paused the goal and requested a detailed handoff. Branch `codex/hosted-backend` has implementation `2faedd2` pushed, with passing commerce CI and 1,002 passing API tests. The first approved pilot request failed with `http_error` and uncertain usage. Its 6¢ reservation is retained. The isolated pilot is stopped with restart policy `no`. Main API and HTTPS remain running. See the [handoff](../../docs/hosted-backend-handoff-2026-11-17.md) for approvals, private operator paths, remaining gates and the first resume action. The following checkpoint publishes this handoff.
+
 ## 2026-11-17 16:44 -05:00 — Anish — Add estimated admission for the approved operator pilot
 
 - The user approved three complete attempts under the $0.50 planning allowance with possible in-flight overrun. Local mode can now select estimated reservations. Public mode rejects this pilot setting. All 1,002 API tests and the API typecheck pass. The tests cover default rejection, an undersized estimate, public configuration rejection, and overrun halt across restart. The runtime build and measured runs follow this checkpoint. See the [pilot record](reports/hosted-combined-authoring-pilot-proposal-2026-11-17.json).

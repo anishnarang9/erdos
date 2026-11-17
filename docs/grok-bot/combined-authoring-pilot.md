@@ -1,6 +1,6 @@
 # Complete authoring cost pilot
 
-Status — the user approved this three-attempt pilot on 2026-11-17, including the $0.50 planning allowance and possible in-flight overrun. Runtime preparation is in progress.
+Status — the user approved this three-attempt pilot on 2026-11-17, including the $0.50 planning allowance and possible in-flight overrun. The first API request failed with an HTTP error and no usage data. Its 6¢ reservation remains uncertain. The pilot stopped under its approved stop rule, and the user then paused the sprint. See the [handoff](../hosted-backend-handoff-2026-11-17.md).
 
 ## Scope
 

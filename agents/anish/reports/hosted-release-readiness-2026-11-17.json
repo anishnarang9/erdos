@@ -6,8 +6,8 @@
   "publicUrl": null,
   "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/8",
   "pullRequestState": "draft",
-  "goal": "active",
-  "scope": "Native callback-only runtime and public runner/engine downloads pass. Four genuine fixed-case Bot decisions agree. Three accepted plans compile on the VPS and produce fresh locally verified/recovered proofs. Their follow-up account changes total approximately $0.23. Authoring/session bounds, billing/export, public buyer API and funded acceptance remain incomplete.",
+  "goal": "paused",
+  "scope": "Public callback runtime, static client downloads and finite compiler/proof checks pass. Four fixed-case Bot reviews completed earlier. The revised three-attempt cost pilot was approved. Its first direct authoring request failed with an HTTP error and uncertain usage. The isolated pilot container is stopped. Complete authoring, public buyer readiness, qualification and fresh funded settlement remain incomplete.",
   "corpus": {
     "digest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
     "supported": 40,
@@ -265,11 +265,11 @@
   "remainingWork": [
     {
       "gate": "Live Bot semantic-validation step",
-      "status": "Four genuine fixed-case decisions agree and three passed receipts permit native buyer approval/compilation. Exact billing, authentic runtime export and broader reliability remain unqualified. No more paid reviews are authorized."
+      "status": "Four earlier fixed-case reviews completed. The newly approved combined pilot has sent no Bot review. Its uncertain first API charge stops further paid dispatch until resolved. Exact billing, authentic runtime export and broader reliability remain unqualified."
     },
     {
-      "gate": "Ten-cent complete authoring run",
-      "status": "User approves 100000 micro-USD per complete run including repair. Current full-context guard rejects it. Review a complete-input/session bound before any generation call."
+      "gate": "Five-to-ten-cent average complete authoring run",
+      "status": "User selected an average target and approved three drafts plus three reviews under a $0.50 planning allowance with possible in-flight overrun. Estimated admission and disabling repair are implemented. First direct API attempt failed with an HTTP error; its 60000 micro-USD reservation remains uncertain."
     },
     {
       "gate": "Usable public API and external acceptance",
@@ -654,7 +654,10 @@
   "revisedCostDecision": {
     "userDecision": "Target 5\u201310 cents average; prepare bounded pilot proposal",
     "proposal": "hosted-combined-authoring-pilot-proposal-2026-11-17.json",
-    "executionApproved": false,
-    "productionGuard": "strict and disabled for paid dispatch"
-  }
+    "executionApproved": true,
+    "productionGuard": "strict and disabled for paid dispatch",
+    "executionStatus": "First direct API request failed with HTTP error and uncertain usage; pilot stopped"
+  },
+  "currentPilot": "hosted-combined-authoring-pilot-proposal-2026-11-17.json",
+  "handoff": "../../../docs/hosted-backend-handoff-2026-11-17.md"
 }
