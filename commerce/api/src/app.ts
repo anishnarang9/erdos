@@ -18,6 +18,7 @@ import { registerIdentityRoutes } from "./identity.ts";
 import { requireOwnedJob } from "./ownership.ts";
 import { assertAuthoringBudget, registerTaskRoutes } from "./tasks.ts";
 import type { AuthoringBudget, DeploymentConfig, RateLimitConfig } from "./context.ts";
+import type { ReadyReport } from "./ready.ts";
 
 export interface CreateAppOptions {
   dbPath: string;
@@ -48,6 +49,8 @@ export interface CreateAppOptions {
   budget?: AuthoringBudget;
   /** Bearer token that may resolve a spend halt. Unset leaves a halt in force. */
   operatorToken?: string;
+  /** Production readiness. Absent reports not configured and does not claim the process is ready. */
+  ready?: (deps: Deps) => Promise<ReadyReport>;
 }
 
 export interface CreatedApp {
@@ -62,6 +65,8 @@ export interface CreatedApp {
    * A compile returns to queued. A dispatched draft stays uncertain. The bound defaults to 2000 ms.
    */
   drainTasks: (boundMs?: number) => Promise<void>;
+  /** Runs the readiness callback against the open database. It does not listen. */
+  checkReady: () => Promise<ReadyReport>;
 }
 
 export function createApp(opts: CreateAppOptions): CreatedApp {
@@ -123,6 +128,11 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   };
 
   app.get("/healthz", (c) => c.json({ ok: true }));
+  const loadReady = (): Promise<ReadyReport> => opts.ready ? opts.ready(deps) : Promise.resolve(unconfiguredReady());
+  app.get("/readyz", async (c) => {
+    const report = await loadReady();
+    return c.json(report, report.ready ? 200 : 503);
+  });
 
   const ulid = monotonicFactory();
   const newId = () => ulid();
@@ -151,5 +161,14 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     reconcileTasks: tasks.reconcileTasks,
     pumpTasks: tasks.pumpTasks,
     drainTasks: tasks.drainTasks,
+    checkReady: loadReady,
+  };
+}
+
+function unconfiguredReady(): ReadyReport {
+  return {
+    ready: false,
+    authoring: "required",
+    checks: [{ name: "ready", ok: false, reason: "not_configured", blocksListen: false }],
   };
 }

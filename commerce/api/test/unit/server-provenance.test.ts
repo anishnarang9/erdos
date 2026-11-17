@@ -1,3 +1,7 @@
+import { createHash } from "node:crypto";
+import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const calls = vi.hoisted(() => ({
@@ -123,7 +127,7 @@ describe("server indexer confirmation margin", () => {
 });
 
 describe("public engine startup pin", () => {
-  async function expectExit(message: RegExp): Promise<void> {
+  async function expectExit(message: RegExp, options?: { openDb?: boolean }): Promise<string> {
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const exit = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
       throw new Error(`process.exit ${code ?? ""}`);
@@ -132,7 +136,9 @@ describe("public engine startup pin", () => {
       await expect(import("../../src/server.ts")).rejects.toThrow(/process.exit 1/);
       expect(error).toHaveBeenCalledWith(expect.stringMatching(message));
       expect(calls.serve).not.toHaveBeenCalled();
-      expect(calls.openDb).not.toHaveBeenCalled();
+      if (options?.openDb) expect(calls.openDb).toHaveBeenCalled();
+      else expect(calls.openDb).not.toHaveBeenCalled();
+      return error.mock.calls.map((call) => String(call[0])).join("\n");
     } finally {
       exit.mockRestore();
       error.mockRestore();
@@ -154,4 +160,155 @@ describe("public engine startup pin", () => {
     vi.stubEnv("ENGINE_PATH", "relative-engine");
     await expectExit(/ENGINE_PATH must be an absolute path/);
   });
+
+  it("exits before openDb when an absolute engine has no matching digest", async () => {
+    const pin = await publicPin();
+    try {
+      stubPublic(pin);
+      const text = await expectExit(/engine_executable unpinned/);
+      expect(text).not.toContain(pin.enginePath);
+    } finally {
+      await rm(pin.root, { recursive: true, force: true });
+    }
+  });
+
+  it("exits before openDb when the digest does not match the on-disk bytes", async () => {
+    const pin = await publicPin();
+    try {
+      stubPublic(pin);
+      vi.stubEnv("ENGINE_SHA256", "ab".repeat(32));
+      const text = await expectExit(/digest_mismatch/);
+      expect(text).not.toContain(pin.enginePath);
+      expect(text).not.toContain("ab".repeat(32));
+    } finally {
+      await rm(pin.root, { recursive: true, force: true });
+    }
+  });
+
+  it("exits before openDb when the WSL wrapper is not pinned", async () => {
+    const pin = await publicPin();
+    try {
+      stubPublic(pin);
+      vi.stubEnv("ENGINE_MODE", "wsl");
+      vi.stubEnv("ENGINE_SHA256", pin.sha256);
+      vi.stubEnv("ENGINE_WSL_BIN", pin.wrapperPath);
+      const text = await expectExit(/compiler_wrapper unpinned/);
+      expect(text).not.toContain(pin.wrapperPath);
+      expect(text).not.toContain(pin.enginePath);
+    } finally {
+      await rm(pin.root, { recursive: true, force: true });
+    }
+  });
+
+  it("exits before openDb when the env model id is not advertised by the model object", async () => {
+    const pin = await publicPin();
+    try {
+      stubPublic(pin);
+      vi.stubEnv("ENGINE_SHA256", pin.sha256);
+      vi.stubEnv("AUTHORING_REQUIRED", "1");
+      vi.stubEnv("XAI_API_KEY", "synthetic-ready-secret-value");
+      vi.stubEnv("XAI_MODEL", "grok-4.20-0309-non-reasoning");
+      vi.stubEnv("AUTHORING_REQUEST_CEILING_MICRO_USD", "2540960");
+      vi.stubEnv("AUTHORING_DAILY_CEILING_MICRO_USD", "2540960");
+      vi.stubEnv("AUTHORING_INPUT_MICRO_USD_PER_MILLION", "2500000");
+      vi.stubEnv("AUTHORING_OUTPUT_MICRO_USD_PER_MILLION", "5000000");
+      const text = await expectExit(/unreviewed_model/);
+      expect(text).not.toContain("synthetic-ready-secret-value");
+      expect(text).not.toContain(pin.enginePath);
+    } finally {
+      await rm(pin.root, { recursive: true, force: true });
+    }
+  });
+
+  it("opens the database and still refuses listen when the database is not durable", async () => {
+    const pin = await publicPin();
+    const opened: { close: () => void; isOpen: boolean }[] = [];
+    const actualDb = await vi.importActual<typeof import("../../src/db.ts")>("../../src/db.ts");
+    calls.openDb.mockImplementation((path: string, now: () => number) => {
+      const db = actualDb.openDb(path, now);
+      opened.push(db);
+      return db;
+    });
+    const interval = vi.spyOn(global, "setInterval").mockImplementation(() => 0 as unknown as ReturnType<typeof setInterval>);
+    try {
+      stubPublic(pin);
+      vi.stubEnv("ENGINE_SHA256", pin.sha256);
+      vi.stubEnv("AUTHORING_REQUIRED", "0");
+      vi.stubEnv("DB_PATH", ":memory:");
+      const text = await expectExit(/not_durable/, { openDb: true });
+      expect(text).not.toContain(pin.enginePath);
+      expect(text).not.toContain(pin.packages);
+    } finally {
+      interval.mockRestore();
+      for (const db of opened) if (db.isOpen) db.close();
+      await rm(pin.root, { recursive: true, force: true });
+    }
+  });
+
+  it("listens when public authoring is explicitly disabled and every pin matches", async () => {
+    const pin = await publicPin();
+    const opened: { close: () => void; isOpen: boolean }[] = [];
+    const actualDb = await vi.importActual<typeof import("../../src/db.ts")>("../../src/db.ts");
+    calls.openDb.mockImplementation((path: string, now: () => number) => {
+      const db = actualDb.openDb(path, now);
+      opened.push(db);
+      return db;
+    });
+    calls.serve.mockImplementation(() => ({ close: () => undefined }));
+    const interval = vi.spyOn(global, "setInterval").mockImplementation(() => 0 as unknown as ReturnType<typeof setInterval>);
+    const exit = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
+      throw new Error(`process.exit ${code ?? ""}`);
+    }) as typeof process.exit);
+    const signals = ["SIGINT", "SIGTERM"] as const;
+    const before = new Map<NodeJS.Signals, Set<NodeJS.SignalsListener>>(signals.map((signal) => [signal, new Set(process.listeners(signal))]));
+    try {
+      stubPublic(pin);
+      vi.stubEnv("ENGINE_SHA256", pin.sha256);
+      vi.stubEnv("AUTHORING_REQUIRED", "0");
+      vi.stubEnv("DB_PATH", join(pin.root, "service.db"));
+      await import("../../src/server.ts");
+      expect(exit).not.toHaveBeenCalled();
+      expect(calls.serve).toHaveBeenCalled();
+      expect(calls.openDb).toHaveBeenCalled();
+    } finally {
+      for (const signal of signals) {
+        for (const listener of process.listeners(signal)) {
+          if (!before.get(signal)?.has(listener)) process.removeListener(signal, listener);
+        }
+      }
+      for (const db of opened) if (db.isOpen) db.close();
+      interval.mockRestore();
+      exit.mockRestore();
+      await rm(pin.root, { recursive: true, force: true });
+    }
+  });
 });
+
+async function publicPin(): Promise<{ root: string; enginePath: string; wrapperPath: string; packages: string; sha256: string }> {
+  const root = await mkdtemp(join(tmpdir(), "ubc26-public-pin-"));
+  const enginePath = join(root, "engine.bin");
+  const wrapperPath = join(root, "wsl.bin");
+  const packages = join(root, "packages");
+  const bytes = Buffer.from("public-engine-bytes");
+  await writeFile(enginePath, bytes);
+  await writeFile(wrapperPath, Buffer.from("public-wrapper-bytes"));
+  await mkdir(packages);
+  return { root, enginePath, wrapperPath, packages, sha256: createHash("sha256").update(bytes).digest("hex") };
+}
+
+function stubPublic(pin: { enginePath: string; packages: string }): void {
+  vi.stubEnv("BUYER_API_TOKEN", "startup-test-token-0123456789");
+  vi.stubEnv("DEPLOYMENT_MODE", "public");
+  vi.stubEnv("SERVICE_ORIGIN", "https://api.example.test");
+  vi.stubEnv("ENGINE_MODE", "native");
+  vi.stubEnv("ENGINE_PATH", pin.enginePath);
+  vi.stubEnv("PACKAGES_DIR", pin.packages);
+  vi.stubEnv("RATE_LIMIT_PRINCIPAL", "4");
+  vi.stubEnv("RATE_LIMIT_IP", "8");
+  vi.stubEnv("CHAIN_RPC_URL", "http://127.0.0.1:1");
+  vi.stubEnv("CHAIN_ID", "31337");
+  vi.stubEnv("CHAIN_CORE", "0x1111111111111111111111111111111111111111");
+  vi.stubEnv("CHAIN_HOOK", "0x2222222222222222222222222222222222222222");
+  vi.stubEnv("CHAIN_USDC", "0x3333333333333333333333333333333333333333");
+  vi.stubEnv("DB_PATH", ":memory:");
+}
