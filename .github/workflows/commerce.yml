@@ -1,10 +1,11 @@
 name: commerce
 
 on:
+  workflow_dispatch:
   push:
-    paths: ["commerce/**", "deploy/**", ".github/workflows/commerce.yml"]
+    paths: ["commerce/**", "deploy/**", "docs/hosted-client.md", ".github/workflows/commerce.yml"]
   pull_request:
-    paths: ["commerce/**", "deploy/**", ".github/workflows/commerce.yml"]
+    paths: ["commerce/**", "deploy/**", "docs/hosted-client.md", ".github/workflows/commerce.yml"]
 
 permissions:
   contents: read

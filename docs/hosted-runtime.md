@@ -4,7 +4,7 @@ Status: the Linux image at source `89e13f2` passes local non-root/read-only star
 
 ## Host and trust boundary
 
-Use one dedicated Linux amd64 Docker host. Reserve four CPUs, 8 GiB RAM and 100 GiB SSD for the API, one compiler and build images. The Compose file limits the API to one CPU, 1 GiB RAM and 128 processes. The dedicated BuildKit worker has two CPUs and 4 GiB RAM with no extra swap. Cache GC targets 10 GB. GC is a cleanup policy, not a hard disk quota.
+Use one dedicated Linux amd64 Docker host. Reserve four CPUs, 8 GiB RAM and 100 GiB SSD for the API, one compiler and build images. The Compose file limits the API to one CPU, 1 GiB RAM and 128 processes. The dedicated BuildKit worker has two CPUs, 4 GiB RAM with no extra swap, and 512 processes. Cache GC targets 10 GB. GC is a cleanup policy, not a hard disk quota.
 
 Mount `/srv/ubc26-state` on a persistent filesystem with a hard 32-GiB quota. Apply a separate hard quota to Docker's data filesystem. Record and test these host limits before public deployment. Compose cannot impose a quota on a bind mount. Do not claim a disk limit from its cache policy. Set the state and backup directories to uid/gid 1000, mode 0700. Keep at least 10 GiB free for build operations.
 
@@ -24,7 +24,7 @@ The script exports committed release paths with `git archive`. Ignored files and
 
 Copy `deploy/host.env.example` and `deploy/api.env.example` to protected administrative files outside the checkout. Populate only the reviewed configuration names. `api.env` holds the model credential and service configuration. It must not hold a wallet. Keep expensive dispatch disabled until pricing, daily/request ceilings and live authority are approved. The incomplete example fails closed; it is not a ready production configuration.
 
-On the Linux host, load the administrative variables into the shell without printing their values. Run `deploy/prepare-builder.sh` once. It refuses to replace an existing builder. Inspect its image digest, memory, swap and CPU limits. The fresh `$UBC26_STATE_DIR/docker` directory contains only this builder's metadata. Never run registry login against it. Both the host and API use `/var/run/docker.sock` and the same logical builder paths.
+On the Linux host, load the administrative variables into the shell without printing their values. Run `deploy/prepare-builder.sh` once. It refuses to replace an existing builder. Inspect its image digest, memory, swap, CPU and process limits. The script pulls the pinned daemon image before bootstrap and requires a running node. A bootstrap timeout is not readiness; preserve the builder and inspect it before retrying. The fresh `$UBC26_STATE_DIR/docker` directory contains only this builder's metadata. Never run registry login against it. Both the host and API use `/var/run/docker.sock` and the same logical builder paths.
 
 ```sh
 docker compose --file deploy/compose.yaml config --quiet
