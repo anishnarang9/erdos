@@ -121,3 +121,37 @@ describe("server indexer confirmation margin", () => {
     expect(opts.maxRange).toBeUndefined();
   });
 });
+
+describe("public engine startup pin", () => {
+  async function expectExit(message: RegExp): Promise<void> {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const exit = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
+      throw new Error(`process.exit ${code ?? ""}`);
+    }) as typeof process.exit);
+    try {
+      await expect(import("../../src/server.ts")).rejects.toThrow(/process.exit 1/);
+      expect(error).toHaveBeenCalledWith(expect.stringMatching(message));
+      expect(calls.serve).not.toHaveBeenCalled();
+      expect(calls.openDb).not.toHaveBeenCalled();
+    } finally {
+      exit.mockRestore();
+      error.mockRestore();
+    }
+  }
+
+  it("exits before listen when public mode has no real engine", async () => {
+    vi.stubEnv("BUYER_API_TOKEN", "startup-test-token-0123456789");
+    vi.stubEnv("DEPLOYMENT_MODE", "public");
+    vi.stubEnv("DB_PATH", ":memory:");
+    await expectExit(/absolute executable/);
+  });
+
+  it("exits before listen when the public engine path is relative", async () => {
+    vi.stubEnv("BUYER_API_TOKEN", "startup-test-token-0123456789");
+    vi.stubEnv("DEPLOYMENT_MODE", "public");
+    vi.stubEnv("DB_PATH", ":memory:");
+    vi.stubEnv("ENGINE_MODE", "native");
+    vi.stubEnv("ENGINE_PATH", "relative-engine");
+    await expectExit(/ENGINE_PATH must be an absolute path/);
+  });
+});

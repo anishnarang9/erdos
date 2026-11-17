@@ -204,6 +204,31 @@ export interface CompilerProcessSettings {
 }
 
 const ENV_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const ABSOLUTE_PIN = /^(?:\/|[A-Za-z]:[\\/])/;
+const PIN_META = /[\0\n\r;|&`$<>]/;
+const PUBLIC_ASSIGNMENT = /^(PATH|TMPDIR|UBC26_ENGINE_CACHE|RISC0_SERVER_PATH|SSL_CERT_FILE|SSL_CERT_DIR|REQUESTS_CA_BUNDLE|CURL_CA_BUNDLE|NODE_EXTRA_CA_CERTS)=([^\0\n\r;|&`$<>]*)$/;
+
+function isAbsolutePin(value: string): boolean {
+  return ABSOLUTE_PIN.test(value) && !PIN_META.test(value);
+}
+
+/** Rejects a relative command and any wrapper other than the pinned `wsl.exe -e /usr/bin/env -i` form. */
+export function assertPublicExecutablePin(bin: EngineBin): void {
+  const command = typeof bin === "string" ? bin : bin.command;
+  const args = typeof bin === "string" ? [] : [...(bin.args ?? [])];
+  if (!isAbsolutePin(command)) throw new Error("Public mode requires an absolute engine executable");
+  if (args.length === 0) return;
+  const distro = args[1];
+  const rest = args.slice(5);
+  const enginePath = rest[rest.length - 1];
+  const pinnedShape = args[0] === "-d" && args[2] === "-e" && args[3] === WSL_ENV_BIN && args[4] === "-i";
+  if (!pinnedShape || !distro || !/^[A-Za-z0-9._-]{1,64}$/.test(distro) || !enginePath || !isAbsolutePin(enginePath)) {
+    throw new Error("Public mode rejects an unpinned engine wrapper");
+  }
+  for (const arg of rest.slice(0, -1)) {
+    if (!PUBLIC_ASSIGNMENT.test(arg)) throw new Error("Public mode rejects an unpinned engine wrapper");
+  }
+}
 
 /** Builds the child environment from explicit settings. It does not inherit the server environment. */
 export function compilerProcessEnv(settings: CompilerProcessSettings = {}): Record<string, string> {
@@ -352,6 +377,8 @@ export interface CliEngineOptions {
   timeoutMs?: number;
   /** compile timeout (a cold guest build runs Docker). Default 30 min. */
   compileTimeoutMs?: number;
+  /** Public mode requires an absolute executable and the pinned WSL wrapper. Default local. */
+  pin?: "public" | "local";
   /**
    * Explicit extra child variables, read at each spawn. Local tests pass fake-engine knobs here.
    * This is not an inheritance list. Do not pass process.env.
@@ -459,6 +486,12 @@ async function writeFiles(dir: string, files: BundleFile[]): Promise<void> {
 
 /** Runs the real engine CLI. Each call works in a fresh temporary directory that is deleted afterwards. */
 export function cliEngine(opts: CliEngineOptions): Engine {
+  if (opts.pin === "public") {
+    assertPublicExecutablePin(opts.bin);
+    if (opts.env && Object.values(opts.env).some((value) => value !== undefined)) {
+      throw new Error("Public mode rejects extra compiler environment names");
+    }
+  }
   const timeoutMs = opts.timeoutMs ?? 60_000;
   const compileTimeoutMs = opts.compileTimeoutMs ?? 30 * 60_000;
   const command = typeof opts.bin === "string" ? opts.bin : opts.bin.command;
@@ -590,6 +623,8 @@ export interface WslEngineOptions {
   ssl?: Partial<Record<SslEnvKey, string>>;
   /** Absolute path of wsl.exe. The default name is a local PATH lookup and is not a public pin. */
   wslBin?: string;
+  /** Public mode checks the executable and the wrapper before the first spawn. */
+  pin?: "public" | "local";
   /** Host path for temporary directories. Prefer one on the WSL filesystem (case-sensitive, fast). */
   workDir?: string;
   timeoutMs?: number;
@@ -614,6 +649,7 @@ export function wslEngineBin(o: Pick<WslEngineOptions, "distro" | "enginePath" |
 export function wslEngine(o: WslEngineOptions): Engine {
   return cliEngine({
     bin: wslEngineBin(o),
+    ...(o.pin ? { pin: o.pin } : {}),
     processEnv: {
       path: COMPILER_PATH,
       tmpDir: o.workDir ?? tmpdir(),
@@ -667,15 +703,19 @@ export function engineConfigFromEnv(env: Record<string, string | undefined>): En
 }
 
 /** The engine for a configuration, and the path mapping its callers need for their own files. */
-export function engineFromConfig(c: EngineEnvConfig): { engine: Engine; label: string; bin: EngineBin; toEnginePath: (p: string) => string } {
+export function engineFromConfig(c: EngineEnvConfig, opts: { pin?: "public" | "local" } = {}): { engine: Engine; label: string; bin: EngineBin; toEnginePath: (p: string) => string } {
+  const pin = opts.pin ?? "local";
+  if (pin === "public" && !isAbsolutePin(c.enginePath)) throw new Error("ENGINE_PATH must be an absolute path in public mode");
   if (c.mode === "wsl") {
+    if (pin === "public" && (!c.wslBin || !isAbsolutePin(c.wslBin))) throw new Error("ENGINE_WSL_BIN must be an absolute path in public mode");
     const toEnginePath = (p: string) => windowsToWslPath(p, c.distro);
-    return { engine: wslEngine(c), label: `wsl:${c.distro}:${c.enginePath}`, bin: wslEngineBin(c), toEnginePath };
+    return { engine: wslEngine({ ...c, pin }), label: `wsl:${c.distro}:${c.enginePath}`, bin: wslEngineBin(c), toEnginePath };
   }
   const bin = c.enginePath;
   return {
     engine: cliEngine({
       bin,
+      ...(pin === "public" ? { pin } : {}),
       processEnv: {
         path: COMPILER_PATH,
         tmpDir: c.tmpDir ?? c.workDir ?? tmpdir(),
