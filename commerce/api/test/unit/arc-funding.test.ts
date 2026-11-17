@@ -2,7 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { decodeFunctionData, type Address, type PublicClient } from "viem";
+import { decodeFunctionData, getAddress, type Address, type PublicClient } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
 import { arcCoreAbi, arcErc20Abi, JobStatus, type DecodedEvent } from "@ubc26/sdk";
 import { createApp } from "../../src/app.ts";
 import { simulatedEngine } from "../../src/engine.ts";
@@ -166,6 +167,66 @@ describe("Arc funding receipt validation (offline)", () => {
       expect(s.getTerms).not.toHaveBeenCalled();
       s.unchanged();
     } finally { logging.mockRestore(); }
+  });
+
+  it("rejects a confirmed funding client that is not the authenticated wallet", async () => {
+    const s = await setup();
+    const account = privateKeyToAccount("0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d");
+    const challenge = await s.t.app.request("/v1/auth/challenge", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ wallet: account.address.toLowerCase() }),
+    });
+    expect(challenge.status).toBe(200);
+    const issued = await challenge.json() as { challengeId: string; message: string };
+    const signature = await account.signMessage({ message: issued.message });
+    const keys = await s.t.app.request("/v1/auth/keys", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ challengeId: issued.challengeId, signature }),
+    });
+    expect(keys.status).toBe(200);
+    const { key } = await keys.json() as { key: string };
+    const auth = { authorization: `Bearer ${key}` };
+    const seeded = await seedCompiled(s.t, { expirySeconds: 1200 }, auth);
+    const revision = s.db.prepare("SELECT current_revision_id FROM jobs WHERE id = ?").get(seeded.jobId) as { current_revision_id: string };
+    s.db.prepare("UPDATE revisions SET structure_hash = ?, rules_hash = ? WHERE id = ?").run(seeded.manifest.structureHash, seeded.manifest.rulesHash, revision.current_revision_id);
+    s.db.prepare("UPDATE approvals SET structure_hash = ?, rules_hash = ? WHERE revision_id = ?").run(seeded.manifest.structureHash, seeded.manifest.rulesHash, revision.current_revision_id);
+    s.db.prepare("UPDATE manifests SET compile_engine_mode = 'real', compile_binding = ? WHERE revision_id = ?").run(artifactBinding(s.db, revision.current_revision_id), revision.current_revision_id);
+    const quote = await quoteBody(provider, config.chainId, { revisionHash: seeded.revisionHash, nonce: "2" }, s.t.clock.ms);
+    const posted = await postQuote(s.t, seeded.jobId, provider, quote);
+    expect(posted.status).toBe(201);
+    const { quoteId } = await posted.json() as { quoteId: string };
+    const selected = await buyerReq(s.t, `/v1/jobs/${seeded.jobId}/select-quote`, { quoteId, revisionHash: seeded.revisionHash }, auth);
+    expect(selected.status, await selected.clone().text()).toBe(200);
+    const terms = (await selected.json() as { fundingTerms: FundingTerms }).fundingTerms;
+    expect(terms.buyer).toBe(getAddress(account.address));
+    s.snapshot.job = {
+      client: config.usdc,
+      provider: terms.provider,
+      evaluator: config.hook,
+      hook: config.hook,
+      budget: BigInt(terms.budget),
+      expiredAt: BigInt(terms.expiredAt),
+      status: JobStatus.Funded,
+      description: terms.description,
+    };
+    s.snapshot.terms = {
+      imageId: terms.imageId,
+      rulesHash: terms.rulesHash,
+      referenceHash: terms.referenceHash,
+      provider: terms.provider,
+      budget: BigInt(terms.budget),
+      expiredAt: BigInt(terms.expiredAt),
+    };
+    const denied = await buyerReq(s.t, `/v1/jobs/${seeded.jobId}/funding-receipt`, { txHash }, auth);
+    expect(denied.status).toBe(409);
+    expect(await errorBody(denied)).toMatchObject({ code: "terms_mismatch", details: { field: "client" } });
+    expect(s.db.prepare("SELECT state FROM jobs WHERE id = ?").get(seeded.jobId)).toMatchObject({ state: "selected" });
+    expect(s.db.prepare("SELECT COUNT(*) AS n FROM chain_links WHERE job_id = ?").get(seeded.jobId)).toMatchObject({ n: 0 });
+    s.snapshot.job.client = getAddress(account.address);
+    const linked = await buyerReq(s.t, `/v1/jobs/${seeded.jobId}/funding-receipt`, { txHash }, auth);
+    expect(linked.status, await linked.clone().text()).toBe(200);
   });
 
   it("rechecks revision identity after the awaited snapshot before linking", async () => {
