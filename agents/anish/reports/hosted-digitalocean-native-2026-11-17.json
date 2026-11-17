@@ -169,10 +169,15 @@
     "currentFullContextReservationCanMeetTenCentCeiling": false
   },
   "maintenance": {
-    "status": "combined-4a6a320-runtime-build-running-api-quiesced",
+    "status": "completed-combined-candidate-promoted",
     "unit": "ubc26-runtime-build-4a6a320.service",
     "runtimeSourceBeingBuilt": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
     "previousRuntimePreserved": true,
     "paidModelCalls": 0
+  },
+  "subsequentCandidate": {
+    "source": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+    "report": "hosted-native-candidate-4a6a320-2026-11-17.json",
+    "note": "This baseline report retains its original runtime observations."
   }
 }

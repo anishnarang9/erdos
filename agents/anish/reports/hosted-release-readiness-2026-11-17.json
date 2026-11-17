@@ -156,6 +156,7 @@
     }
   ],
   "releaseGatesStillOpen": [
+    "Live Grok Bot constraint validation via webhook and restricted callback, with genuine evidence and measured combined cost",
     "Reviewed authoring input/session policy within $0.10 per run",
     "Public authoring readiness and external API/laptop-independent acceptance",
     "Later authorized genuine 180-trial qualification",
@@ -223,20 +224,23 @@
     "apiTests": 928,
     "publicHostAcceptance": false
   },
-  "candidateCodeSource": "20b0dc282482ad22d7fff49ffe86de903576f547",
+  "candidateCodeSource": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
   "candidate": {
-    "image": "sha256:acc4eb148e89db6699437ecb2937bf8bfb9e552befd7c76c45ef277730a662d0",
-    "runnerTarSha256": "58ecaecd30575d8b5573f5daa6018b9975618ff81141bc8c363cf4219ebbffda",
-    "runnerManifestSha256": "cc1b0196cb4e3d250ccf8decb286f88663544dd00ffe3e19aac2c392e40f957d",
+    "image": "sha256:28649464fae26aee9e56bad3c63bd0100e694042917a4f7b37b98597e0f5a4e5",
+    "runnerTarSha256": "68e6ab3c196e8409b63fa33e856b62b4be481bf936f944bf3ef4adab5d01641f",
+    "runnerManifestSha256": "de82ad4ff799dc84d0ad4069f31f198581393391bdb4e67668de1ea4d389c008",
     "reports": [
-      "hosted-release-candidate-2026-11-17.json",
-      "hosted-runtime-payload-identity-2026-11-17.json",
-      "hosted-spending-preflight-2026-11-17.json"
+      "hosted-native-candidate-4a6a320-2026-11-17.json",
+      "hosted-runner-native-digitalocean-4a6a320-2026-11-17.json"
     ],
-    "reviewScope": "../../../docs/hosted-final-review-scope.md"
+    "publicAuthoringReady": false
   },
   "developmentWorkerPolicy": "No further Grok CLI calls, per user reply. Both original sessions remain stopped.",
   "remainingWork": [
+    {
+      "gate": "Live Bot semantic-validation step",
+      "status": "Required by latest user clarification. Bot is not a development-only add-on. Prepare durable at-most-once webhook, protected MCP return and approval binding; no genuine Bot call yet."
+    },
     {
       "gate": "Ten-cent complete authoring run",
       "status": "User approves 100000 micro-USD per complete run including repair. Current full-context guard rejects it. Review a complete-input/session bound before any generation call."
@@ -305,5 +309,24 @@
     "nativeLinuxCI",
     "sourceCI",
     "earlierIndependentReview"
-  ]
+  ],
+  "previousRuntimeCandidate": {
+    "image": "sha256:acc4eb148e89db6699437ecb2937bf8bfb9e552befd7c76c45ef277730a662d0",
+    "runnerTarSha256": "58ecaecd30575d8b5573f5daa6018b9975618ff81141bc8c363cf4219ebbffda",
+    "runnerManifestSha256": "cc1b0196cb4e3d250ccf8decb286f88663544dd00ffe3e19aac2c392e40f957d",
+    "reports": [
+      "hosted-release-candidate-2026-11-17.json",
+      "hosted-runtime-payload-identity-2026-11-17.json",
+      "hosted-spending-preflight-2026-11-17.json"
+    ],
+    "reviewScope": "../../../docs/hosted-final-review-scope.md"
+  },
+  "runtimeBotValidation": {
+    "requiredByUser": true,
+    "status": "contract-foundation-in-progress-not-deployed",
+    "role": "Live semantic validation of buyer brief against exact candidate rules; development-only use was rejected.",
+    "genuineReviews": 0,
+    "measuredCost": null,
+    "twentyDollarMassBudgetApproved": false
+  }
 }

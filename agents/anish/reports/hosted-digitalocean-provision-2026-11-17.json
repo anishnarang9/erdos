@@ -114,5 +114,13 @@
     "keyAuthenticates": true,
     "keyConfiguredOnHost": false,
     "generationCalls": 0
+  },
+  "currentRuntime": {
+    "source": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+    "image": "sha256:28649464fae26aee9e56bad3c63bd0100e694042917a4f7b37b98597e0f5a4e5",
+    "report": "hosted-native-candidate-4a6a320-2026-11-17.json",
+    "publicStatus": 503,
+    "liveBotValidationRequired": true,
+    "genuineBotReviews": 0
   }
 }
