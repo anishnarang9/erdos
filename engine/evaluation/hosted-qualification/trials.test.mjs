@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {actualMicroUsdFromTicks, applyTaskView, committedMicroUsd, newLedger, persistLedger} from './budget.mjs';
 import {scoreTrial} from './score.mjs';
-import {aggregateGates, draftInput, loadDeployment, runBenchmark, trialKey} from './trials.mjs';
+import {collectTraceIds, markFresh, aggregateGates, draftInput, loadDeployment, runBenchmark, trialKey} from './trials.mjs';
 
 const challenge = {
   id: 'mass-1',
@@ -806,4 +806,50 @@ test('draft bodies omit hidden checker fields', () => {
   assert.equal(body.references[0].contentBase64, Buffer.from('{"build":"stable"}').toString('base64'));
   assert.equal(persistLedger.length, 2);
   assert.equal(loadDeployment().dispatch, false);
+});
+
+
+test('mirrored API trace metadata counts each actual provider call once', () => {
+  for (const count of [1, 2]) {
+    const ids = Array.from({length: count}, (_, index) => `provider-${index}`);
+    const view = settledDraft('trace-task', ids, count - 1);
+    view.result.qualification.traceId = ids.at(-1);
+    view.result.qualification.traceIds = ids;
+    const traceIds = collectTraceIds(view);
+    assert.deepEqual(traceIds, ids);
+    const [trial] = markFresh([{terminal: true, method: 'POST', taskState: 'succeeded', taskId: 'trace-task', repairCount: count - 1, traceIds}]);
+    assert.equal(trial.fresh, true);
+  }
+});
+
+test('contradictory aliases and missing or repeated repair call identities stay rejected', () => {
+  const valid = settledDraft('trace-task', ['initial', 'repair'], 1);
+  valid.result.qualification.traceIds = ['initial', 'repair'];
+  valid.result.qualification.traceId = 'repair';
+  for (const change of [
+    view => { view.result.qualification.traceId = 'unknown'; },
+    view => { view.result.qualification.traceIds = ['initial', 'different']; },
+    view => { view.result.attempts[1].traceId = 'initial'; },
+    view => { view.result.attempts.pop(); },
+    view => { view.result.qualification.repairCount = 0; },
+    view => { view.result.qualification.usage.pop(); },
+  ]) {
+    const view = structuredClone(valid);
+    change(view);
+    assert.deepEqual(collectTraceIds(view), []);
+  }
+});
+
+test('a provider trace reused in another challenge invalidates both trials', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'ubc26-global-trace-'));
+  let index = 0;
+  try {
+    const result = await runBenchmark({
+      challenges: [challenge, {...challenge, id: 'yield-1'}], config: config(),
+      ledgerPath: join(directory, 'ledger.json'), trialsPerRequest: 1,
+      fetchImpl: async () => ({status: 200, json: async () => settledDraft(`task-${++index}`, ['reused-trace'])}),
+    });
+    assert.equal(result.freshTrials, 0);
+    assert.equal(result.trials.every(item => item.fresh === false), true);
+  } finally { await rm(directory, {recursive: true, force: true}); }
 });

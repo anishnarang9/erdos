@@ -107,20 +107,32 @@ export function readRepairCount(view) {
 }
 
 export function collectTraceIds(view) {
-  const ids = [];
   const qualification = view?.result?.qualification;
-  if (typeof qualification?.traceId === 'string' && qualification.traceId) ids.push(qualification.traceId);
-  if (Array.isArray(qualification?.traceIds)) {
-    for (const id of qualification.traceIds) {
-      if (typeof id === 'string' && id) ids.push(id);
-    }
+  const repairCount = readRepairCount(view);
+  if (repairCount !== 0 && repairCount !== 1) return [];
+  const needed = repairCount + 1;
+  const validId = id => typeof id === 'string' && id.length > 0 && id.length <= 512;
+  let ids = null;
+  if (Object.hasOwn(qualification, 'traceIds')) {
+    if (!Array.isArray(qualification.traceIds)) return [];
+    ids = qualification.traceIds;
   }
-  if (Array.isArray(view?.result?.attempts)) {
-    for (const item of view.result.attempts) {
-      if (typeof item?.traceId === 'string' && item.traceId) ids.push(item.traceId);
-    }
+  if (Object.hasOwn(view.result, 'attempts')) {
+    if (!Array.isArray(view.result.attempts)) return [];
+    const attempts = view.result.attempts.map(item => item?.traceId);
+    if (ids && JSON.stringify(ids) !== JSON.stringify(attempts)) return [];
+    ids = attempts;
   }
-  return ids;
+  if (qualification.traceId != null) {
+    if (!validId(qualification.traceId)) return [];
+    if (ids && qualification.traceId !== ids.at(-1)) return [];
+    if (!ids) ids = [qualification.traceId];
+  }
+  if (Object.hasOwn(qualification, 'usage') &&
+      (!Array.isArray(qualification.usage) || qualification.usage.length !== needed)) return [];
+  // Aliases describe the same calls. A repair still requires a second distinct call identity.
+  if (!ids || ids.length !== needed || !ids.every(validId) || new Set(ids).size !== needed) return [];
+  return [...ids];
 }
 
 function artifactPair(view) {
@@ -353,6 +365,7 @@ export async function runBenchmark({challenges, config, ledgerPath, fetchImpl, t
   let paidTrialsRan = false;
 
   const finish = (stopReason) => {
+    markFresh(trials.filter(item => item.dispatched && item.terminal));
     const aggregate = aggregateGates(trials);
     return {
       paidTrialsRan,

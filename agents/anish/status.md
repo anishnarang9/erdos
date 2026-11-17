@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 02:23 -05:00 — Anish — Normalize provider trace aliases and global uniqueness
+
+- Paid admission checkpoint `6245404` is pushed. Fixed the benchmark's current-API trace parsing after three new regressions failed. Mirrored aliases count once. Contradictory aliases, missing repair calls and mismatched usage counts reject. Global task/trace uniqueness covers all challenges.
+- All 39 qualification Node tests pass with the existing explicit native engine, including the unchanged corpus/oracle checks. An initial suite launch omitted the required engine path and failed six setup assertions; rerunning with `UBC26_ENGINE` passed. No compilation, proof or external inference ran.
+- Next: verified distinct wallet principals, persisted campaign identity/time/provenance, safe recovery and bounded polling. All public/model/live release gates remain open. Push this small checkpoint before further changes.
+
 ## 2026-11-17 02:21 -05:00 — Anish — Bound paid compiler work before settlement
 
 - The coordinator completed preserved worker work after both sessions stopped. A positive global cap counts active plus waiting external handlers. One compiler serves paid and durable work. Admission precedes payment insertion and settlement. Completed exact replay bypasses capacity and current approval. Cached compiled reads remain free. A settled unfinished payment resumes without another charge.
