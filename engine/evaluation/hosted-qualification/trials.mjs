@@ -44,7 +44,7 @@ export function trialKey(corpusId, challengeId, trial) {
 }
 
 export function draftInput(challenge) {
-  return {
+  const input = {
     request: challenge.prompt,
     outputs: (challenge.outputs ?? []).map((item) => ({name: item.name, format: item.format})),
     references: Object.entries(challenge.referenceFiles ?? {}).map(([name, bytes]) => ({
@@ -55,6 +55,20 @@ export function draftInput(challenge) {
     expirySeconds: 3600,
     maxBudget: '10000',
   };
+  if (Array.isArray(challenge.exampleFixtures)) input.exampleFixtures = structuredClone(challenge.exampleFixtures);
+  if (input.exampleFixtures) {
+    const ordered = {
+      request: input.request,
+      outputs: input.outputs,
+      references: input.references,
+      exampleFixtures: input.exampleFixtures,
+      clarifications: input.clarifications,
+      expirySeconds: input.expirySeconds,
+      maxBudget: input.maxBudget,
+    };
+    return ordered;
+  }
+  return input;
 }
 
 export function checkOrigin(baseUrl) {

@@ -1,6 +1,67 @@
 import {
-  bin, bool, candidate, finish, int, jsonText, planOf, requirement, scalar, str, syntheticSigner, textFile,
+  bin, bool, candidate, evidenceEnvelope, finish, int, jsonText, planOf, requirement, scalar, sha, str,
+  syntheticSigner, textFile,
 } from './shape.mjs';
+
+const SYNTHETIC_CHAIN = 'aa'.repeat(32);
+const SYNTHETIC_ESCROW = 'bb'.repeat(20);
+const SYNTHETIC_JOB = 'cc'.repeat(32);
+const SYNTHETIC_PROVIDER = 'dd'.repeat(20);
+// Eval requires these rules hashes in the preview context. Chain, escrow, job, and provider bytes stay synthetic.
+const SEAL_RULES = '0x3d60fa90aa6ef57319df67b5b34099a9f846d1a235f1b693a4c9564692a980c0';
+const CRATE_RULES = '0x5450922c1388b9ae835f60088cff26d8c9403ae887d7becbf5a714b910a77793';
+const TRANSFER_RULES = '0x80e66a4b176ba5ebb9a7b87e6573c936fcaa99597e739a2921c4bcb69cd3ba00';
+const DUAL_RULES = '0x2ee91e1c0316712e69933f61dd2b74598f7b10f0f2490ef70c2ec0f136d79b80';
+
+function encodeReference(files) {
+  const names = Object.keys(files).sort((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right)));
+  const header = Buffer.alloc(3);
+  header[0] = 1;
+  header.writeUInt16BE(names.length, 1);
+  const chunks = [header];
+  for (const name of names) {
+    const bytes = Buffer.from(files[name]);
+    const filename = Buffer.from(name);
+    const nameLength = Buffer.alloc(2);
+    const byteLength = Buffer.alloc(4);
+    nameLength.writeUInt16BE(filename.length);
+    byteLength.writeUInt32BE(bytes.length);
+    chunks.push(nameLength, filename, byteLength, bytes);
+  }
+  return Buffer.concat(chunks);
+}
+
+export function previewContext(rulesHash, referenceFiles) {
+  const referenceHash = sha(Buffer.concat([Buffer.from('UBC26/reference/v1'), encodeReference(referenceFiles)]));
+  return `0x01${SYNTHETIC_CHAIN}${SYNTHETIC_ESCROW}${SYNTHETIC_JOB}${SYNTHETIC_PROVIDER}${rulesHash.slice(2)}${referenceHash.slice(2)}`;
+}
+
+function illustrativeFixtures(spec, context, passFiles, failFiles, failOverrides) {
+  const one = (name, predictedVerdict, files, overrides) => {
+    const payload = {
+      artifactHash: sha(Buffer.from(files[spec.artifactFile])),
+      contextHash: sha(Buffer.from(context.slice(2), 'hex')),
+      ...spec.signedFields,
+      ...overrides,
+    };
+    if (spec.secondArtifactFile) {
+      payload[spec.secondHashField] = sha(Buffer.from(files[spec.secondArtifactFile]));
+    }
+    return {
+      name,
+      predictedVerdict,
+      files: Object.entries(files).map(([fileName, content]) => ({name: fileName, content, encoding: 'utf8'})),
+      evidence: [{name: 'custody.json', content: evidenceEnvelope(payload), encoding: 'utf8'}],
+      context,
+    };
+  };
+  return [
+    one('illustrative-pass', 1, passFiles, {}),
+    one('illustrative-verdict-0', 0, failFiles, failOverrides),
+  ];
+}
+
+const approvedKey = ` The approved Ed25519 public key is ${syntheticSigner}.`;
 
 const evidenceField = (field) => ({op: 'field', source: 'evidence', file: 'custody.json', field});
 const referenceField = (file, field) => ({op: 'field', source: 'reference', file, field});
@@ -38,7 +99,14 @@ function sealTask() {
     family: 'custody-signature',
     spec,
     title: 'Pier label custody seal',
-    prompt: 'Deliver label.txt for a released pier item. custody.json is an ed25519 envelope. Its payload binds sha256(label.txt) as artifactHash and sha256 of the job context as contextHash. sealDay is an integer decimal string and is at least 200. custodian is pier-clerk. released is true. Another label with a valid seal is acceptable.',
+    prompt: `Deliver label.txt for a released pier item. custody.json is an ed25519 envelope. Its payload binds sha256(label.txt) as artifactHash and sha256 of the job context as contextHash. sealDay is an integer decimal string and is at least 200. custodian is pier-clerk. released is true. Another label with a valid seal is acceptable.${approvedKey}`,
+    exampleFixtures: illustrativeFixtures(
+      spec,
+      previewContext(SEAL_RULES, {}),
+      {'label.txt': 'Public pier label pass.\n'},
+      {'label.txt': 'Public pier label low.\n'},
+      {sealDay: '199'},
+    ),
     requirements: [
       requirement('seal-day', 'Keep sealDay at or above 200.'),
       requirement('custodian', 'Name the custodian pier-clerk.'),
@@ -86,12 +154,20 @@ function crateTask() {
     approvedCustodian: 'yard-warden',
     signedFields: {sealDay: '190', custodian: 'yard-warden', crateId: 'crate-14'},
   };
+  const referenceFiles = {'release.json': jsonText({crateId: 'crate-14', minSealDay: '180'})};
   return finish({
     id: 'crate-1',
     family: 'custody-signature',
     spec,
     title: 'Yard crate custody card',
-    prompt: 'Deliver card.txt for crate release. custody.json is an ed25519 envelope. Its payload binds sha256(card.txt) as artifactHash and sha256 of the job context as contextHash. sealDay is an integer decimal string and is at least release.json minSealDay. custodian is yard-warden. crateId equals release.json crateId. Another card with a valid seal is acceptable.',
+    prompt: `Deliver card.txt for crate release. custody.json is an ed25519 envelope. Its payload binds sha256(card.txt) as artifactHash and sha256 of the job context as contextHash. sealDay is an integer decimal string and is at least release.json minSealDay. custodian is yard-warden. crateId equals release.json crateId. Another card with a valid seal is acceptable.${approvedKey}`,
+    exampleFixtures: illustrativeFixtures(
+      spec,
+      previewContext(CRATE_RULES, referenceFiles),
+      {'card.txt': 'Public crate card pass.\n'},
+      {'card.txt': 'Public crate card low.\n'},
+      {sealDay: '179'},
+    ),
     requirements: [
       requirement('seal-day', 'Keep sealDay at or above minSealDay.'),
       requirement('custodian', 'Name the custodian yard-warden.'),
@@ -111,7 +187,7 @@ function crateTask() {
         bin('eq', evidenceField('crateId'), referenceField('release.json', 'crateId')),
       ],
     ),
-    referenceFiles: {'release.json': jsonText({crateId: 'crate-14', minSealDay: '180'})},
+    referenceFiles,
     candidates: [
       candidate('valid', file(alpha)),
       candidate('valid-beta', file(beta)),
@@ -144,7 +220,14 @@ function transferTask() {
     family: 'custody-signature',
     spec,
     title: 'Bay transfer custody slip',
-    prompt: 'Deliver slip.txt for a released transfer. custody.json is an ed25519 envelope. Its payload binds sha256(slip.txt) as artifactHash and sha256 of the job context as contextHash. sealDay is an integer decimal string and is at least 210. custodian is bay-runner. released is true. quantity is an integer decimal string and is at least 1. Another slip with a valid seal is acceptable.',
+    prompt: `Deliver slip.txt for a released transfer. custody.json is an ed25519 envelope. Its payload binds sha256(slip.txt) as artifactHash and sha256 of the job context as contextHash. sealDay is an integer decimal string and is at least 210. custodian is bay-runner. released is true. quantity is an integer decimal string and is at least 1. Another slip with a valid seal is acceptable.${approvedKey}`,
+    exampleFixtures: illustrativeFixtures(
+      spec,
+      previewContext(TRANSFER_RULES, {}),
+      {'slip.txt': 'Public transfer slip pass.\n'},
+      {'slip.txt': 'Public transfer slip low.\n'},
+      {quantity: '0'},
+    ),
     requirements: [
       requirement('seal-day', 'Keep sealDay at or above 210.'),
       requirement('custodian', 'Name the custodian bay-runner.'),
@@ -205,7 +288,14 @@ function dualTask() {
     family: 'custody-signature',
     spec,
     title: 'Vault manifest and tag seal',
-    prompt: 'Deliver manifest.txt and tag.txt for a released vault item. custody.json is an ed25519 envelope. Its payload binds sha256(manifest.txt) as artifactHash, sha256(tag.txt) as tagHash, and sha256 of the job context as contextHash. sealDay is an integer decimal string and is at least 190. custodian is vault-scribe. released is true. Another pair of files with a valid seal is acceptable.',
+    prompt: `Deliver manifest.txt and tag.txt for a released vault item. custody.json is an ed25519 envelope. Its payload binds sha256(manifest.txt) as artifactHash, sha256(tag.txt) as tagHash, and sha256 of the job context as contextHash. sealDay is an integer decimal string and is at least 190. custodian is vault-scribe. released is true. Another pair of files with a valid seal is acceptable.${approvedKey}`,
+    exampleFixtures: illustrativeFixtures(
+      spec,
+      previewContext(DUAL_RULES, {}),
+      {'manifest.txt': 'Public vault manifest pass.\n', 'tag.txt': 'Public vault tag pass.\n'},
+      {'manifest.txt': 'Public vault manifest low.\n', 'tag.txt': 'Public vault tag low.\n'},
+      {sealDay: '189'},
+    ),
     requirements: [
       requirement('seal-day', 'Keep sealDay at or above 190.'),
       requirement('custodian', 'Name the custodian vault-scribe.'),

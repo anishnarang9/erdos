@@ -620,6 +620,52 @@ test('synthetic scores and aggregate gates stay closed without a live trial', ()
   assert.equal(costly.passed, false);
 });
 
+test('clarification and unsupported terminals without qualification stay unfresh', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'ubc26-terminal-'));
+  const ledgerPath = join(directory, 'ledger.json');
+  try {
+    const result = await runBenchmark({
+      challenges: [
+        {id: 'hq-ambiguous-1', classification: 'ambiguous', prompt: 'Charge this harbor call a fair fee and accept the manifest.', facets: ['fee table'], outputs: [{name: 'manifest.json', format: 'json'}]},
+        {id: 'hq-unsupported-2', classification: 'unsupported', prompt: 'Compute a decimal reimbursement ratio with division inside the checker.', capabilityRequests: [{kind: 'operation', name: 'div'}], outputs: [{name: 'ratio.json', format: 'json'}]},
+      ],
+      config: config(),
+      ledgerPath,
+      trialsPerRequest: 1,
+      fetchImpl: async (url, options) => {
+        const request = JSON.parse(options.body).input.request;
+        const clarification = request.includes('manifest');
+        return {
+          status: 200,
+          json: async () => task({
+            id: clarification ? 'task-clarification' : 'task-unsupported',
+            result: clarification
+              ? {kind: 'clarification', questions: ['Which fee table applies?'], billing: {state: 'settled', microUsd: 1, source: 'tariff'}}
+              : {kind: 'unsupported', reason: 'The catalog has no div operation.', billing: {state: 'settled', microUsd: 1, source: 'tariff'}},
+          }),
+        };
+      },
+    });
+    assert.equal(result.paidTrialsRan, true);
+    assert.equal(result.freshTrials, 0);
+    assert.equal(result.qualificationPassed, false);
+    assert.deepEqual(result.trials.map((item) => item.taskId), ['task-clarification', 'task-unsupported']);
+    assert.deepEqual(result.trials.map((item) => item.traceIds), [[], []]);
+    for (const trial of result.trials) {
+      assert.equal(trial.terminal, true);
+      assert.equal(trial.repairCount, null);
+      assert.equal(trial.metadataDependency, 'qualification-metadata-missing');
+      assert.equal(trial.fresh, false);
+      assert.equal(trial.freshReason, 'qualification-metadata-missing');
+      assert.equal(trial.costInUsdTicks, null);
+      assert.equal(trial.tariffMicroUsd, 1);
+    }
+    assert.equal(committedMicroUsd(result.ledger), 160_000);
+  } finally {
+    await rm(directory, {recursive: true, force: true});
+  }
+});
+
 test('draft bodies omit hidden checker fields', () => {
   const body = draftInput(challenge);
   assert.equal(Object.hasOwn(body, 'plan'), false);

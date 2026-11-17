@@ -65,6 +65,13 @@ export function signingKey(other = false) {
 export const syntheticSigner = `0x${createPublicKey(signingKey()).export({type: 'spki', format: 'der'}).subarray(-32).toString('hex')}`;
 export const sha = (bytes) => `0x${createHash('sha256').update(bytes).digest('hex')}`;
 
+export function evidenceEnvelope(payload, {wrongSigner = false, invalidSignature = false} = {}) {
+  const bytes = Buffer.from(JSON.stringify(payload, Object.keys(payload).sort()));
+  const signature = sign(null, Buffer.concat([Buffer.from('UBC26/evidence/v1'), bytes]), signingKey(wrongSigner));
+  if (invalidSignature) signature[0] ^= 1;
+  return JSON.stringify({payload: `0x${bytes.toString('hex')}`, signature: `0x${signature.toString('hex')}`});
+}
+
 export function finish(challenge) {
   return {
     ...challenge,
@@ -129,12 +136,12 @@ export async function writeCandidateEvidence(challenge, candidate, candidateDire
     const secondBytes = variant === 'swapped-second' ? Buffer.from('other-tag') : candidate.deliveryFiles[secondName];
     payload[challenge.spec.secondHashField] = sha(Buffer.from(secondBytes));
   }
-  const bytes = Buffer.from(JSON.stringify(payload, Object.keys(payload).sort()));
-  const signature = sign(null, Buffer.concat([Buffer.from('UBC26/evidence/v1'), bytes]), signingKey(variant === 'wrong-signer'));
-  if (variant === 'invalid-signature') signature[0] ^= 1;
   await mkdir(join(candidateDirectory, 'evidence'), {recursive: true});
   await writeFile(
     join(candidateDirectory, 'evidence', challenge.plan.evidence[0].name),
-    JSON.stringify({payload: `0x${bytes.toString('hex')}`, signature: `0x${signature.toString('hex')}`}),
+    evidenceEnvelope(payload, {
+      wrongSigner: variant === 'wrong-signer',
+      invalidSignature: variant === 'invalid-signature',
+    }),
   );
 }
