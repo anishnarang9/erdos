@@ -566,6 +566,48 @@ function berthChoice(delivery, reference) {
   ]);
 }
 
+function routePairs(delivery, reference) {
+  const rows = delivery.values['hops.json'].rows;
+  const edges = keyed(reference.values['edges.json'].rows, 'edgeId');
+  const paired = rows.map((row) => ({row, edge: member(edges, row.edgeId)}));
+  return {rows, paired, limits: reference.values['limits.json'], count: BigInt(rows.length)};
+}
+
+function routeViolations(delivery, reference, extras) {
+  const {rows, paired, limits, count} = routePairs(delivery, reference);
+  const continuous = paired.every((inner) => paired.every((outer) => inner.row.seq !== checked('add', outer.row.seq, 1n)
+    || inner.edge.fromStop === outer.edge.toStop));
+  return violations([
+    ['unique-seq', distinct(rows, 'seq')],
+    ['seq-domain', paired.every(({row}) => row.seq >= 1n && row.seq <= count)],
+    ['origin', paired.every(({row, edge}) => row.seq !== 1n || edge.fromStop === limits.origin)],
+    ['destination', paired.every(({row, edge}) => row.seq !== count || edge.toStop === limits.destination)],
+    ['continuity', continuous],
+    ['hop-bounds', count >= limits.minHops && count <= limits.maxHops],
+    ...extras(paired, limits, count),
+  ]);
+}
+
+function routeDistance(delivery, reference) {
+  return routeViolations(delivery, reference, (paired, limits) => [
+    ['distance', checkedSum(paired.map(({edge}) => edge.meters)) <= limits.maxMeters],
+  ]);
+}
+
+function routeHarbor(delivery, reference) {
+  return routeViolations(delivery, reference, (paired, limits) => [
+    ['distance', checkedSum(paired.map(({edge}) => edge.meters)) <= limits.maxMeters],
+    ['edge-open', paired.every(({edge}) => edge.open === true)],
+  ]);
+}
+
+function routeWarehouse(delivery, reference) {
+  return routeViolations(delivery, reference, (paired, limits, count) => {
+    const score = checked('add', checkedSum(paired.map(({edge}) => edge.meters)), checked('mul', limits.penalty, count));
+    return [['route-score', score <= limits.cap]];
+  });
+}
+
 function drawerExact(delivery, reference, spec) {
   const rows = delivery.values['drawers.json'].rows;
   const floats = keyed(reference.values['floats.json'].rows, 'drawerId');
@@ -662,6 +704,16 @@ export async function evaluateCandidate(challenge, candidateDirectory, {referenc
         break;
       case 'berth-choice':
         violated = berthChoice(delivery, reference);
+        break;
+      case 'route-campus':
+      case 'route-clinic':
+        violated = routeDistance(delivery, reference);
+        break;
+      case 'route-harbor':
+        violated = routeHarbor(delivery, reference);
+        break;
+      case 'route-warehouse':
+        violated = routeWarehouse(delivery, reference);
         break;
       default:
         throw Error(`No independent domain oracle for ${challenge.spec.kind}`);

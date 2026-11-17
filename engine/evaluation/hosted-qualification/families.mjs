@@ -1,4 +1,5 @@
 import {policyChallenges} from './policy-challenges.mjs';
+import {routeChallenges} from './route-challenges.mjs';
 import {
   access, all, bin, candidate, count, finish, int, jsonText, lookup, mutate, planOf, requirement,
   rf, rowsFile, scalar, str, sum, table, textFile, unique,
@@ -645,5 +646,6 @@ export function buildChallenges() {
     lotRange(), lotExpiry(), lotSites(), lotSensor(),
     categoryCap(), indirectRate(), crewGear(), coverNote(),
     ...policyChallenges(),
+    ...routeChallenges(),
   ];
 }
