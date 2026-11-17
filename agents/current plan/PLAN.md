@@ -1,5 +1,11 @@
 # Current plan
 
+## 2026-11-17 02:12 -05:00 — Anish — Coordinator owns remaining hosted source work
+
+- Both existing Grok worker sessions ended at their latest checkpoints. Preserve their managed worktrees and task files. The coordinator takes over browser ingress, paid compiler admission/drain and benchmark trace/freshness/polling. Do not spawn replacement workers. A later independent review remains open.
+- Exact browser origin/preflight policy now passes API typecheck and 928 API tests. Native Linux installed runner and exact-source core/commerce CI pass at `5991bd2`. The later `5d0f8b6` image verifies configured readiness, real warm compile (0.901 seconds), protected metrics, auth limits and log privacy on isolated emulated Linux. No public or genuine Grok release is claimed.
+- The release ledger retains missing host/account/budget/hostname, application model access/ceilings, 180 real trials and fresh scoped settlement gates. The goal stays active. Continue source repairs and concrete release preparation while required external inputs are pending.
+
 ## 2026-11-17 01:37 -05:00 — Anish — Hosted source integration and release gates
 
 - Coordinator `5991bd2` passes all commerce typechecks and API 917, SDK 365 plus 13 wire, and worker 945 checks. Hosted attempts, paginated discovery and confirmed-time expiry are integrated. Image `92ef0c3` passes isolated public-mode auth/ownership, real warm compilation, replay and restart with an unused synthetic model credential. Its separate-volume restore preserves attempt history, task attempt 1 and exact package bytes. These local/emulated results do not establish a public deployment or genuine Grok access.

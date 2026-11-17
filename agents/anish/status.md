@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 02:12 -05:00 — Anish — Complete exact browser origins and take over remaining implementation
+
+- The coordinator now owns the remaining service and benchmark work. Both existing worker sessions ended before those changes were complete. Preserved Worker A's exact tracked patch, three new files and hashes privately, left its original worktree untouched, and copied only those task files into integration. No new agent or model worker was created. Independent review of the later source remains pending.
+- Browser policy is complete. It permits only the canonical service origin and one optional exact frontend origin. Invalid public/credential/path/wildcard origins reject before database open. Unapproved request origins reject before auth, engine, inference or settlement. Allowed preflight returns 204 without route work. Responses vary by Origin and grant no cookies. CLI requests without Origin retain their behavior. Operator metrics are registered after this boundary, while observation wraps both denied requests and preflight.
+- Eight original browser regressions failed before implementation. Added IPv6 loopback, canonical auth-origin and protected-metrics ordering checks. API typecheck and all 928 API tests pass. Fixed the preserved fixture types without weakening runtime interfaces. Browser code needs the final image/host check. Paid compile admission and benchmark metadata/freshness/polling remain next. No application inference or chain action occurred.
+
 ## 2026-11-17 01:53 -05:00 — Anish — Verify runtime observation and identify benchmark metadata mismatch
 
 - Integrated Worker B's read-only security report `c1da4bb` as `1814f2d`. It found no new material defect in the reviewed `8c98d6b` attempt, pin, backup and spend/replay paths. Corrected its workflow-inspection wording: native engine CI is in `core-fast.yml` and separately passed at `5991bd2`. The report does not review future service changes.

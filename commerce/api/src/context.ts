@@ -17,6 +17,8 @@ export interface DeploymentConfig {
   mode: "local" | "public";
   /** Origin bound into wallet challenge messages. */
   serviceOrigin: string;
+  /** Exact browser origins. CORS does not authenticate a wallet. */
+  browserOrigins: readonly string[];
   /** When true, the first X-Forwarded-For hop is the client IP for rate limits. */
   trustProxy: boolean;
 }

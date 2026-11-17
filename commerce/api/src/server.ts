@@ -12,7 +12,7 @@ import { httpX402Facilitator, type X402Config } from "./x402.ts";
 import { createViemOpenClaimReader } from "./open-claim-reader.ts";
 import type { OpenClaimConfig } from "./open-claim.ts";
 import type { AuthoringBudget } from "./context.ts";
-import { authLimitFromEnv, taskQueueFromEnv } from "./capacity.ts";
+import { authLimitFromEnv, browserOriginFromEnv, resolveBrowserAllowlist, taskQueueFromEnv } from "./capacity.ts";
 import { logInternal } from "./observe.ts";
 import {
   blocksPublicListen,
@@ -247,9 +247,14 @@ const rateLimit = principalLimit === undefined && ipLimit === undefined
 const budget = readBudget();
 let taskQueue: ReturnType<typeof taskQueueFromEnv>;
 let authLimit: ReturnType<typeof authLimitFromEnv>;
+let browserOrigin: string | undefined;
+let serviceOrigin = process.env.SERVICE_ORIGIN ?? "http://localhost";
 try {
   taskQueue = taskQueueFromEnv(process.env);
   authLimit = authLimitFromEnv(process.env);
+  browserOrigin = browserOriginFromEnv(process.env);
+  serviceOrigin = resolveBrowserAllowlist({ mode: deploymentMode, serviceOrigin,
+    ...(browserOrigin === undefined ? {} : { browserOrigin }) })[0]!;
 } catch (err) {
   console.error(err instanceof Error ? err.message : "Invalid capacity configuration");
   process.exit(1);
@@ -261,7 +266,7 @@ function readyInput(db?: Db): ReadyInput {
   return {
     mode: deploymentMode,
     authoring,
-    origin: process.env.SERVICE_ORIGIN ?? "http://localhost",
+    origin: serviceOrigin,
     engine: engineReadyInput(),
     compiler: {
       ...(process.env.SOURCE_SHA ? { sourceSha: process.env.SOURCE_SHA } : {}),
@@ -300,12 +305,13 @@ const { app, close, reconcileTasks, pumpTasks, drainTasks, checkReady } = create
   ...(openClaim ? { openClaim } : {}),
   deployment: {
     mode: deploymentMode,
-    serviceOrigin: process.env.SERVICE_ORIGIN ?? "http://localhost",
+    serviceOrigin,
     trustProxy: process.env.TRUST_PROXY === "1",
   },
   ...(rateLimit ? { rateLimit } : {}),
   taskQueue,
   authLimit,
+  ...(browserOrigin === undefined ? {} : { browserOrigin }),
   expensiveDisabled: process.env.EXPENSIVE_OPS_DISABLED === "1",
   ...(budget ? { budget } : {}),
   ...(process.env.OPERATOR_TOKEN ? { operatorToken: process.env.OPERATOR_TOKEN } : {}),

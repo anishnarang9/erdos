@@ -41,6 +41,7 @@ const ROUTE_LABELS: { method: string; pattern: RegExp; label: string }[] = [
 
 const ALLOWED = new Set(ROUTE_LABELS.map((item) => item.label));
 ALLOWED.add("unknown");
+ALLOWED.add("OPTIONS preflight");
 
 const INTERNAL_LABELS = new Set(["paid-compile", "chain-read", "task-pump", "indexer"]);
 const TASK_EVENTS = new Set(["accepted", "rejected", "finished"]);
@@ -61,6 +62,7 @@ export function emptyMetrics(): ServiceMetrics {
 }
 
 export function routeLabel(method: string, pathname: string): string {
+  if (method === "OPTIONS") return "OPTIONS preflight";
   for (const item of ROUTE_LABELS) {
     if (item.method === method && item.pattern.test(pathname)) return item.label;
   }
@@ -222,6 +224,10 @@ export function registerObserve(app: Hono<AppEnv>, deps: Deps): void {
     return c.json(new ApiError("internal", "Internal server error").toBody(), 500);
   });
 
+}
+
+/** Register only after the origin middleware, so this route has the same browser boundary. */
+export function registerOperatorMetrics(app: Hono<AppEnv>, deps: Deps): void {
   app.get("/v1/operator/metrics", (c) => {
     if (!deps.operatorToken) throw new ApiError("not_found", "Not found");
     const header = c.req.header("authorization") ?? "";

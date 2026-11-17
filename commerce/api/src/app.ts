@@ -18,8 +18,9 @@ import { registerAttemptRoutes } from "./attempts.ts";
 import { registerIdentityRoutes } from "./identity.ts";
 import { requireOwnedJob } from "./ownership.ts";
 import { assertAuthoringBudget, registerTaskRoutes } from "./tasks.ts";
-import { resolveAuthLimit, resolveTaskQueue } from "./capacity.ts";
-import { emptyMetrics, registerObserve } from "./observe.ts";
+import { resolveAuthLimit, resolveBrowserAllowlist, resolveTaskQueue } from "./capacity.ts";
+import { emptyMetrics, registerObserve, registerOperatorMetrics } from "./observe.ts";
+import { registerBrowserOrigin } from "./browser-origin.ts";
 import type { AuthoringBudget, AuthLimitConfig, DeploymentConfig, RateLimitConfig, TaskQueueConfig } from "./context.ts";
 import type { ReadyReport } from "./ready.ts";
 
@@ -44,6 +45,8 @@ export interface CreateAppOptions {
     serviceOrigin: string;
     trustProxy?: boolean;
   };
+  /** One additional exact browser frontend origin. The service origin is always included. */
+  browserOrigin?: string;
   /** Absent means expensive routes are not counted. */
   rateLimit?: RateLimitConfig;
   /**
@@ -93,6 +96,10 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   assertAuthoringBudget(opts.budget);
   const taskQueue = resolveTaskQueue(opts.taskQueue);
   const authLimit = resolveAuthLimit(opts.authLimit);
+  const mode = opts.deployment?.mode ?? "local";
+  const browserOrigins = resolveBrowserAllowlist({ mode,
+    serviceOrigin: opts.deployment?.serviceOrigin ?? "http://localhost",
+    ...(opts.browserOrigin === undefined ? {} : { browserOrigin: opts.browserOrigin }) });
   const engine = opts.engine ?? (opts.validatePlan
     ? { mode: "simulated" as const, validate: opts.validatePlan, compile: simulatedEngine().compile }
     : simulatedEngine());
@@ -102,8 +109,9 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   const db = openDb(opts.dbPath, now);
   const validatePlan = opts.validatePlan ?? simulatedValidatePlan;
   const deployment: DeploymentConfig = {
-    mode: opts.deployment?.mode ?? "local",
-    serviceOrigin: opts.deployment?.serviceOrigin ?? "http://localhost",
+    mode,
+    serviceOrigin: browserOrigins[0]!,
+    browserOrigins,
     trustProxy: opts.deployment?.trustProxy ?? false,
   };
   const deps: Deps = {
@@ -130,6 +138,8 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
 
   const app = new Hono<AppEnv>();
   registerObserve(app, deps);
+  registerBrowserOrigin(app, deps);
+  registerOperatorMetrics(app, deps);
 
   app.notFound((c) =>
     c.json(new ApiError("not_found", `No route for ${c.req.method} ${c.req.path}`).toBody(), 404),

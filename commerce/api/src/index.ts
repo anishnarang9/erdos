@@ -121,6 +121,8 @@ export {
   taskQueueFromEnv,
   resolveAuthLimit,
   authLimitFromEnv,
+  resolveBrowserAllowlist,
+  browserOriginFromEnv,
 } from "./capacity.ts";
 export {
   ATTEMPT_VERSION,

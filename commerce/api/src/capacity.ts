@@ -61,3 +61,50 @@ export function authLimitFromEnv(env: NodeJS.ProcessEnv): AuthLimitConfig {
     windowMs: readOptional(env, "AUTH_LIMIT_WINDOW_MS", AUTH_IP_WINDOW_MS),
   });
 }
+
+const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
+
+function exactOrigin(raw: string, name: string, mode: "local" | "public"): string {
+  if (raw.length === 0 || raw.includes("*") || /\s/.test(raw)) {
+    throw new Error(`${name} must be an exact origin`);
+  }
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new Error(`${name} must be an exact origin`);
+  }
+  if (url.username !== "" || url.password !== "" || (url.pathname !== "/" && url.pathname !== "") || url.search !== "" || url.hash !== "") {
+    throw new Error(`${name} must be an exact origin`);
+  }
+  const loopback = LOOPBACK_HOSTS.has(url.hostname);
+  if (mode === "public") {
+    if (url.protocol !== "https:" || url.hostname === "" || loopback) {
+      throw new Error(`${name} must be an exact https origin in public mode`);
+    }
+  } else if (url.protocol === "http:") {
+    if (!loopback) throw new Error(`${name} must be an exact loopback http origin or https origin in local mode`);
+  } else if (url.protocol !== "https:" || url.hostname === "") {
+    throw new Error(`${name} must be an exact origin`);
+  }
+  return url.origin;
+}
+
+/** Exact browser allowlist. The service origin is always included. One optional frontend origin may be added. */
+export function resolveBrowserAllowlist(input: {
+  mode: "local" | "public";
+  serviceOrigin: string;
+  browserOrigin?: string;
+}): readonly string[] {
+  const service = exactOrigin(input.serviceOrigin, "SERVICE_ORIGIN", input.mode);
+  if (input.browserOrigin === undefined) return [service];
+  const extra = exactOrigin(input.browserOrigin, "BROWSER_ORIGIN", input.mode);
+  return extra === service ? [service] : [service, extra];
+}
+
+export function browserOriginFromEnv(env: NodeJS.ProcessEnv): string | undefined {
+  const raw = env.BROWSER_ORIGIN;
+  if (raw === undefined) return undefined;
+  if (raw.length === 0) throw new Error("BROWSER_ORIGIN must be an exact origin");
+  return raw;
+}

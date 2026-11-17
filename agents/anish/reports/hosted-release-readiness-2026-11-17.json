@@ -110,16 +110,12 @@
   ],
   "activeImplementation": [
     {
-      "owner": "same Grok worker A",
-      "work": "Exact browser origin/preflight policy; paid compiler admission before settlement, concurrency, replay and drain."
-    },
-    {
-      "owner": "same Grok worker B",
-      "work": "Repair actual API trace mirrors and verify benchmark freshness/cached-task protection, then review the later paid-waiter/origin changes."
-    },
-    {
       "owner": "coordinator",
-      "work": "Integration, native Linux CI diagnosis/verification, final runtime/client artifacts, operational evidence and documentation."
+      "work": "Finish bounded paid compiler admission/drain and benchmark metadata, fresh-campaign/resume and polling fixes; then final source/image/artifact checks."
+    },
+    {
+      "owner": "independent reviewer pending",
+      "work": "Review later ingress/payment/benchmark source after implementation."
     }
   ],
   "externalDependencies": [
@@ -169,7 +165,7 @@
   "releaseGatesStillOpen": [
     "Public HTTPS and external/laptop-independent acceptance",
     "Genuine Grok qualification at frozen corpus and thresholds",
-    "Remaining ingress/paid-waiter implementation and independent review",
+    "Remaining paid-waiter and benchmark integration plus later independent review",
     "Final source CI and installed-runner verification after remaining source changes",
     "Final combined image, public artifacts and exact UI handoff SHA",
     "Fresh hosted Arc and Circle acceptance under current authority"
@@ -218,5 +214,10 @@
       "forthcoming browser/paid-waiter code",
       "newly reproduced benchmark metadata mismatch"
     ]
+  },
+  "browserOriginPolicy": {
+    "status": "implemented; unit/typecheck passed",
+    "apiTests": 928,
+    "publicHostAcceptance": false
   }
 }
