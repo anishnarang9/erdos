@@ -1,5 +1,13 @@
 # Current plan
 
+## 2026-11-17 05:20 -05:00 — Anish — Pass the native compiler and enforce the revised spending scope
+
+- Native cold compiler prewarm passed in 240 seconds with the exact image, frontend, guest-builder and engine pins. The real fixtures returned verdicts 1 and 0. The follow-up helper review found no actionable defect. Its ten deployment checks passed independently. Runtime source remains `20b0dc2`; the outer helper comes from `cff751c`.
+- Actual Compose startup exposed an unquoted YAML flow-list value. It split the HTTPS tmpfs mount into four entries. Docker rejected the relative `nodev` mount before service startup. Added a regression against real Compose parsing, observed its failure, quoted the value and passed all eleven deployment checks. The corrected external deployment files live in a separate `operator-tools` directory. The original candidate scripts remain intact.
+- API and Caddy now run on the native host with enforced process limits. External TLS validation passes. Public requests correctly return 503 because authoring is disabled. Through pinned SSH, real API authentication, owner isolation, approval, compilation, exact replay and twenty package-file hashes pass. Native backup/recovery checks continue. These checks do not establish a usable public authoring release.
+- The user saved an application xAI key in the protected editor file. A non-inference model-list request verified authentication and the exact reviewed model. No model generation ran. The user rejected the proposed $20 testing budget. Apply a strict $0.10 ceiling to a complete authoring run, including its repair. Keep mass testing and the $20 budget unapproved. The current full-context spending contract cannot admit that ceiling. Do not lower the guard to an unverified token estimate. Continue the bounded-input/session design and native recovery. No further Grok CLI call, proof or chain transaction ran.
+
+
 ## 2026-11-17 05:10 -05:00 — Anish — Verify the native host and repair cold registry access
 
 - Verified the user-provided DigitalOcean console fingerprint and pinned SSH. The temporary public SSH window closed early. Its cleanup watchdog confirmed the restricted policy. Ubuntu 24.04 x86-64, NTP, key-only SSH, 32-GiB state and 80-GiB Docker/containerd filesystem ceilings pass native inspection. No extra paid resource was created.

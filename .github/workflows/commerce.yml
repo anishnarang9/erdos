@@ -34,7 +34,7 @@ jobs:
           path: ${{ runner.temp }}/ubc26-qualification-api.json
       - name: Check backup integrity and the relocated API bundle
         run: |
-          node --test ../deploy/state.test.mjs ../deploy/start-api.test.mjs ../deploy/public-deployment.test.mjs ../deploy/warm-compiler.test.mjs
+          node --test ../deploy/state.test.mjs ../deploy/start-api.test.mjs ../deploy/public-deployment.test.mjs ../deploy/warm-compiler.test.mjs ../deploy/compose.test.mjs
           node ../deploy/build-api.mjs "$RUNNER_TEMP/ubc26-hosted-api/server.mjs"
       - name: Check runner payload reproducibility across caller directories
         run: node worker/scripts/check-package-reproducibility.mjs "$RUNNER_TEMP/ubc26-package-reproducibility.json"
