@@ -1,5 +1,12 @@
 # Current plan
 
+## 2026-11-17 03:44 -05:00 — Anish — Publish current candidate evidence and concrete operator preflight
+
+- Candidate code `20b0dc2` passes exact-source commerce and core CI, including 63 qualification checks and twelve native Linux installed signed cases. The canonical Linux archive is `58ecaecd…`, payload manifest `cc1b0196…`. Its checksums and independent offline installation pass. The archive's only changed payload file from `ae8f13f` is README source links; source manifest identity also changes.
+- Current image `acc4eb14…` passes fresh startup, readiness, preflight, protected metrics and fixed-template prewarm. All 60 checked runtime files match the fully exercised `ae8f13f` image, apart from the explicitly excluded source-identity file. Reuse full workflow and restore evidence only with those source labels. All owned API containers stop afterward. Compiler/prover allocations are released.
+- Published the current candidate report, image identity bridge, unapproved spending/deployment preflight and final review scope. The UI handoff pins `20b0dc2`. A persistent private local candidate bundle holds exact Linux CI release files and credential-free deployment templates. It is not a public release URL. No approval or spending authority is inferred from its formal reservation bounds.
+- Source implementation, current CI and independent local preparation are complete. Remaining work needs external inputs: public host/account/hostname/resource budget, secure application model access and approved ceilings, 180 genuine deployed trials, current concrete live previews/authority, and final independent review. The user directed no further Grok CLI calls. Do not replace that choice with more worker calls. Keep PR #8 draft. The goal remains incomplete.
+
 ## 2026-11-17 02:58 -05:00 — Anish — Enforce live qualification price, model and campaign mode
 
 - The spending audit reproduced three gaps: live qualification accepted an understated reservation, accepted an unreviewed model and continued after a different returned model. A fourth regression allowed a controlled campaign to change its live flag on resume. A repaired response could also omit per-attempt model identity. Those regressions failed before the guards.

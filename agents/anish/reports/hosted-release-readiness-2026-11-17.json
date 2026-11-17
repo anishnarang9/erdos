@@ -1,13 +1,13 @@
 {
   "version": 1,
   "status": "incomplete",
-  "workingSource": "ae8f13f8e4d517a29c4eb77c8b1da7cd182a2b73",
+  "workingSource": "20b0dc282482ad22d7fff49ffe86de903576f547",
   "finalReleaseSource": null,
   "publicUrl": null,
   "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/8",
   "pullRequestState": "draft",
   "goal": "active",
-  "scope": "Source and finite local/CI evidence. Each linked report retains its own source, platform and limits. No public release is established.",
+  "scope": "Verified candidate code and finite source-labelled evidence. Public hosting, genuine application qualification and fresh live acceptance remain incomplete.",
   "corpus": {
     "digest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
     "supported": 40,
@@ -132,16 +132,7 @@
       "limit": "No genuine inference occurred. Provider-price revalidation and explicit approved budgets remain required."
     }
   ],
-  "activeImplementation": [
-    {
-      "owner": "coordinator",
-      "work": "Live model/price/mode guards and complete qualification metadata pass 63 offline/native checks and controlled API integration. Finish exact-source CI and candidate artifact identity checks, then final handoff."
-    },
-    {
-      "owner": "external final reviewer pending",
-      "work": "Review later ingress/payment/benchmark/packaging source. The user directed no more Grok CLI calls."
-    }
-  ],
+  "activeImplementation": [],
   "externalDependencies": [
     {
       "needed": "Persistent Linux host/account and approved resource budget",
@@ -184,6 +175,13 @@
         "genuine Circle charge/replay through deployment"
       ],
       "inputStatus": "not assumed from completed historical approvals; preview follows hosted/model preparation"
+    },
+    {
+      "needed": "Final independent review of the latest candidate",
+      "blocks": [
+        "final release"
+      ],
+      "note": "The user directed no more Grok CLI calls. Earlier review covers only 8c98d6b."
     }
   ],
   "releaseGatesStillOpen": [
@@ -244,18 +242,43 @@
     "apiTests": 928,
     "publicHostAcceptance": false
   },
-  "candidateCodeSource": "ae8f13f8e4d517a29c4eb77c8b1da7cd182a2b73",
+  "candidateCodeSource": "20b0dc282482ad22d7fff49ffe86de903576f547",
   "candidate": {
-    "image": "sha256:3b6c22aea15bb1eca7a8db496993509dac0b6a647aa328adc89e5ce9e3c5e680",
-    "runnerTarSha256": "1ac075a6b85a208294770688c57c0113e962c6c766467214cf5cb7a467cf57f2",
-    "runnerManifestSha256": "0ff72e6100034c1e2c6218dbb4f180d76d584bc5c4d3ab14e318fd9405f1e9ee",
+    "image": "sha256:acc4eb148e89db6699437ecb2937bf8bfb9e552befd7c76c45ef277730a662d0",
+    "runnerTarSha256": "58ecaecd30575d8b5573f5daa6018b9975618ff81141bc8c363cf4219ebbffda",
+    "runnerManifestSha256": "cc1b0196cb4e3d250ccf8decb286f88663544dd00ffe3e19aac2c392e40f957d",
     "reports": [
-      "hosted-candidate-ci-2026-11-17.json",
-      "hosted-candidate-runtime-2026-11-17.json",
-      "hosted-candidate-install-2026-11-17.json",
-      "hosted-candidate-restore-2026-11-17.json",
-      "hosted-arc-readonly-2026-11-17.json"
-    ]
+      "hosted-release-candidate-2026-11-17.json",
+      "hosted-runtime-payload-identity-2026-11-17.json",
+      "hosted-spending-preflight-2026-11-17.json"
+    ],
+    "reviewScope": "../../../docs/hosted-final-review-scope.md"
   },
-  "developmentWorkerPolicy": "No further Grok CLI calls, per user reply. Both original sessions remain stopped."
+  "developmentWorkerPolicy": "No further Grok CLI calls, per user reply. Both original sessions remain stopped.",
+  "remainingWork": [
+    {
+      "gate": "Persistent public Linux host, hostname and resource budget",
+      "status": "awaiting user inputs"
+    },
+    {
+      "gate": "Secure application Grok access and approved request/daily/benchmark ceilings",
+      "status": "awaiting user inputs; recheck provider terms before enablement"
+    },
+    {
+      "gate": "180 genuine deployed qualification trials",
+      "status": "blocked by hosting/model/budget inputs"
+    },
+    {
+      "gate": "Fresh hosted funding, proof, claim/release, recovery, rejection/refund and Circle payment",
+      "status": "requires current concrete previews and live authority after authoring/compilation"
+    },
+    {
+      "gate": "Final independent review",
+      "status": "pending; no more Grok CLI calls"
+    },
+    {
+      "gate": "Public release URL and laptop independence",
+      "status": "blocked by public deployment and remaining acceptance gates"
+    }
+  ]
 }
