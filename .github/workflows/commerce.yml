@@ -36,6 +36,12 @@ jobs:
         run: |
           node --test ../deploy/state.test.mjs ../deploy/start-api.test.mjs ../deploy/public-deployment.test.mjs
           node ../deploy/build-api.mjs "$RUNNER_TEMP/ubc26-hosted-api/server.mjs"
+      - name: Check runner payload reproducibility across caller directories
+        run: node worker/scripts/check-package-reproducibility.mjs "$RUNNER_TEMP/ubc26-package-reproducibility.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ubc26-package-reproducibility-${{ github.sha }}
+          path: ${{ runner.temp }}/ubc26-package-reproducibility.json
       - name: Build the standalone runner from the checked source
         run: node worker/scripts/package-runner.mjs "$RUNNER_TEMP/ubc26-runner-release"
       - name: Check an independent Linux installation

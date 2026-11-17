@@ -16,7 +16,7 @@ const stage = join(output, "package"); mkdirSync(stage, { recursive: true, mode:
 const sha = bytes => createHash("sha256").update(bytes).digest("hex");
 const entries = { "bin/runtime.mjs": join(root, "commerce/worker/src/hosted-cli.ts"), "sdk/hosted.mjs": join(root, "commerce/sdk/src/hosted/client.ts") };
 for (const [name, entry] of Object.entries(entries)) {
-  await build({ entryPoints: [entry], outfile: join(stage, name), bundle: true, platform: "node", target: "node24", format: "esm",
+  await build({ absWorkingDir: root, entryPoints: [entry], outfile: join(stage, name), bundle: true, platform: "node", target: "node24", format: "esm",
     banner: { js: 'import { createRequire as __ubc26CreateRequire } from "node:module"; const require = __ubc26CreateRequire(import.meta.url);' },
     legalComments: "eof", packages: "bundle", logLevel: "warning" });
 }

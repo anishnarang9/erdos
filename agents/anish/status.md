@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 02:42 -05:00 — Anish — Pin the runner bundler working directory
+
+- Exact-source `0aff524` commerce and engine/contracts CI pass. Native Linux checks all twelve installed signed cases. Its controlled API integration passes. The combined restricted image passes CORS, real warm compile (1.708 seconds), restart, protected metrics/logs and paid capacity/replay against a controlled loopback facilitator. No external payment, model call or chain transaction occurred.
+- Artifact comparison found different payload hashes between the root and commerce caller directories. A new controlled reproduction fails at `0aff524` with those exact hashes. The only differing bundle bytes are generated source-path comments. The packager now sets its working directory explicitly. A reusable CI check compares both complete release manifests and tarballs.
+- Syntax checks run before this commit. The packager requires committed clean source, so the exact-commit two-directory check must run immediately after this commit and before its checkpoint push. Final artifacts and image will need the resulting code source. Independent review and external host/model/budget/live inputs remain open.
+
 ## 2026-11-17 02:34 -05:00 — Anish — Bind qualification campaigns to verified principals and original dispatches
 
 - The harness now verifies distinct wallet principals before any task POST. The ledger persists campaign/origin/corpus/owner/input/time bindings before dispatch. Original results remain fresh on GET resume. Unknown POSTs keep their reservation and key. Stale semantic caches, reused task/traces, changed terminal results and changed bindings stop further work. The entrypoint remains dispatch-disabled.
