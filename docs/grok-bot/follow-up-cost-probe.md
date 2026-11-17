@@ -1,6 +1,8 @@
-# Proposed three-review cost probe
+# Three-review cost probe
 
-Status: prepared and native-checked. Paid dispatch is not authorized. The original setup-plus-one-review pilot is complete.
+Status: the user approved three follow-up reviews. All three completed once and returned valid `pass` decisions for their fixed cases. The displayed account changes total $0.23. No paid reviews remain authorized. See the [results and limits](../../agents/anish/reports/hosted-bot-follow-up-reviews-2026-11-17.json).
+
+The sections below preserve the approved probe design. Their $0.24–$0.27 estimate is historical. The observed total is rounded and does not establish exact per-run attribution. The approximately five-cent target remains unqualified.
 
 The real negative review found the $75-versus-$100 error. Account changes suggest eight to nine cents. The [usage events](../../agents/anish/reports/hosted-genuine-bot-usage-events-2026-11-17.json) show four rows in that review's minute. Exact CSV amounts and run attribution remain unavailable. The approximately five-cent target remains unqualified.
 

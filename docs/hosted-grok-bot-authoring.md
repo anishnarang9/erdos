@@ -1,10 +1,12 @@
 # Live Grok Bot constraint validation
 
-Status: one genuine webhook review passes on native `fb45033`. Bot detects the $75-versus-$100 contradiction and the backend rejects approval. Rounded account changes suggest $0.08–$0.09 for this review. The $0.05 target, exact billing and public dispatch remain unqualified.
+Status: one genuine negative review ran on `fb45033`. Three separately approved positive reviews ran on native `9dc289d`. All four decisions match their fixed cases. The three follow-ups used approximately $0.23 by both rounded balances. The $0.05 target, exact billing and public dispatch remain unqualified. See the [follow-up results](../agents/anish/reports/hosted-bot-follow-up-reviews-2026-11-17.json).
 
 ## Current requirement
 
-The user explicitly rejected development-only Bot use. Grok Bot must participate in the live constraint-validation workflow. Keep the app's API boundary. The backend can invoke a dedicated Bot routine through an authenticated webhook. The proposed return channel is a small custom MCP tool on our backend. Official Bot docs support both mechanisms. The owner routes, durable store, restricted MCP tool and approval gate exist. The restricted callback runs in production. The connector reports Connected. One approved synthetic review completed through the real callback. Production spending policy and broader qualification remain pending.
+The user explicitly rejected development-only Bot use. Grok Bot must participate in the live constraint-validation workflow. Keep the app's API boundary. The backend invokes a dedicated Bot routine through an authenticated webhook. A restricted MCP tool returns its result to the backend. Official Bot docs support both mechanisms.
+
+The owner routes, durable store, restricted MCP tool and approval gate exist. The restricted callback runs in production. The connector reports Connected. Four approved synthetic reviews completed through the real callback. Production spending policy and broader qualification remain pending.
 
 Production flow: app → DigitalOcean API → deterministic plan/example checks → Grok Bot semantic review → explicit buyer approval → native compiler. Existing direct Grok API authoring can supply the candidate plan. Its calls and any repair count toward the same total refinement cost target. Typed imports can supply a candidate without another model call.
 
@@ -25,7 +27,9 @@ Target about $0.05–$0.10 for the entire refinement, including direct API draft
 
 Payload/output limits bound our protocol. They do not prove Bot token usage or impose a provider-enforced dollar ceiling. Bot chooses its model and has plan-dependent usage. A running Bot task can exceed a spend cap. Measure a small separately approved real sample before claiming a unit price. Keep API charges and Bot usage separate in that measurement. The proposed $20 mass-test budget remains unapproved.
 
-The user installed Grok Bot and reports exhausted usage. The app passes Apple signature/notarization checks and opens. The user created one routine, and the operator sent one approved review. No credits were purchased. No API key entered Bot chat. The API key does not replace Bot's own allowance. The restricted MCP connector is connected. The installed app confirms the $1 monthly limit and disabled auto top-up. The routine webhook credential stays in a private operator file.
+The user installed Grok Bot. The app passes Apple signature/notarization checks and opens. The user created one routine, and the operator sent four approved reviews. The operator purchased no credits. No API key entered Bot chat. The API key does not replace Bot's own allowance.
+
+The restricted MCP connector is connected. The installed app confirms the $1 monthly limit and disabled auto top-up. The routine webhook credential stays in a private operator file.
 
 ## Bounty evidence
 

@@ -7,7 +7,7 @@
   "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/8",
   "pullRequestState": "draft",
   "goal": "active",
-  "scope": "Native callback-only runtime, public runner/engine downloads and one genuine negative Bot review pass. Rounded account usage suggests 8\u20139 cents. Five-cent cost, exact billing/export, public buyer API and final acceptance remain incomplete.",
+  "scope": "Native callback-only runtime and public runner/engine downloads pass. Four genuine fixed-case Bot decisions agree. Three accepted plans compile on the VPS. Follow-up account changes total approximately $0.23. Fresh local proof testing is active. Cost/session bounds, billing/export, public buyer API and funded acceptance remain incomplete.",
   "corpus": {
     "digest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
     "supported": 40,
@@ -136,10 +136,10 @@
   "externalDependencies": [
     {
       "needed": "Exact Bot pilot billing/export and production spending policy",
-      "inputStatus": "Connected connector, confirmed $1 cap and one genuine review pass. The one-review pilot authority is consumed. No credit purchase occurred. Exact billing, original conversation export and production spending policy remain open.",
+      "inputStatus": "Four genuine reviews completed: one negative pilot and three separately approved positive cases. The follow-ups changed both rounded account balances by $0.23. Both approvals are consumed. Exact billing/export and production isolation/spending policy remain open.",
       "productionRunCeilingMicroUsd": 100000,
       "pilotAccountCapMicroUsd": 1000000,
-      "reviewsAuthorized": 1,
+      "reviewsAuthorized": 4,
       "massTestingApproved": false,
       "reviewsRemainingAuthorized": 0
     },
@@ -265,7 +265,7 @@
   "remainingWork": [
     {
       "gate": "Live Bot semantic-validation step",
-      "status": "One genuine negative review completes through the connected routine and restricted MCP callback, then blocks approval. Exact billing, authentic conversation export and broader reliability remain unqualified. No second review is authorized."
+      "status": "Four genuine fixed-case decisions agree and three passed receipts permit native buyer approval/compilation. Exact billing, authentic runtime export and broader reliability remain unqualified. No more paid reviews are authorized."
     },
     {
       "gate": "Ten-cent complete authoring run",
@@ -343,7 +343,14 @@
     "runnerDownloadVerified": true,
     "apiContainerUnchangedDuringIngressPromotion": true,
     "nativeEngineDownloadPublished": true,
-    "currentCandidateRestartNote": "Same-container restart preserves owner expiry and the exact original completed Bot receipt."
+    "currentCandidateRestartNote": "Same-container restart preserves owner expiry and the exact original completed Bot receipt.",
+    "compilerOwnershipRepair": {
+      "report": "hosted-native-compiler-ownership-repair-2026-11-17.json",
+      "changedFiles": 1,
+      "runtimeImageChanged": false,
+      "nativeColdApiCompilePassed": true,
+      "threeBotReviewedCasesCompiled": true
+    }
   },
   "currentDeploymentCi": {
     "commerceSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
@@ -378,9 +385,9 @@
   },
   "runtimeBotValidation": {
     "requiredByUser": true,
-    "status": "genuine-negative-review-preserved-through-expiry-update-cost-unqualified",
+    "status": "four-genuine-fixed-case-reviews-correct-three-native-compiles-local-proof-running",
     "role": "Live semantic validation of buyer brief against exact candidate rules; development-only use was rejected.",
-    "genuineReviews": 1,
+    "genuineReviews": 4,
     "measuredCost": null,
     "twentyDollarMassBudgetApproved": false,
     "pilot": {
@@ -416,7 +423,7 @@
     ],
     "targetRecurringMicroUsd": 50000,
     "followUpCostProbe": {
-      "status": "prepared-native-checked-not-authorized",
+      "status": "completed-three-reviews-cost-target-unqualified",
       "document": "../../../docs/grok-bot/follow-up-cost-probe.md",
       "manifest": "../../../docs/grok-bot/follow-up-inputs/manifest.json",
       "nativeReport": "hosted-bot-follow-up-preflight-2026-11-17.json",
@@ -428,7 +435,7 @@
       "nativeOracleComparisons": 19,
       "nativeOracleDisagreements": 0,
       "requestedAdditionalReviews": 3,
-      "authorizedAdditionalReviews": 0,
+      "authorizedAdditionalReviews": 3,
       "estimatedAddedMicroUsd": [
         240000,
         270000
@@ -436,8 +443,14 @@
       "estimateOnly": true,
       "existingMonthlyAccountCapMicroUsd": 1000000,
       "possibleInFlightCapOverrun": true,
-      "productionDispatcherEnabled": false
-    }
+      "productionDispatcherEnabled": false,
+      "completedAdditionalReviews": 3,
+      "remainingAuthorizedReviews": 0,
+      "roundedTotalMicroUsd": 230000,
+      "evidence": "hosted-bot-follow-up-reviews-2026-11-17.json"
+    },
+    "positiveReviews": 3,
+    "negativeReviews": 1
   },
   "botRuntimeIntegration": {
     "requiredByUser": true,
@@ -519,5 +532,16 @@
     "clientArtifactSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
     "clientWireFormatChanged": false,
     "engineBytesChanged": false
+  },
+  "currentBotEndToEnd": {
+    "status": "three-native-compiles-passed-local-proof-active",
+    "caseIds": [
+      "voyage-fee",
+      "cover-1",
+      "mass-1"
+    ],
+    "synthetic": true,
+    "funded": false,
+    "productionReady": false
   }
 }

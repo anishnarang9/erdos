@@ -1,18 +1,30 @@
 # Live Grok Bot validation evidence
 
-Status: one genuine synthetic negative review completes through the native backend. Bot identifies a budget contradiction and approval rejects. Rounded account changes suggest eight to nine cents. The five-cent target, exact billing, runtime conversation export and general public dispatch remain unqualified.
+Status: four genuine synthetic reviews completed through the native backend. Bot rejects the budget contradiction and passes three matching plans. All four decisions match their fixed-case expectations. The five-cent target, exact billing, runtime conversation export and general public dispatch remain unqualified.
+
+## Three follow-up reviews
+
+The user separately approved three serial reviews under the existing $1 monthly cap, with possible in-flight overrun. Each used one trigger and an exact native-checked snapshot. All three returned `pass` with complete rule coverage and no findings or questions.
+
+| Case | Review validity | Approximate displayed cost |
+| --- | --- | --- |
+| Fee reconciliation | Correct: fee identity, nonnegative fee and exact receipt | $0.08 |
+| Spending limit | Correct: unique IDs, total at most 500 cents and exact note | $0.08–$0.09 |
+| Quantity calculation | Correct: mass equals concentration times volume | $0.06–$0.07 |
+
+Both rounded account balances changed by $0.23 across the three reviews. The native engine and independent oracle agree on nineteen candidate comparisons. These are three positive cases. They do not establish general semantic accuracy or exact bill attribution. The frozen corpus supplied the plans. Bot reviewed those plans. See the [complete results](../../agents/anish/reports/hosted-bot-follow-up-reviews-2026-11-17.json).
 
 ## Live pilot
 
 The backend validates the plan and examples before creating an owner-bound review. The operator claims one review durably and sends one authenticated webhook. The real Bot routine calls `submit_constraint_review` through `UBC26 Result Callback`. Its immutable `needs_changes` receipt covers all three rules and identifies the candidate's $100 limit against the brief's $75 maximum. The backend then rejects buyer approval. See the [pilot receipt and limits](../../agents/anish/reports/hosted-genuine-bot-pilot-2026-11-17.json).
 
-One routine setup task and one semantic review ran. The app displays a $1 monthly cap and disabled auto top-up. The pilot used its only authorized review. The user authorized no second review, credit purchase or mass test. General service dispatch stays disabled. No direct API drafting accompanies this typed-import pilot. The direct xAI API key does not replace Bot's usage allowance.
+The original pilot used one setup task and one semantic review. Its one-review authority is consumed. The later three-review approval is also consumed. No credit purchase or mass test ran. The app displays a $1 monthly cap and disabled auto top-up. General service dispatch stays disabled. No direct API drafting accompanies these typed-import tests. The direct xAI API key does not replace Bot's usage allowance.
 
 Account credits change from $4.87 to $4.79, while monthly additional usage changes from $0.28 to $0.37. Rounded account totals do not establish exact per-run attribution or exclude other account activity. Setup cost remains unknown. Keep the production $0.10 complete-authoring ceiling and the user's approximately $0.05 recurring target.
 
 ## Bot role description
 
-In our live pilot, the backend invokes Grok Bot to compare a buyer's brief with native-validated constraints. Bot identifies a $100 rule that contradicts the buyer's $75 maximum and returns a hash-bound review through a restricted backend tool. The deterministic engine validates supported rules and examples, while the buyer retains approval and funding authority. The backend stores Bot's `needs_changes` receipt and blocks approval of that revision.
+In our live tests, the backend invokes Grok Bot to compare buyer briefs with native-validated constraints. Bot rejects a $100 rule against a $75 maximum and passes three matching plans through a restricted result tool. The deterministic engine validates supported rules and examples, while the buyer retains approval and funding authority. The backend stores immutable review receipts and blocks approval without a matching passed result.
 
 The [official bounty guide](https://docs.google.com/document/d/1QaySCo7u3VxMVNdk3C5Ab3ewc2E46AuLntti-Uzx5EY/edit?usp=sharing) requires core Bot use, a genuine chat export and a three-to-four-sentence role README. The paragraph above describes observed pilot behavior. It does not establish bounty acceptance or a completed public product. Judges decide eligibility.
 

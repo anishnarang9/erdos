@@ -31,7 +31,7 @@ See the [proposed ten-cent authoring policy](hosted-ten-cent-authoring.md) for t
 
 ## Bot feasibility and access controls
 
-One genuine Bot review completed. The original setup-plus-one-review approval is consumed. No further paid review is authorized. The [proposed three-case probe](grok-bot/follow-up-cost-probe.md) is prepared and native-checked. Its estimate does not authorize dispatch or establish a price guarantee.
+The original negative pilot and three separately approved positive reviews completed. All four decisions match their fixed-case expectations. The [three-case probe](grok-bot/follow-up-cost-probe.md) used approximately $0.23 by both rounded account balances. Its cases cost about eight cents, eight to nine cents, and six to seven cents. No paid reviews remain authorized. These observations do not establish the five-cent target or a strict production price ceiling.
 
 The provider confirms that Bot chooses its model, reports no model identity in usage, and can finish beyond an account cap. Model selection cannot force a cheaper route. See the [Bot FAQ](https://docs.x.ai/grok-bot/faq).
 

@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "status": "prepared-not-dispatched-not-authorized",
+  "status": "three-approved-reviews-completed",
   "preparedAt": "2026-11-17T18:15:05.879Z",
   "corpusId": "hosted-qualification-2026-11-16",
   "corpusDigest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
   "catalogDigest": "0x3556207ddfecc64fa1a08c300c011e86f77fdb757e07fdf22343d7f9923d6b76",
   "caseCount": 3,
   "requestedAdditionalReviews": 3,
-  "authorizedAdditionalReviews": 0,
+  "authorizedAdditionalReviews": 3,
   "productionDispatcherEnabled": false,
   "paidReviewsDuringPreparation": 0,
   "rows": [
@@ -49,5 +49,9 @@
     "Operator manifest only. Do not send expected decisions or oracle candidates to Bot.",
     "Each eventual trigger needs a fresh owned job/review and unexpired ticket. Do not create or dispatch them before spending approval.",
     "This three-case cost probe is separate from the required 180 direct-API authoring trials."
-  ]
+  ],
+  "completedAdditionalReviews": 3,
+  "remainingAuthorizedReviews": 0,
+  "approvalScope": "Three serial reviews under the existing $1 monthly cap with possible in-flight overrun. No purchase, mass test or public dispatch.",
+  "evidence": "../../../agents/anish/reports/hosted-bot-follow-up-reviews-2026-11-17.json"
 }
