@@ -33,6 +33,7 @@ import {BUYER_TOKEN} from "./helpers.ts";
 it("prices the reviewed model using its provider context ceiling and highest tier before dispatch",async()=>{
  let calls=0;const model=grokDraftModel({apiKey:"synthetic-only",model:"grok-4.20-0309-non-reasoning",fetch:async()=>{calls++;throw new Error("must not dispatch");}});
  for(const config of [
+  {requestCeilingMicroUsd:100_000,dailyCeilingMicroUsd:100_000,inputMicroUsdPerMillion:2500000,outputMicroUsdPerMillion:5000000},
   {requestCeilingMicroUsd:1000000,dailyCeilingMicroUsd:10000000,inputMicroUsdPerMillion:2500000,outputMicroUsdPerMillion:5000000},
   {requestCeilingMicroUsd:5000000,dailyCeilingMicroUsd:10000000,inputMicroUsdPerMillion:1250000,outputMicroUsdPerMillion:2500000},
  ]){

@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-17 15:52 -05:00 — Anish — Verify the ten-cent authoring admission limit
+
+- The reviewed model reserves $2.54096 for one call under current provider bounds. The published batch discount and team billing controls do not establish a ten-cent run limit. The exact $0.10 case returns HTTP 503 before provider dispatch. All 26 focused tests pass. See [authoring cost policy](../../docs/hosted-ten-cent-authoring.md).
+
 ## 2026-11-17 15:51 -05:00 — Anish — Verify installed runner against the published guide
 
 - The downloaded runner, manifest and native engine match the public pins. An offline install as UID 1000 verifies its provenance and returns verdicts 1 and 0 for the guide examples. The fixture initially used a non-executable mount and then shared temporary ancestors. The successful run uses a private executable mount. See the [installed-runner check](reports/hosted-public-guide-installed-runner-2026-11-17.json). Hosted authoring and funded settlement remain open.
