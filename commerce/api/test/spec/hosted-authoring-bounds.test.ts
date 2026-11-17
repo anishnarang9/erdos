@@ -281,7 +281,7 @@ describe("dispatch billing", () => {
 });
 
 describe("grok request bounds", () => {
-  it("sends max_completion_tokens, refuses a length stop, and keeps token prices separate from ticks", async () => {
+  it("sends max_tokens, refuses a length stop, and keeps token prices separate from ticks", async () => {
     const seen: { body?: Record<string, unknown>; signal?: AbortSignal } = {};
     const fetch = (async (_url: unknown, init?: RequestInit) => {
       seen.body = JSON.parse(String(init?.body)) as Record<string, unknown>;
@@ -307,8 +307,8 @@ describe("grok request bounds", () => {
       schema: { type: "object" },
     };
     const out = await model.draft(grokInput);
-    expect(seen.body?.max_completion_tokens).toBe(8192);
-    expect(seen.body?.max_tokens).toBeUndefined();
+    expect(seen.body?.max_tokens).toBe(8192);
+    expect(seen.body?.max_completion_tokens).toBeUndefined();
     expect(seen.body?.presence_penalty).toBeUndefined();
     expect(seen.body?.frequency_penalty).toBeUndefined();
     expect(seen.body?.stop).toBeUndefined();

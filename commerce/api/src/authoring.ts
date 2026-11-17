@@ -13,7 +13,7 @@ import { expensiveGuard } from "./limits.ts";
 import { ownerWallet, requireOwnedJob } from "./ownership.ts";
 import type { RouteContext } from "./routes.ts";
 import type { Idempotency } from "./idempotency.ts";
-import { DRAFT_MAX_COMPLETION_TOKENS, DRAFT_TIMEOUT_MS, ModelError, draftPromptVersion, parseModelDraft, type DraftModelInput, type DraftModelResult, type DraftOutput, type ModelDraft, type ModelUsage } from "./grok.ts";
+import { DRAFT_MAX_COMPLETION_TOKENS, DRAFT_TIMEOUT_MS, ModelError, draftCallTokenBound, draftPromptVersion, parseModelDraft, type DraftModel, type DraftModelInput, type DraftModelResult, type DraftOutput, type ModelDraft, type ModelUsage } from "./grok.ts";
 import { authoringCharge, maxCallMicroUsd, noteDraftDispatch, noteDraftUsage, usageComplete } from "./tasks.ts";
 import { parseManifest, EngineError, isCliCompileResult, type Manifest } from "./engine.ts";
 import { artifactBinding, requireRealArtifact } from "./artifact.ts";
@@ -173,23 +173,24 @@ function modelFailure(reason: string, billing?: Record<string, unknown>): ApiErr
   return new ApiError("model_failed", "The draft model failed", billing ? { reason, billing } : { reason });
 }
 
-/** A small user-text estimate. The catalog is not included. One token is the smallest supported prompt. */
-function promptTokenEstimate(request: string): number {
-  const estimate = Math.ceil(request.length / 4);
-  return Number.isSafeInteger(estimate) && estimate >= 1 ? estimate : 1;
+/** Documented `max_tokens` cap when the adapter publishes one. Otherwise the service maximum, which is not a provider guarantee. */
+function outputLimit(model: DraftModel): { reliable: boolean; maxTokens: number } {
+  const bound = model.outputTokenBound;
+  if (bound?.parameter === "max_tokens" && Number.isSafeInteger(bound.maxTokens) && bound.maxTokens > 0) {
+    return { reliable: true, maxTokens: Math.min(bound.maxTokens, DRAFT_MAX_COMPLETION_TOKENS) };
+  }
+  return { reliable: false, maxTokens: DRAFT_MAX_COMPLETION_TOKENS };
 }
 
-/** Largest completion cap whose worst-case tariff fits the ceiling. At least one token when the caller already checked that a call can start. */
-function affordableCompletion(promptTokens: number, ceiling: number, budget: NonNullable<Deps["budget"]>): number {
-  let lo = 0;
-  let hi = DRAFT_MAX_COMPLETION_TOKENS;
-  while (lo < hi) {
-    const mid = Math.ceil((lo + hi) / 2);
-    const cost = maxCallMicroUsd(promptTokens, mid, budget);
-    if (cost !== null && cost <= ceiling) lo = mid;
-    else hi = mid - 1;
-  }
-  return lo >= 1 ? lo : 1;
+/** True when the serialized provider payload plus the supported completion maximum fits the ceiling. */
+function supportedCallFits(
+  input: DraftModelInput,
+  completionTokens: number,
+  ceiling: number,
+  budget: NonNullable<Deps["budget"]>,
+): boolean {
+  const cost = maxCallMicroUsd(draftCallTokenBound(input, completionTokens), completionTokens, budget);
+  return cost !== null && cost <= ceiling;
 }
 
 function chargeBilling(usage: ModelUsage, budget: NonNullable<Deps["budget"]>): Record<string, unknown> | undefined {
@@ -270,17 +271,17 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       throw modelFailure(reason, billing);
     };
 
-    // A positive supported call must fit before any paid dispatch. The completion cap is only a hint.
+    // Reject before noteDraftDispatch. A smaller cap is not the supported maximum.
+    const limit = outputLimit(model);
     let firstInput = baseInput;
     if (deps.budget) {
-      const minimum = maxCallMicroUsd(1, 1, deps.budget);
-      if (minimum === null || minimum > deps.budget.requestCeilingMicroUsd) {
+      if (deps.deployment.mode === "public" && !limit.reliable) {
+        throw new ApiError("model_unavailable", "Authoring output is not bounded");
+      }
+      if (!supportedCallFits(baseInput, limit.maxTokens, deps.budget.requestCeilingMicroUsd, deps.budget)) {
         throw new ApiError("model_unavailable", "Authoring budget cannot fund a model call");
       }
-      firstInput = {
-        ...baseInput,
-        maxCompletionTokens: affordableCompletion(promptTokenEstimate(body.request), deps.budget.requestCeilingMicroUsd, deps.budget),
-      };
+      firstInput = { ...baseInput, maxCompletionTokens: limit.maxTokens };
     }
     let first: { reply: DraftModelResult; result: ModelDraft };
     try {
@@ -405,24 +406,26 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     let chosen = await assess(first);
     let repairUnpriced = false;
     let repairAttempted = false;
-    // The next call is allowed only when its complete supported maximum fits the remaining ceiling.
-    // A smaller requested cap is not that check. The provider may ignore max_completion_tokens.
-    const repairFits = (): boolean => {
+    // The repair payload includes its feedback. The supported completion maximum is not a smaller hint.
+    const repairFits = (feedback: NonNullable<DraftModelInput["repair"]>): boolean => {
       if (!deps.budget) return true;
       const usage = first.reply.usage;
       if (!usage) return false;
       const charge = authoringCharge(usage, deps.budget);
       if (!charge || charge.microUsd > deps.budget.requestCeilingMicroUsd) return false;
       const remaining = deps.budget.requestCeilingMicroUsd - charge.microUsd;
-      const nextMax = maxCallMicroUsd(Math.max(usage.promptTokens, 1), DRAFT_MAX_COMPLETION_TOKENS, deps.budget);
-      return nextMax !== null && nextMax <= remaining;
+      return supportedCallFits({ ...baseInput, repair: feedback }, limit.maxTokens, remaining, deps.budget);
     };
-    const canRepair = Boolean(chosen.feedback) && usageComplete(first.reply.usage) && deps.now() - started < DRAFT_TIMEOUT_MS && repairFits();
+    const canRepair = chosen.feedback !== undefined && usageComplete(first.reply.usage) && deps.now() - started < DRAFT_TIMEOUT_MS && repairFits(chosen.feedback);
     if (chosen.fatal && !canRepair) throw modelFailure("plan_not_hashable");
     if (canRepair && chosen.feedback) {
       repairAttempted = true;
       try {
-        const second = await callModel({ ...baseInput, repair: chosen.feedback });
+        const second = await callModel({
+          ...baseInput,
+          repair: chosen.feedback,
+          ...(deps.budget ? { maxCompletionTokens: limit.maxTokens } : {}),
+        });
         attempts.push(second);
         persistUsage();
         chosen = await assess(second);
