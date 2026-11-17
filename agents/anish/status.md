@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-17 00:09 -05:00 — Anish — Return complete example inputs for buyer review
+
+- Review found that draft responses retained verdict labels but omitted generated file bytes. Added owner-only `exampleInputs` with exact bounded resolved files, evidence, context and fixture identity. Invalid selections omit unusable content. Existing verdict-label shapes stay compatible.
+- Both new review regressions failed before implementation. API typecheck and focused example/buyer/legacy-draft checks pass. The API, client and example contracts now describe coverage digests, immutable checks, errors and cancellation. Full API checks follow this checkpoint. No model call or chain action occurred.
+
 ## 2026-11-17 00:08 -05:00 — Anish — Cancel model and witness handlers during shutdown
 
 - A stronger shutdown regression showed that model requests kept running after the task drain. The service now aborts this instance's active authoring and witness controllers and waits for their cancellation bookkeeping within the drain bound. Checker process-group cancellation remains in place. Dispatched unknown bills stay uncertain.

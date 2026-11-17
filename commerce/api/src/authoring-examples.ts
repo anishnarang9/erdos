@@ -76,3 +76,10 @@ export function usableExamples(examples: ExampleLabel[]) {
     blocked: examples.some(item => item.checkerVerdict === null || item.agrees !== true),
   };
 }
+/** Owner-only draft output: show exact permitted example bytes without changing legacy verdict labels. */
+export function exampleReviewInputs(examples:ModelExample[],fixtures:ExampleFixture[]){
+  return examples.map(example=>{
+    try { return {...resolveExample(example,fixtures),...('fixtureName' in example?{fixtureName:example.fixtureName}:{}),status:'complete' as const}; }
+    catch { return {name:example.name,predictedVerdict:example.predictedVerdict,status:'rejected' as const}; }
+  });
+}

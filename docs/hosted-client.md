@@ -145,3 +145,22 @@ if (result.state !== "succeeded") throw new Error(`Compilation stopped: ${result
 Language-independent requests follow [the API contract](hosted-api-contract.md). For example, submit `POST /v1/tasks` with a bearer key, `Idempotency-Key`, and `{operation:"compile",jobId,revisionHash}`. Poll `GET /v1/tasks/:id` with the same owner's key. Do not send API keys through query strings.
 
 Revoke a key with `ubc26 revoke --api "$API" --key-file "$KEY_FILE" --key-id "$KEY_ID" --idempotency revoke-001`. Revocation takes effect before replay lookup.
+
+
+## Review exact authored examples
+
+A successful draft task includes normalized rules, source quote checks, requirement links, `exampleInputs` and checked verdict labels. Review them before approving. The coverage flag checks finite links and leaves semantic intent to buyer review and independent qualification.
+
+If signed examples need a new witness for the exact returned plan, prepare a protected JSON file containing only `{examples:[...]}`. Use complete deliverable files, optional evidence and exact preview context. The API never signs attestations.
+
+```sh
+ubc26 check-examples --api "$API" --key-file "$KEY_FILE" --draft "$DRAFT_ID" \
+  --revision "$REVISION_HASH" --input "$WORK/examples.json" --idempotency examples-001 \
+  > "$WORK/example-check.json"
+ubc26 approve --api "$API" --key-file "$KEY_FILE" --job "$JOB" \
+  --revision "$REVISION_HASH" --reference-digest "$REFERENCE_DIGEST" \
+  --coverage-digest "$COVERAGE_DIGEST" --example-check "$EXAMPLE_CHECK_ID" \
+  --idempotency approve-001
+```
+
+Use only an actual successful `exampleCheckId` for that owner, draft and revision. Omit `--example-check` to select the immutable initial check. Public authored approval still requires the exact coverage digest. A later witness record cannot replace the original task response or qualify different rules. Signature rejection is not verdict 0. No command here authorizes funding or signing.

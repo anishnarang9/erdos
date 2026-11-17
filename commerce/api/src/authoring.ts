@@ -20,7 +20,7 @@ import { DRAFT_MAX_COMPLETION_TOKENS, DRAFT_TIMEOUT_MS, ModelError, draftCallTok
 import { authoringCharge, maxCallMicroUsd, noteDraftDispatch, noteDraftUsage, usageComplete } from "./tasks.ts";
 import { parseManifest, EngineError, isCliCompileResult, type Manifest } from "./engine.ts";
 import { artifactBinding, requireRealArtifact } from "./artifact.ts";
-import { parseExampleFixtures, resolveExample, exampleFiles, usableExamples, type ExampleFixture, type ExampleLabel } from "./authoring-examples.ts";
+import { parseExampleFixtures, resolveExample, exampleFiles, usableExamples, exampleReviewInputs, type ExampleFixture, type ExampleLabel } from "./authoring-examples.ts";
 import {
   assertDraftOwner,
   engineFailure,
@@ -423,6 +423,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
           : null,
         preview: verdict.preview ?? null,
         examples,
+        exampleInputs: exampleReviewInputs(result.examples, body.exampleFixtures),
         exampleApprovalReady: counts.positive > 0 && counts.negative > 0 && !counts.blocked,
         sourceQuotes: result.sourceQuotes,
         quoteVerification,

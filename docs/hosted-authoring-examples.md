@@ -1,10 +1,10 @@
 # Complete authoring input and examples
 
-Status: coordinator integration design, 2026-11-16. API and qualification workers must implement and test this contract before paid qualification. It adds authoring adapters for existing engine features. It adds no compiler, guest, signature profile or verifier capability.
+Status: implemented and checked locally through 2026-11-17. Paid qualification remains pending. It adds authoring adapters for existing engine features. It adds no compiler, guest, signature profile or verifier capability.
 
 ## Why this adapter is needed
 
-The real API rejects twenty corpus envelopes because they have no output declaration. It rejects one supported opaque-reference case because the reference is not UTF-8. Four signed-evidence requests omit the approved public key from the author's visible inputs. The current example evaluator also has no evidence/context arguments. Native host/oracle agreement does not close these authoring gaps. See [the envelope review](../agents/anish/reports/hosted-authoring-envelope-review-2026-11-16.json).
+The initial API review found twenty corpus envelopes without output declarations, one opaque-reference gap, four missing public-key inputs and an evaluator that omitted evidence/context. Those input and transport gaps are now repaired. Native host/oracle agreement does not close these authoring gaps. See [the envelope review](../agents/anish/reports/hosted-authoring-envelope-review-2026-11-16.json).
 
 Keep all predicates, hidden candidates and thresholds. Complete the public request metadata before freezing the next corpus digest. Record every input correction. Do not relabel a required engine-supported case to hide an adapter limitation.
 
@@ -37,7 +37,7 @@ Add optional `exampleFixtures:ExampleFixture[]` to the draft request and model i
 
 A model example may select a fixture with `{name,predictedVerdict,fixtureName}` instead of duplicating its bytes. Resolve only a unique fixture name from the current request. Check the label against the real evaluator. Otherwise accept generated `{name,predictedVerdict,files,evidence?,context?}` and apply the same file/context checks. Keep legacy local text examples compatible. Update the strict provider response schema and prompt together.
 
-Return enough normalized example data for buyer review. A fixture reference must be traceable to the immutable request. Do not let a later request replace its bytes under an existing draft ID or task replay key.
+The owner-only task response returns `exampleInputs` with exact permitted files, evidence, preview context and any selected fixture name for buyer review. A fixture reference must be traceable to the immutable request. Do not let a later request replace its bytes under an existing draft ID or task replay key.
 
 ## Signed examples and preview context
 
@@ -56,3 +56,6 @@ Give each ambiguous/unsupported request explicit output names and formats that m
 These public examples must differ from the held-out candidate files. Keep the hidden plans, oracles, candidate answers and mutation sets out of model inputs. Preserve the 40/10/10 split, ten families, all original predicates, and the 95% and zero-false-accept gates. Freeze all visible request fields, including outputs and example fixtures, under the corrected digest before any paid call.
 
 Run a real local API envelope check for all sixty requests with a controlled model before spending. Separately verify public signed fixtures and held-out candidates with the native engine and independent oracle. These local checks do not count as the 180 fresh Grok API trials.
+
+
+Immutable buyer witness completion now uses `POST /v1/drafts/:draftId/example-checks`. It never changes the returned plan or original task. Approval can select the resulting owner-bound check id. See [the coverage and witness contract](hosted-authoring-coverage.md) and [four-workload native API evidence](../agents/anish/reports/hosted-native-buyer-checks-2026-11-17.json).
