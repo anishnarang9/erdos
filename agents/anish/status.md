@@ -1,3 +1,8 @@
+# 2026-11-18 14:30 -05:00 — Freeze varied reference-type trial
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Built Linux image `sha256:bda57c43b9a19a2ac2e291ef5d9f5c39f2dd4a1e0b4a7adc440d6c21d91aa352` from source `086fbae`. Embedded source and engine hashes match. The isolated database has no drafts or reservations. The [ninth trial](../../docs/authoring-ninth-varied-repeat-2026-11-18.md) freezes ten supported cases before dispatch. Exact-source CI is pending.
+- No new paid call or public deploy used this image. Campaign attributable API usage stays $0.663961. Next: prepare a new wallet and journal, wait for CI, then run each frozen case once. General authoring stays gated.
+
 # 2026-11-18 14:27 -05:00 — Validate reference-backed type correction offline
 
 - Branch `codex/authoring-pilot-round2`, draft PR #19. The new guard changes a reference field from `string` to `i64` only when actual reference bytes prove every value and a numeric lookup uses the field. The original paid clearance failure stays failed. Its retained repaired plan became native-valid and matched all seven independent hidden oracle cases after the change. See the [offline report](reports/authoring-clearance-type-offline-replay-2026-11-18.md).

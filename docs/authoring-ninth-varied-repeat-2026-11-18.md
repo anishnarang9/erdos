@@ -1,0 +1,9 @@
+# Ninth authoring trial: varied repeat
+
+**Frozen before paid dispatch, 2026-11-18 14:30 -05:00.** Use API source `086fbae20d5ef5b873081eb00f653324971d5785`, Linux image `sha256:bda57c43b9a19a2ac2e291ef5d9f5c39f2dd4a1e0b4a7adc440d6c21d91aa352`, engine SHA-256 `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`, and public output-contract corpus digest `5a3553958b0e674fe1c0e514d39e64138549d885084ae640c25b4a281e8c35f0`. Wait for exact-source commerce, engine, and contracts CI before dispatch. The isolated database starts with no drafts or reservations. Keep hidden cases outside model input.
+
+Run these ten supported briefs once each on one new authenticated wallet, in this order: `lab-supplies-receipt-1-r12`, `clinic-supplies-receipt-1-r12`, `pier-variance-r12`, `lot-expiry-1-r12`, `clearance-1-r12`, `badge-zone-1-r12`, `nights-1-r12`, `category-clear-1-r12`, `firmware-note-1-r12`, and `berth-fee-1-r12`. The first five repeat unstable families. The last five expand formats, references, and rule types. Save one journal per case. Reject reused task or provider trace IDs. Preserve every failure. Do not retry a terminal task.
+
+Require native validation, complete coverage, verified quotes, buyer fixture agreement where fixtures exist, and exact agreement with every hidden oracle candidate. Record normalization paths, repair count, latency, and actual charge. This is draft-stage qualification only. No Bot review, approval, compile, proof, Arc send, or public deployment belongs to this cohort.
+
+Prior fourth-campaign attributable API usage is $0.663961 against the user's $10 cap. Reserve at most $0.15 per request and reconcile each unique settled reservation before the next. Stop on uncertain charge, reused identity, or possible cap breach. Keep general public authoring gated.

@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 14:30 -05:00 — Anish — Freeze varied reference-type trial
+
+- The [ninth trial](../../docs/authoring-ninth-varied-repeat-2026-11-18.md) freezes ten supported briefs on source `086fbae`, including five repeat families and five varied cases. Its isolated image has matching source and engine pins; the new database has no drafts or reservations. Exact-source CI is pending. Anish will prepare a new wallet and run each case once after CI. Keep general public authoring and the accepted public release unchanged.
+
 ## 2026-11-18 14:27 -05:00 — Anish — Test reference-backed type correction on fresh tasks
 
 - An [offline replay](../anish/reports/authoring-clearance-type-offline-replay-2026-11-18.md) of the retained failed clearance plan passed native validation and all seven hidden oracle candidates after a guarded type correction. The original paid failure remains failed. Full commerce checks pass. Anish will push the source, verify exact-source CI, and freeze a fresh trial. Keep general public authoring and the accepted public release unchanged.
