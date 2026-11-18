@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 12:45 -05:00 — Anish — Correct repeat reliability evidence
+
+- Source `fc2e717` produced three unique API drafts that passed native, fixtures, coverage, quotes, and hidden oracle checks. Three later requests with new idempotency keys replayed those tasks because the same wallet sent identical input. The service created no second paid task. The private harness misreported the replay responses and double-counted cost. The [audit](../anish/reports/authoring-fourth-reliability-replay-2026-11-18.md) corrects the evidence to three unique draft-stage successes, zero independent repeat trials, and $0.024053 new API spend. Fourth-campaign cumulative API spend is $0.159738.
+- Keep general authoring gated. Anish will freeze a separate-wallet repeat on the same source and reject reused task or trace IDs. The public API remains on its accepted release. Bot review, compile, and proof are still pending, as is the production account boundary.
+
 ## 2026-11-18 12:37 -05:00 — Anish — Keep public authoring gated after procurement repeat
 
 - The three-case procurement repeat used `a40b7f4` after its CI passed. One case (`firmware-note-1`) passed native, fixtures, coverage, and hidden oracle. The clinic receipt matched the oracle but listed assumptions, so the coverage gate blocked it. The lab receipt differed on two fail/reject classifications. There were zero complete Bot-to-proof successes. Settled API cost was $0.025882; fourth-campaign cumulative API cost is $0.135685. The [repeat report](../anish/reports/authoring-fourth-procurement-repeat-2026-11-18.md) preserves the outcomes.

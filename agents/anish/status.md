@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 12:45 -05:00 — Correct repeat reliability and charge ledger
+
+- Six predeclared client requests ran on source `fc2e717` after exact-source CI passed. The first three created unique tasks and passed native, buyer fixtures, coverage, quotes, and hidden oracle checks. The second three used new idempotency keys but the same wallet and input; the API returned the first tasks. They are **replays, not independent repeats**. The private harness initially misreported six successes and double-counted costs. The [replay audit](reports/authoring-fourth-reliability-replay-2026-11-18.md) preserves both rounds and corrects the count using the service database: three tasks, three settled reservations, $0.024053 API cost. Fourth-campaign cumulative API cost is $0.159738.
+- This confirms the API prevented duplicate paid work. The production qualification runner already requires distinct wallet principals per repeat; the private harness missed that rule. No Bot, compile, proof, Arc send, or public deploy ran. Next: freeze a new three-task repeat with a separate wallet, add a duplicate-task guard in the private harness, and count only genuinely new tasks. Public authoring remains gated.
+
 ## 2026-11-18 12:39 -05:00 — Freeze six same-source reliability trials
 
 - Built source `fc2e717` as Linux amd64 image `sha256:9434d49905211dbab6dda4310b0cbc32c50d7c264a3880b6ac268d6a6bcf849f`. Froze two predeclared trials each for lab receipt, clinic receipt, and firmware note in the [reliability probe](../../docs/authoring-fourth-repeat-reliability-2026-11-18.md). Every trial will use a new task and idempotency key. No trial has run for this source yet; exact-source CI is pending.
