@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-18",
+  "caseId": "lab-supplies-receipt-1",
+  "scope": "One synthetic local job with a frozen supported plan and hidden independent oracle. This is not a model-authored, Bot-reviewed, or Arc-funded job.",
+  "sourceSha": "bdcf8c84950612385f1b3cb94250b4961bf6a4e3",
+  "corpusId": "hosted-qualification-2026-11-18",
+  "corpusDigest": "ea51f1ff461c88d63dfafc75b4cd5f048cab0958ce7b51d7c2ca5f36054688d8",
+  "engineSha256": "979b6038734ad2cc287996da401eb960c57dd96605181bf2ee0dd742c97a4a47",
+  "groth16ProverDigest": "sha256:49093ed164b82aca9305dd80e4a6eb996bd443201ac7bd50b52909b2761ef583",
+  "r0vmVersion": "3.1.0",
+  "manifest": {
+    "imageId": "0x5d3222c30047cc8106fc1e3d2dfc89eda9e776790e2910a6571260631aabb23e",
+    "rulesHash": "0x2e6b89f3ed5c93e07e83858f616d35f4c04b2c8b2fe643dc8cc45f7b00cd9768",
+    "referenceHash": "0xf935950ea9c99a24f4095899b6c5649816f9e1c2ebf961a43b56859cee163805",
+    "compileMillis": 29907
+  },
+  "syntheticContextBytes": 169,
+  "proof": {
+    "verdict": 1,
+    "proveMillis": 274676,
+    "userCycles": 829173,
+    "proofSha256": "0xdd3e38ec8e71664c260a58860f6441d1e3294001aa938e13759b7075744246e2",
+    "contextAndImageIdMatched": true
+  },
+  "recovery": {
+    "file": "receipt.json",
+    "sourceSha256": "0x6dd44cc11658a113eb44563344a85a667753e7a09c082fb83d4d69f1a676a782",
+    "recoveredSha256": "0x6dd44cc11658a113eb44563344a85a667753e7a09c082fb83d4d69f1a676a782",
+    "byteExact": true,
+    "independentOracle": "pass"
+  },
+  "releaseKeyFilePrivate": true,
+  "firstLocalCommand": "Stopped with prover_setup before creating an attempt because RISC0_DEV_MODE or RUST_LOG was inherited. Repeated with the documented clean environment; the successful proof used the same frozen plan and candidate.",
+  "modelCalls": 0,
+  "botReviews": 0,
+  "arcTransactions": 0,
+  "privateEvidence": "Protected local package, synthetic job, proof, key and recovery under hosted-operator/offline-procurement-proof-2026-11-18; key value omitted."
+}

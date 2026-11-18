@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 09:29 -05:00 — Anish — Prove and recover one new corpus case locally
+
+- Branch `codex/authoring-pilot-round2`. Built the new `lab-supplies-receipt-1` plan into a pinned RISC Zero guest package. A synthetic 169-byte context matched the package image, rule hash, and reference hash. The first local command stopped at `prover_setup` before creating an attempt because this shell inherited a disallowed debug setting. A clean environment produced a real verdict-1 proof in 274.676 seconds and 829,173 cycles. The engine decrypted one file; recovered bytes matched the source SHA-256 and the independent oracle passed. The release key file stayed mode 0600. See the [local proof report](reports/offline-procurement-proof-2026-11-18.json).
+- No model call, Bot review, Arc transaction, or public deployment occurred. PR #19 checks passed at prior head `bdcf8c8`: commerce, engine and contracts. Next: preserve this proof report and keep general authoring gated until repeat-run live qualification and production account attribution pass.
+
+
 ## 2026-11-18 09:09 -05:00 — Anish — Extend offline hardening and test clean startup
 
 - Branch `codex/authoring-pilot-round2`. Classified all ten first-pilot failures and the stopped second-pilot case in the [forensic report](reports/authoring-pilot-failure-classification-2026-11-18.md). Four `invalid_reply` provider bodies are still missing, so their exact parse defects remain unknown. The Grok browser log tab was unavailable during this checkpoint; no new provider request was made.
