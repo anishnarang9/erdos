@@ -25,6 +25,10 @@ The native checker can express bounded file checks over JSON scalar fields and c
 
 The current proof cannot establish an unstated buyer goal or external truth. A missing toll table, unit, threshold, or policy calls for buyer clarification. A subjective or external claim without a committed reference or approved signed evidence cannot be made payable by the current checker. The corpus has 10 ambiguous and 10 unsupported briefs to test those boundaries, but no live repeat-run accuracy result for them.
 
+## Recovery checks and their limit
+
+The full commerce check includes API regressions for owner-bound draft idempotency, retained spend reservations after an uncertain dispatch, Bot callback replay and failed delivery, and queued Bot work after restart. Worker tests cover a confirmed release receipt when local journal reconciliation fails, plus read-only resume without another claim or release send. The new native compiler test starts with no state directories. These tests exercise controlled failures. They do not prove that every live RPC, provider callback, or filesystem failure is recoverable. Job 9's transient first recovery read and local journal error remain observed operational faults.
+
 ## Release gate still open
 
 1. Inspect the four missing provider bodies if the account logs are available. Preserve unknown causes where the exact response cannot be recovered. Test parser fixes against retained or controlled raw responses.
