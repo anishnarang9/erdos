@@ -1,5 +1,11 @@
 # Current plan
 
+## 2026-11-17 19:45 -05:00 — Anish — November 18 preset demo ownership
+
+- The user assigned Neil only the demo UI. Neil replaces the current free-text, quote, wallet-funding and workspace entry with preset cards, exact checks, confirmed Arc status, receipt links and agent handoff. Anish owns preset content, API and runner data, funding, proofs, rehearsal and publication. Nick owns independent Arc state and receipt verification. This changes the earlier broad commerce ownership for this demo only.
+- Target a public preset demo on November 18. The [demo checklist](../../docs/demo-launch-checklist-2026-11-18.md) lists the owner, handoff documents and release evidence for each task. Invoice reconciliation and Meridian allocation are the two demo presets. Signed-evidence inventory remains a candidate pilot.
+- Public buyer authoring still returns HTTP 503. The hosted backend sprint remains paused. Do not describe the demo as open self-service authoring. New Arc funding needs exact spending authority and fresh funded-context proofs. Preserve the draft status of PR #8 until its separate release gates pass.
+
 ## 2026-11-17 15:47 -05:00 — Anish — Publish the developer documentation bundle
 
 - Branch `codex/hosted-backend`, draft PR #8. Published the [developer guide](https://ubc26-159-89-149-133.sslip.io/downloads/docs/0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b/README.md) and [API contract](https://ubc26-159-89-149-133.sslip.io/downloads/docs/0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b/api.md). Documentation and ingress source are `0b98c3b`. The live API remains `9dc289d`. Runner and engine downloads remain `fb45033`.

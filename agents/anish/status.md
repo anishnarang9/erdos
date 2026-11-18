@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-17 19:45 -05:00 — Anish — Document tomorrow's preset demo split
+
+- Branch `codex/hosted-backend`. Added the [November 18 demo checklist](../../docs/demo-launch-checklist-2026-11-18.md) and updated the shared plan. Neil owns only demo UI. Anish owns presets, operator flow, runner handoff, rehearsal and publication. Nick owns independent Arc verification.
+- Documentation only. No UI, backend, proof, chain transaction or deployment ran. The checklist's 14 links include valid local targets and the merged PR #5. `git diff --check` passed. New job funding and public authoring remain open. Next: freeze the preset sheet and give Neil the UI handoff.
+
 ## 2026-11-17 16:55 -05:00 — Anish — Pause the sprint and prepare the next-chat handoff
 
 - The user paused the goal and requested a detailed handoff. Branch `codex/hosted-backend` has implementation `2faedd2` pushed, with passing commerce CI and 1,002 passing API tests. The first approved pilot request failed with `http_error` and uncertain usage. Its 6¢ reservation is retained. The isolated pilot is stopped with restart policy `no`. Main API and HTTPS remain running. See the [handoff](../../docs/hosted-backend-handoff-2026-11-17.md) for approvals, private operator paths, remaining gates and the first resume action. The following checkpoint publishes this handoff.
