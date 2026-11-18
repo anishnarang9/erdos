@@ -130,7 +130,18 @@
     "interventions": [
       "Initial attempt used bootstrap token at current-key read and returned 401 before draft; fresh wallet API key issued, then one paid draft ran.",
       "First callback ingress switch observed pilot unhealthy, rolled back; restarted pilot, verified health, then enabled callback route before the paid draft."
-    ]
+    ],
+    "readOnlyRestartReconciliation": {
+      "savedTaskId": "01M7QMZK341XMRJV5H72W69MXY",
+      "taskState": "succeeded",
+      "revisionMatches": true,
+      "providerUsageMatches": true,
+      "method": "GET",
+      "paidCalls": 0,
+      "pilotStoppedAgain": true,
+      "publicReadyzHttp": 200,
+      "publicOpenJobsHttp": 200
+    }
   },
   "remainingCases": "nine not attempted; campaign stopped under first-failure rule",
   "releaseDecision": "Do not enable general public authoring or deploy this candidate."

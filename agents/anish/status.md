@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 10:50 -05:00 — Anish — Reconcile the failed task after pilot restart
+
+- Branch `codex/authoring-pilot-round2`. Restarted the isolated stopped pilot with its saved state. A read-only `GET` of the saved third-diagnostic task returned `succeeded` with the same revision hash and provider usage as the protected journal. This used zero paid calls and did not retry the failed case. Stopped the pilot again; public readiness and open-job discovery stayed HTTP 200. Added the restart evidence to the [third failure record](reports/authoring-round3-first-failure-2026-11-18.json).
+- The next-corpus public examples are pushed at `0ee691e`, with 68/68 qualification tests passing locally. PR #19 exact-head checks are pending. The public API remains on its accepted release. Next: inspect CI, then keep general authoring gated until a separately funded repeat-run campaign and production account boundary pass.
+
 ## 2026-11-18 10:48 -05:00 — Anish — Freeze distinct public examples for the next corpus
 
 - Branch `codex/authoring-pilot-round2`. Added a separate `hosted-qualification-2026-11-18-public-examples` corpus revision with digest `8acf192a48f3c72a200a53ed628246a2fbdcbe339bcc4743253a7789d85f2cd7`. It includes 16 public positive/negative examples for the eight supported diagnostic briefs. The original 62-case corpus, hidden candidates, and the stopped third paid result remain unchanged. A native and domain-oracle regression passed all 16 fixtures and confirmed that no complete public example duplicates a hidden candidate. `draftInput` includes the public examples without plan, spec, requirements, or hidden candidates.
