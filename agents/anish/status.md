@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 00:37 -05:00 — Anish — Enforce one durable public draft
+
+- Branch `codex/hosted-release`. The one-wallet Bot policy now admits only one distinct public draft task. An idempotent replay of that same task still returns its saved ID. A focused test showed the second task was admitted before the fix. The new test proves the limit survives an API restart on the same database.
+- At this source checkpoint, `pnpm check` passed all package typechecks, 535 SDK tests, 1,029 API tests, 4 web tests, 1,042 worker tests, and 13 Arc fixtures. The VPS built the earlier `48e2534` image but has not promoted it. Rebuild from this new commit before any release. Bot auto top-up was visible as enabled at $5 below $1; an attempted UI change was interrupted, so its state remains unverified. Do not dispatch a Bot review until it is confirmed off.
+
 ## 2026-11-18 00:30 -05:00 — Anish — Bind public draft admission to pilot wallet
 
 - Branch `codex/hosted-release`. A focused public-mode test showed that a second wallet could queue a paid draft even when live Bot review was limited to one wallet. Added the same wallet check before draft admission. The focused test failed before the fix and passed after it. API typecheck and all 1,028 API tests passed. This change is committed as a source checkpoint but is not yet deployed.

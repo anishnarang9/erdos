@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 00:37 -05:00 — Anish — One paid draft per public pilot
+
+- The public one-wallet Bot profile now also limits distinct draft tasks to one durable database reservation. Focused tests show another wallet is rejected, the same draft replays, a different draft is rejected, and the rejection survives an API restart. The complete commerce check passed at this source checkpoint.
+- The current VPS image was built from the preceding source and is not promoted. Rebuild from this commit. Bot automatic top-up appeared enabled at $5 below $1. Its disable action was interrupted and has not been verified. Keep paid Bot dispatch off until that control is confirmed.
+
 ## 2026-11-18 00:30 -05:00 — Anish — Restrict paid draft admission
 
 - The live Bot pilot accepts one buyer wallet, but the public API could still queue paid drafts from other wallets. A failing test proved the gap. The public draft route now rejects other wallets before it creates a spend reservation. The API typecheck and all 1,028 tests passed. Deploy this source only after the next release check.

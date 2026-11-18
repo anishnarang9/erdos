@@ -282,6 +282,9 @@ export function registerTaskRoutes(
     `SELECT COALESCE(SUM(CASE WHEN state = 'settled' AND settled_micro_usd IS NOT NULL THEN settled_micro_usd ELSE ceiling_micro_usd END), 0) AS spent
      FROM spend_reservations WHERE state IN ('reserved', 'settled', 'uncertain') AND created_at >= ?`,
   );
+  const pilotDraftCount = db.prepare(
+    "SELECT COUNT(*) AS n FROM spend_reservations WHERE purpose = 'draft' AND owner_wallet = ?",
+  );
   const settleUnknown = db.prepare(
     "UPDATE spend_reservations SET state = 'uncertain', updated_at = ? WHERE task_id = ? AND state = 'reserved'",
   );
@@ -376,6 +379,10 @@ export function registerTaskRoutes(
     const response = idem.commit(c, 202, null, () => {
       const existing = findDup.get(wallet, operation, inputHash, ...DEDUP_STATES) as TaskRow | undefined;
       if (existing) return { status: 202, body: taskView(existing) };
+      if (operation === "draft" && deps.deployment.mode === "public" && deps.botReview?.pilotOwner
+        && sqlCount(pilotDraftCount.get(wallet)) > 0) {
+        throw new ApiError("service_disabled", "Authoring pilot draft is spent");
+      }
       const pending = sqlCount(pendingGlobal.get());
       const mine = sqlCount(pendingWallet.get(wallet));
       const globalFull = pending >= deps.taskQueue.globalPending;

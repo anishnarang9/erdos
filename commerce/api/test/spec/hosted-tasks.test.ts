@@ -1,5 +1,5 @@
 // Durable tasks execute the existing draft and compile handlers.
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
@@ -96,7 +96,7 @@ describe("durable tasks", () => {
       deployment: { mode: "public", serviceOrigin: ORIGIN },
       draftModel: model,
       budget: { reservationMode: "provider-bound", requestCeilingMicroUsd: 2_540_960,
-        dailyCeilingMicroUsd: 2_540_960, inputMicroUsdPerMillion: 2_500_000,
+        dailyCeilingMicroUsd: 5_081_920, inputMicroUsdPerMillion: 2_500_000,
         outputMicroUsdPerMillion: 5_000_000 },
       botReview: { serviceToken: "callback-only-test-credential-0123456789",
         pilotOwner: accountA.address.toLowerCase(), maxDispatches: 1, dispatch: async () => {} },
@@ -106,7 +106,35 @@ describe("durable tasks", () => {
     await expectError(await post(created.app, "/v1/tasks", draftTask(), auth(keyB)), 403, "forbidden");
     const admitted = await post(created.app, "/v1/tasks", draftTask(), auth(keyA));
     expect(admitted.status, await admitted.clone().text()).toBe(202);
+    await expectError(await post(created.app, "/v1/tasks", draftTask("A second task"), auth(keyA)), 503, "service_disabled");
+    expect((await post(created.app, "/v1/tasks", draftTask(), auth(keyA))).status).toBe(202);
     expect(model.calls).toBe(0);
+  });
+
+  it("keeps the one-draft pilot limit after a restart", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-pilot-drafts-"));
+    const dbPath = join(dir, "service.db");
+    const options: Partial<CreateAppOptions> = {
+      dbPath,
+      deployment: { mode: "public", serviceOrigin: ORIGIN },
+      draftModel: countingModel(),
+      budget: { reservationMode: "provider-bound", requestCeilingMicroUsd: 2_540_960,
+        dailyCeilingMicroUsd: 5_081_920, inputMicroUsdPerMillion: 2_500_000,
+        outputMicroUsdPerMillion: 5_000_000 },
+      botReview: { serviceToken: "callback-only-test-credential-0123456789",
+        pilotOwner: accountA.address.toLowerCase(), maxDispatches: 1, dispatch: async () => {} },
+    };
+    try {
+      const first = clocked(options).created;
+      const key = await issue(first.app, accountA);
+      expect((await post(first.app, "/v1/tasks", draftTask(), auth(key))).status).toBe(202);
+      first.close();
+      opened.splice(opened.indexOf(first), 1);
+      const second = clocked(options).created;
+      await expectError(await post(second.app, "/v1/tasks", draftTask("A second task"), auth(key)), 503, "service_disabled");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("returns 202 before the real draft handler runs", async () => {
