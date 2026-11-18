@@ -120,7 +120,7 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     || opts.botReview.serviceToken.length > 512 || opts.botReview.serviceToken === opts.buyerToken
     || opts.botReview.serviceToken === opts.operatorToken)) throw new Error("Bot review requires a separate service credential of 32–512 characters");
   if (opts.deployment?.mode === "public" && opts.botReview?.dispatch
-    && (!/^0x[0-9a-f]{40}$/.test(opts.botReview.pilotOwner ?? "") || ![1, 2].includes(opts.botReview.maxDispatches ?? 0)))
+    && (!/^0x[0-9a-f]{40}$/.test(opts.botReview.pilotOwner ?? "") || ![1, 2, 3].includes(opts.botReview.maxDispatches ?? 0)))
     throw new Error("Public Bot dispatch requires the one-wallet pilot policy");
   const taskQueue = resolveTaskQueue(opts.taskQueue);
   const authLimit = resolveAuthLimit(opts.authLimit);

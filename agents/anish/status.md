@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 02:45 -05:00 — Anish — Repair three-dispatch startup gate
+
+- Branch `codex/hosted-release`. Published runner source `0b1a82f` and documentation source `2e6c527`; VPS installed-runner verification, wrapper digest, engine SHA-256 and compiler prewarm passed. A quiesced state backup passed with manifest SHA-256 `18a2a17f61f5b33e292e1f0c17db8cfb0352b5c798702b82810efcb89f991e41` before API promotion.
+- The new API image rejected the staged `BOT_REVIEW_PILOT_MAX_DISPATCHES=3` at startup because `app.ts` still allowed only 1 or 2. I restored the live setting to 2 and restarted the API. A new public-mode startup test failed before the code fix, then the full commerce check passed after it: SDK 535 plus 13 fixtures, API 1,031, web 4, worker 1,043, with all typechecks. No new paid request or Arc send occurred during this incident.
+- Next: build the corrected API image from this commit, verify pins, update published documentation metadata, promote with max dispatches 3, then launch a fresh buyer and solver pair.
+
 ## 2026-11-18 02:41 -05:00 — Anish — Correct public artifact pins before release
 
 - Branch `codex/hosted-release`. The new runner archive and manifest reached the VPS through a temporary private transfer branch. `sha256sum -c SHA256SUMS` passed on the VPS. The public guide still named two stale file hashes and the prior two-draft limit. I corrected those values to the verified artifact hashes and the three-dispatch candidate policy. No live API upgrade or new paid request has occurred yet.
