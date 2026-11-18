@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ProofChamber } from "../chamber/ProofChamber";
 import { HostedBounties } from "../components/HostedBounties";
+import recording from "../../recordings/run-2026-11-16-job3-paid.json";
 import { BuyerPanel } from "../components/BuyerPanel";
 import { Captions, useCaption } from "../components/Captions";
 import { Elapsed } from "../components/Elapsed";
@@ -47,21 +48,16 @@ export function Workspace({ jobId }: { jobId: string | null }) {
     setToast(m);
     setTimeout(() => setToast(null), 1800);
   }, []);
-  const [loadingReplay, setLoadingReplay] = useState(false);
   const [replayError, setReplayError] = useState(false);
   const showPublicWorkspace = hostedDemo && mode !== "replay";
   usePresenterKeys(onToast);
 
-  async function playDemo() {
-    setLoadingReplay(true);
+  function playDemo() {
     setReplayError(false);
     try {
-      const { default: recording } = await import("../../recordings/run-2026-11-16-job3-paid.json");
       playRecording(recording as Recording, 4);
     } catch {
       setReplayError(true);
-    } finally {
-      setLoadingReplay(false);
     }
   }
 
@@ -107,7 +103,7 @@ export function Workspace({ jobId }: { jobId: string | null }) {
               <section className="card">
                 <h2>Selected-provider demo</h2>
                 <p className="dim">Recorded on Arc testnet. Plays at 4× speed.</p>
-                <button onClick={() => void playDemo()} disabled={loadingReplay}>
+                <button onClick={playDemo}>
                   {mode === "replay" ? "Restart recorded demo" : "Play recorded demo"}
                 </button>
                 {replayError && <p role="alert">Could not play the recording.</p>}

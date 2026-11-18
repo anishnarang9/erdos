@@ -45,6 +45,7 @@ export function usePresenterKeys(onToast: (msg: string) => void) {
       const s = store.get();
       switch (e.key) {
         case " ": {
+          if (t?.closest("button, a, select, summary")) break;
           e.preventDefault();
           const lines = CAPTIONS[stageOf(s)] ?? [];
           store.set({ captionIndex: lines.length ? (s.captionIndex + 1) % lines.length : 0 });

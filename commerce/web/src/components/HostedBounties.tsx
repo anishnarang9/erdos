@@ -17,7 +17,7 @@ interface BountyPage {
 }
 
 async function readJson<T>(path: string, signal: AbortSignal): Promise<T> {
-  const response = await fetch(path, { signal, credentials: "omit" });
+  const response = await fetch(path, { signal });
   if (!response.ok) throw new Error(String(response.status));
   return response.json() as Promise<T>;
 }
