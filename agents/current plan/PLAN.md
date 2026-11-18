@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-17 23:35 -05:00 — Anish — Keep authoring gated after text diagnostic
+
+- The fifth direct API draft failed native validation because it used a nonexistent `content` field for a full `text/v1` file. The diagnostic brief also gave conflicting exact bytes. The model call settled at 5,080 micro-USD. Calls two through five settled at 22,916 micro-USD total; the first 60,000 micro-USD reservation remains uncertain. No Bot review occurred. See the [diagnostic](../anish/reports/hosted-fifth-authoring-diagnostic-2026-11-18.json).
+- Add the text field rule to the generic prompt and correct the isolated test brief. Keep buyer readiness gated. Check the next source and cost state before another call. Do not count the original three-call pilot as a pass.
+
 ## 2026-11-17 23:30 -05:00 — Anish — Keep authoring gate closed after failed sample
 
 - The original three-call pilot failed to produce an accepted draft. A fourth, separately bounded diagnostic under the user's later spending instruction also failed native validation. The three completed requests settled at 17,836 micro-USD total; the first 60,000 micro-USD reservation remains uncertain. No Bot review ran. The candidate prompt now gives explicit type and collection-scope rules. Rebuild and check it in isolation before any further paid call. Keep public authoring gated and label this sample as failed.

@@ -242,6 +242,7 @@ export const DRAFT_SYSTEM_PROMPT = [
   "For a numeric literal, set type to `i64` and value to a decimal string, for example {\"op\":\"literal\",\"type\":\"i64\",\"value\":\"9400\"}. Do not use type `string` for a numeric comparison.",
   "A JSON field whose value is an integer decimal string has plan field type `i64`. Use `string` only for text. Boolean `and`, `or`, and `not` take Boolean expressions; compare numeric expressions with `eq`, `gte`, or another typed comparison first.",
   "Use `record_field` only inside a collection rule. A JSON object's scalar field names and collection names must be distinct.",
+  "To compare a full text/v1 file, use a field expression with `source` and `file` only. Omit the `field` key. Do not invent a `content` field. For json/v1, `field` must name a declared scalar field.",
   "If the job needs an operation, parser or evidence profile that is NOT in the catalog, still reply with",
   "kind draft and write the plan with the exact name of the missing capability where it is needed; the",
   "engine turns that into a capability request. Use kind unsupported only for tasks that no deterministic",

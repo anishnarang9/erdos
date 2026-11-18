@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-17 23:35 -05:00 — Anish — Diagnose fifth authoring attempt
+
+- A fifth, isolated `exact-text-1` diagnostic at source `e5b1e79` reached xAI and native validation. Native validation rejected its `text/v1` field expression because the model invented a `content` field. The call settled at 5,080 micro-USD. The first 60,000 micro-USD reservation remains uncertain. Total settled authoring usage across calls two through five is 22,916 micro-USD. No Bot review, compile, chain transaction or cash purchase ran. See the [diagnostic](reports/hosted-fifth-authoring-diagnostic-2026-11-18.json).
+- The test brief also contradicted itself: it said `Done.` and four ASCII characters. The generic prompt now states the compiler's full-text field rule. This code change and a corrected brief need local checks and a new isolated image before another diagnostic. The original three-call pilot remains failed. Public authoring remains gated.
+
 ## 2026-11-17 23:30 -05:00 — Anish — Record failed authoring sample
 
 - The third direct API call (`cover-1`) settled at 6,452 micro-USD but generated an invalid collection declaration. The original three-call pilot ended with no accepted draft. Under the user's later instruction to keep working within a $5 cash constraint, one separate `mass-1` diagnostic call used existing xAI credit. It settled at 5,299 micro-USD and returned a plan that used numeric fields as Boolean operands and a record field outside collection scope. All three new requests have settled usage; the first 60,000 micro-USD reservation remains uncertain.
