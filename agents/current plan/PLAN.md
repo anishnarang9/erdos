@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-17 23:43 -05:00 — Anish — Native-valid diagnostic with buyer examples
+
+- A sixth isolated direct API draft now has a native-valid plan. Its model-selected passing fixture was invalid. A buyer-supplied owner API example check passed both verdicts for the exact revision. The model call settled at 5,309 micro-USD; calls two through six total 28,225 micro-USD, with the first 60,000 micro-USD reservation still uncertain. See the [diagnostic](../anish/reports/hosted-sixth-authoring-diagnostic-2026-11-18.json).
+- Keep public buyer readiness gated. The exact-rule Bot review, production account boundary, public release, and two cold agents remain required. The original three-call pilot remains failed.
+
 ## 2026-11-17 23:35 -05:00 — Anish — Keep authoring gated after text diagnostic
 
 - The fifth direct API draft failed native validation because it used a nonexistent `content` field for a full `text/v1` file. The diagnostic brief also gave conflicting exact bytes. The model call settled at 5,080 micro-USD. Calls two through five settled at 22,916 micro-USD total; the first 60,000 micro-USD reservation remains uncertain. No Bot review occurred. See the [diagnostic](../anish/reports/hosted-fifth-authoring-diagnostic-2026-11-18.json).

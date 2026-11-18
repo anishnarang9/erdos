@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-17 23:43 -05:00 — Anish — Validate a fresh text draft and buyer examples
+
+- Isolated source `d6b1790` returned a fresh, native-valid `text/v1` plan for the corrected exact-text brief. The xAI call settled at 5,309 micro-USD. Its original passing example named a nonexistent fixture, so the initial example check was not approval ready. A separate owner API call supplied exact positive and negative files; the native checker returned verdicts 1 and 0 with both predictions correct. See the [sixth diagnostic](reports/hosted-sixth-authoring-diagnostic-2026-11-18.json).
+- This is a preflight diagnostic, not the final cold-agent run. No Bot review, compilation, chain transaction or cash purchase ran. The first 60,000 micro-USD reservation remains uncertain. Public authoring stays gated. Next: qualify exact-rule Bot review and account scope, then the public release and cold test.
+
 ## 2026-11-17 23:35 -05:00 — Anish — Diagnose fifth authoring attempt
 
 - A fifth, isolated `exact-text-1` diagnostic at source `e5b1e79` reached xAI and native validation. Native validation rejected its `text/v1` field expression because the model invented a `content` field. The call settled at 5,080 micro-USD. The first 60,000 micro-USD reservation remains uncertain. Total settled authoring usage across calls two through five is 22,916 micro-USD. No Bot review, compile, chain transaction or cash purchase ran. See the [diagnostic](reports/hosted-fifth-authoring-diagnostic-2026-11-18.json).
