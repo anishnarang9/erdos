@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 10:48 -05:00 — Anish — Freeze distinct public examples for the next corpus
+
+- Branch `codex/authoring-pilot-round2`. Added a separate `hosted-qualification-2026-11-18-public-examples` corpus revision with digest `8acf192a48f3c72a200a53ed628246a2fbdcbe339bcc4743253a7789d85f2cd7`. It includes 16 public positive/negative examples for the eight supported diagnostic briefs. The original 62-case corpus, hidden candidates, and the stopped third paid result remain unchanged. A native and domain-oracle regression passed all 16 fixtures and confirmed that no complete public example duplicates a hidden candidate. `draftInput` includes the public examples without plan, spec, requirements, or hidden candidates.
+- All 68 hosted qualification tests pass, including the new fixture checks. This is offline preparation only. No further paid draft, Bot review, Arc send, or deployment is authorized by the stopped third campaign. PR #19 remains draft; exact-head CI for the prior checkpoint is pending. Next: verify this checkpoint in CI, then continue local authoring recovery and package/proof checks. A new live campaign needs separate spending scope.
+
 ## 2026-11-18 10:41 -05:00 — Anish — Stop third diagnostic after wrong accepted-output rules
 
 - Branch `codex/authoring-pilot-round2`, candidate `adeaf13`. Exact-head commerce, engine, and contracts PR #19 checks passed. The user approved a separate ten-case, $1 observed diagnostic with eight Bot reviews at most, $0.15 per attempt, no paid retries, and a first-failure stop. I staged an isolated image and fresh state, verified clean startup and rollback, and kept the public API image unchanged. A private harness dry run used a frozen ten-case corpus and distinct public examples. An audit found and removed a hidden-candidate-to-Bot leak in that private harness before dispatch.
