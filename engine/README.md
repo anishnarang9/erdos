@@ -8,7 +8,7 @@ The compiler is domain-independent within its [capability catalog](capabilities-
 
 The engine proves satisfaction of the approved predicates. It does not prove unexpressed buyer intent, external truth, optimality, or equality to a hidden known answer. File-hash predicates are available when explicitly approved. They are not a required admission rule. Input and execution limits are hard bounds, not a universal cost or latency model.
 
-The isolated Arc core is frozen. Do not repeat the freeze. The engine and settlement histories are on main through PR #7. The [prepared Arc run](../agents/anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) produced a fresh Meridian proof, paid 0.01 USDC and recovered exact files through SDK and engine. The [November 18 audit](../agents/anish/reports/core-sprint-resume-2026-11-18.json) repeats public-chain SDK recovery. This is not the original plan's exact 1-USDC selected-provider run or new spending permission.
+The isolated Arc core is frozen. Do not repeat the freeze. The engine and settlement histories are on main through PR #7. The [prepared Arc run](../agents/anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) produced a fresh Meridian proof, paid 0.01 USDC and recovered exact files through SDK and engine. The [November 18 recovery audit](../agents/anish/reports/core-sprint-sdk-recovery-2026-11-18.json) repeats public-chain SDK recovery. This is not the original plan's exact 1-USDC selected-provider run or new spending permission.
 
 ## Validate a plan
 

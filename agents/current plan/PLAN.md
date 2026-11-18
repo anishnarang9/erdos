@@ -5,8 +5,15 @@ Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 ## 2026-11-18 00:28 -05:00 — Anish — Resume the saved sprint without repeating owner merges
 
 - Remote main `2e04451` contains engine `adda3a3`, Neil `8584b04`, and Nick `57c387f` as ancestors. [PR #7](https://github.com/anishnarang9/UBC-26/pull/7) merged the combined settlement work. [PR #5](https://github.com/anishnarang9/UBC-26/pull/5) merged Neil's later commerce and web work. Keep these histories intact. PR #8's hosted backend is a separate workstream, not an implied sprint merge.
-- The [resume audit](../anish/reports/core-sprint-resume-2026-11-18.json) records clean-checkout fast checks and fresh public-chain recovery of job 7. The later approved run paid 0.01 USDC through the open-claim adapter. It does not prove the saved plan's exact 1-USDC selected-provider acceptance or a new user-supplied authoring run.
+- The [SDK recovery audit](../anish/reports/core-sprint-sdk-recovery-2026-11-18.json) records clean-checkout fast checks and fresh public-chain recovery of job 7. The later approved run paid 0.01 USDC through the open-claim adapter. It does not prove the saved plan's exact 1-USDC selected-provider acceptance or a new user-supplied authoring run.
 - Anish owns stale handoff corrections and evidence publication. Preserve older observations as history. Do not repeat completed funding, release, deployment or freeze operations. A further original-scope live run needs its own exact approved inputs, terms and protected signing authority. No new chain write follows from this restart.
+
+## 2026-11-18 00:28 -05:00 — Anish — Restart audit confirms main integration; preserve exact acceptance boundary
+
+- Resumed the original sprint against remote main `2e04451` in an isolated worktree. Saved integration `ae1295a`, Nick `57c387f`, engine sprint head `adda3a3` and Neil's PR #5 are included. No repeated merge is required. Preserved all unpublished changes in the old checkout.
+- The [resume audit](../anish/reports/core-sprint-resume-2026-11-18.json) records 2,297 passing commerce tests, four typechecks, Rust formatting/Clippy/51 tests, wire checks and 34 Meridian oracle tests. Three prepared guest tests remained ignored. Other slow checks were not repeated.
+- Fresh read-only Arc checks confirm job 7's canonical funding, accepted claim and key-release/payment receipts for 10,000 units. This is the later approved 0.01-USDC open-claim workflow, not the original live 1-USDC selected-provider target. The separate clean 1-USDC selected-provider report is local-only.
+- Corrected current handoff banners without rewriting historical evidence. Next owner is the buyer/operator for current exact workload, commitment, identity, expiry, bounty and gas authority before any new live run. Existing small-run approval does not silently expand to 1 USDC. No wallet access, new proof, deployment or live write occurred.
 
 ## 2026-11-16 11:04 -05:00 — Anish — Prepared Arc acceptance complete; publish final evidence
 

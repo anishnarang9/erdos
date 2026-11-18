@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-11-18T05:27:55.481Z",
+  "status": "owner-merges-verified-original-live-target-not-established",
+  "sourceCommit": "2e04451003c5ac1b7e43a49ef31daf76eb42ccc4",
+  "scope": "Supplemental resume audit with fresh public-chain SDK recovery. Separate from the receipt-only resume audit merged in PR #12. No new spending or proof generation.",
+  "originalCheckpoint": "edd2b5e",
+  "cleanCheckout": {
+    "node": "24.10.0",
+    "pnpm": "10.34.9",
+    "lockedInstall": "passed",
+    "commerceTypechecks": 4,
+    "commerceTests": {
+      "sdkNode": 13,
+      "sdkVitest": 503,
+      "api": 792,
+      "worker": 985,
+      "web": 4,
+      "total": 2297,
+      "failed": 0
+    },
+    "rustToolchain": "1.98.1",
+    "rustFmt": "passed",
+    "rustClippy": "passed",
+    "rustHostTestsPassed": 51,
+    "preparedGuestTestsIgnored": 3,
+    "wireFixture": "passed",
+    "engineBuild": "passed",
+    "engineCapabilities": "passed"
+  },
+  "liveReadOnlyReplay": {
+    "chainId": 5042002,
+    "anchorBlock": "72799913",
+    "anchorHash": "0x6da2e1e62f04569fa01cdae2d27e3ab622434ad4791a1d2703c370194feca913",
+    "coreJobId": "7",
+    "bountyAtomic": "10000",
+    "bountyUsdc": "0.01",
+    "fund": "0x03825acc379fcfdbb640344beb64a7e78ce184449dee7399aa297e2ec730e061",
+    "claim": "0x7105aab313556ff9227864cf7e9f7db901ee048fe6e92c6483b7f8d8bcf91491",
+    "release": "0x78b6870536b171a989a5ebdeb278a20a2ec730bcec91173852bb29a13c3013e2",
+    "allThreeReceiptsSuccessfulAndCanonical": true,
+    "claimAcceptedEvent": true,
+    "keyReleasedEvent": true,
+    "paymentReleasedAtomic": "10000",
+    "exactAdapterToSolverTransfer": true,
+    "sdkRecovery": {
+      "source": "Confirmed claim calldata and KeyReleased event. No private worker key file.",
+      "keyCommitmentMatches": true,
+      "files": [
+        {
+          "name": "schedule.json",
+          "bytes": 1069,
+          "sha256": "0x0607a7b43bf95913d5561d1872b14df0e9ba3fce160946f0bfac99d76608fbc2"
+        }
+      ],
+      "matchesPublishedDelivery": true
+    },
+    "engineRecoveryRepeated": false,
+    "oracleRepeated": false,
+    "historicalDualRecoveryAndOracle": "open-claim-arc-live-acceptance-2026-11-16.json"
+  },
+  "limits": [
+    "The original plan requires a new user problem and exactly 1000000 bounty units on the selected-provider path. This audit does not establish that live acceptance.",
+    "The later approved fractional run used 10000 units and the open-claim adapter. Do not describe it as a one-USDC selected-provider run.",
+    "No new wallet access, signer construction, simulation, estimation, transaction, model call, guest build, or proof occurred.",
+    "Prepared guest tests, full historical proof replay, real-engine API integration and Arc Foundry were not repeated in this audit.",
+    "The latest merged web source exists. This audit does not establish browser or fresh natural-language-to-live-proof acceptance.",
+    "Node reported experimental SQLite and type-transform warnings. Rust reported an upstream block 0.1.6 future-compatibility warning."
+  ]
+}

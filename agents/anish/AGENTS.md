@@ -4,13 +4,23 @@
 
 Remote main contains the engine, Nick's settlement history, and Neil's commerce/web work. PRs #7 and #5 merged. Do not repeat those merges.
 
-Use the latest [shared plan](../current%20plan/PLAN.md) and [resume audit](reports/core-sprint-resume-2026-11-18.json). The [prepared Arc acceptance](reports/open-claim-arc-live-acceptance-2026-11-16.md) records job 7's 0.01-USDC open-claim payout and exact dual recovery. Fresh read-only SDK recovery reproduced its published file hash on November 18.
+Use the latest [shared plan](../current%20plan/PLAN.md) and [SDK recovery audit](reports/core-sprint-sdk-recovery-2026-11-18.json). The [prepared Arc acceptance](reports/open-claim-arc-live-acceptance-2026-11-16.md) records job 7's 0.01-USDC open-claim payout and exact dual recovery. Fresh read-only SDK recovery reproduced its published file hash on November 18.
 
 The saved November 15 plan's exact 1-USDC selected-provider run and new user-problem authoring are not established by that fractional run. Do not expand old spending authority. A further live run requires exact approved inputs, terms and protected signing authority.
 
 The isolated core is frozen. Never repeat the freeze. Keep the general funded CLI read-only. Preserve signer restrictions, durable journals, key-safe RPC boundaries and proof-stack pins. One prover at a time.
 
 `commerce/web` now exists through Neil's merged work. Its presence and passing fast checks do not establish browser acceptance. Hosted backend PR #8 is separate work.
+
+## 2026-11-18 — Anish — Resume from remote main
+
+The [resume audit](reports/core-sprint-resume-2026-11-18.json) checks remote main `2e04451`. It contains the saved engine-commerce integration, Nick's settlement head and Neil's merged PR #5. Do not repeat those merges or resume from the old dirty worktree.
+
+The [prepared live exchange](reports/open-claim-arc-live-acceptance-2026-11-16.md) passed with a **0.01-USDC open-claim** bounty. The clean [selected-provider rehearsal](reports/fresh-exchange-local-2026-11-15.json) passed with **1 USDC on local Arc Anvil only**. Neither result establishes the original live 1-USDC selected-provider acceptance.
+
+Historical wallet and small-run approvals do not authorize a new 1-USDC run. Require current exact terms and remaining spending authority before any new signature. Do not request credentials in chat. Do not repeat deployment or freeze. Keep the general funded CLI read-only.
+
+Main now contains a buyer web implementation. Its existence does not establish browser acceptance for the original sprint. The older guidance below records earlier stages, not current merge, UI or live-run status.
 
 ## Historical snapshot — 2026-11-15 — Anish — Sprint authority and limits
 

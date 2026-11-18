@@ -4,7 +4,7 @@
 
 Remote main contains the engine, Nick's settlement history and Neil's commerce/web work through merged PRs [#7](https://github.com/anishnarang9/UBC-26/pull/7) and [#5](https://github.com/anishnarang9/UBC-26/pull/5). PR #6 is closed. Do not repeat the owner merges.
 
-The [prepared Arc report](../agents/anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) records job 7's accepted proof, 0.01-USDC payout, dual recovery and oracle checks. Use the [open-claim operator guide](overnight/open-claim-live-operator.md) for that path. The [resume audit](../agents/anish/reports/core-sprint-resume-2026-11-18.json) confirms its canonical receipts and repeats SDK recovery from public chain data.
+The [prepared Arc report](../agents/anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) records job 7's accepted proof, 0.01-USDC payout, dual recovery and oracle checks. Use the [open-claim operator guide](overnight/open-claim-live-operator.md) for that path. The [SDK recovery audit](../agents/anish/reports/core-sprint-sdk-recovery-2026-11-18.json) confirms its canonical receipts and repeats SDK recovery from public chain data.
 
 That later fractional open-claim run does not establish the saved November 15 plan's exact 1-USDC selected-provider target or fresh user-problem authoring. A further live run needs exact approved inputs, terms and protected signing authority. Do not silently reuse or expand fractional spending authority.
 
