@@ -1,3 +1,8 @@
+# 2026-11-18 15:59 -05:00 — Verify reference key guard live
+
+- Draft PR #19. The [six-case report](reports/authoring-key-guard-trial-2026-11-18.md) records four review-ready drafts and one live use of the new key guard on badge. Lab still accepted over-capacity input. Nights returned verdict 0 instead of rejecting an unknown program. Campaign API usage is $1.330633.
+- Exact-source CI passed. Original paid failures remain in the record. Bot cost and account qualification, general authoring release, and the final independent Arc run remain open.
+
 # 2026-11-18 15:55 -05:00 — Stage the reference key trial
 
 - Draft PR #19. The [frozen trial](../../docs/authoring-key-guard-trial-2026-11-18.md) uses source `eda9e5b`, matching engine pins, a verified empty database, and a fresh authenticated wallet. Full local commerce checks passed, including 1,077 API tests. Exact-source CI is pending. No paid task has used this image.
