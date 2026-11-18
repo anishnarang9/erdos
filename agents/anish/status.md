@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 12:18 -05:00 — Freeze changed-source repair diagnostic
+
+- Built source `c5f8eab` as Linux amd64 image `sha256:bfe66ec157a1062b54c2554806f93c16ccbef0d54c53d33cf451b376d850e7bb`. Local full commerce checks passed: API 1,046, worker 1,051, SDK 535 plus 13 Arc fixtures, web 4, and typechecks. PR #19 exact-head CI is pending.
+- Froze four changed-source repeat cases and one bounded model repair per task in the [repair diagnostic](../../docs/authoring-fourth-changed-source-repeat-2026-11-18.md). No repeat task or Bot call has run. The previous batch's $0.066586 counts against the $10 campaign ceiling. Next: finish CI, start a fresh isolated local state and journal, then run the four cases without replacing the first-batch records.
+
 ## 2026-11-18 12:15 -05:00 — Fourth batch failed; narrow shape repair under test
 
 - Branch `codex/authoring-pilot-round2`, draft PR #19. Ran all ten frozen first-batch API tasks against isolated local image source `84238b6`. Exact settled API usage totals 66,586 micro-USD. One of eight supported drafts passed native and hidden-oracle checks; six returned `plan_invalid`; one valid plan disagreed with the oracle. The ambiguous and unsupported cases failed their frozen outcomes. No Bot, compile, proof, Arc send, or public deploy ran. The [batch report](reports/authoring-fourth-first-batch-2026-11-18.md) records task and cost evidence. Public readiness stayed 200.
