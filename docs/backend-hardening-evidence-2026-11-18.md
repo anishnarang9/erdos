@@ -19,6 +19,12 @@ See the [case classification](../agents/anish/reports/authoring-pilot-failure-cl
 - The new frozen offline corpus has ID `hosted-qualification-2026-11-18` and digest `ea51f1ff461c88d63dfafc75b4cd5f048cab0958ce7b51d7c2ca5f36054688d8`. It contains 62 briefs across 22 families: 42 supported, 10 ambiguous, and 10 unsupported. Thirty-five briefs include references; outputs cover JSON, text, and binary files. The two new procurement cases have independent domain oracles and hidden candidates.
 - All 66 qualification tests passed. The native engine matched the independent oracle on 344 candidate checks with zero failures. Full `pnpm check` passed: SDK 535 tests and 13 chain fixtures, API 1,037 tests, web 4, worker 1,048, and all workspace typechecks. These are local checks, not live model reliability.
 
+## Task boundary at this checkpoint
+
+The native checker can express bounded file checks over JSON scalar fields and collections, text bytes, and opaque binary hashes. Tested offline families include ledger reconciliation, inventory limits, budgets, badge rules, schedules, route constraints, quantity checks, signed custody evidence, firmware file checks, and purchase-order receipts. These cases establish checker behavior for explicit rules and committed inputs. They do not show that a model will draft the right rules from each brief.
+
+The current proof cannot establish an unstated buyer goal or external truth. A missing toll table, unit, threshold, or policy calls for buyer clarification. A subjective or external claim without a committed reference or approved signed evidence cannot be made payable by the current checker. The corpus has 10 ambiguous and 10 unsupported briefs to test those boundaries, but no live repeat-run accuracy result for them.
+
 ## Release gate still open
 
 1. Inspect the four missing provider bodies if the account logs are available. Preserve unknown causes where the exact response cannot be recovered. Test parser fixes against retained or controlled raw responses.
