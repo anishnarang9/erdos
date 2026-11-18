@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 — Anish — Stage and restore isolated ten-case pilot
+
+- PR [#17](https://github.com/anishnarang9/UBC-26/pull/17) at `dbfd078` passed both GitHub checks. Built a separate VPS image from that exact Git archive; its source label matches the commit and its Linux engine hash matches the published engine. The live API image stayed on the prior release.
+- Created a protected local-mode pilot environment, separate state directory, and fresh API key for the scoped wallet. Temporarily routed only the authenticated Bot callback to the pilot. The public `/readyz` route remained HTTP 200. Restored the original HTTPS ingress and stopped the pilot after the read-only checks.
+- The Grok billing page was unavailable through this chat's browser connection. No reliable before meter or auto-top-up state was recorded. Therefore zero of ten new paid drafts ran, and there was no new Bot dispatch or Arc transaction. Resume only after a verified meter baseline and callback preflight. The original public callback route is restored; pilot state and protected scripts remain for resume.
+
 ## 2026-11-18 07:53 -05:00 — Anish — Close synchronous pilot bypass
 
 - A read-only review found that local `POST /v1/drafts` could call the model outside the queued ten-task cap. A regression first returned HTTP 200 for the second wallet. The pilot now requires queued drafts and compiles through `POST /v1/tasks`; the regression returns 403 before any model call. The same test rejects an eleventh queued draft after restart.
