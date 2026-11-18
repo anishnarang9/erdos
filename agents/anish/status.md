@@ -1,3 +1,8 @@
+# 2026-11-18 14:04 -05:00 — Freeze source-locked lookup trial
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Built Linux image `sha256:8a8d1a0951eb2896683009457072739d16308009726fc29cdbf96c8486ecfb97` from source `d0b6b97`. The embedded source and engine hashes match. A fresh isolated container is healthy with zero drafts and spend reservations. The [seventh trial](../../docs/authoring-seventh-lookup-repair-repeat-2026-11-18.md) freezes five cases before paid dispatch. Exact-source CI is pending.
+- No new paid call or public deploy used the candidate. Campaign API charge stays $0.561945. Next: prepare a new wallet and protected journal, wait for CI, then dispatch each frozen task once.
+
 # 2026-11-18 14:02 -05:00 — Explain numeric lookup repair errors
 
 - Branch `codex/authoring-pilot-round2`, draft PR #19. Native type errors now give the repair model a precise hint when a lookup is used as a Boolean in `and`, `or`, `all`, or `any`. Public errors and the preserved failed task stay unchanged. Four focused regressions pass. Full `commerce/pnpm check` passes: SDK 535 plus 13 Arc fixtures, API 1,059, web 4, worker 1,051, and all typechecks.

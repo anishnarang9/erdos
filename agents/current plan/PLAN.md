@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 14:04 -05:00 — Anish — Freeze changed-source lookup trial
+
+- The [seventh trial](../../docs/authoring-seventh-lookup-repair-repeat-2026-11-18.md) freezes two controls and three unstable families on source `d0b6b97`. Its isolated Linux image has the matching source and engine pins; the new database has no drafts or reservations. Exact-source CI is pending. Anish will use a new wallet, one journal per case, and the remaining $10 scope. Keep general authoring and the accepted public release unchanged.
+
 ## 2026-11-18 14:02 -05:00 — Anish — Verify lookup repair feedback before live testing
 
 - A narrow source change explains numeric lookup type errors to the one allowed repair call. Four focused regressions and the full commerce check pass. No paid request used this candidate. Anish will push the checkpoint, verify exact-source CI, build an isolated image, and freeze a changed-source cohort. General public authoring and the accepted public release stay unchanged.
