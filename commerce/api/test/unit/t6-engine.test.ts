@@ -100,6 +100,22 @@ describe("simulatedEngine", () => {
 });
 
 describe("cliEngine against the real CLI contract (fake script)", () => {
+  it("creates configured compiler temp and cache directories from an empty state root", async () => {
+    const state = join(work, "empty-state");
+    const temp = join(state, "tmp");
+    const cache = join(state, "cache");
+    expect(existsSync(state)).toBe(false);
+    const engine = cliEngine({
+      bin: { command: process.execPath, args: [SCRIPT, "require-dirs"] },
+      workDir: join(state, "work"),
+      processEnv: { tmpDir: temp, cacheDir: cache },
+    });
+    const result = await engine.compile({plan: PLAN, reference: []});
+    expect(result.ok).toBe(true);
+    expect(existsSync(temp)).toBe(true);
+    expect(existsSync(cache)).toBe(true);
+  });
+
   it("validate: success returns the engine hashes (lowercased) and preview", async () => {
     const r = await fake("ok").validate(PLAN);
     expect(r.ok).toBe(true);

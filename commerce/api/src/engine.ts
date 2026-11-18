@@ -570,8 +570,13 @@ export function cliEngine(opts: CliEngineOptions): Engine {
     });
   };
 
-  const run = (args: string[], timeout: number, signal?: AbortSignal): Promise<RunResult> =>
-    spawnEngine(command, [...prefix, ...args], timeout, childEnv(), args[0] ?? "command", signal);
+  const run = async (args: string[], timeout: number, signal?: AbortSignal): Promise<RunResult> => {
+    // A fresh state volume has no compiler temp or cache directories yet.
+    for (const dir of [opts.processEnv?.tmpDir, opts.processEnv?.cacheDir]) {
+      if (dir) await mkdir(dir, { recursive: true, mode: 0o700 });
+    }
+    return spawnEngine(command, [...prefix, ...args], timeout, childEnv(), args[0] ?? "command", signal);
+  };
 
   const withTemp = async <T>(fn: (dir: string) => Promise<T>): Promise<T> => {
     const parent = opts.workDir ?? tmpdir();

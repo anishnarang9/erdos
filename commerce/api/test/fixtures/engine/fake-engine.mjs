@@ -9,6 +9,7 @@
 //
 // Usage: node fake-engine.mjs <mode> <command> [flags...]
 // Modes: ok | crash (exit 3 build_failure) | garbage (non-JSON stdout) | nomanifest | badmanifest | sleep
+//        | require-dirs (fails unless the configured compiler temp and cache directories exist)
 //        | exit1 (exit 1, no JSON)
 // In mode ok the plan decides validate: {} -> invalid_plan (missing version), a rule with op "regex_match" ->
 // unsupported_capability, anything with version 1 -> success. eval returns plan.fakeVerdict (default 1), or
@@ -56,6 +57,10 @@ if (mode === "exit1") {
   process.exit(1);
 }
 if (mode === "crash") fail("build_failure", "Guest build failed with exit status: 125");
+if (mode === "require-dirs" && (!process.env.TMPDIR || !existsSync(process.env.TMPDIR) ||
+  !process.env.UBC26_ENGINE_CACHE || !existsSync(process.env.UBC26_ENGINE_CACHE))) {
+  fail("build_failure", "Compiler temp or cache directory is absent");
+}
 if (mode === "garbage") {
   process.stdout.write("{not json");
   process.exit(0);
