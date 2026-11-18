@@ -1,0 +1,19 @@
+{
+  "status": "corrected-docs-published",
+  "checkedAt": "2026-11-18T05:24:40Z",
+  "documentationSource": "3d463504102d5916191c5699f128fe28ff7158ca",
+  "apiRunnerEngineSource": "33a9883e729b17da8fd97bc5a8981ee989dc9a36",
+  "cause": "The prior public developer guide used an older runner source and hashes despite being published beside the current release.",
+  "correction": "Published a new documentation version that points to the current runner, engine, and both runner manifests. Preserved the prior docs version for audit.",
+  "docsBaseUrl": "https://ubc26-159-89-149-133.sslip.io/downloads/docs/3d463504102d5916191c5699f128fe28ff7158ca/",
+  "publicChecks": {
+    "README.md": { "status": 200, "sha256": "7df47a5fb3b1739789be969fbe20a16c3e35c9cc3ba0e9e83a15f044987197b7" },
+    "buyer.md": { "status": 200, "sha256": "6aaf67ebd85f7462b9af645f6c419f26a90939d060986d5633b75cfd4461b179" },
+    "solver.md": { "status": 200, "sha256": "a095eea1202a935275defc1c472cc4ccd2ce50d7ef6f3446278aa5730be314f6" },
+    "release.json": { "status": 200, "sha256": "5291b5050d347c4b9fbc22e7f71138ea910602671796ef8c4c7f0f43d7492ef1" },
+    "SHA256SUMS": { "status": 200, "sha256": "1b1bda69957e6c61a85fd5170633785b81ec9c64bd54c3cf16ff562fb8346d53" }
+  },
+  "privateStagingCheck": "All ten published documentation files passed sha256sum -c before atomic publication.",
+  "buyerReadiness": 503,
+  "cashPurchasesUsd": 0
+}

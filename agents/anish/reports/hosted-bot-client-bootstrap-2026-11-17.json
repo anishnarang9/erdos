@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "status": "passed-local-client-and-callback-bootstrap-not-live-bot",
+  "checkedAt": "2026-11-17T07:04:36.099834-05:00",
+  "files": {
+    "commerce/api/src/bot-review-config.ts": "f4af8b074149853a19172d11fb078ee16b2948943a91460f157513ece6e85fe9",
+    "commerce/api/src/server.ts": "d0d5154f8bf1c66b8f5a7c560b7cfd229bc2c8a6b4c307e386a0dda03c91f0ac",
+    "commerce/sdk/src/hosted/bot-review.ts": "f9f5b3c1347f639e6f72a07966c685b1eabc84647c63b134db811e15c082ae8e",
+    "commerce/sdk/src/hosted/client.ts": "38598ff0fda8f6889bf4f4d3524eca83b1a6f4c12f1811744bb9dd71df2e985e",
+    "commerce/sdk/src/index.ts": "5daea744a829421b7211a30c5fb975f7fd3f0666104ae30469156894ae4ff371",
+    "commerce/worker/src/hosted-cli.ts": "bf07016f23f970108e6164d0f235efe47590414144a3be5f0dc93b7ca55d7ff5",
+    "commerce/worker/scripts/package-runner.mjs": "d8802a4c98f95c8bb219b1592429ab5e78948b397ae666b350fefd3b8d366901",
+    "commerce/worker/scripts/stage-hosted-types.mjs": "3a88925dc7c802f7e5ebf616b6fa8317b215a8a9910e6effff28c1eada8c08a1",
+    "commerce/worker/scripts/check-installed-types.mjs": "1b4ab42a37a9ba9b642bed1cfcbe5fff2d3fc64f2c4be7056d585357cb01c444",
+    "deploy/Caddyfile": "f7d5d9ade9215d45aabccf2c9b2baa98ceb7cc83d9230d68d3b1171b73e9d4cf",
+    "deploy/compose.yaml": "4a5d1028303f1e455a3afc702b88b40488be916100e740d53b357248d751ea17",
+    ".github/workflows/commerce.yml": "8eeb314aeffd22eafa1816ce965e9bf9fbd349338f038a6e37bd1bcaf9c66c13"
+  },
+  "checks": {
+    "apiTests": 987,
+    "apiFiles": 69,
+    "sdkTests": 373,
+    "sdkWireChecks": 13,
+    "sdkFiles": 22,
+    "workerTests": 950,
+    "workerFiles": 40,
+    "allTypechecks": "passed",
+    "deploymentTests": 11,
+    "stagedInstalledTypesConsumer": 1,
+    "standardNodeNextWithoutSpecialExtensionFlag": "passed-after-red-regression",
+    "relocatedApiBundle": "built-and-syntax-checked",
+    "independentRecheck": "no-actionable-SDK-ingress-config-or-CLI-defect; final type-path portability fix checked locally"
+  },
+  "productionProfile": {
+    "defaultEnabled": false,
+    "paidDispatchAvailable": false,
+    "callbackModeKeepsPublicReadyFalse": true
+  },
+  "actualArchiveCheck": "pending-committed-source",
+  "nativeDeployment": "pending",
+  "genuineBotReviews": 0,
+  "paidModelCalls": 0,
+  "measuredBotCost": null,
+  "proofs": 0,
+  "chainTransactions": 0
+}

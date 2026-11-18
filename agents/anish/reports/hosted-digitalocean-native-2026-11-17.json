@@ -1,0 +1,183 @@
+{
+  "version": 1,
+  "status": "native-compiler-api-and-restored-instance-passed-public-readiness-disabled",
+  "runtimeSourceCommit": "20b0dc282482ad22d7fff49ffe86de903576f547",
+  "dropletId": 620224382,
+  "host": {
+    "architecture": "x86_64",
+    "ntpSynchronized": "yes",
+    "sshHostKeyVerifiedThroughProviderConsole": true,
+    "ed25519Fingerprint": "SHA256:DewD6tS1XaUI9dtYkP7py4OGxfxm9gIlFyZLZfoO944",
+    "passwordAuthentication": "no"
+  },
+  "storage": {
+    "status": "quota-mounts-verified",
+    "stateFileBytes": 34359738368,
+    "dockerFileBytes": 85899345920,
+    "dockerRoot": "/srv/ubc26-docker/docker",
+    "containerdRoot": "/srv/ubc26-docker/containerd",
+    "dockerVersion": "29.10.0",
+    "backupFileBytes": 8589934592
+  },
+  "mounts": {
+    "/srv/ubc26-state": {
+      "source": "/dev/loop0",
+      "target": "/srv/ubc26-state",
+      "fstype": "ext4",
+      "size": 33501757440,
+      "avail": 33479524352,
+      "options": "rw,nosuid,nodev,relatime"
+    },
+    "/srv/ubc26-docker": {
+      "source": "/dev/loop1",
+      "target": "/srv/ubc26-docker",
+      "fstype": "ext4",
+      "size": 83955703808,
+      "avail": 74966769664,
+      "options": "rw,nosuid,nodev,relatime"
+    },
+    "/srv/ubc26-backups": {
+      "source": "/dev/loop2",
+      "target": "/srv/ubc26-backups",
+      "fstype": "ext4",
+      "size": 8350298112,
+      "avail": 8329596928,
+      "options": "rw,nosuid,nodev,relatime"
+    }
+  },
+  "builder": {
+    "image": "moby/buildkit:v0.26.2@sha256:de10faf919fc71ba4eb1dd7bd6449566d012b0c9436b1c61bfee21d621b009aa",
+    "memoryBytes": 4294967296,
+    "memorySwapBytes": 4294967296,
+    "cpuQuota": 200000,
+    "cpuPeriod": 100000,
+    "pidsLimit": 512,
+    "running": true
+  },
+  "runtime": {
+    "importedImageId": "sha256:acc4eb148e89db6699437ecb2937bf8bfb9e552befd7c76c45ef277730a662d0",
+    "archiveSha256": "7289a46dbb583a41d74be33d725baf661a0a21538743b6d50b890d5acdf56f20"
+  },
+  "compiler": {
+    "status": "passed-cold-compile-and-both-fixture-verdicts",
+    "unit": "ubc26-compiler-prewarm-bridge.service",
+    "initialFailures": [
+      "Wrong operator-supplied Docker group prevented socket access. No build began.",
+      "Network-none helper prevented client-side anonymous registry token access. Guest build did not begin."
+    ],
+    "outerHelperSha256": "629169d8a79f3e7d87b373b9a11ddf3fb5518efe428e1357cc9055a4d4b3eae0",
+    "fixedHelperNetwork": "bridge",
+    "apiCredentialsPassed": false,
+    "report": "hosted-digitalocean-compiler-2026-11-17.json",
+    "elapsedSeconds": 240,
+    "outerHelperCommit": "cff751c594724ea3693421060dd0478c5677f602",
+    "sshObservationTimeoutDidNotStopRemoteUnit": true
+  },
+  "publicApiVerified": false,
+  "tlsVerified": true,
+  "genuineModelCalls": 0,
+  "proofsGenerated": 0,
+  "chainTransactions": 0,
+  "checkedAt": "2026-11-17T10:22:27.554217+00:00",
+  "temporaryConsoleSsh": {
+    "approvedDurationSeconds": 300,
+    "status": "closed",
+    "openedAt": "2026-11-17T09:50:30.015515+00:00",
+    "closedAt": "2026-11-17T09:55:03.140051+00:00",
+    "cleanupComplete": true
+  },
+  "containers": {
+    "ubc26-hosted-api-1": {
+      "running": true,
+      "imageId": "sha256:acc4eb148e89db6699437ecb2937bf8bfb9e552befd7c76c45ef277730a662d0",
+      "memoryBytes": 1073741824,
+      "memorySwapBytes": 1073741824,
+      "nanoCpus": 1000000000,
+      "pidsLimit": 128,
+      "readOnlyRootfs": true,
+      "capDrop": [
+        "ALL"
+      ],
+      "capAdd": null,
+      "securityOpt": [
+        "no-new-privileges:true"
+      ],
+      "tmpfs": {
+        "/tmp": "size=64m,mode=1777,noexec,nosuid,nodev"
+      },
+      "publishedPorts": {}
+    },
+    "ubc26-hosted-https-1": {
+      "running": true,
+      "imageId": "sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d",
+      "memoryBytes": 134217728,
+      "memorySwapBytes": 134217728,
+      "nanoCpus": 250000000,
+      "pidsLimit": 64,
+      "readOnlyRootfs": true,
+      "capDrop": [
+        "ALL"
+      ],
+      "capAdd": [
+        "CAP_NET_BIND_SERVICE"
+      ],
+      "securityOpt": [
+        "no-new-privileges:true"
+      ],
+      "tmpfs": {
+        "/tmp": "size=16m,noexec,nosuid,nodev"
+      },
+      "publishedPorts": {
+        "443/tcp": [
+          {
+            "HostIp": "",
+            "HostPort": "443"
+          }
+        ],
+        "443/udp": [
+          {
+            "HostIp": "",
+            "HostPort": "443"
+          }
+        ],
+        "80/tcp": [
+          {
+            "HostIp": "",
+            "HostPort": "80"
+          }
+        ]
+      }
+    }
+  },
+  "deploymentFiles": {
+    "compose.yaml": "45253f6f9d67400ea29ec016696a2e19184510823ed17649611bbf6e16c755c8",
+    "Caddyfile": "36b179c34a0bfbcb46f0636a11c9220957d13308936aa6e0129f02dcff36e31e",
+    "warm-compiler.sh": "629169d8a79f3e7d87b373b9a11ddf3fb5518efe428e1357cc9055a4d4b3eae0",
+    "backup-state.sh": "69e5c464dcbb1e582d02f4c424e04f7070a6d73bba21207b785d2536ee7c8696",
+    "restore-state.sh": "81046d8a9da1b29c6f4540e2f4d31182294b1d0aa9a274e64b54e75b26b10289"
+  },
+  "deploymentToolingCommit": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+  "publicReadiness": {
+    "httpsCertificateVerified": true,
+    "status": 503,
+    "authoring": "disabled",
+    "usablePublicApi": false,
+    "xaiCredentialConfiguredOnHost": false,
+    "approvedAuthoringRunCeilingMicroUsd": 100000,
+    "massTestingApproved": false,
+    "twentyDollarBudgetApproved": false,
+    "currentFullContextReservationCanMeetTenCentCeiling": false
+  },
+  "maintenance": {
+    "status": "completed-combined-candidate-promoted",
+    "unit": "ubc26-runtime-build-4a6a320.service",
+    "runtimeSourceBeingBuilt": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+    "previousRuntimePreserved": true,
+    "paidModelCalls": 0
+  },
+  "subsequentCandidate": {
+    "source": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+    "report": "hosted-native-candidate-4a6a320-2026-11-17.json",
+    "note": "This baseline report retains its original runtime observations."
+  }
+}

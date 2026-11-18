@@ -1,0 +1,25 @@
+{
+  "request": "Report one product in product.json. concentration, volume, and mass are integer decimal strings. mass equals concentration times volume. A second valid triple is acceptable.",
+  "examples": [
+    {
+      "name": "native-pass",
+      "predictedVerdict": 1,
+      "files": [
+        {
+          "name": "product.json",
+          "content": "{\"concentration\":\"6\",\"volume\":\"7\",\"mass\":\"42\"}"
+        }
+      ]
+    },
+    {
+      "name": "native-fail",
+      "predictedVerdict": 0,
+      "files": [
+        {
+          "name": "product.json",
+          "content": "{\"concentration\":\"5\",\"volume\":\"5\",\"mass\":\"24\"}"
+        }
+      ]
+    }
+  ]
+}

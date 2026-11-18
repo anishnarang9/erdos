@@ -11,12 +11,12 @@ const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
 function must(value: unknown): asserts value { if (!value) throw Error("Open-claim recovery failed"); }
 
 /** Recover from confirmed public transactions and key events. No solver key file or API response is trusted.
- * The expected files are independently supplied bytes. Both SDK and engine must reproduce those bytes.
+ * If supplied, expected files are independently supplied bytes. Both SDK and engine must reproduce them.
  * This check also requires the solver's native USDC delta, adjusted for both transaction fees, to equal the bounty.
  */
 export async function recoverOpenClaimFromChain(input: {
   publicClient: PublicClient; port: OpenClaimAdapterPort; witness: OpenClaimDeploymentWitness;
-  job: OpenClaimFundedJob; claimTx: Hex; releaseTx: Hex; expectedOutputs: BundleFile[];
+  job: OpenClaimFundedJob; claimTx: Hex; releaseTx: Hex; expectedOutputs?: BundleFile[];
   runner: EngineRunner; directory: string;
 }) {
   let ownedKey: string | undefined;
@@ -51,7 +51,7 @@ export async function recoverOpenClaimFromChain(input: {
     const proofJson = {version:1,context:bytesToHex(encodeContext(context)),imageId:j.imageId,verdict:1,envelope,
       keyCommitment:commitment,journal:bytesToHex(journal),seal};
     const proof = parseProofJson(proofJson), files = decodeBundle(decryptEnvelope(proof.envelope,hexToBytes(key),proof.contextBytes));
-    must(sameFiles(files,input.expectedOutputs));
+    if (input.expectedOutputs) must(sameFiles(files,input.expectedOutputs));
     const cr = await pub.getTransactionReceipt({hash:input.claimTx}), rr = await pub.getTransactionReceipt({hash:input.releaseTx});
     must(cr.blockNumber > 0n && (rr.blockNumber > cr.blockNumber || rr.blockNumber === cr.blockNumber && rr.transactionIndex > cr.transactionIndex));
     const [before,after,tokenBefore,tokenAfter] = await Promise.all([
@@ -71,10 +71,11 @@ export async function recoverOpenClaimFromChain(input: {
     writeFileSync(proofPath,JSON.stringify(proofJson),{mode:0o600,flag:"wx"});
     const fd=openSync(keyPath,"wx",0o600); ownedKey=keyPath;
     try {writeFileSync(fd,key);} finally {closeSync(fd);}
-    await checkRecovery(input.runner,proofPath,keyPath,join(outputDirectory,"engine"),proof,hexToBytes(key),input.expectedOutputs);
+    await checkRecovery(input.runner,proofPath,keyPath,join(outputDirectory,"engine"),proof,hexToBytes(key),input.expectedOutputs ?? files);
     mkdirSync(join(outputDirectory,"sdk"),{mode:0o700});
     for(const f of files) writeFileSync(join(outputDirectory,"sdk",f.name),f.content,{mode:0o600,flag:"wx"});
-    return {status:"recovered-exact" as const,outputDirectory,jobId:String(j.jobId),claimTx:input.claimTx,releaseTx:input.releaseTx,
+    return {status:input.expectedOutputs ? "recovered-exact" as const : "recovered-from-chain" as const,
+      expectedOutputsChecked:input.expectedOutputs !== undefined,outputDirectory,jobId:String(j.jobId),claimTx:input.claimTx,releaseTx:input.releaseTx,
       amountAtomic:String(j.budget),solver:j.solver,envelopeHash:proof.envelopeHash,
       nativeBefore:String(before),nativeAfter:String(after),gasCostNative:String(gasCost),
       erc20Before:String(tokenBefore),erc20After:String(tokenAfter),gasAdjustedPayoutExact:true,

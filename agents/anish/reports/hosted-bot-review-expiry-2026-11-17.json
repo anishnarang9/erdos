@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "status": "passed-local-bot-review-expiry-regression",
+  "source": "Checkpoint containing these file hashes; native deployment remains fb45033.",
+  "checkedAt": "2026-11-17T15:44:39.348765+00:00",
+  "runtime": {
+    "node": "v24.10.0",
+    "platform": "macOS arm64"
+  },
+  "fileSha256": {
+    "commerce/api/src/bot-review-store.ts": "76ae048fcd806b721cfaafd569f6b89c2192625b8608a07821884de54cbf17e6",
+    "commerce/api/src/bot-review.ts": "d79bbc93ffbfe734108477f195ef36d3097fe23e9ef493dbc928da41da9d7cf4",
+    "commerce/api/test/unit/bot-review-store.test.ts": "0719721e1370ec8765ad8ae6596aaa5664604acea89f153c99119b466ca74245",
+    "commerce/api/test/spec/hosted-bot-review.test.ts": "149703f2c01220a7bf1aefbc7d2531da4739116e8da5c9d748670727e40218fb"
+  },
+  "red": {
+    "command": "vitest run test/unit/bot-review-store.test.ts test/spec/hosted-bot-review.test.ts",
+    "tests": 35,
+    "failed": 6,
+    "passed": 29,
+    "observed": "Queued, dispatching, waiting and uncertain rows did not expire on owner polling. Both enabled/disabled dispatcher HTTP cases failed."
+  },
+  "green": {
+    "focusedTests": 35,
+    "apiTests": 994,
+    "apiTestFiles": 69,
+    "apiTypecheck": "passed",
+    "sdkBotReviewTests": 8
+  },
+  "checks": [
+    "Exact deadline expires every unfinished status without a pump.",
+    "Non-owner and wrong-job reads cannot change state.",
+    "Expiry preserves ticket digest and original dispatch timestamp.",
+    "Replays, queue pumping and late callbacks cannot dispatch again or approve.",
+    "Completed receipts, exact callback replay and explicit buyer approval requirements remain intact."
+  ],
+  "deployed": false,
+  "newPaidReviews": 0,
+  "newProofs": 0,
+  "newChainTransactions": 0
+}

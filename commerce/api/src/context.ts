@@ -8,7 +8,73 @@ import type { DemoSignerOptions } from "./demo-signer.ts";
 import type { DraftModel } from "./grok.ts";
 import type { ApiChain } from "./chain.ts";
 
+import type { CompileAdmission } from "./compile-admission.ts";
+import type { BotReviewConfig } from "./bot-review-types.ts";
+
 export const MAX_BODY_BYTES = 1024 * 1024; // 1 MiB
+
+export type Principal =
+  | { kind: "legacy" }
+  | { kind: "wallet"; wallet: string; keyId: string; scopes: string[] };
+
+export interface DeploymentConfig {
+  mode: "local" | "public";
+  /** Origin bound into wallet challenge messages. */
+  serviceOrigin: string;
+  /** Exact browser origins. CORS does not authenticate a wallet. */
+  browserOrigins: readonly string[];
+  /** When true, the first X-Forwarded-For hop is the client IP for rate limits. */
+  trustProxy: boolean;
+}
+
+export interface RateLimitConfig {
+  /** 0 disables this dimension. */
+  expensivePerPrincipal: number;
+  expensivePerIp: number;
+  windowMs?: number;
+}
+
+/** Caps queued and running tasks. Zero is not a supported unlimited setting. */
+export interface TaskQueueConfig {
+  globalPending: number;
+  pendingPerWallet: number;
+}
+
+/** Caps challenge and key issuance per client IP. Zero is not a supported unlimited setting. */
+export interface AuthLimitConfig {
+  perIp: number;
+  windowMs: number;
+}
+
+export interface RouteMetric {
+  count: number;
+  errors: number;
+  latencyMsTotal: number;
+}
+
+/** Process counters. They do not enforce a host disk, CPU, or memory quota. */
+export interface ServiceMetrics {
+  requests: number;
+  errors: number;
+  latencyMsTotal: number;
+  queueRejected: number;
+  authLimited: number;
+  tasksAccepted: number;
+  tasksSucceeded: number;
+  tasksFailed: number;
+  routes: Record<string, RouteMetric>;
+}
+
+/** Operator prices in micro-USD. Absent in local mode. Public mode must not run drafts without it. */
+export interface AuthoringBudget {
+  /** Estimated spending is an explicit local operator policy that can overrun its reservation. */
+  reservationMode?: "provider-bound" | "estimated";
+  requestCeilingMicroUsd: number;
+  dailyCeilingMicroUsd: number;
+  inputMicroUsdPerMillion: number;
+  outputMicroUsdPerMillion: number;
+  cachedInputMicroUsdPerMillion?: number;
+}
 
 export interface Deps {
   db: Db;
@@ -19,6 +85,8 @@ export interface Deps {
   engine: Engine;
   /** T5 draft model; absent means POST /v1/drafts returns 503 model_unavailable. */
   draftModel?: DraftModel;
+  /** Disable automatic repair for an operator pilot with one model call per attempt. */
+  authoringRepairs: boolean;
   /** Host directory where compiled packages are kept for workers. Unset: packages are not kept. */
   packagesDir?: string;
   /** Directory of worker run-event files (<jobId>.jsonl) served by the demo routes. */
@@ -27,6 +95,25 @@ export interface Deps {
   demoSigner?: DemoSignerOptions;
   /** T7/T8 chain; absent means chain routes return 503 chain_unavailable. */
   chain?: ApiChain;
+  deployment: DeploymentConfig;
+  rateLimit?: RateLimitConfig;
+  /** Always set. Counts queued and running tasks only. */
+  taskQueue: TaskQueueConfig;
+  /** Always set. Applies to auth challenge and key issuance. */
+  authLimit: AuthLimitConfig;
+  compileAdmission: CompileAdmission;
+  /** Process counters. Reset on restart. They do not enforce a host quota. */
+  metrics: ServiceMetrics;
+  /** One JSON line per request. The line uses a fixed route label. */
+  requestLog: boolean;
+  /** Local mode may print an unknown error value. Public mode ignores this flag. */
+  requestLogDebug: boolean;
+  expensiveDisabled: boolean;
+  /** When set, a draft task reserves its ceiling before the handler runs. */
+  budget?: AuthoringBudget;
+  /** Bearer token for an audited spend-halt resolution. Unset means resolution is unavailable. */
+  operatorToken?: string;
+  botReview?: BotReviewConfig;
 }
 
 export interface IdempotencyScope {
@@ -44,8 +131,12 @@ export interface AppEnv {
     rawBody: Uint8Array;
     /** Parsed JSON body; only set for POST. */
     json: unknown;
-    /** "buyer" or the lowercase provider address. */
+    /** "buyer", a lowercase wallet, or the lowercase provider address. */
     caller: string;
+    /** Set by buyer or API-key authentication. */
+    principal?: Principal;
+    /** Set only by the task runner. HTTP routes leave this empty. */
+    taskId?: string;
     idem: IdempotencyScope | undefined;
   };
 }

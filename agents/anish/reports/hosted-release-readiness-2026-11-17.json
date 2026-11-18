@@ -1,0 +1,663 @@
+{
+  "version": 1,
+  "status": "incomplete",
+  "workingSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
+  "finalReleaseSource": null,
+  "publicUrl": null,
+  "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/8",
+  "pullRequestState": "draft",
+  "goal": "paused",
+  "scope": "Public callback runtime, static client downloads and finite compiler/proof checks pass. Four fixed-case Bot reviews completed earlier. The revised three-attempt cost pilot was approved. Its first direct authoring request failed with an HTTP error and uncertain usage. The isolated pilot container is stopped. Complete authoring, public buyer readiness, qualification and fresh funded settlement remain incomplete.",
+  "corpus": {
+    "digest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
+    "supported": 40,
+    "ambiguous": 10,
+    "unsupported": 10,
+    "families": 10,
+    "requiredLiveTrials": 180,
+    "completedLiveTrials": 0
+  },
+  "evidence": [
+    {
+      "gate": "wallet authentication and ownership",
+      "status": "passed-local",
+      "report": "hosted-public-mode-image-2026-11-17.json",
+      "limit": "Isolated emulated Linux; requires final image and external-client checks."
+    },
+    {
+      "gate": "bounded authoring, immutable witnesses and review",
+      "status": "implemented-and-controlled-tests",
+      "report": "hosted-native-buyer-checks-2026-11-17.json",
+      "documentation": "../../../docs/hosted-authoring-coverage.md",
+      "limit": "Controlled model output; genuine Grok reliability remains unmeasured."
+    },
+    {
+      "gate": "host and independent semantic oracle",
+      "status": "passed-finite",
+      "documentation": "../../../docs/hosted-qualification.md",
+      "limit": "Frozen corpus; no universal or natural-language correctness claim."
+    },
+    {
+      "gate": "actual compiled guests",
+      "status": "passed-finite",
+      "report": "hosted-corpus-guests-2026-11-16.json",
+      "compiledPlans": 40,
+      "distinctImages": 39,
+      "guestExecutions": 236,
+      "inputRejectionsBeforeGuest": 80,
+      "disagreements": 0
+    },
+    {
+      "gate": "real proof subset and recovery",
+      "status": "passed-finite-synthetic-context",
+      "reports": [
+        "hosted-engine-proof-subset-2026-11-16.json",
+        "hosted-corpus-signed-proof-2026-11-17.json"
+      ],
+      "limit": "Real Solidity verification and exact SDK/engine recovery. No current hosted funded acceptance."
+    },
+    {
+      "gate": "packaged installed runner",
+      "status": "passed-native-linux-and-emulated-linux",
+      "limit": "Twelve signed checks pass on native Linux and emulated Linux; five installed progress checks use controlled emulated Linux. Final source release artifacts still required.",
+      "reports": [
+        "hosted-runner-linux-progress-2026-11-17.json",
+        "hosted-runner-native-linux-2026-11-17.json"
+      ]
+    },
+    {
+      "gate": "runtime pins, configured readiness and warm compilation",
+      "status": "passed-local-image",
+      "report": "hosted-public-mode-image-2026-11-17.json",
+      "imageSource": "92ef0c3706f71ebcde3d687429ac47ae46e470a3",
+      "warmCompileMs": 1792,
+      "limit": "Unused synthetic model credential, blocked external egress, emulated Linux. Later service controls/discovery need a new combined image."
+    },
+    {
+      "gate": "proxy readiness and request log privacy",
+      "status": "passed-controlled-containers",
+      "report": "hosted-proxy-readiness-2026-11-17.json",
+      "limit": "HTTP only on isolated network; no public TLS."
+    },
+    {
+      "gate": "backup, separate restore and attempt/package consistency",
+      "status": "passed-local-image",
+      "report": "hosted-attempt-backup-restore-2026-11-17.json",
+      "files": 41,
+      "downloadedPackageFilesHashChecked": 20,
+      "limit": "Local Docker volumes; no provider durability or host quota evidence."
+    },
+    {
+      "gate": "discovery paging and confirmed expiry",
+      "status": "passed-controlled-api",
+      "documentation": "../../../docs/hosted-discovery-worker-report.md",
+      "limit": "Fixture confirmed readers; actual public RPC acceptance remains open."
+    },
+    {
+      "gate": "auth limits, durable queue caps and protected metrics",
+      "status": "implemented-and-tested",
+      "documentation": "../../../docs/hosted-service-worker-report.md",
+      "limit": "Process counters reset on restart. Host quotas are not enforced by these metrics."
+    },
+    {
+      "gate": "actual public-mode observation/auth controls",
+      "status": "passed-local-image",
+      "report": "hosted-observation-image-2026-11-17.json",
+      "imageSource": "5d0f8b6f0313433be65f058ad8156954717068a1",
+      "warmCompileMs": 901,
+      "limit": "Emulated Linux, isolated network and unused synthetic model credential. Later ingress/paid-waiter code still needs verification."
+    },
+    {
+      "gate": "bounded paid compiler admission and drain",
+      "status": "passed-source-checks",
+      "source": "checkpoint containing this entry",
+      "apiTests": 939,
+      "focusedTests": 11,
+      "limit": "No external settlement occurred. Combined image and independent final review remain pending."
+    },
+    {
+      "gate": "campaign provenance and actual API integration",
+      "status": "passed-controlled-source-checks",
+      "report": "hosted-campaign-api-integration-2026-11-17.json",
+      "offlineNativeChecks": 57,
+      "genuineApplicationTrials": 0,
+      "limit": "Synthetic wallets and controlled model. Exact-source CI, final artifacts/image and independent review remain pending."
+    },
+    {
+      "gate": "live qualification reservation and identity binding",
+      "status": "passed-source-checks",
+      "source": "checkpoint containing this entry",
+      "offlineNativeChecks": 63,
+      "genuineApplicationTrials": 0,
+      "limit": "No genuine inference occurred. Provider-price revalidation and explicit approved budgets remain required."
+    }
+  ],
+  "activeImplementation": [],
+  "externalDependencies": [
+    {
+      "needed": "Exact Bot pilot billing/export and production spending policy",
+      "inputStatus": "Four genuine reviews completed: one negative pilot and three separately approved positive cases. The follow-ups changed both rounded account balances by $0.23. Both approvals are consumed. Exact billing/export and production isolation/spending policy remain open.",
+      "productionRunCeilingMicroUsd": 100000,
+      "pilotAccountCapMicroUsd": 1000000,
+      "reviewsAuthorized": 4,
+      "massTestingApproved": false,
+      "reviewsRemainingAuthorized": 0
+    },
+    {
+      "needed": "Ten-cent complete authoring input/session bound",
+      "inputStatus": "Key authenticates for non-inference model listing. User permits 100000 micro-USD per complete run including repair. Current full-context reservation cannot fit. No generation ran.",
+      "approvedRunCeilingMicroUsd": 100000,
+      "approvedDailyCeilingMicroUsd": null,
+      "approvedBenchmarkCeilingMicroUsd": null,
+      "massTestingApproved": false
+    },
+    {
+      "needed": "Public authoring readiness and external API acceptance",
+      "inputStatus": "Persistent host, price, hostname, TLS and hard storage/process bounds resolved. Actual public HTTP is 503 while authoring remains disabled."
+    },
+    {
+      "needed": "Current scoped funding/signing authority after a concrete preview",
+      "inputStatus": "Not inferred from historical approvals. No fresh transaction ran."
+    },
+    {
+      "needed": "Final deployment/release review",
+      "inputStatus": "Candidate source and both deployment follow-ups reviewed; operational reports refreshed after stale documentation finding."
+    }
+  ],
+  "releaseGatesStillOpen": [
+    "Production Bot account isolation, conversation export, and measured combined authoring and review cost",
+    "Approve and qualify the proposed 5\u201310 cent average complete-authoring pilot",
+    "Public authoring readiness and external API/laptop-independent acceptance",
+    "Later authorized genuine 180-trial qualification",
+    "Final combined runtime/public runner artifacts and exact handoff identities",
+    "Fresh hosted Arc/Circle acceptance under current authority",
+    "Final review of deployment evidence and later behavior changes"
+  ],
+  "privacy": "The protocol publishes the release key. Settled results become public. Real release keys and signing material stay outside Git.",
+  "completionRule": "Keep the goal active while authorized independent work remains. Do not equate local readiness, synthetic credentials, finite proofs, prepared containers or historical live receipts with completed hosted release.",
+  "combinedCommerce": {
+    "sourceCommit": "5991bd2e876f64219a8d7e628adfb5f7a284daca",
+    "status": "passed",
+    "apiTests": 917,
+    "sdkTests": 365,
+    "wireTests": 13,
+    "workerTests": 945,
+    "typechecks": [
+      "api",
+      "sdk",
+      "worker"
+    ]
+  },
+  "nativeLinuxCI": {
+    "sourceCommit": "5991bd2e876f64219a8d7e628adfb5f7a284daca",
+    "runId": 44032104126,
+    "status": "passed",
+    "report": "hosted-runner-native-linux-2026-11-17.json",
+    "checks": 12
+  },
+  "sourceCI": {
+    "sourceCommit": "5991bd2e876f64219a8d7e628adfb5f7a284daca",
+    "engineAndContracts": {
+      "runId": 44032104126,
+      "event": "push",
+      "status": "success"
+    },
+    "commerce": {
+      "runId": 44032104152,
+      "event": "push",
+      "status": "success"
+    },
+    "finalRelease": false
+  },
+  "independentReview": {
+    "source": "20b0dc282482ad22d7fff49ffe86de903576f547",
+    "status": "no-actionable-code-defect-in-scoped-review",
+    "report": "../../../docs/hosted-candidate-code-review-2026-11-17.md",
+    "checks": 106,
+    "deploymentFollowups": [
+      {
+        "source": "cff751c594724ea3693421060dd0478c5677f602",
+        "checks": 10,
+        "status": "no-actionable-defect"
+      },
+      {
+        "source": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+        "checks": 11,
+        "status": "no-source-defect-stale-evidence-finding-addressed"
+      }
+    ],
+    "finalReleaseApproval": false
+  },
+  "browserOriginPolicy": {
+    "status": "implemented; unit/typecheck passed",
+    "apiTests": 928,
+    "publicHostAcceptance": false
+  },
+  "candidateCodeSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
+  "candidate": {
+    "source": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
+    "tarSha256": "148366c2a62114a8c5d0696fa9c3ee990e06a217d815f4e50c506a856e5a793c",
+    "manifestSha256": "fbab4c2c6941115a099aab3b6ab6ca2b4e436066e483f21ce73bcaec1165e447",
+    "payloadFiles": 11,
+    "localAndLinuxArchiveIdentical": true,
+    "linuxSignedChecks": 12,
+    "linuxEngineBuild": "CI debug engine",
+    "linuxEngineSha256": "a7d0cec0285258eda3debf9421e4ee8132fcaf784a4840fae0e86a822aed70ad",
+    "nativeVpsReleaseEngineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+    "limit": "Canonical runner and separate native engine are public. Public-byte installation passes twelve signed Linux checks. Full public API acceptance and fresh proving through the complete hosted workflow remain incomplete.",
+    "publicDownloadPublished": true,
+    "image": "sha256:4a69ca09aee0495c7214bffdd7d06fa689e92c26d5aa43159d80d2cf2d1d607a",
+    "reports": [
+      "hosted-bot-native-candidate-2026-11-17.json",
+      "hosted-bot-expiry-native-candidate-2026-11-17.json"
+    ],
+    "publicAuthoringReady": false,
+    "nativeVpsSignedChecks": 12,
+    "nativeVpsReport": "hosted-runner-native-digitalocean-fb45033-2026-11-17.json",
+    "publicDownloadBase": "https://ubc26-159-89-149-133.sslip.io/downloads/runner/fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "publicDownloadReport": "hosted-runner-public-download-2026-11-17.json",
+    "nativeEngineDownloadPublished": true,
+    "runnerSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "engineArtifactSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "evidenceScope": "The API candidate uses source/image. Published archive, manifest and engine-download pins retain their explicit artifact source fields."
+  },
+  "developmentWorkerPolicy": "No further Grok CLI calls, per user reply. Both original sessions remain stopped.",
+  "remainingWork": [
+    {
+      "gate": "Live Bot semantic-validation step",
+      "status": "Four earlier fixed-case reviews completed. The newly approved combined pilot has sent no Bot review. Its uncertain first API charge stops further paid dispatch until resolved. Exact billing, authentic runtime export and broader reliability remain unqualified."
+    },
+    {
+      "gate": "Five-to-ten-cent average complete authoring run",
+      "status": "User selected an average target and approved three drafts plus three reviews under a $0.50 planning allowance with possible in-flight overrun. Estimated admission and disabling repair are implemented. First direct API attempt failed with an HTTP error; its 60000 micro-USD reservation remains uncertain."
+    },
+    {
+      "gate": "Usable public API and external acceptance",
+      "status": "Native compiler/API/restart/restore and TLS pass. Public HTTP remains 503 because model authoring readiness is disabled."
+    },
+    {
+      "gate": "Public runner download and final combined artifact/handoff",
+      "status": "Four runner assets and three separate native-engine assets are public through versioned HTTPS. Public-byte installation passes twelve signed Linux checks. Final complete-service handoff remains open."
+    },
+    {
+      "gate": "180 genuine deployed qualification trials",
+      "status": "Deferred pending later mass-test approval. The proposed $20 budget was rejected; do not dispatch."
+    },
+    {
+      "gate": "Fresh hosted funded acceptance and Circle payment",
+      "status": "The fee job owner obtained durable Arc funding terms, and exact replay returned the same response. The owner wallet has zero testnet funds. Protected signing, a fresh funded proof and separate Circle acceptance remain pending.",
+      "preview": "hosted-arc-fee-read-only-preview-2026-11-17.json",
+      "termsReport": "hosted-arc-fee-terms-acceptance-2026-11-17.json"
+    },
+    {
+      "gate": "Final deployment/release review",
+      "status": "Scoped candidate and deployment source reviews pass. New operational evidence and any later cost-policy changes need final review."
+    }
+  ],
+  "earlierIndependentReview": {
+    "source": "8c98d6b",
+    "status": "no-new-material-defect-in-reviewed-paths",
+    "report": "../../../docs/hosted-integrated-security-review.md",
+    "excludes": [
+      "forthcoming browser/paid-waiter code",
+      "newly reproduced benchmark metadata mismatch"
+    ]
+  },
+  "nativeDeployment": {
+    "runtimeSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
+    "outerHelperSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "composeSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "image": "sha256:4a69ca09aee0495c7214bffdd7d06fa689e92c26d5aa43159d80d2cf2d1d607a",
+    "url": "https://ubc26-159-89-149-133.sslip.io",
+    "publicStatus": 503,
+    "tlsVerified": true,
+    "publicApiReady": false,
+    "callbackEndpointVerified": true,
+    "compilerPrewarmSeconds": 1,
+    "compilerPrewarmCache": "warm",
+    "coldCompilerBaseline": {
+      "source": "20b0dc282482ad22d7fff49ffe86de903576f547",
+      "seconds": 240
+    },
+    "nativeApiTransport": "operator pinned SSH",
+    "artifactHashesChecked": 20,
+    "snapshotFiles": 41,
+    "currentCandidateRestartPassed": true,
+    "currentCandidateOfflineRestorePassed": true,
+    "fullServerRebootBaselineSource": "20b0dc282482ad22d7fff49ffe86de903576f547",
+    "providerBackupRestoreTested": false,
+    "reports": [
+      "hosted-bot-native-candidate-2026-11-17.json",
+      "hosted-bot-public-callback-2026-11-17.json",
+      "hosted-bot-native-preflight-2026-11-17.json",
+      "hosted-bot-native-restart-2026-11-17.json",
+      "hosted-bot-native-restore-2026-11-17.json",
+      "hosted-native-engine-public-download-2026-11-17.json",
+      "hosted-native-engine-public-install-2026-11-17.json",
+      "hosted-genuine-bot-pilot-2026-11-17.json",
+      "hosted-bot-expiry-native-candidate-2026-11-17.json",
+      "hosted-bot-expiry-native-acceptance-2026-11-17.json",
+      "hosted-bot-expiry-offline-restore-2026-11-17.json",
+      "hosted-bot-expiry-native-restart-2026-11-17.json"
+    ],
+    "ingressSource": "0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b",
+    "ingressReport": "hosted-public-docs-acceptance-2026-11-17.json",
+    "runnerDownloadVerified": true,
+    "apiContainerUnchangedDuringIngressPromotion": true,
+    "nativeEngineDownloadPublished": true,
+    "currentCandidateRestartNote": "Same-container restart preserves owner expiry and the exact original completed Bot receipt.",
+    "compilerOwnershipRepair": {
+      "report": "hosted-native-compiler-ownership-repair-2026-11-17.json",
+      "changedFiles": 1,
+      "runtimeImageChanged": false,
+      "nativeColdApiCompilePassed": true,
+      "threeBotReviewedCasesCompiled": true
+    },
+    "positiveBotRecovery": {
+      "report": "hosted-bot-positive-recovery-2026-11-17.json",
+      "snapshotFiles": 101,
+      "reviewsAndApprovalsPreserved": 3,
+      "packageHashesPerInstance": 60,
+      "compileReplayAttempt": 1,
+      "completedReceiptsSurviveTicketDeadline": true,
+      "restoredInstanceStopped": true
+    }
+  },
+  "currentDeploymentCi": {
+    "commerceSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
+    "commerceRunId": 44118302280,
+    "status": "success",
+    "deploymentChecks": 11,
+    "coreSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "coreRunId": 44079754552,
+    "coreStatus": "success",
+    "installedArchiveTypeConsumer": true,
+    "ingressSource": "0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b",
+    "ingressCommerceRunId": 44172204831,
+    "ingressCommerceStatus": "success",
+    "coreEvidenceScope": "Engine binary unchanged from the source-labelled core baseline; API-only change triggers commerce workflow."
+  },
+  "historicalVerificationSections": [
+    "combinedCommerce",
+    "nativeLinuxCI",
+    "sourceCI",
+    "earlierIndependentReview"
+  ],
+  "previousRuntimeCandidate": {
+    "image": "sha256:acc4eb148e89db6699437ecb2937bf8bfb9e552befd7c76c45ef277730a662d0",
+    "runnerTarSha256": "58ecaecd30575d8b5573f5daa6018b9975618ff81141bc8c363cf4219ebbffda",
+    "runnerManifestSha256": "cc1b0196cb4e3d250ccf8decb286f88663544dd00ffe3e19aac2c392e40f957d",
+    "reports": [
+      "hosted-release-candidate-2026-11-17.json",
+      "hosted-runtime-payload-identity-2026-11-17.json",
+      "hosted-spending-preflight-2026-11-17.json"
+    ],
+    "reviewScope": "../../../docs/hosted-final-review-scope.md"
+  },
+  "runtimeBotValidation": {
+    "requiredByUser": true,
+    "status": "four-genuine-fixed-case-reviews-correct-three-native-compile-proof-recovery-paths-passed",
+    "role": "Live semantic validation of buyer brief against exact candidate rules; development-only use was rejected.",
+    "genuineReviews": 4,
+    "measuredCost": null,
+    "twentyDollarMassBudgetApproved": false,
+    "pilot": {
+      "connectorApprovedByUser": true,
+      "connectorName": "UBC26 Result Callback",
+      "connectorState": "Connected in installed-plugin UI. Tool details were not expanded. Authenticated public protocol client separately lists one result tool.",
+      "capApprovedMicroUsd": 1000000,
+      "capConfigured": true,
+      "pilotScope": "Setup plus one measured review; user accepts an in-flight overrun.",
+      "creditsPurchased": false,
+      "purchaseAuthorized": false,
+      "genuineReviews": 1,
+      "conversationExport": false,
+      "usageRestored": true,
+      "uiBlocker": "Review and billing observation completed. Original conversation export remains pending.",
+      "productionRunCeilingMicroUsd": 100000,
+      "massTestingApproved": false,
+      "routineCreated": true,
+      "webhookSavedPrivately": true,
+      "automaticRetry": false,
+      "reviewsRemainingAuthorized": 0
+    },
+    "productionAccountIsolation": {
+      "qualified": false,
+      "observation": "The current Bot account also shows GitHub and Origin connected. Official docs state that apps and cloud-computer state are shared account-wide. A second Bot is not an isolation boundary.",
+      "requiredBeforePublicDispatch": "Deployment account with only intended review tools and no unrelated private sessions.",
+      "syntheticPilotAllowed": true,
+      "source": "https://docs.x.ai/grok-bot/computer-and-apps#one-computer-shared-by-all-your-bots"
+    },
+    "estimatedRoundedAccountChangeMicroUsd": [
+      80000,
+      90000
+    ],
+    "targetRecurringMicroUsd": 50000,
+    "followUpCostProbe": {
+      "status": "completed-three-reviews-cost-target-unqualified",
+      "document": "../../../docs/grok-bot/follow-up-cost-probe.md",
+      "manifest": "../../../docs/grok-bot/follow-up-inputs/manifest.json",
+      "nativeReport": "hosted-bot-follow-up-preflight-2026-11-17.json",
+      "caseIds": [
+        "voyage-fee",
+        "cover-1",
+        "mass-1"
+      ],
+      "nativeOracleComparisons": 19,
+      "nativeOracleDisagreements": 0,
+      "requestedAdditionalReviews": 3,
+      "authorizedAdditionalReviews": 3,
+      "estimatedAddedMicroUsd": [
+        240000,
+        270000
+      ],
+      "estimateOnly": true,
+      "existingMonthlyAccountCapMicroUsd": 1000000,
+      "possibleInFlightCapOverrun": true,
+      "productionDispatcherEnabled": false,
+      "completedAdditionalReviews": 3,
+      "remainingAuthorizedReviews": 0,
+      "roundedTotalMicroUsd": 230000,
+      "evidence": "hosted-bot-follow-up-reviews-2026-11-17.json"
+    },
+    "positiveReviews": 3,
+    "negativeReviews": 1
+  },
+  "botRuntimeIntegration": {
+    "requiredByUser": true,
+    "apiCheckpoint": "545b9e0c3547fab3eafa01a72b0eb0437dc9272a",
+    "apiCheckpointCi": 44077508305,
+    "localApiTests": 994,
+    "localSdkTests": 373,
+    "localWorkerTests": 950,
+    "publicMcpNativeAcceptance": true,
+    "genuineBotReviews": 1,
+    "conversationExport": false,
+    "measuredCostMicroUsd": null,
+    "approvedCompleteRunCeilingMicroUsd": 100000,
+    "paidDispatchDisabled": true,
+    "massQualificationApproved": false,
+    "currentNativeRuntime": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
+    "next": "Preserve the genuine conversation export and exact billing. Keep general dispatch disabled. All four authorized reviews are complete.",
+    "candidateSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
+    "pilotCapApprovedMicroUsd": 1000000,
+    "pilotCapConfigured": true,
+    "pilotInFlightOverrunAccepted": true,
+    "pilotReviewsAuthorized": 1,
+    "creditsPurchaseAuthorized": false,
+    "connectorConnectedInUi": true,
+    "connectorName": "UBC26 Result Callback",
+    "targetRecurringMicroUsd": 50000,
+    "estimatedRoundedAccountChangeMicroUsd": [
+      80000,
+      90000
+    ],
+    "generalDispatcherDisabled": true,
+    "paidDispatchDisabledMeaning": "General service dispatch stays disabled. One explicitly approved operator pilot trigger completed.",
+    "pilotReviewsRemainingAuthorized": 0,
+    "nativeExpiryQualified": true
+  },
+  "previousCombinedCandidate": {
+    "source": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+    "image": "sha256:28649464fae26aee9e56bad3c63bd0100e694042917a4f7b37b98597e0f5a4e5",
+    "runnerTarSha256": "68e6ab3c196e8409b63fa33e856b62b4be481bf936f944bf3ef4adab5d01641f",
+    "runnerManifestSha256": "de82ad4ff799dc84d0ad4069f31f198581393391bdb4e67668de1ea4d389c008",
+    "reports": [
+      "hosted-native-candidate-4a6a320-2026-11-17.json",
+      "hosted-runner-native-digitalocean-4a6a320-2026-11-17.json"
+    ],
+    "publicAuthoringReady": false
+  },
+  "previousNativeDeployment": {
+    "runtimeSource": "20b0dc282482ad22d7fff49ffe86de903576f547",
+    "outerHelperSource": "cff751c594724ea3693421060dd0478c5677f602",
+    "composeSource": "4a6a3201b1f86e151079f8c83d1c51d25eda476c",
+    "url": "https://ubc26-159-89-149-133.sslip.io",
+    "publicStatus": 503,
+    "tlsVerified": true,
+    "publicApiReady": false,
+    "coldCompilerSeconds": 240,
+    "nativeApiTransport": "operator pinned SSH",
+    "artifactHashesChecked": 20,
+    "snapshotFiles": 21,
+    "fullServerRebootPassed": true,
+    "reports": [
+      "hosted-digitalocean-native-2026-11-17.json",
+      "hosted-digitalocean-compiler-2026-11-17.json",
+      "hosted-digitalocean-api-2026-11-17.json",
+      "hosted-digitalocean-recovery-2026-11-17.json"
+    ]
+  },
+  "evidenceCheckpointCi": {
+    "source": "c4d8ba253694dac27153e5bdc0605f067763a18d",
+    "commerceRunId": 44114999273,
+    "commerce": "success",
+    "coreFastRunId": 44114999245,
+    "coreFast": "success",
+    "runtimeImageUnchanged": true
+  },
+  "runtimeCandidate": {
+    "source": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
+    "image": "sha256:4a69ca09aee0495c7214bffdd7d06fa689e92c26d5aa43159d80d2cf2d1d607a",
+    "report": "hosted-bot-expiry-native-candidate-2026-11-17.json",
+    "clientArtifactSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+    "clientWireFormatChanged": false,
+    "engineBytesChanged": false
+  },
+  "currentBotEndToEnd": {
+    "status": "passed-three-native-compiles-fresh-local-proofs-solidity-and-recovery",
+    "report": "hosted-bot-end-to-end-2026-11-17.json",
+    "caseIds": [
+      "voyage-fee",
+      "cover-1",
+      "mass-1"
+    ],
+    "genuineBotReviews": 3,
+    "nativeCompiles": 3,
+    "freshProofsVerified": 3,
+    "solidityMutationRejections": 12,
+    "sdkExactRecoveries": 3,
+    "engineExactRecoveries": 3,
+    "independentRecoveredOraclePasses": 3,
+    "synthetic": true,
+    "funded": false,
+    "productionReady": false,
+    "botAuthoredPlans": false
+  },
+  "publicLiveness": {
+    "observedPublicBeforeFix": {
+      "healthz": 503,
+      "readyz": 503,
+      "unauthenticatedCallback": 401,
+      "documentationHashesMatched": 9
+    },
+    "controlledFix": {
+      "caddyFileSha256": "40389dc2aac2450af7d084490b556ba1649741bdb580ec5516702b9b01cb4b36",
+      "phases": [
+        {
+          "phase": "unready",
+          "status": 503
+        },
+        {
+          "phase": "unready-callback-auth-required",
+          "status": 401
+        },
+        {
+          "phase": "unready-authenticated-callback",
+          "status": 200
+        },
+        {
+          "phase": "unready-callback-prefix-not-a-bypass",
+          "status": 503
+        },
+        {
+          "phase": "unready-still-blocked",
+          "status": 503
+        },
+        {
+          "phase": "unready-liveness",
+          "status": 200
+        },
+        {
+          "phase": "ready",
+          "status": 200
+        },
+        {
+          "phase": "unready-again",
+          "status": 503
+        }
+      ],
+      "privateRequestFieldsAbsentFromLogs": true,
+      "deployed": true
+    },
+    "operationalReports": [
+      "hosted-log-rotation-restart-drill-2026-11-17.json",
+      "hosted-buildkit-gc-drill-2026-11-17.json",
+      "hosted-previous-image-rollback-drill-2026-11-17.json"
+    ],
+    "deployment": {
+      "checkedAt": "2026-11-17T21:13:23.924178+00:00",
+      "ingressSource": "6b4eec1118eb176ef49834f88baef77bf3faf5cd",
+      "rollbackIngress": "0b98c3b",
+      "externalHttpsStatuses": {
+        "GET /healthz": 200,
+        "GET /readyz": 503,
+        "GET /healthz/extra": 503,
+        "POST /healthz": 503,
+        "GET /v1/jobs": 503,
+        "GET /integrations/grok-bot/mcp": 401
+      },
+      "documentationHashesMatched": 9,
+      "apiContainerUnchanged": true,
+      "apiImageUnchanged": true,
+      "publicBuyerReady": false,
+      "startupObservation": "The proxy briefly refused a connection during recreation; the next successful check met every gate.",
+      "postDeploymentVerification": {
+        "checkedAt": "2026-11-17T21:14:24.630469+00:00",
+        "commerceRunId": 44177105282,
+        "commercePassed": true,
+        "publicAssetHashesMatched": {
+          "runner": 4,
+          "engine": 3,
+          "documentation": 9
+        }
+      }
+    }
+  },
+  "publicDocumentation": {
+    "base": "https://ubc26-159-89-149-133.sslip.io/downloads/docs/0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b/",
+    "source": "0b98c3b73e6d09849d1e3de2ee6bfc7cec18e60b",
+    "files": 9,
+    "report": "hosted-public-docs-acceptance-2026-11-17.json",
+    "finalHandoff": false
+  },
+  "revisedCostDecision": {
+    "userDecision": "Target 5\u201310 cents average; prepare bounded pilot proposal",
+    "proposal": "hosted-combined-authoring-pilot-proposal-2026-11-17.json",
+    "executionApproved": true,
+    "productionGuard": "strict and disabled for paid dispatch",
+    "executionStatus": "First direct API request failed with HTTP error and uncertain usage; pilot stopped"
+  },
+  "currentPilot": "hosted-combined-authoring-pilot-proposal-2026-11-17.json",
+  "handoff": "../../../docs/hosted-backend-handoff-2026-11-17.md"
+}

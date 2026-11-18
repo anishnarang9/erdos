@@ -1,0 +1,113 @@
+{
+  "status": "passed-controlled-proxy-readiness",
+  "caddyImage": "caddy:2.10.2-alpine@sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d",
+  "backendImage": "ubc26-hosted-runtime:20b0dc2",
+  "caddyFileSha256": "b7ab5bf34a9747f5358a6e58ebe6a6dcd9558ef2f2ebdb11ec5ac965bab36aec",
+  "phases": [
+    {
+      "phase": "unready",
+      "status": 503
+    },
+    {
+      "phase": "unready-callback-auth-required",
+      "status": 401
+    },
+    {
+      "phase": "unready-authenticated-callback",
+      "status": 200
+    },
+    {
+      "phase": "unready-callback-prefix-not-a-bypass",
+      "status": 503
+    },
+    {
+      "phase": "unready-still-blocked",
+      "status": 503
+    },
+    {
+      "phase": "ready",
+      "status": 200
+    },
+    {
+      "phase": "unready-again",
+      "status": 503
+    }
+  ],
+  "runnerDownloads": {
+    "rows": [
+      {
+        "file": "ubc26-runner-0.2.0.tgz",
+        "status": 200,
+        "sha256": "23e412fd8acf388cd38ae8a45c07d97c104e1132282918433125deeeef83d9d7"
+      },
+      {
+        "file": "SHA256SUMS",
+        "status": 200,
+        "sha256": "e5fcc904260c6d9355dc5d7c1a3f0e048b51e000a3484f38a221f82fae837e09"
+      },
+      {
+        "file": "release.json",
+        "status": 200,
+        "sha256": "328ed9c27614e6c3051112035e01ec41d631a838d0bed3d992d30f5e71306c49"
+      },
+      {
+        "file": "ubc26-release.json",
+        "status": 200,
+        "sha256": "1967b6f4a74f4ab40b49f24a1329144136a52748b86c660e88587a027a500cb7"
+      }
+    ],
+    "head": true,
+    "range": true,
+    "nonAllowlistedPathsRejected": 6,
+    "mutationsRejected": true
+  },
+  "engineDownloads": {
+    "rows": [
+      {
+        "file": "ubc26-engine-linux-x64",
+        "status": 200,
+        "sha256": "5e2f351f3953e543bc8790bef96feb7f40605f40ab56f34e9a06c46b68bfe11c"
+      },
+      {
+        "file": "SHA256SUMS",
+        "status": 200,
+        "sha256": "2e7788544dc8b45493905d6684e6ccce6a8ad0a0625e327936ec06623e6347a1"
+      },
+      {
+        "file": "engine.json",
+        "status": 200,
+        "sha256": "4c6efe3abdd3b15e745e3cc219d9340c4a6165386539cac58d7d8aa25d7c3c9a"
+      }
+    ],
+    "head": true,
+    "range": true,
+    "nonAllowlistedPathsRejected": 6,
+    "mutationsRejected": true
+  },
+  "privateRequestFieldsAbsentFromLogs": true,
+  "edgeCapabilities": [
+    "NET_BIND_SERVICE"
+  ],
+  "noNewPrivileges": true,
+  "network": "dedicated Docker bridge; one loopback-only ephemeral HTTP port",
+  "tls": "HTTP-only controlled test; public TLS is outside this check",
+  "realModelCalls": 0,
+  "proofs": 0,
+  "chainTransactions": 0,
+  "scope": "Actual pinned Caddy with a controlled readiness and restricted-callback upstream. Not public hosted or genuine Bot acceptance.",
+  "implementationBase": "8039b5d",
+  "sourceFiles": {
+    "deploy/Caddyfile": "b7ab5bf34a9747f5358a6e58ebe6a6dcd9558ef2f2ebdb11ec5ac965bab36aec",
+    "deploy/check-proxy.mjs": "89ab33ebac5dc53ba72de49cb8e006773a65aedeb2803364777ca54c93e4dee8"
+  },
+  "runnerAssetChecks": 13,
+  "engineAssetChecks": 12,
+  "regression": {
+    "file": "ubc26-engine-linux-x64",
+    "beforeStatus": 503,
+    "expectedStatus": 200,
+    "afterStatus": 200
+  },
+  "independentReview": "No actionable finding in the two-file route/test diff. Deployment remains unverified.",
+  "publicDeploymentVerified": false
+}

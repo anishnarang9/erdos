@@ -28,19 +28,47 @@ export class ApiClientError extends Error {
 }
 
 export function apiClient(baseUrl: string, fetchImpl: typeof fetch = fetch) {
-  const base = baseUrl.replace(/\/+$/, "");
+  const url = new URL(baseUrl);
+  const local = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+  if ((url.protocol !== "https:" && !(url.protocol === "http:" && local)) || url.username || url.password ||
+      url.search || url.hash || url.pathname !== "/") throw new Error("API base must be an HTTPS origin or local HTTP origin");
+  const base = url.origin;
   const get = async (path: string): Promise<Response> => {
-    const res = await fetchImpl(base + path);
-    if (!res.ok) throw new ApiClientError(res.status, `GET ${path} returned ${res.status}: ${(await res.text()).slice(0, 300)}`);
+    const res = await fetchImpl(base + path, { redirect: "error", signal: AbortSignal.timeout(30_000) });
+    if (!res.ok) { await res.body?.cancel(); throw new ApiClientError(res.status, `API request returned ${res.status}`); }
     return res;
   };
+  const read = async (res: Response, maximum: number) => {
+    const declared = res.headers.get("content-length");
+    if (declared !== null && (!/^\d+$/.test(declared) || Number(declared) > maximum)) {
+      await res.body?.cancel(); throw new Error("API response exceeds byte limit");
+    }
+    const reader = res.body?.getReader(); if (!reader) throw new Error("API response body is missing");
+    const chunks: Uint8Array[] = []; let size = 0;
+    try {
+      for (;;) {
+        const chunk = await reader.read(); if (chunk.done) break;
+        size += chunk.value.byteLength;
+        if (size > maximum) { await reader.cancel(); throw new Error("API response exceeds byte limit"); }
+        chunks.push(chunk.value);
+      }
+    } finally { reader.releaseLock(); }
+    const result = new Uint8Array(size); let offset = 0;
+    for (const chunk of chunks) { result.set(chunk, offset); offset += chunk.length; }
+    return result;
+  };
+  const json = async (path: string): Promise<unknown> => {
+    const bytes = await read(await get(path), 4_194_304);
+    try { return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)); }
+    catch { throw new Error("API returned invalid JSON"); }
+  };
   return {
-    job: async (id: string) => (await (await get(`/v1/jobs/${encodeURIComponent(id)}`)).json()) as JobView,
-    packageListing: async (id: string) => (await (await get(`/v1/jobs/${encodeURIComponent(id)}/package`)).json()) as PackageListing,
+    job: async (id: string) => (await json(`/v1/jobs/${encodeURIComponent(id)}`)) as JobView,
+    packageListing: async (id: string) => (await json(`/v1/jobs/${encodeURIComponent(id)}/package`)) as PackageListing,
     packageFile: async (id: string, path: string) =>
-      new Uint8Array(await (await get(`/v1/jobs/${encodeURIComponent(id)}/package/file?path=${encodeURIComponent(path)}`)).arrayBuffer()),
+      read(await get(`/v1/jobs/${encodeURIComponent(id)}/package/file?path=${encodeURIComponent(path)}`), 33_554_432),
     references: async (id: string): Promise<{ referenceDigest: string; files: BundleFile[] }> => {
-      const r = (await (await get(`/v1/jobs/${encodeURIComponent(id)}/references`)).json()) as { referenceDigest: string; files: { name: string; contentBase64: string }[] };
+      const r = (await json(`/v1/jobs/${encodeURIComponent(id)}/references`)) as { referenceDigest: string; files: { name: string; contentBase64: string }[] };
       return { referenceDigest: r.referenceDigest, files: r.files.map((f) => ({ name: f.name, content: new Uint8Array(Buffer.from(f.contentBase64, "base64")) })) };
     },
   };

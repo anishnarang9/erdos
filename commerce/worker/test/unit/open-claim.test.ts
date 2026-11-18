@@ -39,6 +39,7 @@ import {
   type OpenClaimTx,
 } from "../../src/index.ts";
 import { DELIVER, IMAGE_ID, REFS, RULES, fakeEngine, solver, type EngineOpts } from "../support/fakes.ts";
+import { observedReceiptWithJournal } from "../../src/open-claim/receipt-reconcile.ts";
 
 const CORE = "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8" as Address;
 const HOOK = "0x699d0e4a067F31229Be67C534B37dE964b6eDbAb" as Address;
@@ -538,17 +539,62 @@ describe("runOpenClaimAcceptance", () => {
     expect(readFileSync(join(options.attemptDir, "state.json"), "utf8")).not.toContain(runner.key!.slice(2));
   });
 
+  it("records confirmed release payout when only local release journal reconciliation fails", async () => {
+    const { port, options } = setup();
+    const originalReceipt = port.receipt.bind(port);
+    let releaseJournalUncertain = false;
+    port.receipt = async hash => {
+      const observed = await observedReceiptWithJournal(hash, originalReceipt,
+        async h => { if (saved(options.attemptDir).releaseTx === h) throw new Error("journal RPC unavailable"); },
+        h => saved(options.attemptDir).releaseTx === h);
+      releaseJournalUncertain ||= observed.releaseJournalUncertain;
+      return observed.receipt;
+    };
+    const state = await runOpenClaimAcceptance(options);
+    expect(state).toMatchObject({ phase: "released", paymentConfirmed: true });
+    expect(releaseJournalUncertain).toBe(true);
+    expect(port.claims).toBe(1);
+    expect(port.releases).toBe(1);
+    expect((await runOpenClaimAcceptance(options)).paymentConfirmed).toBe(true);
+    expect(port.claims).toBe(1);
+    expect(port.releases).toBe(1);
+  });
+
   it("prepares one fresh proof without a signing capability, then resumes the same proof", async () => {
     const f = setup();
-    expect((await runOpenClaimAcceptance({ ...f.options, prepareOnly: true })).phase).toBe("proved");
+    const prepared = await runOpenClaimAcceptance({ ...f.options, prepareOnly: true });
+    expect(prepared.phase).toBe("proved");
+    expect(prepared.attemptId).toMatch(/^[0-9a-f-]{36}$/);
     expect(f.port.broadcasts).toHaveLength(0);
-    expect((await runOpenClaimAcceptance(f.options)).phase).toBe("released");
+    const resumed = await runOpenClaimAcceptance(f.options);
+    expect(resumed.phase).toBe("released");
+    expect(resumed.attemptId).toBe(prepared.attemptId);
     expect(f.runner.calls.filter(call => call[0] === "prove")).toHaveLength(1);
   });
 
   it("refuses to spawn an engine from the acceptance harness", async () => {
     const { runner, options } = setup();
     await checkFails(runOpenClaimAcceptance({ ...options, spawnEngine: true }), "engine");
+    expect(runner.calls).toEqual([]);
+  });
+});
+
+describe("open-claim signed evidence inputs", () => {
+  it("copies exact evidence bytes into the private attempt and gives that directory to the prover", async () => {
+    const {options,runner,port}=setup();
+    const bytes=new TextEncoder().encode('{"payload":"0x0102","signature":"0x0304"}');
+    const state=await runOpenClaimAcceptance({...options,prepareOnly:true,evidence:[{name:"custody.json",content:bytes}]});
+    expect(state.phase).toBe("proved");
+    const call=runner.calls.find(args=>args[0]==="prove")!;
+    expect(call).toContain("--evidence");
+    expect(call[call.indexOf("--evidence")+1]).toBe(join(options.attemptDir,"evidence"));
+    expect(readFileSync(join(options.attemptDir,"evidence/custody.json"))).toEqual(Buffer.from(bytes));
+    expect(statSync(join(options.attemptDir,"evidence/custody.json")).mode&0o777).toBe(0o600);
+    expect(port.claims).toBe(0);expect(port.releases).toBe(0);
+  });
+  it("rejects an oversized encoded evidence bundle before invoking the prover", async () => {
+    const {options,runner}=setup();
+    await checkFails(runOpenClaimAcceptance({...options,prepareOnly:true,evidence:[{name:"custody.json",content:new Uint8Array(32768)}]}),"evidence_limit");
     expect(runner.calls).toEqual([]);
   });
 });

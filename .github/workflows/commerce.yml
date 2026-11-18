@@ -1,10 +1,11 @@
 name: commerce
 
 on:
+  workflow_dispatch:
   push:
-    paths: ["commerce/**", ".github/workflows/commerce.yml"]
+    paths: ["commerce/**", "deploy/**", "docs/hosted-client.md", ".github/workflows/commerce.yml"]
   pull_request:
-    paths: ["commerce/**", ".github/workflows/commerce.yml"]
+    paths: ["commerce/**", "deploy/**", "docs/hosted-client.md", ".github/workflows/commerce.yml"]
 
 permissions:
   contents: read
@@ -24,3 +25,59 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm test
+      - name: Check qualification against actual API routes with a controlled model
+        working-directory: commerce/api
+        run: pnpm exec tsx scripts/check-hosted-qualification.mjs "${{ github.sha }}" "$RUNNER_TEMP/ubc26-qualification-api.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ubc26-qualification-api-${{ github.sha }}
+          path: ${{ runner.temp }}/ubc26-qualification-api.json
+      - name: Check backup integrity and the relocated API bundle
+        run: |
+          node --test ../deploy/state.test.mjs ../deploy/start-api.test.mjs ../deploy/public-deployment.test.mjs ../deploy/warm-compiler.test.mjs ../deploy/compose.test.mjs
+          node ../deploy/build-api.mjs "$RUNNER_TEMP/ubc26-hosted-api/server.mjs"
+      - name: Check the standalone hosted TypeScript entry
+        run: node --test worker/scripts/stage-hosted-types.test.mjs
+      - name: Check runner payload reproducibility across caller directories
+        run: node worker/scripts/check-package-reproducibility.mjs "$RUNNER_TEMP/ubc26-package-reproducibility.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ubc26-package-reproducibility-${{ github.sha }}
+          path: ${{ runner.temp }}/ubc26-package-reproducibility.json
+      - name: Build the standalone runner from the checked source
+        run: node worker/scripts/package-runner.mjs "$RUNNER_TEMP/ubc26-runner-release"
+      - name: Check an independent Linux installation
+        run: |
+          mkdir "$RUNNER_TEMP/ubc26-runner-download"
+          cp "$RUNNER_TEMP/ubc26-runner-release/ubc26-runner-0.2.0.tgz" "$RUNNER_TEMP/ubc26-runner-release/SHA256SUMS" "$RUNNER_TEMP/ubc26-runner-release/release.json" "$RUNNER_TEMP/ubc26-runner-release/ubc26-release.json" "$RUNNER_TEMP/ubc26-runner-download/"
+          cd "$RUNNER_TEMP/ubc26-runner-download"
+          sha256sum --check SHA256SUMS
+          npm install --ignore-scripts --prefix "$RUNNER_TEMP/ubc26-runner-install" ./ubc26-runner-0.2.0.tgz
+          cd "$RUNNER_TEMP/ubc26-runner-install"
+          RELEASE_MANIFEST_SHA256=$(node -p 'require(process.env.RUNNER_TEMP+"/ubc26-runner-release/release.json").releaseManifestSha256')
+          node_modules/.bin/ubc26 verify-install --source-commit "${{ github.sha }}" --release-manifest-sha256 "$RELEASE_MANIFEST_SHA256" > provenance.json
+          node -e 'const p=require("./provenance.json"); if(p.status!=="installation-verified")process.exit(1)'
+          node_modules/.bin/ubc26 help > help.json
+          node_modules/.bin/ubc26 wrapper-digest > wrapper.json
+          node -e 'const fs=require("node:fs"); const h=JSON.parse(fs.readFileSync("help.json")); const w=JSON.parse(fs.readFileSync("wrapper.json")); if(h.version!==1 || !/^[0-9a-f]{64}$/.test(w.wrapperSha256))process.exit(1)'
+          node --input-type=module -e 'import {hostedClient} from "@ubc26/runner/hosted"; if(typeof hostedClient !== "function")process.exit(1)'
+          node "$GITHUB_WORKSPACE/commerce/worker/scripts/check-installed-types.mjs" "$RUNNER_TEMP/ubc26-runner-install"
+          node --input-type=module - <<'NODE'
+          import {readFileSync} from 'node:fs';
+          import assert from 'node:assert/strict';
+          const readme=readFileSync('node_modules/@ubc26/runner/README.md','utf8');
+          const links=[...readme.matchAll(/\]\(([^)\s]+)\)/g)].map(match=>match[1]);
+          assert.ok(links.length>0);
+          assert.ok(links.every(href=>href.startsWith('#')||/^[A-Za-z][A-Za-z0-9+.-]*:/.test(href)));
+          const sourceLinks=links.filter(href=>href.startsWith('https://github.com/anishnarang9/UBC-26/blob/'));
+          assert.ok(sourceLinks.length>0);
+          assert.ok(sourceLinks.every(href=>href.startsWith(`https://github.com/anishnarang9/UBC-26/blob/${process.env.GITHUB_SHA}/`)));
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ubc26-runner-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/ubc26-runner-release/*.tgz
+            ${{ runner.temp }}/ubc26-runner-release/SHA256SUMS
+            ${{ runner.temp }}/ubc26-runner-release/release.json
+            ${{ runner.temp }}/ubc26-runner-release/ubc26-release.json

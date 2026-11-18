@@ -14,6 +14,19 @@ import { registerAuthoringRoutes } from "./authoring.ts";
 import { registerMarketRoutes } from "./market.ts";
 import { registerX402Routes, type X402Config } from "./x402.ts";
 import { registerOpenClaimRoutes, type OpenClaimConfig } from "./open-claim.ts";
+import { registerAttemptRoutes } from "./attempts.ts";
+import { registerIdentityRoutes } from "./identity.ts";
+import { requireOwnedJob } from "./ownership.ts";
+import { assertAuthoringBudget, registerTaskRoutes } from "./tasks.ts";
+import { resolveAuthLimit, resolveBrowserAllowlist, resolveTaskQueue, resolvePaidCompileLimit } from "./capacity.ts";
+import { emptyMetrics, registerObserve, registerOperatorMetrics } from "./observe.ts";
+import { registerBrowserOrigin } from "./browser-origin.ts";
+import type { AuthoringBudget, AuthLimitConfig, DeploymentConfig, RateLimitConfig, TaskQueueConfig } from "./context.ts";
+import { createCompileAdmission } from "./compile-admission.ts";
+import type { ReadyReport } from "./ready.ts";
+import type { BotReviewConfig } from "./bot-review-types.ts";
+import { registerBotReviewRoutes } from "./bot-review.ts";
+import { botReviewStore } from "./bot-review-store.ts";
 import { registerDemoRoutes } from "./demo.ts";
 import { registerDemoSignerRoutes, type DemoSignerOptions } from "./demo-signer.ts";
 
@@ -32,6 +45,44 @@ export interface CreateAppOptions {
   x402?: X402Config;
   /** Optional open-claim registration and public discovery reader. */
   openClaim?: OpenClaimConfig;
+  /** Local mode keeps the shared buyer token. Public mode accepts only wallet API keys. */
+  deployment?: {
+    mode: "local" | "public";
+    serviceOrigin: string;
+    trustProxy?: boolean;
+  };
+  /** One additional exact browser frontend origin. The service origin is always included. */
+  browserOrigin?: string;
+  /** Absent means expensive routes are not counted. */
+  rateLimit?: RateLimitConfig;
+  /**
+   * Pending queued and running tasks. Omitted values use 100 global and 20 per wallet.
+   * A non-positive value is rejected. It does not mean unlimited.
+   */
+  taskQueue?: Partial<TaskQueueConfig>;
+  /**
+   * Auth challenge and key issuance per IP. Omitted values use 20 per 60 seconds.
+   * A non-positive value is rejected. It does not mean unlimited.
+   */
+  authLimit?: Partial<AuthLimitConfig>;
+  /** Active plus waiting paid compile handlers. Defaults to two. */
+  paidCompileLimit?: number;
+  /** When true, model and compiler routes return 503. */
+  expensiveDisabled?: boolean;
+  /** Prices and ceilings for draft tasks. Required before a public draft task is accepted. */
+  budget?: AuthoringBudget;
+  /** Defaults to true. False allows one draft call with no automatic repair. */
+  authoringRepairs?: boolean;
+  /** Bearer token that may resolve a spend halt and read operator metrics. Unset leaves both unavailable. */
+  operatorToken?: string;
+  /** Structured request lines. Off unless the server or a test enables it. */
+  requestLog?: boolean;
+  /** Local mode may print an unknown error value. Public mode ignores this flag. */
+  requestLogDebug?: boolean;
+  /** Production readiness. Absent reports not configured and does not claim the process is ready. */
+  ready?: (deps: Deps) => Promise<ReadyReport>;
+  /** Enables mandatory Bot review at approval. Dispatch needs separate explicit configuration. */
+  botReview?: BotReviewConfig;
   /** Serve worker run events from here (demo routes). */
   runEventsDir?: string;
   /** Presenter-mode Poster signer; see demo-signer.ts. */
@@ -41,12 +92,46 @@ export interface CreateAppOptions {
 export interface CreatedApp {
   app: Hono<AppEnv>;
   close: () => void;
+  /** Marks interrupted drafts uncertain and requeues interrupted compiles. Call once before pumpTasks. */
+  reconcileTasks: () => void;
+  /** Runs queued work up to one compile and two drafts. Does not start a timer. */
+  pumpTasks: () => Promise<void>;
+  /**
+   * Stops new claims, cancels owned compiler groups, and reconciles running work.
+   * A compile returns to queued. A dispatched draft stays uncertain. The bound defaults to 2000 ms.
+   */
+  drainTasks: (boundMs?: number) => Promise<void>;
+  /** Runs the readiness callback against the open database. It does not listen. */
+  checkReady: () => Promise<ReadyReport>;
 }
 
 export function createApp(opts: CreateAppOptions): CreatedApp {
   if (typeof opts.buyerToken !== "string" || opts.buyerToken.length < 16) {
     throw new Error("createApp: buyerToken must be a string of at least 16 characters");
   }
+  assertAuthoringBudget(opts.budget);
+  if (opts.budget?.reservationMode === "estimated" && opts.deployment?.mode === "public") {
+    throw new Error("Estimated authoring spending requires local mode");
+  }
+  if (opts.authoringRepairs !== undefined && typeof opts.authoringRepairs !== "boolean") {
+    throw new Error("authoringRepairs must be a boolean");
+  }
+  if (opts.botReview && (typeof opts.botReview.serviceToken !== "string" || opts.botReview.serviceToken.length < 32
+    || opts.botReview.serviceToken.length > 512 || opts.botReview.serviceToken === opts.buyerToken
+    || opts.botReview.serviceToken === opts.operatorToken)) throw new Error("Bot review requires a separate service credential of 32–512 characters");
+  if (opts.deployment?.mode === "public" && opts.botReview?.dispatch
+    && (!/^0x[0-9a-f]{40}$/.test(opts.botReview.pilotOwner ?? "") || ![1, 2, 3].includes(opts.botReview.maxDispatches ?? 0)))
+    throw new Error("Public Bot dispatch requires the one-wallet pilot policy");
+  const taskQueue = resolveTaskQueue(opts.taskQueue);
+  const authLimit = resolveAuthLimit(opts.authLimit);
+  const compileAdmission = createCompileAdmission(resolvePaidCompileLimit(opts.paidCompileLimit));
+  const mode = opts.deployment?.mode ?? "local";
+  if (mode === "public" && (opts.runEventsDir !== undefined || opts.demoSigner !== undefined)) {
+    throw new Error("Demo routes require local mode");
+  }
+  const browserOrigins = resolveBrowserAllowlist({ mode,
+    serviceOrigin: opts.deployment?.serviceOrigin ?? "http://localhost",
+    ...(opts.browserOrigin === undefined ? {} : { browserOrigin: opts.browserOrigin }) });
   const engine = opts.engine ?? (opts.validatePlan
     ? { mode: "simulated" as const, validate: opts.validatePlan, compile: simulatedEngine().compile }
     : simulatedEngine());
@@ -55,6 +140,12 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   const now = opts.now ?? (() => Date.now());
   const db = openDb(opts.dbPath, now);
   const validatePlan = opts.validatePlan ?? simulatedValidatePlan;
+  const deployment: DeploymentConfig = {
+    mode,
+    serviceOrigin: browserOrigins[0]!,
+    browserOrigins,
+    trustProxy: opts.deployment?.trustProxy ?? false,
+  };
   const deps: Deps = {
     db,
     buyerToken: opts.buyerToken,
@@ -63,58 +154,93 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     // Default: the simulated engine (fake hashes, never provable). server.ts passes the real one.
     engine,
     ...(opts.draftModel ? { draftModel: opts.draftModel } : {}),
+    authoringRepairs: opts.authoringRepairs ?? true,
     ...(opts.chain ? { chain: opts.chain } : {}),
     ...(opts.packagesDir ? { packagesDir: opts.packagesDir } : {}),
+    deployment,
+    ...(opts.rateLimit ? { rateLimit: opts.rateLimit } : {}),
+    taskQueue,
+    authLimit,
+    compileAdmission,
+    metrics: emptyMetrics(),
+    requestLog: opts.requestLog ?? false,
+    requestLogDebug: opts.requestLogDebug ?? false,
+    expensiveDisabled: opts.expensiveDisabled ?? false,
+    ...(opts.budget ? { budget: opts.budget } : {}),
+    ...(opts.operatorToken ? { operatorToken: opts.operatorToken } : {}),
+    ...(opts.botReview ? { botReview: opts.botReview } : {}),
     ...(opts.runEventsDir ? { runEventsDir: opts.runEventsDir } : {}),
     ...(opts.demoSigner ? { demoSigner: opts.demoSigner } : {}),
   };
 
   const app = new Hono<AppEnv>();
+  registerObserve(app, deps);
+  registerBrowserOrigin(app, deps);
+  registerOperatorMetrics(app, deps);
 
   app.notFound((c) =>
     c.json(new ApiError("not_found", `No route for ${c.req.method} ${c.req.path}`).toBody(), 404),
   );
-  app.onError((err, c) => {
-    if (err instanceof ApiError) {
-      return c.json(err.toBody(), err.status as 400);
-    }
-    console.error("[api] unhandled error", err);
-    return c.json(new ApiError("internal", "Internal server error").toBody(), 500);
-  });
 
   // Middleware order per route: raw body (1 MiB cap) -> auth -> JSON parse (POST) -> :id check -> idempotency
   // (POST /v1/*) -> handler.
   const buyer = buyerAuth(deps);
   const provider = providerAuth(deps);
   const idem = idempotency(deps);
+  const owned = requireOwnedJob(deps);
   const notImplemented: MiddlewareHandler<AppEnv> = async () => {
     throw new ApiError("not_implemented", "Not implemented yet");
   };
 
   app.get("/healthz", (c) => c.json({ ok: true }));
+  const loadReady = (): Promise<ReadyReport> => opts.ready ? opts.ready(deps) : Promise.resolve(unconfiguredReady());
+  app.get("/readyz", async (c) => {
+    const report = await loadReady();
+    return c.json(report, report.ready ? 200 : 503);
+  });
 
   const ulid = monotonicFactory();
   const newId = () => ulid();
+  // Key issuance is not idempotent. A replay must not return the raw key again.
+  registerIdentityRoutes(app, deps, newId);
   const jobs = jobRoutes(deps, idem.commit, ulid);
   app.post("/v1/jobs", readBody, buyer, parseJson, idem.middleware, jobs.create);
-  app.post("/v1/jobs/:id/approve", readBody, buyer, parseJson, requireJobId, idem.middleware, jobs.approve);
+  app.post("/v1/jobs/:id/approve", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, jobs.approve);
 
   // Route modules (one owner each): authoring.ts (T5/T6), market.ts (T7/T8). Register literal paths such as
   // GET /v1/jobs before the parameterised GET /v1/jobs/:id below.
   const ctx = { app, deps, buyer, provider, idem, notImplemented, newId };
+  const botReviews = registerBotReviewRoutes(ctx);
   const authoring = registerAuthoringRoutes(ctx);
+  const tasks = registerTaskRoutes(ctx, authoring);
   registerX402Routes(ctx, authoring, opts.x402);
   registerOpenClaimRoutes(ctx, opts.openClaim);
+  registerAttemptRoutes(ctx);
   registerMarketRoutes(ctx);
-  registerDemoRoutes(ctx);
-  registerDemoSignerRoutes(ctx);
+  if (mode === "local") {
+    registerDemoRoutes(ctx);
+    registerDemoSignerRoutes(ctx);
+  }
 
   app.get("/v1/jobs/:id", readBody, requireJobId, jobs.get);
 
   return {
     app,
     close: () => {
+      compileAdmission.close();
       if (db.isOpen) db.close();
     },
+    reconcileTasks: () => { botReviewStore(db).reconcile(); tasks.reconcileTasks(); },
+    pumpTasks: async () => { await Promise.all([tasks.pumpTasks(), botReviews.pump()]); },
+    drainTasks: async boundMs => { await Promise.all([tasks.drainTasks(boundMs), botReviews.drain(boundMs)]); },
+    checkReady: loadReady,
+  };
+}
+
+function unconfiguredReady(): ReadyReport {
+  return {
+    ready: false,
+    authoring: "required",
+    checks: [{ name: "ready", ok: false, reason: "not_configured", blocksListen: false }],
   };
 }

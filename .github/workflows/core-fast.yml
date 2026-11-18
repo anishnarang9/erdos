@@ -3,9 +3,9 @@ name: core-fast
 on:
   workflow_dispatch:
   push:
-    paths: ["engine/**", "contracts/**", "docs/core-sprint-input/**", ".github/workflows/core-fast.yml"]
+    paths: ["engine/**", "contracts/**", "commerce/sdk/**", "commerce/worker/**", "commerce/api/src/engine.ts", "commerce/pnpm-lock.yaml", "docs/hosted-client.md", "docs/core-sprint-input/**", ".github/workflows/core-fast.yml"]
   pull_request:
-    paths: ["engine/**", "contracts/**", "docs/core-sprint-input/**", ".github/workflows/core-fast.yml"]
+    paths: ["engine/**", "contracts/**", "commerce/sdk/**", "commerce/worker/**", "commerce/api/src/engine.ts", "commerce/pnpm-lock.yaml", "docs/hosted-client.md", "docs/core-sprint-input/**", ".github/workflows/core-fast.yml"]
 
 permissions:
   contents: read
@@ -33,6 +33,31 @@ jobs:
         run: cargo +1.98.1 test --locked --workspace
       - name: Check wire fixtures with Node 24
         run: node fixtures/check-wire-v1.mjs
+      - name: Check hosted corpus and offline trial controls
+        run: UBC26_ENGINE="$PWD/target/debug/engine" node --test evaluation/hosted-qualification/*.test.mjs
+      - name: Compare the frozen corpus with the native host engine
+        run: UBC26_ENGINE="$PWD/target/debug/engine" node evaluation/hosted-qualification/host-run.mjs
+      - name: Install locked runner build dependencies
+        working-directory: commerce
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile --ignore-scripts
+      - name: Check an independently installed runner with the native Linux engine
+        working-directory: .
+        run: |
+          node commerce/worker/scripts/package-runner.mjs "$RUNNER_TEMP/ubc26-native-runner-release"
+          cd "$RUNNER_TEMP/ubc26-native-runner-release"
+          sha256sum --check SHA256SUMS
+          npm install --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/ubc26-native-runner-install" ./ubc26-runner-0.2.0.tgz
+          RELEASE_MANIFEST_SHA256=$(node -p 'require(process.env.RUNNER_TEMP+"/ubc26-native-runner-release/release.json").releaseManifestSha256')
+          stat --format='Built engine links=%h mode=%a owner=%u' "$GITHUB_WORKSPACE/engine/target/debug/engine"
+          install -m 700 "$GITHUB_WORKSPACE/engine/target/debug/engine" "$RUNNER_TEMP/ubc26-native-installed-engine"
+          cd "$GITHUB_WORKSPACE"
+          node commerce/worker/scripts/check-installed-native.mjs "$RUNNER_TEMP/ubc26-native-runner-install" "$RUNNER_TEMP/ubc26-native-installed-engine" "${{ github.sha }}" "$RELEASE_MANIFEST_SHA256" "$RUNNER_TEMP/ubc26-installed-native-report.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ubc26-installed-native-${{ github.sha }}
+          path: ${{ runner.temp }}/ubc26-installed-native-report.json
       - name: Test semantic oracle (Python standard library only)
         working-directory: docs/core-sprint-input
         run: python3 -B -m unittest discover -s tests -p 'test_*.py' -v

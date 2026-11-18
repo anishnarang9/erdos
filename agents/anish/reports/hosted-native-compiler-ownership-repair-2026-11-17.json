@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "at": "2026-11-17T18:37:39.144592+00:00",
+  "path": "docker/buildx/activity/ubc26-compiler",
+  "before": {
+    "uid": 0,
+    "gid": 0,
+    "mode": 384,
+    "sha256": "c5fb783c9207b72b2869e85c6f468255caafd4e97bfc3e5d24274cd04ba02c3e"
+  },
+  "after": {
+    "uid": 1000,
+    "gid": 1000,
+    "mode": 384,
+    "sha256": "c5fb783c9207b72b2869e85c6f468255caafd4e97bfc3e5d24274cd04ba02c3e"
+  },
+  "changedFiles": 1,
+  "credentialsChanged": false,
+  "runtimeImageChanged": false,
+  "beforeAccess": {
+    "writable": false,
+    "uid": 1000,
+    "code": "EACCES"
+  },
+  "afterAccess": {
+    "writable": true,
+    "uid": 1000
+  },
+  "status": "repaired-native-buildx-ownership-cold-api-compilation-passed",
+  "runtimeSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
+  "runtimeImage": "sha256:4a69ca09aee0495c7214bffdd7d06fa689e92c26d5aa43159d80d2cf2d1d607a",
+  "engineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+  "rootCause": "A root runtime-image build reused the API Buildx configuration and replaced the compiler activity file with root-owned mode 0600. UID 1000 could read cached guest output but could not start a cold compilation.",
+  "failedApiTask": {
+    "id": "01M7NCHAXW6JDZPMRKW6A6W2G7",
+    "operation": "compile",
+    "state": "failed",
+    "attempt": 1,
+    "createdAt": "2026-11-17T18:33:02.140Z",
+    "updatedAt": "2026-11-17T18:33:03.151Z",
+    "error": {
+      "code": "engine_failed",
+      "message": "The engine failed"
+    }
+  },
+  "diagnostic": {
+    "exit": 3,
+    "reason": "build_failure",
+    "stderr": "ERROR: open /var/lib/ubc26/docker/buildx/activity/ubc26-compiler: permission denied"
+  },
+  "successfulApiTask": {
+    "id": "01M7NCT8E516YF34NE5CGR7JT9",
+    "operation": "compile",
+    "state": "succeeded",
+    "attempt": 1,
+    "createdAt": "2026-11-17T18:37:54.500Z",
+    "updatedAt": "2026-11-17T18:40:43.405Z",
+    "result": {
+      "state": "compiled",
+      "manifest": {
+        "imageId": "0xf43f2cdda3410fb141509f6629f88c3a7bfb5fed9efa1c4bf6bb0fbb983dd1cf",
+        "rulesHash": "0x3da83285c55ac40c35d099e83f0c29a1c7e1146cb87599ebeb0ee64bb52faf16",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "structureHash": "0x72677266b37882c099be986e9a3052cece963dafe86c4d7f04dfdcf2bb0fcf39",
+        "buildFingerprint": "569593c48c23cd3604e432f7d9199c5f27560550363b7854acdddc004ef1ff7b",
+        "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+        "guestSha256": "0x07d27d7d0d2c06bed750f7207391f2ee6a05255b964ef707c2c641a8cd0b96a7",
+        "inputVersion": 2,
+        "parametersSha256": "0xc10c647e1cae9f129dd27fb997dcad9353566c3434704855e2d22896cfbb19e8",
+        "riscZero": "3.1.0",
+        "structureSha256": "0x6faa4daf02b3524d36b77ae81090a43009a3d407f2e1080df2083ef13b3a80b4",
+        "version": 1
+      },
+      "packageUrl": "/v1/jobs/01M7NC38YR6M2KG1E86MYY1SJX/package"
+    }
+  },
+  "successfulTaskElapsedMillis": 168905,
+  "genuineBotPassRequired": true,
+  "modelCallsDuringRepair": 0,
+  "chainTransactions": 0,
+  "proofGeneratedDuringRepair": false,
+  "prevention": "Run Buildx clients using the shared compiler configuration as UID 1000. Check UID 1000 write access before treating a cached prewarm as ready.",
+  "limits": [
+    "The original failed task remains failed at attempt 1. The repair uses a separate recorded compile task.",
+    "Only one file owner/group changed. Its mode and contents remained unchanged.",
+    "This result establishes cold compilation through the native API. Local proof generation is a separate check."
+  ]
+}

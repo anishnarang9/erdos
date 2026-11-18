@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import type { MiddlewareHandler } from "hono";
 import { isAddress, verifyMessage } from "viem";
 import { ApiError } from "./errors.ts";
+import { readApiKey, walletPrincipal } from "./identity.ts";
 import { sha256, sha256hex0x, type AppEnv, type Deps } from "./context.ts";
 
 export const AUTH_WINDOW_SECONDS = 60;
@@ -13,15 +14,30 @@ function unauthorized(message: string): ApiError {
   return new ApiError("unauthorized", message);
 }
 
-/** `Authorization: Bearer <buyerToken>`, compared in constant time (over SHA-256 digests, so lengths match). */
+/**
+ * Accepts a live wallet API key. In local mode it also accepts the shared buyer token.
+ * Public mode never accepts that shared token. A revoked key stops immediately.
+ */
 export function buyerAuth(deps: Deps): MiddlewareHandler<AppEnv> {
   const expected = sha256(deps.buyerToken);
   return async (c, next) => {
     const header = c.req.header("authorization") ?? "";
-    const m = /^Bearer (.+)$/.exec(header);
-    const given = sha256(m?.[1] ?? "");
-    if (!m || !timingSafeEqual(given, expected)) throw unauthorized("Missing or invalid buyer token");
+    const match = /^Bearer (.+)$/.exec(header);
+    const token = match?.[1] ?? "";
+    const record = token ? readApiKey(deps, token) : undefined;
+    if (record) {
+      if (record.revokedAt) throw unauthorized("API key is revoked");
+      if (!record.scopes.includes("buyer")) throw new ApiError("forbidden", "API key cannot perform buyer actions");
+      c.set("caller", record.wallet);
+      c.set("principal", walletPrincipal(record));
+      await next();
+      return;
+    }
+    if (deps.deployment.mode === "public") throw unauthorized("Missing or invalid API key");
+    const given = sha256(token);
+    if (!match || !timingSafeEqual(given, expected)) throw unauthorized("Missing or invalid buyer token");
     c.set("caller", "buyer");
+    c.set("principal", { kind: "legacy" });
     await next();
   };
 }

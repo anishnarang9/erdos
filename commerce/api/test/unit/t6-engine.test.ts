@@ -17,21 +17,22 @@ import {
 } from "../../src/index.ts";
 
 const SCRIPT = fileURLToPath(new URL("../fixtures/engine/fake-engine.mjs", import.meta.url));
+const childEnv: Record<string, string> = {};
 let work: string;
 let log: string;
 beforeAll(() => {
   work = mkdtempSync(join(tmpdir(), "ubc26-t6-engine-"));
   log = join(work, "calls.log");
-  process.env.FAKE_ENGINE_LOG = log;
+  childEnv.FAKE_ENGINE_LOG = log;
 });
 afterAll(() => {
-  delete process.env.FAKE_ENGINE_LOG;
-  delete process.env.FAKE_REFERENCE_HASH;
+  delete childEnv.FAKE_ENGINE_LOG;
+  delete childEnv.FAKE_REFERENCE_HASH;
   rmSync(work, { recursive: true, force: true });
 });
 beforeEach(() => {
   writeFileSync(log, "");
-  delete process.env.FAKE_REFERENCE_HASH;
+  delete childEnv.FAKE_REFERENCE_HASH;
 });
 const calls = () =>
   readFileSync(log, "utf8")
@@ -40,7 +41,12 @@ const calls = () =>
     .map((l) => JSON.parse(l) as { cmd: string; flags: string[]; plan: string | null; reference: { n: string; b64: string }[]; deliverables: string[]; outExisted: boolean | null });
 
 const fake = (mode: string, timeoutMs?: number) =>
-  cliEngine({ bin: { command: process.execPath, args: [SCRIPT, mode] }, workDir: work, ...(timeoutMs ? { timeoutMs, compileTimeoutMs: timeoutMs } : {}) });
+  cliEngine({
+    bin: { command: process.execPath, args: [SCRIPT, mode] },
+    workDir: work,
+    env: childEnv,
+    ...(timeoutMs ? { timeoutMs, compileTimeoutMs: timeoutMs } : {}),
+  });
 
 const sha = (...parts: (string | Uint8Array)[]) => {
   const h = createHash("sha256");
@@ -190,7 +196,7 @@ describe("cliEngine against the real CLI contract (fake script)", () => {
   });
 
   it("compile: uppercase manifest hashes are lowercased", async () => {
-    process.env.FAKE_REFERENCE_HASH = "0x" + "AB".repeat(32);
+    childEnv.FAKE_REFERENCE_HASH = "0x" + "AB".repeat(32);
     const r = await fake("ok").compile({ plan: PLAN, reference: [] });
     expect(r.ok && r.manifest.referenceHash).toBe("0x" + "ab".repeat(32));
   });
@@ -248,7 +254,18 @@ describe("WSL mapping", () => {
   it("runs the engine through wsl.exe -e env with a fixed environment and no shell", () => {
     expect(wslEngineBin({ distro: "Ubuntu", enginePath: "/e/engine", r0vmPath: "/r/r0vm", cacheDir: "/c" })).toEqual({
       command: "wsl.exe",
-      args: ["-d", "Ubuntu", "-e", "env", "-u", "RISC0_DEV_MODE", "-u", "RUST_LOG", "RISC0_SERVER_PATH=/r/r0vm", "UBC26_ENGINE_CACHE=/c", "/e/engine"],
+      args: [
+        "-d",
+        "Ubuntu",
+        "-e",
+        "/usr/bin/env",
+        "-i",
+        "PATH=/usr/local/bin:/usr/bin:/bin",
+        "TMPDIR=/tmp",
+        "RISC0_SERVER_PATH=/r/r0vm",
+        "UBC26_ENGINE_CACHE=/c",
+        "/e/engine",
+      ],
     });
   });
 });

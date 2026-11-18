@@ -1,0 +1,43 @@
+{
+  "status": "no-accepted-draft",
+  "checkedAt": "2026-11-18T04:30:00Z",
+  "originalPilotVerdict": "failed: three direct API calls, zero accepted drafts, zero Bot reviews",
+  "additionalDiagnosticAuthority": "User later instructed continued work with a $5 cash constraint; one extra call used existing xAI credit",
+  "attempts": [
+    {
+      "taskId": "01M7NQRG2BXWM30NJ2WTNAYTZE",
+      "caseId": "voyage-fee",
+      "state": "failed",
+      "reason": "http_error",
+      "charge": "uncertain",
+      "reservedMicroUsd": 60000
+    },
+    {
+      "taskId": "01M7PE8VCNXP71DCRPMY5ZYY6Y",
+      "caseId": "voyage-fee",
+      "state": "unsupported",
+      "reason": "plan_invalid: string-typed literal in numeric comparison",
+      "settledMicroUsd": 6085
+    },
+    {
+      "taskId": "01M7PEGFYSKWEMMTW908D2DP6Z",
+      "caseId": "cover-1",
+      "state": "unsupported",
+      "reason": "plan_invalid: duplicate scalar and collection name",
+      "settledMicroUsd": 6452
+    },
+    {
+      "taskId": "01M7PEK2T5YZT747W7BS5A97BY",
+      "caseId": "mass-1",
+      "state": "unsupported",
+      "reason": "plan_invalid: numeric fields used as Boolean operands and record fields used outside collection scope",
+      "settledMicroUsd": 5299
+    }
+  ],
+  "settledMicroUsd": 17836,
+  "uncertainReservationMicroUsd": 60000,
+  "botReviewCalls": 0,
+  "nativeCompiles": 0,
+  "cashPurchasesUsd": 0,
+  "publicReadiness": "gated"
+}

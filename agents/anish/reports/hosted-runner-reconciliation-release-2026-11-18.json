@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "recordedAt": "2026-11-18T08:41:00Z",
+  "scope": "Post-acceptance runner reliability release and public artifact audit. This is not a second cold acceptance attempt.",
+  "coldAcceptanceReport": "agents/anish/reports/hosted-cold-agent-arc-job9-2026-11-18.json",
+  "sources": {
+    "apiCommit": "1ee322e9bb8faa9617dbaa41316c7d999144ef36",
+    "runnerAndEngineCommit": "0b35d3a5e327144045d04fe45084f6258bb23f3c",
+    "documentationCommit": "ff05a357ef6b4afcc177ede91c7e61f636cb7272"
+  },
+  "publicArtifacts": {
+    "origin": "https://ubc26-159-89-149-133.sslip.io",
+    "docsPath": "/downloads/docs/ff05a357ef6b4afcc177ede91c7e61f636cb7272/",
+    "docsReleaseSha256": "8564625e397fccfdfa5ad7ccacc9f36871e9753066f414a21c5d0afe4975dd59",
+    "docsFileCount": 9,
+    "runnerArchiveSha256": "f63ef047135b9d02f5e70f960e77cb348fbffaaa8ae061df79d22b1def31f836",
+    "runnerReleaseSha256": "563c12d650765271048f6b5480f95b2c427051f8ffeaed2b82afd027edcdbefb",
+    "runnerManifestSha256": "81ca7d96733378193ead6d443b4173f6b2f0553f6728f5f8bef77c0561b0fe03",
+    "engineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+    "externalHashAudit": "All nine docs files, docs SHA256SUMS, runner archive, release metadata, runner manifest, and engine matched their public pins over HTTPS. Public /readyz returned success."
+  },
+  "savedSolverResume": {
+    "attemptId": "41b10b00-28c2-4ab2-8ea5-4ec47c417805",
+    "chainJobId": "9",
+    "previousLocalPhase": "release_sent",
+    "resultPhase": "released",
+    "paymentConfirmed": true,
+    "releaseJournalUncertain": false,
+    "claimTx": "0xc76fd8645526209fc30ce8a1a3bab3768c6d7727dddd221f4da4ce66c3cf3e75",
+    "releaseTx": "0x21eec67f4ff0098bf7b9b1282eae2b48a40f0b89949307b64c2af213e2026acf",
+    "journalEntryCount": 2,
+    "journalNoncesAndStages": [{"kind": "claim", "nonce": 2, "stage": "confirmed"}, {"kind": "release", "nonce": 3, "stage": "confirmed"}],
+    "newSendObserved": false,
+    "newUncertaintyBranchLiveExercised": false
+  },
+  "checks": {
+    "commerceAtRunnerCommit": "SDK 535 tests plus 13 fixtures, API 1031, web 4, worker 1048; all typechecks passed",
+    "coreFastCIAtRunnerCommit": "https://github.com/anishnarang9/UBC-26/actions/runs/44267910723",
+    "commerceCIAtRunnerCommit": "https://github.com/anishnarang9/UBC-26/actions/runs/44267910743",
+    "rustAtMergedBase": "cargo fmt, cargo test --workspace --locked, and cargo clippy --workspace --all-targets --locked -- -D warnings passed",
+    "postRunnerChanges": "Documentation and audit files only"
+  },
+  "limits": [
+    "The original transient local reconciliation error was not logged with a cause and did not recur on the read-only resume.",
+    "The confirmed-release/local-journal-error branch passed focused tests but has no live reproduction.",
+    "All three distinct paid draft slots are consumed; the public pilot is not open to a new buyer draft.",
+    "Grok Bot auto top-up state and a complete cash ledger were not independently verified. No new cash purchase was requested for this release."
+  ]
+}

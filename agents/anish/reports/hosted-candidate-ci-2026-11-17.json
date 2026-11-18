@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "sourceCommit": "ae8f13f8e4d517a29c4eb77c8b1da7cd182a2b73",
+  "status": "passed-exact-source-ci",
+  "commerce": {
+    "run": 44040803374,
+    "url": "https://github.com/anishnarang9/UBC-26/actions/runs/44040803374",
+    "allTypechecks": true,
+    "unitTests": {
+      "api": 939,
+      "sdk": 365,
+      "worker": 945
+    },
+    "sdkWireChecks": 13,
+    "deployChecks": 9,
+    "controlledApiQualification": {
+      "version": 1,
+      "status": "passed-controlled-api-integration",
+      "source": "ae8f13f8e4d517a29c4eb77c8b1da7cd182a2b73",
+      "platform": "linux",
+      "node": "v24.22.2",
+      "genuineModelCalls": 0,
+      "controlledModelCalls": 3,
+      "externalRequests": 0,
+      "compilerCalls": 0,
+      "proofs": 0,
+      "chainTransactions": 0,
+      "firstCampaign": {
+        "freshControlledTrials": 3,
+        "taskPosts": 3,
+        "distinctWallets": 3
+      },
+      "resume": {
+        "freshOriginalTrials": 3,
+        "additionalTaskPosts": 0,
+        "additionalControlledModelCalls": 0
+      },
+      "newLedger": {
+        "reason": "stale-task",
+        "additionalControlledModelCalls": 0
+      },
+      "duplicateWalletKeys": {
+        "reason": "duplicate-wallet-principals",
+        "additionalTaskPosts": 0
+      },
+      "total": {
+        "taskPosts": 4,
+        "taskReads": 6,
+        "authReads": 11
+      },
+      "qualificationPassed": false,
+      "limits": [
+        "In-process Hono and SQLite with synthetic wallet accounts and a controlled model. No public host or genuine application inference was tested.",
+        "The harness paidTrialsRan flag means a task POST was attempted. It does not establish a provider charge."
+      ]
+    },
+    "packageReproducibility": {
+      "status": "passed-caller-directory-reproducibility",
+      "sourceCommit": "ae8f13f8e4d517a29c4eb77c8b1da7cd182a2b73",
+      "releaseManifestSha256": "0ff72e6100034c1e2c6218dbb4f180d76d584bc5c4d3ab14e318fd9405f1e9ee",
+      "tarSha256": "1ac075a6b85a208294770688c57c0113e962c6c766467214cf5cb7a467cf57f2",
+      "callerDirectories": [
+        "repository",
+        "commerce"
+      ],
+      "node": "v24.22.2",
+      "platform": "linux",
+      "limits": "Same source, dependencies and runtime. This does not establish cross-toolchain reproducibility."
+    }
+  },
+  "core": {
+    "run": 44040803267,
+    "url": "https://github.com/anishnarang9/UBC-26/actions/runs/44040803267",
+    "rustWorkspace": {
+      "passed": 51,
+      "ignored": 3,
+      "ignoredScope": "prepared guest execution needs separately built guests"
+    },
+    "contracts": {
+      "passed": 168,
+      "failed": 0,
+      "skipped": 1,
+      "skippedScope": "fork-only test without an RPC fork"
+    },
+    "contractExamples": 16,
+    "qualificationControls": 57,
+    "hostOracleCompared": 326,
+    "hostOracleDisagreements": 0,
+    "pythonOracleTests": 43,
+    "installedNativeSignedChecks": 12
+  },
+  "limits": [
+    "Source CI and controlled tests do not establish public hosting, genuine Grok reliability or a new funded exchange."
+  ]
+}

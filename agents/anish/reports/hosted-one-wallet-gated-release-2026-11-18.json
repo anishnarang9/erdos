@@ -1,0 +1,47 @@
+{
+  "status": "one-wallet-release-deployed-buyer-gated",
+  "checkedAt": "2026-11-18T05:47:22Z",
+  "runtimeSource": "8a1e62f7efdbe87565e6c712a7a16adfa79a0a26",
+  "apiImage": "sha256:c40b35d278898bc6b77a261da2cc74968d29bcd506c3e075a44a1d0625e1afae",
+  "documentationSource": "934062f1fc250c6c924ce0322576955816813104",
+  "sourceArchiveSha256": "21dd194a06ee2e25f74d1888b8d1c72e8ee838a335f684074e42158c29406121",
+  "backup": {
+    "path": "/srv/ubc26-backups/before-api-8a1e62f",
+    "manifestSha256": "7639578f74080802d8fc130f5cef2e8dded8437bb4b4ce982fc51e5e2a2a20d3",
+    "quiesced": true,
+    "fileCount": 101
+  },
+  "rollback": {
+    "previousApiImage": "sha256:7ac4a8d97c6b22f30d5669b7c57a9fd7ffd5cd3d34022ab9b541169adeacae52",
+    "previousHostEnvironment": "/etc/ubc26/host.env.before-8a1e62f"
+  },
+  "checks": {
+    "commerceTypechecks": "passed",
+    "sdkTests": 535,
+    "apiTests": 1029,
+    "webTests": 4,
+    "workerTests": 1042,
+    "arcFixtures": 13,
+    "compilerPrewarm": "source-pinned; native verdicts 1 and 0",
+    "runnerReproducibility": "passed from repository and commerce caller directories",
+    "runnerVpsInstallation": "installation-verified",
+    "stagedPublicConfiguration": "all readiness checks passed except expensive_ops:disabled; dry run had no network and no Docker socket",
+    "liveApiHealth": 200,
+    "liveBuyerReadiness": 503,
+    "liveDiscovery": 503
+  },
+  "artifacts": {
+    "runnerUrl": "https://ubc26-159-89-149-133.sslip.io/downloads/runner/8a1e62f7efdbe87565e6c712a7a16adfa79a0a26/ubc26-runner-0.2.0.tgz",
+    "runnerSha256": "9fe5d16106f9f8ef6a69d61eb69a6a481b223423e7ec00ef21c27a3cd6058a89",
+    "runnerManifestSha256": "c807a14a13ff5dcacd4df419c1cd573ac7db60f2904b1777279c19680cf612f9",
+    "engineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+    "docsBaseUrl": "https://ubc26-159-89-149-133.sslip.io/downloads/docs/934062f1fc250c6c924ce0322576955816813104/",
+    "docsManifestSha256": "2afa267c9b5eaa500fc9d72975b6bff62b673c0897533382f738af7ef2e77d64"
+  },
+  "secretsPrinted": false,
+  "modelCalls": 0,
+  "botReviews": 0,
+  "chainTransactions": 0,
+  "cashPurchasesUsd": 0,
+  "nextGate": "Confirm Grok Bot automatic top-up is off, then activate the staged one-wallet policy and verify external buyer readiness."
+}
