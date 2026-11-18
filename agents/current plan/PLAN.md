@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 14:16 -05:00 — Anish — Freeze normalized-source trial
+
+- The [eighth trial](../../docs/authoring-eighth-lookup-normalization-repeat-2026-11-18.md) freezes two controls and three unstable families on source `492a2c8`. Its isolated image has the matching source and engine pins; the new database has no drafts or reservations. Exact-source CI is pending. Anish will prepare a new wallet and run each case once after CI. Keep public authoring gated and the accepted public release unchanged.
+
 ## 2026-11-18 14:14 -05:00 — Anish — Test narrow lookup normalization on a fresh source
 
 - An [offline replay](../anish/reports/authoring-lot-lookup-offline-replay-2026-11-18.md) of the retained failed lot plan passed native validation and all seven hidden oracle candidates after a narrow, recorded normalization. The original paid failure remains failed. Full commerce checks pass. Anish will push the source, verify exact-source CI, and freeze a fresh trial. Keep general public authoring and the accepted public release unchanged.

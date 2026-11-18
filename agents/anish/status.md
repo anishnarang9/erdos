@@ -1,3 +1,8 @@
+# 2026-11-18 14:16 -05:00 — Freeze normalized-source trial
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Built Linux image `sha256:99d055f638f383d99755e3f408194d201d4300bbfec59a9e30fbc7cfdd774409` from source `492a2c8`. Embedded source and engine hashes match. The isolated database has zero drafts and reservations. The [eighth trial](../../docs/authoring-eighth-lookup-normalization-repeat-2026-11-18.md) freezes five cases. Exact-source CI is pending.
+- No new paid call or public deploy used this image. Campaign attributable API usage stays $0.617059. Next: prepare a new wallet and journal, wait for CI, then run each frozen task once. General authoring stays gated.
+
 # 2026-11-18 14:14 -05:00 — Validate narrow lookup normalization offline
 
 - Branch `codex/authoring-pilot-round2`, draft PR #19. Added a guarded normalization for a numeric reference lookup repeated inside its typed comparison. The original failed lot task stays failed. Its retained repaired plan became native-valid after the normalization and matched all seven independent hidden oracle cases, including unknown-key rejection. See the [offline report](reports/authoring-lot-lookup-offline-replay-2026-11-18.md).
