@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-17 23:30 -05:00 — Anish — Record failed authoring sample
+
+- The third direct API call (`cover-1`) settled at 6,452 micro-USD but generated an invalid collection declaration. The original three-call pilot ended with no accepted draft. Under the user's later instruction to keep working within a $5 cash constraint, one separate `mass-1` diagnostic call used existing xAI credit. It settled at 5,299 micro-USD and returned a plan that used numeric fields as Boolean operands and a record field outside collection scope. All three new requests have settled usage; the first 60,000 micro-USD reservation remains uncertain.
+- The generated plans were rejected before Bot review, approval and compilation. No Bot task, chain transaction or new cash charge ran. The generic prompt now explains JSON numeric field types, Boolean operations, record scope and distinct collection names. This change awaits an isolated image and a fresh bounded diagnostic. The [four-attempt sample](reports/hosted-authoring-four-attempt-sample-2026-11-18.json) has zero accepted drafts and does not qualify public authoring or the cost target.
+
 ## 2026-11-17 23:24 -05:00 — Anish — Diagnose second paid authoring attempt
 
 - The user authorized one additional direct API draft while retaining the failed first call's 6¢ uncertain reservation. The isolated VPS pilot ran source `98d7337` once. The xAI HTTP request completed with reported usage of 3,283 prompt tokens and 846 completion tokens. The new reservation settled at 6,085 micro-USD, about 0.61¢. The old 60,000 micro-USD reservation remains uncertain. No retry, repair or Bot review ran.

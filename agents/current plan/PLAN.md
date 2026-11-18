@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-17 23:30 -05:00 — Anish — Keep authoring gate closed after failed sample
+
+- The original three-call pilot failed to produce an accepted draft. A fourth, separately bounded diagnostic under the user's later spending instruction also failed native validation. The three completed requests settled at 17,836 micro-USD total; the first 60,000 micro-USD reservation remains uncertain. No Bot review ran. The candidate prompt now gives explicit type and collection-scope rules. Rebuild and check it in isolation before any further paid call. Keep public authoring gated and label this sample as failed.
+
 ## 2026-11-17 23:24 -05:00 — Anish — Second authoring attempt and prompt diagnosis
 
 - The isolated xAI request succeeded at the transport and usage layers, then produced an invalid numeric comparison. It cost 6,085 micro-USD and did not reach Bot review. The first call's 60,000 micro-USD reservation remains uncertain. The prompt now distinguishes an `i64` literal type from its decimal-string `value`; this change needs a new isolated image before the last pilot draft. See the [attempt report](../anish/reports/hosted-second-authoring-attempt-2026-11-18.json). No paid repair or retry is permitted.
