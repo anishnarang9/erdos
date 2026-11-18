@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-17 23:20 -05:00 — Anish — Prepare separate cold-agent wallets
+
+- Created separate buyer and solver encrypted V3 keystores in a private operator directory. Both pass the worker's protected password-file-descriptor loader and match their public addresses. Circle's free Arc Testnet faucet sent 20 testnet USDC to each. Both receipts succeeded, and read-only RPC checks show 20 native gas USDC and 20 ERC-20 USDC for each wallet. See the [wallet report](reports/hosted-cold-agent-wallets-2026-11-18.json).
+- This used no real-money payment. No bounty, approval, proof, claim or release transaction ran. The deployed API is still gated. Recheck balances before the cold run.
+
 ## 2026-11-17 23:08 -05:00 — Anish — Add bounded Bot dispatch candidate
 
 - The hosted release candidate now has an optional live Bot webhook profile for one exact buyer wallet and one durable dispatch claim. A database transaction counts all prior claims for that wallet, including uncertain sends, across process restarts. The route rejects other wallets and a second review before native preflight. Public mode rejects a dispatcher without this policy. The HTTPS callback and webhook credentials must be separate.

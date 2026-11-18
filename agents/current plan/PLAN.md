@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-17 23:20 -05:00 — Anish — Fund cold-agent test wallets
+
+- The buyer and solver now have separate fresh encrypted wallets. Each received 20 free Arc Testnet USDC from Circle's faucet; both receipts and gas/token balances were checked. See the [wallet report](../anish/reports/hosted-cold-agent-wallets-2026-11-18.json). The user has a $5 current cash constraint. Use existing prepaid credits and testnet assets, and avoid new paid infrastructure or credit purchases.
+
 ## 2026-11-17 23:08 -05:00 — Anish — Bound one synthetic Bot dispatch
 
 - The release candidate adds a fail-closed live Bot profile with one wallet and one durable trigger claim. Uncertain and completed claims both consume the slot. This prepares a single synthetic cold test; it does not qualify general public customer dispatch or guarantee a per-run dollar ceiling. Keep the profile off until the pilot stop rule, account boundary, callback route, and exact deployed release are resolved.

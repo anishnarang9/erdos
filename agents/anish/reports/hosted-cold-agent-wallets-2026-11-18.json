@@ -1,0 +1,29 @@
+{
+  "status": "funded-testnet-wallets",
+  "checkedAt": "2026-11-18T04:20:00Z",
+  "chainId": 5042002,
+  "source": "https://faucet.circle.com/",
+  "asset": "Arc Testnet USDC",
+  "realMoneySpentUsd": 0,
+  "wallets": {
+    "buyer": {
+      "address": "0x2bF5574C455E5F66266b17f07d7172bAEC97675F",
+      "faucetTransaction": "0x89e9f66428720cdff30ebc778c81ee1a67bf488560813f380684035a1bfbaf9a",
+      "confirmedBlock": 72791989,
+      "receiptStatus": "success",
+      "nativeTestnetUsdc": "20",
+      "erc20TestnetUsdc": "20"
+    },
+    "solver": {
+      "address": "0x2e81c7381b498d90C25C1074ADe76184B6D5B486",
+      "faucetTransaction": "0x36f62e2efa00f0ca881a68d900059ea570b6f8754f4d200a159105f9eb2e4407",
+      "confirmedBlock": 72792017,
+      "receiptStatus": "success",
+      "nativeTestnetUsdc": "20",
+      "erc20TestnetUsdc": "20"
+    }
+  },
+  "credentialStorage": "Separate encrypted V3 keystores and password files in a private operator directory; no secrets in this report",
+  "keystoreLoaderCheck": "Both fresh keystores loaded through the worker's protected file-descriptor path and matched their public addresses",
+  "limits": "Fresh balances must be read again before the cold run. No funding, approval, bounty, proof, claim or release transaction has been sent from these wallets."
+}
