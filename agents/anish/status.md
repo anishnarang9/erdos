@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-17 21:32 -05:00 — Anish — Check current xAI API credit
+
+- Branch `codex/authoring-diagnostics`. The read-only xAI Console Billing page for the team that owns the pilot API key shows a current $10.00 total credit balance. Auto top-up is disabled. The page lists a paid $10.00 single purchase dated November 17. Existing credit exceeds the pilot's 6¢ reserved ceiling, so current prepaid balance does not establish a credit blocker.
+- This does not identify the old HTTP rejection or prove that xAI will accept the next request. The original request may have preceded the purchase, and no request-level provider status is retained. No generation call, payment change, purchase or deployment ran. Keep the original task and uncertain reservation intact.
+
 ## 2026-11-17 21:30 -05:00 — Anish — Inspect stopped authoring pilot after SSH recovery
 
 - Branch `codex/authoring-diagnostics`. The pinned `remote.py` helper reached the VPS. The pilot container is exited with restart policy `no`. Read-only SQLite inspection confirmed task `01M7NQRG2BXWM30NJ2WTNAYTZE` is `failed`, attempt 1. Its error reason is `http_error`; the saved attempt has no HTTP status, provider code, trace ID or usage. The saved draft has the same limited error. One idempotency record still maps `POST /v1/tasks` to that task.
