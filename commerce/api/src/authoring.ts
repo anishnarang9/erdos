@@ -8,6 +8,7 @@ import canonicalize from "canonicalize";
 import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { assessCoverage } from "./coverage.ts";
+import { removeProvenDuplicateScalars } from "./authoring-plan-shape.ts";
 import { assertBotApproved } from "./bot-review-gate.ts";
 import { withinDraftDeadline, registerDraftDeadline } from "./draft-deadline.ts";
 import { appendExampleCheck, exampleCheckView } from "./example-checks.ts";
@@ -270,6 +271,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     const taskId = c.get("taskId") ?? "";
     const started = deps.now();
     const attempts: { reply: DraftModelResult; result: ModelDraft; failureReason?: string; httpStatus?: number; providerCode?: string }[] = [];
+    const normalizedPlanPaths = new Map<string, string[]>();
     const attemptViews = () => attempts.map(item => ({ kind: item.failureReason ? "model_failed" : item.result.kind, model: item.reply.model || null, traceId: item.reply.traceId || null, usage: item.reply.usage ?? null, ...(item.failureReason ? { reason: item.failureReason } : {}), ...(item.httpStatus !== undefined ? { httpStatus: item.httpStatus } : {}), ...(item.providerCode ? { providerCode: item.providerCode } : {}) }));
     terminalMetadata = () => {
       const last = attempts.at(-1)?.reply;
@@ -299,7 +301,12 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       const reply = await withinDraftDeadline(model.draft({ ...input, signal }), signal);
       try {
         if (typeof reply?.model !== "string" || typeof reply.traceId !== "string") throw new ModelError("invalid_reply");
-        const result = parseModelDraft(reply.result);
+        const parsed = parseModelDraft(reply.result);
+        const normalized = parsed.kind === "draft"
+          ? removeProvenDuplicateScalars(parsed.plan, body.exampleFixtures, textReferences)
+          : { plan: null, paths: [] };
+        const result: ModelDraft = parsed.kind === "draft" ? { ...parsed, plan: normalized.plan } : parsed;
+        if (normalized.paths.length > 0) normalizedPlanPaths.set(reply.traceId, normalized.paths);
         return { reply: { ...reply, result }, result };
       } catch (err) {
         if (err instanceof ModelError) { err.model = typeof reply?.model === "string" ? reply.model : undefined; err.traceId = typeof reply?.traceId === "string" ? reply.traceId : undefined; err.usage = reply?.usage; }
@@ -455,6 +462,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         coverage,
         model: reply.model,
         traceId: reply.traceId,
+        ...(normalizedPlanPaths.has(reply.traceId) ? { planNormalizations: normalizedPlanPaths.get(reply.traceId) } : {}),
       };
       if (!buyerFixtureApprovalReady) {
         return { attempt, response, hash, fatal: false, feedback: {

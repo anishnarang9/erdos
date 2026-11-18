@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 12:15 -05:00 — Anish — Preserve fourth authoring batch and fix observed plan shapes
+
+- The user approved up to $10 of continued Grok testing without a numeric trial limit. The first frozen batch ran ten API-only tasks in a local isolated candidate. One supported draft passed native and hidden-oracle checks; six supported drafts were `plan_invalid`; one disagreed with the oracle; neither the ambiguous nor unsupported case met its frozen exact outcome. Full supported-job successes were zero. Settled API charges total $0.066586. No Bot review, compile, proof, Arc send, or public deployment ran. The [first-batch report](../anish/reports/authoring-fourth-first-batch-2026-11-18.md) preserves these failures.
+- Keep general public authoring gated. A source candidate now removes only redundant scalar fields that exact buyer fixtures or reference JSON prove are arrays. Offline replay shows other native and semantic errors remain. Verify the code and freeze a changed-source repeat before another paid task. The account Dashboard meter was unavailable during the API-only batch; Bot testing waits for a fresh meter read. Anish owns the next backend qualification step.
+
 ## 2026-11-18 10:53 -05:00 — Anish — Preserve third authoring failure and keep public release gated
 
 - The third separately authorized $1 diagnostic stopped after its first case. A native-valid `pier-drawers` draft invented a required JSON field and rejected both valid hidden outputs. Its source quote path was invalid and its examples were unusable. One API call cost $0.008637; no Bot review, compile, proof, or Arc send ran. The other nine cases were not attempted. The [failure record](../anish/reports/authoring-round3-first-failure-2026-11-18.json) preserves the task, costs, rollback, and read-only restart check.

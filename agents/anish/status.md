@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 12:15 -05:00 — Fourth batch failed; narrow shape repair under test
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Ran all ten frozen first-batch API tasks against isolated local image source `84238b6`. Exact settled API usage totals 66,586 micro-USD. One of eight supported drafts passed native and hidden-oracle checks; six returned `plan_invalid`; one valid plan disagreed with the oracle. The ambiguous and unsupported cases failed their frozen outcomes. No Bot, compile, proof, Arc send, or public deploy ran. The [batch report](reports/authoring-fourth-first-batch-2026-11-18.md) records task and cost evidence. Public readiness stayed 200.
+- Added a guarded normalization candidate for duplicate `rows` scalar declarations when buyer fixtures or exact reference JSON prove `rows` is an array. Unit and route tests are passing; full checks and CI remain pending. Offline replay shows this removes the first structural error but leaves other rule and oracle failures. Next: complete full checks, checkpoint and push, then freeze a changed-source repeat. The Grok account meter was unavailable, so Bot dispatch is still on hold.
+
 ## 2026-11-18 11:57 -05:00 — Anish — User approves continued paid hardening under $10
 
 - Branch `codex/authoring-pilot-round2`. The user approved up to $10 in testing on their Grok account, without a numeric test-count limit, and asked us not to stop after a diagnostic failure. Updated the [fourth campaign controls](../../docs/authoring-fourth-bounded-diagnostic-2026-11-18.md): keep all failed outcomes, run the ten frozen cases first, then use remaining scope for changed-source or repeat-run reliability. Reconcile exact API usage and the rounded Bot meter before the next paid dispatch. Stop paid work if the ceiling or attribution becomes uncertain. No Arc send or credit purchase is in scope. The personal account is for synthetic testing only, not production Bot review.
