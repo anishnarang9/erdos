@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 12:36 -05:00 — Narrow membership and assumption prompt
+
+- The preserved procurement tasks show two model-policy errors. The lab plan used a missing-key lookup to test ordered-item presence, which returned `reject` instead of a false rule verdict. The clinic plan put stated facts and rule consequences in `coverage.assumptions`, which blocked approval. The prompt now describes `all` plus `any` for membership and reserves assumptions for genuinely unstated facts. The full commerce check passes: API 1,050, worker 1,051, SDK 535 plus 13 Arc fixtures, web 4, and typechecks.
+- This is an unqualified source candidate. No new paid call, Bot, compile, proof, Arc send, or public deployment ran. Fourth-campaign settled API cost remains $0.135685. Next: checkpoint, push, verify CI, freeze a changed-source cohort, then test the two affected families and a separate baseline. Keep general authoring gated.
+
 ## 2026-11-18 12:37 -05:00 — Procurement repeat exposes coverage and failure-class gaps
 
 - Ran three frozen tasks against isolated source `a40b7f4` after exact-source commerce, engine, and contracts CI passed. `firmware-note-1` passed native, fixtures, coverage, and every hidden oracle candidate. `clinic-supplies-receipt-1` matched the oracle but coverage assumptions blocked it. `lab-supplies-receipt-1` differed on two fail/reject classifications. The [repeat report](reports/authoring-fourth-procurement-repeat-2026-11-18.md) preserves task IDs, stage outcomes, latency, and charges.
