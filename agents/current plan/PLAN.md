@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 03:41 -05:00 — Anish — Review and test published hosted release
+
+- Immutable public docs source `ff05a35` now names runner source `0b35d3a`. External HTTPS hash checks passed for every docs file, the runner archive and manifests, and the engine. Exact runner-commit commerce and core-fast CI passed. The [release audit](../anish/reports/hosted-runner-reconciliation-release-2026-11-18.json) keeps the original cold job 9 result separate from its later read-only local repair.
+- Open a reviewable PR from `codex/hosted-release`, then test remaining public read paths, auth boundaries, and installed-runner behavior without new paid drafts or Arc sends. Keep the production cost and Bot auto top-up limits visible.
+
 ## 2026-11-18 03:40 -05:00 — Anish — Publish runner correction and close release review
 
 - The public API accepted independent buyer and solver job 9. Its chain proof, payout, buyer recovery, and byte oracle passed. A later read-only resume using runner source `0b35d3a` changed the saved local state from `release_sent` to `released` with confirmed payment; its journal contains only the original claim and release. Focused tests cover the case where local reconciliation still fails after a confirmed release receipt. Keep that branch's live behavior unclaimed because the retry did not reproduce the transient error.

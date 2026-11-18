@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 03:41 -05:00 — Anish — Verify immutable public docs and runner
+
+- Published docs source `ff05a35` at `/downloads/docs/ff05a357ef6b4afcc177ede91c7e61f636cb7272/`. All nine files and `SHA256SUMS` matched the new release manifest over external HTTPS. The public runner archive, runner metadata, runner release manifest, and engine also matched their pinned hashes. `/readyz` returned success.
+- Exact runner-commit commerce and core-fast CI passed. The [post-acceptance release audit](reports/hosted-runner-reconciliation-release-2026-11-18.json) records the read-only resume, artifact pins, and limits. Next: open the hosted release PR and continue local and public read-only testing.
+
 ## 2026-11-18 03:40 -05:00 — Anish — Publish corrected runner and confirm read-only resume
 
 - Runner and engine source `0b35d3a` is installed on the VPS and served under an immutable public path. The client archive, runner release manifest, engine hash, and wrapper digest match their published pins. The live API remains the accepted source `1ee322e`; no API promotion or new paid call occurred.
