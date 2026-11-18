@@ -34,12 +34,12 @@ The runner checks the real chain state before proof work. Follow the [API contra
 
 ## Prepared VPS runner commands
 
-Use the verified installed runner source `11e4729fc66436198282fbbd73a81ec6e95f7204` and installed `ubc26-release.json` SHA-256 `9681f17bd64a850c512d6cf85ea82a812eb44eeae3dc5f1ba6a8bb2f0f9c7ecd`. The engine SHA-256 is `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`. The reviewed wrapper digest is `289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d`; `ubc26 wrapper-digest` must match. Save the following in a private `engine.json` on the prepared VPS:
+Use the verified installed runner source `4316b0aeecb4f9ac13246dfd9440da13a4519fe9` and installed `ubc26-release.json` SHA-256 `8379fa87117e62e82657fe1a2ff8d7911865ec23779662f55e22eee9c54dd305`. The engine SHA-256 is `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`. The reviewed wrapper digest is `289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d`; `ubc26 wrapper-digest` must match. Save the following in a private `engine.json` on the prepared VPS:
 
 ```json
 {
   "mode": "native",
-  "executable": "/opt/ubc26-solver/engines/11e4729fc66436198282fbbd73a81ec6e95f7204/ubc26-engine-linux-x64",
+  "executable": "/opt/ubc26-solver/engines/4316b0aeecb4f9ac13246dfd9440da13a4519fe9/ubc26-engine-linux-x64",
   "executableSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
   "wrapperSha256": "289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d",
   "environment": {
@@ -57,8 +57,8 @@ ubc26 configure --api "$API" --job "$JOB" --revision "$REVISION_HASH" \
   --manifest "$WORK/manifest.json" --buyer "$BUYER" --solver "$SOLVER" \
   --work-dir "$WORK" --package-dir "$PACKAGE_DIR" --reference "$REFERENCE_DIR" \
   --deliverables "$DELIVERABLES_DIR" \
-  --source-commit 11e4729fc66436198282fbbd73a81ec6e95f7204 \
-  --release-manifest-sha256 9681f17bd64a850c512d6cf85ea82a812eb44eeae3dc5f1ba6a8bb2f0f9c7ecd \
+  --source-commit 4316b0aeecb4f9ac13246dfd9440da13a4519fe9 \
+  --release-manifest-sha256 8379fa87117e62e82657fe1a2ff8d7911865ec23779662f55e22eee9c54dd305 \
   --out "$WORK/operator.json"
 ubc26 operator preview --config "$WORK/operator.json"
 ubc26 job-input --rpc-url https://rpc.testnet.arc.io \
