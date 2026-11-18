@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 11:57 -05:00 — Anish — User approves continued paid hardening under $10
+
+- Branch `codex/authoring-pilot-round2`. The user approved up to $10 in testing on their Grok account, without a numeric test-count limit, and asked us not to stop after a diagnostic failure. Updated the [fourth campaign controls](../../docs/authoring-fourth-bounded-diagnostic-2026-11-18.md): keep all failed outcomes, run the ten frozen cases first, then use remaining scope for changed-source or repeat-run reliability. Reconcile exact API usage and the rounded Bot meter before the next paid dispatch. Stop paid work if the ceiling or attribution becomes uncertain. No Arc send or credit purchase is in scope. The personal account is for synthetic testing only, not production Bot review.
+- No paid fourth-campaign call has run yet. PR #19 checks at the recovery-read-retry commit are pending. Next: verify CI, stage an isolated API candidate and fresh state, inspect the current account meter, then run the frozen first batch. Public authoring remains gated.
+
 ## 2026-11-18 11:38 -05:00 — Anish — Bound buyer recovery after a transient public read failure
 
 - Branch `codex/authoring-pilot-round2`. The job 9 buyer recovery needed a manual read-only retry after a timeout and public HTTP 503. Added one bounded retry for a public job GET after HTTP 502/503/504 or a timeout. It requests the same job ID, rejects a permanent 404 without retry, and stops after the second failure. The new tests failed before the helper existed and now pass. Fifteen focused confirmed-release receipt and journal tests also pass; this is controlled evidence, not a new live recovery run.
