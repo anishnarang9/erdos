@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 13:18 -05:00 — Verify model-authored local proof and audit breadth cohort
+
+- The generated lab plan from fresh API task `01M7QW5H49VGWYHFPXKSWP2EPQ` compiled in 29,029 ms. A synthetic job produced a verdict-1 Groth16 proof in 346,588 ms. Decryption recovered the exact `receipt.json` bytes, and the independent oracle returned pass. The [proof report](reports/model-authored-lab-local-proof-2026-11-18.json) records package and proof hashes. This is local evidence, not Bot approval or Arc funding.
+- The frozen 13-brief breadth cohort made 22 provider calls and settled $0.129806 across 13 distinct tasks. Two supported drafts passed native, coverage, quotes, and all hidden oracle cases after correcting a private harness gate for absent buyer fixtures. Seven supported briefs missed the draft gate; both ambiguous cases missed frozen facets; neither unsupported case met the exact protocol score. The [cohort report](reports/authoring-fourth-breadth-cohort-2026-11-18.md) preserves raw failures and scorer/corpus defects. Fourth-campaign unique API cost is $0.311105. Next: freeze a corpus revision with public output contracts, keep hidden checks private, then repeat on changed inputs. General authoring remains gated.
+
 ## 2026-11-18 12:50 -05:00 — Freeze varied authoring cohort
 
 - Froze 13 distinct briefs across supported, ambiguous, and unsupported classes in the [breadth cohort](../../docs/authoring-fourth-breadth-cohort-2026-11-18.md). Source remains `fc2e717`, the accepted public release is unchanged, and prior unique fourth-campaign API cost is $0.181299. This cohort has not sent a paid request. A new wallet and task/trace identity guards are required before dispatch.

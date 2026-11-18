@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 13:18 -05:00 — Anish — Correct evaluation inputs before more paid breadth trials
+
+- The [model-authored lab proof](../anish/reports/model-authored-lab-local-proof-2026-11-18.json) passed local compile, synthetic Groth16 proof, byte-exact recovery, and independent oracle. It had no Bot review, Arc funding, claim, release, or payout. It does not satisfy complete-run acceptance.
+- The [13-brief breadth report](../anish/reports/authoring-fourth-breadth-cohort-2026-11-18.md) records two draft-stage passes after private harness adjudication, seven supported misses, two incomplete clarifications, and two strict unsupported misses. The cohort cost $0.129806 in unique settled API usage; fourth-campaign cumulative cost is $0.311105. The frozen supported corpus omits public output collection names in many cases, and one brief contradicts itself. Anish will freeze a separate revision with complete public output contracts and clean expected labels before another paid cohort. Preserve all original results. Keep public authoring gated and the accepted API release unchanged.
+
 ## 2026-11-18 12:50 -05:00 — Anish — Widen source-locked API qualification
 
 - Frozen [breadth cohort](../../docs/authoring-fourth-breadth-cohort-2026-11-18.md) covers 13 new briefs across output formats and decision classes on source `fc2e717`. Use a new wallet and exclude any reused task or provider trace. The prior six draft-stage passes and $0.181299 unique API charge remain separate evidence. The cohort is API-only while Bot spend attribution remains unavailable.
