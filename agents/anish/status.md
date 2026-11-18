@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-18 12:46 -05:00 — Freeze independent wallet repeat
+
+- Froze three new `-r3` trials on source `fc2e717` in the [separate-wallet repeat](../../docs/authoring-fourth-separate-wallet-repeat-2026-11-18.md). They use a new authenticated wallet and reject any task or trace ID from the first-wallet tasks. No `-r3` task has run. Earlier unique fourth-campaign API cost is $0.159738; $0.45 is reserved for these three tasks. Next: prepare a protected new-wallet harness, verify identity guards, then dispatch each trial once.
+
 ## 2026-11-18 12:45 -05:00 — Correct repeat reliability and charge ledger
 
 - Six predeclared client requests ran on source `fc2e717` after exact-source CI passed. The first three created unique tasks and passed native, buyer fixtures, coverage, quotes, and hidden oracle checks. The second three used new idempotency keys but the same wallet and input; the API returned the first tasks. They are **replays, not independent repeats**. The private harness initially misreported six successes and double-counted costs. The [replay audit](reports/authoring-fourth-reliability-replay-2026-11-18.md) preserves both rounds and corrects the count using the service database: three tasks, three settled reservations, $0.024053 API cost. Fourth-campaign cumulative API cost is $0.159738.
