@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-18 — Anish — Ten-case authoring pilot failed; preserve evidence
+
+- Ran ten fresh sequential synthetic draft tasks in the isolated local pilot under the one-wallet cap and no paid repairs. All ten cases are preserved as failed attempts in the [pilot report](reports/ten-case-authoring-pilot-2026-11-18.json). Five supported briefs produced `invalid_reply`, three were marked `unsupported`, one reached a passing independent oracle and exact Bot review but failed compile, and the ambiguous brief was marked `unsupported` instead of asking for both clarifications.
+- The isolated SQLite ledger has ten settled draft charges totaling 63,529 micro-USD. One Bot review ran. The rounded Grok Dashboard additional-usage meter moved from $0.82 to $0.88, and credit balance from $4.34 to $4.27. The protected case journals keep a conservative 233,529 micro-USD upper sum. No Arc transaction occurred. The scoped cold Arc job 9 result remains a separate pass; this authoring campaign failed.
+- The compile failure was `engine_failed/build_failure`. The isolated state lacked `tmp` and `cache` directories. A separate direct compile of the same plan succeeded after those directories were created. This diagnostic does not repair or reclassify the failed case. The protected deployment script now creates both directories on first launch.
+- Restored the original HTTPS callback ingress and stopped the pilot. Public `/readyz` returned 200, and the live API retained its previous image. Production authoring policy and average-cost qualification remain open.
+
 ## 2026-11-18 — Anish — Stage and restore isolated ten-case pilot
 
 - PR [#17](https://github.com/anishnarang9/UBC-26/pull/17) at `dbfd078` passed both GitHub checks. Built a separate VPS image from that exact Git archive; its source label matches the commit and its Linux engine hash matches the published engine. The live API image stayed on the prior release.
