@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 21:30 -05:00 — Anish — Inspect stopped authoring pilot after SSH recovery
+
+- Branch `codex/authoring-diagnostics`. The pinned `remote.py` helper reached the VPS. The pilot container is exited with restart policy `no`. Read-only SQLite inspection confirmed task `01M7NQRG2BXWM30NJ2WTNAYTZE` is `failed`, attempt 1. Its error reason is `http_error`; the saved attempt has no HTTP status, provider code, trace ID or usage. The saved draft has the same limited error. One idempotency record still maps `POST /v1/tasks` to that task.
+- The reservation remains `uncertain`, with a 60,000 micro-USD ceiling, no settlement amount and no usage JSON. It was marked dispatched at `2026-11-17T21:49:11.287Z`. The container log window around dispatch has no HTTP status candidate. The original provider rejection cannot be reconstructed from these records. The matching xAI Console team still showed no reported charge in the prior read-only usage check. No database row, container state, API request or production deployment changed.
+- Next: keep the reservation and stop rule intact. A provider transaction record or support response is needed for an exact original rejection. Review and integrate the safe diagnostic change before another approved pilot request.
+
 ## 2026-11-17 21:25 -05:00 — Anish — Retain safe xAI failure diagnostics
 
 - Branch `codex/authoring-diagnostics` is an isolated worktree based on hosted commit `4ad733f`. A new provider failure records the HTTP status and an allowlisted error code in its draft attempt metadata. It does not retain a raw provider message or key. The original failed task `01M7NQRG2BXWM30NJ2WTNAYTZE`, its idempotency identity and its 6¢ uncertain reservation were not changed.
