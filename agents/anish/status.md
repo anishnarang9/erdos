@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-18 00:38 -05:00 — Anish — Closure checkpoint CI passed
+
+- Branch `codex/core-sprint-closure`, PR #11. Pushed checkpoint `32cba11` passed all six push/PR checks. Exact-head [core CI](https://github.com/anishnarang9/UBC-26/actions/runs/44245029898) passed engine and contracts. [Commerce CI](https://github.com/anishnarang9/UBC-26/actions/runs/44245030472) passed. Read-only review found no important findings.
+- Current Arc code hashes match all four deployment pins at block `72800972`, hash `0x4a60171143584cf3a0cd171ac8da8dc1a93f9febd4e0c4e493541b0213faa6bc`. Both fees remain zero. Both frozen deployment manifests match byte-for-byte. This check did not repeat complete role history. The task-file secret-pattern scan and 29 new local links passed.
+- This follow-up records evidence only. Runtime code, contracts, toolchains and dependencies remain unchanged. Next: push this final report/status commit, require final-head checks, merge PR #11 normally, and verify all owner heads on remote main. Preserve the branch and completed run journals. No live authorization or product work is pending for the revised closure scope.
+
 ## 2026-11-18 00:29 -05:00 — Anish — Restart recovery and clean-source closure
 
 - Branch `codex/core-sprint-closure`, based on remote main `2e04451`. Found the requested merges already complete. Verified Nick `57c387f`, engine `adda3a3`, integration `ae1295a`, and Neil PR #5 final head `f84773b` as main ancestors. PR #7 and #5 are merged. PR #4 and #6 are closed.
