@@ -3,6 +3,8 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ProofChamber } from "../chamber/ProofChamber";
+import { HostedBounties } from "../components/HostedBounties";
+import recording from "../../recordings/run-2026-11-16-job3-paid.json";
 import { BuyerPanel } from "../components/BuyerPanel";
 import { Captions, useCaption } from "../components/Captions";
 import { Elapsed } from "../components/Elapsed";
@@ -14,8 +16,10 @@ import { TopBar } from "../components/TopBar";
 import { sound } from "../fx/sound";
 import { project } from "../lib/gate";
 import { startLive, stopLive } from "../lib/live";
+import { hostedDemo } from "../lib/hosted";
+import { playRecording, stopReplay, type Recording } from "../lib/replay";
 import { usePresenterKeys } from "../lib/presenter";
-import { stageOf, useDemo } from "../lib/store";
+import { stageOf, store, useDemo } from "../lib/store";
 
 function ChamberOverlay() {
   const events = useDemo((s) => s.events);
@@ -44,11 +48,28 @@ export function Workspace({ jobId }: { jobId: string | null }) {
     setToast(m);
     setTimeout(() => setToast(null), 1800);
   }, []);
+  const [replayError, setReplayError] = useState(false);
+  const showPublicWorkspace = hostedDemo && mode !== "replay";
   usePresenterKeys(onToast);
 
+  function playDemo() {
+    setReplayError(false);
+    try {
+      playRecording(recording as Recording, 4);
+    } catch {
+      setReplayError(true);
+    }
+  }
+
   useEffect(() => {
-    startLive(jobId);
-    return () => stopLive();
+    if (!hostedDemo) {
+      startLive(jobId);
+      return stopLive;
+    }
+    return () => {
+      stopReplay();
+      store.reset();
+    };
   }, [jobId]);
   useEffect(() => {
     if (stage === "submitted") sound.chime();
@@ -69,18 +90,33 @@ export function Workspace({ jobId }: { jobId: string | null }) {
       <TopBar onEvidence={open("evidence")} onSolver={open("solver")} />
       <section className="outcome" aria-live="polite">
         <span className={`tone ${proj.tone}`} aria-hidden />
-        <motion.h1 key={proj.outcome} initial={{ opacity: 0.4, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
-          {proj.outcome}
+        <motion.h1 key={showPublicWorkspace ? "Public workspace" : proj.outcome} initial={{ opacity: 0.4, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+          {showPublicWorkspace ? "Public workspace" : proj.outcome}
         </motion.h1>
-        <span className="next">{proj.next}</span>
+        <span className="next">{showPublicWorkspace ? "Explore Arc testnet bounties or watch the recorded demo." : proj.next}</span>
       </section>
       <main className="ws-main">
-        <div className={`ws-col left ${focus("buyer")}`}><BuyerPanel /></div>
+        <div className={`ws-col left ${focus("buyer")}`}>
+          {hostedDemo && (
+            <>
+              <HostedBounties key={jobId ?? "list"} jobId={jobId} />
+              <section className="card">
+                <h2>Selected-provider demo</h2>
+                <p className="dim">Recorded on Arc testnet. Plays at 4× speed.</p>
+                <button onClick={playDemo}>
+                  {mode === "replay" ? "Restart recorded demo" : "Play recorded demo"}
+                </button>
+                {replayError && <p role="alert">Could not play the recording.</p>}
+              </section>
+            </>
+          )}
+          {!showPublicWorkspace && <BuyerPanel />}
+        </div>
         <div className={`ws-stage ${focus("vault")}`}>
           <div className="chamber-card">
             <div className="chamber-head">
               <div>
-                <div className="eyebrow">{mode === "live" ? "Live · Arc testnet" : "Recorded run · signing unavailable"}</div>
+                <div className="eyebrow">{showPublicWorkspace ? "Arc testnet · read only" : mode === "live" ? "Live · Arc testnet" : "Recorded run · signing unavailable"}</div>
                 <h2>{proj.status}</h2>
               </div>
             </div>

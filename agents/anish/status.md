@@ -1,3 +1,9 @@
+# 2026-11-18 17:38 -05:00 — Integrate current main for final buyer release
+
+- Merged remote main `6df439d` into `codex/authoring-pilot-round2`. Its new work is the frontend demo and runbook. Preserved both Anish status histories across the sole merge conflict. The backend draft/Bot pilot change remains on the branch.
+- Combined `commerce/pnpm check` passed: SDK 535 plus 13 Arc fixtures, web 5, API 1,081, worker 1,051, and all typechecks. `git diff --check` passed. Exact-merge CI, deployment, one fresh Bot review, and funded Arc acceptance remain pending.
+- Next: push the combined source, check PR #19 CI, build the pinned API image, snapshot the public state, set the one-extra-draft pilot option without raising Bot dispatches, promote, and run the independent buyer/solver test.
+
 # 2026-11-18 17:35 -05:00 — Separate final buyer draft from Bot dispatch cap
 
 - Branch `codex/authoring-pilot-round2`, draft PR #19. The user chose their existing Grok Bot account for the hackathon backend and made the independent buyer/solver Arc run the next priority. Broad paid draft diagnostics stop. Public readiness is HTTP 200; the release wallet has used three of three draft slots and two of three Bot dispatches.
@@ -55,6 +61,12 @@
 
 - Draft PR #19. The [six-case report](reports/authoring-lookup-guard-trial-2026-11-18.md) records two drafts ready for buyer review. Pier used the new standalone lookup normalization and passed every hidden outcome. Lab passed on its first reply. Category and nights remain blocked by a false accept and an unverified quote, respectively. Two drafts remained native-invalid.
 - All charges settled. Campaign attributable API usage is $1.181259. Restarted the prior isolated service and recovered all six saved tasks by ID with unchanged results and billing. The new model-authored pier plan compiled locally, and its synthetic proof and recovery run is in progress. Production readiness and final acceptance remain open.
+
+# 2026-11-18 15:17 -05:00 — Verify the Vercel frontend preview
+
+- Created `ubc-26` under the existing Hobby scope and connected it to `anishnarang9/UBC-26`. The production branch is `main`. The project root is `commerce/web` per Neil's PR #21, with the parent workspace available at build time.
+- [PR #22](https://github.com/anishnarang9/UBC-26/pull/22) adds a read-only public workspace and Neil's labeled Arc recording. The routing test, five web tests, and both Vite build modes passed. The initial Git deployment became the production baseline. Its Arc RPC passed and its API routes returned 404 as expected for the original config.
+- Vercel built the first PR preview. The browser origin gate denied access. Check the latest preview in a browser and verify GitHub CI before merging. Keep paid work and settlement with the backend owner.
 
 # 2026-11-18 15:17 -05:00 — Prepare the standalone lookup guard trial
 

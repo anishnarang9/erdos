@@ -58,6 +58,7 @@ function TypedRule({ text, delay }: { text: string; delay: number }) {
 export function RulesCard({ draft }: { draft: Draft }) {
   const request = useDemo((s) => s.draftRequest?.request ?? "");
   const job = useDemo((s) => s.job);
+  const live = useDemo((s) => s.mode === "live");
   const [flown, setFlown] = useState(false);
   useEffect(() => {
     setFlown(false);
@@ -111,7 +112,7 @@ export function RulesCard({ draft }: { draft: Draft }) {
           {draft.engine && <Hash label="rulesHash" value={draft.engine.rulesHash} />}
           <span className="faint mono" style={{ fontSize: 12 }}>{draft.model}</span>
         </div>
-        {!job && (
+        {live && !job && (
           <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
             <button onClick={() => void actions.approve()}>Approve these rules</button>
             <button className="ghost" onClick={() => store.set({ draft: null })}>Edit request</button>

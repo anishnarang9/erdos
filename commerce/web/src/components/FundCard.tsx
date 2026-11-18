@@ -19,6 +19,7 @@ export function FundCard() {
   const quotes = useDemo((s) => s.quotes);
   const fundOp = useDemo((s) => s.fundOp);
   const signer = useDemo((s) => s.signer);
+  const live = useDemo((s) => s.mode === "live");
   if (!job) return null;
 
   return (
@@ -28,7 +29,7 @@ export function FundCard() {
         {job.manifest ? <span className="badge verified">✓ compiled</span> : <span className="badge locked">◌ compiling guest</span>}
       </div>
       {job.manifest && <div style={{ marginTop: 8 }}><Hash label="imageId" value={job.manifest.imageId} /></div>}
-      {job.state === "approved" && !job.manifest && (
+      {live && job.state === "approved" && !job.manifest && (
         <button className="ghost" style={{ marginTop: 12 }} onClick={() => void actions.compile()}>Compile again</button>
       )}
 
@@ -43,7 +44,7 @@ export function FundCard() {
                 <span className="badge money">{formatUsdc(q.price)}</span>
                 <Hash label="solver" value={q.provider} />
                 <span className="spacer" />
-                <button disabled={!q.selectable} onClick={() => void actions.selectQuote(q.quoteId)}>Select</button>
+                {live && <button disabled={!q.selectable} onClick={() => void actions.selectQuote(q.quoteId)}>Select</button>}
               </motion.div>
             ))}
           </AnimatePresence>
@@ -71,10 +72,10 @@ export function FundCard() {
             })}
           </ol>
           {fundOp?.status === "failed" && <p className="badge rejected" style={{ marginTop: 8 }}>✕ {fundOp.error}</p>}
-          {stage === "selected" && !fundOp && (
+          {live && stage === "selected" && !fundOp && (
             <button style={{ marginTop: 12 }} onClick={() => void actions.fund()}>Fund escrow</button>
           )}
-          {fundOp?.status === "failed" && <button style={{ marginTop: 12 }} onClick={() => void actions.fund()}>Resume funding</button>}
+          {live && fundOp?.status === "failed" && <button style={{ marginTop: 12 }} onClick={() => void actions.fund()}>Resume funding</button>}
         </div>
       )}
     </motion.section>

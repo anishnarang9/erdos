@@ -13,6 +13,7 @@ import { RulesCard } from "./RulesCard";
 function RefundCard() {
   const job = useDemo((s) => s.job);
   const refundOp = useDemo((s) => s.refundOp);
+  const live = useDemo((s) => s.mode === "live");
   const [now, setNow] = useState(Date.now() / 1000);
   useEffect(() => {
     const iv = setInterval(() => setNow(Date.now() / 1000), 1000);
@@ -37,11 +38,11 @@ function RefundCard() {
       <h2>Escrow stays locked</h2>
       <p className="dim">The proof failed the approved rules, so nothing was paid. The buyer can reclaim the budget once the deadline passes on chain.</p>
       {expiredAt > 0 && left > 0 && <span className="badge locked">⏳ refund opens in {Math.floor(left / 60)}:{String(left % 60).padStart(2, "0")}</span>}
-      <div style={{ marginTop: 12 }}>
+      {live && <div style={{ marginTop: 12 }}>
         <button disabled={(expiredAt > 0 && left > 0) || refundOp?.status === "pending"} onClick={() => void actions.refund()}>
           {refundOp?.status === "pending" ? "Claiming refund…" : "Claim refund"}
         </button>
-      </div>
+      </div>}
       {refundOp?.status === "failed" && <p className="badge rejected" style={{ marginTop: 8 }}>✕ {refundOp.error}</p>}
     </motion.section>
   );
@@ -52,13 +53,14 @@ export function BuyerPanel() {
   const draft = useDemo((s) => s.draft);
   const job = useDemo((s) => s.job);
   const error = useDemo((s) => s.error);
+  const live = useDemo((s) => s.mode === "live");
 
   return (
     <>
       <div className="panel-title" id="buyer-title">Brief and checks</div>
       {error && <div className="badge rejected" role="alert" style={{ whiteSpace: "normal" }}>✕ {error}</div>}
-      {!job && draft?.kind !== "draft" && <RequestCard />}
-      {draft?.kind === "clarification" && <Clarification draft={draft} />}
+      {live && !job && draft?.kind !== "draft" && <RequestCard />}
+      {live && draft?.kind === "clarification" && <Clarification draft={draft} />}
       {draft?.kind === "unsupported" && <Unsupported draft={draft} />}
       {draft?.kind === "draft" && <RulesCard draft={draft} />}
       {job && <FundCard />}

@@ -104,35 +104,66 @@ export function initRobot(host, { reduced = false } = {}) {
     for (let i = 0; i < lines; i++) M(new THREE.BoxGeometry(w * (.7 - (i % 3) * .14), .045, .012), glow(i % 2 ? 0xa86bff : 0xe8e6f0), -w * .08 - (i % 3) * w * .07, h * .32 - i * .15, .035, g);
     return g;
   };
-  const p0 = P(); card(p0, .95, 1.25, 6);                                              // 01 draft: the brief
+  const p0 = P(); card(p0, .95, 1.25, 6);
+  const scan = M(new THREE.BoxGeometry(.9, .027, .02), glow(0x63f0ff), 0, .47, .055, p0);
   const p1 = P(); const hex = M(new THREE.CylinderGeometry(.55, .55, .22, 6), glass, 0, 0, 0, p1); hex.rotation.x = Math.PI / 2; // 02 compile: image id
   M(new THREE.TorusGeometry(.56, .035, 6, 6), gradMat, 0, 0, .12, p1).rotation.z = Math.PI / 6; M(new THREE.TorusGeometry(.26, .03, 6, 6), glow(0x63f0ff), 0, 0, .13, p1).rotation.z = Math.PI / 6;
   const coinOf = (parent) => { const g = new THREE.Group(); parent.add(g); const b = M(new THREE.CylinderGeometry(.55, .55, .1, 64), dark, 0, 0, 0, g); b.rotation.x = Math.PI / 2; M(new THREE.TorusGeometry(.55, .03, 10, 96), gradMat, 0, 0, 0, g); M(new THREE.TorusGeometry(.3, .028, 8, 48), glow(0x63f0ff), 0, 0, .06, g); M(new THREE.BoxGeometry(.05, .42, .02), glow(0x63f0ff), 0, 0, .06, g); return g; };
   const p2 = P(); coinOf(p2); const lock = M(new THREE.TorusGeometry(.2, .04, 8, 32, Math.PI), glow(0xffb65c), 0, .68, 0, p2); M(new THREE.BoxGeometry(.52, .34, .12), glow(0xffb65c), 0, .52, 0, p2).scale.set(1, 1, 1); lock.position.y = .7; // 03 fund: locked coin
   const p3 = P(); const chipRings = [0, 1, 2].map((i) => { const t = M(new THREE.TorusGeometry(.34 + i * .15, .022, 8, 80), i === 1 ? gradMat : glow(i ? 0xa86bff : 0x63f0ff), 0, 0, 0, p3); t.rotation.set(i * .9, i * .6, 0); return t; }); M(new THREE.IcosahedronGeometry(.2, 0), glow(0xffffff), 0, 0, 0, p3); // 04 prove
   const p4 = P(); coinOf(p4); const keyG = new THREE.Group(); keyG.position.set(.75, .45, 0); keyG.rotation.z = -.6; p4.add(keyG); M(new THREE.TorusGeometry(.14, .04, 8, 32), glow(0x6bffd8), 0, 0, 0, keyG); M(new THREE.BoxGeometry(.05, .46, .05), glow(0x6bffd8), 0, -.36, 0, keyG); M(new THREE.BoxGeometry(.16, .05, .05), glow(0x6bffd8), .08, -.5, 0, keyG); // 05 settle: coin + key
-  const p5 = P(); card(p5, .78, 1.0, 4, -.3, .05, .16); card(p5, .78, 1.0, 4, .32, -.08, -.12);          // 06 recover: two files
+  const p5 = P();
+  const report = card(p5, .78, 1.0, 4);
+  const delivery = card(p5, .78, 1.0, 4);
   const propList = [p0, p1, p2, p3, p4, p5];
+
+  // A travelling pulse traces the proof cage, then the release gesture sends a wave outward.
+  const proofPulse = M(new THREE.TorusGeometry(.48, .025, 8, 64), glow(0xb89aff), 0, 0, .1, p3);
+  const releaseWave = M(new THREE.TorusGeometry(.52, .022, 8, 64), glow(0x70ffdc), 0, 0, .1, p4);
+  for (const pulse of [proofPulse, releaseWave]) {
+    pulse.material.transparent = true;
+    pulse.material.depthWrite = false;
+  }
 
   // Dust
   const pts = []; for (let i = 0; i < 220; i++) { const a = Math.random() * Math.PI * 2, r = 2.8 + Math.random() * 2.4; pts.push(Math.cos(a) * r, -1.2 + Math.random() * 6, Math.sin(a) * r); }
   const dust = new THREE.Points(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)), new THREE.PointsMaterial({ color: 0x9aa4ff, size: .04, transparent: true, opacity: .7, depthWrite: false, blending: THREE.AdditiveBlending }));
   scene.add(dust);
 
+  // Two distant planes give the stars depth while leaving the robot's silhouette clear.
+  function starLayer(count, depth, size, color) {
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - .5) * 24;
+      positions[i * 3 + 1] = (Math.random() - .5) * 15 + 1.25;
+      positions[i * 3 + 2] = depth - Math.random() * 2;
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const stars = new THREE.Points(geometry, new THREE.PointsMaterial({
+      size, color, transparent: true, opacity: .68, depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }));
+    scene.add(stars);
+    return stars;
+  }
+  const distantStars = starLayer(720, -7, .026, 0xc1cfff);
+  const nearStars = starLayer(190, -4, .043, 0xc2f5ff);
+
   // Poses per step: [bodyYaw, headYaw, headPitch, L shoulder z, L elbow z, R shoulder z, R shoulder x, R elbow z, eyeScaleY, eyeColor]
   const POSE = [
     [-.35, .25, .12, -.25, -.2, .55, -.9, .9, 1, 0xffffff],      // reading the brief
     [-.15, -.1, .05, -.35, -.9, .5, -.8, 1.0, .8, 0xbfe9ff],     // compiling
-    [.1, 0, -.02, -.3, -.3, .5, -.9, .8, 1, 0xffd9a0],           // funded, locked
-    [.2, .1, .14, -.9, -1.5, .6, -1.0, 1.1, .4, 0xd7b8ff],       // proving (squint)
+    [.1, 0, -.02, -.3, -.3, .5, -.9, .8, 1, 0xffbb68],           // funded, locked
+    [.2, .1, .14, -.9, -1.5, .6, -1.0, 1.1, .4, 0xcc99ff],       // proving (squint)
     [.05, 0, -.1, -2.6, -.3, 1.2, -1.2, .5, 1.15, 0x7dfff0],     // settled (cheer)
-    [-.2, -.2, -.05, -2.4, -.5, 2.3, -.2, .4, 1.1, 0x7dfff0],    // files recovered
+    [-.2, -.2, -.05, -2.4, -.5, 2.3, -.2, .4, 1.1, 0xffb5d8],    // files recovered
   ];
   const LABEL = ['READING THE BRIEF', 'COMPILING THE CHECKER', 'ESCROW FUNDED', 'PROVING', 'PAID · KEY RELEASED', 'FILES RECOVERED'];
-  let step = 0, time = 0, last = performance.now(), visible = true, mx = 0, my = 0, bounce = 0;
+  let step = 1, time = 0, stageTime = 0, last = performance.now(), visible = true, mx = 0, my = 0;
   const eyeCol = new THREE.Color(0xffffff), want = new THREE.Color();
   addEventListener('pointermove', (e) => { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; }, { passive: true });
-  function resize() { const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.position.z = w / h < .8 ? 19 : 14; camera.updateProjectionMatrix(); }
+  function resize() { const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.position.z = Math.max(11.8, 10 / camera.aspect); camera.updateProjectionMatrix(); }
   new ResizeObserver(resize).observe(host); resize();
   new IntersectionObserver((e) => { visible = e[0].isIntersecting; }).observe(host);
   const L = THREE.MathUtils.lerp;
@@ -141,25 +172,89 @@ export function initRobot(host, { reduced = false } = {}) {
     requestAnimationFrame(frame);
     const dt = Math.min(.05, (now - last) / 1000); last = now;
     if (!visible || document.hidden) return;
-    if (!reduced) time += dt;
-    const k = Math.min(1, dt * 5), p = POSE[step];
-    bounce = Math.max(0, bounce - dt * 2.2);
-    rig.rotation.y = L(rig.rotation.y, p[0] + mx * .5, k);
-    bot.position.y = Math.sin(time * 1.5) * .07 + Math.sin(bounce * Math.PI) * .35;
+    const motionDt = reduced ? 0 : dt;
+    time += motionDt;
+    stageTime += motionDt;
+    const k = reduced ? 1 : Math.min(1, dt * 5), p = POSE[step];
+    const enter = reduced ? 1 : THREE.MathUtils.smoothstep(stageTime, 0, .65);
+    const swing = reduced ? 0 : Math.sin(stageTime * 3.5);
+    const pitch = step === 0 ? swing * .1 : step === 2 ? Math.sin(enter * Math.PI) * .22 : 0;
+    rig.rotation.y = L(rig.rotation.y, p[0] + (reduced ? 0 : mx * .5), k);
+    bot.position.y = Math.sin(time * 1.5) * .07 + (step === 4 ? Math.sin(enter * Math.PI) * .45 : 0);
     bot.rotation.z = Math.sin(time * .9) * .015;
-    head.rotation.y = L(head.rotation.y, p[1] + mx * .7, k); head.rotation.x = L(head.rotation.x, p[2] + my * .35, k);
-    const wave = step === 4 ? Math.sin(time * 9) * .25 : 0;
-    arms[0].shoulder.rotation.z = L(arms[0].shoulder.rotation.z, p[3] + wave, k); arms[0].elbow.rotation.z = L(arms[0].elbow.rotation.z, p[4], k);
+    head.rotation.y = L(head.rotation.y, p[1] + (reduced ? 0 : mx * .7), k);
+    head.rotation.x = L(head.rotation.x, p[2] + pitch + (reduced ? 0 : my * .35), k);
+    const gesture = step === 1 ? swing * .24 : step === 3 ? -swing * .14 : step === 4 ? (1 - enter) * 1.2 : 0;
+    arms[0].shoulder.rotation.z = L(arms[0].shoulder.rotation.z, p[3] + gesture, k);
+    arms[0].elbow.rotation.z = L(arms[0].elbow.rotation.z, p[4], k);
     arms[1].shoulder.rotation.z = L(arms[1].shoulder.rotation.z, p[5], k); arms[1].shoulder.rotation.x = L(arms[1].shoulder.rotation.x, p[6], k); arms[1].elbow.rotation.x = L(arms[1].elbow.rotation.x, -p[7], k);
+    // Each action has an anticipation, a stroke, and a held finish.
+    const phase = reduced ? 1 : Math.min(1, stageTime / 2.2);
+    const reach = Math.sin(phase * Math.PI);
+    const beat = Math.sin(phase * Math.PI * 4) * reach;
+    const finish = THREE.MathUtils.smoothstep(phase, .25, .9);
+    switch (step) {
+      case 0: // Lean over the page and trace the lines with the right wrist.
+        bot.rotation.x = .16 * reach;
+        arms[1].hand.rotation.z = .42 * beat;
+        break;
+      case 1: // Alternate two tool strokes as the hexagonal checker comes together.
+        bot.rotation.x = .11 * reach;
+        arms[0].shoulder.rotation.x = -.62 * beat;
+        arms[1].hand.rotation.z = .8 * beat;
+        break;
+      case 2: // Pull back, then press the lock down into the coin.
+        bot.rotation.x = -.18 * beat;
+        arms[1].hand.rotation.z = -.6 * reach;
+        props.position.x = 1.75 - .48 * reach;
+        break;
+      case 3: // Sweep both hands around the proof core.
+        bot.rotation.x = .14 * reach;
+        arms[0].shoulder.rotation.x = .68 * beat;
+        arms[1].hand.rotation.z = -beat;
+        break;
+      case 4: // Turn and extend the key toward the buyer.
+        bot.rotation.x = -.12 * reach;
+        arms[1].hand.rotation.z = -.75 * finish;
+        props.position.x = 1.75 + .65 * finish;
+        break;
+      case 5: // Lift the two files apart and present them face-on.
+        bot.rotation.x = -.09 * finish;
+        arms[0].shoulder.rotation.x = -.55 * finish;
+        arms[1].hand.rotation.z = .45 * finish;
+        props.position.x = 1.75 - .32 * finish;
+        break;
+    }
     // Held object: only the active one is visible; each has its own motion.
-    propList.forEach((g, i) => { g.scale.setScalar(L(g.scale.x, i === step ? 1 : .001, Math.min(1, dt * 7))); g.visible = g.scale.x > .01; });
+    propList.forEach((g, i) => { g.scale.setScalar(L(g.scale.x, i === step ? 1 : .001, reduced ? 1 : Math.min(1, dt * 7))); g.visible = g.scale.x > .01; });
     props.position.y = 1.15 + Math.sin(time * 2) * .08;
-    p0.rotation.y = Math.sin(time * .8) * .35 - .3; p1.rotation.y = time * 1.2; p2.rotation.y = Math.sin(time) * .5;
-    chipRings.forEach((t, i) => { t.rotation.x += dt * (2.2 + i); t.rotation.y += dt * (1.4 + i * .7); });
-    p4.rotation.y = time * 2.2; p5.rotation.y = Math.sin(time * 1.1) * .4;
+    // Brief scans, checker assembles, escrow locks, proof spins, key separates, files fan out.
+    scan.position.y = .47 - (reduced ? .5 : (stageTime % 1.8) / 1.8) * .94;
+    p0.rotation.y = -.3 + swing * .16;
+    p1.rotation.y = (1 - enter) * Math.PI + swing * .28;
+    hex.position.z = (1 - enter) * .6;
+    p2.rotation.y = (1 - enter) * .8;
+    lock.position.y = .7 + (step === 2 ? (1 - enter) * .4 : 0);
+    chipRings.forEach((ring, i) => {
+      ring.rotation.x = i * .9 + stageTime * (2.2 + i);
+      ring.rotation.y = i * .6 + stageTime * (1.4 + i * .7);
+    });
+    keyG.position.set(.35 + enter * .52, .2 + enter * .44, .08);
+    p4.rotation.y = swing * .22;
+    report.position.set(-.42 * enter, .08, .05);
+    report.rotation.z = .24 * enter;
+    delivery.position.set(.45 * enter, -.08, 0);
+    delivery.rotation.z = -.2 * enter;
+    const sweep = reduced ? .45 : (stageTime % 1.6) / 1.6;
+    proofPulse.rotation.x = Math.PI / 2;
+    proofPulse.position.y = -.56 + 1.12 * sweep;
+    proofPulse.scale.setScalar(.45 + .65 * Math.sin(Math.PI * sweep));
+    proofPulse.material.opacity = .85 * Math.sin(Math.PI * sweep);
+    releaseWave.scale.setScalar(.75 + sweep * 1.5);
+    releaseWave.material.opacity = 1 - sweep;
     // Head ring, moons, gradient flow
     const fast = step === 3 ? 3.2 : 1;
-    ring.rotation.z += dt * .5 * fast; ringThin.rotation.z -= dt * .2 * fast;
+    ring.rotation.z += motionDt * .5 * fast; ringThin.rotation.z -= motionDt * .2 * fast;
     const a = time * 1.1 * fast; moon.position.set(Math.cos(a) * 1.52, Math.sin(a) * 1.52, 0); moon2.position.set(Math.cos(-a * .7) * 1.72, Math.sin(-a * .7) * 1.72, 0);
     grad.offset.x = (time * .1) % 1; lattice.rotation.y = time * .15;
     // Face
@@ -167,16 +262,30 @@ export function initRobot(host, { reduced = false } = {}) {
     eyes.forEach((e) => (e.scale.y = L(e.scale.y, p[8] * blink, Math.min(1, dt * 16))));
     want.set(p[9]); eyeCol.lerp(want, Math.min(1, dt * 4)); eyes.forEach((e) => e.material.color.copy(eyeCol)); mouth.material.color.copy(eyeCol);
     mouth.scale.setScalar(L(mouth.scale.x, step >= 4 ? 1.25 : step === 3 ? .5 : .85, k));
+    nearStars.material.color.copy(eyeCol);
+    ringThin.material.color.copy(eyeCol);
     spark.material.color.copy(eyeCol); spark.scale.setScalar(1 + Math.sin(time * (step === 3 ? 14 : 4)) * .3);
-    core.material.color.copy(eyeCol); core.scale.setScalar(1 + Math.sin(time * 3) * .2); chestRing.rotation.z += dt * (step === 3 ? 4 : .5);
+    core.material.color.copy(eyeCol); core.scale.setScalar(1 + Math.sin(time * 3) * .2); chestRing.rotation.z += motionDt * (step === 3 ? 4 : .5);
     leds.forEach((l, i) => l.scale.setScalar(.7 + .6 * Math.max(0, Math.sin(time * (step === 3 ? 12 : 4) - i * 1.2))));
-    pr1.rotation.z = time * .2; dust.rotation.y += dt * .04;
+    pr1.rotation.z = time * .2; dust.rotation.y += motionDt * .04;
+    distantStars.rotation.z = Math.sin(time * .04) * .025;
+    nearStars.position.x = Math.sin(time * .12) * .13;
+    nearStars.material.opacity = .68 + .12 * Math.sin(time * .9);
     renderer.render(scene, camera);
   }
   requestAnimationFrame(frame);
 
   return {
-    setStep(i) { i = Math.max(0, Math.min(5, i)); if (i !== step) { step = i; bounce = 1; } return LABEL[step]; },
+    setStep(i) {
+      i = Math.max(0, Math.min(5, i));
+      if (i !== step) {
+        step = i;
+        stageTime = 0;
+        props.position.x = 1.75;
+        arms[0].shoulder.rotation.x = 0;
+      }
+      return LABEL[step];
+    },
     label: () => LABEL[step],
   };
 }
