@@ -1,3 +1,13 @@
+# 2026-11-18 14:02 -05:00 — Explain numeric lookup repair errors
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Native type errors now give the repair model a precise hint when a lookup is used as a Boolean in `and`, `or`, `all`, or `any`. Public errors and the preserved failed task stay unchanged. Four focused regressions pass. Full `commerce/pnpm check` passes: SDK 535 plus 13 Arc fixtures, API 1,059, web 4, worker 1,051, and all typechecks.
+- No new paid call, Bot review, Arc send, or public deploy used this candidate. Fourth-campaign unique API cost stays $0.561945. Next: checkpoint and push, verify exact-source CI, build an isolated image, and freeze changed-source cases. General authoring stays gated.
+
+# 2026-11-18 13:58 -05:00 — Independent pier repeat found a native type error
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Two new wallets ran the frozen same-source `pier-variance` trials. `r8` passed native checks and all seven hidden oracle cases. `r9` failed native validation after repair: numeric lookup was used as a Boolean operand. The [report](reports/authoring-sixth-pier-independent-repeat-2026-11-18.md) preserves both tasks, charges, and protected evidence paths. No paid retry occurred.
+- Both reservations settled. New API cost was $0.026959; fourth-campaign unique API cost is $0.561945. No Bot review, approval, compile, proof, Arc send, or public deploy ran. Public authoring stays gated. Next: improve native repair feedback offline, run relevant tests, then freeze a new source-specific cohort.
+
 # anish status
 
 ## 2026-11-18 13:54 -05:00 — Freeze independent pier repeat
@@ -2025,8 +2035,3 @@ Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a headin
 
 - Prepared the [RISC Zero implementation plan](../current%20plan/ZKVM-IMPLEMENTATION.md) and [three-way work split](../current%20plan/WORK-SPLIT.md).
 - Next build gate is a real RISC Zero 3.1.0 Groth16 receipt. Arc deployment and the settlement and commerce owner assignments are pending.
-# 2026-11-18 13:58 -05:00 — Independent pier repeat found a native type error
-
-- Branch `codex/authoring-pilot-round2`, draft PR #19. Two new wallets ran the frozen same-source `pier-variance` trials. `r8` passed native checks and all seven hidden oracle cases. `r9` failed native validation after repair: numeric lookup was used as a Boolean operand. The [report](reports/authoring-sixth-pier-independent-repeat-2026-11-18.md) preserves both tasks, charges, and protected evidence paths. No paid retry occurred.
-- Both reservations settled. New API cost was $0.026959; fourth-campaign unique API cost is $0.561945. No Bot review, approval, compile, proof, Arc send, or public deploy ran. Public authoring stays gated. Next: improve native repair feedback offline, run relevant tests, then freeze a new source-specific cohort.
-

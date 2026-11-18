@@ -9,6 +9,7 @@ import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { assessCoverage } from "./coverage.ts";
 import { removeFixtureContradictedOutputScalars, removeProvenDuplicateScalars } from "./authoring-plan-shape.ts";
+import { explainRepairErrors } from "./authoring-repair-errors.ts";
 import { assertBotApproved } from "./bot-review-gate.ts";
 import { withinDraftDeadline, registerDraftDeadline } from "./draft-deadline.ts";
 import { appendExampleCheck, exampleCheckView } from "./example-checks.ts";
@@ -403,7 +404,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
           response: { kind: "unsupported", draftId, reason: "plan_invalid", errors: verdict.errors },
           hash: null,
           fatal: false,
-          feedback: { attempt: 1, reason: "plan_invalid", errors: verdict.errors, counterexamples: [] },
+          feedback: { attempt: 1, reason: "plan_invalid", errors: explainRepairErrors(result.plan, verdict.errors), counterexamples: [] },
         };
       }
       const fileErrors = checkPlanFiles(result.plan, body.outputs, body.references.length > 0 ? body.references.map((file) => file.name) : null);

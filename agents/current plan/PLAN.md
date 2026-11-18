@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 14:02 -05:00 — Anish — Verify lookup repair feedback before live testing
+
+- A narrow source change explains numeric lookup type errors to the one allowed repair call. Four focused regressions and the full commerce check pass. No paid request used this candidate. Anish will push the checkpoint, verify exact-source CI, build an isolated image, and freeze a changed-source cohort. General public authoring and the accepted public release stay unchanged.
+
 ## 2026-11-18 13:58 -05:00 — Anish — Repair pier type error and keep release gated
 
 - The [independent pier repeat](../anish/reports/authoring-sixth-pier-independent-repeat-2026-11-18.md) passed once and failed once on source `193564b`. The failed repair put a numeric lookup directly under Boolean `and`. Three independent pier tasks on this source now have two draft-stage passes and one failure. Fourth-campaign API cost is $0.561945. Anish will improve native repair feedback, verify it offline, then freeze a changed-source trial. General public authoring and the accepted public release stay unchanged.
