@@ -155,10 +155,13 @@ describe("Poster funding", () => {
     const f = await fixture(true, 10000n);
     const originalReceipt = f.pub.getTransactionReceipt.getMockImplementation()!;
     const originalBlock = f.pub.getBlock.getMockImplementation()!;
-    let receiptSeen = false, latestAfterReceipt = 0;
+    let receiptSeen = false, receiptReads = 0, latestAfterReceipt = 0;
     f.pub.getTransactionReceipt.mockImplementation(async args => {
+      receiptReads++;
+      if (receiptReads === 1) throw Error("receipt not visible yet");
+      const receipt = await originalReceipt(args);
       receiptSeen = true;
-      return originalReceipt(args);
+      return receipt;
     });
     f.pub.getBlock.mockImplementation(async args => {
       const block = await originalBlock(args);
@@ -173,6 +176,7 @@ describe("Poster funding", () => {
     const h = await createOpenClaimBuyerFunding({ ...f.cfg, terms: { ...terms, adapter }, confirmations: 3n,
       verifyDeployment: async () => {} });
     try { expect((await h.run()).jobId).toBe(42n); } finally { await h.close(); }
+    expect(receiptReads).toBeGreaterThan(1);
     expect(latestAfterReceipt).toBeGreaterThanOrEqual(2);
     expect(f.rawSend).toHaveBeenCalledTimes(5);
   });
