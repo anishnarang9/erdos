@@ -78,6 +78,17 @@ describe("redundant numeric lookup guard", () => {
       right: { ...compare, right: different } })).paths).toEqual([]);
   });
 
+  it("types a nested numeric guard without discarding the surrounding checks", () => {
+    const minimum = { op: "gte", left: compare.left, right: { op: "literal", type: "i64", value: "0" } };
+    const bounds = { op: "and", left: minimum, right: compare };
+    const original = withRule({ op: "and", left: bounds, right: lookup });
+    const result = removeRedundantNumericLookupGuard(original);
+    expect(result.paths).toEqual(["/rules/0/right"]);
+    expect(result.plan).toMatchObject({rules: [
+      { op: "and", left: bounds, right: { op: "eq", left: lookup, right: lookup } },
+    ]});
+  });
+
   it("types a reference key guard beside a comparison that reads the same row", () => {
     const guard = { ...lookup, valueField: lookup.keyField };
     const original = withRule({ op: "and", left: guard, right: compare });

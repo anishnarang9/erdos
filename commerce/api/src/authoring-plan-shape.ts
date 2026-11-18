@@ -137,6 +137,24 @@ export function removeRedundantNumericLookupGuard(plan: unknown): { plan: unknow
     }
     return null;
   };
+  const conjunctionCompares = (value: unknown, lookup: unknown): boolean => {
+    if (!isPlainObject(value)) return false;
+    if (value.op === "and" && Object.keys(value).sort().join() === "left,op,right") {
+      return conjunctionCompares(value.left, lookup) || conjunctionCompares(value.right, lookup);
+    }
+    return comparisonOperands(value).some(operand => sameExpression(lookup, operand));
+  };
+  const fixNestedNumericGuard = (node: Record<string, unknown>, path: string): void => {
+    if (node.op !== "and" || Object.keys(node).sort().join() !== "left,op,right") return;
+    for (const [side, other] of [["left", "right"], ["right", "left"]] as const) {
+      const guard = node[side];
+      const comparison = node[other];
+      if (!numericReferenceLookup(guard) || !isPlainObject(comparison) || comparison.op !== "and" ||
+        !conjunctionCompares(comparison, guard)) continue;
+      node[side] = { op: "eq", left: guard, right: guard };
+      paths.push(`${path}/${side}`);
+    }
+  };
   const fixStringKeyGuard = (node: Record<string, unknown>, path: string): void => {
     if (node.op !== "and" || Object.keys(node).sort().join() !== "left,op,right") return;
     for (const [side, other] of [["left", "right"], ["right", "left"]] as const) {
@@ -156,6 +174,7 @@ export function removeRedundantNumericLookupGuard(plan: unknown): { plan: unknow
     if (!isPlainObject(value)) return value;
     const substitute = replacement(value);
     if (substitute) { paths.push(path); return visit(substitute, path); }
+    fixNestedNumericGuard(value, path);
     fixStringKeyGuard(value, path);
     for (const [key, child] of Object.entries(value)) value[key] = visit(child, `${path}/${key}`);
     return value;

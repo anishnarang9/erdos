@@ -1,3 +1,8 @@
+# 2026-11-18 16:03 -05:00 — Preserve aggregate bounds when typing nested lookups
+
+- Draft PR #19. The retained lab reply contained the total capacity rule. Its paid repair removed that rule while typing a lookup. The service now converts a redundant numeric lookup inside nested conjunctions to a Boolean test when a required sibling comparison reads the exact same lookup. The rule list and coverage indices stay intact. The normalization does not traverse alternatives or nested collection scopes to find a match.
+- The new regression failed before the change and passed afterward. Offline replay of the original lab reply matched all nine independently scored outcomes, including over-capacity rejection as a failed rule. Nights still returned verdict 0 for an unknown program. No paid result changed. Full commerce checks are in progress. Campaign attributable API usage remains $1.330633.
+
 # 2026-11-18 15:59 -05:00 — Verify reference key guard live
 
 - Draft PR #19. The [six-case report](reports/authoring-key-guard-trial-2026-11-18.md) records four review-ready drafts and one live use of the new key guard on badge. Lab still accepted over-capacity input. Nights returned verdict 0 instead of rejecting an unknown program. Campaign API usage is $1.330633.
