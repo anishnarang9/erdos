@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-18 00:28 -05:00 — Anish — Restart audit confirms owner merges
+
+- Branch: `codex/core-sprint-closeout`, from remote main `2e04451`. [PR #5](https://github.com/anishnarang9/UBC-26/pull/5) and [PR #7](https://github.com/anishnarang9/UBC-26/pull/7) are merged. Neil `8584b04`, Nick `57c387f`, and engine `adda3a3` are main ancestors. No owner merge needs repeating. PR #4 and consolidated PR #6 are closed.
+- The clean checkout passed locked pnpm installation, four typechecks, and 2,297 commerce tests. Rust 1.98.1 format, Clippy, 51 host tests and wire fixtures passed. Three prepared-guest tests stayed ignored. Latest main commerce CI passed at `2e04451`. See the [resume report](reports/core-sprint-resume-2026-11-18.json) for scope and warnings.
+- Fresh read-only Arc replay confirmed canonical successful fund, claim and release receipts for job 7. It checked the 10,000-unit payment and exact adapter-to-solver transfer. SDK recovery from public calldata/events reproduced `schedule.json` hash `0607a7b4…608fbc2`. No wallet access, new proof, transaction, simulation, or estimation occurred.
+- The later approved 0.01-USDC open-claim acceptance does not establish the original plan's exact 1-USDC selected-provider target or fresh user-problem authoring. Do not spend again to hide that difference. A new run needs exact approved inputs, terms and protected signing authority. Existing fractional authority must not silently expand.
+- Next: publish this evidence checkpoint, correct stale current handoffs, and merge the documentation through the normal PR path. Keep historical reports and other owners' status files unchanged. Engine recovery, the oracle and slow proof/contract suites were not repeated.
+
 ## 2026-11-16 11:04 -05:00 — Anish — Full prepared Arc workflow passed
 
 - PR #7 runtime source `8fe6dc5` completed [live job 7](reports/open-claim-arc-live-acceptance-2026-11-16.md): buyer approval, all five protected funding calls, confirmed funded reads, one fresh real proof, winning claim, key release and exact 0.01-USDC payout. Proving plus private recovery validation took 1,095.026 seconds. Public-chain SDK and engine recovery matched the original bytes. Both recovered directories passed the independent oracle. The API reports Completed and excludes the job from the open market.

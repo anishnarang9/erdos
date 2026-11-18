@@ -2,6 +2,12 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-18 00:28 -05:00 — Anish — Resume the saved sprint without repeating owner merges
+
+- Remote main `2e04451` contains engine `adda3a3`, Neil `8584b04`, and Nick `57c387f` as ancestors. [PR #7](https://github.com/anishnarang9/UBC-26/pull/7) merged the combined settlement work. [PR #5](https://github.com/anishnarang9/UBC-26/pull/5) merged Neil's later commerce and web work. Keep these histories intact. PR #8's hosted backend is a separate workstream, not an implied sprint merge.
+- The [resume audit](../anish/reports/core-sprint-resume-2026-11-18.json) records clean-checkout fast checks and fresh public-chain recovery of job 7. The later approved run paid 0.01 USDC through the open-claim adapter. It does not prove the saved plan's exact 1-USDC selected-provider acceptance or a new user-supplied authoring run.
+- Anish owns stale handoff corrections and evidence publication. Preserve older observations as history. Do not repeat completed funding, release, deployment or freeze operations. A further original-scope live run needs its own exact approved inputs, terms and protected signing authority. No new chain write follows from this restart.
+
 ## 2026-11-16 11:04 -05:00 — Anish — Prepared Arc acceptance complete; publish final evidence
 
 - The [live report](../anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) closes the prepared buyer-to-solver Arc run at runtime source `8fe6dc5`. Job 7 confirms buyer approval, five signed funding steps, fresh funded-context proof acceptance, winning claim, key release, exact 0.01-USDC payout and byte-exact SDK/engine recovery. Both recovered directories pass the independent oracle. A second solver abstains after observing the winner. The separate invalid claim and job-6 expiry refund passed. Failed job 5 was preserved and refunded.
