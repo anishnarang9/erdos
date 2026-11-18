@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 03:18 -05:00 — Anish — Audit cold Arc job 9 and finish release integration
+
+- A fresh independent buyer and solver completed Arc job 9 through the public service and installed runner. The solver made its own answer, passed the native check, prepared a fresh proof, claimed and released on chain, and received the 0.01 testnet USDC bounty. The buyer recovered the exact four bytes `OKAY` from confirmed chain data through both SDK and engine; an independent oracle matched. No agent received another agent's private state or needed operator settlement. See [job 9 audit](../anish/reports/hosted-cold-agent-arc-job9-2026-11-18.json).
+- The solver's read-only final journal reconciliation returned a generic error after confirmed release, leaving `release_sent` locally. The buyer's first read-only recovery failed, then one retry succeeded. Treat these as reliability defects to diagnose without changing the chain acceptance record. Test the public read paths and fix any reproducible defect. Merge current main into the hosted release branch, rerun checks, and retain the source-pinned deployed image and rollback backup. No new paid draft is needed for this audit.
+
 ## 2026-11-18 02:48 -05:00 — Anish — Correct the third-draft budget gate
 
 - The new release is live with API source `1ee322e`, runner and engine source `0b1a82f`, and matching public guides. The first fresh buyer reached authentication but received HTTP 429 before model dispatch. Read-only server state showed no new draft, task, reservation, or charge. It cannot count as a successful cold attempt.
