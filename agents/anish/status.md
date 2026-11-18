@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 04:08 -05:00 — Anish — Prepare morning acceptance handoff
+
+- The [morning handoff](reports/hosted-agent-first-acceptance-summary-2026-11-18.md) maps each November 18 goal gate to the cold job 9, release, and post-release evidence. It keeps the initial journal error and public 503 visible and separates production cost qualification, paid campaign, Circle paid compile, and frontend work from this accepted scope.
+- The low-rate read soak has 36 of 36 successful requests across readiness, discovery, and job detail. Continue until 07:00 Eastern, then update the audit with complete counts and any failures.
+
 ## 2026-11-18 03:58 -05:00 — Anish — Main checks and proxy controls pass
 
 - Main merge commit `47920da` passed both [commerce CI](https://github.com/anishnarang9/UBC-26/actions/runs/44270857368) and [core-fast CI](https://github.com/anishnarang9/UBC-26/actions/runs/44270857041). The deployed Caddyfile hash matches the repository. A controlled proxy run passed readiness transitions, Bot callback auth, static allowlists, and private-field log redaction. Public HTTP redirects to HTTPS with HSTS and `nosniff`.
