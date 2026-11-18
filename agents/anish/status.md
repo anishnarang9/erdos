@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 03:24 -05:00 — Anish — Merge main and verify post-acceptance release
+
+- Branch `codex/hosted-release` now includes current `origin/main` through merge commit `63fccb0`. I preserved both sets of dated status and plan entries. The merge changed owner and sprint documentation but no API, SDK, worker, deployment, or engine runtime source relative to the deployed API commit `1ee322e`.
+- The merged branch passed full commerce typechecks and tests: 535 SDK tests plus 13 Arc fixtures, 1,031 API, 4 web, and 1,043 worker. Rust formatting, workspace tests, and Clippy with `-D warnings` passed. The exact merge head's commerce CI and core-fast CI passed; the latter includes contracts and engine checks. Local Foundry was unavailable, so contracts were verified by CI. Fifteen public read probes across readiness, discovery, and job detail returned HTTP 200, with a maximum 2.784-second response. The earlier transient failures remain unexplained.
+- A post-acceptance quiesced state backup passed with manifest `7757095cb37041468ebf0559d453fd4403759deaf30f09e9ae0d228904ac9d3d`; the API returned ready afterward. The solver's temporary Docker group membership was removed after proving. Next: check final release metadata and branch state, prepare a reviewable PR, and keep the settlement journal caveat visible.
+
 ## 2026-11-18 03:18 -05:00 — Anish — Cold Arc job 9 passed with a journal caveat
 
 - Branch `codex/hosted-release`. Fresh buyer and solver agents completed public job `01M7PT3BWKW58X4GT2N9EWZNGD`, Arc job 9. The buyer's one new Grok draft settled at 1,551 micro-USD with native example verdicts 1 and 0, a Bot `pass`, approved compile, and five confirmed funding transactions. Buyer gas was 0.01336398 native testnet USDC plus a 0.01 bounty debit. The solver discovered the job, made its own output, passed a local check, and prepared a new proof in 720.58 seconds. Claim and release receipts succeeded; solver gas was 0.01241898 and payout was 0.01 testnet USDC. Buyer recovery from chain produced identical SDK and engine copies of `signal.txt`, each exactly `OKAY` with no newline. The independent oracle matched SHA-256 `315d31b420de24f9bd8dea4375b05c492060a963544cc7751f5af9fd1dc0aacf`. See the [full audit](reports/hosted-cold-agent-arc-job9-2026-11-18.json).

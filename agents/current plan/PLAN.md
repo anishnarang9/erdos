@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 03:24 -05:00 — Anish — Finish reviewable hosted release
+
+- Current remote main is now an ancestor of `codex/hosted-release`. The merge contained owner and sprint documentation only; the deployed API and runner runtime bytes remain the tested source. Commerce, Rust formatting/tests/lints, and exact-merge-head commerce/core-fast CI passed. A post-acceptance backup preserved job 9 and the settled authoring state. The solver's temporary Docker group access is removed.
+- Continue read-only reliability checks and preserve the unresolved solver journal reconciliation and first recovery 503 in the audit. Publish a reviewable PR from the hosted branch. Do not send another paid draft or Arc transaction as part of post-acceptance testing.
+
 ## 2026-11-18 03:18 -05:00 — Anish — Audit cold Arc job 9 and finish release integration
 
 - A fresh independent buyer and solver completed Arc job 9 through the public service and installed runner. The solver made its own answer, passed the native check, prepared a fresh proof, claimed and released on chain, and received the 0.01 testnet USDC bounty. The buyer recovered the exact four bytes `OKAY` from confirmed chain data through both SDK and engine; an independent oracle matched. No agent received another agent's private state or needed operator settlement. See [job 9 audit](../anish/reports/hosted-cold-agent-arc-job9-2026-11-18.json).

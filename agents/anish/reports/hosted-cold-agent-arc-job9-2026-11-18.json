@@ -14,7 +14,8 @@
     "wrapperSha256": "289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d",
     "documentationSourceCommit": "1ee322e9bb8faa9617dbaa41316c7d999144ef36",
     "documentationManifestSha256": "329636cb12eff261fe10bb5c2565046d9a1006e0b7e0a5e78181da7e77f1468d",
-    "prePromotionBackupManifestSha256": "852f38adad668258fec5c2375f29d7fd78c0ee079b633b46f709528d29ed3451"
+    "prePromotionBackupManifestSha256": "852f38adad668258fec5c2375f29d7fd78c0ee079b633b46f709528d29ed3451",
+    "postAcceptanceBackupManifestSha256": "7757095cb37041468ebf0559d453fd4403759deaf30f09e9ae0d228904ac9d3d"
   },
   "job": {
     "apiJobId": "01M7PT3BWKW58X4GT2N9EWZNGD",
@@ -96,6 +97,17 @@
   "privateEvidencePathsOnVps": {
     "buyer": "/home/ubc26buyer/cold-buyer.5HZ9psyQ",
     "solver": "/home/ubc26solver/cold-solver.esj4Wosh"
+  },
+  "postAcceptanceChecks": {
+    "mergedMainAncestorAtCommit": "63fccb0e0df665f7f462b0f74e75a09b10d94099",
+    "runtimeCodeDiffFromDeployedSource": false,
+    "commerceTypechecksAndTests": "passed: SDK 535 plus 13 Arc fixtures, API 1031, web 4, worker 1043",
+    "rustFormatting": "passed",
+    "rustWorkspaceTests": "passed",
+    "rustClippyAllTargetsDenyWarnings": "passed",
+    "contractsCiAtMergeCommit": "passed",
+    "publicReadProbes": "15 of 15 returned HTTP 200 across readiness, open discovery, and job detail; maximum observed latency 2.784 seconds",
+    "readFailureCause": "not established; the later successful probes do not erase the two observed transient failures"
   },
   "limits": [
     "The proof establishes only the approved checks over committed inputs.",
