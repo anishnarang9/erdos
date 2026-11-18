@@ -11,3 +11,5 @@ attempts/
 *.log
 .vercel/
 .vite/
+.vercel
+.env*
