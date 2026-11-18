@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 13:21 -05:00 — Freeze public output-contract repeat
+
+- Added a separate [output-contract corpus](../../engine/evaluation/hosted-qualification/contract-corpus.mjs) with public JSON field names and types for 42 supported briefs. It does not change hidden candidates, references, or examples. It creates `category-clear-1` with the contradictory budget sentence removed and leaves the old case intact. The new digest is `5a3553958b0e674fe1c0e514d39e64138549d885084ae640c25b4a281e8c35f0`. The test failed before the module existed; the new tests and all 71 hosted qualification tests pass.
+- Froze nine `-r5` API-only trials in the [repeat plan](../../docs/authoring-fourth-output-contract-repeat-2026-11-18.md). No `-r5` paid call has run. Next: prepare a fourth wallet, verify the harness uses the new corpus and correct fixture gate, then dispatch sequentially within the remaining $10 scope. Bot, Arc, and public authoring remain gated.
+
 ## 2026-11-18 13:18 -05:00 — Verify model-authored local proof and audit breadth cohort
 
 - The generated lab plan from fresh API task `01M7QW5H49VGWYHFPXKSWP2EPQ` compiled in 29,029 ms. A synthetic job produced a verdict-1 Groth16 proof in 346,588 ms. Decryption recovered the exact `receipt.json` bytes, and the independent oracle returned pass. The [proof report](reports/model-authored-lab-local-proof-2026-11-18.json) records package and proof hashes. This is local evidence, not Bot approval or Arc funding.

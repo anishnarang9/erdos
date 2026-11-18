@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 13:21 -05:00 — Anish — Freeze corrected public output contracts
+
+- The [output-contract revision](../../engine/evaluation/hosted-qualification/contract-corpus.mjs) supplies named public fields and types for supported output files without exposing hidden cases. It corrects the contradictory category brief under a new case ID. Seventy-one hosted qualification tests pass, including checks that hidden candidates remain unchanged. The [nine-case repeat](../../docs/authoring-fourth-output-contract-repeat-2026-11-18.md) is frozen on the same API source and a new wallet. It has sent no paid call. Anish will run it sequentially and preserve original results. Public authoring stays gated.
+
 ## 2026-11-18 13:18 -05:00 — Anish — Correct evaluation inputs before more paid breadth trials
 
 - The [model-authored lab proof](../anish/reports/model-authored-lab-local-proof-2026-11-18.json) passed local compile, synthetic Groth16 proof, byte-exact recovery, and independent oracle. It had no Bot review, Arc funding, claim, release, or payout. It does not satisfy complete-run acceptance.
