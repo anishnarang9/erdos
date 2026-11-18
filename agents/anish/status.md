@@ -1,3 +1,8 @@
+# 2026-11-18 16:09 -05:00 — Record nested lookup trial results
+
+- Draft PR #19. The [six-case report](reports/authoring-nested-guard-trial-2026-11-18.md) records five review-ready drafts and one unknown-key failure. Lab passed all nine hidden outcomes without normalization. Saved offline replay verifies the new nested normalization. Original failures remain in the record.
+- Candidate CI passed. All six charges settled. Campaign API usage is $1.369126. General authoring, Bot cost and account qualification, and the final independent Arc run remain open.
+
 # 2026-11-18 16:06 -05:00 — Stage the nested lookup diagnostic
 
 - Draft PR #19. Full commerce checks passed on source `453716f`. The [frozen diagnostic](../../docs/authoring-nested-guard-trial-2026-11-18.md) binds the matching Linux image, pinned engine, empty database, and fresh authenticated wallet. Exact-source CI is pending. No paid task has used the image.
