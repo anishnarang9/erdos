@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site.css?v=9">
-<link rel="stylesheet" href="site-v3.css?v=17">
+<link rel="stylesheet" href="site-v3.css?v=18">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -304,13 +304,13 @@
       </div>
     </div>
     <div class="coin" id="coin" aria-hidden="true"></div>
-    <div class="token-right">
-      <div class="escrow-inspector"><p class="demo-kicker">Recorded outcomes · Arc Testnet</p>
+    <div class="escrow-inspector"><p class="demo-kicker">Recorded outcomes · Arc Testnet</p>
       <h3>Where did the bounty go?</h3>
       <div role="group" aria-label="Escrow case"><button type="button" data-escrow="paid" aria-pressed="true">Correct delivery</button><button type="button" data-escrow="refund" aria-pressed="false">One cent off</button></div>
       <div class="escrow-route" aria-hidden="true"><span>Buyer</span><i></i><span>Escrow</span><i></i><span id="route-end">Solver</span></div>
       <div aria-live="polite"><strong id="escrow-value">0.01 test USDC paid</strong><p id="escrow-history">Job #3 passed its checks. The release paid the solver and published the delivery key.</p></div>
-      <a id="escrow-receipt" class="demo-link" href="https://explorer.testnet.arc.io/tx/0xb9caccce8c09ad659812fa12021f3728471caf202765a0e709cbea1c382b4956" target="_blank" rel="noreferrer">Inspect release receipt ↗</a></div>
+      <p id="chain-check" role="status"></p>
+      <a id="escrow-receipt" class="demo-link" href="https://explorer.testnet.arc.io/tx/0xb9caccce8c09ad659812fa12021f3728471caf202765a0e709cbea1c382b4956" target="_blank" rel="noreferrer">Inspect release receipt ↗</a>
     </div>
   </div>
   <div class="token-links">
@@ -358,6 +358,6 @@
   </div>
 </footer>
 
-<script type="module" src="site.js?v=17"></script>
+<script type="module" src="site.js?v=18"></script>
 </body>
 </html>
