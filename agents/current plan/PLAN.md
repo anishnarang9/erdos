@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 10:53 -05:00 — Anish — Preserve third authoring failure and keep public release gated
+
+- The third separately authorized $1 diagnostic stopped after its first case. A native-valid `pier-drawers` draft invented a required JSON field and rejected both valid hidden outputs. Its source quote path was invalid and its examples were unusable. One API call cost $0.008637; no Bot review, compile, proof, or Arc send ran. The other nine cases were not attempted. The [failure record](../anish/reports/authoring-round3-first-failure-2026-11-18.json) preserves the task, costs, rollback, and read-only restart check.
+- Keep the accepted public API release and general authoring gate. PR #19 is an offline candidate with a constrained quote-path schema and a separate next-corpus version that has distinct public examples. Neither change has a live reliability result. Do not reuse the stopped campaign's unused slots. Before a new release, require repeat-run natural-language accuracy, exact Bot/compile/package/proof evidence, attributable complete-run cost, duplicate-safe recovery, and a production Bot account boundary. Frontend integration follows backend readiness.
+
 ## 2026-11-18 09:09 -05:00 — Anish — Make repeat reliability the next backend release gate
 
 - The second paid authoring pilot stopped after one `plan_invalid` case. Keep that attempt failed and the public release unchanged. The [hardening evidence](../../docs/backend-hardening-evidence-2026-11-18.md) records the offline compiler startup fix, 62-case corpus, 344 native oracle checks, and remaining live gates.
