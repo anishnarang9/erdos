@@ -42,11 +42,16 @@
     "uncertainOrReservedRows": 0,
     "breachRows": 0,
     "spendHaltRows": 0,
+    "pilotOwnerBotReviewsDispatched": 2,
+    "pilotOwnerBotReviewDispatchCap": 3,
+    "queuedOrUncertainBotReviews": 0,
+    "queuedOrUncertainTasks": 0,
     "scope": "Local API spend ledger only; it does not verify provider billing or Grok Bot account balance."
   },
   "knownLimits": [
     "One earlier Arc-backed job read returned HTTP 503 while the API remained healthy. The upstream exception was deliberately redacted, so the exact cause remains unknown.",
     "The confirmed-release/local-journal-error branch passed focused tests but did not reproduce live on the successful read-only resume.",
-    "Grok Bot auto top-up state, complete provider cash ledger, production average authoring cost, and the 180-run campaign remain unverified."
+    "The designated wallet has used two of its three permitted Bot review dispatches; no review is queued. The three paid draft slots are exhausted.",
+    "Grok Bot auto top-up state, the earlier uncertain 6-cent pilot reservation, complete provider cash ledger, production average authoring cost, and the 180-run campaign remain unverified."
   ]
 }
