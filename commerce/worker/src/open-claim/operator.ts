@@ -13,6 +13,8 @@ import { readFilesFrom } from "../run.ts";
 import { createArcOpenClaimPort } from "./arc-port.ts";
 import { parseOpenClaimManifest, verifyOpenClaimCreation } from "./manifest.ts";
 import { runOpenClaim } from "./run.ts";
+import { attemptStatus } from "./attempt-status.ts";
+import { observedReceiptWithJournal } from "./receipt-reconcile.ts";
 import { runCirclePaidCompile } from "./circle-payment.ts";
 import { recoverOpenClaimFromChain } from "./recovery.ts";
 import { deployApprovedOpenClaim } from "./deploy.ts";
@@ -263,10 +265,15 @@ export async function openClaimOperator(args: string[], credentials?: { buyerTok
     send: async tx => (await getBroadcaster()).broadcast(tx),
     recoverBroadcast: async tx => (await getBroadcaster()).transactionHash(tx) });
   const receipt = port.receipt;
+  let releaseJournalUncertain = false;
   port.receipt = async hash => {
-    const result = await receipt(hash);
-    if (result) await (await getBroadcaster()).reconcile(hash);
-    return result;
+    const observed = await observedReceiptWithJournal(hash, receipt,
+      async h => (await getBroadcaster()).reconcile(h), h => {
+        const saved = attemptStatus(JSON.parse(readSafeFile(join(c.attemptDir, "state.json"), true).toString()));
+        return (saved.phase === "release_sent" || saved.phase === "released") && saved.releaseTx === h.toLowerCase();
+      });
+    releaseJournalUncertain ||= observed.releaseJournalUncertain;
+    return observed.receipt;
   };
   // Every operator on this host must share this global proving lock. Never remove a stale lock automatically.
   privateDirectory(c.proverLockRoot);
@@ -280,7 +287,7 @@ export async function openClaimOperator(args: string[], credentials?: { buyerTok
       attemptDir: c.attemptDir, proveBudgetSec: 1800, releaseMarginSec: 600, maxGas: claimGas > releaseGas ? claimGas : releaseGas,
       maxFeePerGas: fee, maxPriorityFeePerGas: priority, claimGas, releaseGas });
     return { attemptId: state.attemptId, phase: state.phase, jobId: state.jobId, claimTx: state.claimTx, releaseTx: state.releaseTx,
-      paymentConfirmed: state.paymentConfirmed, winner: state.winner };
+      paymentConfirmed: state.paymentConfirmed, winner: state.winner, releaseJournalUncertain };
   } finally { if (broadcaster) await broadcaster.close(); closeSync(lock); unlinkSync(lockPath); }
 }
 

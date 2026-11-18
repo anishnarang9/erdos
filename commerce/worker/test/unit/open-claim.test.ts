@@ -39,6 +39,7 @@ import {
   type OpenClaimTx,
 } from "../../src/index.ts";
 import { DELIVER, IMAGE_ID, REFS, RULES, fakeEngine, solver, type EngineOpts } from "../support/fakes.ts";
+import { observedReceiptWithJournal } from "../../src/open-claim/receipt-reconcile.ts";
 
 const CORE = "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8" as Address;
 const HOOK = "0x699d0e4a067F31229Be67C534B37dE964b6eDbAb" as Address;
@@ -536,6 +537,27 @@ describe("runOpenClaimAcceptance", () => {
     expect(port.releases).toBe(1);
     expect(runner.calls.filter((call) => call[0] === "prove")).toHaveLength(1);
     expect(readFileSync(join(options.attemptDir, "state.json"), "utf8")).not.toContain(runner.key!.slice(2));
+  });
+
+  it("records confirmed release payout when only local release journal reconciliation fails", async () => {
+    const { port, options } = setup();
+    const originalReceipt = port.receipt.bind(port);
+    let releaseJournalUncertain = false;
+    port.receipt = async hash => {
+      const observed = await observedReceiptWithJournal(hash, originalReceipt,
+        async h => { if (saved(options.attemptDir).releaseTx === h) throw new Error("journal RPC unavailable"); },
+        h => saved(options.attemptDir).releaseTx === h);
+      releaseJournalUncertain ||= observed.releaseJournalUncertain;
+      return observed.receipt;
+    };
+    const state = await runOpenClaimAcceptance(options);
+    expect(state).toMatchObject({ phase: "released", paymentConfirmed: true });
+    expect(releaseJournalUncertain).toBe(true);
+    expect(port.claims).toBe(1);
+    expect(port.releases).toBe(1);
+    expect((await runOpenClaimAcceptance(options)).paymentConfirmed).toBe(true);
+    expect(port.claims).toBe(1);
+    expect(port.releases).toBe(1);
   });
 
   it("prepares one fresh proof without a signing capability, then resumes the same proof", async () => {

@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 03:29 -05:00 — Anish — Preserve chain payout when the local release journal fails
+
+- Review found that `operator run` aborted receipt processing if its local broadcaster journal could not reconcile, even when the release receipt was confirmed. This matches job 9's saved `release_sent` caveat, though the exact transient cause was not logged. A focused test failed before implementation. The candidate now lets a saved `release_sent` or `released` attempt process the confirmed chain receipt and report `releaseJournalUncertain:true` if local reconciliation fails. Claim reconciliation still fails closed before a possible release send. A full runner test also confirms payout state and no duplicate sends when local release reconciliation fails. Full commerce typechecks and tests passed: SDK 535 plus 13 fixtures, API 1,031, web 4, worker 1,048.
+- The change is local only. The public runner still uses source `0b1a82f`; the live API still uses source `1ee322e`. Next: commit the fix, run the full suite, build a source-pinned runner, update public guides, and verify a read-only resume of job 9 without a new send.
+
 ## 2026-11-18 03:24 -05:00 — Anish — Merge main and verify post-acceptance release
 
 - Branch `codex/hosted-release` now includes current `origin/main` through merge commit `63fccb0`. I preserved both sets of dated status and plan entries. The merge changed owner and sprint documentation but no API, SDK, worker, deployment, or engine runtime source relative to the deployed API commit `1ee322e`.
