@@ -1,5 +1,7 @@
 # Ten-cent constraint authoring
 
+**2026-11-18 pilot result:** The isolated ten-case qualification failed. Ten API drafts cost 63,529 micro-USD in total. Only one case reached exact Bot review, which passed, but its queued compile failed in the isolated environment. The rounded shared Bot meter rose by about $0.06 during that review. No case produced an accepted compiled plan. The [failure report](../agents/anish/reports/ten-case-authoring-pilot-2026-11-18.json) is the current evidence. The older text below records the policy and estimates that preceded this run. It does not describe the current execution state. Production authoring remains unqualified, and the personal test account is not the production account boundary.
+
 Status — the user revised the cost target to a 5–10¢ average on 2026-11-17 and requested a bounded pilot proposal. See the [complete authoring pilot](grok-bot/combined-authoring-pilot.md). Paid execution awaits approval. The sections below describe the earlier strict policy and the current production guard.
 
 The user permits at most **$0.10 for a complete authoring run**. This includes its model repair. The compiler then handles deterministic validation and checker generation. The user deferred mass testing and rejected the proposed $20 testing and daily budgets. No generation request has run.
