@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-17 23:24 -05:00 — Anish — Diagnose second paid authoring attempt
+
+- The user authorized one additional direct API draft while retaining the failed first call's 6¢ uncertain reservation. The isolated VPS pilot ran source `98d7337` once. The xAI HTTP request completed with reported usage of 3,283 prompt tokens and 846 completion tokens. The new reservation settled at 6,085 micro-USD, about 0.61¢. The old 60,000 micro-USD reservation remains uncertain. No retry, repair or Bot review ran.
+- The model returned a plan with a string-typed `"0"` literal in a numeric comparison. Native validation rejected it, so the draft is an unsuccessful attempt. The prompt now says to set numeric literal `type` to `i64` and `value` to a decimal string. API typecheck and 65 focused draft/model tests pass. See the [attempt report](reports/hosted-second-authoring-attempt-2026-11-18.json). This prompt change is not deployed yet.
+
 ## 2026-11-17 23:20 -05:00 — Anish — Prepare separate cold-agent wallets
 
 - Created separate buyer and solver encrypted V3 keystores in a private operator directory. Both pass the worker's protected password-file-descriptor loader and match their public addresses. Circle's free Arc Testnet faucet sent 20 testnet USDC to each. Both receipts succeeded, and read-only RPC checks show 20 native gas USDC and 20 ERC-20 USDC for each wallet. See the [wallet report](reports/hosted-cold-agent-wallets-2026-11-18.json).

@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-17 23:24 -05:00 — Anish — Second authoring attempt and prompt diagnosis
+
+- The isolated xAI request succeeded at the transport and usage layers, then produced an invalid numeric comparison. It cost 6,085 micro-USD and did not reach Bot review. The first call's 60,000 micro-USD reservation remains uncertain. The prompt now distinguishes an `i64` literal type from its decimal-string `value`; this change needs a new isolated image before the last pilot draft. See the [attempt report](../anish/reports/hosted-second-authoring-attempt-2026-11-18.json). No paid repair or retry is permitted.
+
 ## 2026-11-17 23:20 -05:00 — Anish — Fund cold-agent test wallets
 
 - The buyer and solver now have separate fresh encrypted wallets. Each received 20 free Arc Testnet USDC from Circle's faucet; both receipts and gas/token balances were checked. See the [wallet report](../anish/reports/hosted-cold-agent-wallets-2026-11-18.json). The user has a $5 current cash constraint. Use existing prepaid credits and testnet assets, and avoid new paid infrastructure or credit purchases.
