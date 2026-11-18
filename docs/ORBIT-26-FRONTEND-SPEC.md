@@ -1,5 +1,7 @@
 # ORBIT-26 — frontend build and integration spec
 
+**Schedule update, November 17 at 21:05 -05:00:** The frontend demo is deferred. The immediate morning acceptance is the [two-agent cold-start test](agent-first-cold-e2e-2026-11-18.md). This remains the frontend specification for later integration.
+
 **Status:** Frontend handoff, November 17, 2026. This document defines the preset demo first and the public product integration that follows. It does not claim that the hosted buyer API is ready. The [demo checklist](demo-launch-checklist-2026-11-18.md) tracks the launch work.
 
 ## Product promise and boundaries

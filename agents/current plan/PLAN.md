@@ -1,5 +1,11 @@
 # Current plan
 
+## 2026-11-17 21:05 -05:00 — Anish — Agent-first cold-start acceptance
+
+- The user kept the current public-key-release Arc flow and deferred the frontend demo. Vercel deployment is assumed; the immediate target is all service work behind the demo. The [new acceptance plan](../../docs/agent-first-cold-e2e-2026-11-18.md) supersedes the November 18 preset-demo checklist as the morning gate.
+- End with one genuine hosted end-to-end attempt by two fresh low-reasoning GPT agents with no shared or prior context. The buyer receives a plain-English problem, public guide and funded wallet; it authors, reviews, approves, compiles and funds. The solver receives the public guide and a separate funded gas wallet; it discovers the job, creates files, checks, proves, claims and releases. Buyer recovery, exact Arc payout and independent output checks close the run. No prepared answer or manual settlement is allowed in the final test.
+- Anish owns all API, backend, runner, wallet-preparation and test work. Neil owns only the frontend and Vercel deployment; neither is a gate for the backend acceptance. Nick may independently verify Arc funding and receipts. The public API's 503 buyer gate, uncertain authoring charge, production cost/account policy, PR #8 conflicts and fresh funded acceptance remain blockers. No code, paid model call, funding transaction, or final agent test occurred in this planning checkpoint.
+
 ## 2026-11-17 19:55 -05:00 — Anish — ORBIT-26 frontend spec
 
 - Added the [ORBIT-26 frontend spec](../../docs/ORBIT-26-FRONTEND-SPEC.md) as the named UI handoff. It records the latest editorial/orbital visual direction, the preset demo screen list, status and evidence rules, and later integration with the hosted open-bounty API. The spec contains no person assignment. The [demo checklist](../../docs/demo-launch-checklist-2026-11-18.md) retains the task ownership.

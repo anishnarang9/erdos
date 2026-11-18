@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-17 21:05 -05:00 — Anish — Change morning acceptance to cold agents
+
+- Branch `codex/hosted-backend`. Recorded the user decision in the shared plan and [two-agent acceptance plan](../../docs/agent-first-cold-e2e-2026-11-18.md). The frontend demo is deferred. The current Arc protocol remains. Anish owns all API, backend and test work. Neil owns only frontend/Vercel work. The final gate is one independent buyer-agent and solver-agent run against the public hosted service, with separate funded wallets and exact Arc/recovery evidence.
+- Documentation only. Buyer readiness remains 503 and the first direct authoring pilot has an unresolved `http_error` and uncertain charge. No model call, chain transaction, deployment or end-to-end run occurred. Next: resolve the authoring failure and production readiness before starting the two-agent test.
+
 ## 2026-11-17 19:55 -05:00 — Anish — Publish named frontend specification
 
 - Branch `codex/hosted-backend`. Added [ORBIT-26](../../docs/ORBIT-26-FRONTEND-SPEC.md), a person-neutral frontend specification. It covers the agreed visual direction, preset UI, evidence labels, and later hosted integration. The shared plan and demo checklist link it.

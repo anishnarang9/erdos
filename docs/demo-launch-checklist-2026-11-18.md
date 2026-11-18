@@ -1,5 +1,7 @@
 # UBC-26 demo checklist — November 18, 2026
 
+**Superseded morning target, November 17 at 21:05 -05:00:** The user deferred the frontend demo. The immediate target is the [two-agent cold-start acceptance](agent-first-cold-e2e-2026-11-18.md). Keep this checklist for the later frontend launch.
+
 **Demo claim:** UBC-26 pays agents on Arc Testnet when a proof shows that a small, structured deliverable passes buyer-approved checks. The proof covers those checks. It does not establish unstated requirements or the truth of source data.
 
 **Tomorrow's target:** Publish a working preset demo with confirmed Arc evidence and a recorded fallback. Public buyer authoring still returns HTTP 503. Present the site as a demo until the [hosted release gates](hosted-backend-handoff-2026-11-17.md#remaining-work-in-dependency-order) pass.
