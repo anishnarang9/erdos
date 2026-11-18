@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 01:01 -05:00 — Anish — Repair buyer guide before paid work
+
+- The first cold buyer stopped before authentication because the public contract omitted the draft request shape. No paid call or Arc transaction occurred. Commit `03335f9` publishes the complete draft body and example under an immutable docs version. Keep the failed launch in the record. A new independent buyer is running against the corrected guide; the single paid draft slot remains unused. See the [guide-gap report](../anish/reports/hosted-cold-buyer-guide-gap-2026-11-18.json).
+
 ## 2026-11-18 01:00 -05:00 — Anish — Start scoped public acceptance
 
 - The exact-source API `8a1e62f` now serves public buyer readiness for one designated wallet, one distinct paid draft, and one Bot review. External readiness, discovery, signed wallet authentication, role-specific guide hashes, chain balances, and adapter code passed. A fresh low-reasoning buyer agent is running the task. Start the independent solver only after confirmed funding and public brief publication.

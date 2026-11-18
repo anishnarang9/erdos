@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 01:01 -05:00 — Anish — Repair cold buyer guide gap
+
+- The first fresh buyer agent checked public readiness and installed file pins, then stopped before authentication. The public contract did not define `DRAFT_BODY`, and the CLI does not accept `ubc26 help draft`. It submitted no paid draft or chain transaction. This launch is recorded as a failed guide-readiness attempt in the [guide-gap report](reports/hosted-cold-buyer-guide-gap-2026-11-18.json).
+- Commit `03335f9` defines the draft body, its limits, a complete example, and the CLI help behavior. The corrected guide and manifest serve at an immutable URL with matching hashes. A new independent low-reasoning buyer agent is running against those public docs. The one-draft production slot remains unused. Next: monitor its single draft and review, then begin the solver only after confirmed funding.
+
 ## 2026-11-18 01:00 -05:00 — Anish — Enable one-wallet public acceptance
 
 - Branch `codex/hosted-release`. Public API source `8a1e62f` now uses the staged one-wallet authoring and Bot profile. External HTTPS `/readyz` and `/v1/open-jobs` returned 200. A buyer-wallet signed login worked through the public origin; its test key was revoked. The latest immutable public docs are source `6237471`, with external file hashes matching the release manifest. Matching runner and engine remain at source `8a1e62f`.
