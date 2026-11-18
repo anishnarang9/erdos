@@ -490,6 +490,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       const errors: FieldError[] = [];
       if (counts.positive === 0) errors.push({ path: "/examples", message: "An engine-checked passing example is required" });
       if (counts.negative === 0) errors.push({ path: "/examples", message: "An engine-checked verdict-0 example is required" });
+      if (counts.blocked) errors.push({ path: "/examples", message: "Correct or replace each rejected example or example with a verdict mismatch." });
       const counterexamples = examples.flatMap((item) => {
         const name = item.name;
         const predicted = item.predictedVerdict;
@@ -508,7 +509,12 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         response,
         hash,
         fatal: false,
-        feedback: { attempt: 1, reason: "examples", errors, counterexamples },
+        feedback: {
+          attempt: 1, reason: "examples", errors, counterexamples,
+          // A checked verdict mismatch can indicate a rule defect. A missing or
+          // invalid generated example alone does not justify replacing rules.
+          ...(examples.some(example => example.agrees === false) ? {} : { preservePlan: true }),
+        },
       };
     };
 
@@ -525,19 +531,25 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       const remaining = deps.budget.requestCeilingMicroUsd - charge.microUsd;
       return supportedCallFits(model, { ...baseInput, repair: feedback }, limit.maxTokens, remaining, deps.budget);
     };
-    const canRepair = deps.authoringRepairs && chosen.feedback !== undefined && usageComplete(first.reply.usage) && deps.now() - started < DRAFT_TIMEOUT_MS && repairFits(chosen.feedback);
+    const feedback = chosen.feedback && {
+      ...chosen.feedback,
+      ...(first.result.kind === "draft" && !chosen.fatal ? { previousPlan: first.result.plan } : {}),
+    };
+    const canRepair = deps.authoringRepairs && feedback !== undefined && usageComplete(first.reply.usage) && deps.now() - started < DRAFT_TIMEOUT_MS && repairFits(feedback);
     if (chosen.fatal && !canRepair) throw modelFailure("plan_not_hashable");
-    if (canRepair && chosen.feedback) {
+    if (canRepair && feedback) {
       repairAttempted = true;
       try {
         const second = await callModel({
           ...baseInput,
-          repair: chosen.feedback,
+          repair: feedback,
           ...(deps.budget ? { maxCompletionTokens: limit.maxTokens } : {}),
         });
         attempts.push(second);
         persistUsage();
-        chosen = await assess(second);
+        const repaired = await assess(second);
+        const breaksPlanLock = feedback.preservePlan && repaired.hash !== chosen.hash;
+        if (!breaksPlanLock && (chosen.hash === null || repaired.hash !== null)) chosen = repaired;
       } catch (err) {
         const usage = chargedUsage(err);
         attempts.push(failedAttempt(err));

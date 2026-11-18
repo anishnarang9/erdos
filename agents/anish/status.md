@@ -1,3 +1,9 @@
+# 2026-11-18 14:53 -05:00 — Keep native-valid plans available after example repair
+
+- Draft PR #19. The retained category task had a native-valid first plan and an invalid second plan. Repair requests now include the first hashable plan under the existing cost check. When only generated examples are missing or malformed, the repair keeps the exact revision. A checked verdict mismatch or a buyer fixture failure can still trigger a rule repair.
+- The service retains the original draft if the repair fails native validation or violates the revision lock. Approval remains subject to the original example and coverage gates. The record retains both provider traces and charges. Three route regressions cover the lock and fallback. The full commerce check passed, including 1,072 API tests.
+- API usage remains $0.883887. Next: integrate current main, verify the resulting commit, and run a frozen repeat of the affected briefs. Production account and complete-run gates remain open.
+
 # 2026-11-18 14:50 -05:00 — Record example gate trial results
 
 - Draft PR #19. The [tenth trial](reports/authoring-tenth-example-gate-2026-11-18.md) ran eleven cases on source `680e93c` after CI passed. Three of seven supported cases reached buyer review readiness. Four matched the hidden oracle and other draft checks. Neither clarification nor either unsupported decision met the frozen scoring rule.

@@ -40,6 +40,8 @@ export interface DraftModelInput {
   repair?: {
     attempt: 1;
     reason: "plan_invalid" | "file_errors" | "examples" | "coverage";
+    previousPlan?: unknown;
+    preservePlan?: true;
     errors: { path: string; message: string }[];
     counterexamples: {
       name: string;
@@ -271,6 +273,9 @@ export const DRAFT_SYSTEM_PROMPT = [
   "Never invent a trusted signature. Signed fixtures bind exact rules/reference/context hashes and may require new buyer-supplied witnesses.",
   "Each example is a complete set of deliverable files (every output, by name) and the",
   "verdict you predict. Give at least one passing and one failing example. The engine labels them itself.",
+  "A verdict-0 example must have valid input files and violate a rule. An input rejection is not verdict 0.",
+  "For a repair, use repair.previousPlan and the reported errors. Keep all checks that the error does not affect.",
+  "If repair.preservePlan is true, return the same plan and fix the generated examples.",
   "List every stated requirement in coverage.requirements with a unique id and text. Link each to zero-based ruleIndices and sourceQuotes quoteIndices.",
   "Put only unstated facts that the checker needs in coverage.assumptions. Do not repeat stated requirements, reference data, JSON schema, or consequences of rules as assumptions. Use an empty array when no unstated fact is needed. A nonempty assumptions array blocks approval.",
   "Every rule needs a requirement link. Every requirement needs verified quotes. List assumptions and unresolved requirements explicitly, never silently weaken them.",
