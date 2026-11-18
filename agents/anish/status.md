@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-18 00:44 -05:00 — Anish — Close duplicate PR after concurrent main closure
+
+- Branch: `codex/core-sprint-closeout`. Checkpoints `edd2b5e`, `fa08896`, and `fb79b08` are pushed. All six commerce/engine/contract checks passed at reviewed head `fb79b08`. See [commerce CI](https://github.com/anishnarang9/UBC-26/actions/runs/44245686546) and [core CI](https://github.com/anishnarang9/UBC-26/actions/runs/44245686634).
+- Concurrent [PR #11](https://github.com/anishnarang9/UBC-26/pull/11) merged first as remote main `100738a`. It includes the same handoff corrections and stronger SDK/rebuilt-engine recovery and oracle evidence. A normal merge attempt for PR #13 stopped on conflicts without changing main. Closed [PR #13](https://github.com/anishnarang9/UBC-26/pull/13) as superseded instead of duplicating completed work. This branch and its supplemental report remain intact.
+- Latest remote-main ancestry checks passed for Neil's final PR #5 head `f84773b`, Nick `57c387f`, engine `adda3a3`, and saved integration `ae1295a`. Owner integration and current documentation are on main. No force push, owner-branch deletion, or unrelated checkout change occurred.
+- The original live 1-USDC selected-provider target remains unestablished. Next owner: buyer/operator for exact approved workload, identities, commitments, expiry, bounty and gas limits through protected signing. Do not request credentials in chat. No new signing, proof or live write occurred.
+
 ## 2026-11-18 00:40 -05:00 — Anish — Preserve the concurrent main audit
 
 - Branch: `codex/core-sprint-closeout`, [PR #13](https://github.com/anishnarang9/UBC-26/pull/13). Checkpoints `edd2b5e` and `fa08896` are committed and pushed. Independent read-only review approved their facts, links and authority limits.
