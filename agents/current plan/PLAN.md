@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 13:34 -05:00 — Anish — Isolate changed-source membership trial
+
+- A new local Linux image contains prompt candidate `5c14ec2` and the published engine pin. A fresh database serves health on loopback while the accepted public API remains unchanged. The [five-case frozen trial](../../docs/authoring-fifth-membership-repeat-2026-11-18.md) includes two passing controls and three unknown-key failures. Anish will run it after exact-head CI and private wallet preparation. No paid call used this source yet. General public authoring stays gated.
+
 ## 2026-11-18 13:31 -05:00 — Anish — Test changed reference-key guidance before release
 
 - Source candidate changes the authoring prompt after the output-contract cohort showed unknown IDs returning rule failure instead of input rejection. Native and prompt regressions now distinguish `lookup` rejection from `all`/`any` verdict 0. Full local commerce checks pass. No paid call or public deploy used this candidate yet. Anish will pin and test it in a new isolated cohort. The accepted public release remains unchanged.

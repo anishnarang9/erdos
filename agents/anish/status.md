@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 13:34 -05:00 — Stage exact-source membership trial
+
+- Built Linux image `sha256:402628e99b32dfea47fc6c4c0b95cf999c5658b00549e927333227cd0d0e91ad` from source `5c14ec2` with the embedded source and engine pins matching. A fresh isolated local database serves `/healthz` 200 on loopback port 8789; local `/readyz` is 503 without chain readiness. The accepted public API is untouched. No new paid call has run.
+- Froze five `-r6` briefs in the [membership repeat](../../docs/authoring-fifth-membership-repeat-2026-11-18.md): two earlier passing controls and three unknown-reference-key failures. Next: wait for exact-head CI, prepare a new wallet and idempotency journals, then run each task once. The fourth-campaign API charge remains $0.416085. Bot cost attribution and production account isolation still block general authoring.
+
 ## 2026-11-18 13:31 -05:00 — Correct prompt guidance for reference-key outcomes
 
 - Changed the authoring prompt to use `lookup` when an unknown reference key must reject input. It now uses `all` with nested `any` when a missing reference row should produce verdict 0. A native procurement test confirms the two outcomes. The prompt regression failed before the wording change and passes now. This is a new source candidate; it has not received a paid model trial.
