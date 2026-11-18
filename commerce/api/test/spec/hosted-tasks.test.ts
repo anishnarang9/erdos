@@ -90,6 +90,25 @@ async function createJob(app: Created["app"], key: string) {
 }
 
 describe("durable tasks", () => {
+  it("limits public draft admission to the live Bot pilot wallet", async () => {
+    const model = countingModel();
+    const { created } = clocked({
+      deployment: { mode: "public", serviceOrigin: ORIGIN },
+      draftModel: model,
+      budget: { reservationMode: "provider-bound", requestCeilingMicroUsd: 2_540_960,
+        dailyCeilingMicroUsd: 2_540_960, inputMicroUsdPerMillion: 2_500_000,
+        outputMicroUsdPerMillion: 5_000_000 },
+      botReview: { serviceToken: "callback-only-test-credential-0123456789",
+        pilotOwner: accountA.address.toLowerCase(), maxDispatches: 1, dispatch: async () => {} },
+    });
+    const keyA = await issue(created.app, accountA);
+    const keyB = await issue(created.app, accountB);
+    await expectError(await post(created.app, "/v1/tasks", draftTask(), auth(keyB)), 403, "forbidden");
+    const admitted = await post(created.app, "/v1/tasks", draftTask(), auth(keyA));
+    expect(admitted.status, await admitted.clone().text()).toBe(202);
+    expect(model.calls).toBe(0);
+  });
+
   it("returns 202 before the real draft handler runs", async () => {
     const model = countingModel();
     const { created } = clocked({ draftModel: model });

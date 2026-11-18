@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 00:30 -05:00 — Anish — Restrict paid draft admission
+
+- The live Bot pilot accepts one buyer wallet, but the public API could still queue paid drafts from other wallets. A failing test proved the gap. The public draft route now rejects other wallets before it creates a spend reservation. The API typecheck and all 1,028 tests passed. Deploy this source only after the next release check.
+- The user authorized using the existing Grok Bot account for the real final run. This is a scoped one-wallet acceptance, not general customer account isolation. Keep the public gate closed until Bot spending controls and the exact release are verified.
+
 ## 2026-11-18 00:24 -05:00 — Anish — Use corrected public guide
 
 - The earlier published developer guide named an old runner pin. A corrected guide now lives under docs source `3d46350`; its runtime instructions name API, runner, and engine source `33a9883`. Both role guides and the new manifest serve over HTTPS with matching hashes. Use the [guide correction](../anish/reports/hosted-guide-correction-2026-11-18.json) for the final agents. Preserve the old docs URL as historical evidence.

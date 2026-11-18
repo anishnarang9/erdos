@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 00:30 -05:00 — Anish — Bind public draft admission to pilot wallet
+
+- Branch `codex/hosted-release`. A focused public-mode test showed that a second wallet could queue a paid draft even when live Bot review was limited to one wallet. Added the same wallet check before draft admission. The focused test failed before the fix and passed after it. API typecheck and all 1,028 API tests passed. This change is committed as a source checkpoint but is not yet deployed.
+- The user chose the existing Grok Bot account for the real final run. It still has unrelated connected apps. Restrict the final test to one reviewed synthetic task and one wallet; do not claim general customer account isolation. The API remains gated. Next: inspect the live Bot cost setting and prepare one bounded public release.
+
 ## 2026-11-18 00:24 -05:00 — Anish — Correct and publish current agent guide
 
 - Branch `codex/hosted-release`. The published developer guide under the API source pin named an older runner. Corrected its source and hashes in commit `3d46350`, then published a new immutable docs version under that commit. External HTTPS checks matched `README.md`, both role guides, `release.json`, and `SHA256SUMS`. The prior docs version remains for audit. See the [guide correction](reports/hosted-guide-correction-2026-11-18.json) and [current agent-kit evidence](../../docs/agent-kit-readiness-2026-11-18.md).

@@ -339,6 +339,10 @@ export function registerTaskRoutes(
     }
     let input: unknown;
     if (operation === "draft") {
+      if (deps.deployment.mode === "public" && deps.botReview?.pilotOwner
+        && wallet !== deps.botReview.pilotOwner) {
+        throw new ApiError("forbidden", "Authoring pilot wallet required");
+      }
       const keys = Object.keys(body);
       if (keys.some((key) => key !== "operation" && key !== "input")) {
         throw new ApiError("validation_failed", "Request validation failed", { errors: [{ path: "", message: "unknown field" }] });
