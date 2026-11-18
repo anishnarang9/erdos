@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 07:39 -05:00 — Anish — Audit original pilot billing window
+
+- PR [#15](https://github.com/anishnarang9/UBC-26/pull/15) merged the post-release audit into main at `71c4c8a`. The public readiness, discovery, and job 9 detail routes returned HTTP 200 during this read-only check.
+- The xAI Console hourly usage export reports zero requests, tokens, and USD in every bucket before November 17 at 23:00. The original pilot stopped by 16:54 Eastern. The console lists one API key, whose suffix matches the protected operator key. Its chat log shows eight later completed requests and no original failed request. The [billing audit](reports/hosted-pilot-billing-read-only-2026-11-18.json) records the export hash and limits. The export has no request IDs or timezone, so the exact HTTP failure and charge remain unproven. Preserve the uncertain reservation.
+- No paid request, Bot dispatch, purchase, or chain action occurred. The scoped cold test remains accepted. General production authoring still needs account isolation, new spend scope, and cost qualification.
+
 ## 2026-11-18 07:09 -05:00 — Anish — Finish the requested morning soak
 
 - The 07:00 Eastern public read soak finished with 97 cycles and 291 requests: 288 HTTP 200, zero HTTP 5xx, and one preserved three-request client transport gap at 04:30. Successful reads had median 0.747 seconds, 95th percentile 1.493 seconds, and maximum 1.856 seconds. The [raw timing log](reports/hosted-public-read-soak-2026-11-18.jsonl) is SHA-256 `58b68483436027d3385379c20c5c87ba3ea9c1a96d3ddb632e11ad9032f737f2`. The API access log since merge shows no 5xx. At the final check, the API was healthy with zero restarts/OOM and about 78 MiB of its 1 GiB limit.
