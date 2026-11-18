@@ -14,7 +14,17 @@ Next owner: buyer/operator. A new selected-provider run requires current exact a
 
 Main includes a buyer web implementation. Browser acceptance and fresh HTTP-model authoring remain separate claims. The entries below are historical snapshots. Their open-PR, missing-UI and no-live-run statements are not current.
 
-## 2026-11-15 — Anish — Current sprint handoff
+## 2026-11-18 — Anish — Additional recovery verification
+
+Do not restart the original integration or repeat its live transactions. Remote `main` contains engine `adda3a3`, Nick `57c387f`, integration `ae1295a`, and Neil's final PR #5 head `f84773b`. PR #7 merged the combined integration. PR #6 and Nick's PR #4 are closed as superseded.
+
+The [closure audit](reports/core-sprint-closure-2026-11-18.json) records clean-source checks and fresh public-chain recovery. The later approved [Meridian run](reports/open-claim-arc-live-acceptance-2026-11-16.md) paid 0.01 USDC through the open-claim adapter. Do not describe it as the original 1-USDC selected-provider exchange or fresh Grok drafting.
+
+The API real-engine suite, all commerce suites/typechecks, Rust checks/build, both oracle suites, and web build passed on the merged baseline. Three prepared-guest tests remain explicitly ignored in the default Rust suite. Use exact CI links and source revisions from the audit. Future live work needs fresh approval and current protected signing configuration. No wallet was accessed during closure.
+
+The sections below are historical. Their open PRs, missing UI, and pending acceptance claims no longer describe current state.
+
+## Historical snapshot — 2026-11-15 — Anish — Sprint handoff
 
 The user authorized sprint continuation, delegation, tested checkpoint commits/pushes, and normal merge integration into main. The older publication-only limits below are historical. Follow narrower limits in the active task. No live spending authorization or funded exchange exists.
 

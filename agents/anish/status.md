@@ -2,6 +2,26 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-18 00:46 -05:00 — Anish — Preserve concurrent audit and original live gate
+
+- Branch `codex/core-sprint-closure`, PR #11. Concurrent PR #12 merged as `1b67561` while this branch's CI ran. Reconciled documentation conflicts by retaining both audits and their timestamped entries. Neither owner status nor historical proof evidence changed.
+- Exact-head core CI passed at evidence commit `68f95f1` in [run 44245653509](https://github.com/anishnarang9/UBC-26/actions/runs/44245653509). Commerce, engine, contracts and workflow bytes remain identical to tested checkpoint `32cba11`. Integration changes only documentation.
+- Original live 1-USDC selected-provider acceptance remains blocked on current exact buyer/operator run authorization. The 0.01-USDC open-claim result is complete but does not replace that gate. Next: publish the reconciled audit, merge normally, and hand the original live gate to the buyer/operator without any new signing.
+
+## 2026-11-18 00:38 -05:00 — Anish — Closure checkpoint CI passed
+
+- Branch `codex/core-sprint-closure`, PR #11. Pushed checkpoint `32cba11` passed all six push/PR checks. Exact-head [core CI](https://github.com/anishnarang9/UBC-26/actions/runs/44245029898) passed engine and contracts. [Commerce CI](https://github.com/anishnarang9/UBC-26/actions/runs/44245030472) passed. Read-only review found no important findings.
+- Current Arc code hashes match all four deployment pins at block `72800972`, hash `0x4a60171143584cf3a0cd171ac8da8dc1a93f9febd4e0c4e493541b0213faa6bc`. Both fees remain zero. Both frozen deployment manifests match byte-for-byte. This check did not repeat complete role history. The task-file secret-pattern scan and 29 new local links passed.
+- This follow-up records evidence only. Runtime code, contracts, toolchains and dependencies remain unchanged. Next: push this final report/status commit, require final-head checks, merge PR #11 normally, and verify all owner heads on remote main. Preserve the branch and completed run journals. No live authorization or product work is pending for the revised closure scope.
+
+## 2026-11-18 00:29 -05:00 — Anish — Restart recovery and clean-source closure
+
+- Branch `codex/core-sprint-closure`, based on remote main `2e04451`. Found the requested merges already complete. Verified Nick `57c387f`, engine `adda3a3`, integration `ae1295a`, and Neil PR #5 final head `f84773b` as main ancestors. PR #7 and #5 are merged. PR #4 and #6 are closed.
+- Fresh private clean checkout passed locked install, 2,297 commerce tests, four typechecks, 15 real-engine API tests, Rust format/Clippy/build, 51 Rust tests, wire fixtures, 34 Meridian oracle tests, 43 legacy oracle tests, and web build. Three prepared-guest tests remain ignored. Upstream Rust/SQLite and Vite chunk warnings remain explicit.
+- Rechecked five public Arc receipts as canonical: job-7 funding, claim and release, job-6 invalid claim and refund. Confirmed the context, key event and exact 10,000-unit payment event. SDK and freshly rebuilt engine recovered the recorded `schedule.json` digest. Independent oracle returned accepted with no errors. No wallet access, new proof, transaction, deployment, or freeze occurred.
+- The [closure audit](reports/core-sprint-closure-2026-11-18.json) distinguishes the later approved prepared Meridian 0.01-USDC open-claim run from the original 1-USDC selected-provider proposal. Corrected current guidance and retained old observations as history. Neil's UI now exists through his merged branch. Its evidence remains separate from Meridian.
+- Existing baseline commerce CI passed. Core CI passed at `6ed9d2d`, with byte-identical engine/contracts/workflow at this baseline. Next: publish this documentation checkpoint, run exact-head core CI, merge normally, and verify remote ancestry. No external blocker for this closure. New spending or authoring requires a separate approved task.
+
 ## 2026-11-18 00:28 -05:00 — Anish — Verified restart against merged main
 
 - Branch `codex/sprint-resume-verification-20261118`, base remote main `2e04451`. Preserved the old engine-commerce worktree's unpublished files. Git ancestry confirms saved integration `ae1295a`, engine `adda3a3`, Nick `57c387f` and Neil `8584b04` are on main. Neil's PR #5 is merged. PR #6 and Nick's PR #4 are closed.
