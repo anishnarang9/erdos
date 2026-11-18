@@ -1,3 +1,8 @@
+# 2026-11-18 14:36 -05:00 — Varied trial passed six of ten draft gates
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. The [ninth report](reports/authoring-ninth-varied-repeat-2026-11-18.md) records ten fresh supported briefs on source `086fbae`: six draft-stage passes, two plan-invalid results, one hidden oracle disagreement, and one unnecessary clarification. All 60 campaign tasks and 100 provider traces are unique. Preserve every failed result.
+- All ten new reservations settled. Cohort API cost was $0.113881; fourth-campaign attributable API usage is $0.777842. No Bot review, approval, compile, proof, Arc send, or public deploy ran. Next: inspect retained failures and fix source-grounded causes offline before another frozen cohort. General authoring stays gated.
+
 # 2026-11-18 14:30 -05:00 — Freeze varied reference-type trial
 
 - Branch `codex/authoring-pilot-round2`, draft PR #19. Built Linux image `sha256:bda57c43b9a19a2ac2e291ef5d9f5c39f2dd4a1e0b4a7adc440d6c21d91aa352` from source `086fbae`. Embedded source and engine hashes match. The isolated database has no drafts or reservations. The [ninth trial](../../docs/authoring-ninth-varied-repeat-2026-11-18.md) freezes ten supported cases before dispatch. Exact-source CI is pending.

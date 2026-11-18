@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 14:36 -05:00 — Anish — Keep public authoring gated after varied trial
+
+- The [ninth varied trial](../anish/reports/authoring-ninth-varied-repeat-2026-11-18.md) passed six of ten draft gates. Two plans stayed invalid after repair, one native-valid plan disagreed with the oracle, and one supported brief got an unnecessary clarification. The cohort cost $0.113881; fourth-campaign attributable API usage is $0.777842. Anish will inspect retained traces and fix source-grounded causes offline before another frozen cohort. General public authoring and the accepted public release stay unchanged.
+
 ## 2026-11-18 14:30 -05:00 — Anish — Freeze varied reference-type trial
 
 - The [ninth trial](../../docs/authoring-ninth-varied-repeat-2026-11-18.md) freezes ten supported briefs on source `086fbae`, including five repeat families and five varied cases. Its isolated image has matching source and engine pins; the new database has no drafts or reservations. Exact-source CI is pending. Anish will prepare a new wallet and run each case once after CI. Keep general public authoring and the accepted public release unchanged.
