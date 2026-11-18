@@ -1,5 +1,5 @@
 import { initGlobe } from './globe.js?v=9';
-import { initRobot } from './robot.js?v=16';
+import { initRobot } from './robot.js?v=17';
 import { initRecordedProof } from './recorded-proof.js?v=12';
 import { initCoin } from './coin.js?v=9';
 import { LAYERS, ICONS } from './layers.js?v=9';
@@ -58,26 +58,55 @@ motionBtn.addEventListener('click', () => { globe?.setPaused(!globe.isPaused());
 // ---------- solutions: fixed centre robot, scrolling rows ----------
 const rows = $$('.sol-row'), robotLabel = $('#robot-label');
 let activeRow = -1;
-function visitStage(i) {
-  rows[i].scrollIntoView({ block: 'center', behavior: 'instant' });
-  setRow(i);
-}
-$$('[data-go-stage]').forEach(button => button.addEventListener('click', () => {
-  const stage = Number(button.dataset.goStage);
-  visitStage(stage);
-  rows[stage].querySelector('[data-replay-stage]').focus({ preventScroll: true });
-}));
-$$('[data-replay-stage]').forEach(button => button.addEventListener('click', () => {
-  visitStage(Number(button.dataset.replayStage));
-  robot?.replay();
-}));
 const escrowReceipts = {
   paid: ['Solver', '0.01 test USDC paid', 'Job #3 passed its checks. The release paid the solver and published the delivery key.', 'release', '0xb9caccce8c09ad659812fa12021f3728471caf202765a0e709cbea1c382b4956'],
   refund: ['Buyer', '0 test USDC paid to solver', 'Job #4 failed preflight. The bounty stayed locked until expiry, when the buyer claimed a refund.', 'refund', '0xcfaa40a06a4b29fa30454e5aac373f7ffc8e8640a6c471491491500a87832540'],
 };
+let receiptRequest;
+async function checkEscrowReceipt(hash) {
+  receiptRequest?.abort();
+  const current = new AbortController();
+  receiptRequest = current;
+  const status = $('#chain-check');
+  status.textContent = 'Checking the transaction on Arc Testnet...';
+  const timeout = setTimeout(() => current.abort(), 8000);
+  try {
+    const response = await fetch('/rpc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_getTransactionReceipt', params: [hash] }),
+      signal: current.signal,
+    });
+    if (!response.ok) throw new Error('Receipt lookup unavailable');
+    const { result } = await response.json();
+    if (result?.transactionHash?.toLowerCase() !== hash || !/^0x[0-9a-f]+$/i.test(result.blockNumber)) {
+      throw new Error('Receipt unavailable');
+    }
+    if (receiptRequest !== current) return;
+    if (result.status === '0x0') {
+      status.textContent = 'Arc reports this transaction reverted.';
+    } else if (result.status === '0x1') {
+      status.textContent = 'Transaction confirmed in block ' + BigInt(result.blockNumber).toLocaleString() + '.';
+    } else {
+      throw new Error('Unknown receipt status');
+    }
+  } catch {
+    if (receiptRequest === current) status.textContent = 'Live receipt unavailable. View the recorded transaction in the explorer.';
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+const receiptObserver = new IntersectionObserver(entries => {
+  if (entries.some(entry => entry.isIntersecting)) {
+    receiptObserver.disconnect();
+    if (!receiptRequest) checkEscrowReceipt(escrowReceipts.paid[4]);
+  }
+});
+receiptObserver.observe($('.escrow-inspector'));
 $$('[data-escrow]').forEach(button => button.addEventListener('click', () => {
   const selected = button.dataset.escrow;
   const [end, amount, story, action, hash] = escrowReceipts[selected];
+  checkEscrowReceipt(hash);
   $('.escrow-inspector').dataset.outcome = selected;
   $$('[data-escrow]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
   $('#route-end').textContent = end;
@@ -90,7 +119,7 @@ function setRow(i) {
   if (i === activeRow) return; activeRow = i;
   rows.forEach((r, k) => r.classList.toggle('active', k === i));
   if (i < 0) return;
-  const label = robot ? robot.setStep(i) : '';
+  const label = robot ? robot.setStep(Number(rows[i].dataset.step)) : '';
   if (robotLabel) decode(robotLabel, 0, `SOLVER AGENT · ${label}`);
   decodeAll(rows[i], 60, 70);
 }
