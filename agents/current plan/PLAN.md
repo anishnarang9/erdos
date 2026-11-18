@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 12:37 -05:00 — Anish — Keep public authoring gated after procurement repeat
+
+- The three-case procurement repeat used `a40b7f4` after its CI passed. One case (`firmware-note-1`) passed native, fixtures, coverage, and hidden oracle. The clinic receipt matched the oracle but listed assumptions, so the coverage gate blocked it. The lab receipt differed on two fail/reject classifications. There were zero complete Bot-to-proof successes. Settled API cost was $0.025882; fourth-campaign cumulative API cost is $0.135685. The [repeat report](../anish/reports/authoring-fourth-procurement-repeat-2026-11-18.md) preserves the outcomes.
+- Keep the accepted public API and general authoring gate. Anish will change assumption and membership guidance, then run a changed-source cohort. The account meter is unavailable, so Bot review and complete-run cost remain unmeasured. Production Bot account separation remains required before general release.
+
 ## 2026-11-18 12:23 -05:00 — Anish — Keep backend candidate gated after failed repair repeat
 
 - The four-case changed-source repeat used source `c5f8eab` after exact-source CI passed. All four tasks settled with one repair call each. None passed the frozen draft and oracle gate. Two plans remained invalid; one disagreed with the hidden oracle on fail versus reject; one invented an output field and rejected valid answers. The [repeat report](../anish/reports/authoring-fourth-changed-source-repeat-2026-11-18.md) records the outcomes and $0.043217 API spend. Cumulative fourth-campaign API spend is $0.109803. No Bot, compile, proof, Arc send, or public deployment ran.

@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 12:37 -05:00 — Procurement repeat exposes coverage and failure-class gaps
+
+- Ran three frozen tasks against isolated source `a40b7f4` after exact-source commerce, engine, and contracts CI passed. `firmware-note-1` passed native, fixtures, coverage, and every hidden oracle candidate. `clinic-supplies-receipt-1` matched the oracle but coverage assumptions blocked it. `lab-supplies-receipt-1` differed on two fail/reject classifications. The [repeat report](reports/authoring-fourth-procurement-repeat-2026-11-18.md) preserves task IDs, stage outcomes, latency, and charges.
+- This cohort settled $0.025882 API cost. Fourth-campaign cumulative API cost is $0.135685. No Bot, approval, compile, package check, proof, Arc send, or public deploy ran. The Grok account meter could not be read through the app, so Bot dispatch remains on hold. Next: refine assumption and membership guidance, verify offline, and freeze another changed-source cohort. Keep public authoring gated.
+
 ## 2026-11-18 12:31 -05:00 — Freeze procurement shape repeat
 
 - Built source `a40b7f4` into Linux amd64 image `sha256:cce99a353ec5474aff5a3179b5d46292a27bb78666dde7f0c13b2c31aca4bc94`. Froze three fresh tasks in the [procurement repeat](../../docs/authoring-fourth-procurement-repeat-2026-11-18.md): lab receipt, clinic receipt, and firmware note. Prior fourth-campaign API charges total $0.109803 and count against the $10 ceiling. No new paid task has run for this source; exact-source CI is pending. Next: stage fresh local state, wait for CI, then run the three tasks one by one.
