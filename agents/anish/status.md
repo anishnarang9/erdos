@@ -1,3 +1,8 @@
+# 2026-11-18 15:03 -05:00 — Freeze clarified membership inputs
+
+- Draft PR #19. The new corpus explicitly states the already-scored reject policy for unknown reference keys in 26 briefs. Each changed brief has a distinct ID. Hidden cases, expected statuses and original scores remain intact. All 74 hosted qualification tests pass.
+- The [frozen diagnostic](../../docs/authoring-membership-contract-trial-2026-11-18.md) uses the same checked API source `82505b5` and a new authenticated wallet. The dry run confirmed the six cases. Campaign usage is $0.946333 and no call used the new inputs yet.
+
 # 2026-11-18 15:00 -05:00 — Record plan repair diagnostic results
 
 - Draft PR #19. Exact-source commerce, engine, and contracts CI passed for `82505b5`, which includes current main. The [six-case report](reports/authoring-eleventh-plan-repair-2026-11-18.md) records four draft and oracle matches and three drafts ready for buyer review. Category still had a rejected example. Badge-zone remained native-invalid. Clearance differed on unknown-post rejection, which its public brief did not specify.
