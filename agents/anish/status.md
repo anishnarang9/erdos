@@ -1,3 +1,8 @@
+# 2026-11-18 15:41 -05:00 — Verify pier proof recovery and target invalid quotes
+
+- The [local pier proof](reports/model-authored-pier-local-proof-2026-11-18.md) produced verdict 1 in 296,325 ms and recovered byte-exact `drawers.json`. The independent oracle passed on the recovered bytes. The report preserves both preflight errors and their corrections. No Bot dispatch or Arc transaction ran.
+- The saved nights repair combined separate excerpts with an ellipsis. The authoring prompt now requires contiguous verbatim excerpts. Coverage repair identifies each unverified quote by index. The route regression failed before the change and passed afterward. Campaign attributable API usage remains $1.181259.
+
 # 2026-11-18 15:24 -05:00 — Verify lookup guard on a fresh draft and restart old tasks
 
 - Draft PR #19. The [six-case report](reports/authoring-lookup-guard-trial-2026-11-18.md) records two drafts ready for buyer review. Pier used the new standalone lookup normalization and passed every hidden outcome. Lab passed on its first reply. Category and nights remain blocked by a false accept and an unverified quote, respectively. Two drafts remained native-invalid.

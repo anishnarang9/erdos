@@ -483,7 +483,12 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       }
       if (counts.positive > 0 && counts.negative > 0 && !counts.blocked) {
         if (!coverage.ruleCoverageComplete && (result.coverage !== undefined || deps.deployment.mode === "public")) {
-          return { attempt, response, hash, fatal: false, feedback: { attempt: 1, reason: "coverage", errors: coverage.omissions.map(message => ({ path: "/coverage", message })), counterexamples: [] } };
+          const quoteErrors = quoteVerification.flatMap((quote, index) => quote.found ? [] : [{
+            path: `/sourceQuotes/${index}/quote`,
+            message: "Copy one contiguous excerpt verbatim from the named source. Use separate entries for separate excerpts.",
+          }]);
+          const errors = [...quoteErrors, ...coverage.omissions.map(message => ({ path: "/coverage", message }))];
+          return { attempt, response, hash, fatal: false, feedback: { attempt: 1, reason: "coverage", errors, counterexamples: [] } };
         }
         return { attempt, response, hash, fatal: false };
       }
