@@ -13,6 +13,7 @@ import { assertInstalledRelease, workerRepositoryRoot } from "./release-integrit
 import { attemptStatus, prepareHostedAttempt } from "./open-claim/attempt-status.ts";
 import { openClaimOperator } from "./open-claim/operator.ts";
 import { prepareOpenClaimJobInput } from "./open-claim/job-input-cli.ts";
+import { recoverBuyerOpenClaim } from "./open-claim/buyer-recovery.ts";
 
 const common = ["api", "key-file"];
 const commandFlags: Record<string, readonly string[]> = {
@@ -41,6 +42,7 @@ const commandFlags: Record<string, readonly string[]> = {
   attempts: ["api", "job", "cursor", "limit"],
   "hosted-attempt": ["api", "job", "attempt", "after-cursor"],
   "job-input": ["rpc-url", "manifest", "job-id", "solver", "out"],
+  "buyer-recover": ["api", "job", "rpc-url", "manifest", "engine-config", "out"],
   "wrapper-digest": [],
   "verify-install": ["source-commit", "release-manifest-sha256"],
   configure: ["api", "job", "input", "engine-config", "manifest", "buyer", "solver", "work-dir", "package-dir", "reference", "deliverables", "evidence", "source-commit", "release-manifest-sha256", "revision", "out"],
@@ -82,6 +84,9 @@ export async function hostedCli(args: string[]): Promise<unknown> {
     workflow: "auth, draft or import, task, job, request-bot-review, bot-review, approve, compile, task, download, funding-preview, operator, funding-link, discover" };
   if (command === "job-input") return prepareOpenClaimJobInput(["--rpc-url", need("rpc-url"), "--manifest", need("manifest"),
     "--job-id", need("job-id"), "--solver", need("solver"), "--out", need("out")]);
+  if (command === "buyer-recover") return recoverBuyerOpenClaim({ apiUrl: need("api"), apiJobId: need("job"),
+    rpcUrl: need("rpc-url"), manifestPath: resolve(need("manifest")),
+    engineConfigPath: resolve(need("engine-config")), directory: resolve(need("out")) });
   if (command === "attempt") {
     const cursor = Number(f["after-cursor"] ?? 0);
     return attemptStatus(readOperatorJson(resolve(need("state"))), cursor);

@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 22:59 -05:00 — Anish — Add independent buyer chain recovery
+
+- Branch `codex/buyer-recovery` adds `buyer-recover` to the installed runner. It reads a completed public job, confirmed Arc registration, unique claim/release events, exact chain state, and the published release key. SDK and engine recover the same files without solver private state or expected output bytes. The command reports `oracleChecked:false`; the buyer must run an independent oracle afterward.
+- Worker typecheck, 13 focused unit checks, and all 957 default worker tests pass. The retained local receipt integration test requires its archived Anvil and engine environment, which is not active in this checkout. No live signing, model call, chain transaction, or deployment ran.
+- Next: finish checks, integrate into the hosted release, and test against a fresh confirmed Arc payout.
+
 ## 2026-11-17 21:05 -05:00 — Anish — Change morning acceptance to cold agents
 
 - Branch `codex/hosted-backend`. Recorded the user decision in the shared plan and [two-agent acceptance plan](../../docs/agent-first-cold-e2e-2026-11-18.md). The frontend demo is deferred. The current Arc protocol remains. Anish owns all API, backend and test work. Neil owns only frontend/Vercel work. The final gate is one independent buyer-agent and solver-agent run against the public hosted service, with separate funded wallets and exact Arc/recovery evidence.
