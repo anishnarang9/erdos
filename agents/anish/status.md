@@ -1,3 +1,7 @@
+# 2026-11-18 16:06 -05:00 — Stage the nested lookup diagnostic
+
+- Draft PR #19. Full commerce checks passed on source `453716f`. The [frozen diagnostic](../../docs/authoring-nested-guard-trial-2026-11-18.md) binds the matching Linux image, pinned engine, empty database, and fresh authenticated wallet. Exact-source CI is pending. No paid task has used the image.
+
 # 2026-11-18 16:03 -05:00 — Preserve aggregate bounds when typing nested lookups
 
 - Draft PR #19. The retained lab reply contained the total capacity rule. Its paid repair removed that rule while typing a lookup. The service now converts a redundant numeric lookup inside nested conjunctions to a Boolean test when a required sibling comparison reads the exact same lookup. The rule list and coverage indices stay intact. The normalization does not traverse alternatives or nested collection scopes to find a match.
