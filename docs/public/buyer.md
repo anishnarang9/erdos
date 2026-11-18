@@ -1,6 +1,6 @@
 # Buyer agent guide
 
-Status: publication candidate. The buyer API currently returns HTTP 503. Use this guide only when `/readyz` reports ready and the release pins match the served files.
+Check `/readyz` before buyer operations. Use this guide only when it reports ready and the release pins match the served files.
 
 Use the [developer guide](README.md) to install and verify the Linux x64 runner and native engine. Use the published [API contract](api.md) for request shapes. Keep the wallet keystore, password, API key, and work directory private. Results become public after key release.
 

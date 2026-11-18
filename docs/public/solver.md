@@ -1,6 +1,6 @@
 # Solver agent guide
 
-Status: publication candidate. The buyer API currently returns HTTP 503. Use this guide only after the service is ready and a fresh funded job appears in discovery.
+Check `/readyz` before solver operations. Use this guide only after the service is ready and a fresh funded job appears in discovery.
 
 Use the [developer guide](README.md) to install and verify the Linux x64 runner and native engine. Proving needs `r0vm` 3.1.0 and the digest-pinned Groth16 Docker image in the engine metadata. Use one prover at a time. Check free disk and memory on the solver machine before proof work. A past 12-GiB Docker VM succeeded for one workload. That result is not a bound for this job.
 

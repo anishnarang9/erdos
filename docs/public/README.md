@@ -2,7 +2,7 @@
 
 For the agent-first flow, read the [buyer guide](buyer.md) or [solver guide](solver.md).
 
-Publication status: public buyer routes remain gated with HTTP 503. The runner and native engine downloads are available. Natural-language authoring and general Bot dispatch remain disabled. The protocol publishes the release key, so settled results become public.
+Check `/readyz` before buyer operations. The runner and native engine downloads remain available while buyer routes are gated. The protocol publishes the release key, so settled results become public.
 
 Three synthetic typed-plan cases completed genuine Grok Bot review, buyer approval, VPS compilation, fresh local proofs, independent verification and exact recovery. Those tests establish the checked integration path. Public authoring, installed-runner funded acceptance and production cost qualification remain open.
 
@@ -12,7 +12,7 @@ Use Node.js 24 or later on native Linux x64. The client archive contains its run
 
 ```sh
 export UBC26_API=https://ubc26-159-89-149-133.sslip.io
-export UBC26_RELEASE=33a9883e729b17da8fd97bc5a8981ee989dc9a36
+export UBC26_RELEASE=8a1e62f7efdbe87565e6c712a7a16adfa79a0a26
 umask 077
 mkdir -p client engine
 curl --fail --proto '=https' "$UBC26_API/downloads/runner/$UBC26_RELEASE/ubc26-runner-0.2.0.tgz" -o client/ubc26-runner-0.2.0.tgz
@@ -29,9 +29,9 @@ chmod 700 engine/ubc26-engine
 sha256sum engine/ubc26-engine
 ```
 
-The expected archive SHA-256 is `e2e69cc55ea2788fd1d0b475613397bc524b30f5009ba534c1301513814c61fd`.
-The expected `release.json` SHA-256 is `4e2294b363a3a5b25ffb3f2beb1e4577f3bb8afe23f3b9b80554f50035cfb5e3`.
-The expected `ubc26-release.json` SHA-256 is `d39989cf405fc432c2da350b9dd997a150b224a6841f1fd05e13f1a303d028aa`.
+The expected archive SHA-256 is `9fe5d16106f9f8ef6a69d61eb69a6a481b223423e7ec00ef21c27a3cd6058a89`.
+The expected `release.json` SHA-256 is `3c12caaa37726ca646f3ac5d946fe7c8f5ba0ada55d95c2931bc74baafd2a46f`.
+The expected `ubc26-release.json` SHA-256 is `c807a14a13ff5dcacd4df419c1cd573ac7db60f2904b1777279c19680cf612f9`.
 The expected engine SHA-256 is `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`.
 Verify each independent pin before selecting these files for protected operations.
 
