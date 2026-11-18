@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 02:48 -05:00 — Anish — Correct the third-draft budget gate
+
+- The new release is live with API source `1ee322e`, runner and engine source `0b1a82f`, and matching public guides. The first fresh buyer reached authentication but received HTTP 429 before model dispatch. Read-only server state showed no new draft, task, reservation, or charge. It cannot count as a successful cold attempt.
+- The daily authoring ceiling of 2,546,065 micro-USD covered only the first settled draft plus one full reserved call. The second settled draft cost 4,760 micro-USD. Raise the daily ceiling by exactly that cost to 2,550,825 micro-USD, while keeping the per-call ceiling at 2,540,960 micro-USD and the three-dispatch one-wallet policy. This model call bound stays below the user's $5 cash total. Start a new fresh buyer, then a fresh solver only after confirmed funding. Preserve all failed attempts as failures.
+
 ## 2026-11-18 02:22 -05:00 — Anish — Use one more bounded draft for strict cold acceptance
 
 - The intervened Arc job 8 completed and buyer recovery matched the independent oracle. A new fresh buyer failed before Bot review because its fallback example names had spaces. The public guide omitted the name rule and direct API `draftId` body field. Preserve this failed attempt and its 4,760 micro-USD model cost.

@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 02:48 -05:00 — Anish — Promote corrected API and reconcile rejected draft
+
+- Branch `codex/hosted-release`. The corrected API image `sha256:377cdfa11d570b91428a7cd2a273df409c90547b6fa81e43afb8591074d77dde` carries source `1ee322e`. A second quiesced backup passed with manifest `852f38adad668258fec5c2375f29d7fd78c0ee079b633b46f709528d29ed3451`. Compiler prewarm produced native verdicts 1 and 0. The API container is healthy; public `/readyz` and `/v1/open-jobs` returned 200. All nine files in public docs source `1ee322e` matched their release manifest hashes. Runner and engine source remains `0b1a82f`. The temporary transfer branch was removed after verified installation.
+- A fresh buyer authenticated but its first draft returned generic CLI failure. Read-only server state showed HTTP 429 `rate_limited` before model dispatch: draft, task, and reservation counts stayed at 2, 10, and 2. There was no new charge. The daily ceiling had room for the first settled draft plus one full reservation, but not both settled drafts plus a third reservation. I raised it from 2,546,065 to 2,550,825 micro-USD, exactly the second settled draft's 4,760 micro-USD cost. The per-call bound remains 2,540,960 micro-USD. After API restart, public readiness returned 200. A separate fresh buyer is running; no new paid request or Arc send has been observed yet.
+- Next: monitor the buyer's one fresh draft, native checks, Bot review, compilation and funding. Start a separate cold solver only after confirmed funding. Audit receipts and recovery, then update the final report.
+
 ## 2026-11-18 02:45 -05:00 — Anish — Repair three-dispatch startup gate
 
 - Branch `codex/hosted-release`. Published runner source `0b1a82f` and documentation source `2e6c527`; VPS installed-runner verification, wrapper digest, engine SHA-256 and compiler prewarm passed. A quiesced state backup passed with manifest SHA-256 `18a2a17f61f5b33e292e1f0c17db8cfb0352b5c798702b82810efcb89f991e41` before API promotion.
