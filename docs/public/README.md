@@ -12,7 +12,7 @@ Use Node.js 24 or later on native Linux x64. The client archive contains its run
 
 ```sh
 export UBC26_API=https://ubc26-159-89-149-133.sslip.io
-export UBC26_RELEASE=fb450331c014b59d037fb692496bdc4f72b11a9c
+export UBC26_RELEASE=33a9883e729b17da8fd97bc5a8981ee989dc9a36
 umask 077
 mkdir -p client engine
 curl --fail --proto '=https' "$UBC26_API/downloads/runner/$UBC26_RELEASE/ubc26-runner-0.2.0.tgz" -o client/ubc26-runner-0.2.0.tgz
@@ -29,8 +29,9 @@ chmod 700 engine/ubc26-engine
 sha256sum engine/ubc26-engine
 ```
 
-The expected archive SHA-256 is `148366c2a62114a8c5d0696fa9c3ee990e06a217d815f4e50c506a856e5a793c`.
-The expected release-manifest SHA-256 is `fbab4c2c6941115a099aab3b6ab6ca2b4e436066e483f21ce73bcaec1165e447`.
+The expected archive SHA-256 is `e2e69cc55ea2788fd1d0b475613397bc524b30f5009ba534c1301513814c61fd`.
+The expected `release.json` SHA-256 is `4e2294b363a3a5b25ffb3f2beb1e4577f3bb8afe23f3b9b80554f50035cfb5e3`.
+The expected `ubc26-release.json` SHA-256 is `d39989cf405fc432c2da350b9dd997a150b224a6841f1fd05e13f1a303d028aa`.
 The expected engine SHA-256 is `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`.
 Verify each independent pin before selecting these files for protected operations.
 
