@@ -303,7 +303,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         if (typeof reply?.model !== "string" || typeof reply.traceId !== "string") throw new ModelError("invalid_reply");
         const parsed = parseModelDraft(reply.result);
         const normalized = parsed.kind === "draft"
-          ? removeProvenDuplicateScalars(parsed.plan, body.exampleFixtures, textReferences)
+          ? removeProvenDuplicateScalars(parsed.plan, body.exampleFixtures, textReferences, body.request)
           : { plan: null, paths: [] };
         const narrowed = parsed.kind === "draft"
           ? removeFixtureContradictedOutputScalars(normalized.plan, body.exampleFixtures)

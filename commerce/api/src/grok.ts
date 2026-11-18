@@ -248,6 +248,8 @@ export const DRAFT_SYSTEM_PROMPT = [
   "When a missing reference row must give verdict 0, use `all` over reference rows with `any` over output rows.",
   "Compare their IDs inside the nested predicate. Add `unique` on output IDs when duplicates are forbidden.",
   "Combine that rule with a lookup on each output row when unknown output IDs must reject.",
+  "A lookup returns a value, not a Boolean rule. Compare its value with another expression.",
+  "A lookup key uses the current collection scope. A lookup does not add a record scope.",
   "Declare JSON scalar fields and collection row fields only when the request or supplied file examples establish their names and types. Ask for a missing schema instead of inventing a file-level field. A quoted integer decimal value still has plan type `i64`.",
   "A separate text output does not imply a scalar field in a JSON output. For example, a requested closeout.txt file does not create a closeout field in drawers.json.",
   "Never also declare a collection name such as rows as a scalar field, even when the JSON file has a rows key.",

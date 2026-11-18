@@ -27,6 +27,24 @@ function fixtureHasArray(fixture: ExampleFixture, fileName: string, fieldName: s
   } catch { return false; }
 }
 
+function contractHasArray(request: string, fileName: string, fieldName: string): boolean {
+  const marker = "Output file contract: ";
+  const start = request.indexOf(marker);
+  if (start < 0 || (start > 0 && request.slice(start - 2, start) !== "\n\n") ||
+    request.indexOf(marker, start + marker.length) >= 0) return false;
+  const contract = request.slice(start + marker.length);
+  if (contract.includes("\n")) return false;
+  const declarations = [...contract.matchAll(/(?:^| )([A-Za-z0-9_.-]+): (JSON object|text file|binary file)\./g)];
+  const at = declarations.findIndex(item => item[1] === fileName);
+  if (at < 0 || declarations[at]![2] !== "JSON object") return false;
+  const declaration = declarations[at]!;
+  const section = contract.slice(declaration.index! + declaration[0].length,
+    at + 1 < declarations.length ? declarations[at + 1]!.index : undefined);
+  const scalar = section.match(/Scalar fields: ([^.]+)\./)?.[1] ?? "";
+  if (scalar.split(",").some(item => item.trim().startsWith(`${fieldName}:`))) return false;
+  return section.includes(`${fieldName} array of records with fields:`);
+}
+
 function referencesScalar(value: unknown, source: string, fileName: string, fieldName: string): boolean {
   if (Array.isArray(value)) return value.some(item => referencesScalar(item, source, fileName, fieldName));
   if (!isPlainObject(value)) return false;
@@ -35,7 +53,7 @@ function referencesScalar(value: unknown, source: string, fileName: string, fiel
 }
 
 /** Remove only duplicate scalars that buyer files prove are collection arrays. */
-export function removeProvenDuplicateScalars(plan: unknown, fixtures: ExampleFixture[], references: { name: string; text: string }[] = []): { plan: unknown; paths: string[] } {
+export function removeProvenDuplicateScalars(plan: unknown, fixtures: ExampleFixture[], references: { name: string; text: string }[] = [], buyerRequest = ""): { plan: unknown; paths: string[] } {
   if (!isPlainObject(plan)) return { plan, paths: [] };
   const copy = structuredClone(plan);
   const paths: string[] = [];
@@ -52,7 +70,9 @@ export function removeProvenDuplicateScalars(plan: unknown, fixtures: ExampleFix
     file.fields = file.fields.filter((field: unknown, index: number) => {
       if (!isPlainObject(field) || typeof field.name !== "string" || !collectionNames.has(field.name)) return true;
       const proven = source === "deliverable"
-        ? fixtures.length > 0 && fixtures.every(fixture => fixtureHasArray(fixture, fileName, field.name as string))
+        ? fixtures.length > 0
+          ? fixtures.every(fixture => fixtureHasArray(fixture, fileName, field.name as string))
+          : contractHasArray(buyerRequest, fileName, field.name)
         : references.some(reference => reference.name === fileName && hasArray(reference.text, field.name as string));
       if (!proven || referencesScalar(copy.rules, source, fileName, field.name)) return true;
       paths.push(`/${key}/${fileIndex}/fields/${index}`);

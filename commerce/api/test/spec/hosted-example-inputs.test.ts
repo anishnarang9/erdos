@@ -56,6 +56,21 @@ it("normalizes buyer-proven duplicate collection fields before native validation
  expect(result.buyerFixtureApprovalReady).toBe(true);
 });
 
+it("uses an explicit output contract without buyer fixtures for duplicate collection fields", async () => {
+ const plan={version:1,deliverables:[{name:"result.json",parser:"json/v1",fields:[{name:"rows",type:"string"}],collections:[{name:"rows",fields:[{name:"id",type:"string"}]}]}],references:[],rules:[{op:"literal",type:"bool",value:true}]};
+ let validated:any;
+ const a=app({draft:async()=>({model:"controlled",traceId:"contract-shape",result:{kind:"draft",plan,examples:[],sourceQuotes:[]}})},
+  {...simulatedEngine(),validate:async(candidate:unknown)=>{validated=candidate;return{ok:true};}});
+ const request="Check the supplied result\n\nOutput file contract: result.json: JSON object. rows array of records with fields: id: string.";
+ const response=await post(a,{...body,request});
+ expect(response.status,await response.clone().text()).toBe(200);
+ const result:any=await response.json();
+ expect(result.planNormalizations).toEqual(["/deliverables/0/fields/0"]);
+ expect(validated.deliverables[0].fields).toEqual([]);
+ expect(result.revision.plan).toEqual(validated);
+ expect(plan.deliverables[0]!.fields).toHaveLength(1);
+});
+
 it("removes an unused output scalar omitted by accepted buyer fixtures", async () => {
  const fixtures=[1,0].map(value=>({
   name:`fixture-${value}`,predictedVerdict:value,

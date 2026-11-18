@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 13:45 -05:00 — Anish — Test contract-proven shape and lookup scope
+
+- Retained provider recordings identified an unused duplicate `rows` scalar, a numeric lookup used as a Boolean, and a lookup key with the wrong record scope. The new candidate removes the duplicate only when an explicit buyer output contract proves the array shape and no rule reads the scalar. It also explains lookup value and scope rules to the model. Full local commerce checks pass; no paid call used this source. Anish will pin and test it in a separate frozen cohort. Keep the accepted public API and general authoring gate unchanged.
+
 ## 2026-11-18 13:40 -05:00 — Anish — Keep authoring gated after fifth source trial
 
 - The [five-case trial](../anish/reports/authoring-fifth-membership-repeat-2026-11-18.md) kept both procurement controls passing but returned invalid plans for the three unknown-key target families. It cannot establish that the prompt corrected their semantic oracle failures. The five tasks settled $0.058767 in API usage; fourth-campaign cumulative unique API charge is $0.474852. Exact-head CI passed. Anish will improve plan-shape reliability offline or review a bounded provider contract before new paid testing. The accepted public API remains unchanged and general authoring stays gated.

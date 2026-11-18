@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 13:45 -05:00 — Repair contract-proven collection shape and prompt scope
+
+- Retained provider recordings identified three distinct final-plan errors in the fifth trial. Added a narrow normalization when an explicit buyer output contract proves a duplicate scalar is an array and no rule reads the scalar. A conflicting fixture or scalar rule blocks normalization. Added prompt instructions that a lookup returns a value and does not add a record scope. Unit and route tests failed before the change and now pass. Offline replay of the saved lot reply removes the duplicate, then reveals a separate operator type error; the original failed task remains failed.
+- Full `pnpm check` passes: SDK 535 plus 13 chain fixtures, API 1,055, web 4, worker 1,051, and typechecks. Fourth-campaign unique API cost stays $0.474852. Next: commit and push, build an exact-source local image, freeze new trial IDs, then test the three formerly invalid families and passing controls. Public authoring remains gated.
+
 ## 2026-11-18 13:40 -05:00 — Preserve changed-source trial failure
 
 - The five `-r6` tasks ran once on the exact source `5c14ec2` after local checks. Both procurement controls passed draft and hidden-oracle gates without repair. `pier-variance`, `lot-expiry`, and `clearance` failed native plan validation after one repair each, so the trial did not test their prior fail-versus-reject errors. The [trial report](reports/authoring-fifth-membership-repeat-2026-11-18.md) preserves task causes and scope. Five reservations settled $0.058767; fourth-campaign cumulative unique API cost is $0.474852.

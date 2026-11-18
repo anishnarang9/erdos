@@ -20,6 +20,27 @@ describe("fixture-proven duplicate scalar", () => {
     expect(removeProvenDuplicateScalars(original, fixture({ rows: "x" })).paths).toEqual([]);
     expect(removeProvenDuplicateScalars(original, []).paths).toEqual([]);
   });
+  it("uses an explicit buyer output contract when no fixture exists", () => {
+    const original = plan();
+    const contract = "Check output.\n\nOutput file contract: out.json: JSON object. rows array of records with fields: id: string.";
+    const result = removeProvenDuplicateScalars(original, [], [], contract);
+    expect(result.paths).toEqual(["/deliverables/0/fields/0"]);
+    expect((result.plan as typeof original).deliverables[0]!.fields).toEqual([]);
+  });
+  it("does not infer an array from another file or an incomplete contract", () => {
+    const original = plan();
+    const other = "Output file contract: other.json: JSON object. rows array of records with fields: id: string. out.json: JSON object.";
+    const scalar = "Output file contract: out.json: JSON object. Scalar fields: rows: string.";
+    expect(removeProvenDuplicateScalars(original, [], [], other).paths).toEqual([]);
+    expect(removeProvenDuplicateScalars(original, [], [], scalar).paths).toEqual([]);
+    expect(removeProvenDuplicateScalars(original, [], [], "rows array of records").paths).toEqual([]);
+  });
+  it("does not let contract prose override a conflicting buyer fixture or a rule read", () => {
+    const contract = "Output file contract: out.json: JSON object. rows array of records with fields: id: string.";
+    expect(removeProvenDuplicateScalars(plan(), fixture({ rows: "x" }), [], contract).paths).toEqual([]);
+    const used = plan([{ op: "field", source: "deliverable", file: "out.json", field: "rows" }]);
+    expect(removeProvenDuplicateScalars(used, [], [], contract).paths).toEqual([]);
+  });
   it("does not remove a scalar used by a rule", () => {
     const original = plan([{ op: "eq", left: { op: "field", source: "deliverable", file: "out.json", field: "rows" }, right: { op: "literal", type: "string", value: "x" } }]);
     expect(removeProvenDuplicateScalars(original, fixture({ rows: [] })).paths).toEqual([]);
