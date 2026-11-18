@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 22:58 -05:00 — Anish — Add explicit public brief publication
+
+- Branch `codex/public-brief` adds a buyer-owned, immutable short brief after confirmed open-claim funding. The API does not publish the original draft automatically. Public discovery includes only the brief the buyer explicitly supplies. SDK and installed runner commands expose the publication route.
+- Focused API, SDK and runner tests pass. The tests cover owner isolation, confirmed funding, exact replay, mutation rejection, and public discovery. All commerce typechecks pass. Publication and a fresh public job check remain pending. No model call, chain write, or deployment ran.
+- Next: integrate into `codex/hosted-release`, update public guides, and require combined release checks.
+
 ## 2026-11-17 21:05 -05:00 — Anish — Change morning acceptance to cold agents
 
 - Branch `codex/hosted-backend`. Recorded the user decision in the shared plan and [two-agent acceptance plan](../../docs/agent-first-cold-e2e-2026-11-18.md). The frontend demo is deferred. The current Arc protocol remains. Anish owns all API, backend and test work. Neil owns only frontend/Vercel work. The final gate is one independent buyer-agent and solver-agent run against the public hosted service, with separate funded wallets and exact Arc/recovery evidence.

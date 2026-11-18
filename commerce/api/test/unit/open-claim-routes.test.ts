@@ -1,4 +1,5 @@
 import { afterEach, expect, it } from "vitest";
+import { privateKeyToAccount } from "viem/accounts";
 import { createApp } from "../../src/app.ts";
 import { BUYER_TOKEN, T0, type SpecApp } from "../spec/helpers.ts";
 import { EMPTY_REF_HASH, approveOk, compile, countingEngine, createJob56, json, req, revisionWith } from "../spec/helpers-t56.ts";
@@ -12,6 +13,8 @@ const SOLVER = "0x5555555555555555555555555555555555555555";
 const FUND = "0x" + "aa".repeat(32);
 const REGISTER = "0x" + "bb".repeat(32);
 const zero = "0x0000000000000000000000000000000000000000";
+const owner = privateKeyToAccount("0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d");
+const stranger = privateKeyToAccount("0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a");
 const opened: SpecApp[] = [];
 afterEach(() => { for (const s of opened.splice(0)) s.close(); });
 
@@ -59,6 +62,94 @@ async function link(s: SpecApp, j: { jobId: string; revisionHash: string }) {
     revisionHash: j.revisionHash, chainJobId: "7", fundingTx: FUND, registrationTx: REGISTER,
   });
 }
+
+async function walletKey(s: SpecApp, account: typeof owner): Promise<string> {
+  const challenge = await json(await s.app.request("/v1/auth/challenge", { method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ wallet: account.address }) }));
+  const issued = await json(await s.app.request("/v1/auth/keys", { method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ challengeId: challenge.challengeId, signature: await account.signMessage({ message: challenge.message }) }) }));
+  return issued.key;
+}
+
+async function ownedLinked(s: SpecApp, reader: ReturnType<typeof setup>["reader"], key: string) {
+  const headers = { authorization: `Bearer ${key}` };
+  const created = await req(s, "POST", "/v1/jobs", { source: "import", revision: revisionWith(EMPTY_REF_HASH) }, headers);
+  expect(created.status).toBe(201);
+  const j = await json(created) as { jobId: string; revision: { revisionHash: string } };
+  const revisionHash = j.revision.revisionHash;
+  expect((await req(s, "POST", `/v1/jobs/${j.jobId}/approve`, { revisionHash, referenceDigest: EMPTY_REF_HASH },
+    { ...headers, "if-match": revisionHash })).status).toBe(200);
+  const compiled = await req(s, "POST", `/v1/jobs/${j.jobId}/compile`, { revisionHash }, headers);
+  expect(compiled.status).toBe(200);
+  const manifest = (await json(compiled)).manifest;
+  reader.snapshot.terms.imageId = manifest.imageId;
+  reader.snapshot.terms.rulesHash = manifest.rulesHash;
+  reader.snapshot.terms.referenceHash = manifest.referenceHash;
+  reader.snapshot.job.buyer = owner.address;
+  reader.snapshot.terms.buyer = owner.address;
+  const terms = await req(s, "POST", `/v1/jobs/${j.jobId}/open-claim-terms`, {
+    revisionHash, buyer: owner.address, budget: "1000000", expiry: String(T0 / 1000 + 3600),
+  }, headers);
+  expect(terms.status).toBe(200);
+  const linked = await req(s, "POST", `/v1/jobs/${j.jobId}/open-claim-link`, {
+    revisionHash, chainJobId: "7", fundingTx: FUND, registrationTx: REGISTER,
+  }, headers);
+  expect(linked.status).toBe(200);
+  return { jobId: j.jobId, revisionHash };
+}
+
+it("publishes only an explicit brief from the funded job owner", async () => {
+  const { s, reader } = setup();
+  const ownerKey = await walletKey(s, owner);
+  const strangerKey = await walletKey(s, stranger);
+  const job = await ownedLinked(s, reader, ownerKey);
+  const endpoint = `/v1/jobs/${job.jobId}/public-brief`;
+  const before = await json(await s.app.request("/v1/open-jobs"));
+  expect(before.jobs[0].publicBrief).toBeUndefined();
+  const body = { revisionHash: job.revisionHash, brief: "Create result.json with the approved integer total." };
+  expect((await req(s, "POST", endpoint, body, { authorization: `Bearer ${strangerKey}` })).status).toBe(404);
+  expect((await req(s, "POST", endpoint, body)).status).toBe(403);
+  expect((await s.app.request(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) })).status).toBe(401);
+  const published = await req(s, "POST", endpoint, body, { authorization: `Bearer ${ownerKey}`, "idempotency-key": "brief-first" });
+  expect(published.status, await published.clone().text()).toBe(200);
+  expect(await json(published)).toMatchObject({ jobId: job.jobId, publicBrief: body.brief, revisionHash: job.revisionHash });
+  const feed = await json(await s.app.request("/v1/open-jobs"));
+  expect(feed.jobs[0].publicBrief).toBe(body.brief);
+  const detail = await json(await s.app.request(`/v1/open-jobs/${job.jobId}`));
+  expect(detail.publicBrief).toBe(body.brief);
+  expect(JSON.stringify(detail)).not.toContain(ownerKey);
+});
+
+it("keeps the first public brief immutable across replay and later requests", async () => {
+  const { s, reader } = setup();
+  const key = await walletKey(s, owner);
+  const job = await ownedLinked(s, reader, key);
+  const path = `/v1/jobs/${job.jobId}/public-brief`;
+  const body = { revisionHash: job.revisionHash, brief: "Create one bounded JSON result." };
+  const headers = { authorization: `Bearer ${key}`, "idempotency-key": "brief-1" };
+  expect((await req(s, "POST", path, body, headers)).status).toBe(200);
+  const replay = await req(s, "POST", path, body, headers);
+  expect(replay.status).toBe(200);
+  expect(replay.headers.get("idempotent-replayed")).toBe("true");
+  expect((await req(s, "POST", path, { ...body, brief: "Changed task" }, headers)).status).toBe(422);
+  expect((await req(s, "POST", path, { ...body, brief: "Changed task" }, { ...headers, "idempotency-key": "brief-2" })).status).toBe(409);
+  expect((await json(await s.app.request(`/v1/open-jobs/${job.jobId}`))).publicBrief).toBe(body.brief);
+});
+
+it("rejects publication before funding and rejects non-plain or oversized text", async () => {
+  const { s, reader } = setup();
+  const key = await walletKey(s, owner);
+  const job = await ownedLinked(s, reader, key);
+  const path = `/v1/jobs/${job.jobId}/public-brief`;
+  const headers = { authorization: `Bearer ${key}` };
+  reader.snapshot.job.status = "Submitted";
+  expect((await req(s, "POST", path, { revisionHash: job.revisionHash, brief: "Late brief" }, headers)).status).toBe(409);
+  reader.snapshot.job.status = "Funded";
+  for (const brief of ["", "  padded text", "two\nlines", "x".repeat(281)]) {
+    expect((await req(s, "POST", path, { revisionHash: job.revisionHash, brief }, headers)).status).toBe(400);
+  }
+  expect((await json(await s.app.request(`/v1/open-jobs/${job.jobId}`))).publicBrief).toBeUndefined();
+});
 
 it("publishes only after exact funded registration is confirmed", async () => {
   const { s, reader } = setup(); const j = await compiled(s);
