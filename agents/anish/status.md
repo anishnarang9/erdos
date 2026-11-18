@@ -1,3 +1,7 @@
+# 2026-11-18 15:43 -05:00 — Stage the exact quote repeat
+
+- Draft PR #19. The [frozen trial](../../docs/authoring-exact-quote-trial-2026-11-18.md) pins source `d87d59d` with latest fetched main and the unchanged membership corpus. The isolated image pins and authenticated wallet match. Full local commerce checks passed before the merge, including 1,075 API tests. CI for the merged image source is running. The trial has made no paid requests.
+
 # 2026-11-18 15:41 -05:00 — Verify pier proof recovery and target invalid quotes
 
 - The [local pier proof](reports/model-authored-pier-local-proof-2026-11-18.md) produced verdict 1 in 296,325 ms and recovered byte-exact `drawers.json`. The independent oracle passed on the recovered bytes. The report preserves both preflight errors and their corrections. No Bot dispatch or Arc transaction ran.
