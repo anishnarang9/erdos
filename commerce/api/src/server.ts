@@ -254,7 +254,12 @@ function engineReadyInput(): ReadyInput["engine"] {
 }
 
 const chain = chainFromEnv();
-const deploymentMode = process.env.DEPLOYMENT_MODE === "public" ? "public" : "local";
+function deploymentModeFromEnv(value: string | undefined): "local" | "public" {
+  if (value === undefined || value === "local") return "local";
+  if (value === "public") return "public";
+  throw new Error("DEPLOYMENT_MODE must be local or public");
+}
+const deploymentMode = deploymentModeFromEnv(process.env.DEPLOYMENT_MODE);
 const { engine, label: engineLabel } = engineFromEnv(deploymentMode);
 
 /**
@@ -340,7 +345,10 @@ function readyInput(db?: Db): ReadyInput {
   };
 }
 
-const botReview = botReviewFromEnv(process.env, serviceOrigin + "/integrations/grok-bot/mcp");
+const botReview = botReviewFromEnv(process.env, serviceOrigin + "/integrations/grok-bot/mcp", deploymentMode);
+if (botReview?.maxDispatches === 10 && process.env.DEPLOYMENT_MODE !== "local") {
+  throw new Error("Ten Bot dispatches require explicit local deployment mode");
+}
 const configReport = withBotReviewReady(await evaluateReady(readyInput()), botReview);
 const budgetFailed = budget !== undefined && configReport.checks.some((item) => item.name === "budget" && !item.ok);
 if (budgetFailed || (deploymentMode === "public" && blocksPublicListen(configReport))) {

@@ -154,6 +154,43 @@ describe("durable tasks", () => {
     expect((await post(created.app, "/v1/tasks", draftTask("First"), auth(key))).status).toBe(202);
   });
 
+  it("limits a local ten-draft pilot to its wallet after a restart", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-local-ten-drafts-"));
+    const dbPath = join(dir, "service.db");
+    const model = countingModel();
+    const options: Partial<CreateAppOptions> = {
+      dbPath,
+      deployment: { mode: "local", serviceOrigin: ORIGIN },
+      draftModel: model,
+      budget: { reservationMode: "provider-bound", requestCeilingMicroUsd: 2_540_960,
+        dailyCeilingMicroUsd: 27_950_560, inputMicroUsdPerMillion: 2_500_000,
+        outputMicroUsdPerMillion: 5_000_000 },
+      botReview: { serviceToken: "callback-only-test-credential-0123456789",
+        pilotOwner: accountA.address.toLowerCase(), maxDispatches: 10, dispatch: async () => {} },
+    };
+    try {
+      const first = clocked(options).created;
+      const keyA = await issue(first.app, accountA);
+      const keyB = await issue(first.app, accountB);
+      await expectError(await post(first.app, "/v1/tasks", draftTask("Other wallet"), auth(keyB)), 403, "forbidden");
+      await expectError(await post(first.app, "/v1/drafts", DRAFT_BODY, auth(keyB)), 403, "forbidden");
+      expect(model.calls).toBe(0);
+      for (let n = 1; n <= 10; n++) {
+        const admitted = await post(first.app, "/v1/tasks", draftTask(`Pilot case ${n}`), auth(keyA));
+        expect(admitted.status, await admitted.clone().text()).toBe(202);
+      }
+      first.close();
+      opened.splice(opened.indexOf(first), 1);
+      const second = clocked(options).created;
+      await expectError(await post(second.app, "/v1/tasks", draftTask("Pilot case 11"), auth(keyA)), 503, "service_disabled");
+      await expectError(await post(second.app, "/v1/drafts", DRAFT_BODY, auth(keyA)), 403, "forbidden");
+      expect(model.calls).toBe(0);
+      expect((await post(second.app, "/v1/tasks", draftTask("Pilot case 1"), auth(keyA))).status).toBe(202);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it("returns 202 before the real draft handler runs", async () => {
     const model = countingModel();
     const { created } = clocked({ draftModel: model });

@@ -68,6 +68,30 @@ describe("durable Bot review records", () => {
     expect(db.prepare("SELECT COUNT(*) AS n FROM bot_reviews WHERE ticket_hash IS NOT NULL").get()).toEqual({ n: 1 });
   });
 
+  it("counts ten ticketed claims, including uncertain sends, after a restart", () => {
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-bot-ten-cap-")); dirs.push(dir);
+    const path = join(dir, "state.db"), { store, db } = setup(path);
+    const policy = { ownerWallet: owner, maxDispatches: 10 as const };
+    const sourcePlan = JSON.parse(input().inputJson).plan;
+    for (let n = 1; n <= 11; n++) {
+      const jobId = `job${n}`, revisionId = `rev${n}`;
+      db.prepare("INSERT INTO jobs (id,state,current_revision_id,created_at,updated_at,owner_wallet) VALUES (?,'drafted',?,'now','now',?)")
+        .run(jobId, revisionId, owner);
+      db.prepare("INSERT INTO revisions (id,job_id,n,revision_json,plan_json,reference_digest,revision_hash,source,created_at) VALUES (?,?,1,?,?,?,?,'import','now')")
+        .run(revisionId, jobId, JSON.stringify({ plan: sourcePlan }), JSON.stringify(sourcePlan), hash, hash);
+      store.create({ id: `review${n}`, owner, jobId, revisionId, snapshot: input(), now: 1000, expiresAt: 61000 });
+    }
+    for (let n = 1; n <= 10; n++) expect(store.claim(`review${n}`, 1001, policy)).not.toBeNull();
+    store.uncertain("review10");
+    db.close();
+    const secondDb = openDb(path, () => 1002); databases.push(secondDb);
+    const second = botReviewStore(secondDb);
+    expect(second.pilotDispatchAvailable(owner, 10)).toBe(false);
+    expect(second.nextQueued(1002, policy)).toBeNull();
+    expect(second.claim("review11", 1002, policy)).toBeNull();
+    expect(secondDb.prepare("SELECT COUNT(*) AS n FROM bot_reviews WHERE ticket_hash IS NOT NULL").get()).toEqual({ n: 10 });
+  });
+
   it("does not mistake webhook acceptance for completion or overwrite a fast callback", () => {
     const { store } = setup(); create(store); const claim = store.claim("review1", 1001)!;
     store.accepted("review1"); expect(store.get("review1", owner, "job", 1001)?.status).toBe("waiting");

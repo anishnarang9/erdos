@@ -1,5 +1,30 @@
 # anish status
 
+## 2026-11-18 — Anish — Ten-case authoring pilot failed; preserve evidence
+
+- Ran ten fresh sequential synthetic draft tasks in the isolated local pilot under the one-wallet cap and no paid repairs. All ten cases are preserved as failed attempts in the [pilot report](reports/ten-case-authoring-pilot-2026-11-18.json). Five supported briefs produced `invalid_reply`, three were marked `unsupported`, one reached a passing independent oracle and exact Bot review but failed compile, and the ambiguous brief was marked `unsupported` instead of asking for both clarifications.
+- The isolated SQLite ledger has ten settled draft charges totaling 63,529 micro-USD. One Bot review ran. The rounded Grok Dashboard additional-usage meter moved from $0.82 to $0.88, and credit balance from $4.34 to $4.27. The protected case journals keep a conservative 233,529 micro-USD upper sum. No Arc transaction occurred. The scoped cold Arc job 9 result remains a separate pass; this authoring campaign failed.
+- The compile failure was `engine_failed/build_failure`. The isolated state lacked `tmp` and `cache` directories. A separate direct compile of the same plan succeeded after those directories were created. This diagnostic does not repair or reclassify the failed case. The protected deployment script now creates both directories on first launch.
+- Restored the original HTTPS callback ingress and stopped the pilot. Public `/readyz` returned 200, and the live API retained its previous image. Production authoring policy and average-cost qualification remain open.
+
+## 2026-11-18 — Anish — Stage and restore isolated ten-case pilot
+
+- PR [#17](https://github.com/anishnarang9/UBC-26/pull/17) at `dbfd078` passed both GitHub checks. Built a separate VPS image from that exact Git archive; its source label matches the commit and its Linux engine hash matches the published engine. The live API image stayed on the prior release.
+- Created a protected local-mode pilot environment, separate state directory, and fresh API key for the scoped wallet. Temporarily routed only the authenticated Bot callback to the pilot. The public `/readyz` route remained HTTP 200. Restored the original HTTPS ingress and stopped the pilot after the read-only checks.
+- The Grok billing page was unavailable through this chat's browser connection. No reliable before meter or auto-top-up state was recorded. Therefore zero of ten new paid drafts ran, and there was no new Bot dispatch or Arc transaction. Resume only after a verified meter baseline and callback preflight. The original public callback route is restored; pilot state and protected scripts remain for resume.
+
+## 2026-11-18 07:53 -05:00 — Anish — Close synchronous pilot bypass
+
+- A read-only review found that local `POST /v1/drafts` could call the model outside the queued ten-task cap. A regression first returned HTTP 200 for the second wallet. The pilot now requires queued drafts and compiles through `POST /v1/tasks`; the regression returns 403 before any model call. The same test rejects an eleventh queued draft after restart.
+- The server rejects unknown deployment modes and requires explicit `local` mode for ten Bot dispatches. The isolated pilot deployment must have no published container ports and must route only the exact authenticated callback from HTTPS.
+- Full `pnpm check` passed: SDK 535 tests, API 1,034, web 4, worker 1,048, and all workspace typechecks. The public API remains on its prior release. No new paid request, Bot dispatch, or Arc transaction occurred.
+
+## 2026-11-18 07:48 -05:00 — Anish — Bound local ten-case Bot pilot
+
+- Branch `codex/ten-case-pilot` starts from remote main `3fb5249`. Local mode now accepts a one-wallet maximum of ten Bot dispatches. Default and public configuration still reject ten; public mode keeps its maximum of three. The Bot store counts ticketed claims, including uncertain sends, across database restarts. Local draft admission uses the same owner and durable total cap.
+- Focused tests first failed at the missing local configuration, wallet restriction, and app validation. After the changes, 60 focused tests passed. API typecheck and the full commerce check passed: SDK 535 tests plus 13 chain fixtures, API 1,034 tests, web 4 tests, and worker 1,048 tests.
+- No paid model request, Bot webhook, Arc transaction, deployment, or public service setting changed. The next owner can prepare the isolated local database and synthetic cases. This source checkpoint does not start the campaign or authorize spending.
+
 ## 2026-11-18 07:39 -05:00 — Anish — Audit original pilot billing window
 
 - PR [#15](https://github.com/anishnarang9/UBC-26/pull/15) merged the post-release audit into main at `71c4c8a`. The public readiness, discovery, and job 9 detail routes returned HTTP 200 during this read-only check.

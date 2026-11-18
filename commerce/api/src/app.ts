@@ -122,6 +122,9 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   if (opts.deployment?.mode === "public" && opts.botReview?.dispatch
     && (!/^0x[0-9a-f]{40}$/.test(opts.botReview.pilotOwner ?? "") || ![1, 2, 3].includes(opts.botReview.maxDispatches ?? 0)))
     throw new Error("Public Bot dispatch requires the one-wallet pilot policy");
+  if (opts.botReview?.maxDispatches === 10
+    && (opts.deployment?.mode !== "local" || !/^0x[0-9a-f]{40}$/.test(opts.botReview.pilotOwner ?? "")))
+    throw new Error("Ten Bot dispatches require a local one-wallet pilot");
   const taskQueue = resolveTaskQueue(opts.taskQueue);
   const authLimit = resolveAuthLimit(opts.authLimit);
   const compileAdmission = createCompileAdmission(resolvePaidCompileLimit(opts.paidCompileLimit));

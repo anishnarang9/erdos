@@ -84,16 +84,16 @@ export function registerAuthoringRoutes(ctx: RouteContext): ReturnType<typeof au
   const h = authoringHandlers(ctx.deps, idem.commit, ctx.newId);
   const owned = requireOwnedJob(ctx.deps);
   const expensive = expensiveGuard(ctx.deps);
-  const rejectPublicSync = async (c: Parameters<typeof h.draft>[0], next: () => Promise<void>): Promise<void> => {
-    if (ctx.deps.deployment.mode === "public") {
-      throw new ApiError("forbidden", "Public authoring uses POST /v1/tasks", { use: "POST /v1/tasks" });
+  const rejectQueuedSync = async (c: Parameters<typeof h.draft>[0], next: () => Promise<void>): Promise<void> => {
+    if (ctx.deps.deployment.mode === "public" || ctx.deps.botReview?.pilotOwner) {
+      throw new ApiError("forbidden", "Authoring pilot uses POST /v1/tasks", { use: "POST /v1/tasks" });
     }
     await next();
   };
-  app.post("/v1/drafts", readBody, buyer, parseJson, rejectPublicSync, expensive, idem.middleware, h.draft);
+  app.post("/v1/drafts", readBody, buyer, parseJson, rejectQueuedSync, expensive, idem.middleware, h.draft);
   app.post("/v1/drafts/:draftId/example-checks", readBody, buyer, parseJson, expensive, idem.middleware, h.checkExamples);
   app.post("/v1/jobs/:id/revisions", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, h.revise);
-  app.post("/v1/jobs/:id/compile", readBody, buyer, parseJson, requireJobId, owned, rejectPublicSync, expensive, idem.middleware, h.compile);
+  app.post("/v1/jobs/:id/compile", readBody, buyer, parseJson, requireJobId, owned, rejectQueuedSync, expensive, idem.middleware, h.compile);
   // Public: the package and reference files are the job's public commitments, which any solver needs.
   app.get("/v1/jobs/:id/package", readBody, requireJobId, h.packageListing);
   app.get("/v1/jobs/:id/package/file", readBody, requireJobId, h.packageFile);
