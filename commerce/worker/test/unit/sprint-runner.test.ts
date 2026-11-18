@@ -88,11 +88,11 @@ describe("operator runner safety", () => {
         mode: "native", executable, executableSha256: sprintDigest(fs.readFileSync(executable)),
         wrapperSha256: sprintEngineWrapperDigest(), environment: { PATH: "/usr/bin:/bin" },
       });
-      const output = await runner.run(["fixed-argument"], 1000);
+      const output = await runner.run(["fixed-argument"], 5000);
       expect(output.exit).toBe(0);
       expect(JSON.parse(output.stdout)).toEqual({ arg: "fixed-argument", path: "/usr/bin:/bin", token: null, home: null });
       fs.writeFileSync(executable, "#!/usr/bin/python3\nprint('changed after construction')\n");
-      await expect(runner.run(["fixed-argument"], 1000)).rejects.toThrow();
+      await expect(runner.run(["fixed-argument"], 5000)).rejects.toThrow();
     } finally { delete process.env.BUYER_TOKEN; }
   });
   it("fails closed for WSL sprint configuration rather than pretending to pin a Linux executable", async () => {

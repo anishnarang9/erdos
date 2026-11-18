@@ -8,7 +8,7 @@ import canonicalize from "canonicalize";
 import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { assessCoverage } from "./coverage.ts";
-import { removeProvenDuplicateScalars } from "./authoring-plan-shape.ts";
+import { removeFixtureContradictedOutputScalars, removeProvenDuplicateScalars } from "./authoring-plan-shape.ts";
 import { assertBotApproved } from "./bot-review-gate.ts";
 import { withinDraftDeadline, registerDraftDeadline } from "./draft-deadline.ts";
 import { appendExampleCheck, exampleCheckView } from "./example-checks.ts";
@@ -305,8 +305,12 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         const normalized = parsed.kind === "draft"
           ? removeProvenDuplicateScalars(parsed.plan, body.exampleFixtures, textReferences)
           : { plan: null, paths: [] };
-        const result: ModelDraft = parsed.kind === "draft" ? { ...parsed, plan: normalized.plan } : parsed;
-        if (normalized.paths.length > 0) normalizedPlanPaths.set(reply.traceId, normalized.paths);
+        const narrowed = parsed.kind === "draft"
+          ? removeFixtureContradictedOutputScalars(normalized.plan, body.exampleFixtures)
+          : normalized;
+        const result: ModelDraft = parsed.kind === "draft" ? { ...parsed, plan: narrowed.plan } : parsed;
+        const paths = [...normalized.paths, ...narrowed.paths];
+        if (paths.length > 0) normalizedPlanPaths.set(reply.traceId, paths);
         return { reply: { ...reply, result }, result };
       } catch (err) {
         if (err instanceof ModelError) { err.model = typeof reply?.model === "string" ? reply.model : undefined; err.traceId = typeof reply?.traceId === "string" ? reply.traceId : undefined; err.usage = reply?.usage; }

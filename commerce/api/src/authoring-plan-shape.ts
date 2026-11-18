@@ -8,6 +8,16 @@ function hasArray(text: string, fieldName: string): boolean {
   } catch { return false; }
 }
 
+function fixtureObject(fixture: ExampleFixture, fileName: string): Record<string, unknown> | null {
+  const file = fixture.files.find(item => item.name === fileName);
+  if (!file) return null;
+  try {
+    const text = file.encoding === "base64" ? Buffer.from(file.content, "base64").toString("utf8") : file.content;
+    const value: unknown = JSON.parse(text);
+    return isPlainObject(value) ? value : null;
+  } catch { return null; }
+}
+
 function fixtureHasArray(fixture: ExampleFixture, fileName: string, fieldName: string): boolean {
   const file = fixture.files.find(item => item.name === fileName);
   if (!file) return false;
@@ -50,5 +60,27 @@ export function removeProvenDuplicateScalars(plan: unknown, fixtures: ExampleFix
     });
     });
   }
+  return paths.length ? { plan: copy, paths } : { plan, paths };
+}
+
+/** A required output scalar conflicts with an accepted buyer fixture that omits it. */
+export function removeFixtureContradictedOutputScalars(plan: unknown, fixtures: ExampleFixture[]): { plan: unknown; paths: string[] } {
+  const positive = fixtures.filter(item => item.predictedVerdict === 1);
+  if (!isPlainObject(plan) || !Array.isArray(plan.deliverables) || positive.length === 0) return { plan, paths: [] };
+  const copy = structuredClone(plan);
+  const paths: string[] = [];
+  (copy.deliverables as unknown[]).forEach((file: unknown, fileIndex: number) => {
+    if (!isPlainObject(file) || file.parser !== "json/v1" || typeof file.name !== "string" || !Array.isArray(file.fields)) return;
+    const fileName = file.name;
+    const examples = positive.map(fixture => fixtureObject(fixture, fileName));
+    if (examples.some(value => value === null)) return;
+    file.fields = file.fields.filter((field: unknown, fieldIndex: number) => {
+      if (!isPlainObject(field) || typeof field.name !== "string") return true;
+      if (examples.some(value => Object.hasOwn(value!, field.name as string))) return true;
+      if (referencesScalar(copy.rules, "deliverable", fileName, field.name)) return true;
+      paths.push(`/deliverables/${fileIndex}/fields/${fieldIndex}`);
+      return false;
+    });
+  });
   return paths.length ? { plan: copy, paths } : { plan, paths };
 }

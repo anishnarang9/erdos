@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 12:29 -05:00 — Add buyer-positive output shape guard
+
+- Added a narrow draft normalization: if every buyer-accepted positive JSON fixture omits an output scalar and no rule reads it, remove that required scalar before native validation and revision hashing. Unit and route tests cover the guard and its refusal cases. Offline replay of the preserved `lab-supplies-receipt-1` repair then passed native validation and every hidden oracle case. That replay is not a new success; the original task stays failed.
+- The first full commerce run hit a 1-second timeout in a worker test that starts a Python fixture under suite load. The test passed alone. I raised only that test timeout to 5 seconds. The second full commerce check passed: API 1,050, worker 1,051, SDK 535 plus 13 Arc fixtures, web 4, and all typechecks. No paid call, Bot, Arc send, or public deploy ran for this source candidate. Next: checkpoint, push, verify CI, build a pinned image, and freeze a procurement repeat.
+
 ## 2026-11-18 12:23 -05:00 — Changed-source repair diagnostic failed
 
 - The four frozen repeat tasks ran against isolated source `c5f8eab` after its commerce, engine, and contracts CI passed. Each used two provider calls and settled. None passed the complete draft and oracle gate. `pier-drawers` and `nights-1` ended `plan_invalid`; `badge-zone-1` had one hidden fail/reject disagreement; `lab-supplies-receipt-1` rejected both buyer fixtures and valid hidden answers because its output schema invented `capacity`. The [repeat report](reports/authoring-fourth-changed-source-repeat-2026-11-18.md) preserves task IDs, causes, and costs.
