@@ -1,3 +1,8 @@
+# 2026-11-18 15:49 -05:00 — Record the exact quote trial
+
+- Draft PR #19. The [six-case trial report](reports/authoring-exact-quote-trial-2026-11-18.md) records three drafts ready for buyer review. Final drafts had verified quotes. The live sample did not trigger the new indexed feedback. Nights accepted a hidden night-zero output, and clearance and badge-zone remained native-invalid.
+- All six charges settled. Campaign attributable API usage is $1.262147. Candidate CI and 89 focused recovery and gate tests passed. Bot qualification, production authoring readiness, and the final independent Arc run remain open.
+
 # 2026-11-18 15:43 -05:00 — Stage the exact quote repeat
 
 - Draft PR #19. The [frozen trial](../../docs/authoring-exact-quote-trial-2026-11-18.md) pins source `d87d59d` with latest fetched main and the unchanged membership corpus. The isolated image pins and authenticated wallet match. Full local commerce checks passed before the merge, including 1,075 API tests. CI for the merged image source is running. The trial has made no paid requests.
