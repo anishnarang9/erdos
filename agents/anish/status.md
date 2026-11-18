@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-18 08:48 -05:00 — Anish — Stage second isolated pilot
+
+- The user approved another ten paid drafts and up to nine Bot reviews under a fresh $1 total observed cap, $0.15 per attempt, no paid retries, and the same stop rules. The [round-two plan](../../docs/authoring-round2-qualification-2026-11-18.md) is frozen at nine supported and one ambiguous case.
+- Built source `fc3ea3e` into image `sha256:396a0fc90b25a863b4ff1d9adde2d0d7cf2f6cf7819e538ef8e6143b345e093e`; its Linux engine matches the published digest. The first isolated launch rejected an old `SOURCE_SHA` copied into the protected environment. It made zero paid calls and auto-restored the original ingress. Kept the failed preflight container and state under distinct names, corrected the source pin, and added a private preflight assertion.
+- The second isolated launch is healthy. The original public API image remains running, public `/readyz` is 200, and only the authenticated Bot callback routes to the pilot. A new scoped buyer API key is in a protected file. The [staging record](reports/authoring-round2-staging-2026-11-18.json) omits credentials. Zero second-round drafts or Bot dispatches have run.
+- A fresh Grok meter read is still needed before the first paid call. The user's Chrome activity interrupted a refresh, so no spend was initiated on a stale baseline.
+
 ## 2026-11-18 08:38 -05:00 — Anish — Prepare second qualification scope
 
 - PR [#18](https://github.com/anishnarang9/UBC-26/pull/18) merged at `fc3ea3e` after both GitHub commerce checks passed. The public API remains on its prior image. The adapter and prompt changes have no live provider qualification yet.
