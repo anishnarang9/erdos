@@ -4,6 +4,7 @@
 
 - Branch `codex/authoring-pilot-round2`. Restarted the isolated stopped pilot with its saved state. A read-only `GET` of the saved third-diagnostic task returned `succeeded` with the same revision hash and provider usage as the protected journal. This used zero paid calls and did not retry the failed case. Stopped the pilot again; public readiness and open-job discovery stayed HTTP 200. Added the restart evidence to the [third failure record](reports/authoring-round3-first-failure-2026-11-18.json).
 - The next-corpus public examples are pushed at `0ee691e`, with 68/68 qualification tests passing locally. PR #19 exact-head checks are pending. The public API remains on its accepted release. Next: inspect CI, then keep general authoring gated until a separately funded repeat-run campaign and production account boundary pass.
+- Updated the hardening evidence to state that both stopped campaigns' unused slots authorize no further paid call. The post-campaign source changes made no additional paid call or deployment.
 
 ## 2026-11-18 10:48 -05:00 — Anish — Freeze distinct public examples for the next corpus
 
