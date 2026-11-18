@@ -1,5 +1,11 @@
 # Current plan
 
+## 2026-11-18 09:09 -05:00 — Anish — Make repeat reliability the next backend release gate
+
+- The second paid authoring pilot stopped after one `plan_invalid` case. Keep that attempt failed and the public release unchanged. The [hardening evidence](../../docs/backend-hardening-evidence-2026-11-18.md) records the offline compiler startup fix, 62-case corpus, 344 native oracle checks, and remaining live gates.
+- Prioritize complete supported jobs, correct clarifications and unsupported decisions, exact Bot/compile/proof checks, and duplicate-safe recovery before general authoring or frontend-dependent acceptance. The existing cold Arc job 9 remains a scoped pass. New paid qualification needs its own frozen scope, attributable budget, and production account boundary.
+
+
 ## 2026-11-18 08:55 -05:00 — Anish — Keep general authoring gated after second pilot failure
 
 - The first case in the newly authorized ten-draft authoring pilot returned `plan_invalid` after one settled $0.0066 API charge. No Bot review or Arc transaction ran. The [failure record](../anish/reports/authoring-round2-first-failure-2026-11-18.json) identifies reversed nested record scopes, two wrong numeric field types, and an invented scalar field. Stop the remaining cases under the campaign failure rule. The original HTTPS ingress is restored; the accepted public API remains on its prior image.

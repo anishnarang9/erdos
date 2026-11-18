@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-18 09:09 -05:00 — Anish — Extend offline hardening and test clean startup
+
+- Branch `codex/authoring-pilot-round2`. Classified all ten first-pilot failures and the stopped second-pilot case in the [forensic report](reports/authoring-pilot-failure-classification-2026-11-18.md). Four `invalid_reply` provider bodies are still missing, so their exact parse defects remain unknown. The Grok browser log tab was unavailable during this checkpoint; no new provider request was made.
+- Added two purchase-order cases to a new frozen 62-case offline corpus, with hidden candidates and a domain oracle separate from plan rules. All 66 qualification tests passed. The native engine matched 344 candidate results with zero failures. The new digest and counts are in the [hardening evidence](../../docs/backend-hardening-evidence-2026-11-18.md).
+- Added a failing clean-state compiler regression, then made native engine startup create its configured temp and cache directories. The full commerce check passed: SDK 535 tests and 13 chain fixtures, API 1,037 tests, web 4, worker 1,048, and all typechecks. The public API has not changed. Next: review and ship this offline candidate as a draft PR, then continue recovery and live qualification planning under a new bounded spending scope.
+
+
 ## 2026-11-18 08:52 -05:00 — Anish — Stop second authoring pilot on first failed draft
 
 - Branch `codex/authoring-pilot-round2`. The user approved up to ten fresh drafts and nine Bot reviews on the personal account under a fresh $1 observed cap, $0.15 per attempt, and no paid retries. A refreshed Grok Dashboard baseline read $0.89 additional usage and $4.27 credit balance. The first `pier-drawers` task settled a 6,600 micro-USD API charge and returned `unsupported/plan_invalid`: `/plan/rules/2/where/where/right/left` used an undeclared record field. No Bot review, approval, compile, or Arc transaction ran. The dashboard still read $0.89 and $4.27 after the task; the conservative single-case upper bound is 26,600 micro-USD. See the [failure record](reports/authoring-round2-first-failure-2026-11-18.json).
