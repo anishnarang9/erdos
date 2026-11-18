@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 07:53 -05:00 — Anish — Close synchronous pilot bypass
+
+- A read-only review found that local `POST /v1/drafts` could call the model outside the queued ten-task cap. A regression first returned HTTP 200 for the second wallet. The pilot now requires queued drafts and compiles through `POST /v1/tasks`; the regression returns 403 before any model call. The same test rejects an eleventh queued draft after restart.
+- The server rejects unknown deployment modes and requires explicit `local` mode for ten Bot dispatches. The isolated pilot deployment must have no published container ports and must route only the exact authenticated callback from HTTPS.
+- Full `pnpm check` passed: SDK 535 tests, API 1,034, web 4, worker 1,048, and all workspace typechecks. The public API remains on its prior release. No new paid request, Bot dispatch, or Arc transaction occurred.
+
 ## 2026-11-18 07:48 -05:00 — Anish — Bound local ten-case Bot pilot
 
 - Branch `codex/ten-case-pilot` starts from remote main `3fb5249`. Local mode now accepts a one-wallet maximum of ten Bot dispatches. Default and public configuration still reject ten; public mode keeps its maximum of three. The Bot store counts ticketed claims, including uncertain sends, across database restarts. Local draft admission uses the same owner and durable total cap.
