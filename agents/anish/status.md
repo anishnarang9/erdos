@@ -1,3 +1,8 @@
+# 2026-11-18 14:14 -05:00 — Validate narrow lookup normalization offline
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Added a guarded normalization for a numeric reference lookup repeated inside its typed comparison. The original failed lot task stays failed. Its retained repaired plan became native-valid after the normalization and matched all seven independent hidden oracle cases, including unknown-key rejection. See the [offline report](reports/authoring-lot-lookup-offline-replay-2026-11-18.md).
+- Three new regression cases and full `commerce/pnpm check` pass: SDK 535 plus 13 Arc fixtures, API 1,062, web 4, worker 1,051, and all typechecks. No new paid call, Bot review, Arc send, or public deploy used the candidate. Campaign API usage remains $0.617059. Next: checkpoint, exact-source CI, isolated image, and a frozen fresh trial. General authoring stays gated.
+
 # 2026-11-18 14:09 -05:00 — Seventh trial passed four draft gates
 
 - Branch `codex/authoring-pilot-round2`, draft PR #19. The [seventh report](reports/authoring-seventh-lookup-repair-repeat-2026-11-18.md) records four draft-stage passes and one retained lot failure on source `d0b6b97`. All five tasks and nine provider traces are new. Native, coverage, quotes, and all hidden oracle candidates passed for the four passing cases. Lot stayed plan-invalid after the targeted repair hint.

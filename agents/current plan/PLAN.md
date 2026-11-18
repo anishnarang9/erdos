@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 14:14 -05:00 — Anish — Test narrow lookup normalization on a fresh source
+
+- An [offline replay](../anish/reports/authoring-lot-lookup-offline-replay-2026-11-18.md) of the retained failed lot plan passed native validation and all seven hidden oracle candidates after a narrow, recorded normalization. The original paid failure remains failed. Full commerce checks pass. Anish will push the source, verify exact-source CI, and freeze a fresh trial. Keep general public authoring and the accepted public release unchanged.
+
 ## 2026-11-18 14:10 -05:00 — Anish — Keep authoring gated after seventh trial
 
 - The [seventh trial](../anish/reports/authoring-seventh-lookup-repair-repeat-2026-11-18.md) passed four of five draft gates. Lot expiry stayed plan-invalid after a precise type-repair hint. Clearance passed after the hint, but one changed outcome does not establish repeat reliability. The five tasks cost $0.055114; fourth-campaign attributable API usage is $0.617059. Anish will test a narrow redundant-lookup normalization offline and preserve the failed lot result. Keep general public authoring and the accepted public release unchanged.

@@ -1,5 +1,6 @@
 import type { ExampleFixture } from "./authoring-examples.ts";
 import { isPlainObject } from "./revision.ts";
+import canonicalize from "canonicalize";
 
 function hasArray(text: string, fieldName: string): boolean {
   try {
@@ -102,5 +103,46 @@ export function removeFixtureContradictedOutputScalars(plan: unknown, fixtures: 
       return false;
     });
   });
+  return paths.length ? { plan: copy, paths } : { plan, paths };
+}
+
+/** Remove an invalid numeric existence guard only when the same lookup is read by its comparison. */
+export function removeRedundantNumericLookupGuard(plan: unknown): { plan: unknown; paths: string[] } {
+  if (!isPlainObject(plan) || !Array.isArray(plan.rules) || !Array.isArray(plan.references)) return { plan, paths: [] };
+  const copy = structuredClone(plan);
+  const paths: string[] = [];
+  const numericReferenceLookup = (value: unknown): boolean => {
+    if (!isPlainObject(value) || value.op !== "lookup" || !isPlainObject(value.collection)) return false;
+    const source = value.collection;
+    if (source.source !== "reference" || typeof source.file !== "string" ||
+      typeof source.field !== "string" || typeof value.valueField !== "string") return false;
+    const file = (copy.references as unknown[]).find(item => isPlainObject(item) &&
+      item.name === source.file && item.parser === "json/v1");
+    if (!isPlainObject(file) || !Array.isArray(file.collections)) return false;
+    const collection = file.collections.find((item: unknown) => isPlainObject(item) && item.name === source.field);
+    if (!isPlainObject(collection) || !Array.isArray(collection.fields)) return false;
+    return collection.fields.some((item: unknown) => isPlainObject(item) &&
+      item.name === value.valueField && item.type === "i64");
+  };
+  const sameLookup = (left: unknown, right: unknown): boolean =>
+    canonicalize(left) !== undefined && canonicalize(left) === canonicalize(right);
+  const replacement = (node: Record<string, unknown>): unknown => {
+    if (node.op !== "and" || Object.keys(node).sort().join() !== "left,op,right") return null;
+    for (const [guard, comparison] of [[node.left, node.right], [node.right, node.left]]) {
+      if (!numericReferenceLookup(guard) || !isPlainObject(comparison) ||
+        !["eq", "lt", "lte", "gt", "gte"].includes(String(comparison.op))) continue;
+      if (sameLookup(guard, comparison.left) || sameLookup(guard, comparison.right)) return comparison;
+    }
+    return null;
+  };
+  const visit = (value: unknown, path: string): unknown => {
+    if (Array.isArray(value)) return value.map((item, index) => visit(item, `${path}/${index}`));
+    if (!isPlainObject(value)) return value;
+    const substitute = replacement(value);
+    if (substitute) { paths.push(path); return visit(substitute, path); }
+    for (const [key, child] of Object.entries(value)) value[key] = visit(child, `${path}/${key}`);
+    return value;
+  };
+  copy.rules = visit(copy.rules, "/rules") as unknown[];
   return paths.length ? { plan: copy, paths } : { plan, paths };
 }

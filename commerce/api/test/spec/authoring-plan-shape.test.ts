@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { removeProvenDuplicateScalars, removeFixtureContradictedOutputScalars } from "../../src/authoring-plan-shape.ts";
+import { removeProvenDuplicateScalars, removeFixtureContradictedOutputScalars, removeRedundantNumericLookupGuard } from "../../src/authoring-plan-shape.ts";
 
 const fixture = (value: unknown) => [{ name: "positive", predictedVerdict: 1 as const,
   files: [{ name: "out.json", content: JSON.stringify(value), encoding: "utf8" as const }] }];
@@ -53,6 +53,35 @@ describe("fixture-proven duplicate scalar", () => {
     expect((result.plan as typeof original).references[0]!.fields).toEqual([]);
     expect(removeProvenDuplicateScalars(original, fixture({ rows: [] }), [{ name: "ref.json", text: '{"rows":"x"}' }]).paths)
       .toEqual(["/deliverables/0/fields/0"]);
+  });
+});
+
+describe("redundant numeric lookup guard", () => {
+  const lookup = { op: "lookup", collection: { source: "reference", file: "lots.json", field: "rows" },
+    keyField: "lotId", key: { op: "record_field", field: "lotId", level: 0 }, valueField: "maxDay" };
+  const compare = { op: "lte", left: { op: "record_field", field: "expiryDay", level: 0 }, right: lookup };
+  const withRule = (rule: unknown, type = "i64") => ({ ...plan([rule]), references: [{ name: "lots.json", parser: "json/v1",
+    fields: [], collections: [{ name: "rows", fields: [{ name: "lotId", type: "string" }, { name: "maxDay", type }] }] }] });
+
+  it("removes only the duplicate numeric lookup while retaining the typed comparison", () => {
+    const original = withRule({ op: "all", collection: { source: "deliverable", file: "out.json", field: "rows" },
+      where: { op: "and", left: lookup, right: compare } });
+    const result = removeRedundantNumericLookupGuard(original);
+    expect(result.paths).toEqual(["/rules/0/where"]);
+    expect((result.plan as typeof original).rules[0]).toMatchObject({ where: compare });
+    expect((original.rules[0] as any).where.op).toBe("and");
+  });
+
+  it("keeps a guard if the comparison does not read the same lookup", () => {
+    const different = { ...lookup, valueField: "otherDay" };
+    expect(removeRedundantNumericLookupGuard(withRule({ op: "and", left: lookup,
+      right: { ...compare, right: different } })).paths).toEqual([]);
+  });
+
+  it("keeps a Boolean lookup and a comparison behind short-circuit logic", () => {
+    expect(removeRedundantNumericLookupGuard(withRule({ op: "and", left: lookup, right: compare }, "bool")).paths).toEqual([]);
+    expect(removeRedundantNumericLookupGuard(withRule({ op: "and", left: lookup,
+      right: { op: "or", left: compare, right: { op: "literal", type: "bool", value: true } } })).paths).toEqual([]);
   });
 });
 
