@@ -1,5 +1,38 @@
 # anish status
 
+## 2026-11-18 07:09 -05:00 — Anish — Finish the requested morning soak
+
+- The 07:00 Eastern public read soak finished with 97 cycles and 291 requests: 288 HTTP 200, zero HTTP 5xx, and one preserved three-request client transport gap at 04:30. Successful reads had median 0.747 seconds, 95th percentile 1.493 seconds, and maximum 1.856 seconds. The [raw timing log](reports/hosted-public-read-soak-2026-11-18.jsonl) is SHA-256 `58b68483436027d3385379c20c5c87ba3ea9c1a96d3ddb632e11ad9032f737f2`. The API access log since merge shows no 5xx. At the final check, the API was healthy with zero restarts/OOM and about 78 MiB of its 1 GiB limit.
+- The draft ledger still has three settled rows totaling 11,416 micro-USD and no pending reservation. No new paid model, Bot, or chain action was initiated. Update the [post-release audit](reports/hosted-postrelease-validation-2026-11-18.json) and [handoff](reports/hosted-agent-first-acceptance-summary-2026-11-18.md), then mark PR #15 ready and merge the documentation audit after verification.
+
+## 2026-11-18 06:00 -05:00 — Anish — One hour of soak remains
+
+- The public monitor has 213 reads: 210 HTTP 200 and the one preserved three-request client transport cycle at 04:30. No new curl error has occurred since the logger restart. Median completed latency is 0.749 seconds; maximum 1.856 seconds. The API remains healthy at about 73 MiB of 1 GiB, with zero restarts or OOM. The three settled draft charges still total 11,416 micro-USD, with no pending reservation. Continue until 07:00 and preserve the raw log.
+
+## 2026-11-18 05:00 -05:00 — Anish — Two hours of soak remain
+
+- The public read monitor has 114 requests: 111 HTTP 200 and the one preserved three-request client transport gap. The improved monitor now records curl exit codes, with no new failure. The live API ledger remains three settled drafts for 11,416 micro-USD and zero pending reservation. API health is green, with no restart or OOM and about 73 MiB of its 1 GiB limit. Continue to 07:00 and record the raw timing rows.
+
+## 2026-11-18 04:32 -05:00 — Anish — Preserve one client transport incident in the soak
+
+- The low-rate public monitor recorded HTTP code `000` on readiness, discovery, and job detail in one cycle at 09:30:06 UTC. Each curl call ended in 10–21 ms without an HTTP response. Its script did not save the exit code or stderr, so the exact cause is unknown. API health and readiness logs returned 200 before, during, and after the cycle. Manual external reads of all three routes returned 200 afterward, and neither API nor proxy restarted. Record this as a client-observed transport incident, separate from the earlier HTTP 503. The [post-release audit](reports/hosted-postrelease-validation-2026-11-18.json) retains it. Continue the soak and investigate any recurrence.
+
+## 2026-11-18 04:08 -05:00 — Anish — Prepare morning acceptance handoff
+
+- The [morning handoff](reports/hosted-agent-first-acceptance-summary-2026-11-18.md) maps each November 18 goal gate to the cold job 9, release, and post-release evidence. It keeps the initial journal error and public 503 visible and separates production cost qualification, paid campaign, Circle paid compile, and frontend work from this accepted scope.
+- The low-rate read soak has 36 of 36 successful requests across readiness, discovery, and job detail. Continue until 07:00 Eastern, then update the audit with complete counts and any failures.
+
+## 2026-11-18 03:58 -05:00 — Anish — Main checks and proxy controls pass
+
+- Main merge commit `47920da` passed both [commerce CI](https://github.com/anishnarang9/UBC-26/actions/runs/44270857368) and [core-fast CI](https://github.com/anishnarang9/UBC-26/actions/runs/44270857041). The deployed Caddyfile hash matches the repository. A controlled proxy run passed readiness transitions, Bot callback auth, static allowlists, and private-field log redaction. Public HTTP redirects to HTTPS with HSTS and `nosniff`.
+- The installed runner still passes `verify-install` and has the expected wrapper digest. Credential-named files remain private to their owners, and the solver no longer belongs to the Docker group. The sustained public read soak remains active; no paid request or Arc send was made.
+
+## 2026-11-18 03:54 -05:00 — Anish — Merge hosted release and continue read-only soak
+
+- PR [#14](https://github.com/anishnarang9/UBC-26/pull/14) merged into main at `47920da` after commerce, engine, and contracts PR checks passed and a focused rereview found no Important or Critical issue. The live API still uses the accepted image source `1ee322e`; public runner and engine use `0b35d3a`, and public guides use docs source `ff05a35`. Main-push CI is running.
+- Post-merge reads matched all 20 job 9 package file hashes. The corrected runner recovered byte-exact `OKAY` again through SDK and engine. Direct Arc receipts remained successful at claim nonce 2 and release nonce 3; latest and pending solver nonce are 4. An isolated restore of the pinned post-acceptance backup passed SQLite integrity and was removed. The API shows zero restarts and no OOM.
+- The live API ledger has three settled drafts totaling 11,416 micro-USD, no reserved or uncertain row, no breach, and no spend halt. This does not establish the separate Grok Bot account balance or auto top-up state. Thirty repeated public job reads all returned 200. A low-rate public soak continues until 07:00; see the [in-progress post-release audit](reports/hosted-postrelease-validation-2026-11-18.json).
+
 ## 2026-11-18 03:41 -05:00 — Anish — Verify immutable public docs and runner
 
 - Published docs source `ff05a35` at `/downloads/docs/ff05a357ef6b4afcc177ede91c7e61f636cb7272/`. All nine files and `SHA256SUMS` matched the new release manifest over external HTTPS. The public runner archive, runner metadata, runner release manifest, and engine also matched their pinned hashes. `/readyz` returned success.
