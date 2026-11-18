@@ -249,6 +249,7 @@ export const DRAFT_SYSTEM_PROMPT = [
   "A JSON field whose value is an integer decimal string has plan field type `i64`. Use `string` only for text. Boolean `and`, `or`, and `not` take Boolean expressions; compare numeric expressions with `eq`, `gte`, or another typed comparison first.",
   "Use `record_field` only inside a collection rule. A JSON object's scalar field names and collection names must be distinct.",
   "In nested collection predicates, `record_field` level 0 reads the innermost row and level 1 reads its parent row. For example, inside `any` over reference rows nested in `all` over output rows, a reference row's `referenceAmount` uses level 0 and an output row's `outputAmount` uses level 1.",
+  "A count or existence check does not constrain the values in all rows. If the request both limits each row's allowed values and requires some values to occur, write both checks.",
   "When an unknown reference key must reject, use `lookup` keyed on that reference ID.",
   "Put the lookup in a rule for each output row. A missing key then rejects the input.",
   "Compare the returned ID with the output ID when only membership matters.",

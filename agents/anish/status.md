@@ -1,3 +1,8 @@
+# 2026-11-18 15:53 -05:00 — Preserve reference-key checks in badge drafts
+
+- Draft PR #19. The saved badge reply used a string key lookup as an operand of `and`; its paid repair then returned malformed syntax. The guarded fix types that lookup as key equality only when the sibling comparison reads the same reference row. It leaves Boolean operands, other keys, and malformed scope declarations to the engine.
+- The saved first badge reply became native-valid offline and matched all seven hidden outcomes. The original paid result remains failed. Clearance and nights first replies remained invalid in replay. The saved nights repair omitted a per-row allowed-value check. The prompt now distinguishes that check from counts and existence. Focused plan tests and API typecheck passed. Attributable API usage stays $1.262147. Next: check the final source and qualify the guard live.
+
 # 2026-11-18 15:49 -05:00 — Record the exact quote trial
 
 - Draft PR #19. The [six-case trial report](reports/authoring-exact-quote-trial-2026-11-18.md) records three drafts ready for buyer review. Final drafts had verified quotes. The live sample did not trigger the new indexed feedback. Nights accepted a hidden night-zero output, and clearance and badge-zone remained native-invalid.

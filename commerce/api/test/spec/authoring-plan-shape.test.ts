@@ -78,6 +78,21 @@ describe("redundant numeric lookup guard", () => {
       right: { ...compare, right: different } })).paths).toEqual([]);
   });
 
+  it("types a reference key guard beside a comparison that reads the same row", () => {
+    const guard = { ...lookup, valueField: lookup.keyField };
+    const original = withRule({ op: "and", left: guard, right: compare });
+    const result = removeRedundantNumericLookupGuard(original);
+    expect(result.paths).toEqual(["/rules/0/left"]);
+    expect(result.plan).toMatchObject({ rules: [{
+      op: "and", left: { op: "eq", left: guard, right: guard.key }, right: compare,
+    }] });
+  });
+
+  it("does not change a reference key guard that looks up a different row", () => {
+    const guard = { ...lookup, valueField: lookup.keyField, key: { ...lookup.key, level: 1 } };
+    expect(removeRedundantNumericLookupGuard(withRule({ op: "and", left: guard, right: compare })).paths).toEqual([]);
+  });
+
   it("keeps a Boolean lookup and a comparison behind short-circuit logic", () => {
     expect(removeRedundantNumericLookupGuard(withRule({ op: "and", left: lookup, right: compare }, "bool")).paths).toEqual([]);
     expect(removeRedundantNumericLookupGuard(withRule({ op: "and", left: lookup,

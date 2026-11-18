@@ -106,24 +106,25 @@ export function removeFixtureContradictedOutputScalars(plan: unknown, fixtures: 
   return paths.length ? { plan: copy, paths } : { plan, paths };
 }
 
-/** Remove an invalid numeric existence guard only when the same lookup is read by its comparison. */
+/** Repair a non-Boolean existence guard when another comparison reads the same reference row. */
 export function removeRedundantNumericLookupGuard(plan: unknown): { plan: unknown; paths: string[] } {
   if (!isPlainObject(plan) || !Array.isArray(plan.rules) || !Array.isArray(plan.references)) return { plan, paths: [] };
   const copy = structuredClone(plan);
   const paths: string[] = [];
-  const numericReferenceLookup = (value: unknown): boolean => {
-    if (!isPlainObject(value) || value.op !== "lookup" || !isPlainObject(value.collection)) return false;
+  const referenceLookupType = (value: unknown): unknown => {
+    if (!isPlainObject(value) || value.op !== "lookup" || !isPlainObject(value.collection)) return undefined;
     const source = value.collection;
     if (source.source !== "reference" || typeof source.file !== "string" ||
-      typeof source.field !== "string" || typeof value.valueField !== "string") return false;
+      typeof source.field !== "string" || typeof value.valueField !== "string") return undefined;
     const file = (copy.references as unknown[]).find(item => isPlainObject(item) &&
       item.name === source.file && item.parser === "json/v1");
-    if (!isPlainObject(file) || !Array.isArray(file.collections)) return false;
+    if (!isPlainObject(file) || !Array.isArray(file.collections)) return undefined;
     const collection = file.collections.find((item: unknown) => isPlainObject(item) && item.name === source.field);
-    if (!isPlainObject(collection) || !Array.isArray(collection.fields)) return false;
-    return collection.fields.some((item: unknown) => isPlainObject(item) &&
-      item.name === value.valueField && item.type === "i64");
+    if (!isPlainObject(collection) || !Array.isArray(collection.fields)) return undefined;
+    const field = collection.fields.find((item: unknown) => isPlainObject(item) && item.name === value.valueField);
+    return isPlainObject(field) ? field.type : undefined;
   };
+  const numericReferenceLookup = (value: unknown) => referenceLookupType(value) === "i64";
   const sameExpression = (left: unknown, right: unknown): boolean =>
     canonicalize(left) !== undefined && canonicalize(left) === canonicalize(right);
   const comparisonOperands = (comparison: unknown): unknown[] =>
@@ -136,11 +137,26 @@ export function removeRedundantNumericLookupGuard(plan: unknown): { plan: unknow
     }
     return null;
   };
+  const fixStringKeyGuard = (node: Record<string, unknown>, path: string): void => {
+    if (node.op !== "and" || Object.keys(node).sort().join() !== "left,op,right") return;
+    for (const [side, other] of [["left", "right"], ["right", "left"]] as const) {
+      const guard = node[side];
+      if (!isPlainObject(guard) || guard.valueField !== guard.keyField || !isPlainObject(guard.key) ||
+        guard.key.op !== "record_field" || referenceLookupType(guard) !== "string") continue;
+      const matches = comparisonOperands(node[other]).some(operand =>
+        isPlainObject(operand) && operand.op === "lookup" &&
+        sameExpression({ ...guard, valueField: operand.valueField }, operand));
+      if (!matches) continue;
+      node[side] = { op: "eq", left: guard, right: guard.key };
+      paths.push(`${path}/${side}`);
+    }
+  };
   const visit = (value: unknown, path: string): unknown => {
     if (Array.isArray(value)) return value.map((item, index) => visit(item, `${path}/${index}`));
     if (!isPlainObject(value)) return value;
     const substitute = replacement(value);
     if (substitute) { paths.push(path); return visit(substitute, path); }
+    fixStringKeyGuard(value, path);
     for (const [key, child] of Object.entries(value)) value[key] = visit(child, `${path}/${key}`);
     return value;
   };
