@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 01:31 -05:00 — Anish — Finish partial live job and rerun strict acceptance
+
+- The first paid buyer attempt reached approved compilation, then needed a public guide correction. Its funding command sent three successful, distinct Arc calls but stopped at receipt or finality visibility each time. This attempt is intervened and cannot satisfy the cold-start gate. The runner now waits on read-only receipt and confirmation state without rebroadcast. Source `4316b0a` serves matching API, installed runner, engine, and docs source `a55338d`.
+- Resume only the saved buyer journal after canonical receipt checks. Then use an independent cold solver for the partial job and record payout and recovery as an integration test. The reviewed one-wallet policy permits exactly one more distinct draft and Bot review, with a daily reservation cap of 2,546,065 micro-USD. Use a fresh buyer and solver agent pair for the strict acceptance attempt after the partial job closes. Preserve both failures and all interventions in the record.
+
 ## 2026-11-18 01:01 -05:00 — Anish — Repair buyer guide before paid work
 
 - The first cold buyer stopped before authentication because the public contract omitted the draft request shape. No paid call or Arc transaction occurred. Commit `03335f9` publishes the complete draft body and example under an immutable docs version. Keep the failed launch in the record. A new independent buyer is running against the corrected guide; the single paid draft slot remains unused. See the [guide-gap report](../anish/reports/hosted-cold-buyer-guide-gap-2026-11-18.json).

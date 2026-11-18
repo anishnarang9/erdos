@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-18 01:31 -05:00 — Anish — Diagnose live funding and promote receipt-safe runtime
+
+- The first paid cold buyer reached compiled API job `01M7PKYWPXG1NH2TJ3G7BVRA3H`: draft cost $0.005105, native examples 1/0, genuine exact-revision Bot pass, exact approval, and successful compile. The public funding guide lacked command details, so the buyer stopped. Corrected and published the guide; this is an intervention and the attempt cannot count as a cold-start pass.
+- The same journal sent Arc job 8 `createJob`, `setBudget`, and token `approve` in three bounded resumes. Each transaction succeeded but the runner returned before receipt visibility or the three-block confirmation margin. The buyer stopped after each uncertain send. Independent read-only checks matched the journal hashes, inputs, nonces, canonical receipts, and 10,000-unit allowance. The bounty is not funded yet. No duplicate send occurred.
+- Commit `4316b0a` adds bounded read-only waits for both receipt visibility and three confirmations; a regression test failed before the receipt fix and passed after it. The full commerce check passed: 535 SDK, 1,030 API, 4 web, 1,043 worker tests, and 13 Arc fixtures. API image `sha256:888ae584…` and matching installed/public runner source `4316b0a` are live; external readiness and discovery returned 200. A quiesced state backup is pinned by manifest `abad54a7…`. Docs source `a55338d` serves matching guide hashes. One additional distinct draft and Bot review remain allowed for a fresh strict attempt.
+- The buyer is resuming the same journal with the corrected runner. Grok Bot automatic top-up remains unverified off; the first live draft settled at $0.005105 and the next maximum reserved draft plus prior actual charge fits a 2,546,065 micro-USD daily cap. Next: confirm funding, run a cold solver, audit the intervened run, then start a fresh uncoached two-agent attempt.
+
 ## 2026-11-18 01:01 -05:00 — Anish — Repair cold buyer guide gap
 
 - The first fresh buyer agent checked public readiness and installed file pins, then stopped before authentication. The public contract did not define `DRAFT_BODY`, and the CLI does not accept `ubc26 help draft`. It submitted no paid draft or chain transaction. This launch is recorded as a failed guide-readiness attempt in the [guide-gap report](reports/hosted-cold-buyer-guide-gap-2026-11-18.json).
