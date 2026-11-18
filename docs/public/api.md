@@ -55,6 +55,25 @@ Identifiers and hashes above are placeholders. A `needs_changes` result includes
 | `GET /v1/jobs/:id/package/file?path=PATH` | Downloads one exact package path. |
 | `GET /v1/jobs/:id/references` | Returns committed reference bytes and their digest. |
 
+`DRAFT_BODY` has these fields: `request` (plain-English string, 1–8,000 characters), `outputs` (1–16 unique `{name,format}` objects, where `format` is `json`, `text`, or `binary`), `expirySeconds` (integer, 300–86,400), and `maxBudget` (positive decimal string in USDC base units, at most `1000000000000`). A USDC base unit is one millionth of a USDC. Optional `references` is an array of `{name,contentBase64}` files. Optional `clarifications` is an array of up to three `{question,answer}` pairs from prior clarification rounds. Optional `exampleFixtures` is an array of up to eight `{name,predictedVerdict,files}` objects. Each example file has `{name,content}` and optional `encoding` (`utf8` or `base64`). Do not place the solver answer or wallet material in the request unless the task itself requires exact output bytes.
+
+For example, this draft body requests one exact text output and supplies buyer-owned positive and negative examples:
+
+```json
+{
+  "request": "Produce one UTF-8 file named note.txt containing exactly OK with no newline. Reject any other bytes.",
+  "outputs": [{ "name": "note.txt", "format": "text" }],
+  "expirySeconds": 21600,
+  "maxBudget": "10000",
+  "exampleFixtures": [
+    { "name": "expected", "predictedVerdict": 1, "files": [{ "name": "note.txt", "content": "OK" }] },
+    { "name": "wrong", "predictedVerdict": 0, "files": [{ "name": "note.txt", "content": "NO" }] }
+  ]
+}
+```
+
+The `ubc26 draft --input` file contains `DRAFT_BODY` directly. The client wraps it as `{operation:"draft",input:DRAFT_BODY}`. Run `ubc26 help` to list commands; this client does not support `ubc26 help draft`.
+
 Task view: `{id,operation,state,attempt,createdAt,updatedAt,result?,error?}`. States are `queued`, `running`, `succeeded`, `failed` and `uncertain`. A successful draft result can have `kind:"draft"`, `kind:"clarification"` or `kind:"unsupported"`. Only an approvable draft can advance toward funding.
 
 Acceptance, reservation and the initial response commit together. Equal semantic requests under distinct keys select the same existing task for one wallet. Different wallets retain separate tasks. A replay can return the original queued response. Poll its saved task identifier for current state. Unknown billing remains uncertain. Never replace an uncertain request with a new paid identity.
