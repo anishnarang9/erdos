@@ -110,6 +110,9 @@ export class ModelError extends Error {
   usage?: ModelUsage;
   model?: string;
   traceId?: string;
+  /** Safe metadata from a non-2xx provider reply. Never stores the provider message. */
+  httpStatus?: number;
+  providerCode?: string;
   constructor(code: string, message: string = code) {
     super(message);
     this.name = "ModelError";
@@ -360,6 +363,10 @@ export function readModelUsage(root: Record<string, unknown>): ModelUsage | null
 }
 
 const PROVIDER_ORIGIN = "https://api.x.ai";
+const PROVIDER_ERROR_CODES = new Set([
+  "insufficient_quota", "invalid_request_error", "authentication_error",
+  "permission_error", "rate_limit_exceeded", "model_not_found",
+]);
 
 function timeoutError(): Error {
   const err = new Error("timeout");
@@ -498,8 +505,25 @@ export function grokDraftModel(opts: GrokOptions): DraftModel {
         }
       }
       if (!res.ok) {
-        await res.body?.cancel().catch(() => undefined);
-        throw fail("http_error", `Draft model returned HTTP ${res.status}`);
+        const error = fail("http_error", `Draft model returned HTTP ${res.status}`);
+        error.httpStatus = res.status;
+        if (res.headers.get("content-type")?.toLowerCase().includes("application/json")) {
+          try {
+            const bytes = await readBoundedBody(res, 4_096, signal, fail);
+            const body = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)) as unknown;
+            if (isPlainObject(body)) {
+              const detail = isPlainObject(body.error) ? body.error : body;
+              if (typeof detail.code === "string" && PROVIDER_ERROR_CODES.has(detail.code)) {
+                error.providerCode = detail.code;
+              }
+            }
+          } catch {
+            // Keep the status if the private provider body is invalid or too large.
+          }
+        } else {
+          await res.body?.cancel().catch(() => undefined);
+        }
+        throw error;
       }
       const bytes = await readBoundedBody(res, rawCap, signal, fail);
       let json: unknown;

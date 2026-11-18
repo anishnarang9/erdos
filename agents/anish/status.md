@@ -3,8 +3,14 @@
 ## 2026-11-17 21:27 -05:00 — Anish — Integrate hosted backend with current main
 
 - Branch `codex/hosted-release` merges `origin/main` at `2e04451` into the hosted backend at `4ad733f`. Resolve eight source conflicts by retaining hosted ownership, readiness and safety controls alongside Arc/demo additions. Public mode rejects presenter-only configuration and does not register demo routes.
-- Commerce typechecks pass. SDK 534, web 4, API 1,017, worker 1,034 and Arc fixture 13 tests pass. The first merged API run exposed one demo test origin mismatch; the worker run exposed an invalid non-local test URL. Both test fixtures now use allowed local origins. `git diff --check` passes. This is a local candidate, not a deployed release or final agent acceptance.
+- Commerce typechecks pass. SDK 534, web 4, API 1,017, worker 1,034 and Arc fixture 13 tests pass. The first merged API run exposed one demo test origin mismatch; the worker run exposed an invalid non-local test URL. Both test fixtures now use allowed local origins. The scoped diff check passes; main brings two existing whitespace findings in Neil's plan and a vendored Three.js file. This is a local candidate, not a deployed release or final agent acceptance.
 - Next: integrate the authoring diagnostic and public agent-kit checkpoints, review the combined release, and require exact-head checks before any public deployment.
+
+## 2026-11-17 21:25 -05:00 — Anish — Retain safe xAI failure diagnostics
+
+- Branch `codex/authoring-diagnostics` is an isolated worktree based on hosted commit `4ad733f`. A new provider failure records the HTTP status and an allowlisted error code in its draft attempt metadata. It does not retain a raw provider message or key. The original failed task `01M7NQRG2BXWM30NJ2WTNAYTZE`, its idempotency identity and its 6¢ uncertain reservation were not changed.
+- Read-only xAI console checks matched the local pilot key suffix to the sole key in Anish's team. Usage for November 11–17 showed $0.00, zero tokens and zero requests. Chat Logs for November 10–17 showed no logs. This supports no reported API charge for the failed request. It does not reveal the original HTTP status or rejection reason. The protected VPS SSH connection timed out, so no current database or container check ran.
+- The focused regression failed before the change and passed afterward. All 1,005 API tests and the API typecheck pass. No paid generation, Bot dispatch, purchase, chain action or production deployment ran. Next: obtain the original provider rejection from a supported provider record if available, then reconcile the retained reservation under the pilot stop rule. The new diagnostic code needs review and integration before any later approved request.
 
 ## 2026-11-17 21:05 -05:00 — Anish — Change morning acceptance to cold agents
 

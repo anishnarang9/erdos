@@ -156,6 +156,27 @@ describe("grokDraftModel failures throw ModelError, never leaking the API key", 
     );
     await expectThrowsWithoutKey(model(ff.fetch).draft(INPUT));
   });
+  it("retains only the HTTP status and a known provider code", async () => {
+    const ff = fakeFetch(() => new Response(JSON.stringify({ error: {
+      code: "insufficient_quota", message: `Private response ${API_KEY}`,
+    } }), { status: 402, headers: { "content-type": "application/json" } }));
+    const err = await expectThrowsWithoutKey(model(ff.fetch).draft(INPUT)) as Error & {
+      httpStatus?: number; providerCode?: string;
+    };
+    expect(err.httpStatus).toBe(402);
+    expect(err.providerCode).toBe("insufficient_quota");
+    expect(JSON.stringify(err)).not.toContain("Private response");
+  });
+  it("rejects an unrecognized provider code even when it is short", async () => {
+    const ff = fakeFetch(() => new Response(JSON.stringify({ error: {
+      code: "private_account_name", message: API_KEY,
+    } }), { status: 400, headers: { "content-type": "application/json" } }));
+    const err = await expectThrowsWithoutKey(model(ff.fetch).draft(INPUT)) as Error & {
+      httpStatus?: number; providerCode?: string;
+    };
+    expect(err.httpStatus).toBe(400);
+    expect(err.providerCode).toBeUndefined();
+  });
   it("fetch rejection (network error mentioning the key) throws without the key", async () => {
     const ff = fakeFetch(() => {
       throw new Error(`connect failed; auth=Bearer ${API_KEY}`);
@@ -211,6 +232,20 @@ describe("grokDraftModel through POST /v1/drafts", () => {
     const text = await res.clone().text();
     expect(text).not.toContain(API_KEY);
     await expectError(res, 502, "model_failed");
+  });
+  it("returns sanitized provider metadata with a failed draft", async () => {
+    const ff = fakeFetch(() => new Response(JSON.stringify({ error: {
+      code: "insufficient_quota", message: `Private response ${API_KEY}`,
+    } }), { status: 402, headers: { "content-type": "application/json" } }));
+    s = makeApp56({ draftModel: model(ff.fetch) });
+    const res = await req(s, "POST", "/v1/drafts", DRAFT_BODY);
+    const body = await json(res);
+    expect(res.status).toBe(502);
+    expect(body.error.details.attempts[0]).toMatchObject({
+      reason: "http_error", httpStatus: 402, providerCode: "insufficient_quota",
+    });
+    expect(JSON.stringify(body)).not.toContain(API_KEY);
+    expect(JSON.stringify(body)).not.toContain("Private response");
   });
   it("success -> draft response with traceId from the response id", async () => {
     const ff = fakeFetch(() => okResponse(GOOD_DRAFT, "trace-through-route"));
