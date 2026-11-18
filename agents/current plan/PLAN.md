@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 13:54 -05:00 — Anish — Measure independent pier repeat reliability
+
+- Source `193564b` passed exact-source CI and produced one draft-stage `pier-variance` success after earlier failures. The [same-source repeat](../../docs/authoring-sixth-pier-independent-repeat-2026-11-18.md) freezes two new trials on separate wallets. Anish will preserve both outcomes and use them to assess repeat reliability before another source change. Keep the accepted public release and general authoring gate unchanged.
+
 ## 2026-11-18 13:52 -05:00 — Anish — Keep repeat reliability gate after first pier success
 
 - The [sixth trial](../anish/reports/authoring-sixth-shape-scope-repeat-2026-11-18.md) produced three draft-stage passes in five fresh tasks, including the first `pier-variance` oracle match. `lot-expiry` remained plan-invalid and `clearance` rejected two valid outputs. The five tasks settled $0.060134; fourth-campaign cumulative unique API cost is $0.534986. Anish will inspect retained failures and test independent repeat reliability. Keep the accepted public API and general authoring gate unchanged.
