@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 13:40 -05:00 — Anish — Keep authoring gated after fifth source trial
+
+- The [five-case trial](../anish/reports/authoring-fifth-membership-repeat-2026-11-18.md) kept both procurement controls passing but returned invalid plans for the three unknown-key target families. It cannot establish that the prompt corrected their semantic oracle failures. The five tasks settled $0.058767 in API usage; fourth-campaign cumulative unique API charge is $0.474852. Exact-head CI passed. Anish will improve plan-shape reliability offline or review a bounded provider contract before new paid testing. The accepted public API remains unchanged and general authoring stays gated.
+
 ## 2026-11-18 13:34 -05:00 — Anish — Isolate changed-source membership trial
 
 - A new local Linux image contains prompt candidate `5c14ec2` and the published engine pin. A fresh database serves health on loopback while the accepted public API remains unchanged. The [five-case frozen trial](../../docs/authoring-fifth-membership-repeat-2026-11-18.md) includes two passing controls and three unknown-key failures. Anish will run it after exact-head CI and private wallet preparation. No paid call used this source yet. General public authoring stays gated.

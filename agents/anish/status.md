@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 13:40 -05:00 — Preserve changed-source trial failure
+
+- The five `-r6` tasks ran once on the exact source `5c14ec2` after local checks. Both procurement controls passed draft and hidden-oracle gates without repair. `pier-variance`, `lot-expiry`, and `clearance` failed native plan validation after one repair each, so the trial did not test their prior fail-versus-reject errors. The [trial report](reports/authoring-fifth-membership-repeat-2026-11-18.md) preserves task causes and scope. Five reservations settled $0.058767; fourth-campaign cumulative unique API cost is $0.474852.
+- Exact-head PR #19 commerce, engine, and contracts checks passed. No Bot, approval, compile, proof, Arc send, or public deployment ran. The stronger-model path lacks a reviewed request-wide cost bound. Next: improve plan-shape reliability offline, then freeze a changed-source cohort. General public authoring stays gated.
+
 ## 2026-11-18 13:34 -05:00 — Stage exact-source membership trial
 
 - Built Linux image `sha256:402628e99b32dfea47fc6c4c0b95cf999c5658b00549e927333227cd0d0e91ad` from source `5c14ec2` with the embedded source and engine pins matching. A fresh isolated local database serves `/healthz` 200 on loopback port 8789; local `/readyz` is 503 without chain readiness. The accepted public API is untouched. No new paid call has run.
