@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 13:52 -05:00 — Anish — Keep repeat reliability gate after first pier success
+
+- The [sixth trial](../anish/reports/authoring-sixth-shape-scope-repeat-2026-11-18.md) produced three draft-stage passes in five fresh tasks, including the first `pier-variance` oracle match. `lot-expiry` remained plan-invalid and `clearance` rejected two valid outputs. The five tasks settled $0.060134; fourth-campaign cumulative unique API cost is $0.534986. Anish will inspect retained failures and test independent repeat reliability. Keep the accepted public API and general authoring gate unchanged.
+
 ## 2026-11-18 13:47 -05:00 — Anish — Freeze contract-shape and lookup-scope trial
 
 - A fresh local image contains source `193564b` and the pinned engine. Its database has no draft or spend entries. The [five-case frozen trial](../../docs/authoring-sixth-shape-scope-repeat-2026-11-18.md) includes two passing controls and three previously invalid families. Anish will verify exact-head CI, prepare a new wallet, and run each trial once under the existing $10 testing cap. Keep the accepted public API and general authoring gate unchanged.

@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 13:52 -05:00 — Preserve sixth trial and keep reliability gate
+
+- The [sixth trial](reports/authoring-sixth-shape-scope-repeat-2026-11-18.md) ran five fresh tasks on source `193564b`. Lab and clinic controls passed again. A repaired `pier-variance` plan passed native, coverage, quotes, and every hidden oracle case for the first time. `lot-expiry` remained plan-invalid; `clearance` rejected two valid outputs. Five reservations settled $0.060134; fourth-campaign unique API cost is $0.534986. No Bot, approval, compile, proof, Arc send, or public deploy ran.
+- Exact-head commerce and contracts CI passed; engine CI was pending at this checkpoint. Next: inspect retained lot and clearance drafts, then freeze independent repeats or a targeted source fix. One successful pier task does not establish repeat reliability. Keep general authoring gated.
+
 ## 2026-11-18 13:47 -05:00 — Freeze sixth source trial
 
 - Built image `sha256:bbc78d8d41a348df0602ca2244d92b2d310a0ae96264d6fbc3f6aab106debc8b` from source `193564b` with matching embedded source and engine pins. A fresh isolated database serves `/healthz` 200 on loopback port 8790 and has zero tasks or spend reservations. Exact-head CI is pending. No paid task used this image.
