@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "checkedAtUtc": "2026-11-18T12:39:26Z",
+  "scope": "Read-only xAI Console and Grok Dashboard inspection. No model request, purchase, account change, Bot dispatch, or chain transaction.",
+  "originalPilotTaskId": "01M7NQRG2BXWM30NJ2WTNAYTZE",
+  "originalPilotStoppedByUtc": "2026-11-17T21:54:05.859484Z",
+  "providerUsageExport": {
+    "privateFile": "hosted-operator/api-usage-2026-11-12-2026-11-18.csv",
+    "sha256": "8b0f473d863ee387944a79c299e921a7f774c7d44f39fa641d1196f446093958",
+    "granularity": "hour",
+    "rows": 168,
+    "reportedRequestsInRange": 24,
+    "reportedUsdInRange": 0.039636,
+    "firstNonzeroBucket": "2026-11-17 23:00:00",
+    "firstNonzeroBucketUsd": 0.028222,
+    "earlierBuckets": "Every bucket before 2026-11-17 23:00:00 reports zero requests, tokens, and USD. The export does not print a timezone or request identifiers.",
+    "operatorKeyMatchesOnlyConsoleKey": true
+  },
+  "providerChatLog": {
+    "completedEntriesVisible": 8,
+    "earliestVisible": "2026-11-17 23:22:36 in the console's displayed timezone",
+    "originalFailedRequestVisible": false
+  },
+  "conclusion": "The provider's aggregate export reports no usage in the earlier pilot window. It does not give the failed request's HTTP status or an exact per-request billing record. Preserve the original uncertain reservation and do not state an exact zero charge.",
+  "botBilling": "The separate Grok Dashboard shows account-level usage, but not an attributable cost for the pilot review. Auto top-up state and production account isolation remain unverified.",
+  "next": "Obtain a provider per-request billing or support record before settling the preserved reservation. General authoring also needs a dedicated Bot account, a new scoped spend decision, and qualification of the 5-10 cent average target."
+}
