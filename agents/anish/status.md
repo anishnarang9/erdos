@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 00:24 -05:00 — Anish — Correct and publish current agent guide
+
+- Branch `codex/hosted-release`. The published developer guide under the API source pin named an older runner. Corrected its source and hashes in commit `3d46350`, then published a new immutable docs version under that commit. External HTTPS checks matched `README.md`, both role guides, `release.json`, and `SHA256SUMS`. The prior docs version remains for audit. See the [guide correction](reports/hosted-guide-correction-2026-11-18.json) and [current agent-kit evidence](../../docs/agent-kit-readiness-2026-11-18.md).
+- The VPS swap file now has an `/etc/fstab` entry and remains active. No reboot tested persistence. Public `/healthz` returned 200; `/readyz` and discovery returned 503. No cold agent, chain transaction, or cash purchase ran. Next: qualify public authoring and the Bot account before the final test.
+
 ## 2026-11-18 00:20 -05:00 — Anish — Complete solver-host proof preflight
 
 - Branch `codex/hosted-release`. The existing proof unit exited 0. The native engine returned verdict 1 in 573,464 ms. Its cgroup used 32 minutes 18.822 seconds of CPU, with 4.5 GiB peak memory and 28.4 MiB peak swap. Decryption recovered `receipt.txt` as the exact four bytes `Done` (SHA-256 `11a6767d…`). The engine is now executable with mode 0555. Root disk has 120 GiB free. See the [preflight report](reports/hosted-solver-preflight-2026-11-18.json).

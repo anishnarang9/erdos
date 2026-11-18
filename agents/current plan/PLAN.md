@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 00:24 -05:00 — Anish — Use corrected public guide
+
+- The earlier published developer guide named an old runner pin. A corrected guide now lives under docs source `3d46350`; its runtime instructions name API, runner, and engine source `33a9883`. Both role guides and the new manifest serve over HTTPS with matching hashes. Use the [guide correction](../anish/reports/hosted-guide-correction-2026-11-18.json) for the final agents. Preserve the old docs URL as historical evidence.
+- The VPS swap file now has an `/etc/fstab` entry. Public readiness and discovery still return 503. Qualify the model and Bot spending account before any final agent starts.
+
 ## 2026-11-18 00:20 -05:00 — Anish — Solver-host proof and recovery passed
 
 - The existing synthetic proof unit exited 0. The engine returned verdict 1 after 573,464 ms and decrypted the exact four-byte `Done` file. Peak memory was 4.5 GiB, peak swap was 28.4 MiB, and 120 GiB remains on the root disk. See the [preflight record](../anish/reports/hosted-solver-preflight-2026-11-18.json). This validates native proving capacity on the VPS, but not a funded Arc job or the installed runner's full lifecycle.
