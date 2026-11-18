@@ -151,6 +151,31 @@ describe("Poster funding", () => {
     try { expect((await h.run()).remainingAllowance).toBe(0n); } finally { await h.close(); }
     expect(f.rawSend).toHaveBeenCalledTimes(5);
   });
+  it("waits for three confirmed blocks after each open-claim send", async () => {
+    const f = await fixture(true, 10000n);
+    const originalReceipt = f.pub.getTransactionReceipt.getMockImplementation()!;
+    const originalBlock = f.pub.getBlock.getMockImplementation()!;
+    let receiptSeen = false, latestAfterReceipt = 0;
+    f.pub.getTransactionReceipt.mockImplementation(async args => {
+      receiptSeen = true;
+      return originalReceipt(args);
+    });
+    f.pub.getBlock.mockImplementation(async args => {
+      const block = await originalBlock(args);
+      if (args.blockNumber !== undefined) return { ...block, number: args.blockNumber };
+      if (receiptSeen && args.blockTag === "latest") {
+        latestAfterReceipt++;
+        return { ...block, number: latestAfterReceipt === 1 ? 10n : 13n };
+      }
+      return block;
+    });
+    const { hook: adapter, provider: _provider, ...terms } = f.cfg.terms;
+    const h = await createOpenClaimBuyerFunding({ ...f.cfg, terms: { ...terms, adapter }, confirmations: 3n,
+      verifyDeployment: async () => {} });
+    try { expect((await h.run()).jobId).toBe(42n); } finally { await h.close(); }
+    expect(latestAfterReceipt).toBeGreaterThanOrEqual(2);
+    expect(f.rawSend).toHaveBeenCalledTimes(5);
+  });
   it("refuses an open-claim buyer signer without a deployment-pin check", async () => {
     const f = await fixture(true);
     const { hook: adapter, provider: _provider, ...terms } = f.cfg.terms;

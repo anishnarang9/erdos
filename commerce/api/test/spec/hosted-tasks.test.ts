@@ -137,6 +137,23 @@ describe("durable tasks", () => {
     }
   });
 
+  it("admits two distinct drafts when the reviewed pilot allows two reviews", async () => {
+    const { created } = clocked({
+      deployment: { mode: "public", serviceOrigin: ORIGIN },
+      draftModel: countingModel(),
+      budget: { reservationMode: "provider-bound", requestCeilingMicroUsd: 2_540_960,
+        dailyCeilingMicroUsd: 7_622_880, inputMicroUsdPerMillion: 2_500_000,
+        outputMicroUsdPerMillion: 5_000_000 },
+      botReview: { serviceToken: "callback-only-test-credential-0123456789",
+        pilotOwner: accountA.address.toLowerCase(), maxDispatches: 2, dispatch: async () => {} },
+    });
+    const key = await issue(created.app, accountA);
+    expect((await post(created.app, "/v1/tasks", draftTask("First"), auth(key))).status).toBe(202);
+    expect((await post(created.app, "/v1/tasks", draftTask("Second"), auth(key))).status).toBe(202);
+    await expectError(await post(created.app, "/v1/tasks", draftTask("Third"), auth(key)), 503, "service_disabled");
+    expect((await post(created.app, "/v1/tasks", draftTask("First"), auth(key))).status).toBe(202);
+  });
+
   it("returns 202 before the real draft handler runs", async () => {
     const model = countingModel();
     const { created } = clocked({ draftModel: model });

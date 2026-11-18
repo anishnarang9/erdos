@@ -376,8 +376,17 @@ async function createFunding(input: PosterFundingConfig, confirmations?: bigint,
         r.effectiveGasPrice >= ARC_MIN_FEE && r.effectiveGasPrice <= cfg.maxFeePerGas);
       await stable(r.blockNumber, r.blockHash);
       if (openClaim) {
-        const head = await pub.block({ blockTag: "latest" });
-        check(head.number !== null && head.number >= r.blockNumber + confirmations!);
+        // A receipt can arrive before its finality margin. Poll chain reads only.
+        // Never rebroadcast the saved transaction while confirmation is pending.
+        const deadline = Date.now() + 180_000;
+        for (;;) {
+          integrity();
+          const head = await pub.block({ blockTag: "latest" });
+          check(head.number !== null);
+          if (head.number >= r.blockNumber + confirmations!) break;
+          check(Date.now() < deadline);
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
       }
       function event(address: Address, abi: Abi, name: string): Record<string, unknown> {
         const matches: Record<string, unknown>[] = [];

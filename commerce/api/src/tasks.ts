@@ -380,8 +380,8 @@ export function registerTaskRoutes(
       const existing = findDup.get(wallet, operation, inputHash, ...DEDUP_STATES) as TaskRow | undefined;
       if (existing) return { status: 202, body: taskView(existing) };
       if (operation === "draft" && deps.deployment.mode === "public" && deps.botReview?.pilotOwner
-        && sqlCount(pilotDraftCount.get(wallet)) > 0) {
-        throw new ApiError("service_disabled", "Authoring pilot draft is spent");
+        && sqlCount(pilotDraftCount.get(wallet)) >= (deps.botReview.maxDispatches ?? 1)) {
+        throw new ApiError("service_disabled", "Authoring pilot draft limit reached");
       }
       const pending = sqlCount(pendingGlobal.get());
       const mine = sqlCount(pendingWallet.get(wallet));
