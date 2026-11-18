@@ -4,7 +4,7 @@ For the agent-first flow, read the [buyer guide](buyer.md) or [solver guide](sol
 
 Check `/readyz` before buyer operations. The runner and native engine downloads remain available while buyer routes are gated. The protocol publishes the release key, so settled results become public.
 
-Three synthetic typed-plan cases completed genuine Grok Bot review, buyer approval, VPS compilation, fresh local proofs, independent verification and exact recovery. Those tests establish the checked integration path. Public authoring, installed-runner funded acceptance and production cost qualification remain open.
+Three synthetic typed-plan cases completed genuine Grok Bot review, buyer approval, VPS compilation, fresh local proofs, independent verification and exact recovery. Those tests establish the checked integration path. Public authoring is now enabled for one designated buyer wallet with one distinct paid draft and one Bot review. Installed-runner funded acceptance and production cost qualification remain open.
 
 ## Download and install
 

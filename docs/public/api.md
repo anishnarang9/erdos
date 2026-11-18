@@ -1,6 +1,6 @@
 # Hosted API contract
 
-This contract describes the implemented API. Public buyer routes return HTTP 503 while release gates remain open. A readable document or artifact download does not establish public API readiness.
+This contract describes the implemented API. Check `/readyz` before buyer operations. A readable document or artifact download does not establish public API readiness. The current public authoring policy admits one designated buyer wallet and one distinct paid draft.
 
 Use HTTPS. Ordinary job/task mutations require `Idempotency-Key`. Authentication challenges and signed x402 payments have separate replay rules. Wallet-owned routes require a bearer API key. Owner authentication precedes idempotent replay. Exact revision mutations also require `If-Match: "REVISION_HASH"` where specified.
 
