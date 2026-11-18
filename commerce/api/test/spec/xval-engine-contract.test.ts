@@ -5,6 +5,7 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { draftProviderPayload } from "../../src/grok.ts";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
   cliEngine,
@@ -22,6 +23,19 @@ const SCRIPT = fileURLToPath(new URL("../fixtures/engine/fake-engine.mjs", impor
 const TOKEN = "xval-buyer-token-0123456789abcdef";
 const OUT_JSON = [{ name: "out.json", format: "json" }];
 const PLAN = { version: 1, deliverables: [{ name: "out.json", parser: "json/v1" }], references: [], rules: [{ op: "literal", type: "bool", value: true }] };
+
+it("only exposes fixture selection in the provider schema for supplied buyer fixtures", () => {
+  const input = { request: "Check the output", outputs: [], referenceNames: [], clarifications: [], schema: PLAN };
+  const items = (fixtureNames: string[]) => {
+    const exampleFixtures = fixtureNames.map(name => ({ name, predictedVerdict: 1 as const, files: [] }));
+    const payload = JSON.parse(draftProviderPayload({ ...input, exampleFixtures }, "test-model", 1024));
+    return payload.response_format.json_schema.schema.anyOf[0].properties.examples.items;
+  };
+  expect(items([]).required).toContain("files");
+  expect(JSON.stringify(items([]))).not.toContain("fixtureName");
+  expect(items(["buyer-pass", "buyer-fail"]).anyOf[0].properties.fixtureName.enum).toEqual(["buyer-pass", "buyer-fail"]);
+  expect(items(["buyer-pass"]).anyOf[1].required).toContain("files");
+});
 
 let work: string;
 let packagesDir: string;

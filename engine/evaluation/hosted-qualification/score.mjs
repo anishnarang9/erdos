@@ -30,6 +30,19 @@ function blank(base) {
   };
 }
 
+/** Score the hosted draft before Bot review, approval or compilation. */
+export function scoreHostedDraftGates({challenge, response, engineValid, candidateResults}) {
+  const score = scoreTrial({challenge, response, candidateResults});
+  const quotes = response?.quoteVerification;
+  const checksMatch = challenge.classification === 'supported' && response?.kind === 'draft'
+    && engineValid === true && score.semanticAgreement && score.quoteFidelity
+    && response.coverage?.ruleCoverageComplete === true
+    && Array.isArray(quotes) && quotes.length > 0 && quotes.every(item => item.found === true);
+  const readyForBuyerReview = checksMatch && response.exampleApprovalReady === true
+    && (!(challenge.exampleFixtures?.length > 0) || response.buyerFixtureApprovalReady === true);
+  return {checksMatch, readyForBuyerReview};
+}
+
 export function scoreTrial({challenge, response, candidateResults = [], repairCount = null, cost = null, latencyMs = null, live = false}) {
   const text = referenceText(challenge);
   const quotes = response?.sourceQuotes ?? [];

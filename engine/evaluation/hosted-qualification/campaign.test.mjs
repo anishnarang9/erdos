@@ -236,7 +236,11 @@ test('a passing partial score cannot claim the full frozen qualification', () =>
   const view = task(); view.result.qualification.model = 'grok-4.20-0309-non-reasoning';
   view.result.qualification.promptVersion = 'a'.repeat(64); view.result.qualification.catalogVersion = 'b'.repeat(64);
   for (const attempt of view.result.attempts) attempt.model = 'grok-4.20-0309-non-reasoning';
-  view.result = {...view.result, kind: 'draft', plan: {version: 1}, sourceQuotes: [{quote: 'Which fee table?'}]};
+  view.result = {
+    ...view.result, kind: 'draft', revision: {plan: {version: 1}},
+    sourceQuotes: [{quote: 'Which fee table?'}], quoteVerification: [{found: true}],
+    coverage: {ruleCoverageComplete: true}, exampleApprovalReady: true,
+  };
   const result = await run(ledgerPath, async url => isAuth(url) ? Response.json(identity()) : Response.json(view), {
     challenges: [supported], config: config({live: true, model: 'grok-4.20-0309-non-reasoning', attemptPriceMicroUsd: 2_540_960, capMicroUsd: 10_000_000, assessImpl: async () => ({engineValid: true, candidateResults: [{id: 'pass', engine: 'pass', oracle: 'pass'}]})}),
   });

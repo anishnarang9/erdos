@@ -1,5 +1,7 @@
 # Ninth varied authoring trial, 2026-11-18
 
+**Example gate audit:** Six drafts matched the original draft checks and oracle. Three also had usable examples and were ready for buyer review. The [audit](authoring-example-gate-audit-2026-11-18.md) records the corrected stage counts.
+
 Ten frozen supported briefs ran once each against isolated source `086fbae20d5ef5b873081eb00f653324971d5785` after exact-source commerce, engine, and contracts CI passed. The Linux image was `sha256:bda57c43b9a19a2ac2e291ef5d9f5c39f2dd4a1e0b4a7adc440d6c21d91aa352`, with engine SHA-256 `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`. The output-contract corpus digest was `5a3553958b0e674fe1c0e514d39e64138549d885084ae640c25b4a281e8c35f0`. New wallet `0x9e378B5Bd5eB6E4691d8301Bbe69BF35E461a37D` authenticated to a fresh database. Hidden candidates stayed outside model input.
 
 | Case | Task ID | Draft-stage result | Model latency | API cost |

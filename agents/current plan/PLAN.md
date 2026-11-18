@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 14:43 -05:00 — Anish — Measure review readiness with usable examples
+
+- The [example gate audit](../anish/reports/authoring-example-gate-audit-2026-11-18.md) found three of ten ninth-trial drafts ready for buyer review. The provider schema now requires generated files when the buyer provides no fixtures. The qualification runner now includes usable examples and expected clarification facets in its gates. Anish will qualify the changed source across supported, ambiguous, and unsupported cases before advancing to Bot review and proof.
+
 ## 2026-11-18 14:36 -05:00 — Anish — Keep public authoring gated after varied trial
 
 - The [ninth varied trial](../anish/reports/authoring-ninth-varied-repeat-2026-11-18.md) passed six of ten draft gates. Two plans stayed invalid after repair, one native-valid plan disagreed with the oracle, and one supported brief got an unnecessary clarification. The cohort cost $0.113881; fourth-campaign attributable API usage is $0.777842. Anish will inspect retained traces and fix source-grounded causes offline before another frozen cohort. General public authoring and the accepted public release stay unchanged.

@@ -180,7 +180,7 @@ export function fromWireReply(raw: unknown): unknown {
  * provider's non-circular $ref subset. Native engine validation still checks the complete plan.
  * `_planSchema` is kept for API compatibility.
  */
-export function draftResponseSchema(_planSchema?: unknown, quotePaths?: readonly string[]): Record<string, unknown> {
+export function draftResponseSchema(_planSchema?: unknown, quotePaths?: readonly string[], fixtureNames: readonly string[] = []): Record<string, unknown> {
   const str = { type: "string" };
   const quotePath = quotePaths ? { type: "string", enum: [...new Set(quotePaths)] } : str;
   const obj = (properties: Record<string, unknown>) => ({
@@ -189,6 +189,16 @@ export function draftResponseSchema(_planSchema?: unknown, quotePaths?: readonly
     required: Object.keys(properties),
     additionalProperties: false,
   });
+  const predictedVerdict = { type: "integer", enum: [0, 1] };
+  const generatedExample = obj({ name: str, predictedVerdict,
+    files: { type: "array", items: obj({ name: str, content: str, encoding: { type: "string", enum: ["utf8", "base64"] } }) },
+    evidence: { type: "array", items: obj({ name: str, content: str, encoding: { type: "string", enum: ["utf8", "base64"] } }) },
+    context: { anyOf: [str, { type: "null" }] },
+  });
+  const example = fixtureNames.length === 0 ? generatedExample : { anyOf: [
+    obj({ name: str, predictedVerdict, fixtureName: { type: "string", enum: [...new Set(fixtureNames)] } }),
+    generatedExample,
+  ] };
   return {
     anyOf: [
       obj({
@@ -196,14 +206,7 @@ export function draftResponseSchema(_planSchema?: unknown, quotePaths?: readonly
         plan: { type: "object", additionalProperties: true },
         examples: {
           type: "array",
-          items: { anyOf: [
-            obj({ name: str, predictedVerdict: { type: "integer", enum: [0, 1] }, fixtureName: str }),
-            obj({ name: str, predictedVerdict: { type: "integer", enum: [0, 1] },
-              files: { type: "array", items: obj({ name: str, content: str, encoding: { type: "string", enum: ["utf8", "base64"] } }) },
-              evidence: { type: "array", items: obj({ name: str, content: str, encoding: { type: "string", enum: ["utf8", "base64"] } }) },
-              context: { anyOf: [str, { type: "null" }] },
-            }),
-          ] },
+          items: example,
         },
         sourceQuotes: { type: "array", maxItems: 64, items: obj({ path: quotePath, quote: str }) },
         coverage: obj({
@@ -261,7 +264,9 @@ export const DRAFT_SYSTEM_PROMPT = [
   "engine turns that into a capability request. Use kind unsupported only for tasks that no deterministic",
   "check of the delivered files could ever decide.",
   "Binary references provide full base64 bytes, size and SHA-256 identity. These fields do not establish parsed or external semantics.",
-  "Select a public exampleFixture with {name,predictedVerdict,fixtureName}, or provide complete files, optional evidence and preview context.",
+  "Use fixtureName only to select a named buyer exampleFixture supplied in this request.",
+  "If no buyer exampleFixture is supplied, generate the complete files for each example.",
+  'In generated JSON file content, encode each i64 field as a quoted decimal string, such as "9400".',
   "Generated files use explicit utf8 or base64 encoding. Include evidence:[] and context:null when unused in the wire response.",
   "Never invent a trusted signature. Signed fixtures bind exact rules/reference/context hashes and may require new buyer-supplied witnesses.",
   "Each example is a complete set of deliverable files (every output, by name) and the",
@@ -314,7 +319,7 @@ export function draftProviderPayload(input: DraftModelInput, model: string, maxT
     ],
     response_format: {
       type: "json_schema",
-      json_schema: { name: "ubc26_draft", strict: true, schema: draftResponseSchema(input.schema, ["/request", "request", ...input.referenceNames]) },
+      json_schema: { name: "ubc26_draft", strict: true, schema: draftResponseSchema(input.schema, ["/request", "request", ...input.referenceNames], input.exampleFixtures?.map(fixture => fixture.name)) },
     },
   });
 }

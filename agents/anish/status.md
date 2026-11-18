@@ -1,3 +1,9 @@
+# 2026-11-18 14:43 -05:00 — Audit and enforce the buyer example gate
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Rescored 27 saved tasks with the API example gate. Nine were ready for buyer review. The latest varied cohort had six draft and oracle matches, of which three had usable examples. The [audit](reports/authoring-example-gate-audit-2026-11-18.md) preserves the original outcomes and explains the scorer gap.
+- The provider schema allows only supplied fixture names. Without buyer fixtures, it requires generated files. Repair feedback now identifies aggregate type and record scope errors. The qualification runner reads the plan from the hosted revision and requires the existing 95% threshold to include example readiness. It also checks every expected clarification facet.
+- Full commerce check passed with 1,069 API tests. All 73 hosted qualification tests passed. Campaign API usage remains $0.777842. Next: build and qualify a fresh isolated candidate, then test exact-revision Bot review through proof before release.
+
 # 2026-11-18 14:36 -05:00 — Varied trial passed six of ten draft gates
 
 - Branch `codex/authoring-pilot-round2`, draft PR #19. The [ninth report](reports/authoring-ninth-varied-repeat-2026-11-18.md) records ten fresh supported briefs on source `086fbae`: six draft-stage passes, two plan-invalid results, one hidden oracle disagreement, and one unnecessary clarification. All 60 campaign tasks and 100 provider traces are unique. Preserve every failed result.
