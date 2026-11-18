@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 12:23 -05:00 — Changed-source repair diagnostic failed
+
+- The four frozen repeat tasks ran against isolated source `c5f8eab` after its commerce, engine, and contracts CI passed. Each used two provider calls and settled. None passed the complete draft and oracle gate. `pier-drawers` and `nights-1` ended `plan_invalid`; `badge-zone-1` had one hidden fail/reject disagreement; `lab-supplies-receipt-1` rejected both buyer fixtures and valid hidden answers because its output schema invented `capacity`. The [repeat report](reports/authoring-fourth-changed-source-repeat-2026-11-18.md) preserves task IDs, causes, and costs.
+- Repeat API cost was $0.043217. Cumulative fourth-campaign API cost is $0.109803. No Bot review, compile, proof, Arc send, or public deploy ran. Public readiness remained 200. Next: fix only source-grounded output shape errors and inspect saved replies offline before freezing another paid cohort. The account meter remains unavailable for Bot attribution; general authoring stays gated.
+
 ## 2026-11-18 12:18 -05:00 — Freeze changed-source repair diagnostic
 
 - Built source `c5f8eab` as Linux amd64 image `sha256:bfe66ec157a1062b54c2554806f93c16ccbef0d54c53d33cf451b376d850e7bb`. Local full commerce checks passed: API 1,046, worker 1,051, SDK 535 plus 13 Arc fixtures, web 4, and typechecks. PR #19 exact-head CI is pending.

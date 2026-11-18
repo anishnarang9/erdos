@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 12:23 -05:00 — Anish — Keep backend candidate gated after failed repair repeat
+
+- The four-case changed-source repeat used source `c5f8eab` after exact-source CI passed. All four tasks settled with one repair call each. None passed the frozen draft and oracle gate. Two plans remained invalid; one disagreed with the hidden oracle on fail versus reject; one invented an output field and rejected valid answers. The [repeat report](../anish/reports/authoring-fourth-changed-source-repeat-2026-11-18.md) records the outcomes and $0.043217 API spend. Cumulative fourth-campaign API spend is $0.109803. No Bot, compile, proof, Arc send, or public deployment ran.
+- Anish will use saved replies for an offline, source-grounded shape fix and then freeze a changed-source cohort. Keep the accepted public API and general authoring gate. A Bot review still requires a fresh account meter read; the production Bot account boundary remains open.
+
 ## 2026-11-18 12:15 -05:00 — Anish — Preserve fourth authoring batch and fix observed plan shapes
 
 - The user approved up to $10 of continued Grok testing without a numeric trial limit. The first frozen batch ran ten API-only tasks in a local isolated candidate. One supported draft passed native and hidden-oracle checks; six supported drafts were `plan_invalid`; one disagreed with the oracle; neither the ambiguous nor unsupported case met its frozen exact outcome. Full supported-job successes were zero. Settled API charges total $0.066586. No Bot review, compile, proof, Arc send, or public deployment ran. The [first-batch report](../anish/reports/authoring-fourth-first-batch-2026-11-18.md) preserves these failures.
