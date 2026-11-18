@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 13:58 -05:00 — Anish — Repair pier type error and keep release gated
+
+- The [independent pier repeat](../anish/reports/authoring-sixth-pier-independent-repeat-2026-11-18.md) passed once and failed once on source `193564b`. The failed repair put a numeric lookup directly under Boolean `and`. Three independent pier tasks on this source now have two draft-stage passes and one failure. Fourth-campaign API cost is $0.561945. Anish will improve native repair feedback, verify it offline, then freeze a changed-source trial. General public authoring and the accepted public release stay unchanged.
+
 ## 2026-11-18 13:54 -05:00 — Anish — Measure independent pier repeat reliability
 
 - Source `193564b` passed exact-source CI and produced one draft-stage `pier-variance` success after earlier failures. The [same-source repeat](../../docs/authoring-sixth-pier-independent-repeat-2026-11-18.md) freezes two new trials on separate wallets. Anish will preserve both outcomes and use them to assess repeat reliability before another source change. Keep the accepted public release and general authoring gate unchanged.
