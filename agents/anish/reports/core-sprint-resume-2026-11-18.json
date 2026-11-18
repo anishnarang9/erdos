@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-11-18T00:28:00-05:00",
+  "status": "partial",
+  "scope": "Resume audit of the original core-engine settlement sprint, not a new funded run.",
+  "testedSourceCommit": "2e04451003c5ac1b7e43a49ef31daf76eb42ccc4",
+  "integration": {
+    "remoteMain": "2e04451003c5ac1b7e43a49ef31daf76eb42ccc4",
+    "savedIntegrationIsAncestor": true,
+    "savedIntegration": "ae1295a6364f31a4f98baa69536d03dad4276f20",
+    "engineSprintHeadIsAncestor": true,
+    "engineSprintHead": "adda3a3c52fd8cebe594aba42d3e43f47a7baf0e",
+    "nickSettlementHeadIsAncestor": true,
+    "nickSettlementHead": "57c387f96a7ca8ecc48dc7aa932b1820d578f653",
+    "neilSprintHeadIsAncestor": true,
+    "neilSprintHead": "8584b045f18996667419b8c6d7f965717b099f5e",
+    "neilPr": "https://github.com/anishnarang9/UBC-26/pull/5",
+    "neilPrState": "MERGED",
+    "neilMerge": "2be6998802b42b3d7d14c695ab5c701d3eca7dee",
+    "openClaimPr": "https://github.com/anishnarang9/UBC-26/pull/7",
+    "openClaimPrState": "MERGED",
+    "originalIntegrationPrState": "CLOSED",
+    "nickPrState": "CLOSED",
+    "ownerBranchesDeletedByThisAudit": false
+  },
+  "freshChecks": {
+    "lockedCommerceInstall": "passed, pnpm 10.34.9",
+    "commerceCheck": {
+      "status": "passed",
+      "typechecks": 4,
+      "testsPassed": 2297,
+      "nodeFixtures": 13,
+      "sdk": 503,
+      "api": 792,
+      "worker": 985,
+      "web": 4
+    },
+    "rustFormat": "passed, Rust 1.98.1",
+    "rustClippy": "passed, locked workspace and all targets, warnings denied",
+    "rustWorkspace": {
+      "passed": 51,
+      "ignoredPreparedGuestTests": 3,
+      "failed": 0
+    },
+    "wireFixture": "passed",
+    "meridianOracle": {
+      "passed": 34,
+      "failed": 0
+    },
+    "mainCommerceCi": "https://github.com/anishnarang9/UBC-26/actions/runs/44189104011",
+    "mainCommerceCiConclusion": "success",
+    "priorCoreCi": "https://github.com/anishnarang9/UBC-26/actions/runs/43916801647",
+    "priorCoreCiSource": "6ed9d2d09f64d757506ab8f71c198d98cd4fe615",
+    "priorCoreCiConclusion": "success"
+  },
+  "freshReadOnlyRpc": {
+    "endpoint": "https://rpc.testnet.arc.io",
+    "chainId": 5042002,
+    "methodScope": [
+      "eth_chainId",
+      "eth_getTransactionReceipt",
+      "eth_getBlockByNumber"
+    ],
+    "jobId": "7",
+    "core": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
+    "adapter": "0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8",
+    "fund": {
+      "hash": "0x03825acc379fcfdbb640344beb64a7e78ce184449dee7399aa297e2ec730e061",
+      "blockNumber": "72571257",
+      "blockHash": "0x09a7df72e75e47a54f06a0ea6ced951ff51a85dd2532ff4de62b861efc13a7cf",
+      "successfulCanonicalReceipt": true,
+      "event": "JobFunded",
+      "amountAtomic": "10000"
+    },
+    "claim": {
+      "hash": "0x7105aab313556ff9227864cf7e9f7db901ee048fe6e92c6483b7f8d8bcf91491",
+      "blockNumber": "72573094",
+      "blockHash": "0x8c2b1f84218894ef23f9a6e19097856dd0b2d4b5bfad8e5266395172d94cc824",
+      "successfulCanonicalReceipt": true,
+      "event": "ClaimAccepted"
+    },
+    "release": {
+      "hash": "0x78b6870536b171a989a5ebdeb278a20a2ec730bcec91173852bb29a13c3013e2",
+      "blockNumber": "72573215",
+      "blockHash": "0xa3a3f7c8d4a420326589274913610caf568731780d6ee87c387d313420324a34",
+      "successfulCanonicalReceipt": true,
+      "events": ["JobCompleted", "PaymentReleased", "KeyReleased"],
+      "corePaymentProvider": "0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8",
+      "adapterSolver": "0xfb7692d0BFb955E7EB727bf744b39F7B8441057F",
+      "amountAtomic": "10000"
+    },
+    "limit": "Checks depend on truthful RPC responses. This audit did not repeat recovery, full deployment-history verification or balance auditing."
+  },
+  "preservedEvidence": [
+    {
+      "path": "agents/anish/reports/open-claim-arc-live-acceptance-2026-11-16.json",
+      "sha256": "c5add90d4fff557f1297f24ad968177c07728ce8f63fd0b0cf2e0886f1655da3",
+      "scope": "Live 0.01-USDC open-claim exchange, fresh proof and dual recovery."
+    },
+    {
+      "path": "agents/anish/reports/open-claim-arc-receipts-2026-11-16.json",
+      "sha256": "1f97e02333aa1feb3cf5d8f2b349f9e67297b874cae2143264d27f27477e5e71",
+      "scope": "Historical canonical receipt and native-balance audit."
+    },
+    {
+      "path": "agents/anish/reports/fresh-exchange-local-2026-11-15.json",
+      "sha256": "f39878b72a3e5ab8f3ae5112ceae8e4bb76e27e3e9ca35128ad7b2c2cdd13683",
+      "scope": "Clean local-only selected-provider Meridian exchange, two fresh proofs and exact 1-USDC payout. Not live Arc."
+    }
+  ],
+  "remainingOriginalAcceptance": {
+    "liveSelectedProviderBudgetAtomic": "1000000",
+    "establishedByReviewedEvidence": false,
+    "requiredNextOwner": "Buyer/operator",
+    "requiredInput": "Current exact selected-provider run authorization for the approved workload, identities, commitments, expiry, 1-USDC bounty and gas caps. Use protected operator signing without sending credentials in chat.",
+    "reason": "The documented later authority and completed run use 0.01-USDC open-claim bounties. They do not authorize or establish the original 1-USDC selected-provider run.",
+    "newDeploymentRequired": false,
+    "repeatOwnerMergeRequired": false
+  },
+  "auditSideEffects": {
+    "liveWrites": 0,
+    "walletAccess": false,
+    "newProofs": 0,
+    "credentialChanges": false
+  },
+  "notRepeated": [
+    "Prepared guest tests and full archived evaluation replay.",
+    "Contract Foundry suite and examples.",
+    "Real-engine API slow integration.",
+    "New live funding, proving, payout or independent file recovery."
+  ],
+  "warnings": [
+    "Node reports experimental SQLite support.",
+    "Rust reports the existing upstream block v0.1.6 future-compatibility warning.",
+    "Locked installation ignored dependency lifecycle scripts.",
+    "The OpenCode model catalog exposed no Grok chat model during this audit. This says nothing about historical native Orca Grok access."
+  ]
+}

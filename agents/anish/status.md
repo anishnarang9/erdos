@@ -2,6 +2,12 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-18 00:46 -05:00 — Anish — Preserve concurrent audit and original live gate
+
+- Branch `codex/core-sprint-closure`, PR #11. Concurrent PR #12 merged as `1b67561` while this branch's CI ran. Reconciled documentation conflicts by retaining both audits and their timestamped entries. Neither owner status nor historical proof evidence changed.
+- Exact-head core CI passed at evidence commit `68f95f1` in [run 44245653509](https://github.com/anishnarang9/UBC-26/actions/runs/44245653509). Commerce, engine, contracts and workflow bytes remain identical to tested checkpoint `32cba11`. Integration changes only documentation.
+- Original live 1-USDC selected-provider acceptance remains blocked on current exact buyer/operator run authorization. The 0.01-USDC open-claim result is complete but does not replace that gate. Next: publish the reconciled audit, merge normally, and hand the original live gate to the buyer/operator without any new signing.
+
 ## 2026-11-18 00:38 -05:00 — Anish — Closure checkpoint CI passed
 
 - Branch `codex/core-sprint-closure`, PR #11. Pushed checkpoint `32cba11` passed all six push/PR checks. Exact-head [core CI](https://github.com/anishnarang9/UBC-26/actions/runs/44245029898) passed engine and contracts. [Commerce CI](https://github.com/anishnarang9/UBC-26/actions/runs/44245030472) passed. Read-only review found no important findings.
@@ -15,6 +21,14 @@ Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a headin
 - Rechecked five public Arc receipts as canonical: job-7 funding, claim and release, job-6 invalid claim and refund. Confirmed the context, key event and exact 10,000-unit payment event. SDK and freshly rebuilt engine recovered the recorded `schedule.json` digest. Independent oracle returned accepted with no errors. No wallet access, new proof, transaction, deployment, or freeze occurred.
 - The [closure audit](reports/core-sprint-closure-2026-11-18.json) distinguishes the later approved prepared Meridian 0.01-USDC open-claim run from the original 1-USDC selected-provider proposal. Corrected current guidance and retained old observations as history. Neil's UI now exists through his merged branch. Its evidence remains separate from Meridian.
 - Existing baseline commerce CI passed. Core CI passed at `6ed9d2d`, with byte-identical engine/contracts/workflow at this baseline. Next: publish this documentation checkpoint, run exact-head core CI, merge normally, and verify remote ancestry. No external blocker for this closure. New spending or authoring requires a separate approved task.
+
+## 2026-11-18 00:28 -05:00 — Anish — Verified restart against merged main
+
+- Branch `codex/sprint-resume-verification-20261118`, base remote main `2e04451`. Preserved the old engine-commerce worktree's unpublished files. Git ancestry confirms saved integration `ae1295a`, engine `adda3a3`, Nick `57c387f` and Neil `8584b04` are on main. Neil's PR #5 is merged. PR #6 and Nick's PR #4 are closed.
+- Fresh clean-source checks passed 2,297 commerce tests, all four typechecks, Rust format/Clippy/51 tests, wire fixtures and 34 Meridian oracle tests. Three prepared guest tests remained ignored. The [resume report](reports/core-sprint-resume-2026-11-18.json) identifies checks not repeated and pins the exact source and evidence hashes.
+- Read-only RPC independently confirmed the canonical successful fund, claim and release receipts for live job 7. Events show 10,000 units, not 1,000,000. Reviewed historical evidence establishes public-chain dual recovery for that open-claim run and a clean local-only 1-USDC selected-provider exchange.
+- Corrected stale current handoff/goal guidance. The original live 1-USDC selected-provider gate remains open. Next owner is buyer/operator for current exact run terms and spending authority. No new wallet access, signature, deployment, proof or live write occurred. Grok was absent from the OpenCode model catalog. One available subagent performed a read-only evidence audit.
+- This checkpoint contains documentation and a sanitized audit only. Publish after independent review and link/JSON/whitespace checks. No source behavior, proof pins, owner statuses or historical raw reports changed.
 
 ## 2026-11-16 11:04 -05:00 — Anish — Full prepared Arc workflow passed
 

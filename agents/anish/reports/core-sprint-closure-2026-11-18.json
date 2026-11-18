@@ -1,9 +1,16 @@
 {
   "schemaVersion": 1,
   "checkedAt": "2026-11-18T05:38:00Z",
-  "status": "complete-revised-scope",
+  "status": "partial-original-live-gate-blocked",
   "sourceCommit": "2e04451003c5ac1b7e43a49ef31daf76eb42ccc4",
   "scope": "Verify existing owner merges and later approved prepared Meridian 0.01-USDC open-claim acceptance. No new transaction or wallet access.",
+  "remainingOriginalGate": {
+    "scope": "Live 1-USDC selected-provider exchange",
+    "verified": false,
+    "nextOwner": "Buyer/operator",
+    "requiredInput": "Current exact workload, commitments, buyer/provider identities, expiry, 1-USDC bounty and gas authorization using protected local signing. Do not send credentials in chat.",
+    "mergesComplete": true
+  },
   "originalScopeNotClaimed": [
     "A new 1-USDC selected-provider exchange",
     "Fresh Grok authoring of the Meridian workload",
@@ -67,6 +74,7 @@
     "limit": "Current runtime and fee checks only. Complete role-history verification was not repeated."
   },
   "ciEvidence": [
+    {"scope": "Engine and contracts at evidence checkpoint 68f95f196166a757897327a0246e182a8ebc1747", "url": "https://github.com/anishnarang9/UBC-26/actions/runs/44245653509", "status": "success"},
     {"scope": "Engine and contracts at closure checkpoint 32cba11d3c30a6acfc6f6015142979c50e81f78b", "url": "https://github.com/anishnarang9/UBC-26/actions/runs/44245029898", "status": "success"},
     {"scope": "Commerce at closure checkpoint 32cba11d3c30a6acfc6f6015142979c50e81f78b", "url": "https://github.com/anishnarang9/UBC-26/actions/runs/44245030472", "status": "success"},
     {"scope": "Commerce at checked main baseline", "url": "https://github.com/anishnarang9/UBC-26/actions/runs/44189104011", "status": "success"},

@@ -4,7 +4,7 @@
 
 The engine, commerce, and settlement histories are on remote `main`. PR #7 merged the combined integration. PR #5 then merged Neil's finished commerce branch. The [closure audit](../agents/anish/reports/core-sprint-closure-2026-11-18.json) records source ancestry, clean-source checks, and fresh read-only receipt/recovery checks.
 
-Later user-approved scope replaced the original 1-USDC selected-provider target with a prepared Meridian open-claim exchange for 0.01 USDC. [Live job 7](../agents/anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) passed proof acceptance, exact payout, key release, dual recovery, and the independent oracle. Rejection and separate expiry refunds also have live evidence. Do not equate these results with fresh Grok authoring or a new 1-USDC run.
+A later separately approved run used a prepared Meridian open-claim exchange for 0.01 USDC. [Live job 7](../agents/anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) passed proof acceptance, exact payout, key release, dual recovery, and the independent oracle. Rejection and separate expiry refunds also have live evidence. The original live 1-USDC selected-provider gate remains unverified and requires current exact authorization. Do not equate the small-run results with that gate or fresh Grok authoring.
 
 Use the [protected open-claim operator guide](overnight/open-claim-live-operator.md) for that path. The selected-provider interfaces below remain available. Neil's merged `commerce/web` implementation has separate [UI evidence](../commerce/evidence/arc-first-funded-jobs.md). The Meridian run did not use that UI.
 
