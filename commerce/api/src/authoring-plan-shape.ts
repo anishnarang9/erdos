@@ -146,3 +146,55 @@ export function removeRedundantNumericLookupGuard(plan: unknown): { plan: unknow
   copy.rules = visit(copy.rules, "/rules") as unknown[];
   return paths.length ? { plan: copy, paths } : { plan, paths };
 }
+
+/** Correct a reference field used numerically only when supplied bytes prove its i64 shape. */
+export function correctNumericReferenceFields(plan: unknown, references: { name: string; text: string }[]): { plan: unknown; paths: string[] } {
+  if (!isPlainObject(plan) || !Array.isArray(plan.references) || !Array.isArray(plan.rules)) return { plan, paths: [] };
+  const copy = structuredClone(plan);
+  const paths: string[] = [];
+  const uses = (fileName: string, collectionName: string, fieldName: string): { numeric: number; other: number } => {
+    const count = { numeric: 0, other: 0 };
+    const visit = (value: unknown, parent: Record<string, unknown> | null): void => {
+      if (Array.isArray(value)) { value.forEach(item => visit(item, parent)); return; }
+      if (!isPlainObject(value)) return;
+      if (value.op === "lookup" && isPlainObject(value.collection) && value.collection.source === "reference" &&
+        value.collection.file === fileName && value.collection.field === collectionName && value.valueField === fieldName) {
+        if (parent && ["lt", "lte", "gt", "gte"].includes(String(parent.op)) &&
+          (parent.left === value || parent.right === value)) count.numeric++;
+        else count.other++;
+      }
+      for (const child of Object.values(value)) visit(child, value);
+    };
+    visit(copy.rules, null);
+    return count;
+  };
+  (copy.references as unknown[]).forEach((file, fileIndex) => {
+    if (!isPlainObject(file) || file.parser !== "json/v1" || typeof file.name !== "string" ||
+      !Array.isArray(file.collections) || references.filter(item => item.name === file.name).length !== 1) return;
+    let contents: unknown;
+    try { contents = JSON.parse(references.find(item => item.name === file.name)!.text); } catch { return; }
+    if (!isPlainObject(contents)) return;
+    file.collections.forEach((collection: unknown, collectionIndex: number) => {
+      if (!isPlainObject(collection) || typeof collection.name !== "string" || !Array.isArray(collection.fields)) return;
+      const rows = contents[collection.name];
+      if (!Array.isArray(rows) || rows.length === 0) return;
+      const fields = collection.fields;
+      fields.forEach((field: unknown, fieldIndex: number) => {
+        if (!isPlainObject(field) || field.type !== "string" || typeof field.name !== "string") return;
+        if (fields.filter((item: unknown) => isPlainObject(item) && item.name === field.name).length !== 1) return;
+        const count = uses(file.name as string, collection.name as string, field.name);
+        if (count.numeric === 0 || count.other > 0) return;
+        if (!rows.every(row => {
+          if (!isPlainObject(row) || typeof row[field.name as string] !== "string") return false;
+          const text = row[field.name as string] as string;
+          if (!/^-?(0|[1-9][0-9]*)$/.test(text)) return false;
+          const number = BigInt(text);
+          return number >= -(1n << 63n) && number < (1n << 63n);
+        })) return;
+        field.type = "i64";
+        paths.push(`/references/${fileIndex}/collections/${collectionIndex}/fields/${fieldIndex}/type`);
+      });
+    });
+  });
+  return paths.length ? { plan: copy, paths } : { plan, paths };
+}

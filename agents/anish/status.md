@@ -1,3 +1,8 @@
+# 2026-11-18 14:27 -05:00 — Validate reference-backed type correction offline
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. The new guard changes a reference field from `string` to `i64` only when actual reference bytes prove every value and a numeric lookup uses the field. The original paid clearance failure stays failed. Its retained repaired plan became native-valid and matched all seven independent hidden oracle cases after the change. See the [offline report](reports/authoring-clearance-type-offline-replay-2026-11-18.md).
+- Three new regression cases and full `commerce/pnpm check` pass: SDK 535 plus 13 Arc fixtures, API 1,065, web 4, worker 1,051, and all typechecks. No paid call, Bot review, Arc send, or public deploy used the candidate. Fourth-campaign attributable API usage remains $0.663961. Next: checkpoint, exact-source CI, isolated image, and a frozen fresh trial. General authoring stays gated.
+
 # 2026-11-18 14:22 -05:00 — Eighth trial exposes reference type drift
 
 - Branch `codex/authoring-pilot-round2`, draft PR #19. The [eighth report](reports/authoring-eighth-lookup-normalization-repeat-2026-11-18.md) records four draft-stage passes and one clearance failure on source `492a2c8`. The fresh lot task passed native checks and all seven hidden oracle cases with recorded lookup normalization. Clearance's repair changed a numeric reference field to `string` and failed native validation. Preserve that failure.

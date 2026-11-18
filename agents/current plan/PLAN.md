@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 14:27 -05:00 — Anish — Test reference-backed type correction on fresh tasks
+
+- An [offline replay](../anish/reports/authoring-clearance-type-offline-replay-2026-11-18.md) of the retained failed clearance plan passed native validation and all seven hidden oracle candidates after a guarded type correction. The original paid failure remains failed. Full commerce checks pass. Anish will push the source, verify exact-source CI, and freeze a fresh trial. Keep general public authoring and the accepted public release unchanged.
+
 ## 2026-11-18 14:22 -05:00 — Anish — Keep release gated after eighth trial
 
 - The [eighth trial](../anish/reports/authoring-eighth-lookup-normalization-repeat-2026-11-18.md) passed four of five draft gates. A fresh lot task passed with the recorded lookup normalization. Clearance failed because its repair changed a numeric reference field to `string`. The five tasks cost $0.046902; fourth-campaign attributable API usage is $0.663961. Anish will test a reference-byte-backed field-type correction offline, then measure changed-source reliability. Keep general authoring and the accepted public release unchanged.

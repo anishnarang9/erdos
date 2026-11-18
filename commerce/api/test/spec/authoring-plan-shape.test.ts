@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { removeProvenDuplicateScalars, removeFixtureContradictedOutputScalars, removeRedundantNumericLookupGuard } from "../../src/authoring-plan-shape.ts";
+import { removeProvenDuplicateScalars, removeFixtureContradictedOutputScalars, removeRedundantNumericLookupGuard, correctNumericReferenceFields } from "../../src/authoring-plan-shape.ts";
 
 const fixture = (value: unknown) => [{ name: "positive", predictedVerdict: 1 as const,
   files: [{ name: "out.json", content: JSON.stringify(value), encoding: "utf8" as const }] }];
@@ -82,6 +82,35 @@ describe("redundant numeric lookup guard", () => {
     expect(removeRedundantNumericLookupGuard(withRule({ op: "and", left: lookup, right: compare }, "bool")).paths).toEqual([]);
     expect(removeRedundantNumericLookupGuard(withRule({ op: "and", left: lookup,
       right: { op: "or", left: compare, right: { op: "literal", type: "bool", value: true } } })).paths).toEqual([]);
+  });
+});
+
+describe("reference-backed numeric fields", () => {
+  const lookup = { op: "lookup", collection: { source: "reference", file: "posts.json", field: "rows" },
+    keyField: "postId", key: { op: "record_field", field: "postId", level: 0 }, valueField: "required" };
+  const original = () => ({ ...plan([{ op: "all", collection: { source: "deliverable", file: "out.json", field: "rows" },
+    where: { op: "gte", left: { op: "record_field", field: "level", level: 0 }, right: lookup } }]),
+    references: [{ name: "posts.json", parser: "json/v1", fields: [],
+      collections: [{ name: "rows", fields: [{ name: "postId", type: "string" }, { name: "required", type: "string" }] }] }] });
+  const supplied = (text: string) => [{ name: "posts.json", text }];
+
+  it("corrects a numeric comparison only when every supplied reference value is an i64", () => {
+    const input = original();
+    const result = correctNumericReferenceFields(input, supplied('{"rows":[{"postId":"a","required":"2"},{"postId":"b","required":"4"}]}'));
+    expect(result.paths).toEqual(["/references/0/collections/0/fields/1/type"]);
+    expect((result.plan as typeof input).references[0]!.collections[0]!.fields[1]!.type).toBe("i64");
+    expect(input.references[0]!.collections[0]!.fields[1]!.type).toBe("string");
+  });
+
+  it("keeps the declared type for mixed or out-of-range reference values", () => {
+    expect(correctNumericReferenceFields(original(), supplied('{"rows":[{"postId":"a","required":"2"},{"postId":"b","required":"n/a"}]}')).paths).toEqual([]);
+    expect(correctNumericReferenceFields(original(), supplied('{"rows":[{"postId":"a","required":"9223372036854775808"}]}')).paths).toEqual([]);
+  });
+
+  it("does not infer numeric meaning without a typed comparison", () => {
+    const input = original();
+    (input.rules[0] as { where: { op: string } }).where.op = "eq";
+    expect(correctNumericReferenceFields(input, supplied('{"rows":[{"postId":"a","required":"2"}]}')).paths).toEqual([]);
   });
 });
 
