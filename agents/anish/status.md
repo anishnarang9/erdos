@@ -1,3 +1,8 @@
+# 2026-11-18 15:24 -05:00 — Verify lookup guard on a fresh draft and restart old tasks
+
+- Draft PR #19. The [six-case report](reports/authoring-lookup-guard-trial-2026-11-18.md) records two drafts ready for buyer review. Pier used the new standalone lookup normalization and passed every hidden outcome. Lab passed on its first reply. Category and nights remain blocked by a false accept and an unverified quote, respectively. Two drafts remained native-invalid.
+- All charges settled. Campaign attributable API usage is $1.181259. Restarted the prior isolated service and recovered all six saved tasks by ID with unchanged results and billing. The new model-authored pier plan compiled locally, and its synthetic proof and recovery run is in progress. Production readiness and final acceptance remain open.
+
 # 2026-11-18 15:17 -05:00 — Prepare the standalone lookup guard trial
 
 - Draft PR #19. The [frozen diagnostic](../../docs/authoring-lookup-guard-trial-2026-11-18.md) repeats the same six membership briefs on isolated source `eb22e28`. The image and engine pins match. A fresh wallet authenticated after the service finished starting. The database had no drafts or reservations. The dry run verified the case order and corpus hash.
