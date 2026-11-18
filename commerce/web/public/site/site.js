@@ -1,5 +1,6 @@
 import { initGlobe } from './globe.js?v=9';
-import { initRobot } from './robot.js?v=9';
+import { initRobot } from './robot.js?v=15';
+import { initRecordedProof } from './recorded-proof.js?v=12';
 import { initCoin } from './coin.js?v=9';
 import { LAYERS, ICONS } from './layers.js?v=9';
 
@@ -35,12 +36,15 @@ function decode(el, delay = 0, text) {
 function decodeAll(root, base = 0, step = 85) { $$('[data-sc]', root).forEach((el, i) => decode(el, base + i * step + Math.random() * 140)); }
 
 // ---------- chrome ----------
-$('.announce-x')?.addEventListener('click', () => $('.announce').remove());
 const toggle = $('.menu-toggle'), mobile = $('#mobile-nav');
 toggle?.addEventListener('click', () => { const open = toggle.getAttribute('aria-expanded') !== 'true'; toggle.setAttribute('aria-expanded', String(open)); mobile.hidden = !open; });
 mobile?.addEventListener('click', (e) => { if (e.target.closest('a')) { mobile.hidden = true; toggle.setAttribute('aria-expanded', 'false'); } });
-document.addEventListener('click', (e) => { $$('.drop[open]').forEach((d) => { if (!d.contains(e.target)) d.removeAttribute('open'); }); });
-$$('.drop .menu a').forEach((a) => a.addEventListener('click', () => a.closest('details').removeAttribute('open')));
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape' || mobile.hidden) return;
+  mobile.hidden = true;
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.focus();
+});
 
 // ---------- WebGL scenes ----------
 const safe = (fn, name) => { try { return fn(); } catch (err) { console.warn(`${name} unavailable`, err); return null; } };
@@ -51,31 +55,37 @@ const motionBtn = $('#motion');
 const syncMotion = () => { const p = globe?.isPaused() ?? true; motionBtn.textContent = p ? 'RESUME MOTION' : 'PAUSE MOTION'; motionBtn.setAttribute('aria-pressed', String(p)); };
 motionBtn.addEventListener('click', () => { globe?.setPaused(!globe.isPaused()); syncMotion(); }); syncMotion();
 
-// ---------- hero automation: rotating briefs and a cycling pipeline ----------
-const PROMPTS = [
-  'PAY MY SOLVER ONLY IF THE LEDGER RECONCILES TO THE CENT',
-  'CONVERT MY CATALOG CSV AND PROVE EVERY REQUIRED FIELD IS PRESENT',
-  'RELEASE THE BOUNTY TO THE FIRST PROOF THAT PASSES MY CHECKS',
-  'REFUND ME IF NO VALID DELIVERY ARRIVES BEFORE THE DEADLINE',
-];
-const STATUS = ['DRAFTING CHECKS…', 'FUNDING ESCROW…', 'PROVING…', 'SETTLING ON…'];
-let pi = 0, fi = 0;
-const flowItems = $$('#flow-list li');
-function heroTick() {
-  pi = (pi + 1) % PROMPTS.length;
-  decode($('#prompt'), 0, PROMPTS[pi]); decode($('#prompt-next'), 250, PROMPTS[(pi + 1) % PROMPTS.length]);
-}
-function flowTick() {
-  fi = (fi + 1) % flowItems.length;
-  flowItems.forEach((li, i) => li.classList.toggle('on', i === fi));
-  decode($('#flow-status'), 0, STATUS[fi]);
-}
-flowItems[0]?.classList.add('on');
-if (!reduced) { setInterval(heroTick, 4600); setInterval(flowTick, 2300); }
-
 // ---------- solutions: fixed centre robot, scrolling rows ----------
 const rows = $$('.sol-row'), robotLabel = $('#robot-label');
 let activeRow = -1;
+function visitStage(i) {
+  rows[i].scrollIntoView({ block: 'center', behavior: 'instant' });
+  setRow(i);
+}
+$$('[data-go-stage]').forEach(button => button.addEventListener('click', () => {
+  const stage = Number(button.dataset.goStage);
+  visitStage(stage);
+  rows[stage].querySelector('[data-replay-stage]').focus({ preventScroll: true });
+}));
+$$('[data-replay-stage]').forEach(button => button.addEventListener('click', () => {
+  visitStage(Number(button.dataset.replayStage));
+  robot?.replay();
+}));
+const escrowReceipts = {
+  paid: ['Solver', '0.01 test USDC paid', 'Job #3 passed its checks. The release paid the solver and published the delivery key.', 'release', '0xb9caccce8c09ad659812fa12021f3728471caf202765a0e709cbea1c382b4956'],
+  refund: ['Buyer', '0 test USDC paid to solver', 'Job #4 failed preflight. The bounty stayed locked until expiry, when the buyer claimed a refund.', 'refund', '0xcfaa40a06a4b29fa30454e5aac373f7ffc8e8640a6c471491491500a87832540'],
+};
+$$('[data-escrow]').forEach(button => button.addEventListener('click', () => {
+  const selected = button.dataset.escrow;
+  const [end, amount, story, action, hash] = escrowReceipts[selected];
+  $('.escrow-inspector').dataset.outcome = selected;
+  $$('[data-escrow]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+  $('#route-end').textContent = end;
+  $('#escrow-value').textContent = amount;
+  $('#escrow-history').textContent = story;
+  $('#escrow-receipt').href = 'https://explorer.testnet.arc.io/tx/' + hash;
+  $('#escrow-receipt').textContent = 'Inspect ' + action + ' receipt ↗';
+}));
 function setRow(i) {
   if (i === activeRow) return; activeRow = i;
   rows.forEach((r, k) => r.classList.toggle('active', k === i));
@@ -164,21 +174,24 @@ function renderLayers() {
 renderLayers();
 
 // ---------- scroll-driven state ----------
-const hero = $('.hero'), heroParts = $$('.hero-copy, .hero-side, .quote, .flow');
-const statement = $('.statement .big');
-if (statement) statement.innerHTML = statement.innerHTML.split(/(\s+|<em>|<\/em>)/).map((t) => (/^\s*$/.test(t) || /^<\/?em>$/.test(t) ? t : `<span class="w">${t}</span>`)).join('');
-const words = $$('.statement .w'), sol = $('.sol-body'), token = $('.token');
-const solStage = $('.sol-stage'), casesEl = $('#cases');
-const railLinks = $$('.rail a');
+const hero = $('.hero');
+const sol = $('.sol-body'), token = $('.token');
+const sectionLinks = $$('.rail a').map(link => ({
+  link,
+  section: document.getElementById(link.dataset.sec),
+}));
 
+const stageFigure = $('.sol-stage');
+const systemSection = $('#layers');
 function onScroll() {
   const vh = innerHeight, wide = innerWidth > 1100;
+  const systemTop = systemSection.getBoundingClientRect().top;
+  const figureOpacity = clamp((systemTop - vh * .72) / (vh * .28));
+  stageFigure.style.opacity = reduced ? String(Number(figureOpacity > 0)) : String(figureOpacity);
+  stageFigure.style.visibility = figureOpacity > 0 ? 'visible' : 'hidden';
   // Hero: the globe swells and drifts toward the centre; copy lifts away.
   const hp = clamp(scrollY / (hero.offsetHeight * .9));
   globe?.setLayout({ x: (wide ? 2.3 : 0) - hp * 1.2, y: (wide ? .25 : 1.1) + hp * .9, s: .74 + hp * .5 });
-  heroParts.forEach((el, i) => { el.style.transform = reduced ? '' : `translateY(${-hp * (40 + i * 18)}px)`; el.style.opacity = String(1 - hp * 1.2); });
-  // Statement words.
-  if (words.length) { const r = statement.getBoundingClientRect(); const sp = clamp((vh * .85 - r.top) / (r.height + vh * .45)); const lit = Math.round(sp * words.length); words.forEach((w, i) => w.classList.toggle('lit', reduced || i < lit)); }
   // Solutions: the row whose centre is nearest the viewport centre is active.
   if (sol) {
     const sr = sol.getBoundingClientRect();
@@ -187,18 +200,17 @@ function onScroll() {
       setRow(best);
     }
   }
-  // The robot fades out as Case Studies arrives (fully gone once the cases title is in the top 35%).
-  if (solStage && casesEl) {
-    const ct = casesEl.getBoundingClientRect().top;
-    const fade = clamp((ct - vh * .35) / (vh * .45));
-    solStage.style.opacity = String(fade);
-    solStage.style.visibility = fade < .01 ? 'hidden' : '';
-  }
   // Coin turns as its section scrolls through.
   if (token && coin) { const r = token.getBoundingClientRect(); coin.setScroll(clamp((vh - r.top) / (vh + r.height)) * 2 - 1); }
-  // Section rail.
-  let active = 'top'; for (const a of railLinks) { const sec = document.getElementById(a.dataset.sec); if (sec && sec.getBoundingClientRect().top < vh * .45) active = a.dataset.sec; }
-  railLinks.forEach((a) => a.classList.toggle('active', a.dataset.sec === active));
+  let current = sectionLinks[0];
+  for (const item of sectionLinks) {
+    if (item.section.getBoundingClientRect().top <= vh * .4) current = item;
+  }
+  for (const item of sectionLinks) {
+    item.link.classList.toggle('active', item === current);
+    if (item === current) item.link.setAttribute('aria-current', 'location');
+    else item.link.removeAttribute('aria-current');
+  }
 }
 let ticking = false;
 addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { onScroll(); ticking = false; }); } }, { passive: true });
@@ -221,15 +233,16 @@ $('#copy-addr')?.addEventListener('click', async (e) => {
 // ---------- proof lab (simulation only) ----------
 const checks = $$('#check-list li');
 const COPY = {
-  idle: ['Payment stays locked.', 'Pick a delivery and run the checks.', 'WAITING FOR YOUR EXPERIMENT'],
-  checking: ['Checking the agreement…', 'Running the three agreed checks on the sample.', 'CHECKING'],
-  failed: ['Payment stays locked.', 'A failed rule means no passing proof can exist. Preflight refuses the submission; the buyer reclaims the budget after expiry.', 'FAILED CHECK · NO PAYOUT'],
-  released: ['Payment + key released.', 'Illustrated outcome. In the real flow one confirmed release receipt pays the solver and publishes the key; the browser then decrypts the files.', 'ALL CHECKS PASS · SIMULATED RELEASE'],
+  idle: ['Payment stays locked.', 'Pick a delivery and run the checks.', 'WAITING FOR CHECKS'],
+  checking: ['Checking the delivery…', 'Comparing the files with the agreed rules.', 'CHECKING'],
+  failed: ['Payment stays locked.', 'A failed check stops the payout.', 'FAILED CHECK · NO PAYOUT'],
+  released: ['Payment can release.', 'All three sample checks passed.', 'SIMULATED RELEASE'],
 };
 let gen = 0;
 function setLab(state) { document.body.dataset.lab = state; const [t, c, s] = COPY[state]; $('#outcome').textContent = t; $('#outcome-copy').textContent = c; decode($('#status'), 0, s); }
 function resetLab() {
   gen++; const v = $('#scenario').value;
+  $('#run').disabled = false;
   checks.forEach((r) => { r.className = ''; r.querySelector('.ic').textContent = '○'; r.querySelector('.res').textContent = 'WAITING'; });
   $('#amount').textContent = v === 'tampered' ? '2,001¢' : '2,000¢'; $('#amount').classList.toggle('bad', v === 'tampered');
   $('#report').textContent = v === 'missing' ? 'missing' : 'nonempty'; $('#report').classList.toggle('bad', v === 'missing');
@@ -246,5 +259,46 @@ $('#run').addEventListener('click', () => {
   }, reduced ? 0 : 450 + i * 380));
 });
 resetLab();
+initRecordedProof();
+
+const presets = $$('.demo-preset-controls button');
+function selectPreset(panel) {
+  for (const preset of presets) {
+    const target = preset.getAttribute('aria-controls');
+    const selected = target === panel;
+    preset.setAttribute('aria-pressed', String(selected));
+    document.getElementById(target).hidden = !selected;
+  }
+}
+presets.forEach(button => button.addEventListener('click', () => selectPreset(button.getAttribute('aria-controls'))));
+$$('[data-demo-preset]').forEach(link => link.addEventListener('click', () => selectPreset(link.dataset.demoPreset)));
+
+// Harbor's load and kiln limits come from the checked-in Meridian reference and passing schedule.
+const schedule = $('#meridian-scenario');
+const capacityResult = $('#meridian-result');
+const kilnLimits = { 'K-03': 110, 'K-05': 88 };
+const harborLoad = 96;
+function updateKilnGauge() {
+  const limit = kilnLimits[schedule.value];
+  $('.kiln-gauge').style.setProperty('--capacity', `${limit / 120 * 100}%`);
+  $('.kiln-gauge').style.setProperty('--load', `${harborLoad / 120 * 100}%`);
+  $('.kiln-gauge').classList.toggle('over-capacity', harborLoad > limit);
+  $('#kiln-gauge-label').textContent = `${harborLoad} KG LOAD · ${limit} KG CAPACITY`;
+}
+schedule.addEventListener('change', () => {
+  $('#meridian-kiln').textContent = schedule.value;
+  updateKilnGauge();
+  capacityResult.textContent = 'Run the check to compare Harbor’s 96 kg load with the selected kiln’s capacity.';
+  delete capacityResult.dataset.verdict;
+});
+updateKilnGauge();
+$('#meridian-run').addEventListener('click', () => {
+  const limit = kilnLimits[schedule.value];
+  const passes = harborLoad <= limit;
+  capacityResult.dataset.verdict = passes ? 'pass' : 'fail';
+  capacityResult.textContent = passes
+    ? `Pass. Harbor’s ${harborLoad} kg fits in kiln ${schedule.value}, which holds ${limit} kg.`
+    : `Fail. Harbor exceeds kiln ${schedule.value}’s ${limit} kg capacity by ${harborLoad - limit} kg.`;
+});
 
 window.siteDiagnostics = () => ({ globe: globe?.diagnostics(), row: activeRow, robot: robot?.label(), layers: $$('.layer').length, live: $$('.layer.live').length, lab: document.body.dataset.lab });

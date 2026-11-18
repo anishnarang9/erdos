@@ -1,0 +1,27 @@
+{
+  "capturedAt": "2026-11-16T08:27:39.648Z",
+  "job": 3,
+  "submitTx": "0x05693a09af7886d83b0c7cdac00b0bd134bfc471be76cc9e7b0abaa704abf76c",
+  "releaseTx": "0xb9caccce8c09ad659812fa12021f3728471caf202765a0e709cbea1c382b4956",
+  "envelopeHash": "0xe85d0d24416ef80f30b29b7c91f80b29f5dbb17dac77250f00b182460d363b3b",
+  "keyCommitment": "0xca3dd3d96089168d143159a7e5f27dcb43c479819341bb3046d381d7fd65b405",
+  "key": "0x83cc04ddb8170842b665f383dd8ddd466c14972ca465777db02529c22fbd3d0a",
+  "envelopeHex": "0xaa12663a9ddd6f077fd35c8537ef63c981428c144d000d2ffe2f3cca206f32993f8d86c05ac11c2f97deb66552fdd4d52a442d5a10b49ce6a551c5a1617741fd4ac9a37c249997374ced0dba87e650388767cc9d49b5d5b99b5987519a3a7cf3fdd15a5a9b423dcb80e2feb85a7880b850c4941f30b898f09072c7ae995c5317ee06292c1809367131766099d33c448981a4c58ae660d4ba3d6acf6539ba59ba1b626f706c2d900dee1f600f9c18cddd616356999440124c76d88d231d5710bce144e7db1d02d4c29bc12bf8520bca5de73a9f9d2b615c5a4badade265c022d61c577d2542afa70894d33010d170",
+  "contextHex": "0x0100000000000000000000000000000000000000000000000000000000004cef524992b29bc494a6d9a33d153850c0e40f15f0e9c8000000000000000000000000000000000000000000000000000000000000000355b0984a8600548e42d3f8b7a53d881dbe4ee9f7e5d4f5a0511625cb97234295edcce49439f2d596a8f70c54eb24569012bd6e0249a43354a7e390a36a5d0f3281e4fe32e7b2be0052b46c970dfe32de09ce07dd",
+  "proof": {
+    "verdict": 1,
+    "proveMillis": 147699,
+    "userCycles": 937488,
+    "sealBytes": 260
+  },
+  "files": [
+    {
+      "name": "report.txt",
+      "text": "Reconciled 2 invoices.\n"
+    },
+    {
+      "name": "result.json",
+      "text": "{\n  \"rows\": [\n    {\n      \"id\": \"invoice-a\",\n      \"amountCents\": \"1000\"\n    },\n    {\n      \"id\": \"invoice-b\",\n      \"amountCents\": \"2000\"\n    }\n  ]\n}\n"
+    }
+  ]
+}
