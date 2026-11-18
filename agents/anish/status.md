@@ -1,3 +1,8 @@
+# 2026-11-18 15:06 -05:00 — Record clarified input diagnostic
+
+- Draft PR #19. The [six-case membership report](reports/authoring-membership-contract-trial-2026-11-18.md) records three oracle matches and zero drafts ready for buyer review. The clearance unknown-post outcome matched. Rejected example inputs blocked lab, clearance and category. Pier and nights had other oracle mismatches. Badge-zone remained native-invalid.
+- All six charges settled. Cumulative attributable API spend is $1.043261. The public release remains gated. Next: constrain generated examples to one verdict 1 and one verdict 0, and qualify the changed source with the same frozen inputs.
+
 # 2026-11-18 15:03 -05:00 — Freeze clarified membership inputs
 
 - Draft PR #19. The new corpus explicitly states the already-scored reject policy for unknown reference keys in 26 briefs. Each changed brief has a distinct ID. Hidden cases, expected statuses and original scores remain intact. All 74 hosted qualification tests pass.
