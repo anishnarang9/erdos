@@ -5,7 +5,7 @@ import { join } from "node:path";
 import canonicalize from "canonicalize";
 import { z } from "zod";
 import { modelCoverageSchema, type ModelCoverage } from "./coverage.ts";
-import { MAX_EXAMPLES, EXAMPLE_CONTEXT, type ExampleFixture, type ModelExample } from "./authoring-examples.ts";
+import { MAX_EXAMPLES, EXAMPLE_CONTEXT, EXAMPLE_NAME, type ExampleFixture, type ModelExample } from "./authoring-examples.ts";
 
 export interface DraftOutput {
   name: string;
@@ -192,13 +192,14 @@ export function draftResponseSchema(_planSchema?: unknown, quotePaths?: readonly
     additionalProperties: false,
   });
   const predictedVerdict = { type: "integer", enum: [0, 1] };
-  const generatedExample = obj({ name: str, predictedVerdict,
+  const exampleName = { type: "string", pattern: EXAMPLE_NAME.source };
+  const generatedExample = obj({ name: exampleName, predictedVerdict,
     files: { type: "array", items: obj({ name: str, content: str, encoding: { type: "string", enum: ["utf8", "base64"] } }) },
     evidence: { type: "array", items: obj({ name: str, content: str, encoding: { type: "string", enum: ["utf8", "base64"] } }) },
     context: { anyOf: [str, { type: "null" }] },
   });
   const example = fixtureNames.length === 0 ? generatedExample : { anyOf: [
-    obj({ name: str, predictedVerdict, fixtureName: { type: "string", enum: [...new Set(fixtureNames)] } }),
+    obj({ name: exampleName, predictedVerdict, fixtureName: { type: "string", enum: [...new Set(fixtureNames)] } }),
     generatedExample,
   ] };
   return {
@@ -209,6 +210,7 @@ export function draftResponseSchema(_planSchema?: unknown, quotePaths?: readonly
         examples: {
           type: "array",
           items: example,
+          ...(fixtureNames.length === 0 ? { minItems: 2, maxItems: 2 } : {}),
         },
         sourceQuotes: { type: "array", maxItems: 64, items: obj({ path: quotePath, quote: str }) },
         coverage: obj({
@@ -267,13 +269,14 @@ export const DRAFT_SYSTEM_PROMPT = [
   "check of the delivered files could ever decide.",
   "Binary references provide full base64 bytes, size and SHA-256 identity. These fields do not establish parsed or external semantics.",
   "Use fixtureName only to select a named buyer exampleFixture supplied in this request.",
-  "If no buyer exampleFixture is supplied, generate the complete files for each example.",
+  "If no buyer exampleFixture is supplied, generate exactly two complete examples: one for verdict 1 and one for verdict 0.",
+  "Example names use letters, digits, dots, underscores, or hyphens. Do not use spaces.",
   'In generated JSON file content, encode each i64 field as a quoted decimal string, such as "9400".',
   "Generated files use explicit utf8 or base64 encoding. Include evidence:[] and context:null when unused in the wire response.",
   "Never invent a trusted signature. Signed fixtures bind exact rules/reference/context hashes and may require new buyer-supplied witnesses.",
   "Each example is a complete set of deliverable files (every output, by name) and the",
   "verdict you predict. Give at least one passing and one failing example. The engine labels them itself.",
-  "A verdict-0 example must have valid input files and violate a rule. An input rejection is not verdict 0.",
+  "A verdict-0 example must have valid input files and violate a rule. Leave rejected inputs, including unknown reference keys, out of the examples.",
   "For a repair, use repair.previousPlan and the reported errors. Keep all checks that the error does not affect.",
   "If repair.preservePlan is true, return the same plan and fix the generated examples.",
   "List every stated requirement in coverage.requirements with a unique id and text. Link each to zero-based ruleIndices and sourceQuotes quoteIndices.",

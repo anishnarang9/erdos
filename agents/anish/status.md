@@ -1,3 +1,8 @@
+# 2026-11-18 15:07 -05:00 — Constrain generated examples to the approval contract
+
+- Draft PR #19. With no buyer fixtures, the provider schema asks for exactly two generated examples. The prompt requires one valid verdict-1 input and one valid verdict-0 input. The schema shares the API's example name pattern. Buyer fixtures and native approval checks still apply. The full commerce check passed with the count change. All 1,072 API tests and the API typecheck passed with the name pattern too.
+- The corrected-input trial had three rejected extras in otherwise agreeing drafts. No new paid call used this source. Attributable usage remains $1.043261. Next: verify this source in an isolated repeat.
+
 # 2026-11-18 15:06 -05:00 — Record clarified input diagnostic
 
 - Draft PR #19. The [six-case membership report](reports/authoring-membership-contract-trial-2026-11-18.md) records three oracle matches and zero drafts ready for buyer review. The clearance unknown-post outcome matched. Rejected example inputs blocked lab, clearance and category. Pier and nights had other oracle mismatches. Badge-zone remained native-invalid.

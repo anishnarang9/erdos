@@ -26,15 +26,22 @@ const PLAN = { version: 1, deliverables: [{ name: "out.json", parser: "json/v1" 
 
 it("only exposes fixture selection in the provider schema for supplied buyer fixtures", () => {
   const input = { request: "Check the output", outputs: [], referenceNames: [], clarifications: [], schema: PLAN };
-  const items = (fixtureNames: string[]) => {
+  const examplesSchema = (fixtureNames: string[]) => {
     const exampleFixtures = fixtureNames.map(name => ({ name, predictedVerdict: 1 as const, files: [] }));
     const payload = JSON.parse(draftProviderPayload({ ...input, exampleFixtures }, "test-model", 1024));
-    return payload.response_format.json_schema.schema.anyOf[0].properties.examples.items;
+    return payload.response_format.json_schema.schema.anyOf[0].properties.examples;
   };
-  expect(items([]).required).toContain("files");
-  expect(JSON.stringify(items([]))).not.toContain("fixtureName");
-  expect(items(["buyer-pass", "buyer-fail"]).anyOf[0].properties.fixtureName.enum).toEqual(["buyer-pass", "buyer-fail"]);
-  expect(items(["buyer-pass"]).anyOf[1].required).toContain("files");
+  const generated = examplesSchema([]);
+  expect(generated).toMatchObject({minItems: 2, maxItems: 2});
+  expect(generated.items.required).toContain("files");
+  const exampleName = new RegExp(generated.items.properties.name.pattern);
+  expect(exampleName.test("passing-example")).toBe(true);
+  expect(exampleName.test("passing example")).toBe(false);
+  expect(JSON.stringify(generated.items)).not.toContain("fixtureName");
+  const withFixtures = examplesSchema(["buyer-pass", "buyer-fail"]);
+  expect(withFixtures.maxItems).toBeUndefined();
+  expect(withFixtures.items.anyOf[0].properties.fixtureName.enum).toEqual(["buyer-pass", "buyer-fail"]);
+  expect(withFixtures.items.anyOf[1].required).toContain("files");
 });
 
 let work: string;
