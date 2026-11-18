@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 11:38 -05:00 — Anish — Bound buyer recovery after a transient public read failure
+
+- Branch `codex/authoring-pilot-round2`. The job 9 buyer recovery needed a manual read-only retry after a timeout and public HTTP 503. Added one bounded retry for a public job GET after HTTP 502/503/504 or a timeout. It requests the same job ID, rejects a permanent 404 without retry, and stops after the second failure. The new tests failed before the helper existed and now pass. Fifteen focused confirmed-release receipt and journal tests also pass; this is controlled evidence, not a new live recovery run.
+- Full commerce check passes: SDK 535 plus 13 Arc fixtures, API 1,041, web 4, worker 1,051, and all typechecks. No provider call, Bot review, credit purchase, Arc transaction, or public deployment ran. Next: push this checkpoint and inspect exact-head CI. The fourth paid diagnostic still needs separate user approval; general public authoring remains gated.
+
 ## 2026-11-18 11:27 -05:00 — Anish — Build and smoke the fourth candidate locally
 
 - Branch `codex/authoring-pilot-round2`. Built the immutable Linux amd64 image from `84238b6` with source label and embedded pin matching that commit. Image ID is `sha256:dab3e4b47e3ea6f8d5127aa298efa09d669779f4ac491d21eb2c93b1a30e4e0e`; the engine hash matches the published `be5c06f...` pin. An isolated container with no network or published ports migrated an empty database, ran the native engine, became healthy, and served `/healthz` 200. `/readyz` was 503 as expected without a model or chain. The container was removed. See the [local preflight report](reports/authoring-fourth-local-preflight-2026-11-18.json).

@@ -39,6 +39,8 @@ A charge-write fault test found that a completed draft could be stored before it
 
 After the stopped third diagnostic, the isolated pilot restarted with its saved state. A read-only task fetch returned the same revision and provider usage as the protected journal, with no new paid call. The pilot stopped again; public readiness and discovery remained HTTP 200. This confirms one saved-task recovery path, not all uncertain dispatch or callback failures.
 
+The job 9 solver's confirmed-release journal fault has a read-only receipt path in the candidate runner; 15 focused receipt and journal tests passed. The buyer recovery command now retries one transient public job GET after HTTP 502/503/504 or a timeout. It keeps the same job ID, does not retry a 404, and stops after the second failure. This addresses the manual read-only retry seen after job 9, but has not been exercised against a new live failure.
+
 ## Release gate still open
 
 1. Inspect the four missing provider bodies if the account logs are available. Preserve unknown causes where the exact response cannot be recovered. Test parser fixes against retained or controlled raw responses.

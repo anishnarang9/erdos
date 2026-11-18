@@ -1,6 +1,7 @@
 import { expect, it } from "vitest";
+import { HostedApiError } from "@ubc26/sdk";
 import { parseOpenClaimManifest } from "../../src/open-claim/manifest.ts";
-import { selectBuyerRecovery } from "../../src/open-claim/buyer-recovery.ts";
+import { readPublicJobForRecovery, selectBuyerRecovery } from "../../src/open-claim/buyer-recovery.ts";
 import deployed from "../../../../contracts/deployments/open-claim-arc-testnet.json" with { type: "json" };
 
 const manifest = parseOpenClaimManifest(deployed);
@@ -32,4 +33,33 @@ it.each([
   [view, [claim], [{ ...release, blockNumber: claim.blockNumber - 1n }]],
 ] as const)("rejects a public view or event set that cannot identify one confirmed payout", (candidate, claims, releases) => {
   expect(() => selectBuyerRecovery(candidate, "api-job-7", manifest, claims, releases)).toThrow();
+});
+
+it("retries one transient public job read without changing the requested job", async () => {
+  const ids: string[] = [];
+  const result = await readPublicJobForRecovery("api-job-7", async id => {
+    ids.push(id);
+    if (ids.length === 1) throw new HostedApiError(503, "service_disabled");
+    return view;
+  });
+  expect(result).toBe(view);
+  expect(ids).toEqual(["api-job-7", "api-job-7"]);
+});
+
+it("does not retry a permanent public job error", async () => {
+  let calls = 0;
+  await expect(readPublicJobForRecovery("api-job-7", async () => {
+    calls += 1;
+    throw new HostedApiError(404, "not_found");
+  })).rejects.toMatchObject({ status: 404 });
+  expect(calls).toBe(1);
+});
+
+it("retries one public read timeout, then stops after the second failure", async () => {
+  let calls = 0;
+  await expect(readPublicJobForRecovery("api-job-7", async () => {
+    calls += 1;
+    throw new DOMException("Read timed out", "TimeoutError");
+  })).rejects.toMatchObject({ name: "TimeoutError" });
+  expect(calls).toBe(2);
 });
