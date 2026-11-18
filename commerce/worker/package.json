@@ -18,7 +18,8 @@
     "sprint": "tsx src/sprint-cli.ts",
     "open-claim:job-input": "tsx src/open-claim/job-input-cli.ts",
     "open-claim:operator": "tsx src/open-claim/operator.ts",
-    "test:open-claim-recovery": "vitest run --config vitest.open-claim-recovery.config.ts"
+    "test:open-claim-recovery": "vitest run --config vitest.open-claim-recovery.config.ts",
+    "agent": "tsx scripts/agent.ts"
   },
   "dependencies": {
     "@ubc26/api": "workspace:*",
