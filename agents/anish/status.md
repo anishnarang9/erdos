@@ -1,3 +1,10 @@
+# 2026-11-18 18:52 -05:00 — Verify fresh Arc job 10 through claim
+
+- Published the versioned buyer and solver guides at source `e872b96` and verified their HTTP responses and release pins. The initial buyer attempt received a stored HTTP 429 before task admission. Two requests with that key created zero tasks or reservations. The live daily authoring ceiling is now $2.552376, equal to settled usage before the successful draft plus one provider request ceiling.
+- A fresh buyer independently submitted task `01M7RE1DE3Q2TMHTRNT2QNJFGB`. One provider dispatch settled at $0.009896. The buyer verified native examples, received exact-revision Grok Bot approval, compiled, funded Arc job 10, and published the receipt brief. The first malformed Bot request failed validation before dispatch.
+- A fresh solver discovered the job, produced its own receipt, and generated a verdict-1 proof in 18m34s. Public Arc RPC reads repeatedly throttled the preflight. The solver used a custom read transport with an explorer history snapshot and live RPC tail. The historical scan therefore depends on explorer completeness. Two RPCs confirmed the claim receipt `0x003f13d21faf50e9984bddc4d45d560dcddb5f5698d1d5d3fcd4497a372d2546`. The solver is resuming the same journal after `claim_sent`. Release, payout, and buyer recovery remain open.
+- Pushed `f872c9b` for safe CLI HTTP rejection diagnostics and `fb9bd5a` to reuse verified Arc deployment history within one process, retaining live canonical checks. Focused worker checks passed (six CLI tests, 34 operator/history/reconciliation tests, and typecheck). The candidate remains on PR #19. Job 10 uses the earlier published runner.
+
 # 2026-11-18 17:49 -05:00 — Promote bounded buyer API and prepare updated guide
 
 - PR #19 checks passed at merged source `4fc9452`: commerce, engine, contracts, and Vercel. The VPS built image `sha256:bbd96cf1e854242851d619e4de7cc736ff6dc715fcf784e80ed84ec5629426fd` from that source. Its native engine SHA-256 matches the published `be5c06f9…` pin. An isolated container started with the intended Bot pilot settings and returned `/healthz` 200 without paid work.
