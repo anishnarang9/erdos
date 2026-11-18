@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-18",
+  "campaign": "third bounded authoring diagnostic",
+  "status": "failed-first-case-stopped",
+  "authorization": {
+    "maxNewDrafts": 10,
+    "maxBotReviews": 8,
+    "maxObservedUsd": 1.0,
+    "maxSingleAttemptObservedUsd": 0.15,
+    "paidRetries": 0,
+    "stopOnFirstFailure": true
+  },
+  "candidate": {
+    "sourceSha": "adeaf13b9ca04749d43f0573db296db69560c4fa",
+    "imageId": "sha256:b1ecced1cd057e81d811002abecf0647e2dd1161cdc9d4ca09079915ab96b27f",
+    "linuxEngineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+    "offlineCorpusId": "hosted-qualification-2026-11-18",
+    "offlineCorpusDigest": "ea51f1ff461c88d63dfafc75b4cd5f048cab0958ce7b51d7c2ca5f36054688d8",
+    "publicExamplesSha256": "fd34b575cf3b2d2a7ad783ba2d8c848320fa6f736a39efa67fba041c43ec81d0"
+  },
+  "case": {
+    "id": "pier-drawers",
+    "expectedClass": "supported",
+    "draftTaskId": "01M7QMZK341XMRJV5H72W69MXY",
+    "draftKind": "draft",
+    "draftRevisionHash": "0x157dbd8665f4f00ddcea99c970c9e82a9572fcd463188cc71598e17978a75ed1",
+    "nativePlanValid": true,
+    "hiddenCandidateResults": [
+      {
+        "id": "valid",
+        "engine": "reject",
+        "oracle": "pass"
+      },
+      {
+        "id": "valid-reordered",
+        "engine": "reject",
+        "oracle": "pass"
+      },
+      {
+        "id": "duplicate-drawer",
+        "engine": "reject",
+        "oracle": "fail"
+      },
+      {
+        "id": "missing-drawer",
+        "engine": "reject",
+        "oracle": "fail"
+      },
+      {
+        "id": "wrong-count",
+        "engine": "reject",
+        "oracle": "fail"
+      },
+      {
+        "id": "wrong-closeout",
+        "engine": "reject",
+        "oracle": "fail"
+      },
+      {
+        "id": "unknown-drawer",
+        "engine": "reject",
+        "oracle": "reject"
+      },
+      {
+        "id": "numeric-amount",
+        "engine": "reject",
+        "oracle": "reject"
+      }
+    ],
+    "semanticAgreement": false,
+    "falseAccepts": 0,
+    "validInputFalseRejects": 2,
+    "inventedConditions": 2,
+    "coverageRuleComplete": false,
+    "quoteVerificationAllFound": false,
+    "usablePositiveExamples": 0,
+    "usableNegativeExamples": 0,
+    "failureCause": [
+      "Generated drawers.json schema invented a top-level closeout field absent from the request and supplied output shape; native check rejects valid files.",
+      "The model used referenceFiles[0] as a source quote path instead of the named floats.json file; the quote did not verify.",
+      "Generated examples yielded no usable native positive or negative example."
+    ],
+    "result": "failed; preserved without repair",
+    "providerTraceId": "629fff0b-199f-9e2c-96cc-a9defe34fea8",
+    "providerTraceIds": [
+      "629fff0b-199f-9e2c-96cc-a9defe34fea8"
+    ],
+    "latencyMs": 10355,
+    "repairCount": 0,
+    "providerTokenUsage": [
+      {
+        "promptTokens": 3733,
+        "completionTokens": 1642,
+        "cachedTokens": 128,
+        "reasoningTokens": 0,
+        "costInUsdTicks": 86368500
+      }
+    ]
+  },
+  "spending": {
+    "newDraftCalls": 1,
+    "botReviews": 0,
+    "apiUsd": 0.008637,
+    "dashboardBeforeUsageUsd": 0.89,
+    "dashboardAfterUsageUsd": 0.89,
+    "dashboardBeforeCreditUsd": 4.27,
+    "dashboardAfterCreditUsd": 4.27,
+    "conservativeObservedUpperUsd": 0.028637,
+    "meterDisplayPrecisionUsd": 0.01,
+    "account": "approved personal Grok pilot account; not a production Bot account"
+  },
+  "pipeline": {
+    "walletAuth": "fresh scoped buyer API key",
+    "nativeValidation": "passed",
+    "hiddenOracle": "failed",
+    "botReview": "not dispatched",
+    "approval": "not attempted",
+    "compile": "not attempted",
+    "package": "not created",
+    "localProof": "not attempted",
+    "arcTransactions": 0
+  },
+  "operations": {
+    "privateJournal": "retained",
+    "privateTaskAndProviderTrace": "retained in isolated VPS state and protected operator journal",
+    "publicIngress": "original Caddy mount restored",
+    "pilotContainer": "stopped; state preserved",
+    "publicReadyzHttp": 200,
+    "publicOpenJobsHttp": 200,
+    "interventions": [
+      "Initial attempt used bootstrap token at current-key read and returned 401 before draft; fresh wallet API key issued, then one paid draft ran.",
+      "First callback ingress switch observed pilot unhealthy, rolled back; restarted pilot, verified health, then enabled callback route before the paid draft."
+    ]
+  },
+  "remainingCases": "nine not attempted; campaign stopped under first-failure rule",
+  "releaseDecision": "Do not enable general public authoring or deploy this candidate."
+}

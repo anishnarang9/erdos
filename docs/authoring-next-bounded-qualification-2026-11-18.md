@@ -1,6 +1,6 @@
-# Proposed next authoring qualification
+# Third bounded authoring diagnostic and wider qualification
 
-**Status, 2026-11-18 09:31 -05:00:** Frozen proposal for review. No new paid call is authorized by this document. The second pilot stopped after its first failed case; its nine unused slots cannot silently start a new campaign. Keep that failed result unchanged.
+**Status, 2026-11-18 10:41 -05:00:** The user approved this separate $1 diagnostic. It stopped after the first failed case, `pier-drawers`. The other nine cases were not run. Keep this result and the earlier stopped pilot separate. See the [third diagnostic failure record](../agents/anish/reports/authoring-round3-first-failure-2026-11-18.json). No further paid dispatch is authorized by this campaign.
 
 ## Diagnostic stage A
 
