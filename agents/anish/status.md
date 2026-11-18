@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-18 04:32 -05:00 — Anish — Preserve one client transport incident in the soak
+
+- The low-rate public monitor recorded HTTP code `000` on readiness, discovery, and job detail in one cycle at 09:30:06 UTC. Each curl call ended in 10–21 ms without an HTTP response. Its script did not save the exit code or stderr, so the exact cause is unknown. API health and readiness logs returned 200 before, during, and after the cycle. Manual external reads of all three routes returned 200 afterward, and neither API nor proxy restarted. Record this as a client-observed transport incident, separate from the earlier HTTP 503. The [post-release audit](reports/hosted-postrelease-validation-2026-11-18.json) retains it. Continue the soak and investigate any recurrence.
+
 ## 2026-11-18 04:08 -05:00 — Anish — Prepare morning acceptance handoff
 
 - The [morning handoff](reports/hosted-agent-first-acceptance-summary-2026-11-18.md) maps each November 18 goal gate to the cold job 9, release, and post-release evidence. It keeps the initial journal error and public 503 visible and separates production cost qualification, paid campaign, Circle paid compile, and frontend work from this accepted scope.

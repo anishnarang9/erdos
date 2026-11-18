@@ -26,7 +26,7 @@
     "staticBoundary": "8 HEAD, range, method, unlisted-file, traversal, and extension probes passed",
     "discoveryValidation": "4 malformed query probes returned HTTP 400",
     "repeatedJobRead": "30/30 HTTP 200 over about 77 seconds; max 0.853 seconds, median 0.774 seconds",
-    "sustainedReadSoak": "in_progress until 07:00 America/New_York",
+    "sustainedReadSoak": "in_progress until 07:00 America/New_York; one cycle at 09:30:06 UTC recorded three curl transport failures before an HTTP response",
     "buyerRecoveryWithCorrectedRunner": "SDK and engine recovered exactly one signal.txt each, bytes 4f4b4159, SHA-256 315d31b420de24f9bd8dea4375b05c492060a963544cc7751f5af9fd1dc0aacf",
     "arcReceipts": "Claim and release status 1 at nonces 2 and 3; latest and pending solver nonce 4",
     "backupRestore": "Pinned post-acceptance backup restored into a protected isolated directory; SQLite integrity ok, 9 jobs and 2 open-claim links; temporary restore removed",
@@ -50,6 +50,7 @@
   },
   "knownLimits": [
     "One earlier Arc-backed job read returned HTTP 503 while the API remained healthy. The upstream exception was deliberately redacted, so the exact cause remains unknown.",
+    "At 09:30:06 UTC, one local soak cycle recorded HTTP code 000 on all three routes in 10-21 ms. The monitor did not save curl's exit code or error text, so the exact transport cause is unknown. The API's own health and readiness checks returned 200 before, during, and after that moment, and fresh external reads passed. These are preserved as client-observed transport failures, not counted as HTTP 503.",
     "The confirmed-release/local-journal-error branch passed focused tests but did not reproduce live on the successful read-only resume.",
     "The designated wallet has used two of its three permitted Bot review dispatches; no review is queued. The three paid draft slots are exhausted.",
     "Grok Bot auto top-up state, the earlier uncertain 6-cent pilot reservation, complete provider cash ledger, production average authoring cost, and the 180-run campaign remain unverified."

@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 04:32 -05:00 — Anish — Distinguish client transport failure from service HTTP failure
+
+- One three-route soak cycle at 09:30:06 UTC returned curl code `000` within 21 ms on each request. API health and readiness logs remained 200 at that time; later external reads succeeded. The exact local transport cause is unknown because the monitor saved only HTTP codes and latency. Preserve it in the [post-release audit](../anish/reports/hosted-postrelease-validation-2026-11-18.json). Continue monitoring through 07:00 and do not relabel it as an API 503.
+
 ## 2026-11-18 03:58 -05:00 — Anish — Continue sustained read check after main CI
 
 - Both main-push workflows passed at the hosted merge commit. The deployed proxy configuration matched source and passed a controlled authorization/download test. The installed runner verification, credential file modes, and TLS redirect/header checks passed. Continue the low-rate public read soak and preserve any failure, timing, and service-resource evidence in the [post-release audit](../anish/reports/hosted-postrelease-validation-2026-11-18.json).
