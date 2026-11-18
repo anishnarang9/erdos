@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 09:37 -05:00 — Anish — Correct unsupported capability scoring
+
+- Branch `codex/authoring-pilot-round2`. The frozen next diagnostic includes an unsupported engine operation. The API returns `reason: capability_unsupported` with the exact missing operation in `capabilityError.request`. The qualification scorer previously looked only for the operation name in reason text, so it would mark that correct API result wrong. A red regression reproduced the mismatch. The scorer now checks the structured kind and name and rejects a different operation. All 66 qualification tests pass. No paid call ran.
+- PR #19 commerce, engine and contracts checks passed at prior head `54ec653`. This scoring change still needs exact-head CI. General authoring remains gated. The proposed next campaign needs its own spending approval and account attribution before dispatch.
+
+
 ## 2026-11-18 09:31 -05:00 — Anish — Freeze a bounded next diagnostic scope
 
 - The [next qualification proposal](../../docs/authoring-next-bounded-qualification-2026-11-18.md) fixes ten case IDs, expected classes, hidden-oracle separation, eight maximum Bot reviews, a proposed $1 total/$0.15 per-case cap, no paid repairs, no Arc sends, and stop on the first failure. It is a proposed new campaign, not spending authorization. The stopped second pilot has nine unused numeric slots but no permission to resume after its failure stop.
