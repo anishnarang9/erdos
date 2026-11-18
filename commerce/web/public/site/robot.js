@@ -154,16 +154,16 @@ export function initRobot(host, { reduced = false } = {}) {
   const POSE = [
     [-.35, .25, .12, -.25, -.2, .55, -.9, .9, 1, 0xffffff],      // reading the brief
     [-.15, -.1, .05, -.35, -.9, .5, -.8, 1.0, .8, 0xbfe9ff],     // compiling
-    [.1, 0, -.02, -.3, -.3, .5, -.9, .8, 1, 0xffd9a0],           // funded, locked
-    [.2, .1, .14, -.9, -1.5, .6, -1.0, 1.1, .4, 0xd7b8ff],       // proving (squint)
+    [.1, 0, -.02, -.3, -.3, .5, -.9, .8, 1, 0xffbb68],           // funded, locked
+    [.2, .1, .14, -.9, -1.5, .6, -1.0, 1.1, .4, 0xcc99ff],       // proving (squint)
     [.05, 0, -.1, -2.6, -.3, 1.2, -1.2, .5, 1.15, 0x7dfff0],     // settled (cheer)
-    [-.2, -.2, -.05, -2.4, -.5, 2.3, -.2, .4, 1.1, 0x7dfff0],    // files recovered
+    [-.2, -.2, -.05, -2.4, -.5, 2.3, -.2, .4, 1.1, 0xffb5d8],    // files recovered
   ];
   const LABEL = ['READING THE BRIEF', 'COMPILING THE CHECKER', 'ESCROW FUNDED', 'PROVING', 'PAID · KEY RELEASED', 'FILES RECOVERED'];
-  let step = 0, time = 0, stageTime = 0, last = performance.now(), visible = true, mx = 0, my = 0;
+  let step = 1, time = 0, stageTime = 0, last = performance.now(), visible = true, mx = 0, my = 0;
   const eyeCol = new THREE.Color(0xffffff), want = new THREE.Color();
   addEventListener('pointermove', (e) => { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; }, { passive: true });
-  function resize() { const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.position.z = w / h < .8 ? 19 : 14; camera.updateProjectionMatrix(); }
+  function resize() { const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.position.z = Math.max(11.8, 10 / camera.aspect); camera.updateProjectionMatrix(); }
   new ResizeObserver(resize).observe(host); resize();
   new IntersectionObserver((e) => { visible = e[0].isIntersecting; }).observe(host);
   const L = THREE.MathUtils.lerp;
@@ -188,7 +188,7 @@ export function initRobot(host, { reduced = false } = {}) {
     arms[0].shoulder.rotation.z = L(arms[0].shoulder.rotation.z, p[3] + gesture, k);
     arms[0].elbow.rotation.z = L(arms[0].elbow.rotation.z, p[4], k);
     arms[1].shoulder.rotation.z = L(arms[1].shoulder.rotation.z, p[5], k); arms[1].shoulder.rotation.x = L(arms[1].shoulder.rotation.x, p[6], k); arms[1].elbow.rotation.x = L(arms[1].elbow.rotation.x, -p[7], k);
-    // Each action has an anticipation, a stroke, and a held finish. Replay restarts the stroke.
+    // Each action has an anticipation, a stroke, and a held finish.
     const phase = reduced ? 1 : Math.min(1, stageTime / 2.2);
     const reach = Math.sin(phase * Math.PI);
     const beat = Math.sin(phase * Math.PI * 4) * reach;
@@ -262,6 +262,8 @@ export function initRobot(host, { reduced = false } = {}) {
     eyes.forEach((e) => (e.scale.y = L(e.scale.y, p[8] * blink, Math.min(1, dt * 16))));
     want.set(p[9]); eyeCol.lerp(want, Math.min(1, dt * 4)); eyes.forEach((e) => e.material.color.copy(eyeCol)); mouth.material.color.copy(eyeCol);
     mouth.scale.setScalar(L(mouth.scale.x, step >= 4 ? 1.25 : step === 3 ? .5 : .85, k));
+    nearStars.material.color.copy(eyeCol);
+    ringThin.material.color.copy(eyeCol);
     spark.material.color.copy(eyeCol); spark.scale.setScalar(1 + Math.sin(time * (step === 3 ? 14 : 4)) * .3);
     core.material.color.copy(eyeCol); core.scale.setScalar(1 + Math.sin(time * 3) * .2); chestRing.rotation.z += motionDt * (step === 3 ? 4 : .5);
     leds.forEach((l, i) => l.scale.setScalar(.7 + .6 * Math.max(0, Math.sin(time * (step === 3 ? 12 : 4) - i * 1.2))));
@@ -284,7 +286,6 @@ export function initRobot(host, { reduced = false } = {}) {
       }
       return LABEL[step];
     },
-    replay() { stageTime = 0; },
     label: () => LABEL[step],
   };
 }

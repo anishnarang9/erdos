@@ -1,5 +1,5 @@
 import { initGlobe } from './globe.js?v=9';
-import { initRobot } from './robot.js?v=16';
+import { initRobot } from './robot.js?v=17';
 import { initRecordedProof } from './recorded-proof.js?v=12';
 import { initCoin } from './coin.js?v=9';
 import { LAYERS, ICONS } from './layers.js?v=9';
@@ -58,19 +58,6 @@ motionBtn.addEventListener('click', () => { globe?.setPaused(!globe.isPaused());
 // ---------- solutions: fixed centre robot, scrolling rows ----------
 const rows = $$('.sol-row'), robotLabel = $('#robot-label');
 let activeRow = -1;
-function visitStage(i) {
-  rows[i].scrollIntoView({ block: 'center', behavior: 'instant' });
-  setRow(i);
-}
-$$('[data-go-stage]').forEach(button => button.addEventListener('click', () => {
-  const stage = Number(button.dataset.goStage);
-  visitStage(stage);
-  rows[stage].querySelector('[data-replay-stage]').focus({ preventScroll: true });
-}));
-$$('[data-replay-stage]').forEach(button => button.addEventListener('click', () => {
-  visitStage(Number(button.dataset.replayStage));
-  robot?.replay();
-}));
 const escrowReceipts = {
   paid: ['Solver', '0.01 test USDC paid', 'Job #3 passed its checks. The release paid the solver and published the delivery key.', 'release', '0xb9caccce8c09ad659812fa12021f3728471caf202765a0e709cbea1c382b4956'],
   refund: ['Buyer', '0 test USDC paid to solver', 'Job #4 failed preflight. The bounty stayed locked until expiry, when the buyer claimed a refund.', 'refund', '0xcfaa40a06a4b29fa30454e5aac373f7ffc8e8640a6c471491491500a87832540'],
@@ -90,7 +77,7 @@ function setRow(i) {
   if (i === activeRow) return; activeRow = i;
   rows.forEach((r, k) => r.classList.toggle('active', k === i));
   if (i < 0) return;
-  const label = robot ? robot.setStep(i) : '';
+  const label = robot ? robot.setStep(Number(rows[i].dataset.step)) : '';
   if (robotLabel) decode(robotLabel, 0, `SOLVER AGENT · ${label}`);
   decodeAll(rows[i], 60, 70);
 }
