@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-17 23:54 -05:00 — Anish — Complete isolated exact-rule Bot review
+
+- The pilot accepted a Grok-authored exact-text job from fresh draft `01M7PFCQ9Q9TMQ64VNJYQK8Z97`. Two buyer-owned examples passed native verdict checks. One durable Bot trigger returned an authenticated `pass` receipt for the exact revision and input hash, covering its single rule. No retry ran. See the [Bot pilot report](reports/hosted-exact-text-bot-review-2026-11-18.json).
+- Only the Bot callback path briefly routed to the isolated pilot. The main Caddyfile was restored byte-for-byte and public buyer readiness remains 503. The Bot charge is not yet attributed. The shared Bot account still has unrelated connected apps; this synthetic pilot does not qualify general customer dispatch. No approval, compilation, chain transaction or cash purchase ran. Next: attribute usage, approve and inspect the pilot checker, then resolve the public account boundary and release gates.
+
 ## 2026-11-17 23:47 -05:00 — Anish — Stage exact runner and image candidate
 
 - At source `33a9883`, `pnpm check` passed all commerce typechecks, 535 SDK tests, 1,027 API tests, 4 web tests, 1,042 worker tests and 13 Arc fixtures. The runner tarball and manifest have SHA-256 digests `e2e69cc55ea2788fd1d0b475613397bc524b30f5009ba534c1301513814c61fd` and `d39989cf405fc432c2da350b9dd997a150b224a6841f1fd05e13f1a303d028aa`. Same-source reproducibility, checksum verification and an offline Linux container install passed. The matching VPS image is `sha256:7ac4a8d97c6b22f30d5669b7c57a9fd7ffd5cd3d34022ab9b541169adeacae52`.

@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-17 23:54 -05:00 — Anish — Isolated exact-rule Bot pass
+
+- One synthetic isolated Bot review returned an authenticated `pass` for the native-valid Grok draft's exact revision, after a separate buyer example check. No retry ran. The callback route returned to main and public buyer readiness remains 503. See the [pilot receipt](../anish/reports/hosted-exact-text-bot-review-2026-11-18.json).
+- Attribute Bot usage before any additional dispatch. The shared Bot account is still only fit for synthetic inputs. Production customer account isolation, public release, and the cold-agent test remain gates. The original three-call pilot remains failed.
+
 ## 2026-11-17 23:43 -05:00 — Anish — Native-valid diagnostic with buyer examples
 
 - A sixth isolated direct API draft now has a native-valid plan. Its model-selected passing fixture was invalid. A buyer-supplied owner API example check passed both verdicts for the exact revision. The model call settled at 5,309 micro-USD; calls two through six total 28,225 micro-USD, with the first 60,000 micro-USD reservation still uncertain. See the [diagnostic](../anish/reports/hosted-sixth-authoring-diagnostic-2026-11-18.json).
