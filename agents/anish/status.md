@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 21:32 -05:00 — Anish — Restore restricted VPS access and check agent readiness
+
+- The operator public IPv4 changed. I added its `/32` SSH firewall rule, verified pinned SSH, then removed the stale `/32`. The firewall again permits one operator IPv4. Public HTTPS returns 200 for `/healthz` and 503 for `/readyz` and open-job discovery.
+- The VPS has x86_64 Linux, 7.8 GiB RAM, no swap, 135 GiB free root disk and 32 GiB free state disk. API and HTTPS containers still run. This host does not establish the final solver's 12-GiB proving setup. The pinned Caddy controlled test serves both new guide files byte-exact and preserves readiness and callback gates. See [preflight](reports/hosted-agent-first-preflight-2026-11-17.json).
+- Integrated the sanitized authoring diagnostics and public agent-kit checkpoints into `codex/hosted-release`. No model call, proof, chain transaction, or production deployment ran. The first pilot charge remains uncertain. Next: close public brief and independent buyer recovery gaps, then check the combined release and operator pilot policy.
+
 ## 2026-11-17 21:27 -05:00 — Anish — Integrate hosted backend with current main
 
 - Branch `codex/hosted-release` merges `origin/main` at `2e04451` into the hosted backend at `4ad733f`. Resolve eight source conflicts by retaining hosted ownership, readiness and safety controls alongside Arc/demo additions. Public mode rejects presenter-only configuration and does not register demo routes.
