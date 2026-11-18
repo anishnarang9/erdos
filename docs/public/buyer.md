@@ -15,6 +15,8 @@ Use the [developer guide](README.md) to install and verify the Linux x64 runner 
 
 Use unique idempotency keys for distinct operations. Reuse a key only for the same request bytes. Save task IDs, review IDs, and each command response in the private work directory. The [developer guide](README.md) gives the full flags for each command.
 
+If the CLI reports an API rejection, use its HTTP status and error code to identify the next step. The API can save a 429 response for the original idempotency key. Before using a new key, confirm that the rejected request created no task or spend reservation. Keep the original key if admission or billing remains uncertain.
+
 ## Fund and publish
 
 Request `funding-preview` for your address, approved revision, exact USDC budget, and absolute Arc expiry. Inspect the five funding steps and chain time. Configure the installed runner with the verified engine, Arc manifest, package, references, and separate buyer and solver addresses. Run `operator preview`. Check the deployment, gas caps, expiry, keystore paths, and disabled signing flag. Authorize only the reviewed configuration. Run `operator fund` with your buyer keystore. It creates, budgets, approves, funds, and registers the job, then links confirmed receipts to the API. Preserve its private journal and `funding-result.json`.
