@@ -1,5 +1,7 @@
 # UBC 2026 · Three-way work split
 
+> **2026-11-18 — Anish — Status correction.** The owners below are assigned. Their engine, settlement and commerce histories are on main through PRs #7 and #5. The original selected-provider design remains available. The later [open-claim interface](../../docs/overnight/open-claim-v1.md) and [prepared Arc evidence](../anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) describe a separate accepted 0.01-USDC path. Use [PLAN.md](PLAN.md) for current dependencies.
+
 **2026-11-14 · Anish workstream · Proposed handoff**
 
 Use the [settlement and commerce integration entry](PLAN.md#2026-11-14-2048--0500--anish--settlement-and-commerce-integration) for the current core source, hook layout, and delivery limits.
@@ -12,7 +14,7 @@ The buyer approves a job and funds a USDC bounty. The solver completes the job, 
 | **2. Arc and Ethereum settlement** |  Nick| ERC-8183 escrow, verifier, policy hook and evaluator, deployment manifest, and transaction tests |
 | **3. Agent-to-agent commerce** |  Neil| Buyer and solver workflows, job API, chain client, and full demo |
 
-Assign the two open roles within the team. Each owner can turn their section into an implementation plan. Use the [engine plan](ZKVM-IMPLEMENTATION.md) as the source for the proof wire format.
+The owner table records all three assignments. Use the [engine plan](ZKVM-IMPLEMENTATION.md) as the source for the proof wire format.
 
 ## 1. RISC Zero engine
 

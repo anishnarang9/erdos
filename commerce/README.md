@@ -8,17 +8,18 @@ The [live Arc report](../agents/anish/reports/open-claim-arc-live-acceptance-202
 
 The separate Circle Gateway paid compile passed 402, one-atomic payment, successful response and exact replay. Its batch settled on Arc with matching Gateway balances. The [protected operator guide](../docs/overnight/open-claim-live-operator.md) covers source pins, encrypted signers, durable transaction journals and the required low-memory Docker settings. Use one prover at a time. The buyer web UI and fresh natural-language drafting are outside this prepared-workload acceptance.
 
-## 2026-11-15 — Anish — Current integration
+## 2026-11-18 — Anish — Merged integration
 
-The API and worker use the domain-independent typed-plan [Rust engine](../engine/README.md), including bounded records, aggregates, and evidence. The integration branch `codex/engine-commerce` includes Neil `8584b04`, Nick `57c387f`, and engine `adda3a3` through actual merge ancestry. [PR #6](https://github.com/anishnarang9/UBC-26/pull/6) is open. Normal integration into main is authorized, not completed by this statement.
+The API and worker use the domain-independent typed-plan [Rust engine](../engine/README.md), including bounded records, aggregates and evidence. Remote main contains Neil `8584b04`, Nick `57c387f`, and engine `adda3a3` as ancestors. PR #7 merged the combined settlement work. PR #5 merged Neil's later commerce and web work. PR #6 is closed. The [resume audit](../agents/anish/reports/core-sprint-resume-2026-11-18.json) records clean-checkout fast checks and fresh public-chain SDK recovery of job 7.
 
-The isolated core is frozen. A later read-only refresh passed 60 checks at block 72490082; the earlier check at block 72478546 remains historical. Deployment checks are not live funded acceptance or spending permission. The [core sprint runbook](../docs/core-sprint.md) records the earlier partial local run and the [clean Meridian rehearsal](../agents/anish/reports/fresh-exchange-local-2026-11-15.json). The [open-claim local runbook](../docs/overnight/open-claim-local-runbook.md) covers the funded bounty path, and the [combined local report](../agents/anish/reports/open-claim-local-acceptance-2026-11-16.json) records its passing real-proof exchange. A buyer web UI remains planned. No `commerce/web` implementation is present.
+The isolated core is frozen. Deployment checks alone do not authorize spending. The [core sprint runbook](../docs/core-sprint.md) distinguishes earlier partial evidence, the [clean Meridian rehearsal](../agents/anish/reports/fresh-exchange-local-2026-11-15.json), and the later fractional live acceptance. The [open-claim local runbook](../docs/overnight/open-claim-local-runbook.md) and [combined local report](../agents/anish/reports/open-claim-local-acceptance-2026-11-16.json) cover that separate local path. `commerce/web` now exists. Its source and fast checks do not establish browser acceptance. The original plan's exact 1-USDC selected-provider run is not established by job 7's 0.01-USDC open-claim payout.
 
 | Package | Contents | Contract |
 | --- | --- | --- |
 | `sdk` | Byte codec, explicit simulation adapter, and real Arc reader with pinned-block snapshots. | [sdk/CONTRACT.md](sdk/CONTRACT.md), [Arc interface](sdk/src/chain/arc/INTERFACE.md) |
 | `api` | HTTP JSON API: drafting with Grok, approval, compile on the real engine, kept packages, quotes, funding linkage | [api/CONTRACT.md](api/CONTRACT.md), [api/CONTRACT-T5-T8.md](api/CONTRACT-T5-T8.md) |
 | `worker` | Synthetic proving plus a durable funded lifecycle and capability-gated Arc settlement adapter. Broadcast is disabled by default. | [worker/src/run.ts](worker/src/run.ts), [funded lifecycle](worker/src/funded.ts) |
+| `web` | Buyer UI and landing site source, merged through Neil's PRs. Browser acceptance is separate from CLI/API evidence. | [web/package.json](web/package.json) |
 
 ## Run the tests
 

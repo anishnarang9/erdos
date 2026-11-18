@@ -2,6 +2,13 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-18 00:35 -05:00 — Anish — Current guidance reconciled with merged evidence
+
+- Branch: `codex/core-sprint-closeout`. Evidence checkpoint `edd2b5e` is committed and pushed. This checkpoint corrects Anish's current guidance, handoff, runbook, READMEs and planning banners. Earlier reports and status histories remain intact. Nick's and Neil's status files are unchanged.
+- Current guidance now identifies merged PRs #5/#7, the existing web source, and the later accepted fractional open-claim path. It explicitly leaves the original exact 1-USDC/new-user-problem target unestablished. The separate hosted-backend PR #8 is not part of this merge.
+- Clean-source engine binary build and `engine capabilities` also exited 0. The report retains the completed fast-check and read-only recovery scope. No new proof, model call, wallet access or chain write occurred.
+- Next: check changed documentation links and the scoped secret-pattern scan, push the checkpoint, then merge a normal docs/evidence PR. The exact original live target remains an operator/buyer boundary, not a reason to repeat completed owner work.
+
 ## 2026-11-18 00:28 -05:00 — Anish — Restart audit confirms owner merges
 
 - Branch: `codex/core-sprint-closeout`, from remote main `2e04451`. [PR #5](https://github.com/anishnarang9/UBC-26/pull/5) and [PR #7](https://github.com/anishnarang9/UBC-26/pull/7) are merged. Neil `8584b04`, Nick `57c387f`, and engine `adda3a3` are main ancestors. No owner merge needs repeating. PR #4 and consolidated PR #6 are closed.

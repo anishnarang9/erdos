@@ -1,5 +1,7 @@
 # Agent-to-agent commerce implementation plan
 
+> **2026-11-18 — Anish — Implementation status.** Neil's commerce and web work merged through PR #5. The combined engine/settlement history merged through PR #7. Preserve the original selected-provider plan below. The [open-claim operator guide](../../docs/overnight/open-claim-live-operator.md) describes the later accepted fractional path. Use [PLAN.md](PLAN.md) for current dependencies. Neither the old task list nor a deployment manifest grants new spending authority.
+
 **2026-11-14 15:45 -05:00 · Neil (workstream 3 owner) · Proposed**
 
 This document covers workstream 3 in the [three-way work split](WORK-SPLIT.md). It is written to the [engine plan](ZKVM-IMPLEMENTATION.md), which owns the wire format, and to the settlement section of the work split, which owns the contracts.

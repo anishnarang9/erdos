@@ -1,5 +1,7 @@
 # Architecture and repository layout
 
+> **2026-11-18 — Anish — Historical research.** Preserve the proposals below for context. Main contains both the selected-provider path and a separate [open-claim adapter](../../docs/overnight/open-claim-v1.md). The [prepared Arc report](../anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) covers the later 0.01-USDC exchange. Current status belongs in [PLAN.md](PLAN.md), not this research snapshot.
+
 > **Superseded in part (Neil, 2026-11-14 15:45 -05:00).** Main's [WORK-SPLIT.md](WORK-SPLIT.md) and [ZKVM-IMPLEMENTATION.md](ZKVM-IMPLEMENTATION.md) are the agreed design. Commerce work follows [COMMERCE-IMPLEMENTATION.md](COMMERCE-IMPLEMENTATION.md).
 >
 > **Superseded:**

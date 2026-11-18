@@ -1,6 +1,20 @@
 # Anish’s project context
 
-## 2026-11-15 — Anish — Current sprint authority and limits
+## 2026-11-18 — Anish — Restart guidance
+
+Remote main contains the engine, Nick's settlement history, and Neil's commerce/web work. PRs #7 and #5 merged. Do not repeat those merges.
+
+Use the latest [shared plan](../current%20plan/PLAN.md) and [resume audit](reports/core-sprint-resume-2026-11-18.json). The [prepared Arc acceptance](reports/open-claim-arc-live-acceptance-2026-11-16.md) records job 7's 0.01-USDC open-claim payout and exact dual recovery. Fresh read-only SDK recovery reproduced its published file hash on November 18.
+
+The saved November 15 plan's exact 1-USDC selected-provider run and new user-problem authoring are not established by that fractional run. Do not expand old spending authority. A further live run requires exact approved inputs, terms and protected signing authority.
+
+The isolated core is frozen. Never repeat the freeze. Keep the general funded CLI read-only. Preserve signer restrictions, durable journals, key-safe RPC boundaries and proof-stack pins. One prover at a time.
+
+`commerce/web` now exists through Neil's merged work. Its presence and passing fast checks do not establish browser acceptance. Hosted backend PR #8 is separate work.
+
+## Historical snapshot — 2026-11-15 — Anish — Sprint authority and limits
+
+The remaining sections preserve the earlier snapshot. Its pending merges, absent UI, and absent Meridian proof claims are historical, not current instructions. Use the restart guidance above for current status and authority.
 
 Use the [core sprint runbook](../../docs/core-sprint.md) and the latest [shared plan](../current%20plan/PLAN.md). Earlier scheduling examples below are historical fixtures, not a product taxonomy.
 

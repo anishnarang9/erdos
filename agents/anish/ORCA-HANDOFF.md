@@ -1,8 +1,18 @@
 # Orca handoff — UBC-26 engine integration
 
-Continue in the engine-commerce worktree, branch `codex/engine-commerce`.
+## 2026-11-18 — Anish — Restart handoff
 
-## 2026-11-15 — Anish — Current sprint handoff
+Continue from current remote main, not the old engine-commerce snapshot. Use an isolated checkout for further changes. Engine `adda3a3`, Neil `8584b04`, and Nick `57c387f` are already main ancestors. PR #7 merged the combined settlement work. PR #5 merged Neil's later commerce and web work. PRs #4 and #6 are closed.
+
+The [resume audit](reports/core-sprint-resume-2026-11-18.json) records a clean checkout of main `2e04451`: four commerce typechecks, 2,297 tests, Rust format/Clippy, 51 host tests and wire fixtures passed. Three prepared-guest tests stayed ignored. A fresh read-only Arc replay recovered the published job-7 file with the SDK and confirmed the exact 10,000-unit payout. Historical engine recovery and oracle evidence remain in the [live report](reports/open-claim-arc-live-acceptance-2026-11-16.md).
+
+Do not repeat completed merges, deployment, freeze, funding, claim or release. The prepared open-claim run paid 0.01 USDC. It is not the original plan's exact 1-USDC selected-provider run or fresh user-problem authoring. A further live run needs exact approved inputs, terms and protected signing authority. This restart performed no wallet access or chain writes.
+
+The existing [operator guide](../../docs/overnight/open-claim-live-operator.md) covers the accepted open-claim path. The [core sprint runbook](../../docs/core-sprint.md) retains the selected-provider tooling. Preserve private state, signer guards and one-prover ownership. `commerce/web` exists, but no new browser acceptance is claimed here. PR #8 is a separate hosted-backend workstream.
+
+## Historical snapshot — 2026-11-15 — Anish — Sprint handoff
+
+The remaining handoff text preserves earlier observations. Pending merges, missing live acceptance, and absent UI statements below do not describe the November 18 state.
 
 The user authorized sprint continuation, delegation, tested checkpoint commits/pushes, and normal merge integration into main. The older publication-only limits below are historical. Follow narrower limits in the active task. No live spending authorization or funded exchange exists.
 

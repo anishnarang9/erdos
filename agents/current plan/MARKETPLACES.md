@@ -1,5 +1,7 @@
 # Marketplace integration options
 
+> **2026-11-18 — Anish — Historical shortlist.** The product uses our isolated core, not the shared Circle deployment ranked below. The [prepared Arc run](../anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) also completed a separate Circle Gateway API payment. That payment does not establish a marketplace listing or fund a bounty. See [PLAN.md](PLAN.md) for current scope.
+
 > **Update (Neil, 2026-11-14 15:45 -05:00).** Main uses an **isolated** ERC-8183 core with our own hook and evaluator, not Circle's shared ACP. As a result:
 > - Option #1 becomes a reference and comparison point, not the escrow we settle on.
 > - Issue #4 (Circle can upgrade the ACP) no longer applies.

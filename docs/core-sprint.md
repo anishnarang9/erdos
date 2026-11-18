@@ -1,12 +1,14 @@
 # Core engine and funded-settlement sprint
 
-## 2026-11-15 — Anish — Scope and authority
+## 2026-11-18 — Anish — Current status and acceptance limits
 
-This runbook describes the integrated prototype, not a completed live exchange or production-security approval.
+Remote main contains the engine, Nick's settlement history and Neil's commerce/web work through merged PRs [#7](https://github.com/anishnarang9/UBC-26/pull/7) and [#5](https://github.com/anishnarang9/UBC-26/pull/5). PR #6 is closed. Do not repeat the owner merges.
 
-The user authorized sprint continuation, delegation, checkpoint commits/pushes, and normal merge integration into main. Active task limits still apply. No real wallet access, spending, or funded live acceptance is authorized yet.
+The [prepared Arc report](../agents/anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) records job 7's accepted proof, 0.01-USDC payout, dual recovery and oracle checks. Use the [open-claim operator guide](overnight/open-claim-live-operator.md) for that path. The [resume audit](../agents/anish/reports/core-sprint-resume-2026-11-18.json) confirms its canonical receipts and repeats SDK recovery from public chain data.
 
-Branch `codex/engine-commerce` contains actual merge ancestry for engine `adda3a3`, Neil `8584b04`, and Nick `57c387f`. Integration checkpoint `fff74ce` includes both commerce and settlement histories. [PR #6](https://github.com/anishnarang9/UBC-26/pull/6) is open. Do not infer that main already contains this work.
+That later fractional open-claim run does not establish the saved November 15 plan's exact 1-USDC selected-provider target or fresh user-problem authoring. A further live run needs exact approved inputs, terms and protected signing authority. Do not silently reuse or expand fractional spending authority.
+
+The selected-provider module descriptions, commands and historical rehearsal records below remain available. Their dated pending-status statements describe those earlier checkpoints, not the later open-claim acceptance. They grant no new spending authority. Neither path establishes production custody security.
 
 ## Product and proof boundary
 
@@ -17,7 +19,7 @@ The [Rust engine](../engine/README.md) compiles buyer-approved typed plans into 
 - Checked i64 arithmetic and Boolean rules.
 - Approved Ed25519, EIP-712, and JWS evidence profiles.
 
-The TypeScript [API, SDK, and worker](../commerce/README.md) connect approval, compilation, quotes, chain reads, and proof preparation. A buyer web UI remains planned. No `commerce/web` implementation exists.
+The TypeScript [API, SDK, and worker](../commerce/README.md) connect approval, compilation, quotes, chain reads, and proof preparation. Neil's merged `commerce/web` supplies the buyer UI source. Its existence does not establish browser acceptance for the prepared CLI/API run.
 
 A passing receipt proves satisfaction of the approved predicates for the bound bytes and context. It does not prove unexpressed intent, optimality, or external truth. A signature authenticates an issuer's claim, not its truth.
 
@@ -50,8 +52,8 @@ History starts at proxy creation block **72393888**, not the freeze block. Befor
 | [Operator keystore](../commerce/worker/src/operator-keystore.ts) | Encrypted V3 keystore loading with expected-address and private-path checks. Password input uses a protected descriptor or secure-input boundary. |
 | [Poster funding](../commerce/worker/src/poster-funding.ts) | Separate buyer boundary restricted to four funding calls and a 1-USDC sprint bounty. Exact selected terms and private durable journal. |
 | [Funded lifecycle](../commerce/worker/src/funded.ts) | `runFunded` supports `stopAfterProof` and a bounded proving timeout. Proof preparation does not enable CLI broadcast. |
-| [Buyer recovery](../commerce/worker/src/buyer-recovery.ts) | Chain-authenticated SDK and engine recovery, with exact-file comparison and a separate semantic oracle. The recorded lifecycle assertions passed, then the suite process exited 1. Live acceptance remains pending. |
-| [Separate operator runner](../commerce/worker/src/sprint-runner.ts) | Seven commands, exact approval bindings, source checks, pinned native engine, and separate Poster/provider authorization. Independent review passed. The suite source is published at `9458a81`. Live spending remains unauthorized. |
+| [Buyer recovery](../commerce/worker/src/buyer-recovery.ts) | Selected-provider chain-authenticated SDK and engine recovery, exact-file comparison and a separate semantic oracle. See the dated reports for local versus live coverage. |
+| [Separate operator runner](../commerce/worker/src/sprint-runner.ts) | Seven selected-provider commands, exact approval bindings, source checks, pinned native engine, and separate Poster/provider authorization. Each new run requires its own exact authority. |
 
 These are module boundaries, not evidence of a completed service/prover/signer exchange. Do not use an arbitrary unlocked RPC account as a signer.
 
