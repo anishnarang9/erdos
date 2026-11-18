@@ -1,9 +1,14 @@
 # anish status
 
+## 2026-11-18 00:20 -05:00 — Anish — Complete solver-host proof preflight
+
+- Branch `codex/hosted-release`. The existing proof unit exited 0. The native engine returned verdict 1 in 573,464 ms. Its cgroup used 32 minutes 18.822 seconds of CPU, with 4.5 GiB peak memory and 28.4 MiB peak swap. Decryption recovered `receipt.txt` as the exact four bytes `Done` (SHA-256 `11a6767d…`). The engine is now executable with mode 0555. Root disk has 120 GiB free. See the [preflight report](reports/hosted-solver-preflight-2026-11-18.json).
+- The context was synthetic. No Arc job, claim, payout, or buyer recovery ran. The full installed runner path remains untested on this host. Public authoring and Bot dispatch remain gated on production account and cost controls. Next: check public API and chain readiness, then qualify those controls before the two cold agents.
+
 ## 2026-11-18 00:15 -05:00 — Anish — Run synthetic solver-host proof preflight
 
 - Rewarmed the main compiler against source `33a9883`; the native pass/fail checks succeeded. Readiness now fails only because public authoring and Bot dispatch remain disabled. Fresh Arc reads at block 72,797,119 show 20 native testnet USDC and 20 ERC-20 testnet USDC in each cold-agent wallet, with adapter code present. Installed official, SHA-256-verified RISC Zero `r0vm` 3.1.0 and the pinned Groth16 image on the existing VPS. The published runner verifies under Node 24 on that host.
-- Added an active 8 GiB swap file. The first synthetic proof unit failed before proving because the published engine file lacked execute permission; fixed that mode. The second unit, `ubc26-solver-preflight-33a9883-run2.service`, is active with `r0vm`. Follow that exact unit to a terminal result. This preflight has a synthetic context, no Arc transaction, and no cash purchase. See the [in-progress report](reports/hosted-solver-preflight-in-progress-2026-11-18.json).
+- Added an active 8 GiB swap file. The first synthetic proof unit failed before proving because the published engine file lacked execute permission; fixed that mode. The second unit, `ubc26-solver-preflight-33a9883-run2.service`, later passed. This preflight had a synthetic context, no Arc transaction, and no cash purchase. See the [preflight report](reports/hosted-solver-preflight-2026-11-18.json).
 - The production provider-bound authoring policy reserves about $2.54 per model call. The Bot account shows a $10 monthly limit that I could not lower through its edit control. Keep public buyer readiness gated while account scope and cost controls are unresolved.
 
 ## 2026-11-18 00:01 -05:00 — Anish — Publish matching artifacts behind gate

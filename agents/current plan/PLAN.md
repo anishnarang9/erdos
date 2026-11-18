@@ -1,8 +1,13 @@
 # Current plan
 
+## 2026-11-18 00:20 -05:00 — Anish — Solver-host proof and recovery passed
+
+- The existing synthetic proof unit exited 0. The engine returned verdict 1 after 573,464 ms and decrypted the exact four-byte `Done` file. Peak memory was 4.5 GiB, peak swap was 28.4 MiB, and 120 GiB remains on the root disk. See the [preflight record](../anish/reports/hosted-solver-preflight-2026-11-18.json). This validates native proving capacity on the VPS, but not a funded Arc job or the installed runner's full lifecycle.
+- Public buyer readiness stays gated. Qualify the production authoring account and Bot cost controls before the single cold-agent test.
+
 ## 2026-11-18 00:15 -05:00 — Anish — Solver-host preflight is running
 
-- The checked public source now has a matching compiler prewarm. Both fresh testnet wallets still hold 20 native and 20 ERC-20 USDC. The existing VPS has the pinned `r0vm`, Groth16 image and installed runner. A synthetic proof is active in `ubc26-solver-preflight-33a9883-run2.service`; observe this unit before deciding resource readiness. See the [preflight record](../anish/reports/hosted-solver-preflight-in-progress-2026-11-18.json).
+- The checked public source now has a matching compiler prewarm. Both fresh testnet wallets still hold 20 native and 20 ERC-20 USDC. The existing VPS has the pinned `r0vm`, Groth16 image and installed runner. A synthetic proof in `ubc26-solver-preflight-33a9883-run2.service` later passed. See the [preflight record](../anish/reports/hosted-solver-preflight-2026-11-18.json).
 - Keep public authoring and Bot dispatch disabled. The provider-bound reservation is about $2.54 per call, and the Bot app currently shows a $10 monthly limit with no task-level attribution for the latest review. Qualify the account and cost policy before the final cold-agent test.
 
 ## 2026-11-18 00:01 -05:00 — Anish — Matching release staged in public, buyer gate closed

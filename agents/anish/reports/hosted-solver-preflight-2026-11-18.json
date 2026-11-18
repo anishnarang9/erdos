@@ -1,6 +1,6 @@
 {
-  "status": "synthetic-proof-running",
-  "checkedAt": "2026-11-18T05:15:28Z",
+  "status": "synthetic-proof-and-recovery-passed",
+  "checkedAt": "2026-11-18T05:20:04Z",
   "releaseSource": "33a9883e729b17da8fd97bc5a8981ee989dc9a36",
   "publicCompilerReady": "passed after exact-source prewarm; verdicts 1 and 0",
   "publicReadinessFailedChecks": ["authoring_release: disabled", "bot_review: dispatch_disabled"],
@@ -27,7 +27,27 @@
   "proofUnit": "ubc26-solver-preflight-33a9883-run2.service",
   "proofInput": "separate synthetic job context and exact-text pilot package; not a funded Arc job",
   "firstPreflightUnit": "failed before proving because the published engine lacked executable mode; mode corrected to 0555",
-  "proofResult": "pending; observe existing unit",
+  "proofResult": {
+    "unitExitStatus": 0,
+    "verdict": 1,
+    "proveMillis": 573464,
+    "userCycles": 195998,
+    "cpuTime": "32min 18.822s",
+    "memoryPeak": "4.5 GiB",
+    "swapPeak": "28.4 MiB",
+    "proofSha256": "fed3af64841a62f62338c436e3409f3e64383466a07f8ac299069eadde5ba4cc",
+    "decryptedFile": "receipt.txt",
+    "decryptedSizeBytes": 4,
+    "decryptedSha256": "11a6767d5674c7e45f7e00dc525762275b3a48491ad6045427d2609cc496c516",
+    "independentExpectedBytesHex": "446f6e65",
+    "engineMode": "0555",
+    "diskAvailableAfterProof": "120 GiB"
+  },
+  "limitations": [
+    "The proof used a synthetic job context and did not test Arc registration or settlement.",
+    "This run called the native engine directly. The installed runner's complete prove and submit path remains untested on the VPS.",
+    "Swap is active but is not configured to persist after a reboot."
+  ],
   "chainTransactions": 0,
   "cashPurchasesUsd": 0
 }
