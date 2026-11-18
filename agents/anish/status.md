@@ -1,3 +1,8 @@
+# 2026-11-18 15:17 -05:00 — Prepare the standalone lookup guard trial
+
+- Draft PR #19. The [frozen diagnostic](../../docs/authoring-lookup-guard-trial-2026-11-18.md) repeats the same six membership briefs on isolated source `eb22e28`. The image and engine pins match. A fresh wallet authenticated after the service finished starting. The database had no drafts or reservations. The dry run verified the case order and corpus hash.
+- Exact-source CI is pending. No paid draft has used this candidate. Campaign attributable API usage remains $1.113676.
+
 # 2026-11-18 15:15 -05:00 — Preserve the capacity rule from the retained lab draft
 
 - Draft PR #19. The [two-example trial](reports/authoring-paired-example-trial-2026-11-18.md) returned two examples per provider draft. Zero of six tasks reached buyer review readiness. Two plans failed native validation, two accepted hidden outputs they should reject, one rejected two valid outputs, and one used verdict 0 for an unknown key. All six charges settled. Campaign attributable API usage is $1.113676.
