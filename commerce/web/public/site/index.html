@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07070d">
+<title>UBC Commerce · Proof-gated payments for verifiable work</title>
+<meta name="description" content="Define what done means. Pay when the checks pass. Zero-knowledge proofs, USDC escrow on Arc testnet, files recovered from public chain data.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%2363f0ff' stroke-width='3'/%3E%3Cellipse cx='16' cy='16' rx='15' ry='5' fill='none' stroke='%23a86bff' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css?v=9">
+<link rel="stylesheet" href="site-v3.css?v=9">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="announce" role="region" aria-label="Announcement">
+  <span><b>New:</b> Two full buyer flows ran end to end on Arc testnet: one paid, one refused and refunded.</span>
+  <a href="#cases">Read the case studies <span aria-hidden="true">↗</span></a>
+  <button class="announce-x" aria-label="Dismiss announcement">×</button>
+</div>
+
+<header class="topbar">
+  <a class="cell brand" href="#top" aria-label="UBC Commerce, home">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#63f0ff"/><stop offset=".5" stop-color="#7d8cff"/><stop offset="1" stop-color="#ff5fd2"/></linearGradient></defs><circle cx="16" cy="16" r="10.5" fill="none" stroke="url(#lg)" stroke-width="2.6"/><ellipse cx="16" cy="16" rx="15" ry="5.2" fill="none" stroke="url(#lg)" stroke-width="1.6" transform="rotate(-18 16 16)"/><circle cx="12.5" cy="15" r="1.6" fill="#fff"/><circle cx="19.5" cy="15" r="1.6" fill="#fff"/></svg>
+    <span>UBC Commerce</span>
+  </a>
+  <a class="cell eco" href="#solution"><span class="dots" aria-hidden="true">⠶</span> PROOF NETWORK</a>
+  <nav class="nav" aria-label="Main">
+    <details class="drop"><summary>Product</summary><div class="menu">
+      <a href="#solution"><b>How it works</b><small>Six steps from brief to files</small></a>
+      <a href="#lab"><b>Proof lab</b><small>Change one cent. Watch it fail.</small></a>
+      <a href="#layers"><b>System layers</b><small>Authoring · Settlement · Proving</small></a>
+      <a href="#escrow"><b>USDC escrow</b><small>Contracts on Arc testnet</small></a></div></details>
+    <details class="drop"><summary>Case studies</summary><div class="menu">
+      <a href="#case-3"><b>Job #3 · Paid</b><small>Buyer UI, 147.7 s proof</small></a>
+      <a href="#case-4"><b>Job #4 · Refused</b><small>One cent off, refunded</small></a>
+      <a href="#case-7"><b>Job #7 · Open claim</b><small>First valid proof wins</small></a></div></details>
+    <details class="drop"><summary>Materials</summary><div class="menu">
+      <a href="#materials"><b>Repository map</b><small>Engine, SDK, API, worker, web</small></a>
+      <a href="#evidence"><b>Evidence ledger</b><small>Every transaction, linked</small></a></div></details>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <a class="cell launch" href="/#/app"><span class="dots" aria-hidden="true">••</span> OPEN WORKSPACE</a>
+  <button class="cell menu-toggle" aria-expanded="false" aria-controls="mobile-nav">MENU ☰</button>
+</header>
+<nav class="mobile-nav" id="mobile-nav" hidden aria-label="Mobile">
+  <a href="#solution">How it works</a><a href="#cases">Case studies</a><a href="#lab">Proof lab</a><a href="#materials">Materials</a><a href="#faq">FAQ</a>
+</nav>
+
+<div class="guides" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<aside class="rail" aria-label="Page sections">
+  <a href="#top" data-sec="top"><i></i><span>INTRO</span></a>
+  <a href="#stack" data-sec="stack"><i></i><span>STACK</span></a>
+  <a href="#solution" data-sec="solution"><i></i><span>SOLUTION</span></a>
+  <a href="#cases" data-sec="cases"><i></i><span>CASES</span></a>
+  <a href="#layers" data-sec="layers"><i></i><span>SYSTEM</span></a>
+  <a href="#lab" data-sec="lab"><i></i><span>LAB</span></a>
+  <a href="#escrow" data-sec="escrow"><i></i><span>ESCROW</span></a>
+  <a href="#materials" data-sec="materials"><i></i><span>MATERIALS</span></a>
+  <a href="#faq" data-sec="faq"><i></i><span>FAQ</span></a>
+</aside>
+
+<main id="main">
+<!-- HERO -->
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="globe" id="globe" aria-hidden="true"></div>
+  <div class="hero-fade" aria-hidden="true"></div>
+
+  <div class="quote frame-corners">
+    <div class="quote-mark" aria-hidden="true">“</div>
+    <div class="quote-line" aria-hidden="true"><span>▸</span><i></i></div>
+    <p class="quote-main" id="prompt">PAY MY SOLVER ONLY IF THE LEDGER RECONCILES TO THE CENT</p>
+    <p class="quote-dim" id="prompt-next">CONVERT MY CATALOG CSV AND PROVE EVERY REQUIRED FIELD IS PRESENT</p>
+  </div>
+
+  <div class="flow">
+    <div class="flow-head"><span class="flow-dot"></span> <span id="flow-status">SETTLING ON…</span><span class="flow-icon" aria-hidden="true">◎</span></div>
+    <div class="flow-target">▸ ARC TESTNET · 5042002</div>
+    <ul id="flow-list">
+      <li>◂ ENGLISH BRIEF → ENGINE CHECKS</li>
+      <li>◂ RISC ZERO GROTH16 PROOF</li>
+      <li>◂ USDC ESCROW · ONE RELEASE TX</li>
+      <li>◂ BROWSER DECRYPTION</li>
+    </ul>
+  </div>
+
+  <div class="hero-copy">
+    <p class="hero-eyebrow">SETTLE VERIFIABLE WORK WITH</p>
+    <h1 id="hero-title">
+      <span class="gbox gbox-a">Proof-gated</span>
+      <span class="gbox gbox-b">Payments</span>
+    </h1>
+  </div>
+  <div class="hero-side">
+    <p>Define what done means.<br>Pay when the checks pass.</p>
+    <div class="ticker" aria-label="Measured on a real run">
+      <span>937,488 CYCLES</span><span>147.7 S PROOF</span><span>260-BYTE SEAL</span><span>0.01 USDC</span>
+    </div>
+  </div>
+
+  <div class="hero-tools">
+    <button class="chip-btn" id="motion" aria-pressed="false">PAUSE MOTION</button>
+    <span class="tag">ILLUSTRATIVE NETWORK</span>
+  </div>
+</section>
+
+<!-- BUILT ON (marquee) -->
+<section class="stack" id="stack" aria-labelledby="stack-title">
+  <div class="stack-label"><h2 id="stack-title">BUILT ON</h2></div>
+  <div class="marquee"><div class="marquee-track">
+    <article class="stack-card frame-corners"><strong>RISC Zero</strong><span>zkVM 3.1.0 · Groth16 receipts</span></article>
+    <article class="stack-card frame-corners"><strong>Arc</strong><span>Testnet 5042002 · settlement</span></article>
+    <article class="stack-card frame-corners"><strong>USDC</strong><span>6-decimal escrow · no fees</span></article>
+    <article class="stack-card frame-corners"><strong>xAI Grok</strong><span>grok-4.7 drafts the checks</span></article>
+    <article class="stack-card frame-corners"><strong>ERC-8183</strong><span>Agentic commerce escrow</span></article>
+    <article class="stack-card frame-corners" aria-hidden="true"><strong>RISC Zero</strong><span>zkVM 3.1.0 · Groth16 receipts</span></article>
+    <article class="stack-card frame-corners" aria-hidden="true"><strong>Arc</strong><span>Testnet 5042002 · settlement</span></article>
+    <article class="stack-card frame-corners" aria-hidden="true"><strong>USDC</strong><span>6-decimal escrow · no fees</span></article>
+    <article class="stack-card frame-corners" aria-hidden="true"><strong>xAI Grok</strong><span>grok-4.7 drafts the checks</span></article>
+    <article class="stack-card frame-corners" aria-hidden="true"><strong>ERC-8183</strong><span>Agentic commerce escrow</span></article>
+  </div></div>
+</section>
+
+<!-- INTRO STATEMENT -->
+<section class="statement reveal" aria-label="Introduction">
+  <p class="dots-mark" aria-hidden="true">••</p>
+  <p class="big">Today a buyer pays for a deliverable and <em>then</em> checks it. We flip the order: the checks are agreed first, a zero-knowledge proof shows the files pass them, and only then does escrow release the payment and the key to the files.</p>
+  <dl class="stats">
+    <div><dt>4</dt><dd>funded jobs run on Arc testnet from the product</dd></div>
+    <div><dt>0</dt><dd>USDC paid for a delivery that failed a check</dd></div>
+    <div><dt>1</dt><dd>transaction releases both payout and delivery key</dd></div>
+    <div><dt>260</dt><dd>bytes of proof, whatever the size of the work</dd></div>
+  </dl>
+</section>
+
+<!-- SOLUTION: fixed centre figure, scrolling titles (left) and feature lists (right) -->
+<section class="sol" id="solution" aria-labelledby="sol-title">
+  <div class="title-wrap"><p class="dots-mark" aria-hidden="true">••</p><h2 class="gtitle" id="sol-title">Our Solution</h2></div>
+  <div class="sol-body">
+    <div class="sol-stage" aria-hidden="true"><div class="robot" id="robot"></div><span class="robot-label mono" id="robot-label">SOLVER AGENT</span></div>
+    <article class="sol-row" data-step="0">
+      <div class="sol-left"><span class="numbox">01</span><h3>Draft<br>the Checks</h3><p>The buyer writes plain English. Grok drafts a plan from the request and the reference files; the engine validates it and renders the rules it will actually check.</p></div>
+      <div class="sol-right"><ul><li data-sc>ENGLISH BRIEF</li><li data-sc>GROK-4.7 DRAFT</li><li data-sc>ENGINE-RENDERED RULES</li><li data-sc>CLARIFICATION ROUNDS</li><li data-sc>UNSUPPORTED → NO JOB</li></ul><a class="sol-link" href="#case-3"><span data-sc>SEE A REAL DRAFT</span><b aria-hidden="true">↗</b></a></div>
+    </article>
+    <article class="sol-row" data-step="1">
+      <div class="sol-left"><span class="numbox">02</span><h3>Approve<br>&amp; Compile</h3><p>Approval binds the engine's exact structure and rules hashes; any edit voids it. Compilation turns the plan into a guest program with on-chain commitments.</p></div>
+      <div class="sol-right"><ul><li data-sc>IMAGE ID</li><li data-sc>RULES HASH</li><li data-sc>REFERENCE HASH</li><li data-sc>REAL-ENGINE PROVENANCE</li><li data-sc>PACKAGES FOR SOLVERS</li></ul><a class="sol-link" href="#layers"><span data-sc>WHAT IS COMMITTED</span><b aria-hidden="true">↗</b></a></div>
+    </article>
+    <article class="sol-row" data-step="2">
+      <div class="sol-left"><span class="numbox">03</span><h3>Quote<br>&amp; Fund</h3><p>Solver agents sign quotes. The buyer picks one and funds the escrow in four confirmed transactions. The terms freeze on chain.</p></div>
+      <div class="sol-right"><ul><li data-sc>EIP-712 SIGNED QUOTES</li><li data-sc>CREATE → BUDGET → APPROVE → FUND</li><li data-sc>EXACT-BUDGET ALLOWANCE</li><li data-sc>RESUMABLE FROM CHAIN STATE</li><li data-sc>TERMS FROZEN</li></ul><a class="sol-link" href="#escrow"><span data-sc>VIEW THE ESCROW</span><b aria-hidden="true">↗</b></a></div>
+    </article>
+    <article class="sol-row" data-step="3">
+      <div class="sol-left"><span class="numbox">04</span><h3>Prove<br>the Delivery</h3><p>The solver encrypts its files to a key bound to the job, then runs the checker inside the RISC Zero zkVM. The result is a 260-byte Groth16 seal.</p></div>
+      <div class="sol-right"><ul><li data-sc>RISC ZERO ZKVM 3.1.0</li><li data-sc>812,683–937,488 CYCLES</li><li data-sc>101–148 S PER PROOF</li><li data-sc>260-BYTE SEAL</li><li data-sc>VERDICT 0 IS NEVER SENT</li></ul><a class="sol-link" href="#lab"><span data-sc>TRY A FAILING DELIVERY</span><b aria-hidden="true">↗</b></a></div>
+    </article>
+    <article class="sol-row" data-step="4">
+      <div class="sol-left"><span class="numbox">05</span><h3>Settle<br>in One Receipt</h3><p>Arc's verifier checks the proof inside submit. The solver's release pays the solver and publishes the key in a single transaction.</p></div>
+      <div class="sol-right"><ul><li data-sc>PROOF ACCEPTED ON SUBMIT</li><li data-sc>PAYOUT + KEY TOGETHER</li><li data-sc>ZERO PLATFORM FEE</li><li data-sc>REFUND AFTER REAL EXPIRY</li><li data-sc>OPEN-CLAIM MODE</li></ul><a class="sol-link" href="#cases"><span data-sc>READ THE RECEIPTS</span><b aria-hidden="true">↗</b></a></div>
+    </article>
+    <article class="sol-row" data-step="5">
+      <div class="sol-left"><span class="numbox">06</span><h3>Recover<br>the Files</h3><p>The buyer's browser reads the envelope from chain calldata, checks both commitments, and only then decrypts. No server is trusted for delivery.</p></div>
+      <div class="sol-right"><ul><li data-sc>ENVELOPE FROM CALLDATA</li><li data-sc>SHA-256 MATCHES ACCEPTED HASH</li><li data-sc>KEY OPENS THE COMMITMENT</li><li data-sc>AUTHENTICATED DECRYPTION</li><li data-sc>BYTE-FOR-BYTE MATCH</li></ul><a class="sol-link" href="/#/app"><span data-sc>OPEN THE WORKSPACE</span><b aria-hidden="true">↗</b></a></div>
+    </article>
+  </div>
+</section>
+
+<!-- CASE STUDIES -->
+<section class="cases" id="cases" aria-labelledby="cases-title">
+  <div class="title-wrap"><p class="dots-mark" aria-hidden="true">••</p><h2 class="gtitle" id="cases-title">Case Studies</h2>
+  <p class="lead">Real runs on Arc testnet with real proofs and testnet USDC. Every link opens the transaction on the Arc explorer.</p></div>
+  <div class="case-grid">
+    <article class="case frame-corners" id="case-3">
+      <header><span class="badge ok">PAID</span><span class="mono dim">JOB #3 · 16 NOV 2026</span></header>
+      <h3>Invoice reconciliation, clicked through the buyer workspace</h3>
+      <p>English brief → Grok draft → approved checks → two agents quote → demo signer funds → the honest solver proves and is paid → the browser decrypts the files.</p>
+      <dl class="metrics"><div><dt>147.7 s</dt><dd>proof</dd></div><div><dt>937,488</dt><dd>cycles</dd></div><div><dt>0.01</dt><dd>USDC paid</dd></div></dl>
+      <div class="links"><a href="https://explorer.testnet.arc.io/tx/0x05693a09af7886d83b0c7cdac00b0bd134bfc471be76cc9e7b0abaa704abf76c" target="_blank" rel="noreferrer">SUBMIT 0x0569…f76c ↗</a><a href="https://explorer.testnet.arc.io/tx/0xb9caccce8c09ad659812fa12021f3728471caf202765a0e709cbea1c382b4956" target="_blank" rel="noreferrer">RELEASE 0xb9ca…4956 ↗</a></div>
+    </article>
+    <article class="case frame-corners bad" id="case-4">
+      <header><span class="badge no">REFUSED · REFUNDED</span><span class="mono dim">JOB #4 · 16 NOV 2026</span></header>
+      <h3>The cheaper solver was one cent off</h3>
+      <p>The buyer picked a 0.009 USDC quote. Its delivery changed one amount by a cent. The proof came back verdict 0, the submit preflight reverted with <code>VerificationFailed</code>, and nothing was sent. After expiry the buyer reclaimed the budget from the UI.</p>
+      <dl class="metrics"><div><dt>101.1 s</dt><dd>proof</dd></div><div><dt>verdict 0</dt><dd>rules fail</dd></div><div><dt>0</dt><dd>USDC paid</dd></div></dl>
+      <div class="links"><a href="https://explorer.testnet.arc.io/tx/0xcfaa40a06a4b29fa30454e5aac373f7ffc8e8640a6c471491491500a87832540" target="_blank" rel="noreferrer">REFUND 0xcfaa…2540 ↗</a></div>
+    </article>
+    <article class="case frame-corners" id="case-1">
+      <header><span class="badge ok">PAID</span><span class="mono dim">JOB #1 · 15 NOV 2026</span></header>
+      <h3>First funded job on the deployed contracts</h3>
+      <p>The scripted runbook: in-process API, real engine in WSL2, real Groth16 proof. The buyer's script then rebuilt the delivery from public chain data only and matched the solver's files byte for byte.</p>
+      <dl class="metrics"><div><dt>126.4 s</dt><dd>proof</dd></div><div><dt>812,683</dt><dd>cycles</dd></div><div><dt>Completed</dt><dd>final state</dd></div></dl>
+      <div class="links"><a href="https://explorer.testnet.arc.io/tx/0x5dc711b36140d9562461c710077fe6d7b336db5a5d0e00c7fbe739fedbdfd84a" target="_blank" rel="noreferrer">SUBMIT 0x5dc7…d84a ↗</a><a href="https://explorer.testnet.arc.io/tx/0xbaf7bbd496cc20e34cde3820f4c2711ff2f10656b6cd7b402fedb32459ce3725" target="_blank" rel="noreferrer">RELEASE 0xbaf7…3725 ↗</a></div>
+    </article>
+    <article class="case frame-corners bad" id="case-2">
+      <header><span class="badge no">REFUSED · REFUNDED</span><span class="mono dim">JOB #2 · 15 NOV 2026</span></header>
+      <h3>A tampered delivery cannot get paid</h3>
+      <p>Same job, one amount changed by one cent. A real verdict-0 proof; the chain would reject it, so the worker never submits. The escrow stayed locked and the refund was claimed after expiry.</p>
+      <dl class="metrics"><div><dt>118.7 s</dt><dd>proof</dd></div><div><dt>Expired</dt><dd>final state</dd></div><div><dt>0.01</dt><dd>USDC back</dd></div></dl>
+      <div class="links"><a href="https://explorer.testnet.arc.io/tx/0xf8bd04d4693c7fe21c10c11c8d4887f840fcb1abbb03eab49fa3fc17b0c72de3" target="_blank" rel="noreferrer">REFUND 0xf8bd…2de3 ↗</a></div>
+    </article>
+    <article class="case frame-corners wide" id="case-7">
+      <header><span class="badge ok">PAID · OPEN CLAIM</span><span class="mono dim">JOB #7 · 16 NOV 2026</span></header>
+      <h3>Open claim: no selected provider, the first valid proof wins</h3>
+      <p>A verified adapter contract lets any solver claim a funded job with a valid proof. The buyer approved and funded through five protected calls; one fresh proof won the claim, released the key and was paid exactly 0.01 USDC. A second solver saw the winner and abstained before proving. A separate invalid claim reverted without payout and its budget was refunded at expiry. The API compile itself was paid through a Circle Gateway x402 charge of 0.000001 USDC.</p>
+      <dl class="metrics"><div><dt>0.0329</dt><dd>USDC gas, whole job</dd></div><div><dt>24</dt><dd>receipts audited</dd></div><div><dt>x402</dt><dd>paid compile</dd></div></dl>
+      <div class="links"><a href="https://explorer.testnet.arc.io/tx/0x30a8bc27f9cecf068eeaf5c822196c5149f825671c4e65013d559de353572e14" target="_blank" rel="noreferrer">ADAPTER DEPLOY 0x30a8…2e14 ↗</a><span class="mono dim">Run by Anish · agents/anish/reports</span></div>
+    </article>
+  </div>
+</section>
+
+<!-- ECOSYSTEM LAYERS: stacked sticky cards, diagrams rendered by site.js -->
+<section class="sys" id="layers" aria-labelledby="eco-title">
+  <div class="eco-head"><div class="title-wrap"><p class="dots-mark" aria-hidden="true">••</p><h2 class="gtitle" id="eco-title">The System behind the Proof</h2></div>
+  <p class="eco-lead">Three layers, one guarantee: the rules the buyer approved are the rules the chain enforces. Press <b>+</b> on any part to see what it does.</p></div>
+  <div class="eco-stack" id="eco-stack"></div>
+</section>
+
+<!-- LAB -->
+<section class="lab" id="lab" aria-labelledby="lab-title">
+  <div class="title-wrap"><p class="dots-mark" aria-hidden="true">••</p><h2 class="gtitle" id="lab-title">Proof Lab</h2>
+  <p class="lead">Change one file and run the same three checks. <span class="tag">SIMULATION · NO PROOF · NO PAYMENT</span></p></div>
+  <div class="lab-grid">
+    <div class="lab-panel frame-corners">
+      <div class="lab-controls">
+        <div><label for="scenario">CHOOSE A DELIVERY</label>
+        <select id="scenario"><option value="valid">Correct amounts</option><option value="tampered">One cent changed</option><option value="missing">Report missing</option></select></div>
+        <button id="run" class="cta">RUN CHECKS ↗</button>
+      </div>
+      <table class="ledger"><thead><tr><th>RECORD</th><th>EXPECTED</th><th>DELIVERED</th></tr></thead>
+      <tbody><tr><td>invoice-a</td><td>1,000¢</td><td>1,000¢</td></tr><tr><td>invoice-b</td><td>2,000¢</td><td id="amount">2,000¢</td></tr><tr><td>report.txt</td><td>nonempty</td><td id="report">nonempty</td></tr></tbody></table>
+      <ul class="checks" id="check-list">
+        <li><span class="ic">○</span>Exact record IDs<span class="res">WAITING</span></li>
+        <li><span class="ic">○</span>Exact amounts and total<span class="res">WAITING</span></li>
+        <li><span class="ic">○</span>Report present, size &gt; 0<span class="res">WAITING</span></li>
+      </ul>
+    </div>
+    <div class="lab-panel escrow frame-corners" aria-live="polite">
+      <p class="mono dim">SIMULATED ESCROW</p>
+      <p class="balance">0.01 <span>test USDC</span></p>
+      <h3 id="outcome">Payment stays locked.</h3>
+      <p id="outcome-copy">Pick a delivery and run the checks.</p>
+      <p class="status"><i id="dot"></i><span id="status">WAITING FOR YOUR EXPERIMENT</span></p>
+      <p class="fine">Local illustration. In the real flow a failing delivery cannot produce a passing proof; preflight refuses it and the refund needs real chain expiry. The globe above pulses with the result.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ESCROW: coin centre, staggered text -->
+<section class="token" id="escrow" aria-labelledby="tok-title">
+  <div class="token-grid">
+    <div class="token-left">
+      <p class="dots-mark" aria-hidden="true">••</p>
+      <h2 id="tok-title"><span class="gbox gbox-a">USDC Escrow</span></h2>
+      <p class="token-desc" data-fade>Every job is backed by USDC locked in an ERC-8183 escrow on Arc. The buyer approves exactly the budget, the terms freeze at funding, and the money can leave in only two ways: a verified proof, or a refund after expiry.</p>
+      <p class="mono dim token-cap" data-sc>VERIFIED ON-CHAIN BY</p>
+      <div class="audit">
+        <span data-sc>RISC ZERO</span><span data-sc>GROTH16 VERIFIER</span>
+        <button class="addr" id="copy-addr" data-addr="0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8" aria-label="Copy escrow contract address"><span aria-hidden="true">⬡</span> <span data-sc>0x4992…e9c8</span> <span class="copy" aria-hidden="true">⧉</span></button>
+      </div>
+    </div>
+    <div class="coin" id="coin" aria-hidden="true"></div>
+    <div class="token-right">
+      <p class="mono dim" data-sc>FEATURES OF THE ESCROW</p>
+      <ul><li data-sc>TERMS FROZEN AT FUNDING</li><li data-sc>EXACT-BUDGET ALLOWANCE</li><li data-sc>PROOF-GATED RELEASE</li><li data-sc>PAYOUT + KEY IN ONE RECEIPT</li><li data-sc>REFUND AFTER EXPIRY</li><li data-sc>ZERO PLATFORM FEE</li></ul>
+    </div>
+  </div>
+  <div class="token-links">
+    <span class="mono" data-sc>INSPECT ON ARC:</span>
+    <a href="https://explorer.testnet.arc.io/address/0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8" target="_blank" rel="noreferrer"><b>Escrow core</b><span class="pill">ERC-8183</span><i aria-hidden="true">↗</i></a>
+    <a href="https://explorer.testnet.arc.io/address/0x699d0e4a067F31229Be67C534B37dE964b6eDbAb" target="_blank" rel="noreferrer"><b>Settlement hook</b><span class="pill">SELECTED SOLVER</span><i aria-hidden="true">↗</i></a>
+    <a href="https://explorer.testnet.arc.io/address/0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8" target="_blank" rel="noreferrer"><b>Open-claim adapter</b><span class="pill">FIRST VALID PROOF</span><i aria-hidden="true">↗</i></a>
+  </div>
+</section>
+
+<!-- MATERIALS -->
+<section class="materials" id="materials" aria-labelledby="mat-title">
+  <div class="title-wrap"><p class="dots-mark" aria-hidden="true">••</p><h2 class="gtitle" id="mat-title">Materials</h2>
+  <p class="lead">What is in the repository, and where to look.</p></div>
+  <div class="mat-list">
+    <a class="mat" href="#materials"><span class="n">01</span><b>Engine CLI</b><span class="d">validate · eval · compile · prove · decrypt; RISC Zero 3.1 guest</span><code>engine/</code></a>
+    <a class="mat" href="#materials"><span class="n">02</span><b>Settlement contracts</b><span class="d">ERC-8183 core, SettlementHook, open-claim adapter, Groth16 verifier</span><code>contracts/</code></a>
+    <a class="mat" href="#materials"><span class="n">03</span><b>SDK</b><span class="d">Arc reads, transaction builders, preflights, envelope and key codecs</span><code>commerce/sdk/</code></a>
+    <a class="mat" href="#materials"><span class="n">04</span><b>Buyer API</b><span class="d">drafts, approvals bound to engine hashes, quotes, funding receipts, indexer, x402</span><code>commerce/api/</code></a>
+    <a class="mat" href="#materials"><span class="n">05</span><b>Solver worker</b><span class="d">quoting agent, exactly-once submit and release, guarded signer policy</span><code>commerce/worker/</code></a>
+    <a class="mat" href="#materials"><span class="n">06</span><b>Buyer workspace</b><span class="d">live flow, replay, presenter keys, browser decryption</span><code>commerce/web/</code></a>
+    <a class="mat" href="#evidence" id="evidence"><span class="n">07</span><b>Evidence ledger</b><span class="d">every funded job and transaction, with explorer links</span><code>commerce/evidence/</code></a>
+    <a class="mat" href="#materials"><span class="n">08</span><b>Recorded runs</b><span class="d">job #3 recording and the real Grok draft fixtures</span><code>commerce/web/recordings/</code></a>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq" aria-labelledby="faq-title">
+  <div class="title-wrap"><p class="dots-mark" aria-hidden="true">••</p><h2 class="gtitle" id="faq-title">Questions</h2></div>
+  <div class="faq-list">
+    <details><summary><span>01</span>What does the proof actually establish?</summary><p>That the committed delivery passes the approved checker: here, exact IDs, exact amounts and totals, and a nonempty report. It is not a judgement of writing quality, and it does not show the reference data is true or current.</p></details>
+    <details><summary><span>02</span>Who can be a solver?</summary><p>Autonomous agents today, selected by the buyer from signed quotes, or any prover in open-claim mode. Human-prepared files are eligible against the same checks; the human adapter is next.</p></details>
+    <details><summary><span>03</span>Are the files private?</summary><p>Not in this version. Releasing the key on chain makes the delivery decryptable by anyone, so use public or shareable data. Private delivery is future work.</p></details>
+    <details><summary><span>04</span>What stops a solver from being paid for bad work?</summary><p>The verifier contract. A delivery that fails a rule yields a verdict-0 receipt, and the escrow only accepts a proof whose verdict passes and whose commitments match the frozen terms.</p></details>
+    <details><summary><span>05</span>Is this page moving money?</summary><p>No. The globe and the proof lab are illustrations. Real runs happen in the buyer workspace on Arc testnet and are listed under Case Studies.</p></details>
+  </div>
+</section>
+
+<section class="closing" aria-labelledby="close-title">
+  <h2 id="close-title"><span class="gbox gbox-a">Agree on done.</span><span class="gbox gbox-b">Pay on proof.</span></h2>
+  <a class="cta" href="/#/app">•• OPEN THE WORKSPACE ↗</a>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="foot-brand">UBC Commerce</div>
+  <div class="foot-cols">
+    <div><p class="mono dim">PRODUCT</p><a href="#solution">How it works</a><a href="#lab">Proof lab</a><a href="#stack">Built on</a></div>
+    <div><p class="mono dim">EVIDENCE</p><a href="#cases">Case studies</a><a href="#materials">Materials</a><a href="#faq">FAQ</a></div>
+    <div><p class="mono dim">SCOPE</p><span>Arc testnet only</span><span>Public or shareable data</span><span>UBC 2026 hackathon</span></div>
+  </div>
+</footer>
+
+<script type="module" src="site.js?v=9"></script>
+</body>
+</html>

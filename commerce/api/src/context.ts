@@ -4,6 +4,7 @@ import { ApiError } from "./errors.ts";
 import type { Db } from "./db.ts";
 import type { PlanValidator } from "./revision.ts";
 import type { Engine } from "./engine.ts";
+import type { DemoSignerOptions } from "./demo-signer.ts";
 import type { DraftModel } from "./grok.ts";
 import type { ApiChain } from "./chain.ts";
 
@@ -88,6 +89,10 @@ export interface Deps {
   authoringRepairs: boolean;
   /** Host directory where compiled packages are kept for workers. Unset: packages are not kept. */
   packagesDir?: string;
+  /** Directory of worker run-event files (<jobId>.jsonl) served by the demo routes. */
+  runEventsDir?: string;
+  /** Presenter-mode Poster signer (DEMO_SIGNER=1). Absent: the demo funding routes are disabled. */
+  demoSigner?: DemoSignerOptions;
   /** T7/T8 chain; absent means chain routes return 503 chain_unavailable. */
   chain?: ApiChain;
   deployment: DeploymentConfig;

@@ -27,6 +27,8 @@ import type { ReadyReport } from "./ready.ts";
 import type { BotReviewConfig } from "./bot-review-types.ts";
 import { registerBotReviewRoutes } from "./bot-review.ts";
 import { botReviewStore } from "./bot-review-store.ts";
+import { registerDemoRoutes } from "./demo.ts";
+import { registerDemoSignerRoutes, type DemoSignerOptions } from "./demo-signer.ts";
 
 export interface CreateAppOptions {
   dbPath: string;
@@ -81,6 +83,10 @@ export interface CreateAppOptions {
   ready?: (deps: Deps) => Promise<ReadyReport>;
   /** Enables mandatory Bot review at approval. Dispatch needs separate explicit configuration. */
   botReview?: BotReviewConfig;
+  /** Serve worker run events from here (demo routes). */
+  runEventsDir?: string;
+  /** Presenter-mode Poster signer; see demo-signer.ts. */
+  demoSigner?: DemoSignerOptions;
 }
 
 export interface CreatedApp {
@@ -117,6 +123,9 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   const authLimit = resolveAuthLimit(opts.authLimit);
   const compileAdmission = createCompileAdmission(resolvePaidCompileLimit(opts.paidCompileLimit));
   const mode = opts.deployment?.mode ?? "local";
+  if (mode === "public" && (opts.runEventsDir !== undefined || opts.demoSigner !== undefined)) {
+    throw new Error("Demo routes require local mode");
+  }
   const browserOrigins = resolveBrowserAllowlist({ mode,
     serviceOrigin: opts.deployment?.serviceOrigin ?? "http://localhost",
     ...(opts.browserOrigin === undefined ? {} : { browserOrigin: opts.browserOrigin }) });
@@ -157,6 +166,8 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
     ...(opts.budget ? { budget: opts.budget } : {}),
     ...(opts.operatorToken ? { operatorToken: opts.operatorToken } : {}),
     ...(opts.botReview ? { botReview: opts.botReview } : {}),
+    ...(opts.runEventsDir ? { runEventsDir: opts.runEventsDir } : {}),
+    ...(opts.demoSigner ? { demoSigner: opts.demoSigner } : {}),
   };
 
   const app = new Hono<AppEnv>();
@@ -203,6 +214,10 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   registerOpenClaimRoutes(ctx, opts.openClaim);
   registerAttemptRoutes(ctx);
   registerMarketRoutes(ctx);
+  if (mode === "local") {
+    registerDemoRoutes(ctx);
+    registerDemoSignerRoutes(ctx);
+  }
 
   app.get("/v1/jobs/:id", readBody, requireJobId, jobs.get);
 

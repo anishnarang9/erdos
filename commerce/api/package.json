@@ -11,7 +11,8 @@
     "typecheck": "tsc -p tsconfig.json",
     "dev": "tsx src/server.ts",
     "test:engine": "vitest run --config vitest.engine.config.ts",
-    "record:grok": "tsx scripts/record-grok.ts"
+    "record:grok": "tsx scripts/record-grok.ts",
+    "test:arc": "vitest run --config vitest.arc.config.ts"
   },
   "dependencies": {
     "@hono/node-server": "2.1.8",

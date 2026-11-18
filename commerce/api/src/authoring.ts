@@ -1,6 +1,6 @@
 // T5/T6 routes: drafts, revisions, compile. Owner: Coder C. Implements ../CONTRACT-T5-T8.md §2–4.
 import { readFileSync } from "node:fs";
-import { readdir, readFile, rm, stat } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, stat } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { join, relative, sep } from "node:path";
 import type { Handler } from "hono";
@@ -752,6 +752,8 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     const plan = (JSON.parse(rev.revision_json) as Revision).plan;
     const approval = store.approvalOf(rev.id)!;
     // Keep the package for the worker. A fresh directory per attempt; the engine requires a new path.
+    // The engine publishes the package into a new directory; its parent must exist.
+    if (deps.packagesDir) await mkdir(deps.packagesDir, { recursive: true });
     const packageDir = deps.packagesDir ? join(deps.packagesDir, `${rev.id}.${newId()}`) : undefined;
     const discard = async () => {
       if (packageDir) await rm(packageDir, { recursive: true, force: true }).catch(() => undefined);

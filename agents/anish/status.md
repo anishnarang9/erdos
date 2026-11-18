@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 21:27 -05:00 — Anish — Integrate hosted backend with current main
+
+- Branch `codex/hosted-release` merges `origin/main` at `2e04451` into the hosted backend at `4ad733f`. Resolve eight source conflicts by retaining hosted ownership, readiness and safety controls alongside Arc/demo additions. Public mode rejects presenter-only configuration and does not register demo routes.
+- Commerce typechecks pass. SDK 534, web 4, API 1,017, worker 1,034 and Arc fixture 13 tests pass. The first merged API run exposed one demo test origin mismatch; the worker run exposed an invalid non-local test URL. Both test fixtures now use allowed local origins. `git diff --check` passes. This is a local candidate, not a deployed release or final agent acceptance.
+- Next: integrate the authoring diagnostic and public agent-kit checkpoints, review the combined release, and require exact-head checks before any public deployment.
+
 ## 2026-11-17 21:05 -05:00 — Anish — Change morning acceptance to cold agents
 
 - Branch `codex/hosted-backend`. Recorded the user decision in the shared plan and [two-agent acceptance plan](../../docs/agent-first-cold-e2e-2026-11-18.md). The frontend demo is deferred. The current Arc protocol remains. Anish owns all API, backend and test work. Neil owns only frontend/Vercel work. The final gate is one independent buyer-agent and solver-agent run against the public hosted service, with separate funded wallets and exact Arc/recovery evidence.

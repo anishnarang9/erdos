@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-17 21:27 -05:00 — Anish — Merge current main into the hosted release candidate
+
+- `codex/hosted-release` combines hosted source `4ad733f` with main `2e04451`. Resolve API, SDK and worker test conflicts while retaining public-mode ownership, readiness and signer boundaries. All commerce typechecks and 2,589 package tests plus 13 Arc fixtures pass locally. Public deployment, authoring reconciliation, fresh wallets and the two-agent acceptance remain pending.
+- Keep Neil's frontend work as merged source. The frontend and Vercel are outside the morning acceptance gate. Publish the combined candidate only after the diagnostic and agent-kit checkpoints, exact release checks and readiness review.
+
 ## 2026-11-17 21:05 -05:00 — Anish — Agent-first cold-start acceptance
 
 - The user kept the current public-key-release Arc flow and deferred the frontend demo. Vercel deployment is assumed; the immediate target is all service work behind the demo. The [new acceptance plan](../../docs/agent-first-cold-e2e-2026-11-18.md) supersedes the November 18 preset-demo checklist as the morning gate.

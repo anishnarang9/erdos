@@ -139,3 +139,8 @@ export {
   ATTEMPT_REPORTED_AT_MIN,
   type AttemptPhase,
 } from "./attempts.ts";
+export { arcReader, arcChain } from "./arc.ts";
+export { readChain } from "./chain.ts";
+export { runEventLog, readRunEvents, type RunEvent, type RunEventType, type Emit } from "./run-events.ts";
+export { registerDemoSignerRoutes, type DemoSignerOptions, type PosterChain } from "./demo-signer.ts";
+export { arcPosterChain } from "./demo-arc.ts";
