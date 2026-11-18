@@ -6,6 +6,12 @@
 - Commerce typechecks pass. SDK 534, web 4, API 1,017, worker 1,034 and Arc fixture 13 tests pass. The first merged API run exposed one demo test origin mismatch; the worker run exposed an invalid non-local test URL. Both test fixtures now use allowed local origins. The scoped diff check passes; main brings two existing whitespace findings in Neil's plan and a vendored Three.js file. This is a local candidate, not a deployed release or final agent acceptance.
 - Next: integrate the authoring diagnostic and public agent-kit checkpoints, review the combined release, and require exact-head checks before any public deployment.
 
+## 2026-11-17 21:26 -05:00 — Anish — Prepare public cold-agent kit
+
+- Branch `codex/agent-kit` from hosted backend `4ad733f`. Added separate public buyer and solver guides with cold-start prompts. Extended the docs download allowlist and controlled proxy assets. The solver guide derives local runner inputs from confirmed public discovery, without buyer private files. See [readiness evidence](../../docs/agent-kit-readiness-2026-11-18.md).
+- Read-only checks matched published runner, engine and Docker pins. Local Docker holds the pinned Groth16 image. `git diff --check`, `node --check` and the exact guide mapping command passed. The mapping created mode-0600 files from synthetic public data. This checkout is Darwin arm64. Final Linux solver memory, disk, installed runner, wrapper digest, shared lock, public publication and ready API remain gates. Public discovery omits the buyer brief. Current buyer recovery needs the solver's private attempt state. No cold agent, proof, model call, chain transaction or production change ran.
+- Next owner: Anish integrates this branch into the hosted release. Check the actual Linux solver host and publish the guides under the release SHA before the final cold test.
+
 ## 2026-11-17 21:25 -05:00 — Anish — Retain safe xAI failure diagnostics
 
 - Branch `codex/authoring-diagnostics` is an isolated worktree based on hosted commit `4ad733f`. A new provider failure records the HTTP status and an allowlisted error code in its draft attempt metadata. It does not retain a raw provider message or key. The original failed task `01M7NQRG2BXWM30NJ2WTNAYTZE`, its idempotency identity and its 6¢ uncertain reservation were not changed.
