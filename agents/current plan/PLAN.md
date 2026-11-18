@@ -1,5 +1,11 @@
 # Current plan
 
+## 2026-11-18 17:35 -05:00 — Anish — Prioritize one fresh independent Arc run
+
+- The user directs us to use their existing Grok Bot account for the hackathon backend. They will disable auto top-up. A separate Bot account is no longer a demo gate. Keep the restricted callback, one-wallet pilot, durable dispatch cap, and exact-revision review.
+- Stop broad paid draft diagnostics. The next paid draft must serve a fresh buyer job that proceeds through Bot review, approval, native compile, Arc funding, independent solver proof, payout, and byte-exact buyer recovery. Keep prior failed trials and job 9 evidence separate.
+- The public wallet has used three draft slots and two of three Bot dispatches. PR #19 now adds an independently configured four-draft limit while retaining the three-dispatch Bot cap. Require full checks, current-main integration, a pinned release, backup, public pin checks, and a fresh buyer/solver run before claiming repeatability. No new paid request or Arc send has run under this entry.
+
 ## 2026-11-18 15:08 -05:00 — Anish — Check generated examples before release qualification
 
 - The [reference membership diagnostic](../anish/reports/authoring-membership-contract-trial-2026-11-18.md) produced three draft and oracle matches, all with rejected examples. The next [frozen trial](../../docs/authoring-paired-example-trial-2026-11-18.md) changes the model's generated example contract while preserving the same briefs and oracle. The [release gate audit](../anish/reports/agent-first-gate-audit-2026-11-18.md) records what remains before the final two-agent attempt.

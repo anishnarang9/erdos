@@ -9,7 +9,8 @@ export function botReviewFromEnv(env: Record<string, string | undefined>, callba
   if (env.BOT_REVIEW_LIVE_DISPATCH && !["0", "1"].includes(env.BOT_REVIEW_LIVE_DISPATCH))
     throw new Error("Live Bot dispatch requires a reviewed spending policy");
   if (!live && [env.BOT_REVIEW_WEBHOOK_URL, env.BOT_REVIEW_WEBHOOK_TOKEN,
-    env.BOT_REVIEW_PILOT_OWNER, env.BOT_REVIEW_PILOT_MAX_DISPATCHES].some(Boolean))
+    env.BOT_REVIEW_PILOT_OWNER, env.BOT_REVIEW_PILOT_MAX_DISPATCHES,
+    env.BOT_REVIEW_PILOT_MAX_DRAFTS].some(Boolean))
     throw new Error("Live Bot dispatch requires a reviewed spending policy");
   const required = env.BOT_REVIEW_REQUIRED ?? "0";
   if (required === "0" && !live) return undefined;
@@ -19,8 +20,10 @@ export function botReviewFromEnv(env: Record<string, string | undefined>, callba
   if (!live) return { serviceToken: token };
   const owner = env.BOT_REVIEW_PILOT_OWNER;
   const maxDispatches = env.BOT_REVIEW_PILOT_MAX_DISPATCHES;
+  const maxDrafts = env.BOT_REVIEW_PILOT_MAX_DRAFTS;
   if (!owner || !/^0x[0-9a-f]{40}$/.test(owner)
     || !["1", "2", "3", ...(deploymentMode === "local" ? ["10"] : [])].includes(maxDispatches ?? "")
+    || (maxDrafts !== undefined && !["1", "2", "3", "4", ...(deploymentMode === "local" ? ["10"] : [])].includes(maxDrafts))
     || !env.BOT_REVIEW_WEBHOOK_URL || !env.BOT_REVIEW_WEBHOOK_TOKEN || !callbackUrl
     || env.BOT_REVIEW_WEBHOOK_TOKEN === token || env.BOT_REVIEW_WEBHOOK_TOKEN === env.BUYER_API_TOKEN
     || env.BOT_REVIEW_WEBHOOK_TOKEN === env.OPERATOR_TOKEN) throw new Error("Live Bot dispatch requires a reviewed spending policy");
@@ -28,7 +31,9 @@ export function botReviewFromEnv(env: Record<string, string | undefined>, callba
     token: env.BOT_REVIEW_WEBHOOK_TOKEN, callbackUrl });
   return { serviceToken: token, pilotOwner: owner,
     maxDispatches: maxDispatches === "10" ? 10 : maxDispatches === "3" ? 3
-      : maxDispatches === "2" ? 2 : 1, dispatch };
+      : maxDispatches === "2" ? 2 : 1,
+    ...(maxDrafts === undefined ? {} : { maxDrafts: maxDrafts === "10" ? 10 : maxDrafts === "4" ? 4
+      : maxDrafts === "3" ? 3 : maxDrafts === "2" ? 2 : 1 }), dispatch };
 }
 
 /** A live process can accept restricted callbacks while normal public readiness remains false. */

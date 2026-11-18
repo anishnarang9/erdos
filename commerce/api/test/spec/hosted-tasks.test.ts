@@ -154,6 +154,37 @@ describe("durable tasks", () => {
     expect((await post(created.app, "/v1/tasks", draftTask("First"), auth(key))).status).toBe(202);
   });
 
+  it("admits one more public draft without increasing the Bot dispatch cap", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-fourth-public-draft-"));
+    const dbPath = join(dir, "service.db");
+    const options: Partial<CreateAppOptions> = {
+      dbPath,
+      deployment: { mode: "public", serviceOrigin: ORIGIN },
+      draftModel: countingModel(),
+      budget: { reservationMode: "provider-bound", requestCeilingMicroUsd: 2_540_960,
+        dailyCeilingMicroUsd: 15_245_760, inputMicroUsdPerMillion: 2_500_000,
+        outputMicroUsdPerMillion: 5_000_000 },
+      botReview: { serviceToken: "callback-only-test-credential-0123456789",
+        pilotOwner: accountA.address.toLowerCase(), maxDispatches: 3,
+        maxDrafts: 4, dispatch: async () => {} },
+    };
+    try {
+      const first = clocked(options).created;
+      const key = await issue(first.app, accountA);
+      for (let n = 1; n <= 3; n++) {
+        expect((await post(first.app, "/v1/tasks", draftTask(`Prior case ${n}`), auth(key))).status).toBe(202);
+      }
+      first.close();
+      opened.splice(opened.indexOf(first), 1);
+      const second = clocked(options).created;
+      expect((await post(second.app, "/v1/tasks", draftTask("Final buyer case"), auth(key))).status).toBe(202);
+      await expectError(await post(second.app, "/v1/tasks", draftTask("Extra case"), auth(key)), 503, "service_disabled");
+      expect((await post(second.app, "/v1/tasks", draftTask("Final buyer case"), auth(key))).status).toBe(202);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it("limits a local ten-draft pilot to its wallet after a restart", async () => {
     const dir = mkdtempSync(join(tmpdir(), "ubc26-local-ten-drafts-"));
     const dbPath = join(dir, "service.db");

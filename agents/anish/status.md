@@ -1,3 +1,9 @@
+# 2026-11-18 17:35 -05:00 — Separate final buyer draft from Bot dispatch cap
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. The user chose their existing Grok Bot account for the hackathon backend and made the independent buyer/solver Arc run the next priority. Broad paid draft diagnostics stop. Public readiness is HTTP 200; the release wallet has used three of three draft slots and two of three Bot dispatches.
+- Added `BOT_REVIEW_PILOT_MAX_DRAFTS=4` as an optional, one-wallet public pilot setting. It defaults to the existing dispatch cap, so current deployments retain their limit. The Bot cap remains three. A durable restart test first failed at the fourth draft, then passed. Full commerce checks passed: SDK 535, web 4, API 1,081, worker 1,051, and all four typechecks. No paid call, Bot dispatch, deployment, or Arc send occurred.
+- Next: finish full checks, integrate current main, verify exact-source CI, publish a pinned release with backup, and run the cold buyer/solver acceptance with the existing restricted Bot account. Keep the old six-cent uncertain reservation separate.
+
 # 2026-11-18 16:39 -05:00 — Honor explicitly requested unknown-key rejection
 
 - Draft PR #19. The retained nights plan expressed reference membership with an existential predicate, which returned verdict 0 for an unknown program. The new normalization recognizes the exact rejection clause, a plain per-row membership predicate, matching string-key schemas, and unique keys in the supplied reference. It converts only that predicate to lookup equality and retains its coverage index. Other membership rules remain untouched.

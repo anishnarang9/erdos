@@ -44,6 +44,10 @@ describe("production Bot callback profile", () => {
     expect(config?.dispatch).toBeTypeOf("function");
     expect(botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "2" }, callback)?.maxDispatches).toBe(2);
     expect(botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "3" }, callback)?.maxDispatches).toBe(3);
+    const oneMoreDraft = botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "3",
+      BOT_REVIEW_PILOT_MAX_DRAFTS: "4" }, callback, "public");
+    expect(oneMoreDraft).toMatchObject({ maxDispatches: 3, maxDrafts: 4 });
+    expect(() => botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DRAFTS: "5" }, callback, "public")).toThrow();
     expect(() => botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "10" }, callback)).toThrow();
     expect(() => botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "10" }, callback, "public")).toThrow();
     expect(botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "10" }, callback, "local")?.maxDispatches).toBe(10);

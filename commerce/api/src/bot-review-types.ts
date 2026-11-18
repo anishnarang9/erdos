@@ -16,4 +16,6 @@ export interface BotReviewConfig {
   pilotOwner?: string;
   /** Durable maximum number of webhook claims for that wallet. */
   maxDispatches?: 1 | 2 | 3 | 10;
+  /** Durable draft limit for the same wallet. Defaults to maxDispatches. */
+  maxDrafts?: 1 | 2 | 3 | 4 | 10;
 }
