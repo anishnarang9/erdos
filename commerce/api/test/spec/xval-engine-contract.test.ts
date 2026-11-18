@@ -640,6 +640,19 @@ describe("7. Grok adapter: structured plan", () => {
     expect(draftBranch.required).toContain("plan");
   });
 
+  it("normalizes null context in a structured plan reply", async () => {
+    const example = { name: "sample", predictedVerdict: 1, files: [], evidence: [], context: null };
+    const m = grokDraftModel({
+      apiKey: KEY,
+      model: "grok-x",
+      fetch: (async () => reply({ kind: "draft", plan: PLAN, examples: [example], sourceQuotes: [] })) as any,
+    });
+    const out = await m.draft(input);
+    expect(out.result).toEqual({
+      kind: "draft", plan: PLAN, examples: [{ name: "sample", predictedVerdict: 1, files: [], evidence: [] }], sourceQuotes: [],
+    });
+  });
+
   it("accepts legacy planJson replies but requests a plan object", async () => {
     let sent: any;
     const m = grokDraftModel({

@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 08:33 -05:00 — Anish — Audit plan-invalid drafts and fix nullable examples
+
+- A read-only query of the retained isolated drafts table found the exact native errors for three supported briefs. `badge-zone-1` and `nights-1` declared `rows` as both scalar field and collection. `lot-range-1` compared Boolean `unique` to numeric `count`. No provider call was made.
+- A subagent review found that a structured `plan` reply with an inline example and `context:null` would fail parsing. The new regression failed with `invalid_reply`; the adapter now removes null context for both new and legacy replies. Focused tests and API typecheck passed. The prompt now asks for missing buyer-supplied tables, units and thresholds, and states the two observed plan rules explicitly. Live behavior remains unqualified.
+- PR [#18](https://github.com/anishnarang9/UBC-26/pull/18) remains draft. No public deployment or additional paid test ran. The ten-case pilot verdict is unchanged.
+
 ## 2026-11-18 08:30 -05:00 — Anish — Stage structured plan wire fix
 
 - Changed the Grok draft response schema to request `plan` as a JSON object. This removes the nested `planJson` text field that was malformed in the first provider trace. Legacy `planJson` parsing remains for recorded responses. Native engine validation still checks plan semantics; this adapter change does not make an invalid plan acceptable.
