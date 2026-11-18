@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-18 00:29 -05:00 — Anish — Restart recovery and clean-source closure
+
+- Branch `codex/core-sprint-closure`, based on remote main `2e04451`. Found the requested merges already complete. Verified Nick `57c387f`, engine `adda3a3`, integration `ae1295a`, and Neil PR #5 final head `f84773b` as main ancestors. PR #7 and #5 are merged. PR #4 and #6 are closed.
+- Fresh private clean checkout passed locked install, 2,297 commerce tests, four typechecks, 15 real-engine API tests, Rust format/Clippy/build, 51 Rust tests, wire fixtures, 34 Meridian oracle tests, 43 legacy oracle tests, and web build. Three prepared-guest tests remain ignored. Upstream Rust/SQLite and Vite chunk warnings remain explicit.
+- Rechecked five public Arc receipts as canonical: job-7 funding, claim and release, job-6 invalid claim and refund. Confirmed the context, key event and exact 10,000-unit payment event. SDK and freshly rebuilt engine recovered the recorded `schedule.json` digest. Independent oracle returned accepted with no errors. No wallet access, new proof, transaction, deployment, or freeze occurred.
+- The [closure audit](reports/core-sprint-closure-2026-11-18.json) distinguishes the later approved prepared Meridian 0.01-USDC open-claim run from the original 1-USDC selected-provider proposal. Corrected current guidance and retained old observations as history. Neil's UI now exists through his merged branch. Its evidence remains separate from Meridian.
+- Existing baseline commerce CI passed. Core CI passed at `6ed9d2d`, with byte-identical engine/contracts/workflow at this baseline. Next: publish this documentation checkpoint, run exact-head core CI, merge normally, and verify remote ancestry. No external blocker for this closure. New spending or authoring requires a separate approved task.
+
 ## 2026-11-16 11:04 -05:00 — Anish — Full prepared Arc workflow passed
 
 - PR #7 runtime source `8fe6dc5` completed [live job 7](reports/open-claim-arc-live-acceptance-2026-11-16.md): buyer approval, all five protected funding calls, confirmed funded reads, one fresh real proof, winning claim, key release and exact 0.01-USDC payout. Proving plus private recovery validation took 1,095.026 seconds. Public-chain SDK and engine recovery matched the original bytes. Both recovered directories passed the independent oracle. The API reports Completed and excludes the job from the open market.

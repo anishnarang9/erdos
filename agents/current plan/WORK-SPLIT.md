@@ -1,5 +1,11 @@
 # UBC 2026 · Three-way work split
 
+## 2026-11-18 — Anish — Integration status
+
+All three workstreams are integrated on remote `main`. PR #7 preserved the engine/settlement/commerce ancestry. PR #5 subsequently merged Neil's completed commerce and UI branch. See the [closure audit](../anish/reports/core-sprint-closure-2026-11-18.json) and [live prepared-workload evidence](../anish/reports/open-claim-arc-live-acceptance-2026-11-16.md).
+
+The completed later scope uses an open-claim adapter and a 0.01-USDC bounty. The selected-provider design below remains supported. It is not the description of that adapter's winner selection. Consult the [open-claim interface](../../docs/overnight/open-claim-v1.md) and [operator guide](../../docs/overnight/open-claim-live-operator.md) for the extension. Original proposals and acceptance targets below remain historical.
+
 **2026-11-14 · Anish workstream · Proposed handoff**
 
 Use the [settlement and commerce integration entry](PLAN.md#2026-11-14-2048--0500--anish--settlement-and-commerce-integration) for the current core source, hook layout, and delivery limits.

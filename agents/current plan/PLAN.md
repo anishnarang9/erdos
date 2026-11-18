@@ -2,6 +2,13 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-18 00:29 -05:00 — Anish — Recover completed merges and close stale sprint guidance
+
+- Fresh GitHub and ancestry checks show PR #7 merged the combined integration and PR #5 merged Neil's finished branch. Remote main `2e04451` contains Nick `57c387f`, engine `adda3a3`, integration `ae1295a`, and Neil `f84773b`. Do not repeat these merges or the freeze.
+- The later approved prepared Meridian open-claim scope completed at 0.01 USDC. Preserve that scope and its [live evidence](../anish/reports/open-claim-arc-live-acceptance-2026-11-16.md). It is not the original 1-USDC selected-provider target or fresh Grok authoring.
+- The [closure audit](../anish/reports/core-sprint-closure-2026-11-18.json) records clean-source checks and a fresh read-only audit. Public receipts remain canonical. SDK and rebuilt-engine recovery match, and the independent oracle accepts the recovered bytes. No new live write or wallet access was needed.
+- Integration owns publishing the remaining documentation correction, exact-head CI, and normal merge. This closes stale handoff claims, not a new product workstream. Keep unrelated hosted-backend work and owner status files unchanged. Future spending needs separate approval.
+
 ## 2026-11-16 11:04 -05:00 — Anish — Prepared Arc acceptance complete; publish final evidence
 
 - The [live report](../anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) closes the prepared buyer-to-solver Arc run at runtime source `8fe6dc5`. Job 7 confirms buyer approval, five signed funding steps, fresh funded-context proof acceptance, winning claim, key release, exact 0.01-USDC payout and byte-exact SDK/engine recovery. Both recovered directories pass the independent oracle. A second solver abstains after observing the winner. The separate invalid claim and job-6 expiry refund passed. Failed job 5 was preserved and refunded.
