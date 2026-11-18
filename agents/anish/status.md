@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 08:30 -05:00 — Anish — Stage structured plan wire fix
+
+- Changed the Grok draft response schema to request `plan` as a JSON object. This removes the nested `planJson` text field that was malformed in the first provider trace. Legacy `planJson` parsing remains for recorded responses. Native engine validation still checks plan semantics; this adapter change does not make an invalid plan acceptable.
+- The new regression failed before the change and passed after it. Full `pnpm check` passed: SDK 535 tests and 13 chain fixtures, API 1,035, web 4, worker 1,048, with all workspace typechecks. No live provider call ran, so this change is not production qualified.
+- The ten paid draft allowance is exhausted. Next: inspect the other four provider traces, then run a newly scoped qualification only after its cost and account boundary are set. Public authoring stays on the prior release.
+
 ## 2026-11-18 08:23 -05:00 — Anish — Merge pilot guard and diagnose one malformed draft
 
 - PR [#17](https://github.com/anishnarang9/UBC-26/pull/17) merged at `2fa00f9` after its GitHub commerce check passed. The public `/readyz` still returned HTTP 200. The merged guard remains local only; it does not qualify or enable general public authoring.

@@ -176,13 +176,10 @@ export function fromWireReply(raw: unknown): unknown {
 }
 
 /**
- * JSON schema sent as `response_format.json_schema.schema` (strict). Kept to the subset xAI documents
- * for structured outputs: object/array/string/integer/enum/anyOf, every property required,
- * additionalProperties false, no length bounds (1..5 questions is enforced on our side).
- *
- * The engine's plan schema uses $ref, `not` and `const`, which strict mode may not accept, so the plan
- * travels as JSON text in `planJson`. The plan schema and the capability catalog are given to the model
- * in the prompt, and `engine validate` checks every plan. `_planSchema` is kept for API compatibility.
+ * JSON schema sent as `response_format.json_schema.schema` (strict). The plan is an object so the
+ * provider must produce valid nested JSON. Its recursive engine schema cannot be enforced by the
+ * provider's non-circular $ref subset. Native engine validation still checks the complete plan.
+ * `_planSchema` is kept for API compatibility.
  */
 export function draftResponseSchema(_planSchema?: unknown): Record<string, unknown> {
   const str = { type: "string" };
@@ -196,7 +193,7 @@ export function draftResponseSchema(_planSchema?: unknown): Record<string, unkno
     anyOf: [
       obj({
         kind: { type: "string", enum: ["draft"] },
-        planJson: str,
+        plan: { type: "object", additionalProperties: true },
         examples: {
           type: "array",
           items: { anyOf: [
@@ -232,7 +229,7 @@ export const DRAFT_SYSTEM_PROMPT = [
   "checker gives each one, and verbatim quotes (`sourceQuotes`) from the request or the named reference",
   "files that justify each rule.",
   "Reply with exactly one JSON object, one of:",
-  '- { "kind": "draft", "planJson", "examples", "sourceQuotes", "coverage" } where planJson is the plan as JSON text',
+  '- { "kind": "draft", "plan", "examples", "sourceQuotes", "coverage" } where plan is a JSON object',
   '- { "kind": "clarification", "questions" } with 1 to 5 short questions, when the request is ambiguous',
   '- { "kind": "unsupported", "reason" } when the task cannot be checked deterministically',
   "The plan must follow the engine plan schema and use only the parsers, value types, operations and",

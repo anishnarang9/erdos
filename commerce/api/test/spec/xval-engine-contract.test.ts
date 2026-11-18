@@ -612,7 +612,7 @@ describe("6. drafts: examples labelled by engine.eval", () => {
 });
 
 // ---------------------------------------------------------------------------------------------------
-describe("7. Grok adapter: planJson", () => {
+describe("7. Grok adapter: structured plan", () => {
   const KEY = "xai-SECRET-KEY-should-never-leak-123";
   const reply = (content: unknown, id: unknown = "trace-1") =>
     new Response(JSON.stringify({ id, model: "grok-x", choices: [{ message: { content: typeof content === "string" ? content : JSON.stringify(content) } }] }), {
@@ -622,7 +622,25 @@ describe("7. Grok adapter: planJson", () => {
   const input = { request: "r", outputs: OUT_JSON as any, referenceNames: [], clarifications: [], schema: {}, catalog: {} };
   const draftWire = (planJson: unknown) => ({ kind: "draft", planJson, examples: [], sourceQuotes: [] });
 
-  it("response_format schema has planJson (string) and no plan; the adapter parses it into plan", async () => {
+  it("requests a structured plan object so nested plan JSON cannot be malformed text", async () => {
+    let sent: any;
+    const m = grokDraftModel({
+      apiKey: KEY,
+      model: "grok-x",
+      fetch: (async (_u: any, init: any) => {
+        sent = JSON.parse(init.body);
+        return reply({ kind: "draft", plan: PLAN, examples: [], sourceQuotes: [] });
+      }) as any,
+    });
+    const out = await m.draft(input);
+    expect(out.result).toEqual({ kind: "draft", plan: PLAN, examples: [], sourceQuotes: [] });
+    const draftBranch = sent.response_format.json_schema.schema.anyOf.find((b: any) => b.properties.kind.enum[0] === "draft");
+    expect(draftBranch.properties.plan).toEqual({ type: "object", additionalProperties: true });
+    expect(draftBranch.properties.planJson).toBeUndefined();
+    expect(draftBranch.required).toContain("plan");
+  });
+
+  it("accepts legacy planJson replies but requests a plan object", async () => {
     let sent: any;
     const m = grokDraftModel({
       apiKey: KEY,
@@ -637,9 +655,9 @@ describe("7. Grok adapter: planJson", () => {
     const schema = sent.response_format.json_schema.schema;
     expect(schema).toEqual(draftResponseSchema());
     const draftBranch = schema.anyOf.find((b: any) => b.properties.kind.enum[0] === "draft");
-    expect(draftBranch.properties.planJson).toEqual({ type: "string" });
-    expect(draftBranch.properties.plan).toBeUndefined();
-    expect(draftBranch.required).toContain("planJson");
+    expect(draftBranch.properties.plan).toEqual({ type: "object", additionalProperties: true });
+    expect(draftBranch.properties.planJson).toBeUndefined();
+    expect(draftBranch.required).toContain("plan");
     expect(JSON.stringify(sent)).not.toContain(KEY);
   });
 
