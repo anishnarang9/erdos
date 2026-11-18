@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 12:49 -05:00 — Anish — Keep full-run gate after six draft-stage passes
+
+- Source `fc2e717` passed exact-source CI and six independent API draft tasks across two wallets. Lab receipt, clinic receipt, and firmware note each passed twice on native validation, buyer fixtures, coverage, quotes, and all hidden oracle cases. Same-wallet replay responses remain excluded. The [repeat report](../anish/reports/authoring-fourth-independent-repeat-2026-11-18.md) records six unique tasks, $0.045614 for these tasks, and $0.181299 cumulative fourth-campaign API spend.
+- This is draft-stage evidence for three briefs. No new Bot, approval, compile, package, proof, Arc send, or public deployment ran. Anish will test generated package/proof locally and widen the frozen corpus. Keep the accepted public release and general authoring gate. Bot cost attribution and the production account boundary remain open.
+
 ## 2026-11-18 12:45 -05:00 — Anish — Correct repeat reliability evidence
 
 - Source `fc2e717` produced three unique API drafts that passed native, fixtures, coverage, quotes, and hidden oracle checks. Three later requests with new idempotency keys replayed those tasks because the same wallet sent identical input. The service created no second paid task. The private harness misreported the replay responses and double-counted cost. The [audit](../anish/reports/authoring-fourth-reliability-replay-2026-11-18.md) corrects the evidence to three unique draft-stage successes, zero independent repeat trials, and $0.024053 new API spend. Fourth-campaign cumulative API spend is $0.159738.

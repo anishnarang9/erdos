@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 12:49 -05:00 — Six independent drafts pass three-family repeat
+
+- A new wallet ran the three frozen `-r3` tasks on source `fc2e717` with task and trace IDs distinct from the first wallet. All three passed native validation, buyer fixtures, coverage, quotes, and every hidden oracle case. Together with the first-wallet tasks, this is six independent draft-stage passes over three briefs, two per brief. The [independent repeat report](reports/authoring-fourth-independent-repeat-2026-11-18.md) records IDs, costs, and scope. The three same-wallet replay requests remain excluded.
+- New-wallet API spend was $0.021561. The service database shows six unique settled tasks across two wallets costing $0.045614 for this source; fourth-campaign cumulative API spend is $0.181299. No Bot, approval, compile, proof, Arc send, or public deploy ran. Public `/readyz` stayed 200. Next: local compile/package/proof of the generated lab plan, then a wider frozen corpus. General authoring remains gated.
+
 ## 2026-11-18 12:46 -05:00 — Freeze independent wallet repeat
 
 - Froze three new `-r3` trials on source `fc2e717` in the [separate-wallet repeat](../../docs/authoring-fourth-separate-wallet-repeat-2026-11-18.md). They use a new authenticated wallet and reject any task or trace ID from the first-wallet tasks. No `-r3` task has run. Earlier unique fourth-campaign API cost is $0.159738; $0.45 is reserved for these three tasks. Next: prepare a protected new-wallet harness, verify identity guards, then dispatch each trial once.
