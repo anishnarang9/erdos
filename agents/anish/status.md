@@ -1,3 +1,8 @@
+# 2026-11-18 15:00 -05:00 — Record plan repair diagnostic results
+
+- Draft PR #19. Exact-source commerce, engine, and contracts CI passed for `82505b5`, which includes current main. The [six-case report](reports/authoring-eleventh-plan-repair-2026-11-18.md) records four draft and oracle matches and three drafts ready for buyer review. Category still had a rejected example. Badge-zone remained native-invalid. Clearance differed on unknown-post rejection, which its public brief did not specify.
+- All six charges settled. The cohort cost $0.062446, for $0.946333 in attributable campaign usage. The production account, Bot-to-proof qualification, and independent release acceptance remain open.
+
 # 2026-11-18 14:54 -05:00 — Stage plan repair diagnostic on current main
 
 - Merged main at `a3f6cae` into the PR #19 candidate. Source `82505b5` is pinned in the new isolated Linux image. The new wallet authenticated to an empty draft database, and the dry run verified the six [frozen cases](../../docs/authoring-eleventh-plan-repair-2026-11-18.md).

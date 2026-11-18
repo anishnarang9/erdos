@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 15:00 -05:00 — Anish — Record results after integrating current main
+
+- The [six-case diagnostic](../anish/reports/authoring-eleventh-plan-repair-2026-11-18.md) ran on a candidate that includes main at `a3f6cae`. Three briefs were ready for buyer review. Keep the release gated while model rule and example failures persist. Future evaluation inputs must state any input-rejection distinctions used in scoring.
+
 ## 2026-11-18 14:50 -05:00 — Anish — Keep release gated after example trial
 
 - The [eleven-case trial](../anish/reports/authoring-tenth-example-gate-2026-11-18.md) recorded three supported drafts ready for buyer review. Four supported cases missed at least one gate. All four ambiguous or unsupported cases missed their frozen score. Keep the evidence and correct recurring failures before live Bot and proof qualification.
