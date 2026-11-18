@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 01:49 -05:00 — Anish — Complete intervened job before strict attempt
+
+- Arc job 8 is funded, registered, and public. The first independent solver made its own answer and passed the native check, but its initial proof preparation stopped before proof or transaction. A diagnostic read-only resume has started one native proof from the same saved work. Keep this whole job labeled intervened.
+- If proof preparation succeeds, finish claim, release, payout, buyer recovery, and an independent oracle check. Then start a new buyer and solver pair with no prior context for the strict cold-start gate. Keep the current one-wallet, two-draft, two-Bot-review policy and the user's $5 cash constraint.
+
 ## 2026-11-18 01:31 -05:00 — Anish — Finish partial live job and rerun strict acceptance
 
 - The first paid buyer attempt reached approved compilation, then needed a public guide correction. Its funding command sent three successful, distinct Arc calls but stopped at receipt or finality visibility each time. This attempt is intervened and cannot satisfy the cold-start gate. The runner now waits on read-only receipt and confirmation state without rebroadcast. Source `4316b0a` serves matching API, installed runner, engine, and docs source `a55338d`.

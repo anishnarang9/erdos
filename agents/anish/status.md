@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 01:49 -05:00 — Anish — Fund Arc job 8 and diagnose solver preparation
+
+- The buyer resumed its saved journal. Arc job 8 is funded with 10,000 atomic USDC, registered, linked to API job `01M7PKYWPXG1NH2TJ3G7BVRA3H`, and visible through public discovery. All five buyer receipts succeeded. Buyer gas cost was 0.01336398 native testnet USDC; the bounty cost was 0.01 testnet USDC. This buyer run remains intervened because the public funding guide and runner needed repair.
+- A fresh independent solver discovered job 8, verified the package and reference pins, created its own `receipt.txt`, and got native verdict 1. Its first `operator prepare` stopped after 3.586 seconds with a generic error. It sent no transaction and saved no proof. This solver run also failed the cold-start gate.
+- A diagnostic read-only prepare now uses the same solver directory and public runner. It completed the Arc role-history scans and started one native proof. The attempt is in `proving`; there is no claim or release hash. The diagnostic logs only RPC method names and safe error codes. Its result is pending. Next: inspect the proof, let the solver settle from its saved attempt if valid, recover from the buyer side, then run a fresh two-agent attempt.
+
 ## 2026-11-18 01:31 -05:00 — Anish — Diagnose live funding and promote receipt-safe runtime
 
 - The first paid cold buyer reached compiled API job `01M7PKYWPXG1NH2TJ3G7BVRA3H`: draft cost $0.005105, native examples 1/0, genuine exact-revision Bot pass, exact approval, and successful compile. The public funding guide lacked command details, so the buyer stopped. Corrected and published the guide; this is an intervention and the attempt cannot count as a cold-start pass.
