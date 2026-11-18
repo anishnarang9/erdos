@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 03:40 -05:00 — Anish — Publish runner correction and close release review
+
+- The public API accepted independent buyer and solver job 9. Its chain proof, payout, buyer recovery, and byte oracle passed. A later read-only resume using runner source `0b35d3a` changed the saved local state from `release_sent` to `released` with confirmed payment; its journal contains only the original claim and release. Focused tests cover the case where local reconciliation still fails after a confirmed release receipt. Keep that branch's live behavior unclaimed because the retry did not reproduce the transient error.
+- Publish immutable docs for the corrected runner, verify external artifact hashes and exact-head CI, then open a reviewable PR. Continue local and public read-only tests. The three distinct paid drafts are used, and no further Arc send is needed for this acceptance.
+
 ## 2026-11-18 03:24 -05:00 — Anish — Finish reviewable hosted release
 
 - Current remote main is now an ancestor of `codex/hosted-release`. The merge contained owner and sprint documentation only; the deployed API and runner runtime bytes remain the tested source. Commerce, Rust formatting/tests/lints, and exact-merge-head commerce/core-fast CI passed. A post-acceptance backup preserved job 9 and the settled authoring state. The solver's temporary Docker group access is removed.

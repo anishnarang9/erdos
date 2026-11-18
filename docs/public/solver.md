@@ -34,12 +34,12 @@ The runner checks the real chain state before proof work. Follow the [API contra
 
 ## Prepared VPS runner commands
 
-Use the verified installed runner source `0b1a82fccf1aaed1607b994d3ddc6e527ca90ecf` and installed `ubc26-release.json` SHA-256 `da0f578732df0a0ae347a5a0e1c58ef9d31c1c313efb518def79647ed5d16a2c`. The engine SHA-256 is `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`. The reviewed wrapper digest is `289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d`; `ubc26 wrapper-digest` must match. Save the following in a private `engine.json` on the prepared VPS:
+Use the verified installed runner source `0b35d3a5e327144045d04fe45084f6258bb23f3c` and installed `ubc26-release.json` SHA-256 `81ca7d96733378193ead6d443b4173f6b2f0553f6728f5f8bef77c0561b0fe03`. The engine SHA-256 is `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`. The reviewed wrapper digest is `289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d`; `ubc26 wrapper-digest` must match. Save the following in a private `engine.json` on the prepared VPS:
 
 ```json
 {
   "mode": "native",
-  "executable": "/opt/ubc26-solver/engines/0b1a82fccf1aaed1607b994d3ddc6e527ca90ecf/ubc26-engine-linux-x64",
+  "executable": "/opt/ubc26-solver/engines/0b35d3a5e327144045d04fe45084f6258bb23f3c/ubc26-engine-linux-x64",
   "executableSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
   "wrapperSha256": "289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d",
   "environment": {
@@ -57,8 +57,8 @@ ubc26 configure --api "$API" --job "$JOB" --revision "$REVISION_HASH" \
   --manifest "$WORK/manifest.json" --buyer "$BUYER" --solver "$SOLVER" \
   --work-dir "$WORK" --package-dir "$PACKAGE_DIR" --reference "$REFERENCE_DIR" \
   --deliverables "$DELIVERABLES_DIR" \
-  --source-commit 0b1a82fccf1aaed1607b994d3ddc6e527ca90ecf \
-  --release-manifest-sha256 da0f578732df0a0ae347a5a0e1c58ef9d31c1c313efb518def79647ed5d16a2c \
+  --source-commit 0b35d3a5e327144045d04fe45084f6258bb23f3c \
+  --release-manifest-sha256 81ca7d96733378193ead6d443b4173f6b2f0553f6728f5f8bef77c0561b0fe03 \
   --out "$WORK/operator.json"
 ubc26 operator preview --config "$WORK/operator.json"
 ubc26 job-input --rpc-url https://rpc.testnet.arc.io \
@@ -84,7 +84,7 @@ ubc26 operator run --config "$WORK/operator.json" --password-fd 3 \
   3<"$SOLVER_PASSWORD_FILE"
 ```
 
-The local check must return verdict 1 before proof preparation. Preserve the attempt and send journals after any interruption. Confirm the winner and payout from the public `open-job` record and Arc receipts.
+The local check must return verdict 1 before proof preparation. Preserve the attempt and send journals after any interruption. Confirm the winner and payout from the public `open-job` record and Arc receipts. If `operator run` returns `phase:"released"`, `paymentConfirmed:true`, and `releaseJournalUncertain:true`, the chain receipt confirms payout but the local gas journal still needs reconciliation. Keep that journal and avoid a new signed transaction from the same wallet until its state is resolved. This flag does not authorize a resend.
 
 ## Cold-start prompt
 

@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 03:40 -05:00 — Anish — Publish corrected runner and confirm read-only resume
+
+- Runner and engine source `0b35d3a` is installed on the VPS and served under an immutable public path. The client archive, runner release manifest, engine hash, and wrapper digest match their published pins. The live API remains the accepted source `1ee322e`; no API promotion or new paid call occurred.
+- A copy of the solver's job 9 configuration pointed at the new installed runner while preserving its saved attempt and journals. `operator run` returned `phase:"released"` and `paymentConfirmed:true` for the same claim and release hashes. The journal now has only the original claim nonce 2 and release nonce 3, both confirmed. The live retry did not encounter the original reconciliation error, so the new uncertainty branch has focused test coverage but no live reproduction. The exact cause of the earlier transient error remains unknown.
+- Next: publish corrected public guides, verify the public hashes and release checks, and open a reviewable PR. The three paid draft slots are used; continue read-only and local testing without another paid model call or Arc transaction.
+
 ## 2026-11-18 03:29 -05:00 — Anish — Preserve chain payout when the local release journal fails
 
 - Review found that `operator run` aborted receipt processing if its local broadcaster journal could not reconcile, even when the release receipt was confirmed. This matches job 9's saved `release_sent` caveat, though the exact transient cause was not logged. A focused test failed before implementation. The candidate now lets a saved `release_sent` or `released` attempt process the confirmed chain receipt and report `releaseJournalUncertain:true` if local reconciliation fails. Claim reconciliation still fails closed before a possible release send. A full runner test also confirms payout state and no duplicate sends when local release reconciliation fails. Full commerce typechecks and tests passed: SDK 535 plus 13 fixtures, API 1,031, web 4, worker 1,048.

@@ -4,7 +4,7 @@ For the agent-first flow, read the [buyer guide](buyer.md) or [solver guide](sol
 
 Check `/readyz` before buyer operations. The runner and native engine downloads remain available while buyer routes are gated. The protocol publishes the release key, so settled results become public.
 
-Three synthetic typed-plan cases completed genuine Grok Bot review, buyer approval, VPS compilation, fresh local proofs, independent verification and exact recovery. Those tests establish the checked integration path. Public authoring is now enabled for one designated buyer wallet with at most three distinct paid drafts and three Bot reviews. Installed-runner funded acceptance and production cost qualification remain open.
+Three synthetic typed-plan cases completed genuine Grok Bot review, buyer approval, VPS compilation, fresh local proofs, independent verification and exact recovery. A fresh independent buyer and solver also completed funded Arc Testnet job 9 through the public API and the prior installed runner. The proof, payout, chain recovery, and independent byte check passed. The solver's final local journal reconciliation failed after confirmed payout. A later read-only resume with this runner confirmed the same release receipt and repaired the saved local state without a new send. This release also reports journal uncertainty separately if that local reconciliation fails again. Public authoring admits one designated buyer wallet with at most three distinct paid drafts and three Bot reviews. All three draft slots are used. Production cost qualification remains open.
 
 ## Download and install
 
@@ -12,7 +12,7 @@ Use Node.js 24 or later on native Linux x64. The client archive contains its run
 
 ```sh
 export UBC26_API=https://ubc26-159-89-149-133.sslip.io
-export UBC26_RELEASE=0b1a82fccf1aaed1607b994d3ddc6e527ca90ecf
+export UBC26_RELEASE=0b35d3a5e327144045d04fe45084f6258bb23f3c
 umask 077
 mkdir -p client engine
 curl --fail --proto '=https' "$UBC26_API/downloads/runner/$UBC26_RELEASE/ubc26-runner-0.2.0.tgz" -o client/ubc26-runner-0.2.0.tgz
@@ -29,9 +29,9 @@ chmod 700 engine/ubc26-engine
 sha256sum engine/ubc26-engine
 ```
 
-The expected archive SHA-256 is `e3529d91fb27192aad359276c0b675168a0aae5c0b1cc4219e7b4f5f35e29971`.
-The expected `release.json` SHA-256 is `4bb35c8298eb6a45ac8f81ec3f4092183a5039bd8ab920e022efa75b7178ac4f`.
-The expected `ubc26-release.json` SHA-256 is `da0f578732df0a0ae347a5a0e1c58ef9d31c1c313efb518def79647ed5d16a2c`.
+The expected archive SHA-256 is `f63ef047135b9d02f5e70f960e77cb348fbffaaa8ae061df79d22b1def31f836`.
+The expected `release.json` SHA-256 is `563c12d650765271048f6b5480f95b2c427051f8ffeaed2b82afd027edcdbefb`.
+The expected `ubc26-release.json` SHA-256 is `81ca7d96733378193ead6d443b4173f6b2f0553f6728f5f8bef77c0561b0fe03`.
 The expected engine SHA-256 is `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`.
 Verify each independent pin before selecting these files for protected operations.
 

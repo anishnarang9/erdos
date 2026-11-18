@@ -37,12 +37,12 @@ ubc26 funding-preview --api "$API" --key-file "$KEY_FILE" --job "$JOB" \
   --input "$WORK/funding.json" --idempotency "$TERMS_KEY" > "$WORK/terms.json"
 ```
 
-Download the published `open-claim-arc-testnet.json` into the private work directory as `manifest.json`. Use the verified runner source `0b1a82fccf1aaed1607b994d3ddc6e527ca90ecf` and installed release manifest SHA-256 `da0f578732df0a0ae347a5a0e1c58ef9d31c1c313efb518def79647ed5d16a2c`. The engine SHA-256 is `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`. The reviewed wrapper digest for that installed runner is `289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d`; `ubc26 wrapper-digest` must match it. On this VPS, save this private `engine.json`:
+Download the published `open-claim-arc-testnet.json` into the private work directory as `manifest.json`. Use the verified runner source `0b35d3a5e327144045d04fe45084f6258bb23f3c` and installed release manifest SHA-256 `81ca7d96733378193ead6d443b4173f6b2f0553f6728f5f8bef77c0561b0fe03`. The engine SHA-256 is `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`. The reviewed wrapper digest for that installed runner is `289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d`; `ubc26 wrapper-digest` must match it. On this VPS, save this private `engine.json`:
 
 ```json
 {
   "mode": "native",
-  "executable": "/opt/ubc26-solver/engines/0b1a82fccf1aaed1607b994d3ddc6e527ca90ecf/ubc26-engine-linux-x64",
+  "executable": "/opt/ubc26-solver/engines/0b35d3a5e327144045d04fe45084f6258bb23f3c/ubc26-engine-linux-x64",
   "executableSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
   "wrapperSha256": "289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d",
   "environment": {
@@ -61,8 +61,8 @@ ubc26 configure --api "$API" --job "$JOB" --revision "$REVISION_HASH" \
   --manifest "$WORK/manifest.json" --buyer "$BUYER" --solver "$SOLVER" \
   --work-dir "$WORK" --package-dir "$WORK/package" --reference "$WORK/reference" \
   --deliverables "$WORK/deliverables" \
-  --source-commit 0b1a82fccf1aaed1607b994d3ddc6e527ca90ecf \
-  --release-manifest-sha256 da0f578732df0a0ae347a5a0e1c58ef9d31c1c313efb518def79647ed5d16a2c \
+  --source-commit 0b35d3a5e327144045d04fe45084f6258bb23f3c \
+  --release-manifest-sha256 81ca7d96733378193ead6d443b4173f6b2f0553f6728f5f8bef77c0561b0fe03 \
   --out "$WORK/operator.json"
 ubc26 operator preview --config "$WORK/operator.json"
 ```
