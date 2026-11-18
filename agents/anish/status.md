@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 00:47 -05:00 — Anish — Promote one-wallet release behind gate
+
+- Branch `codex/hosted-release`. Built API image `sha256:c40b35d…` from exact source `8a1e62f`, took a quiesced 101-file state backup, and promoted the image. The previous image and host environment remain for rollback. Rewarmed its compiler and observed native verdicts 1 and 0. Published and externally hashed the matching runner, engine, and docs source `934062f`; the new runner verified after an independent Linux install. See the [gated release record](reports/hosted-one-wallet-gated-release-2026-11-18.json).
+- A protected one-wallet production environment file is staged, not active. A network-isolated copy of the API passed every readiness check except the deliberately disabled expensive-ops switch. Live `/healthz` returned 200; `/readyz` and discovery returned 503. No model, Bot, chain, or cash transaction ran. The Bot automatic top-up state is not yet verified off. Next: confirm that control, activate the staged profile, and run external readiness checks.
+
 ## 2026-11-18 00:37 -05:00 — Anish — Enforce one durable public draft
 
 - Branch `codex/hosted-release`. The one-wallet Bot policy now admits only one distinct public draft task. An idempotent replay of that same task still returns its saved ID. A focused test showed the second task was admitted before the fix. The new test proves the limit survives an API restart on the same database.
