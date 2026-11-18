@@ -73,6 +73,24 @@ async function status(app: ReturnType<typeof createApp>["app"], key: string, job
 }
 
 describe("live Bot review integration with a controlled transport", () => {
+  it("rejects unrestricted Bot dispatch in public mode before opening a database", () => {
+    expect(() => createApp({ dbPath: ":memory:", buyerToken: BUYER_TOKEN,
+      deployment: { mode: "public", serviceOrigin: "https://api.example.test" },
+      engine: simulatedEngine(), botReview: { serviceToken: SERVICE, dispatch: async () => undefined } }))
+      .toThrow("Public Bot dispatch requires the one-wallet pilot policy");
+  });
+  it("restricts a live pilot to one owner and one durable trigger", async () => {
+    const owner = privateKeyToAccount(PROVIDER_KEY).address.toLowerCase();
+    const dispatch = vi.fn(async () => undefined);
+    const { app } = setup({ botReview: { serviceToken: SERVICE, dispatch, pilotOwner: owner, maxDispatches: 1 } });
+    const otherKey = await issue(app, OTHER_KEY), otherJob = await job(app, otherKey);
+    expect((await review(app, otherKey, otherJob.jobId, otherJob.revisionHash)).status).toBe(403);
+    const key = await issue(app), first = await job(app, key);
+    expect((await review(app, key, first.jobId, first.revisionHash)).status).toBe(202);
+    const second = await job(app, key);
+    expect((await review(app, key, second.jobId, second.revisionHash)).status).toBe(503);
+    expect(dispatch).toHaveBeenCalledTimes(1);
+  });
   it("remains disabled without configuration", async () => {
     const { app } = setup({ botReview: undefined }); const key = await issue(app), task = await job(app, key);
     expect((await review(app, key, task.jobId, task.revisionHash)).status).toBe(503);

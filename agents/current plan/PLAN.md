@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-17 23:08 -05:00 — Anish — Bound one synthetic Bot dispatch
+
+- The release candidate adds a fail-closed live Bot profile with one wallet and one durable trigger claim. Uncertain and completed claims both consume the slot. This prepares a single synthetic cold test; it does not qualify general public customer dispatch or guarantee a per-run dollar ceiling. Keep the profile off until the pilot stop rule, account boundary, callback route, and exact deployed release are resolved.
+- Combined `pnpm check` passes with all typechecks, 2,608 package tests and 13 Arc fixtures at this checkpoint.
+
 ## 2026-11-17 23:04 -05:00 — Anish — Combined service candidate check
 
 - `codex/hosted-release` integrates explicit, buyer-owned public briefs and a buyer recovery command that reads confirmed Arc events and released key material. Public guides now cover both. The buyer must still run an independent output oracle. No fresh public job has exercised either feature.

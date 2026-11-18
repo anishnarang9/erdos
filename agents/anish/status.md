@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 23:08 -05:00 — Anish — Add bounded Bot dispatch candidate
+
+- The hosted release candidate now has an optional live Bot webhook profile for one exact buyer wallet and one durable dispatch claim. A database transaction counts all prior claims for that wallet, including uncertain sends, across process restarts. The route rejects other wallets and a second review before native preflight. Public mode rejects a dispatcher without this policy. The HTTPS callback and webhook credentials must be separate.
+- `pnpm check` passes at this source checkpoint: all commerce typechecks, 535 SDK tests, 1,027 API tests, 4 web tests, 1,042 worker tests and 13 Arc fixtures. The targeted Bot policy tests cover invalid configuration, owner isolation, cap retention across restart and unrestricted public dispatch rejection.
+- The profile is code only. No VPS setting changed and no Bot task ran. The shared Bot account still has unrelated connected apps and is not a general customer account boundary. The first API draft's 6¢ reservation is uncertain; the approved pilot stop rule still blocks another paid request. Fresh authoring, exact cost evidence, dedicated Bot account scope, public release and the cold agents remain pending.
+
 ## 2026-11-17 23:04 -05:00 — Anish — Check combined agent release
 
 - Branch `codex/hosted-release` now contains explicit public brief publication and independent buyer chain recovery. The public guides describe both commands and require the solver to use the published brief. These features are release candidates; neither has been checked against a fresh public job.

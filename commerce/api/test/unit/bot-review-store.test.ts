@@ -56,6 +56,17 @@ describe("durable Bot review records", () => {
     expect(second.claim("review1", 1003)).toBeNull();
     expect(second.complete("review1", claim.ticket, pass(), 1004).decision).toBe("pass");
   });
+  it("keeps the one-dispatch pilot cap across a restart and an uncertain send", () => {
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-bot-cap-")); dirs.push(dir);
+    const path = join(dir, "state.db"), { store, db } = setup(path); create(store);
+    expect(store.claim("review1", 1001, { ownerWallet: owner, maxDispatches: 1 })).not.toBeNull();
+    store.uncertain("review1");
+    const secondDb = openDb(path, () => 1002); databases.push(secondDb);
+    const second = botReviewStore(secondDb);
+    expect(second.pilotDispatchAvailable(owner, 1)).toBe(false);
+    expect(second.claim("review1", 1002, { ownerWallet: owner, maxDispatches: 1 })).toBeNull();
+    expect(db.prepare("SELECT COUNT(*) AS n FROM bot_reviews WHERE ticket_hash IS NOT NULL").get()).toEqual({ n: 1 });
+  });
 
   it("does not mistake webhook acceptance for completion or overwrite a fast callback", () => {
     const { store } = setup(); create(store); const claim = store.claim("review1", 1001)!;

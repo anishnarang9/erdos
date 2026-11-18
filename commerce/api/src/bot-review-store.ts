@@ -16,6 +16,7 @@ export interface BotReviewView {
   status: Status; decision: BotReviewResult["decision"] | null; result: BotReviewResult | null;
   resultHash: string | null; createdAt: number; expiresAt: number; completedAt: number | null;
 }
+export interface BotDispatchPolicy { ownerWallet: string; maxDispatches: 1 }
 const hash = (text: string) => createHash("sha256").update(text, "utf8").digest("hex");
 const ticketHash = (ticket: string) => hash("UBC26/bot-review-ticket/v1" + ticket);
 function view(row: Row): BotReviewView {
@@ -33,6 +34,11 @@ function snapshot(row: Row): BotReviewSnapshot {
 /** Synchronous transactions protect claims and receipts across API processes. No network call occurs here. */
 export function botReviewStore(db: Db) {
   const load = (id: string) => db.prepare("SELECT * FROM bot_reviews WHERE id=?").get(id) as Row | undefined;
+  const pilotDispatchAvailable = (ownerWallet: string, maxDispatches: 1): boolean => {
+    const row = db.prepare("SELECT COUNT(*) AS n FROM bot_reviews WHERE owner_wallet=? AND ticket_hash IS NOT NULL")
+      .get(ownerWallet) as { n: number };
+    return row.n < maxDispatches;
+  };
   function current(owner: string, jobId: string, revisionId: string) {
     const row = db.prepare("SELECT j.owner_wallet,j.current_revision_id,j.state,r.revision_hash,r.reference_digest,r.revision_json FROM jobs j JOIN revisions r ON r.id=j.current_revision_id AND r.job_id=j.id WHERE j.id=?").get(jobId) as
       { owner_wallet: string | null; current_revision_id: string; state: string; revision_hash: string; reference_digest: string; revision_json: string } | undefined;
@@ -42,6 +48,7 @@ export function botReviewStore(db: Db) {
     return row;
   }
   return {
+    pilotDispatchAvailable,
     create(args: { id: string; owner: string; jobId: string; revisionId: string; snapshot: BotReviewSnapshot; now: number; expiresAt: number }): BotReviewView {
       const captured = prepareBotReview(JSON.parse(args.snapshot.inputJson));
       if (captured.inputHash !== args.snapshot.inputHash || captured.inputJson !== args.snapshot.inputJson
@@ -83,18 +90,23 @@ export function botReviewStore(db: Db) {
       }
       return view(row);
     },
-    nextQueued(now: number): string | null {
+    nextQueued(now: number, policy?: BotDispatchPolicy): string | null {
       db.prepare(`UPDATE bot_reviews SET status='expired' WHERE status='queued' AND
         (expires_at<=? OR NOT EXISTS (SELECT 1 FROM jobs j WHERE j.id=bot_reviews.job_id
           AND j.current_revision_id=bot_reviews.revision_id AND j.owner_wallet=bot_reviews.owner_wallet AND j.state='drafted'))`).run(now);
-      const row = db.prepare("SELECT id FROM bot_reviews WHERE status='queued' ORDER BY created_at,id LIMIT 1").get() as { id: string } | undefined;
+      if (policy && !pilotDispatchAvailable(policy.ownerWallet, policy.maxDispatches)) return null;
+      const row = (policy
+        ? db.prepare("SELECT id FROM bot_reviews WHERE status='queued' AND owner_wallet=? ORDER BY created_at,id LIMIT 1").get(policy.ownerWallet)
+        : db.prepare("SELECT id FROM bot_reviews WHERE status='queued' ORDER BY created_at,id LIMIT 1").get()) as { id: string } | undefined;
       return row?.id ?? null;
     },
     /** Claim before sending. A crash after this commit leaves uncertain delivery, never a fresh attempt. */
-    claim(id: string, now: number): { reviewId: string; ticket: string; input: BotReviewSnapshot; expiresAt: number } | null {
+    claim(id: string, now: number, policy?: BotDispatchPolicy): { reviewId: string; ticket: string; input: BotReviewSnapshot; expiresAt: number } | null {
       return tx(db, () => {
         const row = load(id);
         if (!row || row.status !== "queued") return null;
+        if (policy && (row.owner_wallet !== policy.ownerWallet
+          || !pilotDispatchAvailable(policy.ownerWallet, policy.maxDispatches))) return null;
         if (row.expires_at <= now) {
           db.prepare("UPDATE bot_reviews SET status='expired' WHERE id=?").run(id); return null;
         }

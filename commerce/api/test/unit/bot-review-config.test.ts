@@ -33,4 +33,19 @@ describe("production Bot callback profile", () => {
     expect(result.ready).toBe(false); expect(result.checks).toEqual([{ name: "bot_review", ok: false, reason: "dispatch_disabled", blocksListen: false }]);
     expect(base.ready).toBe(true); expect(base.checks).toEqual([]);
   });
+  it("accepts only a one-wallet, one-dispatch live pilot with an exact HTTPS callback", () => {
+    const live = { BOT_REVIEW_REQUIRED: "1", BOT_REVIEW_SERVICE_TOKEN: token,
+      BOT_REVIEW_LIVE_DISPATCH: "1", BOT_REVIEW_WEBHOOK_URL: "https://bot.example/hook",
+      BOT_REVIEW_WEBHOOK_TOKEN: token + "-webhook", BOT_REVIEW_PILOT_OWNER: "0x" + "a".repeat(40),
+      BOT_REVIEW_PILOT_MAX_DISPATCHES: "1" };
+    const callback = "https://api.example/integrations/grok-bot/mcp";
+    const config = botReviewFromEnv(live, callback);
+    expect(config).toMatchObject({ pilotOwner: live.BOT_REVIEW_PILOT_OWNER, maxDispatches: 1 });
+    expect(config?.dispatch).toBeTypeOf("function");
+    for (const changed of [{ BOT_REVIEW_PILOT_OWNER: undefined }, { BOT_REVIEW_PILOT_MAX_DISPATCHES: "2" },
+      { BOT_REVIEW_WEBHOOK_TOKEN: undefined }, { BOT_REVIEW_WEBHOOK_URL: "http://bot.example/hook" }]) {
+      expect(() => botReviewFromEnv({ ...live, ...changed }, callback)).toThrow();
+    }
+    expect(() => botReviewFromEnv(live, "http://api.example/integrations/grok-bot/mcp")).toThrow();
+  });
 });

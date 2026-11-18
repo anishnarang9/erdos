@@ -12,4 +12,8 @@ export interface BotReviewConfig {
   serviceToken: string;
   /** Omitted keeps reviews queued. Production needs spending authority before setting this. */
   dispatch?: (delivery: BotReviewDelivery) => Promise<void>;
+  /** Restricts the live synthetic pilot to one wallet. */
+  pilotOwner?: string;
+  /** Durable maximum number of webhook claims for that wallet. */
+  maxDispatches?: 1;
 }

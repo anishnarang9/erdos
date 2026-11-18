@@ -20,6 +20,8 @@ const PREFLIGHT_MS = 20_000;
 export function registerBotReviewRoutes(ctx: RouteContext) {
   const { app, deps, buyer, idem, newId } = ctx, store = botReviewStore(deps.db), jobs = jobStore(deps);
   const owned = requireOwnedJob(deps), expensive = expensiveGuard(deps);
+  const pilotPolicy = deps.botReview?.pilotOwner && deps.botReview.maxDispatches
+    ? { ownerWallet: deps.botReview.pilotOwner, maxDispatches: deps.botReview.maxDispatches } : undefined;
   let draining = false;
   const active = new Map<string, Promise<void>>();
   async function dispatch(id: string): Promise<void> {
@@ -27,7 +29,7 @@ export function registerBotReviewRoutes(ctx: RouteContext) {
     if (!send || deps.expensiveDisabled || draining || active.size > 0) return;
     const run = async () => {
       let claim: ReturnType<typeof store.claim>;
-      try { claim = store.claim(id, deps.now()); }
+      try { claim = store.claim(id, deps.now(), pilotPolicy); }
       catch (err) { if (err instanceof ApiError && ["revision_conflict", "wrong_state"].includes(err.code)) return; throw err; }
       if (!claim) return;
       try {
@@ -48,6 +50,9 @@ export function registerBotReviewRoutes(ctx: RouteContext) {
     if (draining) throw new ApiError("service_disabled", "Bot review is draining");
     const owner = ownerWallet(c);
     if (!owner) throw new ApiError("forbidden", "Bot review requires a wallet API key");
+    if (config.pilotOwner && owner !== config.pilotOwner) throw new ApiError("forbidden", "Bot review pilot wallet required");
+    if (config.pilotOwner && config.maxDispatches && !store.pilotDispatchAvailable(config.pilotOwner, config.maxDispatches))
+      throw new ApiError("service_disabled", "Bot review pilot dispatch is spent");
     const body = c.get("json");
     if (!isPlainObject(body) || Object.keys(body).some(key => !["revisionHash", "request", "examples"].includes(key))
       || typeof body.revisionHash !== "string") throw invalid();
@@ -117,7 +122,7 @@ export function registerBotReviewRoutes(ctx: RouteContext) {
   return {
     async pump(): Promise<void> {
       if (!deps.botReview?.dispatch || deps.expensiveDisabled || draining || active.size > 0) return;
-      const id = store.nextQueued(deps.now());
+      const id = store.nextQueued(deps.now(), pilotPolicy);
       if (id) await dispatch(id);
     },
     async drain(boundMs = 2000): Promise<void> {
