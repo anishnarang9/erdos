@@ -57,6 +57,18 @@
 - Branch `codex/hosted-release`. Built API image `sha256:c40b35d…` from exact source `8a1e62f`, took a quiesced 101-file state backup, and promoted the image. The previous image and host environment remain for rollback. Rewarmed its compiler and observed native verdicts 1 and 0. Published and externally hashed the matching runner, engine, and docs source `934062f`; the new runner verified after an independent Linux install. See the [gated release record](reports/hosted-one-wallet-gated-release-2026-11-18.json).
 - A protected one-wallet production environment file is staged, not active. A network-isolated copy of the API passed every readiness check except the deliberately disabled expensive-ops switch. Live `/healthz` returned 200; `/readyz` and discovery returned 503. No model, Bot, chain, or cash transaction ran. The Bot automatic top-up state is not yet verified off. Next: confirm that control, activate the staged profile, and run external readiness checks.
 
+## 2026-11-18 00:46 -05:00 — Anish — Preserve concurrent audit and original live gate
+
+- Branch `codex/core-sprint-closure`, PR #11. Concurrent PR #12 merged as `1b67561` while this branch's CI ran. Reconciled documentation conflicts by retaining both audits and their timestamped entries. Neither owner status nor historical proof evidence changed.
+- Exact-head core CI passed at evidence commit `68f95f1` in [run 44245653509](https://github.com/anishnarang9/UBC-26/actions/runs/44245653509). Commerce, engine, contracts and workflow bytes remain identical to tested checkpoint `32cba11`. Integration changes only documentation.
+- Original live 1-USDC selected-provider acceptance remains blocked on current exact buyer/operator run authorization. The 0.01-USDC open-claim result is complete but does not replace that gate. Next: publish the reconciled audit, merge normally, and hand the original live gate to the buyer/operator without any new signing.
+
+## 2026-11-18 00:38 -05:00 — Anish — Closure checkpoint CI passed
+
+- Branch `codex/core-sprint-closure`, PR #11. Pushed checkpoint `32cba11` passed all six push/PR checks. Exact-head [core CI](https://github.com/anishnarang9/UBC-26/actions/runs/44245029898) passed engine and contracts. [Commerce CI](https://github.com/anishnarang9/UBC-26/actions/runs/44245030472) passed. Read-only review found no important findings.
+- Current Arc code hashes match all four deployment pins at block `72800972`, hash `0x4a60171143584cf3a0cd171ac8da8dc1a93f9febd4e0c4e493541b0213faa6bc`. Both fees remain zero. Both frozen deployment manifests match byte-for-byte. This check did not repeat complete role history. The task-file secret-pattern scan and 29 new local links passed.
+- This follow-up records evidence only. Runtime code, contracts, toolchains and dependencies remain unchanged. Next: push this final report/status commit, require final-head checks, merge PR #11 normally, and verify all owner heads on remote main. Preserve the branch and completed run journals. No live authorization or product work is pending for the revised closure scope.
+
 ## 2026-11-18 00:37 -05:00 — Anish — Enforce one durable public draft
 
 - Branch `codex/hosted-release`. The one-wallet Bot policy now admits only one distinct public draft task. An idempotent replay of that same task still returns its saved ID. A focused test showed the second task was admitted before the fix. The new test proves the limit survives an API restart on the same database.
@@ -66,6 +78,22 @@
 
 - Branch `codex/hosted-release`. A focused public-mode test showed that a second wallet could queue a paid draft even when live Bot review was limited to one wallet. Added the same wallet check before draft admission. The focused test failed before the fix and passed after it. API typecheck and all 1,028 API tests passed. This change is committed as a source checkpoint but is not yet deployed.
 - The user chose the existing Grok Bot account for the real final run. It still has unrelated connected apps. Restrict the final test to one reviewed synthetic task and one wallet; do not claim general customer account isolation. The API remains gated. Next: inspect the live Bot cost setting and prepare one bounded public release.
+
+## 2026-11-18 00:29 -05:00 — Anish — Restart recovery and clean-source closure
+
+- Branch `codex/core-sprint-closure`, based on remote main `2e04451`. Found the requested merges already complete. Verified Nick `57c387f`, engine `adda3a3`, integration `ae1295a`, and Neil PR #5 final head `f84773b` as main ancestors. PR #7 and #5 are merged. PR #4 and #6 are closed.
+- Fresh private clean checkout passed locked install, 2,297 commerce tests, four typechecks, 15 real-engine API tests, Rust format/Clippy/build, 51 Rust tests, wire fixtures, 34 Meridian oracle tests, 43 legacy oracle tests, and web build. Three prepared-guest tests remain ignored. Upstream Rust/SQLite and Vite chunk warnings remain explicit.
+- Rechecked five public Arc receipts as canonical: job-7 funding, claim and release, job-6 invalid claim and refund. Confirmed the context, key event and exact 10,000-unit payment event. SDK and freshly rebuilt engine recovered the recorded `schedule.json` digest. Independent oracle returned accepted with no errors. No wallet access, new proof, transaction, deployment, or freeze occurred.
+- The [closure audit](reports/core-sprint-closure-2026-11-18.json) distinguishes the later approved prepared Meridian 0.01-USDC open-claim run from the original 1-USDC selected-provider proposal. Corrected current guidance and retained old observations as history. Neil's UI now exists through his merged branch. Its evidence remains separate from Meridian.
+- Existing baseline commerce CI passed. Core CI passed at `6ed9d2d`, with byte-identical engine/contracts/workflow at this baseline. Next: publish this documentation checkpoint, run exact-head core CI, merge normally, and verify remote ancestry. No external blocker for this closure. New spending or authoring requires a separate approved task.
+
+## 2026-11-18 00:28 -05:00 — Anish — Verified restart against merged main
+
+- Branch `codex/sprint-resume-verification-20261118`, base remote main `2e04451`. Preserved the old engine-commerce worktree's unpublished files. Git ancestry confirms saved integration `ae1295a`, engine `adda3a3`, Nick `57c387f` and Neil `8584b04` are on main. Neil's PR #5 is merged. PR #6 and Nick's PR #4 are closed.
+- Fresh clean-source checks passed 2,297 commerce tests, all four typechecks, Rust format/Clippy/51 tests, wire fixtures and 34 Meridian oracle tests. Three prepared guest tests remained ignored. The [resume report](reports/core-sprint-resume-2026-11-18.json) identifies checks not repeated and pins the exact source and evidence hashes.
+- Read-only RPC independently confirmed the canonical successful fund, claim and release receipts for live job 7. Events show 10,000 units, not 1,000,000. Reviewed historical evidence establishes public-chain dual recovery for that open-claim run and a clean local-only 1-USDC selected-provider exchange.
+- Corrected stale current handoff/goal guidance. The original live 1-USDC selected-provider gate remains open. Next owner is buyer/operator for current exact run terms and spending authority. No new wallet access, signature, deployment, proof or live write occurred. Grok was absent from the OpenCode model catalog. One available subagent performed a read-only evidence audit.
+- This checkpoint contains documentation and a sanitized audit only. Publish after independent review and link/JSON/whitespace checks. No source behavior, proof pins, owner statuses or historical raw reports changed.
 
 ## 2026-11-18 00:24 -05:00 — Anish — Correct and publish current agent guide
 

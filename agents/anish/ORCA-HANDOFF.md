@@ -1,8 +1,30 @@
 # Orca handoff — UBC-26 engine integration
 
-Continue in the engine-commerce worktree, branch `codex/engine-commerce`.
+Resume from current remote `main` in an isolated worktree. Preserve unpublished files in older owner checkouts.
 
-## 2026-11-15 — Anish — Current sprint handoff
+## 2026-11-18 — Anish — Verified resume boundary
+
+Remote main `2e04451` contains saved integration `ae1295a`, engine sprint head `adda3a3`, Nick `57c387f` and Neil's merged PR #5. PR #6 and Nick's PR #4 are closed. Do not repeat their merges.
+
+The [resume audit](reports/core-sprint-resume-2026-11-18.json) records fresh clean-source checks and read-only Arc receipt verification. Commerce passed 2,297 tests and four typechecks. Rust passed formatting, Clippy and 51 tests. Three prepared guest tests remained ignored. Wire checks and 34 Meridian oracle tests passed.
+
+Job 7's canonical funding, claim and release receipts confirm **0.01 USDC through the open-claim adapter**. See the [live report](reports/open-claim-arc-live-acceptance-2026-11-16.md). The separate [1-USDC selected-provider result](reports/fresh-exchange-local-2026-11-15.json) is local-only. Do not relabel either result as the original live 1-USDC target.
+
+Next owner: buyer/operator. A new selected-provider run requires current exact approval of the workload, commitments, identities, expiry, 1-USDC bounty and gas caps. Existing small-run evidence is not that approval. No credential search, wallet access, new proof or live write occurred during this audit.
+
+Main includes a buyer web implementation. Browser acceptance and fresh HTTP-model authoring remain separate claims. The entries below are historical snapshots. Their open-PR, missing-UI and no-live-run statements are not current.
+
+## 2026-11-18 — Anish — Additional recovery verification
+
+Do not restart the original integration or repeat its live transactions. Remote `main` contains engine `adda3a3`, Nick `57c387f`, integration `ae1295a`, and Neil's final PR #5 head `f84773b`. PR #7 merged the combined integration. PR #6 and Nick's PR #4 are closed as superseded.
+
+The [closure audit](reports/core-sprint-closure-2026-11-18.json) records clean-source checks and fresh public-chain recovery. The later approved [Meridian run](reports/open-claim-arc-live-acceptance-2026-11-16.md) paid 0.01 USDC through the open-claim adapter. Do not describe it as the original 1-USDC selected-provider exchange or fresh Grok drafting.
+
+The API real-engine suite, all commerce suites/typechecks, Rust checks/build, both oracle suites, and web build passed on the merged baseline. Three prepared-guest tests remain explicitly ignored in the default Rust suite. Use exact CI links and source revisions from the audit. Future live work needs fresh approval and current protected signing configuration. No wallet was accessed during closure.
+
+The sections below are historical. Their open PRs, missing UI, and pending acceptance claims no longer describe current state.
+
+## Historical snapshot — 2026-11-15 — Anish — Sprint handoff
 
 The user authorized sprint continuation, delegation, tested checkpoint commits/pushes, and normal merge integration into main. The older publication-only limits below are historical. Follow narrower limits in the active task. No live spending authorization or funded exchange exists.
 

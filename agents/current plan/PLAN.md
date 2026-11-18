@@ -39,6 +39,12 @@
 - API source `8a1e62f` now runs on the VPS behind the existing 503 buyer gate. The same-source runner and engine, plus docs source `934062f`, serve over HTTPS with verified hashes. A quiesced state backup and prior image remain. Compiler prewarm and independent Linux runner installation passed. See the [release record](../anish/reports/hosted-one-wallet-gated-release-2026-11-18.json).
 - The staged one-wallet environment passed a network-isolated readiness dry run with only paid work disabled. Do not activate it until Grok Bot automatic top-up is confirmed off. Then verify external wallet authentication, draft, review, approval, compile, funding, discovery, proof, payout, and buyer recovery through the final two cold agents.
 
+## 2026-11-18 00:46 -05:00 — Anish — Combine concurrent audits without changing live authority
+
+- PR #12 merged the independent resume audit while PR #11's checks ran. Preserve both reports and all dated status entries. PR #11 adds fresh dual recovery, real-engine API checks, current runtime/fee reads, and stale README corrections.
+- The requested owner merges and prepared 0.01-USDC open-claim acceptance are established. The original live 1-USDC selected-provider gate remains unverified and needs current exact buyer/operator authority. Do not treat documentation closure as that acceptance or expand old spending limits.
+- Runtime code, proof pins, contracts and dependencies remain unchanged. Integration owns the normal documentation merge. Buyer/operator owns the remaining original live gate.
+
 ## 2026-11-18 00:37 -05:00 — Anish — One paid draft per public pilot
 
 - The public one-wallet Bot profile now also limits distinct draft tasks to one durable database reservation. Focused tests show another wallet is rejected, the same draft replays, a different draft is rejected, and the rejection survives an API restart. The complete commerce check passed at this source checkpoint.
@@ -48,6 +54,20 @@
 
 - The live Bot pilot accepts one buyer wallet, but the public API could still queue paid drafts from other wallets. A failing test proved the gap. The public draft route now rejects other wallets before it creates a spend reservation. The API typecheck and all 1,028 tests passed. Deploy this source only after the next release check.
 - The user authorized using the existing Grok Bot account for the real final run. This is a scoped one-wallet acceptance, not general customer account isolation. Keep the public gate closed until Bot spending controls and the exact release are verified.
+
+## 2026-11-18 00:29 -05:00 — Anish — Recover completed merges and close stale sprint guidance
+
+- Fresh GitHub and ancestry checks show PR #7 merged the combined integration and PR #5 merged Neil's finished branch. Remote main `2e04451` contains Nick `57c387f`, engine `adda3a3`, integration `ae1295a`, and Neil `f84773b`. Do not repeat these merges or the freeze.
+- The later approved prepared Meridian open-claim scope completed at 0.01 USDC. Preserve that scope and its [live evidence](../anish/reports/open-claim-arc-live-acceptance-2026-11-16.md). It is not the original 1-USDC selected-provider target or fresh Grok authoring.
+- The [closure audit](../anish/reports/core-sprint-closure-2026-11-18.json) records clean-source checks and a fresh read-only audit. Public receipts remain canonical. SDK and rebuilt-engine recovery match, and the independent oracle accepts the recovered bytes. No new live write or wallet access was needed.
+- Integration owns publishing the remaining documentation correction, exact-head CI, and normal merge. This closes stale handoff claims, not a new product workstream. Keep unrelated hosted-backend work and owner status files unchanged. Future spending needs separate approval.
+
+## 2026-11-18 00:28 -05:00 — Anish — Restart audit confirms main integration; preserve exact acceptance boundary
+
+- Resumed the original sprint against remote main `2e04451` in an isolated worktree. Saved integration `ae1295a`, Nick `57c387f`, engine sprint head `adda3a3` and Neil's PR #5 are included. No repeated merge is required. Preserved all unpublished changes in the old checkout.
+- The [resume audit](../anish/reports/core-sprint-resume-2026-11-18.json) records 2,297 passing commerce tests, four typechecks, Rust formatting/Clippy/51 tests, wire checks and 34 Meridian oracle tests. Three prepared guest tests remained ignored. Other slow checks were not repeated.
+- Fresh read-only Arc checks confirm job 7's canonical funding, accepted claim and key-release/payment receipts for 10,000 units. This is the later approved 0.01-USDC open-claim workflow, not the original live 1-USDC selected-provider target. The separate clean 1-USDC selected-provider report is local-only.
+- Corrected current handoff banners without rewriting historical evidence. Next owner is the buyer/operator for current exact workload, commitment, identity, expiry, bounty and gas authority before any new live run. Existing small-run approval does not silently expand to 1 USDC. No wallet access, new proof, deployment or live write occurred.
 
 ## 2026-11-18 00:24 -05:00 — Anish — Use corrected public guide
 
