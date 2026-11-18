@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 14:50 -05:00 — Anish — Keep release gated after example trial
+
+- The [eleven-case trial](../anish/reports/authoring-tenth-example-gate-2026-11-18.md) recorded three supported drafts ready for buyer review. Four supported cases missed at least one gate. All four ambiguous or unsupported cases missed their frozen score. Keep the evidence and correct recurring failures before live Bot and proof qualification.
+
 ## 2026-11-18 14:43 -05:00 — Anish — Measure review readiness with usable examples
 
 - The [example gate audit](../anish/reports/authoring-example-gate-audit-2026-11-18.md) found three of ten ninth-trial drafts ready for buyer review. The provider schema now requires generated files when the buyer provides no fixtures. The qualification runner now includes usable examples and expected clarification facets in its gates. Anish will qualify the changed source across supported, ambiguous, and unsupported cases before advancing to Bot review and proof.

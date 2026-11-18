@@ -1,3 +1,8 @@
+# 2026-11-18 14:50 -05:00 — Record example gate trial results
+
+- Draft PR #19. The [tenth trial](reports/authoring-tenth-example-gate-2026-11-18.md) ran eleven cases on source `680e93c` after CI passed. Three of seven supported cases reached buyer review readiness. Four matched the hidden oracle and other draft checks. Neither clarification nor either unsupported decision met the frozen scoring rule.
+- All eleven charges settled. Cohort usage was $0.106045, for $0.883887 attributable API usage in the campaign. The public release remains gated. Next: use retained replies to address residual example, type, and decision failures before Bot and end-to-end qualification.
+
 # 2026-11-18 14:45 -05:00 — Stage the example gate trial
 
 - Branch `codex/authoring-pilot-round2`, draft PR #19. Built the source-pinned image for `680e93c` and authenticated a new wallet to its isolated database. The dry run verified the corpus, engine, and eleven frozen cases across all three authoring decisions. See the [frozen trial](../../docs/authoring-tenth-example-gate-2026-11-18.md).
