@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 08:23 -05:00 — Anish — Merge pilot guard and diagnose one malformed draft
+
+- PR [#17](https://github.com/anishnarang9/UBC-26/pull/17) merged at `2fa00f9` after its GitHub commerce check passed. The public `/readyz` still returned HTTP 200. The merged guard remains local only; it does not qualify or enable general public authoring.
+- Copied the first failed xAI Console request log into a protected local file. The provider marked the response complete after 900 completion tokens. The outer structured reply was valid JSON, but `planJson` contained an extra closing brace at character 1777 and failed its own JSON parse. This explains the `invalid_reply` for `pier-drawers` only. The other four invalid replies need their own inspection.
+- All ten authorized paid drafts are used. No new paid request or repair ran during this diagnosis. Continue with offline diagnosis and a revised qualification plan before any further paid campaign.
+
 ## 2026-11-18 — Anish — Ten-case authoring pilot failed; preserve evidence
 
 - Ran ten fresh sequential synthetic draft tasks in the isolated local pilot under the one-wallet cap and no paid repairs. All ten cases are preserved as failed attempts in the [pilot report](reports/ten-case-authoring-pilot-2026-11-18.json). Five supported briefs produced `invalid_reply`, three were marked `unsupported`, one reached a passing independent oracle and exact Bot review but failed compile, and the ambiguous brief was marked `unsupported` instead of asking for both clarifications.
