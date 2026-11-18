@@ -1,6 +1,6 @@
 # Second controlled authoring qualification
 
-**Status, 2026-11-18 08:38 -05:00:** Prepared for review. No second paid run has started. The first ten-case pilot remains failed. This plan uses the code merged in PR #18 at `fc3ea3eca7f6bc1a5dd7ac3ddfa82c6d29effc6f` and requires a new paid-test allowance before any dispatch.
+**Status, 2026-11-18 08:52 -05:00:** Stopped after the first case failed native validation. The user approved up to ten new drafts and nine Bot reviews under a fresh $1 observed cap, but the failure stop rule ended this campaign after one draft. No Bot review ran. The [failure record](../agents/anish/reports/authoring-round2-first-failure-2026-11-18.json) preserves the result. The original HTTPS ingress is restored. This plan used the code merged in PR #18 at `fc3ea3eca7f6bc1a5dd7ac3ddfa82c6d29effc6f`.
 
 ## Scope and admission
 
@@ -8,7 +8,7 @@
 - Build an isolated image from the exact source SHA above. Use a new local-mode state directory, one scoped buyer wallet, no published container ports, and only the authenticated HTTPS Bot callback route. Keep the public API on its current release until qualification passes.
 - Pin the Linux engine, check free disk and memory, create `tmp`, `cache`, `work`, and `packages` before launch, and verify the image source and engine digests. Confirm that rollback restores the prior callback route and that the pilot container can be stopped without touching public state.
 - Use ten new queued draft tasks, at most nine exact-revision Bot dispatches, zero paid repairs, one attempt at a time, and no Arc transaction. Preserve each idempotency key, task ID, provider usage, and callback receipt. Stop on an uncertain charge, send, callback, or account attribution.
-- Proposed stop limits: at most $1 observed incremental API plus Bot spend and at most $0.15 observed per attempt. These are proposed limits for a new authorization; the previous ten-draft allowance is exhausted.
+- Approved stop limits: at most $1 observed incremental API plus Bot spend and at most $0.15 observed per attempt. The user approved a new ten-draft allowance after the previous ten-draft campaign failed.
 
 ## Frozen cases and grading
 

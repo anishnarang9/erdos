@@ -18,8 +18,9 @@
     "publicApiImageUnchanged": true,
     "callbackRoute": "only authenticated HTTPS Bot callback routed to isolated pilot",
     "newScopedBuyerKey": "created in protected local file; value omitted",
-    "secondRoundPaidDrafts": 0,
+    "secondRoundPaidDrafts": 1,
     "secondRoundBotDispatches": 0
   },
-  "next": "Record a fresh attributable Grok usage baseline before dispatching the first paid draft."
+  "firstCaseResult": "pier-drawers returned plan_invalid; one settled 6600 micro-USD draft charge; no Bot dispatch; stopped and restored original ingress",
+  "next": "Diagnose the saved invalid plan offline. Keep this failed campaign classified as failed; do not spend the remaining allowance or promote the pilot image."
 }

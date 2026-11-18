@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-18",
+  "campaign": "controlled-authoring-round-two",
+  "status": "stopped_after_first_failed_case",
+  "sourceSha": "fc3ea3eca7f6bc1a5dd7ac3ddfa82c6d29effc6f",
+  "imageId": "sha256:396a0fc90b25a863b4ff1d9adde2d0d7cf2f6cf7819e538ef8e6143b345e093e",
+  "caseId": "pier-drawers",
+  "classification": "supported",
+  "draftTaskId": "01M7QESVMQR1869QNVPXYVJ2BW",
+  "providerTraceId": "53f51c2e-22d4-9ce4-baf9-d024241cfbad",
+  "taskCreatedAt": "2026-11-18T13:51:07.414Z",
+  "taskUpdatedAt": "2026-11-18T13:51:13.770Z",
+  "taskState": "succeeded",
+  "resultKind": "unsupported",
+  "resultReason": "plan_invalid",
+  "nativeErrors": [
+    {
+      "path": "/plan/rules/2/where/where/right/left",
+      "message": "Undeclared record field"
+    }
+  ],
+  "offlinePlanDiagnosis": {
+    "source": "Retained raw model plan in the isolated drafts table; read-only inspection after the failed run",
+    "nestedScope": "Rule 2 nests all over deliverable drawers.rows and any over reference floats.rows. In the inner any, level 0 means floats fields and level 1 means drawers fields. The model placed countedCents at level 0 and expectedCents at level 1, reversing both scopes.",
+    "fieldTypes": "The model declared numeric decimal-string countedCents and expectedCents fields as string instead of i64.",
+    "inventedField": "The model declared a closeout scalar field in drawers.json that the buyer did not supply.",
+    "classification": "This attempt returned parseable structured JSON and avoided the earlier malformed nested JSON error. Its plan still failed native validation. A scope-only edit would leave other defects."
+  },
+  "apiChargeMicroUsd": 6600,
+  "apiChargeState": "settled",
+  "meterBefore": {
+    "measuredAt": "2026-11-18T13:50:55Z",
+    "additionalUsageMicroUsd": 890000,
+    "creditBalanceMicroUsd": 4270000
+  },
+  "meterAfter": {
+    "measuredAt": "2026-11-18T13:51:34Z",
+    "additionalUsageMicroUsd": 890000,
+    "creditBalanceMicroUsd": 4270000,
+    "latestVisibleGrokBotEvent": "2026-11-18 13:12 UTC"
+  },
+  "meterUncertaintyPerReadingMicroUsd": 10000,
+  "conservativeObservedUpperMicroUsd": 26600,
+  "botDispatches": 0,
+  "approvals": 0,
+  "compiles": 0,
+  "arcTransactions": 0,
+  "newDraftCalls": 1,
+  "paidRetries": 0,
+  "remainingCasesAttempted": 0,
+  "disposition": "Failed case preserved; pilot stopped under the failure rule. Original HTTPS ingress restored and pilot container stopped; isolated state remains intact. Public API image unchanged.",
+  "privateEvidence": "Protected local journal, meter files, and isolated VPS state under hosted-operator; credentials omitted from this report."
+}

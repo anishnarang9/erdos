@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 08:55 -05:00 — Anish — Keep general authoring gated after second pilot failure
+
+- The first case in the newly authorized ten-draft authoring pilot returned `plan_invalid` after one settled $0.0066 API charge. No Bot review or Arc transaction ran. The [failure record](../anish/reports/authoring-round2-first-failure-2026-11-18.json) identifies reversed nested record scopes, two wrong numeric field types, and an invented scalar field. Stop the remaining cases under the campaign failure rule. The original HTTPS ingress is restored; the accepted public API remains on its prior image.
+- An offline prompt candidate now states the nested scope and field declaration rules. Its local checks pass; it has no live qualification. Do not enable general authoring or promote this candidate. Production account isolation and complete-run cost qualification remain open.
+
 ## 2026-11-18 07:09 -05:00 — Anish — Close morning validation audit
 
 - The requested soak ended at 07:00 Eastern: 291 reads, 288 HTTP 200, zero HTTP 5xx, and one three-request local transport gap at 04:30. The API stayed healthy and its access log had no 5xx since release merge. Main CI, read-only recovery, Arc receipt and nonce checks, public artifact hashes, proxy security, and isolated backup restore passed. The [post-release audit](../anish/reports/hosted-postrelease-validation-2026-11-18.json) and raw log preserve the details.

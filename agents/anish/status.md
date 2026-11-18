@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-18 08:52 -05:00 — Anish — Stop second authoring pilot on first failed draft
+
+- Branch `codex/authoring-pilot-round2`. The user approved up to ten fresh drafts and nine Bot reviews on the personal account under a fresh $1 observed cap, $0.15 per attempt, and no paid retries. A refreshed Grok Dashboard baseline read $0.89 additional usage and $4.27 credit balance. The first `pier-drawers` task settled a 6,600 micro-USD API charge and returned `unsupported/plan_invalid`: `/plan/rules/2/where/where/right/left` used an undeclared record field. No Bot review, approval, compile, or Arc transaction ran. The dashboard still read $0.89 and $4.27 after the task; the conservative single-case upper bound is 26,600 micro-USD. See the [failure record](reports/authoring-round2-first-failure-2026-11-18.json).
+- Stopped after this failed case under the campaign rule. Reconciled the task charge, kept the private idempotency journal and pilot state, restored the original HTTPS ingress, and stopped the isolated pilot container. The rollback verified the original Caddy mount, public readiness, and unchanged main API image. The failed case remains failed; no remaining case was attempted.
+- Read-only inspection of the retained raw plan found three defects: nested `record_field` levels are reversed, numeric decimal-string fields are typed as `string`, and an unsupported scalar field was invented. A scope-only edit would still fail. Added general nested-scope and evidence-backed field guidance to the prompt as an unqualified local candidate. Next: review this candidate, then test it only under a separately bounded campaign. Keep general authoring gated and this campaign failed. Production account isolation and average complete-run cost remain open.
+- Local API typecheck and 36 focused Grok/model-safety tests passed for the prompt candidate. No provider call tested this wording.
+
 ## 2026-11-18 08:48 -05:00 — Anish — Stage second isolated pilot
 
 - The user approved another ten paid drafts and up to nine Bot reviews under a fresh $1 total observed cap, $0.15 per attempt, no paid retries, and the same stop rules. The [round-two plan](../../docs/authoring-round2-qualification-2026-11-18.md) is frozen at nine supported and one ambiguous case.

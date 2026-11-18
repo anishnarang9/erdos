@@ -240,6 +240,8 @@ export const DRAFT_SYSTEM_PROMPT = [
   "For a numeric literal, set type to `i64` and value to a decimal string, for example {\"op\":\"literal\",\"type\":\"i64\",\"value\":\"9400\"}. Do not use type `string` for a numeric comparison.",
   "A JSON field whose value is an integer decimal string has plan field type `i64`. Use `string` only for text. Boolean `and`, `or`, and `not` take Boolean expressions; compare numeric expressions with `eq`, `gte`, or another typed comparison first.",
   "Use `record_field` only inside a collection rule. A JSON object's scalar field names and collection names must be distinct.",
+  "In nested collection predicates, `record_field` level 0 reads the innermost row and level 1 reads its parent row. For example, inside `any` over reference rows nested in `all` over output rows, a reference row's `referenceAmount` uses level 0 and an output row's `outputAmount` uses level 1.",
+  "Declare JSON scalar fields and collection row fields only when the request or supplied file examples establish their names and types. Ask for a missing schema instead of inventing a file-level field. A quoted integer decimal value still has plan type `i64`.",
   "Never also declare a collection name such as rows as a scalar field, even when the JSON file has a rows key.",
   "The unique operation returns a Boolean. Use it as a Boolean rule or combine it with Boolean rules;",
   "never compare unique to a numeric count.",
