@@ -2,7 +2,7 @@
 
 ## 2026-11-17 21:26 -05:00 — Anish — Prepare public cold-agent kit
 
-- Branch `codex/agent-kit` from hosted backend `4ad733f`. Added separate public buyer and solver guides with cold-start prompts. Extended the docs download allowlist and controlled proxy assets. The solver guide derives local runner inputs from confirmed public discovery, without buyer private files. See [readiness evidence](../../docs/agent-kit-readiness-2026-11-18.md).
+- Branch `codex/agent-kit` from hosted backend `4ad733f`. [Commit `fb2ff87`](https://github.com/anishnarang9/UBC-26/commit/fb2ff87c37f94775a14b0a9fc3fb3b8ca224a86b) adds separate public buyer and solver guides with cold-start prompts. It extends the docs download allowlist and controlled proxy assets. The solver guide derives local runner inputs from confirmed public discovery, without buyer private files. See [readiness evidence](../../docs/agent-kit-readiness-2026-11-18.md).
 - Read-only checks matched published runner, engine and Docker pins. Local Docker holds the pinned Groth16 image. `git diff --check`, `node --check` and the exact guide mapping command passed. The mapping created mode-0600 files from synthetic public data. This checkout is Darwin arm64. Final Linux solver memory, disk, installed runner, wrapper digest, shared lock, public publication and ready API remain gates. Public discovery omits the buyer brief. Current buyer recovery needs the solver's private attempt state. No cold agent, proof, model call, chain transaction or production change ran.
 - Next owner: Anish integrates this branch into the hosted release. Check the actual Linux solver host and publish the guides under the release SHA before the final cold test.
 
