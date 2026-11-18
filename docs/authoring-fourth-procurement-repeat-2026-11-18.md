@@ -1,0 +1,9 @@
+# Fourth campaign: procurement shape repeat
+
+**Frozen before dispatch, 2026-11-18 12:31 -05:00.** Use API source `a40b7f4c9e8a3f15ca887e4e2be6068aae75ac6f`, Linux amd64 image `sha256:cce99a353ec5474aff5a3179b5d46292a27bb78666dde7f0c13b2c31aca4bc94`, and corpus digest `8acf192a48f3c72a200a53ed628246a2fbdcbe339bcc4743253a7789d85f2cd7`. Use a new isolated state database, new wallet, fresh task IDs, and new idempotency keys. Keep all earlier tasks and charges unchanged.
+
+Run three supported cases in order: `lab-supplies-receipt-1`, `clinic-supplies-receipt-1`, `firmware-note-1`. The first two test the new source-grounded output shape guard on related but distinct receipt briefs. The third repeats the only supported first-batch draft that passed native and hidden-oracle checks. Use the frozen public briefs, references, and buyer fixtures. Keep hidden candidates, expected plans, and oracle decisions outside the model and Bot inputs.
+
+Allow at most one repair model call per task. Require native validation, both buyer fixtures, coverage, quote fidelity, and exact agreement with every hidden oracle candidate. Then require exact-revision Bot pass, approval, queued compile, package/reference hash checks, and a local proof where practical. Record each stage; do not relabel an earlier failed run. Do not send Arc transactions. General authoring needs repeat reliability beyond this three-case probe.
+
+The approved campaign ceiling is $10 cumulative observed testing. Earlier fourth-campaign API tasks settled $0.109803. Reserve $0.15 per new task and reconcile actual settled usage before the next dispatch. Stop paid dispatch on an uncertain task, charge, or ceiling. The Grok Dashboard account meter remains unavailable, so run API-only tasks until it can be read; no Bot review is authorized without attribution. The accepted public API stays unchanged.

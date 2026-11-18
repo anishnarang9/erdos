@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-18 12:31 -05:00 — Freeze procurement shape repeat
+
+- Built source `a40b7f4` into Linux amd64 image `sha256:cce99a353ec5474aff5a3179b5d46292a27bb78666dde7f0c13b2c31aca4bc94`. Froze three fresh tasks in the [procurement repeat](../../docs/authoring-fourth-procurement-repeat-2026-11-18.md): lab receipt, clinic receipt, and firmware note. Prior fourth-campaign API charges total $0.109803 and count against the $10 ceiling. No new paid task has run for this source; exact-source CI is pending. Next: stage fresh local state, wait for CI, then run the three tasks one by one.
+
 ## 2026-11-18 12:29 -05:00 — Add buyer-positive output shape guard
 
 - Added a narrow draft normalization: if every buyer-accepted positive JSON fixture omits an output scalar and no rule reads it, remove that required scalar before native validation and revision hashing. Unit and route tests cover the guard and its refusal cases. Offline replay of the preserved `lab-supplies-receipt-1` repair then passed native validation and every hidden oracle case. That replay is not a new success; the original task stays failed.
