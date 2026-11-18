@@ -1,3 +1,7 @@
+# 2026-11-18 15:55 -05:00 — Stage the reference key trial
+
+- Draft PR #19. The [frozen trial](../../docs/authoring-key-guard-trial-2026-11-18.md) uses source `eda9e5b`, matching engine pins, a verified empty database, and a fresh authenticated wallet. Full local commerce checks passed, including 1,077 API tests. Exact-source CI is pending. No paid task has used this image.
+
 # 2026-11-18 15:53 -05:00 — Preserve reference-key checks in badge drafts
 
 - Draft PR #19. The saved badge reply used a string key lookup as an operand of `and`; its paid repair then returned malformed syntax. The guarded fix types that lookup as key equality only when the sibling comparison reads the same reference row. It leaves Boolean operands, other keys, and malformed scope declarations to the engine.
