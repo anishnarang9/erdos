@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "status": "observed-rounded-bot-usage-events",
+  "observedAt": "2026-11-17T15:44:39.348765+00:00",
+  "source": "Native Chrome accessibility view of the signed-in Grok account usage page. No private API, cookie extraction or model call.",
+  "page": "https://grok.com/dashboard/usage",
+  "reviewId": "01M7N1NQHW4972D29W9FXBKHCK",
+  "reviewEventMinuteUtc": "2026-11-17T15:23:00Z",
+  "reviewRows": [
+    {
+      "displayedTokens": "25.7K",
+      "displayedCostUsd": "0.01"
+    },
+    {
+      "displayedTokens": "25.4K",
+      "displayedCostUsd": "0.02"
+    },
+    {
+      "displayedTokens": "24.7K",
+      "displayedCostUsd": "0.02"
+    },
+    {
+      "displayedTokens": "24.3K",
+      "displayedCostUsd": "0.03"
+    }
+  ],
+  "setupEventMinuteUtc": "2026-11-17T14:53:00Z",
+  "setupRows": [
+    {
+      "displayedTokens": "46.2K",
+      "displayedCostUsd": "0.03"
+    },
+    {
+      "displayedTokens": "45.9K",
+      "displayedCostUsd": "0.03"
+    },
+    {
+      "displayedTokens": "43.8K",
+      "displayedCostUsd": "0.03"
+    },
+    {
+      "displayedTokens": "41.3K",
+      "displayedCostUsd": "0.04"
+    }
+  ],
+  "displayedAccountCreditsUsd": "4.79",
+  "displayedMonthlyAdditionalUsageUsd": "0.37",
+  "displayedMonthlyLimitUsd": "1.00",
+  "exactCsvDownloaded": false,
+  "perRunTraceIdentifierShown": false,
+  "modelShown": false,
+  "genuineReviews": 1,
+  "additionalPaidReviews": 0,
+  "limits": [
+    "Rows correlate by product and minute with setup and the one review. The page does not display a shared run identifier.",
+    "Displayed token and cost values are rounded. These values do not establish exact per-run cost, complete-authoring cost or the five-cent target.",
+    "Browser control stopped when the user switched to another tab. No unrelated page was modified."
+  ]
+}

@@ -1,0 +1,514 @@
+{
+  "version": 1,
+  "status": "passed-native-backup-restore-and-encrypted-off-host-copy",
+  "runtimeSourceCommit": "20b0dc282482ad22d7fff49ffe86de903576f547",
+  "checkedAt": "2026-11-17T10:28:11.730863+00:00",
+  "snapshot": {
+    "snapshot": "/srv/ubc26-backups/snapshot-20261117T101800Z",
+    "operation": "backup",
+    "status": "passed",
+    "manifestSha256": "c5b03f66c0f8fbef09564ba3740ca2344b9f701f900f9421b6d08a9ed5286ff0",
+    "files": 21,
+    "tables": {
+      "api_keys": 2,
+      "approvals": 1,
+      "auth_challenges": 2,
+      "auth_nonces": 0,
+      "chain_links": 0,
+      "drafts": 0,
+      "events": 53,
+      "example_checks": 0,
+      "idempotency": 4,
+      "index_cursor": 1,
+      "jobs": 1,
+      "manifests": 1,
+      "open_claim_intents": 0,
+      "open_claim_links": 0,
+      "pending_txs": 0,
+      "quotes": 0,
+      "rate_counters": 3,
+      "reference_files": 0,
+      "revisions": 1,
+      "schema_migrations": 18,
+      "selections": 0,
+      "solver_attempt_events": 1,
+      "solver_attempts": 1,
+      "spend_halts": 0,
+      "spend_reservations": 0,
+      "tasks": 1,
+      "x402_payments": 0
+    }
+  },
+  "restore": {
+    "operation": "restore",
+    "status": "passed",
+    "manifestSha256": "c5b03f66c0f8fbef09564ba3740ca2344b9f701f900f9421b6d08a9ed5286ff0",
+    "files": 21,
+    "tables": {
+      "api_keys": 2,
+      "approvals": 1,
+      "auth_challenges": 2,
+      "auth_nonces": 0,
+      "chain_links": 0,
+      "drafts": 0,
+      "events": 53,
+      "example_checks": 0,
+      "idempotency": 4,
+      "index_cursor": 1,
+      "jobs": 1,
+      "manifests": 1,
+      "open_claim_intents": 0,
+      "open_claim_links": 0,
+      "pending_txs": 0,
+      "quotes": 0,
+      "rate_counters": 3,
+      "reference_files": 0,
+      "revisions": 1,
+      "schema_migrations": 18,
+      "selections": 0,
+      "solver_attempt_events": 1,
+      "solver_attempts": 1,
+      "spend_halts": 0,
+      "spend_reservations": 0,
+      "tasks": 1,
+      "x402_payments": 0
+    }
+  },
+  "restoredApi": {
+    "version": 1,
+    "status": "passed-separate-native-restored-api",
+    "runtimeSourceCommit": "20b0dc282482ad22d7fff49ffe86de903576f547",
+    "checkedAt": "2026-11-17T10:20:07.134Z",
+    "transport": "Pinned SSH to container loopback; public HTTPS readiness remains false",
+    "sameLogicalStatePath": true,
+    "originalActiveKeyPreserved": true,
+    "ownerTaskSucceeded": true,
+    "compilerTaskAttempt": 1,
+    "crossOwnerReadRejected": true,
+    "reauthentication": true,
+    "revocation": true,
+    "publicAttemptHistory": true,
+    "reportedAttemptDoesNotConfirmPayment": true,
+    "packageFilesHashChecked": 20,
+    "exactCompileReplay": false,
+    "compilerMissingUntilPrewarm": true,
+    "expensiveOperationsDisabled": true,
+    "readiness": {
+      "ready": false,
+      "authoring": "disabled",
+      "checks": [
+        {
+          "name": "engine",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "engine_executable",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "wsl_wrapper",
+          "ok": true,
+          "state": "not_used",
+          "blocksListen": false
+        },
+        {
+          "name": "compiler_wrapper",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "compiler_identity",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "compiler_ready",
+          "ok": false,
+          "reason": "not_warmed",
+          "blocksListen": false
+        },
+        {
+          "name": "origin",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "chain",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "model",
+          "ok": true,
+          "state": "disabled",
+          "blocksListen": false
+        },
+        {
+          "name": "authoring_release",
+          "ok": false,
+          "reason": "disabled",
+          "blocksListen": false
+        },
+        {
+          "name": "budget",
+          "ok": true,
+          "state": "not_required",
+          "blocksListen": false
+        },
+        {
+          "name": "rate_limit",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "packages",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "database",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "database_write",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "migrations",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "expensive_ops",
+          "ok": false,
+          "reason": "disabled",
+          "blocksListen": false
+        },
+        {
+          "name": "worker",
+          "ok": true,
+          "blocksListen": false
+        }
+      ]
+    },
+    "paidModelCalls": 0,
+    "proofsGenerated": 0,
+    "chainTransactions": 0
+  },
+  "encryptedOffHostCopy": {
+    "version": 1,
+    "status": "encrypted-off-host-copy-and-roundtrip-verified",
+    "cipher": "aes-256-gcm",
+    "manifestSha256": "c5b03f66c0f8fbef09564ba3740ca2344b9f701f900f9421b6d08a9ed5286ff0",
+    "plaintextArchiveSha256": "fb8ac996de08ccbb398e712e9174f4e9042318689860f409c1cb6ba817984d18",
+    "encryptedArchiveSha256": "f795378158018525e235ba00af345100c82cdcb165371dabd565db1d73585dde",
+    "archiveBytes": 617883,
+    "keyStoredOutsideGit": true,
+    "keyCopiedToServer": false,
+    "decryptedBytesMatched": true
+  },
+  "restartCheck": {
+    "version": 1,
+    "status": "passed-native-api-after-quiesced-backup-restart",
+    "runtimeSourceCommit": "20b0dc282482ad22d7fff49ffe86de903576f547",
+    "checkedAt": "2026-11-17T10:22:02.615Z",
+    "transport": "Pinned SSH to container loopback; public HTTPS readiness remains false",
+    "sameLogicalStatePath": true,
+    "originalActiveKeyPreserved": true,
+    "ownerTaskSucceeded": true,
+    "compilerTaskAttempt": 1,
+    "crossOwnerReadRejected": true,
+    "reauthentication": true,
+    "revocation": true,
+    "publicAttemptHistory": true,
+    "reportedAttemptDoesNotConfirmPayment": true,
+    "packageFilesHashChecked": 20,
+    "exactCompileReplay": true,
+    "compilerMissingUntilPrewarm": false,
+    "expensiveOperationsDisabled": false,
+    "readiness": {
+      "ready": false,
+      "authoring": "disabled",
+      "checks": [
+        {
+          "name": "engine",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "engine_executable",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "wsl_wrapper",
+          "ok": true,
+          "state": "not_used",
+          "blocksListen": false
+        },
+        {
+          "name": "compiler_wrapper",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "compiler_identity",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "compiler_ready",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "origin",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "chain",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "model",
+          "ok": true,
+          "state": "disabled",
+          "blocksListen": false
+        },
+        {
+          "name": "authoring_release",
+          "ok": false,
+          "reason": "disabled",
+          "blocksListen": false
+        },
+        {
+          "name": "budget",
+          "ok": true,
+          "state": "not_required",
+          "blocksListen": false
+        },
+        {
+          "name": "rate_limit",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "packages",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "database",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "database_write",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "migrations",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "expensive_ops",
+          "ok": true,
+          "blocksListen": false
+        },
+        {
+          "name": "worker",
+          "ok": true,
+          "blocksListen": false
+        }
+      ]
+    },
+    "paidModelCalls": 0,
+    "proofsGenerated": 0,
+    "chainTransactions": 0
+  },
+  "restoredInstanceIsolatedNetwork": true,
+  "restoredInstanceStopped": true,
+  "providerScheduledBackupRecoveryTested": false,
+  "paidModelCalls": 0,
+  "proofsGenerated": 0,
+  "chainTransactions": 0,
+  "fullServerReboot": {
+    "status": "new-boot-mounts-and-containers-verified",
+    "previousBootId": "1effd440-6ca7-4806-9d6d-9fb655dfcd4c",
+    "dispatchedAt": "2026-11-17T10:24:55.096334+00:00",
+    "checkedAt": "2026-11-17T10:25:26.827712+00:00",
+    "after": {
+      "bootId": "b667a5bf-8c1a-4bd9-be7a-fdcff5f08c2c",
+      "mounts": {
+        "/srv/ubc26-state": {
+          "source": "/dev/loop2",
+          "target": "/srv/ubc26-state",
+          "fstype": "ext4",
+          "size": 33501757440,
+          "options": "rw,nosuid,nodev,relatime"
+        },
+        "/srv/ubc26-docker": {
+          "source": "/dev/loop1",
+          "target": "/srv/ubc26-docker",
+          "fstype": "ext4",
+          "size": 83955703808,
+          "options": "rw,nosuid,nodev,relatime"
+        },
+        "/srv/ubc26-backups": {
+          "source": "/dev/loop0",
+          "target": "/srv/ubc26-backups",
+          "fstype": "ext4",
+          "size": 8350298112,
+          "options": "rw,nosuid,nodev,relatime"
+        }
+      },
+      "containers": {
+        "ubc26-hosted-api-1": {
+          "running": true,
+          "restartPolicy": "unless-stopped"
+        },
+        "ubc26-hosted-https-1": {
+          "running": true,
+          "restartPolicy": "unless-stopped"
+        },
+        "buildx_buildkit_ubc26-compiler0": {
+          "running": true,
+          "restartPolicy": "unless-stopped"
+        }
+      }
+    },
+    "apiAfterReboot": {
+      "version": 1,
+      "status": "passed-native-api-after-quiesced-backup-restart",
+      "runtimeSourceCommit": "20b0dc282482ad22d7fff49ffe86de903576f547",
+      "checkedAt": "2026-11-17T10:26:54.672Z",
+      "transport": "Pinned SSH to container loopback; public HTTPS readiness remains false",
+      "sameLogicalStatePath": true,
+      "originalActiveKeyPreserved": true,
+      "ownerTaskSucceeded": true,
+      "compilerTaskAttempt": 1,
+      "crossOwnerReadRejected": true,
+      "reauthentication": true,
+      "revocation": true,
+      "publicAttemptHistory": true,
+      "reportedAttemptDoesNotConfirmPayment": true,
+      "packageFilesHashChecked": 20,
+      "exactCompileReplay": true,
+      "compilerMissingUntilPrewarm": false,
+      "expensiveOperationsDisabled": false,
+      "readiness": {
+        "ready": false,
+        "authoring": "disabled",
+        "checks": [
+          {
+            "name": "engine",
+            "ok": true,
+            "blocksListen": false
+          },
+          {
+            "name": "engine_executable",
+            "ok": true,
+            "blocksListen": false
+          },
+          {
+            "name": "wsl_wrapper",
+            "ok": true,
+            "state": "not_used",
+            "blocksListen": false
+          },
+          {
+            "name": "compiler_wrapper",
+            "ok": true,
+            "blocksListen": false
+          },
+          {
+            "name": "compiler_identity",
+            "ok": true,
+            "blocksListen": false
+          },
+          {
+            "name": "compiler_ready",
+            "ok": true,
+            "blocksListen": false
+          },
+          {
+            "name": "origin",
+            "ok": true,
+            "blocksListen": false
+          },
+          {
+            "name": "chain",
+            "ok": true,
+            "blocksListen": false
+          },
+          {
+            "name": "model",
+            "ok": true,
+            "state": "disabled",
+            "blocksListen": false
+          },
+          {
+            "name": "authoring_release",
+            "ok": false,
+            "reason": "disabled",
+            "blocksListen": false
+          },
+          {
+            "name": "budget",
+            "ok": true,
+            "state": "not_required",
+            "blocksListen": false
+          },
+          {
+            "name": "rate_limit",
+            "ok": true,
+            "blocksListen": false
+          },
+          {
+            "name": "packages",
+            "ok": true,
+            "blocksListen": false
+          },
+          {
+            "name": "database",
+            "ok": true,
+            "blocksListen": false
+          },
+          {
+            "name": "database_write",
+            "ok": true,
+            "blocksListen": false
+          },
+          {
+            "name": "migrations",
+            "ok": true,
+            "blocksListen": false
+          },
+          {
+            "name": "expensive_ops",
+            "ok": true,
+            "blocksListen": false
+          },
+          {
+            "name": "worker",
+            "ok": true,
+            "blocksListen": false
+          }
+        ]
+      },
+      "paidModelCalls": 0,
+      "proofsGenerated": 0,
+      "chainTransactions": 0
+    },
+    "buildkitBootstrapReady": true,
+    "restrictedSshPolicyRechecked": true
+  }
+}

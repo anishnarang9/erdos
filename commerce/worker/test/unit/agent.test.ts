@@ -13,7 +13,7 @@ import type { SettlementPort } from "../../src/demo/funded.ts";
 import type { EngineRunner } from "../../src/engine.ts";
 
 const TOKEN = "agent-test-buyer-token-000000";
-const BASE = "http://api.test";
+const BASE = "http://localhost:8765";
 let dir: string;
 let app: ReturnType<typeof createApp>;
 beforeEach(() => {

@@ -1,0 +1,31 @@
+{
+  "block": "0x455eb33",
+  "chainId": 5042002,
+  "balances": {
+    "buyer": {
+      "address": "0xb325867d6e52d28d2bd8a7e65d4c41f211639fc0",
+      "nativeWei": "0",
+      "usdcBaseUnits": "0"
+    },
+    "historicalSolver": {
+      "address": "0xfb7692d0BFb955E7EB727bf744b39F7B8441057F",
+      "nativeWei": "25580100000000000",
+      "usdcBaseUnits": "25580"
+    }
+  },
+  "hostedApiKeyMatchesOwner": true,
+  "proposedTopUp": {
+    "from": "0x638202cCB15315dBc5b22e02717B908bEAc3AeBd",
+    "to": "0xb325867d6e52d28d2bd8a7e65d4c41f211639fc0",
+    "valueWei": "55000000000000000",
+    "data": "0x",
+    "estimatedGas": 21000,
+    "gasUnitsCeiling": 30000,
+    "feeCapWei": "25000000000",
+    "maxTransferGasTestnetUsdc": "0.00075",
+    "fundingSourceNativeWei": "19882053550000000000",
+    "authorization": "pending"
+  },
+  "walletSigningSetup": "pending independent keystore configuration and exact authority",
+  "transactionsSent": 0
+}

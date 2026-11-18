@@ -1,0 +1,18 @@
+{
+  "health": {
+    "ok": true
+  },
+  "readyStatus": 503,
+  "integrity": "ok",
+  "foreignKeyErrors": 0,
+  "compiledPackages": 2,
+  "status": "passed-isolated-previous-image-boot",
+  "source": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+  "image": "sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8",
+  "isolatedNetwork": true,
+  "productionContainerUnchanged": true,
+  "ingressContainerUnchanged": true,
+  "restoredContainerStopped": true,
+  "checkedAt": "2026-11-17T16:00:16.903889-05:00",
+  "scope": "Boot of the preserved pre-upgrade restored copy on the previous pinned image. Production cutover and external reconciliation are separate."
+}

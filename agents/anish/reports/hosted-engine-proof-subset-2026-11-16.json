@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "status": "passed-finite-engine-proof-subset",
+  "startedAt": "2026-11-17T01:49:45.389251+00:00",
+  "sourceCommit": "f8bef2d93e9d96d7aebd4535ac6b09cbdd77d568",
+  "syntheticContexts": true,
+  "liveSettlement": false,
+  "cases": [
+    {
+      "family": "budget",
+      "state": "proved-and-recovered",
+      "freshProof": true,
+      "manifest": {
+        "imageId": "0x63b0098ad9e97bb1ec4a7d13875503ad9bbd129586ddd2ba8a24e07079e9489b",
+        "rulesHash": "0xddb14c426ad0aa12aa0734126522a27b38a10e32bd7b930a12c37575ffa4104e",
+        "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+        "structureHash": "0xfe316e2bdc75670bac040d478518a914beb82017a136a71ae396807fef7bd33e"
+      },
+      "compileMillis": 3269,
+      "proveMillis": 173154,
+      "userCycles": 266911,
+      "proofSha256": "8ac3212a4e671b3abbbf96bd07cf91ff63b0f96d1e31f5612a4602933360faa8",
+      "recoveredHashes": {
+        "expense-report.json": "4d361639579656f99cb74690722f16b5256e104c7d7dc9a7da22d77df54b0106"
+      },
+      "proofFile": "hosted-engine-proofs-2026-11-16/budget-pass.json",
+      "sdkRecovery": "byte-exact",
+      "independentOracleVerdict": 1,
+      "solidityVerifier": {
+        "status": "passed",
+        "gasEstimate": 257772,
+        "rejectedMutations": [
+          "image",
+          "journal",
+          "seal",
+          "verdict"
+        ]
+      }
+    },
+    {
+      "family": "inventory",
+      "state": "proved-and-recovered",
+      "freshProof": true,
+      "manifest": {
+        "imageId": "0xe42ebce1aecd6bc9b24c3172160fe7c3e30c35fa2bee7d8e7886f4f39b7a9800",
+        "rulesHash": "0xf71acd84a296603bc836d2f8ca2cd4c8d247435894f58941390751db938a8095",
+        "referenceHash": "0xa963927ab4e6798f5e4e38f8a311511816fb163bfefe17e768bbc8bf4b79513c",
+        "structureHash": "0x68a8def4e8d7dc7ac20b173c9d7a79f618ec2fc2ac4b45c8470dc5f8b7f5a41c"
+      },
+      "compileMillis": 16478,
+      "proveMillis": 273577,
+      "userCycles": 850853,
+      "proofSha256": "55693ba22f003706bc472b814d13a573fc803f1d7d4ccd8fb384f5f62a5e3cee",
+      "recoveredHashes": {
+        "stock.json": "18cf1d0cfcb7bfe396d405815c3c85f45c88fbdbb1a8f17a0f19474f860f5f4f"
+      },
+      "proofFile": "hosted-engine-proofs-2026-11-16/inventory-pass.json",
+      "sdkRecovery": "byte-exact",
+      "independentOracleVerdict": 1,
+      "solidityVerifier": {
+        "status": "passed",
+        "gasEstimate": 257748,
+        "rejectedMutations": [
+          "image",
+          "journal",
+          "seal",
+          "verdict"
+        ]
+      }
+    },
+    {
+      "family": "reconciliation",
+      "state": "proved-and-recovered",
+      "freshProof": true,
+      "manifest": {
+        "imageId": "0x57eb5af820f9f227023577d40efc83ef67d7dc7628f35611df2efa019298d62d",
+        "rulesHash": "0x9d80733e84535cb38cc0190be30cf6438f6e2fbdbff9d7228336ae7f3e4b3457",
+        "referenceHash": "0x49a43354a7e390a36a5d0f3281e4fe32e7b2be0052b46c970dfe32de09ce07dd",
+        "structureHash": "0x5a474b90a9150289128216f73e7bcbee037c3b02ce424180532af972e7bcc021"
+      },
+      "compileMillis": 3448,
+      "proveMillis": 278652,
+      "userCycles": 812703,
+      "proofSha256": "fd3f8a1fcb9307ac4fa40e653fc5557e76765836daef1cf2cf13000af0e999f5",
+      "recoveredHashes": {
+        "result.json": "5a60df24b00949d86d064394edb73810096355e924061b49e922c907004e27c8",
+        "report.txt": "d87458e6de2d8d197d131c63e2475fc17dab4eaeb710a77a21c5224426347542"
+      },
+      "proofFile": "hosted-engine-proofs-2026-11-16/reconciliation-pass.json",
+      "sdkRecovery": "byte-exact",
+      "independentOracleVerdict": 1,
+      "solidityVerifier": {
+        "status": "passed",
+        "gasEstimate": 257760,
+        "rejectedMutations": [
+          "image",
+          "journal",
+          "seal",
+          "verdict"
+        ]
+      }
+    }
+  ],
+  "engineSha256": "fc91a0b12edcbeb0fe1b744a6b6f2b92c9895eecf7de3d9db097287078c9c934",
+  "r0vmVersion": "risc0-r0vm 3.1.0",
+  "failingProof": {
+    "state": "proved",
+    "verdict": 0,
+    "proveMillis": 209669,
+    "userCycles": 267020,
+    "proofSha256": "2975c1635083b0d51c6de0a330cd0f48feb1ea95c50e824e8df865b883a8c0ec",
+    "proofFile": "hosted-engine-proofs-2026-11-16/budget-fail.json",
+    "independentOracleVerdict": 0,
+    "solidityVerifier": {
+      "status": "passed-exact-verdict-zero-journal",
+      "rejectsVerdictOneSubstitution": true
+    }
+  },
+  "finishedAt": "2026-11-17T02:06:00.804746+00:00",
+  "solidityVerifier": {
+    "sourceCommit": "ff30da77ba4afdd496290ebebedb205348b15d83",
+    "riscZero": "3.1.0",
+    "selector": "0xe71e6620",
+    "environment": "local Ganache Shanghai",
+    "liveArc": false
+  },
+  "oracle": {
+    "source": "docs/hosted-proof-input/oracle.py",
+    "sha256": "77112384cc50f62f5dfe2e0986a4a3019e04669940d00380110c1274708ba617",
+    "unitTests": 4
+  },
+  "limits": [
+    "Historical workload schemas with fresh proof generation and fresh synthetic contexts.",
+    "This finite subset does not establish the 60-request hosted Grok qualification.",
+    "No funded Arc claim, payout, refund, public-hosting or Grok API acceptance is claimed."
+  ],
+  "r0vmSha256": "52651dc0fd0afbe6cf91bf6bf67f7da63c56a1d5f3fdcdda617f9c75e3eae5fd"
+}

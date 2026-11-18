@@ -8,6 +8,11 @@ const MIGRATION_FILE = /^(\d{3})_[A-Za-z0-9_-]+\.sql$/;
 
 export type Db = DatabaseSync;
 
+/** Migration file names in apply order. The names are not filesystem paths. */
+export function migrationVersions(): string[] {
+  return readdirSync(MIGRATIONS_DIR).filter((file) => MIGRATION_FILE.test(file)).sort();
+}
+
 export function openDb(path: string, nowMs: () => number): Db {
   const db = new DatabaseSync(path);
   db.exec("PRAGMA foreign_keys = ON;");

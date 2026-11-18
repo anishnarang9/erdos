@@ -28,6 +28,7 @@ let packagesDir: string;
 let logFile: string;
 let n = 0;
 const apps: { close: () => void }[] = [];
+const childEnv: Record<string, string> = {};
 
 beforeAll(() => {
   work = mkdtempSync(join(tmpdir(), "ubc26-xval-"));
@@ -36,17 +37,18 @@ afterAll(() => rmSync(work, { recursive: true, force: true }));
 beforeEach(() => {
   packagesDir = mkdtempSync(join(work, "packages-"));
   logFile = join(work, `log-${++n}.jsonl`);
-  process.env.FAKE_REFERENCE_HASH = EMPTY_REFERENCE_DIGEST;
-  process.env.FAKE_ENGINE_LOG = logFile;
+  delete childEnv.FAKE_RULES_HASH;
+  childEnv.FAKE_REFERENCE_HASH = EMPTY_REFERENCE_DIGEST;
+  childEnv.FAKE_ENGINE_LOG = logFile;
 });
 afterEach(() => {
   while (apps.length) apps.pop()!.close();
-  delete process.env.FAKE_REFERENCE_HASH;
-  delete process.env.FAKE_RULES_HASH;
-  delete process.env.FAKE_ENGINE_LOG;
+  delete childEnv.FAKE_REFERENCE_HASH;
+  delete childEnv.FAKE_RULES_HASH;
+  delete childEnv.FAKE_ENGINE_LOG;
 });
 
-const fake = (mode = "ok") => cliEngine({ bin: { command: process.execPath, args: [SCRIPT, mode] }, workDir: work });
+const fake = (mode = "ok") => cliEngine({ bin: { command: process.execPath, args: [SCRIPT, mode] }, workDir: work, env: childEnv });
 const engineLog = (): { cmd: string }[] =>
   existsSync(logFile) ? readFileSync(logFile, "utf8").trim().split("\n").filter(Boolean).map((l) => JSON.parse(l)) : [];
 const compileRuns = () => engineLog().filter((l) => l.cmd === "compile").length;
@@ -202,7 +204,7 @@ describe("1-2. create runs engine validate and checks plan files", () => {
     expect(c.status).toBe(201);
     const h = c.body.revision.revisionHash;
     expect((await api.post(`/v1/jobs/${c.body.jobId}/approve`, { revisionHash: h, referenceDigest: digest }, { "if-match": h })).status).toBe(200);
-    process.env.FAKE_REFERENCE_HASH = digest;
+    childEnv.FAKE_REFERENCE_HASH = digest;
     const r = await api.post(`/v1/jobs/${c.body.jobId}/compile`, { revisionHash: h });
     expect(r.status, `accepted at create/approve but compile gives ${r.text}`).toBe(200);
   });
@@ -389,8 +391,8 @@ describe("5. compile binds the package to the approval", () => {
   it("uppercase hashes in the manifest still match the approval (case-insensitive)", async () => {
     const api = mk();
     const { jobId, h, approval } = await approved(api);
-    process.env.FAKE_RULES_HASH = "0x" + approval.rulesHash.slice(2).toUpperCase();
-    process.env.FAKE_REFERENCE_HASH = "0x" + EMPTY_REFERENCE_DIGEST.slice(2).toUpperCase();
+    childEnv.FAKE_RULES_HASH = "0x" + approval.rulesHash.slice(2).toUpperCase();
+    childEnv.FAKE_REFERENCE_HASH = "0x" + EMPTY_REFERENCE_DIGEST.slice(2).toUpperCase();
     const c = await api.post(`/v1/jobs/${jobId}/compile`, { revisionHash: h.toUpperCase().replace("0X", "0x") });
     expect(c.status, c.text).toBe(200);
     expect(c.body.manifest.rulesHash).toBe(approval.rulesHash);
@@ -419,8 +421,8 @@ describe("5. compile binds the package to the approval", () => {
   it("reference and rules both mismatched -> reason reference_mismatch", async () => {
     const api = mk();
     const { jobId, h } = await approved(api);
-    process.env.FAKE_RULES_HASH = "0x" + "ee".repeat(32);
-    process.env.FAKE_REFERENCE_HASH = "0x" + "dd".repeat(32);
+    childEnv.FAKE_RULES_HASH = "0x" + "ee".repeat(32);
+    childEnv.FAKE_REFERENCE_HASH = "0x" + "dd".repeat(32);
     const c = await api.post(`/v1/jobs/${jobId}/compile`, { revisionHash: h });
     expect(c.status).toBe(502);
     expect(c.body.error.details.reason).toBe("reference_mismatch");
@@ -435,7 +437,7 @@ describe("5. compile binds the package to the approval", () => {
     const plan = { ...PLAN, references: [{ name: "r.txt", parser: "text/v1" }] };
     const { jobId, h, approval } = await approved(api, revisionOf(plan, OUT_JSON, digest), { references: [{ name: "r.txt", contentBase64: content.toString("base64") }] });
     expect(approval.referenceDigest).toBe(digest);
-    process.env.FAKE_REFERENCE_HASH = digest;
+    childEnv.FAKE_REFERENCE_HASH = digest;
     const c = await api.post(`/v1/jobs/${jobId}/compile`, { revisionHash: h });
     expect(c.status, c.text).toBe(200);
     const log = engineLog().find((l: any) => l.cmd === "compile") as any;
@@ -600,7 +602,7 @@ describe("6. drafts: examples labelled by engine.eval", () => {
     });
     const r = await api.post("/v1/drafts", DRAFT);
     expect(r.status, r.text).toBe(200);
-    expect(r.body.examples[0]).toMatchObject({ checkerVerdict: null, agrees: null, checkerError: "Engine eval timed out" });
+    expect(r.body.examples[0]).toMatchObject({ checkerVerdict: null, agrees: null, checkerError: "Engine example check failed" });
 
     const { eval: _e, ...noEval } = fake();
     const api2 = mk({ engine: noEval as Engine, draftModel: model(PLAN, [{ name: "a", files: [], predictedVerdict: 1 }]) });
@@ -610,7 +612,7 @@ describe("6. drafts: examples labelled by engine.eval", () => {
 });
 
 // ---------------------------------------------------------------------------------------------------
-describe("7. Grok adapter: planJson", () => {
+describe("7. Grok adapter: structured plan", () => {
   const KEY = "xai-SECRET-KEY-should-never-leak-123";
   const reply = (content: unknown, id: unknown = "trace-1") =>
     new Response(JSON.stringify({ id, model: "grok-x", choices: [{ message: { content: typeof content === "string" ? content : JSON.stringify(content) } }] }), {
@@ -620,7 +622,38 @@ describe("7. Grok adapter: planJson", () => {
   const input = { request: "r", outputs: OUT_JSON as any, referenceNames: [], clarifications: [], schema: {}, catalog: {} };
   const draftWire = (planJson: unknown) => ({ kind: "draft", planJson, examples: [], sourceQuotes: [] });
 
-  it("response_format schema has planJson (string) and no plan; the adapter parses it into plan", async () => {
+  it("requests a structured plan object so nested plan JSON cannot be malformed text", async () => {
+    let sent: any;
+    const m = grokDraftModel({
+      apiKey: KEY,
+      model: "grok-x",
+      fetch: (async (_u: any, init: any) => {
+        sent = JSON.parse(init.body);
+        return reply({ kind: "draft", plan: PLAN, examples: [], sourceQuotes: [] });
+      }) as any,
+    });
+    const out = await m.draft(input);
+    expect(out.result).toEqual({ kind: "draft", plan: PLAN, examples: [], sourceQuotes: [] });
+    const draftBranch = sent.response_format.json_schema.schema.anyOf.find((b: any) => b.properties.kind.enum[0] === "draft");
+    expect(draftBranch.properties.plan).toEqual({ type: "object", additionalProperties: true });
+    expect(draftBranch.properties.planJson).toBeUndefined();
+    expect(draftBranch.required).toContain("plan");
+  });
+
+  it("normalizes null context in a structured plan reply", async () => {
+    const example = { name: "sample", predictedVerdict: 1, files: [], evidence: [], context: null };
+    const m = grokDraftModel({
+      apiKey: KEY,
+      model: "grok-x",
+      fetch: (async () => reply({ kind: "draft", plan: PLAN, examples: [example], sourceQuotes: [] })) as any,
+    });
+    const out = await m.draft(input);
+    expect(out.result).toEqual({
+      kind: "draft", plan: PLAN, examples: [{ name: "sample", predictedVerdict: 1, files: [], evidence: [] }], sourceQuotes: [],
+    });
+  });
+
+  it("accepts legacy planJson replies but requests a plan object", async () => {
     let sent: any;
     const m = grokDraftModel({
       apiKey: KEY,
@@ -635,9 +668,9 @@ describe("7. Grok adapter: planJson", () => {
     const schema = sent.response_format.json_schema.schema;
     expect(schema).toEqual(draftResponseSchema());
     const draftBranch = schema.anyOf.find((b: any) => b.properties.kind.enum[0] === "draft");
-    expect(draftBranch.properties.planJson).toEqual({ type: "string" });
-    expect(draftBranch.properties.plan).toBeUndefined();
-    expect(draftBranch.required).toContain("planJson");
+    expect(draftBranch.properties.plan).toEqual({ type: "object", additionalProperties: true });
+    expect(draftBranch.properties.planJson).toBeUndefined();
+    expect(draftBranch.required).toContain("plan");
     expect(JSON.stringify(sent)).not.toContain(KEY);
   });
 

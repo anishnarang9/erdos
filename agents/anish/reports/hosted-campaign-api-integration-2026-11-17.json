@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "status": "passed-controlled-source-and-api-checks",
+  "source": "campaign checkpoint containing this report; parent 41341adfba1819fea613daeb66c272d625f08ee3",
+  "offlineNativeChecks": 57,
+  "corpusDigest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
+  "genuineApplicationTrials": 0,
+  "localMac": {
+    "version": 1,
+    "status": "passed-controlled-api-integration",
+    "source": "working-tree",
+    "platform": "darwin",
+    "node": "v26.12.0",
+    "genuineModelCalls": 0,
+    "controlledModelCalls": 3,
+    "externalRequests": 0,
+    "compilerCalls": 0,
+    "proofs": 0,
+    "chainTransactions": 0,
+    "firstCampaign": {
+      "freshControlledTrials": 3,
+      "taskPosts": 3,
+      "distinctWallets": 3
+    },
+    "resume": {
+      "freshOriginalTrials": 3,
+      "additionalTaskPosts": 0,
+      "additionalControlledModelCalls": 0
+    },
+    "newLedger": {
+      "reason": "stale-task",
+      "additionalControlledModelCalls": 0
+    },
+    "duplicateWalletKeys": {
+      "reason": "duplicate-wallet-principals",
+      "additionalTaskPosts": 0
+    },
+    "total": {
+      "taskPosts": 4,
+      "taskReads": 6,
+      "authReads": 11
+    },
+    "qualificationPassed": false,
+    "limits": [
+      "In-process Hono and SQLite with synthetic wallet accounts and a controlled model. No public host or genuine application inference was tested.",
+      "The harness paidTrialsRan flag means a task POST was attempted. It does not establish a provider charge."
+    ]
+  },
+  "restrictedLinux": {
+    "execution": "amd64 emulation on arm64 Mac",
+    "node": "v24.22.3",
+    "externalNetwork": "disabled",
+    "readOnlyRoot": true,
+    "memoryMiB": 1024,
+    "cpus": 1,
+    "pids": 128,
+    "result": {
+      "version": 1,
+      "status": "passed-controlled-api-integration",
+      "source": "working-tree",
+      "platform": "linux",
+      "node": "v24.22.3",
+      "genuineModelCalls": 0,
+      "controlledModelCalls": 3,
+      "externalRequests": 0,
+      "compilerCalls": 0,
+      "proofs": 0,
+      "chainTransactions": 0,
+      "firstCampaign": {
+        "freshControlledTrials": 3,
+        "taskPosts": 3,
+        "distinctWallets": 3
+      },
+      "resume": {
+        "freshOriginalTrials": 3,
+        "additionalTaskPosts": 0,
+        "additionalControlledModelCalls": 0
+      },
+      "newLedger": {
+        "reason": "stale-task",
+        "additionalControlledModelCalls": 0
+      },
+      "duplicateWalletKeys": {
+        "reason": "duplicate-wallet-principals",
+        "additionalTaskPosts": 0
+      },
+      "total": {
+        "taskPosts": 4,
+        "taskReads": 6,
+        "authReads": 11
+      },
+      "qualificationPassed": false,
+      "limits": [
+        "In-process Hono and SQLite with synthetic wallet accounts and a controlled model. No public host or genuine application inference was tested.",
+        "The harness paidTrialsRan flag means a task POST was attempted. It does not establish a provider charge."
+      ]
+    },
+    "initialProfileErrors": [
+      "Plain Node type stripping cannot transform existing SDK enums. Retry enables type transformation.",
+      "The image temp path needs a state mount. The isolated source check explicitly uses writable /tmp."
+    ]
+  },
+  "limits": [
+    "No public hosting, genuine Grok trial, compiler, proof or chain transaction ran.",
+    "Final independent review and exact-source Linux CI remain pending."
+  ]
+}

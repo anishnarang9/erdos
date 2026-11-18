@@ -1,0 +1,73 @@
+{
+  "classification": "integration_pass_cold_start_fail",
+  "apiJobId": "01M7PKYWPXG1NH2TJ3G7BVRA3H",
+  "chainId": 5042002,
+  "chainJobId": "8",
+  "publicJobUrl": "https://ubc26-159-89-149-133.sslip.io/v1/open-jobs/01M7PKYWPXG1NH2TJ3G7BVRA3H",
+  "release": {
+    "apiAndRunnerSource": "4316b0aeecb4f9ac13246dfd9440da13a4519fe9",
+    "apiImage": "sha256:888ae5843d7b97256b32e40bdce10458a7386dec4bed2853842ddbd4636c73f0",
+    "docsSource": "a55338d526bbb03da58a56451326025c84e7f1dd",
+    "runnerManifestSha256": "8379fa87117e62e82657fe1a2ff8d7911865ec23779662f55e22eee9c54dd305",
+    "engineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7"
+  },
+  "authoring": {
+    "draftTaskId": "01M7PKYKKA6TMMA93EWKJJ31T1",
+    "draftId": "01M7PKYKMMM20A4ZBKPGFHWWA7",
+    "draftCostUsd": "0.005105",
+    "nativeExampleVerdicts": [1, 0],
+    "botReviewId": "01M7PKZ1MGHVSDZH6P1ZZX2YFR",
+    "botDecision": "pass",
+    "compileTaskId": "01M7PKZZBQ0CQHWVT09WTEAFMW",
+    "revisionHash": "0x669fc09c3868c44247f170fc67198d1d51630d4e38d7f48c45e5a028d18bdab4"
+  },
+  "chain": {
+    "buyer": "0x2bF5574C455E5F66266b17f07d7172bAEC97675F",
+    "solver": "0x2e81c7381b498d90C25C1074ADe76184B6D5B486",
+    "imageId": "0xf631f1621cfa45e4afe66e89af108812156fbcbe58851cc98be6a028583ca63c",
+    "rulesHash": "0x0776e9c8c7f51ad7bb9dbe3ce47e07eae97b4b9358367e40236be963461e709d",
+    "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+    "guestSha256": "bedfa34290d73b0945844071d7a15bb4e101ecfbfc63f07bf083ec84d3b5c4c6",
+    "bountyAtomicUsdc": "10000",
+    "createTx": "0x2565b93e4a00953caff2993971dca42fddedb24bef32745fd31a65ef0ecd3660",
+    "budgetTx": "0xcd7ca9bc83b8afa1f1de1a154113ee64566db9131fccf6697b705f0a070711af",
+    "approveTx": "0xc54afcf441f7ce5d33a16e77122e5b79d1af8bd708cc5dd52534d0728757d36f",
+    "fundTx": "0xb2d53406300c0a555eec28b48c290330d32eea126ad611a2c1d6ae31446e3b19",
+    "registerTx": "0xf5621fcff2223569761e669c00487585807a7195e1ceb9faba7f5ef47ce9ac00",
+    "buyerGasNativeUsdc": "0.01336398",
+    "buyerNativeBefore": "20",
+    "buyerNativeAfter": "19.97663602",
+    "claimTx": "0xe18b7124f3c1f8dae1bf08263555d4dd7995aefffbb5096b619e01fb62da18fe",
+    "claimGasUsed": "434597",
+    "releaseTx": "0xc05a842627517e6dc15f6d5607dfb8b71ec33d76972264ff8dc4df6f45f83882",
+    "releaseGasUsed": "186364",
+    "solverGasNativeUsdc": "0.01241922",
+    "solverNativeBefore": "20",
+    "solverNativeAfter": "19.99758078",
+    "solverPayoutAtomicUsdc": "10000",
+    "finalStatus": "Completed",
+    "released": true
+  },
+  "proof": {
+    "attemptId": "a4cffa60-b3d8-43d3-8b08-ae52e448b632",
+    "proofFileSha256": "1f177ed307e3d2f866e3621d383a39d1a14ea3d689a0e62082b8d5299e0a0f6f",
+    "verdict": 1,
+    "savedProvingStartedUtc": "2026-11-18T06:44:19.444Z",
+    "savedProvedUtc": "2026-11-18T06:54:32.240Z",
+    "elapsedSeconds": 612.796
+  },
+  "buyerRecovery": {
+    "fromConfirmedChain": true,
+    "sdkMatches": true,
+    "engineMatches": true,
+    "independentPythonOracle": true,
+    "files": [{ "name": "receipt.txt", "hex": "446f6e65", "sha256": "11a6767d5674c7e45f7e00dc525762275b3a48491ad6045427d2609cc496c516" }]
+  },
+  "interventions": [
+    "The first buyer launch stopped before authentication because the public guide lacked the draft body.",
+    "The paid buyer needed a corrected funding guide and two receipt-wait runner repairs.",
+    "The first solver prepare stopped before proof with a generic error. An operator diagnostic completed the proof.",
+    "The VPS became unresponsive after payout. A graceful reboot interrupted the first buyer recovery; one read-only rerun succeeded.",
+    "The solver saved release_sent after the confirmed payout. A later diagnostic run reconciled it to released and paymentConfirmed true."
+  ]
+}

@@ -3,14 +3,14 @@ import { execFile, execFileSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { homedir } from "node:os";
-import { fileURLToPath } from "node:url";
+import { workerRepositoryRoot } from "./release-integrity.ts";
 import {
   bytesToHex, createPublicClient, custom, decodeEventLog, encodeAbiParameters, encodeFunctionData,
   http, keccak256, parseAbi, stringToHex, TransactionReceiptNotFoundError, type Hex, type PublicClient,
 } from "viem";
 import { toAccount } from "viem/accounts";
 import { arcCoreAbi, decodeContext, encodeBundle, keyCommitment, referenceHash, parseProofJson, type BundleFile } from "@ubc26/sdk";
-import { engineConfigFromEnv, engineFromConfig } from "@ubc26/api";
+import { engineConfigFromEnv, engineFromConfig } from "../../api/src/engine.ts";
 import { revisionHash, validateRevisionShape, type Revision } from "../../api/src/revision.ts";
 import type { FundingTerms } from "../../api/src/chain.ts";
 import type { SprintArgs } from "./sprint-cli.ts";
@@ -58,7 +58,7 @@ interface OperatorConfig {
   proveBudgetSec: number; submitBudgetSec: number; releaseMarginSec: number; oracleTimeoutMs: number;
   engine: SprintEngineIdentity;
 }
-const repository = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+const repository = workerRepositoryRoot();
 const SOURCE_PATHS = [
   ".gitignore", "commerce/tsconfig.base.json", "commerce/pnpm-lock.yaml", "commerce/package.json",
   ...["worker", "api", "sdk"].flatMap(p => [`commerce/${p}/src`, `commerce/${p}/package.json`, `commerce/${p}/tsconfig.json`]),

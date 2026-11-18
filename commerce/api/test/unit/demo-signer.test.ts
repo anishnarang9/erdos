@@ -129,6 +129,7 @@ function makeApp(opts: { signer?: boolean; maxBudget?: bigint; session?: bigint 
   const created = createApp({
     dbPath,
     buyerToken: TOKEN,
+    browserOrigin: "http://localhost:5173",
     now: () => Number(p.time) * 1000,
     chain: fakeApiChain(p),
     // Arc mode needs an engine marked real; compiled rows are seeded with real provenance below.

@@ -1,0 +1,263 @@
+{
+  "version": 1,
+  "status": "passed-three-synthetic-reviews-cost-target-unqualified",
+  "checkedAt": "2026-11-17T18:48:26.486324+00:00",
+  "apiSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
+  "apiImage": "sha256:4a69ca09aee0495c7214bffdd7d06fa689e92c26d5aa43159d80d2cf2d1d607a",
+  "corpusDigest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
+  "approvedReviews": 3,
+  "genuineCompletedReviews": 3,
+  "reviewsRemainingAuthorized": 0,
+  "baseline": {
+    "observedAt": "2026-11-17T18:24:19.592224+00:00",
+    "creditsUsd": 4.79,
+    "monthlyAdditionalUsageUsd": 0.37,
+    "monthlyLimitUsd": 1,
+    "autoTopUp": false,
+    "source": "Grok Bot native Usage & Billing controls"
+  },
+  "rows": [
+    {
+      "caseId": "voyage-fee",
+      "canonicalInputBytes": 1497,
+      "review": {
+        "reviewId": "01M7NC3ACS4FRC2HPCQ5CZZN9B",
+        "jobId": "01M7NC38YR6M2KG1E86MYY1SJX",
+        "revisionId": "01M7NC38YVMKEXMVEJ94BQCP4G",
+        "revisionHash": "0x44927ed0b9a4d4e5fea301280ff8489f050b65445a77251045afbbafb639ae97",
+        "inputHash": "0x8ba3c64e1de0fc2b0ad277931ef6dee07f70d575fa8dd56a0fe223d238ce24e2",
+        "status": "completed",
+        "decision": "pass",
+        "result": {
+          "version": 1,
+          "reviewId": "01M7NC3ACS4FRC2HPCQ5CZZN9B",
+          "inputHash": "0x8ba3c64e1de0fc2b0ad277931ef6dee07f70d575fa8dd56a0fe223d238ce24e2",
+          "decision": "pass",
+          "coveredRuleIndices": [
+            0,
+            1,
+            2
+          ],
+          "findings": [],
+          "questions": []
+        },
+        "resultHash": "0x7feb85ee3da782e925b3e89d22bf634473199871b3e356cfc227a45c2bb8bfa0",
+        "createdAt": 1794939922840,
+        "expiresAt": 1794940822840,
+        "completedAt": 1794940057436
+      },
+      "dispatch": {
+        "triggerAttempts": 1,
+        "automaticRetry": false,
+        "intentAt": "2026-11-17T18:27:21.308Z",
+        "acceptedAt": "2026-11-17T18:27:24.925Z",
+        "intentToResultMillis": 16128
+      },
+      "semanticAudit": {
+        "valid": true,
+        "expectedDecision": "pass",
+        "nativeCandidateComparisons": 6,
+        "requirements": [
+          {
+            "ruleIndex": 0,
+            "check": "feeCents equals tenderCents minus settledCents."
+          },
+          {
+            "ruleIndex": 1,
+            "check": "feeCents is greater than or equal to zero."
+          },
+          {
+            "ruleIndex": 2,
+            "check": "receipt.txt contains the exact required text and newline."
+          }
+        ]
+      },
+      "costObservation": {
+        "observedAt": "2026-11-17T18:40:12.389Z",
+        "caseId": "voyage-fee",
+        "creditsUsd": 4.71,
+        "monthlyAdditionalUsageUsd": 0.45,
+        "monthlyLimitUsd": 1,
+        "autoTopUp": false,
+        "observedChangesUsd": [
+          0.08,
+          0.08
+        ],
+        "roundedOnly": true,
+        "exactRunAttribution": false,
+        "semanticAuditPassed": true,
+        "continueAllowed": true
+      }
+    },
+    {
+      "caseId": "cover-1",
+      "canonicalInputBytes": 1325,
+      "review": {
+        "reviewId": "01M7NCYJTVHGH80JTJPQKS36RF",
+        "jobId": "01M7NCYHFPEB6V4925MDYYFXNV",
+        "revisionId": "01M7NCYHFPEB6V4925MDYYFXNW",
+        "revisionHash": "0xb2011b3563be4469b92ee06e81e12535c7a7a0a8b95ff2a1861244ed078f4611",
+        "inputHash": "0xc9b32c171ba5c97f81e1a61e79889be687187589dbd665ae8c66bab248e457e2",
+        "status": "completed",
+        "decision": "pass",
+        "result": {
+          "version": 1,
+          "reviewId": "01M7NCYJTVHGH80JTJPQKS36RF",
+          "inputHash": "0xc9b32c171ba5c97f81e1a61e79889be687187589dbd665ae8c66bab248e457e2",
+          "decision": "pass",
+          "coveredRuleIndices": [
+            0,
+            1,
+            2
+          ],
+          "findings": [],
+          "questions": []
+        },
+        "resultHash": "0xb46f8d9cd938c92de5ee02e099e77fff43251b75eec64e7c269e73223dcceb6b",
+        "createdAt": 1794940816218,
+        "expiresAt": 1794941716218,
+        "completedAt": 1794940832673
+      },
+      "dispatch": {
+        "triggerAttempts": 1,
+        "automaticRetry": false,
+        "intentAt": "2026-11-17T18:40:18.106Z",
+        "acceptedAt": "2026-11-17T18:40:21.611Z",
+        "intentToResultMillis": 14567
+      },
+      "semanticAudit": {
+        "valid": true,
+        "expectedDecision": "pass",
+        "nativeCandidateComparisons": 6,
+        "requirements": [
+          {
+            "ruleIndex": 0,
+            "check": "Each lineId occurs once."
+          },
+          {
+            "ruleIndex": 1,
+            "check": "The sum of spentCents is at most 500 integer cents."
+          },
+          {
+            "ruleIndex": 2,
+            "check": "cover.txt contains the exact required text and newline."
+          }
+        ]
+      },
+      "costObservation": {
+        "observedAt": "2026-11-17T18:41:57.145Z",
+        "caseId": "cover-1",
+        "creditsUsd": 4.62,
+        "monthlyAdditionalUsageUsd": 0.53,
+        "monthlyLimitUsd": 1,
+        "autoTopUp": false,
+        "observedChangesUsd": [
+          0.09,
+          0.08
+        ],
+        "roundedOnly": true,
+        "exactRunAttribution": false,
+        "semanticAuditPassed": true,
+        "continueAllowed": true
+      }
+    },
+    {
+      "caseId": "mass-1",
+      "canonicalInputBytes": 1050,
+      "review": {
+        "reviewId": "01M7ND1S09B53NQA9Y2W4RK157",
+        "jobId": "01M7ND1QQF5EDZ93F91ABJEYQM",
+        "revisionId": "01M7ND1QQGR92VBDDS4K4JH4M1",
+        "revisionHash": "0xc6fed5446d0090702e71f88f11255456f63c88a253a9016668bee7f7d4dc2d0d",
+        "inputHash": "0x42513997ebc4e32ec45674c73c6d26424ea720b5a82e12e9630a89461a119ba3",
+        "status": "completed",
+        "decision": "pass",
+        "result": {
+          "version": 1,
+          "reviewId": "01M7ND1S09B53NQA9Y2W4RK157",
+          "inputHash": "0x42513997ebc4e32ec45674c73c6d26424ea720b5a82e12e9630a89461a119ba3",
+          "decision": "pass",
+          "coveredRuleIndices": [
+            0
+          ],
+          "findings": [],
+          "questions": []
+        },
+        "resultHash": "0x3991788e3ce3e89ff39b84204e675535d83b56cbf714bd8a03da4751e98cbd2f",
+        "createdAt": 1794940920841,
+        "expiresAt": 1794941820841,
+        "completedAt": 1794940941457
+      },
+      "dispatch": {
+        "triggerAttempts": 1,
+        "automaticRetry": false,
+        "intentAt": "2026-11-17T18:42:02.889Z",
+        "acceptedAt": "2026-11-17T18:42:06.354Z",
+        "intentToResultMillis": 18568
+      },
+      "semanticAudit": {
+        "valid": true,
+        "expectedDecision": "pass",
+        "nativeCandidateComparisons": 7,
+        "requirements": [
+          {
+            "ruleIndex": 0,
+            "check": "mass equals concentration multiplied by volume, using the declared integer string fields."
+          }
+        ]
+      },
+      "costObservation": {
+        "observedAt": "2026-11-17T18:47:15.786Z",
+        "caseId": "mass-1",
+        "creditsUsd": 4.56,
+        "monthlyAdditionalUsageUsd": 0.6,
+        "monthlyLimitUsd": 1,
+        "autoTopUp": false,
+        "observedChangesUsd": [
+          0.06,
+          0.07
+        ],
+        "roundedOnly": true,
+        "exactRunAttribution": false,
+        "semanticAuditPassed": true,
+        "continueAllowed": true
+      }
+    }
+  ],
+  "summary": {
+    "allDecisionsMatchFixedCaseExpectations": true,
+    "validReviews": 3,
+    "invalidReviews": 0,
+    "coveredRules": 7,
+    "nativeOracleComparisons": 19,
+    "nativeOracleDisagreements": 0,
+    "roundedTotalAccountChangeUsd": {
+      "credits": 0.23,
+      "monthlyAdditionalUsage": 0.23
+    },
+    "roundedMeanUsd": 0.07666666666666667,
+    "exactRunAttribution": false,
+    "fiveCentTargetEstablished": false,
+    "strictTenCentProductionBoundEstablished": false,
+    "directApiAuthoringCalls": 0,
+    "creditsPurchased": 0,
+    "generalDispatcherEnabled": false
+  },
+  "limits": [
+    "The frozen corpus supplied these candidate plans. Bot reviewed them and did not author the plans.",
+    "All three follow-up inputs are positive cases. The earlier genuine negative pilot supplies one budget-mismatch rejection. These four reviews do not establish general semantic accuracy.",
+    "Rounded account differences are observations. They do not establish exact per-run attribution or a guaranteed future charge.",
+    "This probe is separate from the required 180 deployed authoring trials.",
+    "Native compilation and local proof testing continue separately. No fresh funded chain transaction is included."
+  ],
+  "independentReview": {
+    "status": "no-material-findings",
+    "checks": [
+      "Three exact briefs/plans and nine input/revision/result hashes",
+      "Seven covered rules and nineteen independent-oracle outcomes",
+      "Observed usage precedes each later dispatch",
+      "Both rounded account totals equal $0.23"
+    ],
+    "nativeEvidenceScope": "The native preflight records nineteen comparisons and zero disagreements. The review recomputes independent-oracle expectations without claiming another native run."
+  }
+}

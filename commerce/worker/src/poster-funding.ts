@@ -367,7 +367,18 @@ async function createFunding(input: PosterFundingConfig, confirmations?: bigint,
       check(same(e.to, expected.to) && same(e.data, expected.data) && e.gas === String(cfg.maxGas) &&
         e.fee === String(cfg.maxFeePerGas) && e.priority === String(cfg.maxPriorityFeePerGas));
       await chain();
-      const r = await pub.receipt({ hash: e.hash }), tx = await pub.tx({ hash: e.hash });
+      const deadline = Date.now() + 180_000;
+      const observed = openClaim ? await (async () => {
+        for (;;) {
+          integrity();
+          try { return { r: await pub.receipt({ hash: e.hash! }), tx: await pub.tx({ hash: e.hash! }) }; }
+          catch {
+            check(Date.now() < deadline);
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        }
+      })() : { r: await pub.receipt({ hash: e.hash }), tx: await pub.tx({ hash: e.hash }) };
+      const { r, tx } = observed;
       check(same(r.transactionHash, e.hash) && same(tx.hash, e.hash) && same(r.from, buyer) && same(tx.from, buyer) &&
         same(r.to, e.to) && same(tx.to, e.to) && tx.chainId === 5042002 && tx.value === 0n && same(tx.input, e.data) &&
         tx.nonce === e.nonce && tx.gas === cfg.maxGas && tx.maxFeePerGas === cfg.maxFeePerGas && tx.maxPriorityFeePerGas === cfg.maxPriorityFeePerGas);
@@ -376,8 +387,16 @@ async function createFunding(input: PosterFundingConfig, confirmations?: bigint,
         r.effectiveGasPrice >= ARC_MIN_FEE && r.effectiveGasPrice <= cfg.maxFeePerGas);
       await stable(r.blockNumber, r.blockHash);
       if (openClaim) {
-        const head = await pub.block({ blockTag: "latest" });
-        check(head.number !== null && head.number >= r.blockNumber + confirmations!);
+        // A receipt can arrive before its finality margin. Poll chain reads only.
+        // Never rebroadcast the saved transaction while confirmation is pending.
+        for (;;) {
+          integrity();
+          const head = await pub.block({ blockTag: "latest" });
+          check(head.number !== null);
+          if (head.number >= r.blockNumber + confirmations!) break;
+          check(Date.now() < deadline);
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
       }
       function event(address: Address, abi: Abi, name: string): Record<string, unknown> {
         const matches: Record<string, unknown>[] = [];

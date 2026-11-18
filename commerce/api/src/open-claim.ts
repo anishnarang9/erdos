@@ -1,8 +1,10 @@
 import { encodeFunctionData, isAddressEqual, type Address, type Hex } from "viem";
 import { arcCoreAbi, arcErc20Abi } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
-import { isoAt, parseJson, readBody, requireJobId, type AppEnv } from "./context.ts";
+import { isoAt, parseJson, readBody, requireJobId, ULID_RE, type AppEnv } from "./context.ts";
+import { assertFundingBuyer, requireOwnedJob } from "./ownership.ts";
 import { requireRealArtifact } from "./artifact.ts";
+import { assertBotApproved } from "./bot-review-gate.ts";
 import { isPlainObject } from "./revision.ts";
 import type { RouteContext } from "./routes.ts";
 
@@ -64,6 +66,7 @@ type Revision = { id: string; revision_hash: string; revision_json: string };
 type Manifest = { image_id: string; rules_hash: string; reference_hash: string };
 type Intent = { job_id: string; revision_id: string; buyer: string; budget: string; expiry: string };
 type Link = { job_id: string; chain_id: number; core: string; adapter: string; chain_job_id: string; funding_tx: string; registration_tx: string };
+type PublicBrief = { revision_id: string; brief: string };
 
 function address(value: unknown, field: string): Address {
   if (typeof value !== "string" || !ADDRESS.test(value)) throw new ApiError("validation_failed", `${field} must be an address`);
@@ -88,6 +91,59 @@ function sameAddress(a: string, b: string): boolean {
 }
 function termsMismatch(field: string): never { throw new ApiError("terms_mismatch", `Confirmed ${field} differs from buyer-approved terms`, { field }); }
 function pending(reason: string): never { throw new ApiError("chain_unconfirmed", "Open-claim transaction is not confirmed", { reason }); }
+
+const DISCOVERY_LIMIT = 50;
+const DISCOVERY_FIELDS = new Set(["cursor", "limit"]);
+const LINK_SKIP = new Set(["terms_mismatch", "not_found", "wrong_state", "approval_required"]);
+
+function discoveryValidation(message: string, path: string): ApiError {
+  return new ApiError("validation_failed", "Request validation failed", { errors: [{ path, message }] });
+}
+
+/** Opaque discovery cursor. `oc1` plus the last scanned API job id, unpadded base64url. */
+function encodeDiscoveryCursor(jobId: string): string {
+  return Buffer.from(`oc1\n${jobId}`, "utf8").toString("base64url");
+}
+
+function decodeDiscoveryCursor(cursor: string): string {
+  if (!/^[A-Za-z0-9_-]{1,512}$/.test(cursor)) throw discoveryValidation("is malformed", "/cursor");
+  const text = Buffer.from(cursor, "base64url").toString("utf8");
+  const split = text.indexOf("\n");
+  const jobId = split < 0 ? "" : text.slice(split + 1);
+  if (split < 0 || text.slice(0, split) !== "oc1" || !ULID_RE.test(jobId) || encodeDiscoveryCursor(jobId) !== cursor) {
+    throw discoveryValidation("is malformed", "/cursor");
+  }
+  return jobId;
+}
+
+function discoveryLimit(raw: string | undefined): number {
+  if (raw === undefined) return DISCOVERY_LIMIT;
+  if (!/^[1-9][0-9]*$/.test(raw)) throw discoveryValidation("must be an integer from 1 to 50", "/limit");
+  const limit = Number(raw);
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > DISCOVERY_LIMIT) {
+    throw discoveryValidation("must be an integer from 1 to 50", "/limit");
+  }
+  return limit;
+}
+
+function discoveryQuery(url: string): { after: string; limit: number } {
+  const params = new URL(url).searchParams;
+  const seen = new Set<string>();
+  for (const key of params.keys()) {
+    if (seen.has(key)) throw discoveryValidation("is repeated", `/${key}`);
+    seen.add(key);
+    if (!DISCOVERY_FIELDS.has(key)) throw discoveryValidation("is not a discovery field", `/${key}`);
+  }
+  return {
+    after: params.has("cursor") ? decodeDiscoveryCursor(params.get("cursor") ?? "") : "",
+    limit: discoveryLimit(params.has("limit") ? params.get("limit") ?? "" : undefined),
+  };
+}
+
+function chainReadFailed(error: unknown): never {
+  if (error instanceof ApiError && error.code !== "chain_unavailable" && error.code !== "chain_unconfirmed") throw error;
+  throw new ApiError("chain_unavailable", "Open-claim chain is unavailable");
+}
 
 function validateConfig(config: OpenClaimConfig): void {
   if (!Number.isSafeInteger(config.chainId) || config.chainId <= 0 ||
@@ -129,6 +185,7 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     }
   }
   const { app, deps, buyer, idem } = ctx;
+  const owned = requireOwnedJob(deps);
   const { db } = deps;
   const q = {
     job: db.prepare("SELECT id, state, current_revision_id FROM jobs WHERE id = ?"),
@@ -139,7 +196,9 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     insertIntent: db.prepare("INSERT INTO open_claim_intents (job_id, revision_id, buyer, budget, expiry, created_at) VALUES (?, ?, ?, ?, ?, ?)"),
     link: db.prepare("SELECT * FROM open_claim_links WHERE job_id = ?"),
     insertLink: db.prepare("INSERT INTO open_claim_links (job_id, chain_id, core, adapter, chain_job_id, funding_tx, registration_tx, verified_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"),
-    links: db.prepare("SELECT * FROM open_claim_links ORDER BY job_id ASC"),
+    linkPage: db.prepare("SELECT * FROM open_claim_links WHERE job_id > ? ORDER BY job_id ASC LIMIT ?"),
+    publicBrief: db.prepare("SELECT revision_id, brief FROM open_claim_public_briefs WHERE job_id = ?"),
+    insertPublicBrief: db.prepare("INSERT INTO open_claim_public_briefs (job_id, revision_id, brief, published_at) VALUES (?, ?, ?, ?)"),
     setState: db.prepare("UPDATE jobs SET state = ?, updated_at = ? WHERE id = ?"),
   };
   const load = (id: string) => {
@@ -154,7 +213,15 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     return { job, revision, manifest };
   };
 
-  app.post("/v1/jobs/:id/open-claim-terms", readBody, buyer, parseJson, requireJobId, idem.middleware, async c => {
+  app.post("/v1/jobs/:id/open-claim-terms", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, async c => {
+    const current = q.job.get(c.req.param("id") ?? "") as Job | undefined;
+    if (current) assertBotApproved(deps, current.current_revision_id);
+    const principal = c.get("principal");
+    if (principal?.kind === "wallet") {
+      const named = c.get("json");
+      const buyerName = isPlainObject(named) && typeof named.buyer === "string" ? named.buyer : "";
+      assertFundingBuyer(principal, buyerName);
+    }
     if (!config) throw new ApiError("chain_unavailable", "Open-claim chain is not configured");
     const body = c.get("json");
     if (!isPlainObject(body) || Object.keys(body).some(k => !["revisionHash", "buyer", "budget", "expiry"].includes(k))) {
@@ -211,7 +278,7 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     });
   });
 
-  app.post("/v1/jobs/:id/open-claim-link", readBody, buyer, parseJson, requireJobId, idem.middleware, async c => {
+  app.post("/v1/jobs/:id/open-claim-link", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, async c => {
     if (!config) throw new ApiError("chain_unavailable", "Open-claim chain is not configured");
     const body = c.get("json");
     if (!isPlainObject(body) || Object.keys(body).some(k => !["revisionHash", "chainJobId", "fundingTx", "registrationTx"].includes(k))) {
@@ -257,6 +324,45 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     });
   });
 
+  app.post("/v1/jobs/:id/public-brief", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, async c => {
+    const principal = c.get("principal");
+    if (principal?.kind !== "wallet") throw new ApiError("forbidden", "A wallet-owned buyer must publish the brief");
+    const body = c.get("json");
+    if (!isPlainObject(body) || Object.keys(body).some(k => !["revisionHash", "brief"].includes(k))) {
+      throw new ApiError("validation_failed", "Public brief body has unknown fields");
+    }
+    const revisionHash = hash(body.revisionHash, "revisionHash");
+    const brief = body.brief;
+    if (typeof brief !== "string" || brief.trim() !== brief || !/[A-Za-z]/.test(brief) ||
+        [...brief].length < 1 || [...brief].length > 280 || /[\x00-\x1f\x7f]/.test(brief)) {
+      throw new ApiError("validation_failed", "Public brief must be one plain-text line of at most 280 characters");
+    }
+    const id = c.req.param("id") ?? "";
+    const { job, revision } = load(id);
+    if (!same(revision.revision_hash, revisionHash)) throw new ApiError("revision_conflict", "Brief revision is not current");
+    const intent = q.intent.get(id) as Intent | undefined;
+    if (!intent || !sameAddress(intent.buyer, principal.wallet)) throw new ApiError("not_found", "Job not found");
+    const link = q.link.get(id) as Link | undefined;
+    if (!link || job.state !== "open_registered") throw new ApiError("wrong_state", "Job must have confirmed funding");
+    const publicJob = await view(link);
+    if (publicJob.status !== "Funded" || publicJob.expired || publicJob.winner || publicJob.released) {
+      throw new ApiError("wrong_state", "Job is not open for a public brief");
+    }
+    const existing = q.publicBrief.get(id) as PublicBrief | undefined;
+    if (existing && (existing.revision_id !== revision.id || existing.brief !== brief)) {
+      throw new ApiError("wrong_state", "Public brief cannot change after publication");
+    }
+    const result = { jobId: id, revisionHash, publicBrief: brief };
+    return idem.commit(c, 200, result, () => {
+      const current = q.publicBrief.get(id) as PublicBrief | undefined;
+      if (current) {
+        if (current.revision_id !== revision.id || current.brief !== brief) {
+          throw new ApiError("wrong_state", "Public brief cannot change after publication");
+        }
+      } else q.insertPublicBrief.run(id, revision.id, brief, isoAt(deps.now()));
+    });
+  });
+
   async function view(link: Link): Promise<Record<string, unknown>> {
     if (!config || link.chain_id !== config.chainId || !sameAddress(link.core, config.core) ||
         !sameAddress(link.adapter, config.adapter)) termsMismatch("deployment");
@@ -264,14 +370,21 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     if (job.state !== "open_registered") termsMismatch("API state");
     const intent = q.intent.get(job.id) as Intent | undefined;
     if (!intent || intent.revision_id !== revision.id) termsMismatch("approval");
-    const snapshot = await config.reader.current(BigInt(link.chain_job_id));
+    let snapshot: OpenClaimSnapshot;
+    try { snapshot = await config.reader.current(BigInt(link.chain_job_id)); }
+    catch { throw new ApiError("chain_unavailable", "Open-claim chain is unavailable"); }
     assertSnapshot(snapshot, config, intent, manifest);
+    // Expiry uses this snapshot's confirmed timestamp and this snapshot's job expiry together.
+    const expired = snapshot.timestamp >= snapshot.job.expiry;
+    const publicBrief = q.publicBrief.get(job.id) as PublicBrief | undefined;
     return { jobId: job.id, revisionHash: revision.revision_hash, chainJobId: link.chain_job_id,
+      ...(publicBrief && publicBrief.revision_id === revision.id ? { publicBrief: publicBrief.brief } : {}),
       chainId: config.chainId, core: config.core, adapter: config.adapter, status: snapshot.job.status,
       winner: snapshot.submission.accepted ? snapshot.submission.solver : null,
       envelopeHash: snapshot.submission.accepted ? snapshot.submission.envelopeHash : null,
       keyCommitment: snapshot.submission.accepted ? snapshot.submission.keyCommitment : null,
-      released: snapshot.released,
+      released: snapshot.released, expired,
+      confirmedTimestamp: snapshot.timestamp.toString(), confirmedBlockNumber: snapshot.blockNumber.toString(),
       budget: intent.budget, expiry: intent.expiry, buyer: intent.buyer,
       manifest: { imageId: manifest.image_id, rulesHash: manifest.rules_hash, referenceHash: manifest.reference_hash },
       fundingTx: link.funding_tx, registrationTx: link.registration_tx,
@@ -280,15 +393,23 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
   }
 
   app.get("/v1/open-jobs", readBody, async c => {
-    const out: Record<string, unknown>[] = [];
-    for (const link of q.links.all() as Link[]) {
-      if (out.length >= 50) break;
+    const query = discoveryQuery(c.req.url);
+    // Read one extra row so a full window can advance without a chain call for that row.
+    const rows = q.linkPage.all(query.after, query.limit + 1) as Link[];
+    const window = rows.slice(0, query.limit);
+    if (window.length > 0 && !config) throw new ApiError("chain_unavailable", "Open-claim chain is not configured");
+    const jobs: Record<string, unknown>[] = [];
+    for (const link of window) {
       try {
         const item = await view(link);
-        if (item.status === "Funded" && item.winner === null) out.push(item);
-      } catch { /* A stale or unavailable link is not advertised. */ }
+        if (item.status === "Funded" && item.winner === null && item.released === false && item.expired === false) jobs.push(item);
+      } catch (error) {
+        if (error instanceof ApiError && LINK_SKIP.has(error.code)) continue;
+        chainReadFailed(error);
+      }
     }
-    return c.json({ jobs: out });
+    const last = window[window.length - 1];
+    return c.json({ jobs, nextCursor: rows.length > query.limit && last ? encodeDiscoveryCursor(last.job_id) : null });
   });
   app.get("/v1/open-jobs/:id", readBody, requireJobId, async c => {
     const link = q.link.get(c.req.param("id") ?? "") as Link | undefined;

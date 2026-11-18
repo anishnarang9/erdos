@@ -1,0 +1,105 @@
+{
+  "status": "passed-controlled-proxy-readiness",
+  "caddyImage": "caddy:2.10.2-alpine@sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d",
+  "backendImage": "ubc26-hosted-runtime:20b0dc2",
+  "caddyFileSha256": "278bcc0c08b45a85ee06108c15cdef6c1622657dd9352ff27bb8964aaf42cba3",
+  "phases": [
+    {
+      "phase": "unready",
+      "status": 503
+    },
+    {
+      "phase": "unready-callback-auth-required",
+      "status": 401
+    },
+    {
+      "phase": "unready-authenticated-callback",
+      "status": 200
+    },
+    {
+      "phase": "unready-callback-prefix-not-a-bypass",
+      "status": 503
+    },
+    {
+      "phase": "unready-still-blocked",
+      "status": 503
+    },
+    {
+      "phase": "ready",
+      "status": 200
+    },
+    {
+      "phase": "unready-again",
+      "status": 503
+    }
+  ],
+  "runnerDownloads": {
+    "rows": [
+      {
+        "file": "ubc26-runner-0.2.0.tgz",
+        "status": 200,
+        "sha256": "23e412fd8acf388cd38ae8a45c07d97c104e1132282918433125deeeef83d9d7"
+      },
+      {
+        "file": "SHA256SUMS",
+        "status": 200,
+        "sha256": "e5fcc904260c6d9355dc5d7c1a3f0e048b51e000a3484f38a221f82fae837e09"
+      },
+      {
+        "file": "release.json",
+        "status": 200,
+        "sha256": "328ed9c27614e6c3051112035e01ec41d631a838d0bed3d992d30f5e71306c49"
+      },
+      {
+        "file": "ubc26-release.json",
+        "status": 200,
+        "sha256": "1967b6f4a74f4ab40b49f24a1329144136a52748b86c660e88587a027a500cb7"
+      }
+    ],
+    "head": true,
+    "range": true,
+    "nonAllowlistedPathsRejected": 6,
+    "mutationsRejected": true
+  },
+  "privateRequestFieldsAbsentFromLogs": true,
+  "edgeCapabilities": [
+    "NET_BIND_SERVICE"
+  ],
+  "noNewPrivileges": true,
+  "network": "dedicated Docker bridge; one loopback-only ephemeral HTTP port",
+  "tls": "HTTP-only controlled test; public TLS is outside this check",
+  "realModelCalls": 0,
+  "proofs": 0,
+  "chainTransactions": 0,
+  "scope": "Actual pinned Caddy with a controlled readiness and restricted-callback upstream. Not public hosted or genuine Bot acceptance.",
+  "implementationBase": "4c49fbe",
+  "sourceFiles": {
+    "deploy/Caddyfile": "278bcc0c08b45a85ee06108c15cdef6c1622657dd9352ff27bb8964aaf42cba3",
+    "deploy/compose.yaml": "d3028f3be61354d32f72b1220ac375a8fe7d9e0ba464523bb4334e0c12208ef8",
+    "deploy/host.env.example": "5a90bccb4ae92af054ed002887abc90f5aa73dcede6cebf4814e54fd6b0d9c95",
+    "deploy/compose.test.mjs": "29834ffc5cf1a0b073a6a215233ad802b20ac7919c2343e8d024c19dda5cf883",
+    "deploy/check-proxy.mjs": "8dc8252004c848fa3752804d22b5028f96c18576da7dba735d28008440f37890"
+  },
+  "assetChecks": 13,
+  "regressions": [
+    {
+      "check": "read-only-download-mount",
+      "before": "Missing mount assertion failed",
+      "after": "passed actual Compose config"
+    },
+    {
+      "check": "available-while-api-unready",
+      "beforeStatus": 503,
+      "expectedStatus": 200,
+      "afterStatus": 200
+    },
+    {
+      "check": "bare-runner-prefix",
+      "beforeStatus": 503,
+      "expectedStatus": 404,
+      "afterStatus": 404
+    }
+  ],
+  "publicDeploymentVerified": false,
+  "independentReview": "Bare-prefix routing finding corrected after observed regression. Follow-up closes the five-file source review with no remaining actionable issue. Deployment remains unverified."
+}

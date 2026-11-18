@@ -1,0 +1,61 @@
+{
+  "plan": {
+    "version": 1,
+    "deliverables": [
+      {
+        "name": "product.json",
+        "parser": "json/v1",
+        "fields": [
+          {
+            "name": "concentration",
+            "type": "i64"
+          },
+          {
+            "name": "volume",
+            "type": "i64"
+          },
+          {
+            "name": "mass",
+            "type": "i64"
+          }
+        ]
+      }
+    ],
+    "references": [],
+    "rules": [
+      {
+        "op": "eq",
+        "left": {
+          "op": "field",
+          "source": "deliverable",
+          "file": "product.json",
+          "field": "mass"
+        },
+        "right": {
+          "op": "mul",
+          "left": {
+            "op": "field",
+            "source": "deliverable",
+            "file": "product.json",
+            "field": "concentration"
+          },
+          "right": {
+            "op": "field",
+            "source": "deliverable",
+            "file": "product.json",
+            "field": "volume"
+          }
+        }
+      }
+    ]
+  },
+  "referenceDigest": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+  "outputs": [
+    {
+      "name": "product.json",
+      "format": "json"
+    }
+  ],
+  "expirySeconds": 3600,
+  "maxBudget": "10000"
+}

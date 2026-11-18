@@ -1,0 +1,144 @@
+{
+  "version": 1,
+  "status": "passed-native-expiry-restart-and-genuine-receipt-preservation",
+  "checkedAt": "2026-11-17T17:57:10.225Z",
+  "runtimeSource": "9dc289dda37e74b5258592654e3bd51e85ff92e8",
+  "image": "sha256:4a69ca09aee0495c7214bffdd7d06fa689e92c26d5aa43159d80d2cf2d1d607a",
+  "transport": "Pinned SSH to API loopback; separate actual public TLS checks.",
+  "expiredReview": {
+    "jobId": "01M7MQ4ZYESYAYW7TRCRX5V5BR",
+    "reviewId": "01M7MQ51H80E205ZM6GEFRF09C",
+    "status": "expired",
+    "originalExpiresAt": 1794918859207
+  },
+  "genuineReview": {
+    "jobId": "01M7N1NP4A2JP800PGBXAET6NJ",
+    "reviewId": "01M7N1NQHW4972D29W9FXBKHCK",
+    "decision": "needs_changes",
+    "inputHash": "0xfbfef90132f5a8cbfb69ea3f0da0a6e4696ef245eb09cffaa607872aa8b09047",
+    "resultHash": "0x16d0c58f0860b11cecd929de3a8aabc55346b0be9e49b7632daeeb008aa5b154",
+    "completedAt": 1794929017780,
+    "byteExactApiReceiptPreserved": true
+  },
+  "checks": {
+    "ownerPollingPersistsExpiry": true,
+    "repeatedExpiryRead": true,
+    "otherOwnerRejected": true,
+    "objectionStillBlocksApproval": true,
+    "compilerReady": true,
+    "dispatchReadinessStillDisabled": true,
+    "publicBuyerApiStill503": true,
+    "publicCallbackStillAuthenticated": true,
+    "publicEngineMetadataUnchanged": true
+  },
+  "readiness": {
+    "ready": false,
+    "authoring": "disabled",
+    "checks": [
+      {
+        "name": "engine",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "engine_executable",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "wsl_wrapper",
+        "ok": true,
+        "state": "not_used",
+        "blocksListen": false
+      },
+      {
+        "name": "compiler_wrapper",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "compiler_identity",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "compiler_ready",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "origin",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "chain",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "model",
+        "ok": true,
+        "state": "disabled",
+        "blocksListen": false
+      },
+      {
+        "name": "authoring_release",
+        "ok": false,
+        "reason": "disabled",
+        "blocksListen": false
+      },
+      {
+        "name": "budget",
+        "ok": true,
+        "state": "not_required",
+        "blocksListen": false
+      },
+      {
+        "name": "rate_limit",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "packages",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "database",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "database_write",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "migrations",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "expensive_ops",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "worker",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "bot_review",
+        "ok": false,
+        "reason": "dispatch_disabled",
+        "blocksListen": false
+      }
+    ]
+  },
+  "newPaidReviews": 0,
+  "newApiGenerationCalls": 0,
+  "newProofs": 0,
+  "newChainTransactions": 0
+}

@@ -1,0 +1,25 @@
+{
+  "status": "native-plan-valid-buyer-examples-ready",
+  "checkedAt": "2026-11-18T04:43:09Z",
+  "sourceSha": "d6b1790b54bd0389ba37b75c6306275c9fbf05b9",
+  "isolatedContainer": "ubc26-authoring-pilot-d6b1790",
+  "caseId": "exact-text-1",
+  "taskId": "01M7PFCQ67TRS0717365D7PGZM",
+  "draftId": "01M7PFCQ9Q9TMQ64VNJYQK8Z97",
+  "revisionHash": "0x1b73d8ca843aaf49a51160a408e0aeb1eaac8833fe2a8894d43db7f0fde36fe2",
+  "draftModelExamples": "One passing example selected a nonexistent fixture. The initial example check was not approval ready.",
+  "buyerExampleCheckId": "01M7PFEFXVAWDGKPKC1CSNTN39",
+  "buyerExampleResults": [
+    { "name": "buyer-valid", "predictedVerdict": 1, "checkerVerdict": 1, "agrees": true },
+    { "name": "buyer-invalid", "predictedVerdict": 0, "checkerVerdict": 0, "agrees": true }
+  ],
+  "buyerExampleApprovalReady": true,
+  "billing": { "state": "settled", "microUsd": 5309, "source": "actual" },
+  "allAttemptsSettledMicroUsd": 28225,
+  "firstAttemptUncertainReservationMicroUsd": 60000,
+  "botReviewCalls": 0,
+  "nativeCompiles": 0,
+  "cashPurchasesUsd": 0,
+  "publicReadiness": "gated",
+  "originalThreeCallPilotVerdict": "failed"
+}

@@ -19,6 +19,8 @@
     "open-claim:job-input": "tsx src/open-claim/job-input-cli.ts",
     "open-claim:operator": "tsx src/open-claim/operator.ts",
     "test:open-claim-recovery": "vitest run --config vitest.open-claim-recovery.config.ts",
+    "hosted": "tsx src/hosted-cli.ts",
+    "package:runner": "node scripts/package-runner.mjs",
     "agent": "tsx scripts/agent.ts"
   },
   "dependencies": {
@@ -30,6 +32,7 @@
   "devDependencies": {
     "@hono/node-server": "2.1.8",
     "@types/node": "22.20.5",
+    "esbuild": "0.27.7",
     "tsx": "4.21.0",
     "typescript": "5.9.3",
     "vitest": "5.1.0"

@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "checkedAt": "2026-11-17T15:38:51.380835+00:00",
+  "runtimeSource": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+  "reviewId": "01M7N1NQHW4972D29W9FXBKHCK",
+  "windowStartUtc": "2026-11-17T15:22:00Z",
+  "scope": "API and proxy log streams sampled after the genuine pilot. Known credentials and review-payload markers were absent. The logs do not identify the individual callback.",
+  "checks": [
+    {
+      "container": "ubc26-hosted-api-1",
+      "bytesInspected": 34832,
+      "knownCredentialFound": false,
+      "reviewPayloadFieldFound": false,
+      "capturedLogSha256": "62ebcba9ddd63051b60054c4528da449c789654b41fb996d61dbbd18be19b865"
+    },
+    {
+      "container": "ubc26-hosted-https-1",
+      "bytesInspected": 35868,
+      "knownCredentialFound": false,
+      "reviewPayloadFieldFound": false,
+      "capturedLogSha256": "43c09f8c93d48a6d2d23f9da8180c7e070cec05bd3437c3372fd4587f06530f8"
+    }
+  ],
+  "status": "passed-pilot-window-log-screen",
+  "limits": [
+    "Checks configured container log streams and known credentials/field markers only. It is not a universal secret-leak detector.",
+    "Provider-side Bot logs and original conversation export are outside this check.",
+    "API request logs label this MCP route unknown. Caddy deletes request fields. Neither stream retains the callback path, so this screen does not establish per-callback log attribution."
+  ],
+  "callbackCorrelationQualified": false
+}

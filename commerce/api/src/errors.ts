@@ -22,6 +22,7 @@ export type ErrorCode =
   | "payment_conflict"
   | "payment_unavailable"
   | "forbidden"
+  | "service_disabled"
   | "conflict";
 
 export const ERROR_STATUS: Record<ErrorCode, number> = {
@@ -48,6 +49,7 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   payment_conflict: 409,
   payment_unavailable: 503,
   forbidden: 403,
+  service_disabled: 503,
   conflict: 409,
 };
 

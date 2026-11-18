@@ -1,0 +1,110 @@
+{
+  "status": "passed-installed-native-engine",
+  "sourceCommit": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+  "releaseManifestSha256": "fbab4c2c6941115a099aab3b6ab6ca2b4e436066e483f21ce73bcaec1165e447",
+  "engineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+  "corpusDigest": "2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470",
+  "node": "v24.22.3",
+  "platform": "linux",
+  "architecture": "x64",
+  "syntheticContexts": true,
+  "checks": 12,
+  "rows": [
+    {
+      "challenge": "seal-1",
+      "candidate": "valid",
+      "oracle": "pass",
+      "exit": 0,
+      "verdict": 1
+    },
+    {
+      "challenge": "seal-1",
+      "candidate": "low-seal",
+      "oracle": "fail",
+      "exit": 0,
+      "verdict": 0
+    },
+    {
+      "challenge": "seal-1",
+      "candidate": "invalid-signature",
+      "oracle": "reject",
+      "exit": 1,
+      "status": "check-rejected",
+      "reason": "invalid_deliverable"
+    },
+    {
+      "challenge": "crate-1",
+      "candidate": "valid",
+      "oracle": "pass",
+      "exit": 0,
+      "verdict": 1
+    },
+    {
+      "challenge": "crate-1",
+      "candidate": "low-seal",
+      "oracle": "fail",
+      "exit": 0,
+      "verdict": 0
+    },
+    {
+      "challenge": "crate-1",
+      "candidate": "invalid-signature",
+      "oracle": "reject",
+      "exit": 1,
+      "status": "check-rejected",
+      "reason": "invalid_deliverable"
+    },
+    {
+      "challenge": "transfer-1",
+      "candidate": "valid",
+      "oracle": "pass",
+      "exit": 0,
+      "verdict": 1
+    },
+    {
+      "challenge": "transfer-1",
+      "candidate": "low-seal",
+      "oracle": "fail",
+      "exit": 0,
+      "verdict": 0
+    },
+    {
+      "challenge": "transfer-1",
+      "candidate": "invalid-signature",
+      "oracle": "reject",
+      "exit": 1,
+      "status": "check-rejected",
+      "reason": "invalid_deliverable"
+    },
+    {
+      "challenge": "dual-seal-1",
+      "candidate": "valid",
+      "oracle": "pass",
+      "exit": 0,
+      "verdict": 1
+    },
+    {
+      "challenge": "dual-seal-1",
+      "candidate": "low-seal",
+      "oracle": "fail",
+      "exit": 0,
+      "verdict": 0
+    },
+    {
+      "challenge": "dual-seal-1",
+      "candidate": "invalid-signature",
+      "oracle": "reject",
+      "exit": 1,
+      "status": "check-rejected",
+      "reason": "invalid_deliverable"
+    }
+  ],
+  "proofs": 0,
+  "realModelCalls": 0,
+  "chainTransactions": 0,
+  "engineRuntimeImageUsed": "sha256:0141ba0c4ed599bdead1852d9bc1a2bb0fe7d343fd378c27c4a203bb975188f8",
+  "transport": "Pinned SSH; isolated native Linux container; no network or Docker socket",
+  "archiveSha256": "148366c2a62114a8c5d0696fa9c3ee990e06a217d815f4e50c506a856e5a793c",
+  "sourceAndArtifactMountsReadOnly": true,
+  "containerRetainedStopped": true
+}

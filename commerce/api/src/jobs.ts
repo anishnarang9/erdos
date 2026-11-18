@@ -3,6 +3,9 @@ import type { ULIDFactory } from "ulid";
 import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { isoAt, type AppEnv, type Deps } from "./context.ts";
+import { ownerWallet } from "./ownership.ts";
+import { assertAuthoredApproval } from "./authored-approval.ts";
+import { assertBotApproved, requireBotPass } from "./bot-review-gate.ts";
 import type { Idempotency } from "./idempotency.ts";
 import { EngineError, type Manifest } from "./engine.ts";
 import { chainViewFor } from "./market.ts";
@@ -36,6 +39,7 @@ export interface RevisionRow {
   structure_hash: string | null;
   rules_hash: string | null;
   source: Source;
+  draft_id: string | null;
   created_at: string;
 }
 
@@ -45,6 +49,11 @@ interface ApprovalRow {
   structure_hash: string | null;
   rules_hash: string | null;
   at: string;
+  example_check_id: string | null;
+  coverage_digest: string | null;
+  bot_review_id: string | null;
+  bot_input_hash: string | null;
+  bot_result_hash: string | null;
 }
 
 /** The engine commitments of a revision's plan (null when the validator does not compute them). */
@@ -60,6 +69,11 @@ export interface ApprovalView {
   structureHash: string | null;
   rulesHash: string | null;
   approvedAt: string;
+  exampleCheckId?: string;
+  coverageDigest?: string;
+  botReviewId?: string;
+  botInputHash?: string;
+  botResultHash?: string;
 }
 
 export function invalid(errors: FieldError[]): ApiError {
@@ -81,6 +95,9 @@ function approvalView(row: ApprovalRow): ApprovalView {
     structureHash: row.structure_hash,
     rulesHash: row.rules_hash,
     approvedAt: row.at,
+    ...(row.example_check_id ? { exampleCheckId: row.example_check_id } : {}),
+    ...(row.coverage_digest ? { coverageDigest: row.coverage_digest } : {}),
+    ...(row.bot_review_id ? { botReviewId: row.bot_review_id, botInputHash: row.bot_input_hash!, botResultHash: row.bot_result_hash! } : {}),
   };
 }
 
@@ -89,7 +106,7 @@ export function jobStore(deps: Deps) {
   const { db } = deps;
   const q = {
     insertJob: db.prepare(
-      "INSERT INTO jobs (id, state, current_revision_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO jobs (id, state, current_revision_id, created_at, updated_at, owner_wallet) VALUES (?, ?, ?, ?, ?, ?)",
     ),
     insertRevision: db.prepare(
       "INSERT INTO revisions (id, job_id, n, revision_json, plan_json, structure_hash, rules_hash, reference_digest, revision_hash, source, draft_id, edited, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -102,13 +119,13 @@ export function jobStore(deps: Deps) {
     ),
     job: db.prepare("SELECT id, state, current_revision_id FROM jobs WHERE id = ?"),
     revision: db.prepare(
-      "SELECT id, n, revision_json, reference_digest, revision_hash, structure_hash, rules_hash, source, created_at FROM revisions WHERE id = ?",
+      "SELECT id, n, revision_json, reference_digest, revision_hash, structure_hash, rules_hash, source, draft_id, created_at FROM revisions WHERE id = ?",
     ),
     approval: db.prepare(
-      "SELECT revision_hash, reference_digest, structure_hash, rules_hash, at FROM approvals WHERE revision_id = ? AND voided_at IS NULL",
+      "SELECT revision_hash, reference_digest, structure_hash, rules_hash, at, example_check_id, coverage_digest, bot_review_id, bot_input_hash, bot_result_hash FROM approvals WHERE revision_id = ? AND voided_at IS NULL",
     ),
     insertApproval: db.prepare(
-      "INSERT INTO approvals (job_id, revision_id, revision_hash, reference_digest, structure_hash, rules_hash, approved_by, at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO approvals (job_id, revision_id, revision_hash, reference_digest, structure_hash, rules_hash, approved_by, at, example_check_id, coverage_digest, bot_review_id, bot_input_hash, bot_result_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     ),
     voidApprovals: db.prepare("UPDATE approvals SET voided_at = ? WHERE job_id = ? AND voided_at IS NULL"),
     setState: db.prepare("UPDATE jobs SET state = ?, updated_at = ? WHERE id = ?"),
@@ -119,6 +136,7 @@ export function jobStore(deps: Deps) {
       "INSERT OR IGNORE INTO manifests (revision_id, image_id, rules_hash, reference_hash, manifest_json, package_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
     ),
     draftHash: db.prepare("SELECT revision_hash FROM drafts WHERE id = ?"),
+    draftOwner: db.prepare("SELECT owner_wallet FROM drafts WHERE id = ?"),
   };
 
   const loadJob = (id: string): { job: JobRow; rev: RevisionRow } => {
@@ -153,6 +171,13 @@ export function jobStore(deps: Deps) {
   };
 
   return { q, loadJob, approvalOf, manifestOf, packageOf, referencesOf };
+}
+
+/** A wallet cannot use another wallet's draft or a legacy draft. Legacy cannot use a wallet draft. */
+export function assertDraftOwner(store: JobStore, draftId: string | null, owner: string | null): void {
+  if (draftId === null) return;
+  const row = store.q.draftOwner.get(draftId) as { owner_wallet: string | null } | undefined;
+  if (!row || row.owner_wallet !== owner) throw invalid([{ path: "/draftId", message: "unknown draftId" }]);
 }
 
 export type JobStore = ReturnType<typeof jobStore>;
@@ -284,12 +309,14 @@ export function jobRoutes(deps: Deps, commit: Idempotency["commit"], newId: ULID
   /** POST /v1/jobs */
   const create: Handler<AppEnv> = async (c) => {
     const s = await parseSubmission(deps, store, c.get("json"));
+    const owner = ownerWallet(c);
+    assertDraftOwner(store, s.draftId, owner);
     const jobId = newId(deps.now());
     const revId = newId(deps.now());
     const at = isoAt(deps.now());
     const resBody = { jobId, state: "drafted", revision: { n: 1, revisionHash: s.revisionHash } };
     return commit(c, 201, resBody, () => {
-      q.insertJob.run(jobId, "drafted", revId, at, at);
+      q.insertJob.run(jobId, "drafted", revId, at, at, owner);
       insertRevision(store, jobId, revId, 1, s, at);
     });
   };
@@ -323,11 +350,14 @@ export function jobRoutes(deps: Deps, commit: Idempotency["commit"], newId: ULID
     if (!isPlainObject(body)) throw invalid([{ path: "", message: "body must be a JSON object" }]);
     const errors: FieldError[] = [];
     for (const k of Object.keys(body)) {
-      if (k !== "revisionHash" && k !== "referenceDigest" && k !== "rulesHash") errors.push({ path: "/" + k, message: "unknown field" });
+      if (k !== "revisionHash" && k !== "referenceDigest" && k !== "rulesHash" && k !== "coverageDigest" && k !== "exampleCheckId" && k !== "botReviewId") errors.push({ path: "/" + k, message: "unknown field" });
     }
     if (typeof body.revisionHash !== "string") errors.push({ path: "/revisionHash", message: "required string" });
     if (typeof body.referenceDigest !== "string") errors.push({ path: "/referenceDigest", message: "required string" });
     if ("rulesHash" in body && typeof body.rulesHash !== "string") errors.push({ path: "/rulesHash", message: "must be a string" });
+    if ("exampleCheckId" in body && (typeof body.exampleCheckId !== "string" || body.exampleCheckId.length > 128)) errors.push({ path: "/exampleCheckId", message: "must be a check id" });
+    if ("coverageDigest" in body && (typeof body.coverageDigest !== "string" || !/^[0-9a-f]{64}$/.test(body.coverageDigest))) errors.push({ path: "/coverageDigest", message: "must be a lowercase SHA-256 digest" });
+    if ("botReviewId" in body && (typeof body.botReviewId !== "string" || !/^[A-Za-z0-9_-]{1,128}$/.test(body.botReviewId))) errors.push({ path: "/botReviewId", message: "must be a review id" });
     const ifMatchRaw = c.req.header("if-match");
     if (ifMatchRaw === undefined || ifMatchRaw.trim() === "") {
       errors.push({ path: "/headers/if-match", message: "If-Match header is required" });
@@ -350,8 +380,13 @@ export function jobRoutes(deps: Deps, commit: Idempotency["commit"], newId: ULID
       });
     }
 
+    const botReceipt = requireBotPass(deps, body.botReviewId, ownerWallet(c), job.id, rev.id);
+    const qualification = deps.deployment.mode === "public" && rev.source === "grok"
+      ? assertAuthoredApproval(deps, rev.draft_id, rev.revision_hash, ownerWallet(c), body.coverageDigest as string | undefined, body.exampleCheckId as string | undefined)
+      : undefined;
     const existing = store.approvalOf(rev.id);
     if (job.state === "approved" && existing) {
+      assertBotApproved(deps, rev.id);
       return commit(c, 200, { state: "approved", approval: existing });
     }
     if (job.state !== "drafted") {
@@ -378,7 +413,7 @@ export function jobRoutes(deps: Deps, commit: Idempotency["commit"], newId: ULID
     // The engine call awaited: re-read so a concurrent revision or approval is never overwritten.
     const after = loadJob(job.id);
     const raced = after.rev.id === rev.id && after.job.state === "approved" ? store.approvalOf(rev.id) : null;
-    if (raced) return commit(c, 200, { state: "approved", approval: raced });
+    if (raced) { assertBotApproved(deps, rev.id); return commit(c, 200, { state: "approved", approval: raced }); }
     if (after.rev.id !== rev.id || after.job.state !== "drafted") {
       throw new ApiError("revision_conflict", "The job changed during approval", {
         mismatched: ["revision"],
@@ -386,15 +421,19 @@ export function jobRoutes(deps: Deps, commit: Idempotency["commit"], newId: ULID
       });
     }
     const at = isoAt(deps.now());
+    requireBotPass(deps, body.botReviewId, ownerWallet(c), job.id, rev.id);
     const approval: ApprovalView = {
       revisionHash: current,
       referenceDigest: rev.reference_digest,
       structureHash: rev.structure_hash,
       rulesHash: rev.rules_hash,
       approvedAt: at,
+      ...(qualification ?? {}),
+      ...(botReceipt ? { botReviewId: botReceipt.reviewId, botInputHash: botReceipt.inputHash, botResultHash: botReceipt.resultHash! } : {}),
     };
+    const approvedBy = ownerWallet(c) ?? "buyer";
     return commit(c, 200, { state: "approved", approval }, () => {
-      q.insertApproval.run(job.id, rev.id, current, rev.reference_digest, rev.structure_hash, rev.rules_hash, "buyer", at);
+      q.insertApproval.run(job.id, rev.id, current, rev.reference_digest, rev.structure_hash, rev.rules_hash, approvedBy, at, qualification?.exampleCheckId ?? null, qualification?.coverageDigest ?? null, botReceipt?.reviewId ?? null, botReceipt?.inputHash ?? null, botReceipt?.resultHash ?? null);
       q.setState.run("approved", at, job.id);
     });
   };

@@ -1,0 +1,45 @@
+{
+  "status": "passed-isolated-log-rotation-and-restart",
+  "image": "sha256:4a69ca09aee0495c7214bffdd7d06fa689e92c26d5aa43159d80d2cf2d1d607a",
+  "filesObserved": 3,
+  "logBytes": [
+    7224107,
+    10000695,
+    10000734
+  ],
+  "restartCount": 1,
+  "stoppedAndRemoved": true,
+  "network": "none",
+  "checkedAt": "2026-11-17T16:02:50.469684-05:00",
+  "livePolicies": {
+    "api": "unless-stopped, json-file 10m x 3",
+    "https": "unless-stopped, json-file 10m x 3"
+  },
+  "filesystemUsedBytes": {
+    "state": 24944640,
+    "docker": 11837513728,
+    "backup": 96120832
+  },
+  "filesystemCapacityBytes": {
+    "state": 33501757440,
+    "docker": 83955703808,
+    "backup": 8350298112
+  },
+  "buildkit": {
+    "gcEnabled": true,
+    "workerMaximumUsedBytes": 10737418240,
+    "cacheReported": "10.68GB",
+    "reclamationObserved": false,
+    "configuredMaximumUsedSpace": "10GB",
+    "workerMaximumUsedSpaceDisplay": "10.73741824GB",
+    "policyInterpretation": "Worker reported 10,737,418,240 bytes for the configured value. Cache rounded to 10.68GB, below that reported threshold. This sample does not exercise eviction."
+  },
+  "scope": "Isolated disposable container tests log rotation and restart after a process exit. Live storage and BuildKit policy are read-only observations.",
+  "initialAttempt": "Docker kill acted as a manual stop for restart policy purposes. A timed process exit exercised automatic restart.",
+  "review": {
+    "tool": "Antigravity CLI",
+    "model": "claude-opus-4-6-thinking",
+    "scope": "Report and BuildKit config",
+    "resolution": "Record the literal configured value and the separate live worker observation. Scope the pass to the restart and rotation drill."
+  }
+}

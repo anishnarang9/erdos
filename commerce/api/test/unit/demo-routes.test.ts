@@ -22,6 +22,14 @@ const get = async (path: string, auth = true) => {
 };
 
 describe("demo run-event routes", () => {
+  it("rejects presenter-only configuration in public mode", () => {
+    const deployment = { mode: "public" as const, serviceOrigin: "https://example.test" };
+    expect(() => createApp({ dbPath: ":memory:", buyerToken: TOKEN, deployment, runEventsDir: dir }))
+      .toThrow("Demo routes require local mode");
+    expect(() => createApp({ dbPath: ":memory:", buyerToken: TOKEN, deployment, demoSigner: {} as never }))
+      .toThrow("Demo routes require local mode");
+  });
+
   it("need buyer auth; serve a snapshot with cursor and phase, and incremental events after a seq", async () => {
     expect((await get(`/v1/demo/runs/${RUN}`, false)).status).toBe(401);
     expect((await get(`/v1/demo/runs/${RUN}`)).body).toMatchObject({ cursor: 0, phase: "idle", events: [] });

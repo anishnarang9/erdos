@@ -1,0 +1,79 @@
+{
+  "jobId": "01M7NC38YR6M2KG1E86MYY1SJX",
+  "revisionHash": "0x44927ed0b9a4d4e5fea301280ff8489f050b65445a77251045afbbafb639ae97",
+  "terms": {
+    "state": "open_prepared",
+    "fundingTerms": {
+      "chainId": 5042002,
+      "core": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
+      "adapter": "0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8",
+      "usdc": "0x3600000000000000000000000000000000000000",
+      "verifier": "0xCf8D70A203b40D3A17d023c0CDDF752870BC3992",
+      "buyer": "0xb325867d6e52d28d2bd8a7e65d4c41f211639fc0",
+      "budget": "10000",
+      "expiry": "1795035459",
+      "imageId": "0xf43f2cdda3410fb141509f6629f88c3a7bfb5fed9efa1c4bf6bb0fbb983dd1cf",
+      "rulesHash": "0x3da83285c55ac40c35d099e83f0c29a1c7e1146cb87599ebeb0ee64bb52faf16",
+      "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+      "description": "UBC26 open claim 01M7NC38YR6M2KG1E86MYY1SJX"
+    },
+    "order": [
+      "createJob",
+      "setBudget",
+      "approve",
+      "fund",
+      "register"
+    ],
+    "txRequests": [
+      {
+        "kind": "createJob",
+        "to": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
+        "data": "0x415288120000000000000000000000001fed5e532a1405facd45b4096ad1abf25bba0cb80000000000000000000000001fed5e532a1405facd45b4096ad1abf25bba0cb8000000000000000000000000000000000000000000000000000000006afe114300000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002b5542433236206f70656e20636c61696d2030314d374e4333385952364d324b47314538364d595931534a58000000000000000000000000000000000000000000",
+        "value": "0"
+      },
+      {
+        "kind": "approve",
+        "to": "0x3600000000000000000000000000000000000000",
+        "data": "0x095ea7b30000000000000000000000004992b29bc494a6d9a33d153850c0e40f15f0e9c80000000000000000000000000000000000000000000000000000000000002710",
+        "value": "0"
+      }
+    ],
+    "afterCreate": [
+      {
+        "kind": "setBudget",
+        "to": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
+        "signature": "setBudget(uint256,uint256,bytes)",
+        "args": {
+          "amount": "10000",
+          "optParams": "0x"
+        }
+      },
+      {
+        "kind": "fund",
+        "to": "0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8",
+        "signature": "fund(uint256,bytes)",
+        "args": {
+          "optParams": "0x"
+        }
+      },
+      {
+        "kind": "register",
+        "to": "0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8",
+        "signature": "register(uint256,bytes32,bytes32,bytes32,uint256,uint64)",
+        "args": {
+          "imageId": "0xf43f2cdda3410fb141509f6629f88c3a7bfb5fed9efa1c4bf6bb0fbb983dd1cf",
+          "rulesHash": "0x3da83285c55ac40c35d099e83f0c29a1c7e1146cb87599ebeb0ee64bb52faf16",
+          "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+          "budget": "10000",
+          "expiry": "1795035459"
+        }
+      }
+    ]
+  },
+  "exactReplay": true,
+  "status": "hosted-funding-terms-prepared-and-replayed",
+  "manifestAndDeploymentMatch": true,
+  "expiryUtc": "2026-11-18T20:57:39+00:00",
+  "transactionsSent": 0,
+  "signingAuthorized": false
+}

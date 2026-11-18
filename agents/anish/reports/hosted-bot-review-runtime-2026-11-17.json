@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "status": "passed-controlled-api-integration-not-live-bot",
+  "checkedAt": "2026-11-17T06:49:43.206159-05:00",
+  "files": {
+    "commerce/api/src/app.ts": "56c18454a798154758b669b2d20ce8fecead8333dc3872e007596fbe7e0066af",
+    "commerce/api/src/authoring.ts": "f3cc9f9af64b9afcd22ff292395f6ff14ef3e525175c316f7c5a6e9b077433ca",
+    "commerce/api/src/bot-review-store.ts": "021a892c8c8fc6ea04632de4ae9c7e220d58e47a3f3deec5fffda4890ea9aeca",
+    "commerce/api/src/context.ts": "c8caf09d84b3334a996bfd07b8ae6ca8fdf934cbd8d546a19d0a59ad368e4849",
+    "commerce/api/src/idempotency.ts": "5dc0887c3ae5a8afeb786405f82497fc3df8d419cae75ef5008c4c85ec3e70fa",
+    "commerce/api/src/jobs.ts": "8f439aaeefd9512f94972f9c39a1d0c28492e45fb870596453a52036134bfad6",
+    "commerce/api/src/market.ts": "2bb23ce72a29fecb6f48a30c7052fe772ae996ef9619f8a2a4c52d6e3b3020be",
+    "commerce/api/src/open-claim.ts": "e6dd7894913ec95cc349e395b2c5e5f9acff47d6929f032aa234222047cceee3",
+    "commerce/api/src/server.ts": "a7b4a287a7965c49f69cb9017e41288e329ae768f288aebe3bedaf55f5253ab1",
+    "commerce/api/src/pump-timer.ts": "382980eae187769db89dfb80f71edadc491dbeb9fc639d85f99a90eab2d3f316",
+    "commerce/api/src/bot-review-types.ts": "37db68c71b7c156c2960eef92dcf56133f5e633279e97380856db808af9614c0",
+    "commerce/api/src/bot-review-gate.ts": "a66c21dc529f762054dc28f16ff4f04e219b2fd59de2a0f71d41f7c67701d9bb",
+    "commerce/api/src/bot-review-mcp.ts": "27ae35c2daf1826863b50cf9388c23fb3fbfc847a4a6d80c3f0fdb7a7539de55",
+    "commerce/api/src/bot-review-webhook.ts": "55565a9ea2684b8daa376c6aaa361d22eb9700e695561ecad3b6d246a8bb8a8d",
+    "commerce/api/src/bot-review.ts": "b029ff8b94518a639ab0070a5c60c9e008ef9f11a81dd8ce538b8474c8a92698",
+    "commerce/api/test/spec/hosted-bot-review.test.ts": "11919533bfaa4c80272516c6e6b0aeeff440090686846e1d667785cb8658b950",
+    "commerce/api/test/unit/bot-review-webhook.test.ts": "41fe788ec539e537f5d462bf88efab7890594ab42a8353df616dc9989b4c799f"
+  },
+  "checks": {
+    "focusedReviewTests": 43,
+    "fullApiTests": 982,
+    "testFiles": 68,
+    "typecheck": "passed",
+    "independentReview": "no-remaining-actionable-api-defect"
+  },
+  "reviewFixes": [
+    "atomic-acceptance-before-dispatch",
+    "cached-approval-gate",
+    "emergency-stop-on-recovery",
+    "independent-bot-queue-progress"
+  ],
+  "chainReconciliation": "existing-funded-state-may-reconcile; no-new-funding-requests",
+  "productionServerConfigured": false,
+  "deployed": false,
+  "genuineBotReviews": 0,
+  "paidModelCalls": 0,
+  "measuredBotCost": null,
+  "proofs": 0,
+  "chainTransactions": 0
+}

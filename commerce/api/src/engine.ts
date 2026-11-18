@@ -1,7 +1,8 @@
 // T5/T6 engine boundary. Wraps Anish's engine CLI (engine/README.md on codex/anish-engine, "Connect commerce").
 // The CLI writes success JSON to stdout and error JSON `{ code, message, path?, request? }` to stderr.
 // Exit 2: argument, input or output error. Exit 3: build, prover or randomness failure.
-import { execFile } from "node:child_process";
+import { spawn, type ChildProcess } from "node:child_process";
+import { StringDecoder } from "node:string_decoder";
 import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -59,14 +60,31 @@ export interface CompileInput {
    * Omitted: the package is compiled in a temporary directory and deleted after the manifest is read.
    */
   packageDir?: string;
+  /** Cancels the owned compiler process group. Omitted calls keep the previous behavior. */
+  signal?: AbortSignal;
+}
+
+export interface ValidateOptions {
+  signal?: AbortSignal;
+}
+
+/** Host-side `engine eval` input. Evidence and context are optional and omitted flags stay omitted. */
+export interface EvalInput {
+  plan: unknown;
+  deliverables: BundleFile[];
+  reference: BundleFile[];
+  evidence?: BundleFile[];
+  /** Exact funded context: `0x01` plus 336 hex characters. The guest still checks rules and reference bindings. */
+  context?: string;
+  signal?: AbortSignal;
 }
 
 export interface Engine {
   /** Explicit execution provenance. Unidentified embedded engines are allowed only off real chains. */
   readonly mode?: "real" | "simulated";
-  validate(plan: unknown): Promise<ValidateResult>;
+  validate(plan: unknown, options?: ValidateOptions): Promise<ValidateResult>;
   /** Host-side check of example deliverables (`engine eval`). Optional: absent means examples stay unlabelled. */
-  eval?(input: { plan: unknown; deliverables: BundleFile[]; reference: BundleFile[] }): Promise<EvalResult>;
+  eval?(input: EvalInput): Promise<EvalResult>;
   /** Throws EngineError on a crash, a timeout, or a build failure. */
   compile(input: CompileInput): Promise<CompileResult>;
 }
@@ -173,6 +191,243 @@ export function simulatedEngine(): Engine {
  */
 export type EngineBin = string | { command: string; args?: string[] };
 
+/** Pinned compiler PATH. The child does not receive the server PATH. */
+export const COMPILER_PATH = "/opt/ubc26/docker-bin:/usr/local/bin:/usr/bin:/bin";
+/** Pinned compiler temp directory when the caller does not pass a work or temp directory. */
+export const COMPILER_TMPDIR = "/var/lib/ubc26/tmp";
+const WSL_GUEST_PATH = "/usr/local/bin:/usr/bin:/bin";
+const WSL_ENV_BIN = "/usr/bin/env";
+const ENGINE_MAX_BUFFER = 16 * 1024 * 1024;
+const ENGINE_KILL_GRACE_MS = 200;
+const MAX_EVAL_EVIDENCE_FILES = 16;
+const MAX_EVAL_EVIDENCE_BYTES = 32 * 1024;
+const FUNDED_CONTEXT = /^0x01[0-9a-fA-F]{336}$/;
+const SSL_ENV_KEYS = ["SSL_CERT_FILE", "SSL_CERT_DIR", "REQUESTS_CA_BUNDLE", "CURL_CA_BUNDLE", "NODE_EXTRA_CA_CERTS"] as const;
+export type SslEnvKey = (typeof SSL_ENV_KEYS)[number];
+
+/**
+ * Explicit compiler settings. Values are assigned into a new object.
+ * process.env is never copied. Registry credentials and server secrets are not accepted here.
+ */
+export interface CompilerProcessSettings {
+  path?: string;
+  tmpDir?: string;
+  cacheDir?: string;
+  r0vmPath?: string;
+  /** Named CA locations only. Other SSL or auth variables are not read. */
+  ssl?: Partial<Record<SslEnvKey, string>>;
+  /**
+   * Extra explicit names. Local tests use this for fake-engine knobs.
+   * Passing process.env is rejected. Undefined values are rejected.
+   */
+  extra?: Record<string, string | undefined>;
+}
+
+const ENV_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const ABSOLUTE_PIN = /^(?:\/|[A-Za-z]:[\\/])/;
+const PIN_META = /[\0\n\r;|&`$<>]/;
+const PUBLIC_ASSIGNMENT = /^(PATH|TMPDIR|UBC26_ENGINE_CACHE|RISC0_SERVER_PATH|SSL_CERT_FILE|SSL_CERT_DIR|REQUESTS_CA_BUNDLE|CURL_CA_BUNDLE|NODE_EXTRA_CA_CERTS)=([^\0\n\r;|&`$<>]*)$/;
+
+function isAbsolutePin(value: string): boolean {
+  return ABSOLUTE_PIN.test(value) && !PIN_META.test(value);
+}
+
+/** Rejects a relative command and any wrapper other than the pinned `wsl.exe -e /usr/bin/env -i` form. */
+export function assertPublicExecutablePin(bin: EngineBin): void {
+  const command = typeof bin === "string" ? bin : bin.command;
+  const args = typeof bin === "string" ? [] : [...(bin.args ?? [])];
+  if (!isAbsolutePin(command)) throw new Error("Public mode requires an absolute engine executable");
+  if (args.length === 0) return;
+  const distro = args[1];
+  const rest = args.slice(5);
+  const enginePath = rest[rest.length - 1];
+  const pinnedShape = args[0] === "-d" && args[2] === "-e" && args[3] === WSL_ENV_BIN && args[4] === "-i";
+  if (!pinnedShape || !distro || !/^[A-Za-z0-9._-]{1,64}$/.test(distro) || !enginePath || !isAbsolutePin(enginePath)) {
+    throw new Error("Public mode rejects an unpinned engine wrapper");
+  }
+  for (const arg of rest.slice(0, -1)) {
+    if (!PUBLIC_ASSIGNMENT.test(arg)) throw new Error("Public mode rejects an unpinned engine wrapper");
+  }
+}
+
+/** Builds the child environment from explicit settings. It does not inherit the server environment. */
+export function compilerProcessEnv(settings: CompilerProcessSettings = {}): Record<string, string> {
+  if (settings.extra === process.env) throw new Error("Compiler environment cannot inherit process.env");
+  const env: Record<string, string> = {};
+  if (settings.extra) {
+    for (const [key, value] of Object.entries(settings.extra)) {
+      if (!ENV_NAME.test(key) || typeof value !== "string") throw new Error(`Compiler environment name ${key} is not explicit`);
+      env[key] = value;
+    }
+  }
+  const ssl = settings.ssl ?? {};
+  for (const key of SSL_ENV_KEYS) {
+    const value = ssl[key];
+    if (typeof value === "string" && value.length > 0) env[key] = value;
+  }
+  env.PATH = settings.path ?? COMPILER_PATH;
+  env.TMPDIR = settings.tmpDir ?? COMPILER_TMPDIR;
+  if (settings.cacheDir) env.UBC26_ENGINE_CACHE = settings.cacheDir;
+  if (settings.r0vmPath) env.RISC0_SERVER_PATH = settings.r0vmPath;
+  return env;
+}
+
+/** Copies only named CA variables from a configuration map. It does not copy the rest of that map. */
+export function explicitSsl(env: Record<string, string | undefined>): Partial<Record<SslEnvKey, string>> | undefined {
+  const ssl: Partial<Record<SslEnvKey, string>> = {};
+  for (const key of SSL_ENV_KEYS) {
+    const value = env[key];
+    if (typeof value === "string" && value.length > 0) ssl[key] = value;
+  }
+  return Object.keys(ssl).length > 0 ? ssl : undefined;
+}
+
+const liveChildren = new Set<ChildProcess>();
+let exitHooked = false;
+
+function killProcessGroup(child: ChildProcess, signal: NodeJS.Signals): void {
+  const pid = child.pid;
+  if (pid === undefined || pid <= 0) return;
+  // POSIX group id. Windows has no equivalent signal, so the direct child is signalled there.
+  if (process.platform !== "win32") {
+    try {
+      process.kill(-pid, signal);
+      return;
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === "ESRCH") return;
+    }
+  }
+  try {
+    child.kill(signal);
+  } catch {
+    // The direct process has already exited.
+  }
+}
+
+function trackChild(child: ChildProcess): void {
+  liveChildren.add(child);
+  const drop = () => liveChildren.delete(child);
+  child.on("close", drop);
+  child.on("error", drop);
+  if (exitHooked) return;
+  exitHooked = true;
+  process.on("exit", () => {
+    for (const current of liveChildren) killProcessGroup(current, "SIGKILL");
+  });
+}
+
+function killedEngine(label: string): EngineError {
+  return new EngineError("timeout", `Engine ${label} timed out or was killed`);
+}
+
+function waitForClose(child: ChildProcess, ms: number): Promise<void> {
+  if (!liveChildren.has(child)) return Promise.resolve();
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, ms);
+    child.once("close", () => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+}
+
+/** SIGTERM every owned compiler group, then SIGKILL after the grace period. */
+export async function cancelEngineChildren(): Promise<void> {
+  const children = [...liveChildren];
+  for (const child of children) killProcessGroup(child, "SIGTERM");
+  await Promise.all(children.map((child) => waitForClose(child, ENGINE_KILL_GRACE_MS)));
+  for (const child of children) {
+    if (liveChildren.has(child)) killProcessGroup(child, "SIGKILL");
+  }
+  await Promise.all(children.map((child) => waitForClose(child, ENGINE_KILL_GRACE_MS)));
+}
+
+function spawnEngine(
+  command: string,
+  args: string[],
+  timeout: number,
+  env: Record<string, string>,
+  label: string,
+  signal?: AbortSignal,
+): Promise<RunResult> {
+  if (signal?.aborted) return Promise.reject(killedEngine(label));
+  return new Promise((resolve, reject) => {
+    let stdout = "";
+    let stderr = "";
+    const stdoutDecoder = new StringDecoder("utf8"), stderrDecoder = new StringDecoder("utf8");
+    let used = 0;
+    let settled = false;
+    let timedOut = false;
+    let killTimer: ReturnType<typeof setTimeout> | undefined;
+    let child: ChildProcess;
+    const finish = (fn: () => void) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(deadline);
+      signal?.removeEventListener("abort", onAbort);
+      fn();
+    };
+    const armKill = () => {
+      if (killTimer) return;
+      killTimer = setTimeout(() => killProcessGroup(child, "SIGKILL"), ENGINE_KILL_GRACE_MS);
+    };
+    const onAbort = () => {
+      timedOut = true;
+      killProcessGroup(child, "SIGTERM");
+      armKill();
+    };
+    try {
+      child = spawn(command, args, {
+        shell: false,
+        windowsHide: true,
+        detached: process.platform !== "win32",
+        env,
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+    } catch {
+      reject(new EngineError("spawn", `Engine ${label} could not be started`));
+      return;
+    }
+    trackChild(child);
+    const deadline = setTimeout(() => {
+      timedOut = true;
+      killProcessGroup(child, "SIGTERM");
+      armKill();
+    }, timeout);
+    if (signal) {
+      signal.addEventListener("abort", onAbort);
+      if (signal.aborted) onAbort();
+    }
+    const onChunk = (kind: "out" | "err", chunk: Buffer) => {
+      if (used + chunk.length > ENGINE_MAX_BUFFER) {
+        timedOut = true;
+        killProcessGroup(child, "SIGKILL");
+        return;
+      }
+      used += chunk.length;
+      const text = (kind === "out" ? stdoutDecoder : stderrDecoder).write(chunk);
+      if (kind === "out") stdout += text;
+      else stderr += text;
+    };
+    child.stdout?.on("data", (chunk: Buffer) => onChunk("out", chunk));
+    child.stderr?.on("data", (chunk: Buffer) => onChunk("err", chunk));
+    child.on("error", () => {
+      clearTimeout(killTimer);
+      finish(() => reject(new EngineError("spawn", `Engine ${label} could not be started`)));
+    });
+    child.on("close", (code, closeSignal) => {
+      stdout += stdoutDecoder.end();
+      stderr += stderrDecoder.end();
+      clearTimeout(deadline);
+      clearTimeout(killTimer);
+      killProcessGroup(child, "SIGKILL");
+      if (timedOut || closeSignal) finish(() => reject(killedEngine(label)));
+      else if (typeof code === "number") finish(() => resolve({ exit: code, stdout, stderr }));
+      else finish(() => reject(new EngineError("spawn", `Engine ${label} could not be started`)));
+    });
+  });
+}
+
 export interface CliEngineOptions {
   bin: EngineBin;
   /** Parent directory for per-call temporary directories, as a path this process can write. Defaults to os.tmpdir(). */
@@ -183,6 +438,15 @@ export interface CliEngineOptions {
   timeoutMs?: number;
   /** compile timeout (a cold guest build runs Docker). Default 30 min. */
   compileTimeoutMs?: number;
+  /** Public mode requires an absolute executable and the pinned WSL wrapper. Default local. */
+  pin?: "public" | "local";
+  /**
+   * Explicit extra child variables, read at each spawn. Local tests pass fake-engine knobs here.
+   * This is not an inheritance list. Do not pass process.env.
+   */
+  env?: Record<string, string>;
+  /** Explicit PATH, temp, cache, prover, and CA settings. Omitted fields use pinned defaults. */
+  processEnv?: CompilerProcessSettings;
 }
 
 /** One engine error object from stderr. */
@@ -283,27 +547,31 @@ async function writeFiles(dir: string, files: BundleFile[]): Promise<void> {
 
 /** Runs the real engine CLI. Each call works in a fresh temporary directory that is deleted afterwards. */
 export function cliEngine(opts: CliEngineOptions): Engine {
+  if (opts.pin === "public") {
+    assertPublicExecutablePin(opts.bin);
+    if (opts.env && Object.values(opts.env).some((value) => value !== undefined)) {
+      throw new Error("Public mode rejects extra compiler environment names");
+    }
+  }
   const timeoutMs = opts.timeoutMs ?? 60_000;
   const compileTimeoutMs = opts.compileTimeoutMs ?? 30 * 60_000;
   const command = typeof opts.bin === "string" ? opts.bin : opts.bin.command;
   const prefix = typeof opts.bin === "string" ? [] : (opts.bin.args ?? []);
   const ep = opts.toEnginePath ?? ((p: string) => p);
-
-  const run = (args: string[], timeout: number): Promise<RunResult> =>
-    new Promise((resolve, reject) => {
-      execFile(
-        command,
-        [...prefix, ...args],
-        { timeout, maxBuffer: 16 * 1024 * 1024, windowsHide: true, encoding: "utf8", shell: false },
-        (err, stdout, stderr) => {
-          if (!err) return resolve({ exit: 0, stdout, stderr });
-          const e = err as NodeJS.ErrnoException & { killed?: boolean; code?: unknown; signal?: unknown };
-          if (e.killed || e.signal) reject(new EngineError("timeout", `Engine ${args[0]} timed out or was killed`));
-          else if (typeof e.code === "number") resolve({ exit: e.code, stdout, stderr });
-          else reject(new EngineError("spawn", `Engine ${args[0]} could not be started`));
-        },
-      );
+  const childEnv = (): Record<string, string> => {
+    if (opts.env === process.env) throw new Error("Compiler environment cannot inherit process.env");
+    return compilerProcessEnv({
+      path: opts.processEnv?.path,
+      tmpDir: opts.processEnv?.tmpDir ?? opts.workDir ?? tmpdir(),
+      ...(opts.processEnv?.cacheDir ? { cacheDir: opts.processEnv.cacheDir } : {}),
+      ...(opts.processEnv?.r0vmPath ? { r0vmPath: opts.processEnv.r0vmPath } : {}),
+      ...(opts.processEnv?.ssl ? { ssl: opts.processEnv.ssl } : {}),
+      ...(opts.env ? { extra: opts.env } : {}),
     });
+  };
+
+  const run = (args: string[], timeout: number, signal?: AbortSignal): Promise<RunResult> =>
+    spawnEngine(command, [...prefix, ...args], timeout, childEnv(), args[0] ?? "command", signal);
 
   const withTemp = async <T>(fn: (dir: string) => Promise<T>): Promise<T> => {
     const parent = opts.workDir ?? tmpdir();
@@ -324,29 +592,49 @@ export function cliEngine(opts: CliEngineOptions): Engine {
 
   return {
     mode: "real",
-    validate: (plan) =>
+    validate: (plan, options) =>
       withTemp(async (dir) => {
-        const r = await run(["validate", "--plan", ep(await writePlan(dir, plan))], timeoutMs);
+        const r = await run(["validate", "--plan", ep(await writePlan(dir, plan))], timeoutMs, options?.signal);
         if (r.exit !== 0) return planFailure(r, "validate");
         const o = parseStdoutObject(r.stdout, "validate");
         return { ok: true, hashes: { structureHash: hashOf(o, "structureHash"), rulesHash: hashOf(o, "rulesHash") }, preview: o.preview };
       }),
 
-    eval: ({ plan, deliverables, reference }) =>
+    eval: ({ plan, deliverables, reference, evidence, context, signal }) =>
       withTemp(async (dir) => {
+        if (context !== undefined && !FUNDED_CONTEXT.test(context)) {
+          throw new EngineError("invalid_job", "Eval context must be 0x01 followed by 336 hex characters");
+        }
+        if (evidence && evidence.length > MAX_EVAL_EVIDENCE_FILES) {
+          throw new EngineError("bad_file_name", "Eval evidence exceeds 16 files");
+        }
+        if (evidence?.some((file) => file.content.byteLength > MAX_EVAL_EVIDENCE_BYTES)) {
+          throw new EngineError("bad_file_name", "Eval evidence file exceeds 32 KiB");
+        }
         const planFile = await writePlan(dir, plan);
         const del = join(dir, "deliverables");
         const ref = join(dir, "reference");
         await writeFiles(del, deliverables);
         await writeFiles(ref, reference);
-        const r = await run(["eval", "--plan", ep(planFile), "--deliverables", ep(del), "--reference", ep(ref)], timeoutMs);
+        const args = ["eval", "--plan", ep(planFile), "--deliverables", ep(del), "--reference", ep(ref)];
+        if (evidence && evidence.length > 0) {
+          const ev = join(dir, "evidence");
+          await writeFiles(ev, evidence);
+          args.push("--evidence", ep(ev));
+        }
+        if (context !== undefined) {
+          const job = join(dir, "job.json");
+          await writeFile(job, JSON.stringify({ context }), "utf8");
+          args.push("--job", ep(job));
+        }
+        const r = await run(args, timeoutMs, signal);
         if (r.exit !== 0) return planFailure(r, "eval", "/deliverables");
         const v = parseStdoutObject(r.stdout, "eval").verdict;
         if (v !== 0 && v !== 1) throw new EngineError("bad_output", "Engine eval output has no verdict 0 or 1");
         return { ok: true, verdict: v };
       }),
 
-    compile: ({ plan, reference, packageDir }) =>
+    compile: ({ plan, reference, packageDir, signal }) =>
       withTemp(async (dir) => {
         const planFile = await writePlan(dir, plan);
         const ref = join(dir, "reference");
@@ -355,7 +643,7 @@ export function cliEngine(opts: CliEngineOptions): Engine {
         if (await stat(out).then(() => true, () => false)) {
           throw new EngineError("package_exists", "The package directory already exists");
         }
-        const r = await run(["compile", "--plan", ep(planFile), "--reference", ep(ref), "--out", ep(out)], compileTimeoutMs);
+        const r = await run(["compile", "--plan", ep(planFile), "--reference", ep(ref), "--out", ep(out)], compileTimeoutMs, signal);
         if (r.exit !== 0) return planFailure(r, "compile", "/references");
         const report = parseStdoutObject(r.stdout, "compile");
         let text: string;
@@ -410,24 +698,43 @@ export interface WslEngineOptions {
   r0vmPath?: string;
   /** Linux path of the engine build cache (UBC26_ENGINE_CACHE). */
   cacheDir?: string;
+  /** Linux temp directory inside the guest. A non-POSIX value stays on the host side only. */
+  tmpDir?: string;
+  /** Named CA locations for the guest. */
+  ssl?: Partial<Record<SslEnvKey, string>>;
+  /** Absolute path of wsl.exe. The default name is a local PATH lookup and is not a public pin. */
+  wslBin?: string;
+  /** Public mode checks the executable and the wrapper before the first spawn. */
+  pin?: "public" | "local";
   /** Host path for temporary directories. Prefer one on the WSL filesystem (case-sensitive, fast). */
   workDir?: string;
   timeoutMs?: number;
   compileTimeoutMs?: number;
 }
 
-/** The `wsl.exe` invocation that runs the engine with a fixed environment and no shell. */
-export function wslEngineBin(o: Pick<WslEngineOptions, "distro" | "enginePath" | "r0vmPath" | "cacheDir">): EngineBin {
-  const env = [
-    ...(o.r0vmPath ? [`RISC0_SERVER_PATH=${o.r0vmPath}`] : []),
-    ...(o.cacheDir ? [`UBC26_ENGINE_CACHE=${o.cacheDir}`] : []),
-  ];
-  return { command: "wsl.exe", args: ["-d", o.distro, "-e", "env", "-u", "RISC0_DEV_MODE", "-u", "RUST_LOG", ...env, o.enginePath] };
+/** The `wsl.exe` invocation that runs the engine with a clean guest environment and no shell. */
+export function wslEngineBin(o: Pick<WslEngineOptions, "distro" | "enginePath" | "r0vmPath" | "cacheDir" | "tmpDir" | "ssl" | "wslBin">): EngineBin {
+  const guest = compilerProcessEnv({
+    path: WSL_GUEST_PATH,
+    tmpDir: o.tmpDir && o.tmpDir.startsWith("/") ? o.tmpDir : "/tmp",
+    ...(o.cacheDir ? { cacheDir: o.cacheDir } : {}),
+    ...(o.r0vmPath ? { r0vmPath: o.r0vmPath } : {}),
+    ...(o.ssl ? { ssl: o.ssl } : {}),
+  });
+  const assignments = ["PATH", "TMPDIR", "RISC0_SERVER_PATH", "UBC26_ENGINE_CACHE", ...SSL_ENV_KEYS]
+    .filter((key) => Object.hasOwn(guest, key))
+    .map((key) => `${key}=${guest[key]}`);
+  return { command: o.wslBin ?? "wsl.exe", args: ["-d", o.distro, "-e", WSL_ENV_BIN, "-i", ...assignments, o.enginePath] };
 }
 
 export function wslEngine(o: WslEngineOptions): Engine {
   return cliEngine({
     bin: wslEngineBin(o),
+    ...(o.pin ? { pin: o.pin } : {}),
+    processEnv: {
+      path: COMPILER_PATH,
+      tmpDir: o.workDir ?? tmpdir(),
+    },
     toEnginePath: (p) => windowsToWslPath(p, o.distro),
     ...(o.workDir ? { workDir: o.workDir } : {}),
     ...(o.timeoutMs ? { timeoutMs: o.timeoutMs } : {}),
@@ -445,17 +752,24 @@ export interface EngineEnvConfig {
   r0vmPath?: string;
   cacheDir?: string;
   workDir?: string;
+  /** Explicit compiler temp directory (ENGINE_TMPDIR). Not inherited as part of the server environment. */
+  tmpDir?: string;
+  /** Absolute wsl.exe path (ENGINE_WSL_BIN). */
+  wslBin?: string;
+  ssl?: Partial<Record<SslEnvKey, string>>;
 }
 
 /**
  * Reads ENGINE_MODE (wsl | native | simulated), ENGINE_PATH, ENGINE_WSL_DISTRO (default Ubuntu), ENGINE_R0VM,
- * ENGINE_CACHE and ENGINE_WORK_DIR. Returns null for simulated (the default); throws on a bad configuration.
+ * ENGINE_CACHE, ENGINE_WORK_DIR, ENGINE_TMPDIR, ENGINE_WSL_BIN, and named CA variables. Returns null for
+ * simulated (the default). It does not copy the rest of `env`.
  */
 export function engineConfigFromEnv(env: Record<string, string | undefined>): EngineEnvConfig | null {
   const mode = env.ENGINE_MODE ?? "simulated";
   if (mode === "simulated") return null;
   if (mode !== "wsl" && mode !== "native") throw new Error(`ENGINE_MODE must be wsl, native or simulated, not ${mode}`);
   if (!env.ENGINE_PATH) throw new Error(`ENGINE_PATH is required when ENGINE_MODE=${mode}`);
+  const ssl = explicitSsl(env);
   const wd = env.ENGINE_WORK_DIR;
   // A .env parser can collapse a leading "\\" to "\", which silently turns a UNC path into a drive-relative one.
   if (wd && /^[\\/](?![\\/])wsl(\.localhost|\$)/i.test(wd)) {
@@ -468,15 +782,37 @@ export function engineConfigFromEnv(env: Record<string, string | undefined>): En
     ...(env.ENGINE_R0VM ? { r0vmPath: env.ENGINE_R0VM } : {}),
     ...(env.ENGINE_CACHE ? { cacheDir: env.ENGINE_CACHE } : {}),
     ...(env.ENGINE_WORK_DIR ? { workDir: env.ENGINE_WORK_DIR } : {}),
+    ...(env.ENGINE_TMPDIR ? { tmpDir: env.ENGINE_TMPDIR } : {}),
+    ...(env.ENGINE_WSL_BIN ? { wslBin: env.ENGINE_WSL_BIN } : {}),
+    ...(ssl ? { ssl } : {}),
   };
 }
 
 /** The engine for a configuration, and the path mapping its callers need for their own files. */
-export function engineFromConfig(c: EngineEnvConfig): { engine: Engine; label: string; bin: EngineBin; toEnginePath: (p: string) => string } {
+export function engineFromConfig(c: EngineEnvConfig, opts: { pin?: "public" | "local" } = {}): { engine: Engine; label: string; bin: EngineBin; toEnginePath: (p: string) => string } {
+  const pin = opts.pin ?? "local";
+  if (pin === "public" && !isAbsolutePin(c.enginePath)) throw new Error("ENGINE_PATH must be an absolute path in public mode");
   if (c.mode === "wsl") {
+    if (pin === "public" && (!c.wslBin || !isAbsolutePin(c.wslBin))) throw new Error("ENGINE_WSL_BIN must be an absolute path in public mode");
     const toEnginePath = (p: string) => windowsToWslPath(p, c.distro);
-    return { engine: wslEngine(c), label: `wsl:${c.distro}:${c.enginePath}`, bin: wslEngineBin(c), toEnginePath };
+    return { engine: wslEngine({ ...c, pin }), label: `wsl:${c.distro}:${c.enginePath}`, bin: wslEngineBin(c), toEnginePath };
   }
   const bin = c.enginePath;
-  return { engine: cliEngine({ bin, ...(c.workDir ? { workDir: c.workDir } : {}) }), label: `native:${c.enginePath}`, bin, toEnginePath: (p) => p };
+  return {
+    engine: cliEngine({
+      bin,
+      ...(pin === "public" ? { pin } : {}),
+      processEnv: {
+        path: COMPILER_PATH,
+        tmpDir: c.tmpDir ?? c.workDir ?? tmpdir(),
+        ...(c.cacheDir ? { cacheDir: c.cacheDir } : {}),
+        ...(c.r0vmPath ? { r0vmPath: c.r0vmPath } : {}),
+        ...(c.ssl ? { ssl: c.ssl } : {}),
+      },
+      ...(c.workDir ? { workDir: c.workDir } : {}),
+    }),
+    label: `native:${c.enginePath}`,
+    bin,
+    toEnginePath: (p) => p,
+  };
 }

@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "status": "accepted_with_reconciliation_caveat",
+  "coldStartPass": true,
+  "basis": "Fresh independent buyer and solver agents used the published public service and installed runner. Neither received repository source, a prepared solver answer, the other agent's transcript, nor operator-submitted settlement. The proof, claim, release, payout, chain recovery, and independent byte oracle passed.",
+  "service": {
+    "origin": "https://ubc26-159-89-149-133.sslip.io",
+    "apiSourceCommit": "1ee322e9bb8faa9617dbaa41316c7d999144ef36",
+    "apiImageSha256": "377cdfa11d570b91428a7cd2a273df409c90547b6fa81e43afb8591074d77dde",
+    "runnerAndEngineSourceCommit": "0b1a82fccf1aaed1607b994d3ddc6e527ca90ecf",
+    "runnerReleaseManifestSha256": "da0f578732df0a0ae347a5a0e1c58ef9d31c1c313efb518def79647ed5d16a2c",
+    "runnerArchiveSha256": "e3529d91fb27192aad359276c0b675168a0aae5c0b1cc4219e7b4f5f35e29971",
+    "engineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+    "wrapperSha256": "289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d",
+    "documentationSourceCommit": "1ee322e9bb8faa9617dbaa41316c7d999144ef36",
+    "documentationManifestSha256": "329636cb12eff261fe10bb5c2565046d9a1006e0b7e0a5e78181da7e77f1468d",
+    "prePromotionBackupManifestSha256": "852f38adad668258fec5c2375f29d7fd78c0ee079b633b46f709528d29ed3451",
+    "postAcceptanceBackupManifestSha256": "7757095cb37041468ebf0559d453fd4403759deaf30f09e9ae0d228904ac9d3d"
+  },
+  "job": {
+    "apiJobId": "01M7PT3BWKW58X4GT2N9EWZNGD",
+    "chainId": 5042002,
+    "chainJobId": "9",
+    "revisionHash": "0x70878be349e64c15d7f9bde4f1d49958ba746c774bc9e15e4f7120b79a22f97b",
+    "brief": "Produce exactly one UTF-8 file named signal.txt. Its contents must be exactly OKAY, with no newline. Reject any other bytes.",
+    "bountyAtomic": "10000",
+    "confirmedFundingBlock": 72816892,
+    "expiryUnixSeconds": "1795031428",
+    "imageId": "0x36e1a74fa8e298d9bde657e5c1e08907d2194f8cbfe818d03933fb47587a63f3",
+    "rulesHash": "0x774e9b8fe7912bf79bade54fc9fc0d8618924ea96ace9cd680db6aed351e980d",
+    "referenceHash": "0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95",
+    "guestSha256": "0xaafd39cb24ef4be5bcdb727a19722bbcecafe7e786985b4ec39241cbb6852753"
+  },
+  "buyer": {
+    "address": "0x2bF5574C455E5F66266b17f07d7172bAEC97675F",
+    "draftTaskId": "01M7PT33AZB9HZXCZRV85JG6QS",
+    "draftId": "01M7PT33DM88S769BR0XFD3QNF",
+    "model": "grok-4.20-0309-non-reasoning",
+    "modelTraceId": "4f446a6d-7349-91d4-84e1-f450b3dd7697",
+    "modelCostMicroUsd": 1551,
+    "modelRepairCount": 0,
+    "nativeExampleVerdicts": [1, 0],
+    "botReviewId": "01M7PT3M64P8PNVQ22PYA03DFK",
+    "botReviewDecision": "pass",
+    "compileTaskId": "01M7PT47QKTVJYRNP9V1GS21XA",
+    "fundingReceipts": [
+      {"kind": "createJob", "tx": "0xb43d02589981ae1a6e66e342e1e5a5110f292748e434965e0e6955736d75c2aa", "block": 72816757, "status": 1, "gasAtomic": "4505400000000000"},
+      {"kind": "setBudget", "tx": "0x29ca0fd85f0f7aa7f56333218bb2942979fcedb6c51b65e740634f2330f3d49a", "block": 72816775, "status": 1, "gasAtomic": "1642000000000000"},
+      {"kind": "approve", "tx": "0xcd30fbf50f346322db668b1aaaed29951c9486a83225afcede342e17b359f35e", "block": 72816793, "status": 1, "gasAtomic": "1108520000000000"},
+      {"kind": "fund", "tx": "0xee468e13034961d7fd4da5a81fe9ba636e25d097b4b7409bb034f0b96b5f5c6a", "block": 72816813, "status": 1, "gasAtomic": "1921200000000000"},
+      {"kind": "register", "tx": "0xc737a727057e53655e1d83b7fa86a395f9e657520f506cc7d64cf4f47a0aee6b", "block": 72816833, "status": 1, "gasAtomic": "4186860000000000"}
+    ],
+    "nativeBalanceBeforeAtomicAtBlock72816756": "19976636020000000000",
+    "nativeBalanceAfterAtomicAtBlock72816833": "19953272040000000000",
+    "gasCostNativeAtomic": "13363980000000000",
+    "bountyDebitNativeAtomic": "10000000000000000"
+  },
+  "solver": {
+    "address": "0x2e81c7381b498d90C25C1074ADe76184B6D5B486",
+    "localCheckVerdict": 1,
+    "freshAttemptId": "41b10b00-28c2-4ab2-8ea5-4ec47c417805",
+    "proofPreparationElapsedSeconds": 720.58,
+    "provingToProvedElapsedSeconds": 533.629,
+    "proofPeakRssKiB": 4800984,
+    "proofJsonSha256": "2d90d1e4705b758d2ac3ad784b8141d91dd99e4c24aeaf4a55eb4ee2b9ca87c6",
+    "envelopeHash": "0x5652656dd4c956549ebea65ecbf103540c005cf252f90a6714d9b4a8dfb4789f",
+    "claimReceipt": {"tx": "0xc76fd8645526209fc30ce8a1a3bab3768c6d7727dddd221f4da4ce66c3cf3e75", "block": 72818883, "status": 1, "gasUsed": 434585, "effectiveGasPriceAtomic": "20000000000", "gasCostNativeAtomic": "8691700000000000"},
+    "releaseReceipt": {"tx": "0x21eec67f4ff0098bf7b9b1282eae2b48a40f0b89949307b64c2af213e2026acf", "block": 72819273, "status": 1, "gasUsed": 186364, "effectiveGasPriceAtomic": "20000000000", "gasCostNativeAtomic": "3727280000000000"},
+    "nativeBalanceBeforeAtomicAtBlock72818882": "19997580780000000000",
+    "nativeBalanceAfterAtomicAtBlock72819273": "19995161800000000000",
+    "gasCostNativeAtomic": "12418980000000000",
+    "payoutAtomic": "10000",
+    "transferCountToSolver": 1
+  },
+  "buyerRecovery": {
+    "source": "confirmed Arc claim and release transactions",
+    "runnerStatus": "recovered-from-chain",
+    "sdkMatches": true,
+    "engineMatches": true,
+    "gasAdjustedPayoutExact": true,
+    "independentOracle": {
+      "fileCount": 1,
+      "name": "signal.txt",
+      "hex": "4f4b4159",
+      "sha256": "315d31b420de24f9bd8dea4375b05c492060a963544cc7751f5af9fd1dc0aacf",
+      "exactMatch": true
+    }
+  },
+  "interventions": {
+    "buyerBeforeSettlement": [],
+    "solverBeforeSettlement": [],
+    "operatorSubmittedSettlement": false,
+    "manualProofReuse": false,
+    "buyerRecoveryReadOnlyRetry": "The first recovery call failed after about 60 seconds and a public detail read returned HTTP 503. One read-only retry succeeded.",
+    "solverJournalCaveat": "After the confirmed release, the solver's same-journal read-only reconciliation returned a generic error. The saved phase remained release_sent with paymentConfirmed=false, although the release receipt, public snapshot, and independent transfer/balance checks confirmed payment. No second send occurred."
+  },
+  "privateEvidencePathsOnVps": {
+    "buyer": "/home/ubc26buyer/cold-buyer.5HZ9psyQ",
+    "solver": "/home/ubc26solver/cold-solver.esj4Wosh"
+  },
+  "postAcceptanceChecks": {
+    "mergedMainAncestorAtCommit": "63fccb0e0df665f7f462b0f74e75a09b10d94099",
+    "runtimeCodeDiffFromDeployedSource": false,
+    "commerceTypechecksAndTests": "passed: SDK 535 plus 13 Arc fixtures, API 1031, web 4, worker 1043",
+    "rustFormatting": "passed",
+    "rustWorkspaceTests": "passed",
+    "rustClippyAllTargetsDenyWarnings": "passed",
+    "contractsCiAtMergeCommit": "passed",
+    "publicReadProbes": "15 of 15 returned HTTP 200 across readiness, open discovery, and job detail; maximum observed latency 2.784 seconds",
+    "readFailureCause": "not established; the later successful probes do not erase the two observed transient failures"
+  },
+  "limits": [
+    "The proof establishes only the approved checks over committed inputs.",
+    "The release key becomes public under the current protocol.",
+    "Grok Bot account automatic top-up state and exact Bot task cost were not independently verified in this run."
+  ]
+}

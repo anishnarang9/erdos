@@ -17,10 +17,12 @@ const config = { chainId: 31337, core: "0x11111111111111111111111111111111111111
 const empty = referenceHash(encodeBundle([]));
 const closes: (() => void)[] = [];
 afterEach(() => { for (const close of closes.splice(0)) close(); vi.unstubAllEnvs(); });
-const realEngine = () => cliEngine({ bin: { command: process.execPath, args: [fileURLToPath(new URL("../fixtures/engine/fake-engine.mjs", import.meta.url)), "ok"] } });
+const SCRIPT = fileURLToPath(new URL("../fixtures/engine/fake-engine.mjs", import.meta.url));
 
-function fixture(engine: Engine = realEngine()) {
-  vi.stubEnv("FAKE_REFERENCE_HASH", empty);
+function fixture(engine?: Engine) {
+  const childEnv: Record<string, string> = { FAKE_REFERENCE_HASH: empty };
+  const realEngine = () => cliEngine({ bin: { command: process.execPath, args: [SCRIPT, "ok"] }, env: childEnv });
+  const selected = engine ?? realEngine();
   const dir = mkdtempSync(join(tmpdir(), "api-artifact-"));
   const dbPath = join(dir, "test.db");
   const clock = { ms: T0 };
@@ -34,7 +36,7 @@ function fixture(engine: Engine = realEngine()) {
     getJob: async () => { throw new Error("unused"); }, getTerms: async () => null, decodeLogs: () => [],
     getSnapshot: async () => { throw new Error("unused"); },
   } };
-  let created = createApp({ dbPath, buyerToken: TOKEN, now: () => clock.ms, engine, chain: engine.mode === "simulated" ? { ...chain, mode: "simulated" } : chain });
+  let created = createApp({ dbPath, buyerToken: TOKEN, now: () => clock.ms, engine: selected, chain: selected.mode === "simulated" ? { ...chain, mode: "simulated" } : chain });
   const db = openDb(dbPath, () => clock.ms);
   const t: MarketApp = { ...created, clock, dbPath, db, close: () => { created.close(); db.close(); rmSync(dir, { recursive: true, force: true }); } };
   closes.push(t.close);

@@ -1,0 +1,163 @@
+{
+  "publicObservation": {
+    "protectedMetrics": true,
+    "processQuotaClaim": "not_enforced",
+    "authIpLimit": true,
+    "spoofedIpIgnoredWithoutTrustedProxy": true,
+    "requestLogSecretsAbsent": true,
+    "logStreamsChecked": [
+      "stdout",
+      "stderr"
+    ],
+    "controlledIndexerFailureExercised": true,
+    "syntheticRpcSecretAbsent": true
+  },
+  "status": "passed-restricted-public-mode-image",
+  "sourceCommit": "5d0f8b6f0313433be65f058ad8156954717068a1",
+  "image": "sha256:b7b4f431d2b801fecd86573661a20eab9d674cc1591d049fa643d8c504485d0c",
+  "mode": "public",
+  "node": "v24.22.3",
+  "platform": "Linux amd64 emulated on arm64 macOS Docker Desktop",
+  "scope": "Local isolated public-mode configuration and real compiler test. Synthetic model credential was never used; network has no external egress. This is not public hosting, provider authentication, authoring qualification or settlement.",
+  "checks": {
+    "health": true,
+    "configuredReadiness": true,
+    "legacyTokenRejected": true,
+    "independentWalletAuth": true,
+    "crossOwnerRejected": true,
+    "nativeApproval": true,
+    "solverReportedProgress": true,
+    "progressLeavesJobUnchanged": true,
+    "publicAttemptRead": true,
+    "realWarmCompile": true,
+    "compileReplay": true,
+    "restartRetainsTaskAttemptAndProgress": true,
+    "revocation": true,
+    "internalNetwork": true
+  },
+  "compileElapsedMs": 901,
+  "compilerTaskAttempts": 1,
+  "readiness": {
+    "ready": true,
+    "authoring": "required",
+    "checks": [
+      {
+        "name": "engine",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "engine_executable",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "wsl_wrapper",
+        "ok": true,
+        "state": "not_used",
+        "blocksListen": false
+      },
+      {
+        "name": "compiler_wrapper",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "compiler_identity",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "compiler_ready",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "origin",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "chain",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "model",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "authoring_release",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "budget",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "rate_limit",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "packages",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "database",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "database_write",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "migrations",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "expensive_ops",
+        "ok": true,
+        "blocksListen": false
+      },
+      {
+        "name": "worker",
+        "ok": true,
+        "blocksListen": false
+      }
+    ]
+  },
+  "limits": {
+    "readOnly": true,
+    "memoryBytes": 1073741824,
+    "cpus": 1,
+    "pids": 128
+  },
+  "realModelCalls": 0,
+  "proofs": 0,
+  "chainTransactions": 0,
+  "transport": "Docker exec loopback on isolated internal network; reuses the corrected transport from the earlier image probe.",
+  "prewarm": {
+    "version": 1,
+    "status": "compiler-warmed",
+    "sourceSha": "5d0f8b6f0313433be65f058ad8156954717068a1",
+    "engineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+    "dockerfileFrontend": "docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e",
+    "guestBuilder": "risczero/risc0-guest-builder:r0.1.97.0@sha256:6f6c300e4af57ea3efe62b7f04a17629efe0f0caa6ad3699d6766bf19e0e62fb",
+    "imageId": "0x63b0098ad9e97bb1ec4a7d13875503ad9bbd129586ddd2ba8a24e07079e9489b",
+    "guestSha256": "0x535734f2894b386311ff1597c0a71b93f2377b43e5ea865621581fec1ee0db4c",
+    "elapsedSeconds": 1,
+    "checkedAt": "2026-11-17T06:46:42.206Z",
+    "passingVerdict": 1,
+    "failingVerdict": 0,
+    "proofGenerated": false,
+    "chainTransactionSent": false
+  }
+}

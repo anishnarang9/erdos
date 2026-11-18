@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "status": "passed-public-callback-bootstrap-not-genuine-bot",
+  "checkedAt": "2026-11-17T12:17:27.834Z",
+  "source": "fb450331c014b59d037fb692496bdc4f72b11a9c",
+  "origin": "https://ubc26-159-89-149-133.sslip.io",
+  "callbackPath": "/integrations/grok-bot/mcp",
+  "tlsVerified": true,
+  "rows": [
+    {
+      "name": "ordinary-public-api-remains-unready",
+      "status": 503
+    },
+    {
+      "name": "public-auth-is-not-a-bootstrap-bypass",
+      "status": 503
+    },
+    {
+      "name": "callback-requires-service-auth",
+      "status": 401
+    },
+    {
+      "name": "authenticated-get-does-not-open-event-stream",
+      "status": 405
+    },
+    {
+      "name": "authenticated-mcp-initialize",
+      "status": 200
+    },
+    {
+      "name": "authenticated-single-result-tool",
+      "status": 200
+    },
+    {
+      "name": "no-approval-method",
+      "status": 200
+    },
+    {
+      "name": "per-review-capability-is-also-required",
+      "status": 200
+    },
+    {
+      "name": "callback-prefix-remains-unready",
+      "status": 503
+    },
+    {
+      "name": "unapproved-origin-rejected",
+      "status": 403
+    }
+  ],
+  "toolNames": [
+    "submit_constraint_review"
+  ],
+  "paidDispatchEnabled": false,
+  "genuineBotReviews": 0,
+  "modelCalls": 0,
+  "proofs": 0,
+  "chainTransactions": 0
+}
