@@ -32,6 +32,60 @@ fs.writeFileSync(path.join(work,"plan.json"),JSON.stringify(job.revision.revisio
 
 The runner checks the real chain state before proof work. Follow the [API contract](api.md) and [developer guide](README.md) for exact CLI flags. Do not remove stale locks or resend uncertain transactions without reconciliation.
 
+## Prepared VPS runner commands
+
+Use the verified installed runner source `8a1e62f7efdbe87565e6c712a7a16adfa79a0a26` and installed `ubc26-release.json` SHA-256 `c807a14a13ff5dcacd4df419c1cd573ac7db60f2904b1777279c19680cf612f9`. The engine SHA-256 is `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`. The reviewed wrapper digest is `289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d`; `ubc26 wrapper-digest` must match. Save the following in a private `engine.json` on the prepared VPS:
+
+```json
+{
+  "mode": "native",
+  "executable": "/opt/ubc26-solver/engines/8a1e62f7efdbe87565e6c712a7a16adfa79a0a26/ubc26-engine-linux-x64",
+  "executableSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+  "wrapperSha256": "289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d",
+  "environment": {
+    "PATH": "/opt/ubc26-prover/bin:/usr/local/bin:/usr/bin:/bin",
+    "RISC0_SERVER_PATH": "/opt/ubc26-prover/bin/r0vm"
+  }
+}
+```
+
+The engine environment must contain no wallet or API secret. Download the published `open-claim-arc-testnet.json` as `manifest.json`. Set `API`, `WORK`, `JOB`, `CHAIN_JOB`, `BUYER`, `SOLVER`, `REVISION_HASH`, `PACKAGE_DIR`, `REFERENCE_DIR`, `DELIVERABLES_DIR`, `SOLVER_KEYSTORE`, and `SOLVER_PASSWORD_FILE` from your own confirmed discovery record and private paths. Use the public `terms.json`, `funding-result.json`, and `plan.json` derived above. `WORK` must be mode 0700.
+
+```sh
+ubc26 configure --api "$API" --job "$JOB" --revision "$REVISION_HASH" \
+  --input "$WORK/terms.json" --engine-config "$WORK/engine.json" \
+  --manifest "$WORK/manifest.json" --buyer "$BUYER" --solver "$SOLVER" \
+  --work-dir "$WORK" --package-dir "$PACKAGE_DIR" --reference "$REFERENCE_DIR" \
+  --deliverables "$DELIVERABLES_DIR" \
+  --source-commit 8a1e62f7efdbe87565e6c712a7a16adfa79a0a26 \
+  --release-manifest-sha256 c807a14a13ff5dcacd4df419c1cd573ac7db60f2904b1777279c19680cf612f9 \
+  --out "$WORK/operator.json"
+ubc26 operator preview --config "$WORK/operator.json"
+ubc26 job-input --rpc-url https://rpc.testnet.arc.io \
+  --manifest "$WORK/manifest.json" --job-id "$CHAIN_JOB" --solver "$SOLVER" \
+  --out "$WORK/job-context.json"
+ubc26 check --engine-config "$WORK/engine.json" --plan "$WORK/plan.json" \
+  --deliverables "$DELIVERABLES_DIR" --reference "$REFERENCE_DIR" \
+  --job-context "$WORK/job-context.json"
+ubc26 operator prepare --config "$WORK/operator.json"
+```
+
+The generated `operator.json` has `signingAuthorized:false` and placeholder keystore paths in `WORK`. Inspect the confirmed job, approval hashes, expiry, gas limits, addresses, and manifest. Set `solver.keystorePath` to your protected solver keystore and `signingAuthorized:true` only after that review. Claim and release load only the solver keystore. Keep `operator.json` mode 0600. Run the next command with the same work directory and journal:
+
+```sh
+python3 - "$WORK/operator.json" "$SOLVER_KEYSTORE" <<'PY'
+import json,pathlib,sys
+p=pathlib.Path(sys.argv[1]); c=json.loads(p.read_text())
+c["solver"]["keystorePath"]=str(pathlib.Path(sys.argv[2]).resolve())
+c["signingAuthorized"]=True
+p.write_text(json.dumps(c,indent=2)+"\n"); p.chmod(0o600)
+PY
+ubc26 operator run --config "$WORK/operator.json" --password-fd 3 \
+  3<"$SOLVER_PASSWORD_FILE"
+```
+
+The local check must return verdict 1 before proof preparation. Preserve the attempt and send journals after any interruption. Confirm the winner and payout from the public `open-job` record and Arc receipts.
+
 ## Cold-start prompt
 
 > You are the solver. Use this guide, the public service URL and discovery URL, and your protected gas-wallet files. Discover a fresh open job. Read its public rules, package, references, and exact checks. Create your own answer files. Run the installed local check. Prove only against the confirmed funded context. Claim, release, and confirm your payout on Arc Testnet. Save the attempt, idempotency keys, and transaction journals. Stop on uncertain sends. Report any intervention. Do not request the buyer's private files or transcript.
