@@ -84,6 +84,33 @@ test('scoring detects a valid but weaker receipt plan', async () => {
   assert.equal(score.validInputFalseRejects, 0);
 });
 
+test('lookup rejects an unknown reference key while all-any membership gives verdict zero', async () => {
+  const challenge = buildCorpus().find((item) => item.id === 'lab-supplies-receipt-1');
+  const withLookup = await assessSupportedDraft(challenge, challenge.plan);
+  assert.equal(withLookup.engineValid, true);
+  assert.deepEqual(withLookup.candidateResults.find((item) => item.id === 'unknown-item'), {
+    id: 'unknown-item', engine: 'reject', oracle: 'reject',
+  });
+
+  const withAny = structuredClone(challenge.plan);
+  withAny.rules[3] = {
+    op: 'all', collection: {source: 'deliverable', file: 'receipt.json', field: 'rows'},
+    where: {
+      op: 'any', collection: {source: 'reference', file: 'purchase-order.json', field: 'rows'},
+      where: {
+        op: 'eq',
+        left: {op: 'record_field', field: 'itemId'},
+        right: {op: 'record_field', field: 'itemId', level: 1},
+      },
+    },
+  };
+  const withoutLookup = await assessSupportedDraft(challenge, withAny);
+  assert.equal(withoutLookup.engineValid, true);
+  assert.deepEqual(withoutLookup.candidateResults.find((item) => item.id === 'unknown-item'), {
+    id: 'unknown-item', engine: 'fail', oracle: 'reject',
+  });
+});
+
 test('scoring detects an invented receipt condition', async () => {
   const challenge = buildCorpus().find((item) => item.id === ids[0]);
   const restrictive = structuredClone(challenge.plan);

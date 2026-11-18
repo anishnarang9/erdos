@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 13:31 -05:00 — Anish — Test changed reference-key guidance before release
+
+- Source candidate changes the authoring prompt after the output-contract cohort showed unknown IDs returning rule failure instead of input rejection. Native and prompt regressions now distinguish `lookup` rejection from `all`/`any` verdict 0. Full local commerce checks pass. No paid call or public deploy used this candidate yet. Anish will pin and test it in a new isolated cohort. The accepted public release remains unchanged.
+
 ## 2026-11-18 13:28 -05:00 — Anish — Keep release gated after corrected-input repeat
 
 - The [output-contract repeat](../anish/reports/authoring-fourth-output-contract-repeat-2026-11-18.md) produced two draft-stage passes in nine tasks. Four plans were invalid after repair. Three native-valid plans disagreed with the independent oracle, including unknown reference keys classified as rule failures instead of input rejections. The cohort settled $0.104980 in API charges; fourth-campaign cumulative unique API charge is $0.416085. Exact-head PR #19 checks passed. Anish will correct the reference-membership prompt with a native regression, then freeze a changed-source cohort. Keep the accepted public release and general authoring gate.

@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 13:31 -05:00 — Correct prompt guidance for reference-key outcomes
+
+- Changed the authoring prompt to use `lookup` when an unknown reference key must reject input. It now uses `all` with nested `any` when a missing reference row should produce verdict 0. A native procurement test confirms the two outcomes. The prompt regression failed before the wording change and passes now. This is a new source candidate; it has not received a paid model trial.
+- Full `pnpm check` passes at this checkpoint: SDK 535 plus 13 chain fixtures, API 1,051, web 4, worker 1,051, and typechecks. The hosted qualification suite remains 72/72 after the new native test. Fourth-campaign API spend remains $0.416085. Next: commit and push, build an isolated image at the exact source, wait for CI, then freeze a small changed-source trial of the unknown-key families. Keep public authoring gated.
+
 ## 2026-11-18 13:28 -05:00 — Preserve corrected-input repeat and isolate membership error
 
 - The nine frozen output-contract tasks settled once each on source `fc2e717`. Two supported drafts (`mass-1`, `firmware-1`) passed native, coverage, quotes, and all hidden oracle cases. Four plans remained invalid after one repair; three native-valid plans disagreed with the oracle in five candidate cases. The [repeat report](reports/authoring-fourth-output-contract-repeat-2026-11-18.md) lists each cause. Nine tasks made 18 model calls and cost $0.104980; fourth-campaign unique API cost is $0.416085. No Bot, approval, compile, proof, Arc, or public deploy ran for this cohort.
