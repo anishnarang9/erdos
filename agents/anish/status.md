@@ -1,3 +1,8 @@
+# 2026-11-18 14:54 -05:00 — Stage plan repair diagnostic on current main
+
+- Merged main at `a3f6cae` into the PR #19 candidate. Source `82505b5` is pinned in the new isolated Linux image. The new wallet authenticated to an empty draft database, and the dry run verified the six [frozen cases](../../docs/authoring-eleventh-plan-repair-2026-11-18.md).
+- Exact-source CI is in progress. The campaign remains at $0.883887. Next: apply the frozen example and oracle gates to each new response after CI passes.
+
 # 2026-11-18 14:53 -05:00 — Keep native-valid plans available after example repair
 
 - Draft PR #19. The retained category task had a native-valid first plan and an invalid second plan. Repair requests now include the first hashable plan under the existing cost check. When only generated examples are missing or malformed, the repair keeps the exact revision. A checked verdict mismatch or a buyer fixture failure can still trigger a rule repair.
