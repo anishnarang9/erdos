@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 01:00 -05:00 — Anish — Start scoped public acceptance
+
+- The exact-source API `8a1e62f` now serves public buyer readiness for one designated wallet, one distinct paid draft, and one Bot review. External readiness, discovery, signed wallet authentication, role-specific guide hashes, chain balances, and adapter code passed. A fresh low-reasoning buyer agent is running the task. Start the independent solver only after confirmed funding and public brief publication.
+- The first pilot charge reservation remains uncertain. Grok Bot automatic top-up has not been verified off. Preserve the one-call/one-review caps and the user's $5 current cash constraint. Record the live attempt as failed if an agent needs operator repair or an uncertain charge/send prevents completion.
+
 ## 2026-11-18 00:47 -05:00 — Anish — Matching one-wallet release is gated in public
 
 - API source `8a1e62f` now runs on the VPS behind the existing 503 buyer gate. The same-source runner and engine, plus docs source `934062f`, serve over HTTPS with verified hashes. A quiesced state backup and prior image remain. Compiler prewarm and independent Linux runner installation passed. See the [release record](../anish/reports/hosted-one-wallet-gated-release-2026-11-18.json).

@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 01:00 -05:00 — Anish — Enable one-wallet public acceptance
+
+- Branch `codex/hosted-release`. Public API source `8a1e62f` now uses the staged one-wallet authoring and Bot profile. External HTTPS `/readyz` and `/v1/open-jobs` returned 200. A buyer-wallet signed login worked through the public origin; its test key was revoked. The latest immutable public docs are source `6237471`, with external file hashes matching the release manifest. Matching runner and engine remain at source `8a1e62f`.
+- Live Arc block 72,803,663 showed each cold wallet with 20 native testnet USDC and 20 ERC-20 testnet USDC; adapter code remained 11,311 bytes. A fresh low-reasoning buyer agent started the real attempt. The solver has not started. The first uncertain pilot reservation and Grok Bot automatic top-up state remain unresolved. The service enforces one distinct paid draft and one Bot dispatch for the selected wallet; no new cash purchase occurred during release activation.
+- Next: monitor the buyer's single draft and review, then start a separate cold solver only after a confirmed funded job appears. Record every failure and intervention. Run buyer recovery and independent chain/output audit after settlement.
+
 ## 2026-11-18 00:47 -05:00 — Anish — Promote one-wallet release behind gate
 
 - Branch `codex/hosted-release`. Built API image `sha256:c40b35d…` from exact source `8a1e62f`, took a quiesced 101-file state backup, and promoted the image. The previous image and host environment remain for rollback. Rewarmed its compiler and observed native verdicts 1 and 0. Published and externally hashed the matching runner, engine, and docs source `934062f`; the new runner verified after an independent Linux install. See the [gated release record](reports/hosted-one-wallet-gated-release-2026-11-18.json).
