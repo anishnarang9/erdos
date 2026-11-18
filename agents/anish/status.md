@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 03:54 -05:00 — Anish — Merge hosted release and continue read-only soak
+
+- PR [#14](https://github.com/anishnarang9/UBC-26/pull/14) merged into main at `47920da` after commerce, engine, and contracts PR checks passed and a focused rereview found no Important or Critical issue. The live API still uses the accepted image source `1ee322e`; public runner and engine use `0b35d3a`, and public guides use docs source `ff05a35`. Main-push CI is running.
+- Post-merge reads matched all 20 job 9 package file hashes. The corrected runner recovered byte-exact `OKAY` again through SDK and engine. Direct Arc receipts remained successful at claim nonce 2 and release nonce 3; latest and pending solver nonce are 4. An isolated restore of the pinned post-acceptance backup passed SQLite integrity and was removed. The API shows zero restarts and no OOM.
+- The live API ledger has three settled drafts totaling 11,416 micro-USD, no reserved or uncertain row, no breach, and no spend halt. This does not establish the separate Grok Bot account balance or auto top-up state. Thirty repeated public job reads all returned 200. A low-rate public soak continues until 07:00; see the [in-progress post-release audit](reports/hosted-postrelease-validation-2026-11-18.json).
+
 ## 2026-11-18 03:41 -05:00 — Anish — Verify immutable public docs and runner
 
 - Published docs source `ff05a35` at `/downloads/docs/ff05a357ef6b4afcc177ede91c7e61f636cb7272/`. All nine files and `SHA256SUMS` matched the new release manifest over external HTTPS. The public runner archive, runner metadata, runner release manifest, and engine also matched their pinned hashes. `/readyz` returned success.

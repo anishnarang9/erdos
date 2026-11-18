@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "status": "in_progress",
+  "scope": "Read-only and local validation after merging the hosted release. No new paid draft, Bot dispatch, proof, or Arc transaction was initiated.",
+  "release": {
+    "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/14",
+    "mainMergeCommit": "47920daf93d5c29808a5224fa8e23281ea8f80be",
+    "apiSourceCommit": "1ee322e9bb8faa9617dbaa41316c7d999144ef36",
+    "apiImageSha256": "377cdfa11d570b91428a7cd2a273df409c90547b6fa81e43afb8591074d77dde",
+    "runnerAndEngineSourceCommit": "0b35d3a5e327144045d04fe45084f6258bb23f3c",
+    "documentationSourceCommit": "ff05a357ef6b4afcc177ede91c7e61f636cb7272"
+  },
+  "mergeChecks": {
+    "prCommerce": "passed",
+    "prEngine": "passed",
+    "prContracts": "passed",
+    "mainCommerce": "in_progress",
+    "mainCoreFast": "in_progress",
+    "review": "No Important or Critical finding in the confirmed-release journal correction."
+  },
+  "readOnlyChecks": {
+    "publicDocsFilesAndSums": "9 files and SHA256SUMS passed against the HTTPS release manifest",
+    "publicRunnerArchiveMetadataManifestAndEngine": "all pinned SHA-256 values matched over HTTPS",
+    "packageJob9": "20 files, 1,508,451 bytes; each size and SHA-256 matched the public package listing",
+    "publicRouteBoundaries": "11 public/auth routes returned intended 200/401/404; 5 unauthorized-write and CORS probes returned intended 401/403/200",
+    "staticBoundary": "8 HEAD, range, method, unlisted-file, traversal, and extension probes passed",
+    "discoveryValidation": "4 malformed query probes returned HTTP 400",
+    "repeatedJobRead": "30/30 HTTP 200 over about 77 seconds; max 0.853 seconds, median 0.774 seconds",
+    "sustainedReadSoak": "in_progress until 07:00 America/New_York",
+    "buyerRecoveryWithCorrectedRunner": "SDK and engine recovered exactly one signal.txt each, bytes 4f4b4159, SHA-256 315d31b420de24f9bd8dea4375b05c492060a963544cc7751f5af9fd1dc0aacf",
+    "arcReceipts": "Claim and release status 1 at nonces 2 and 3; latest and pending solver nonce 4",
+    "backupRestore": "Pinned post-acceptance backup restored into a protected isolated directory; SQLite integrity ok, 9 jobs and 2 open-claim links; temporary restore removed",
+    "serviceResources": "API healthy, 0 restarts, no OOM, about 68 MiB of 1 GiB; HTTPS about 34 MiB of 128 MiB; root disk 119 GiB free"
+  },
+  "spendLedger": {
+    "settledDrafts": 3,
+    "settledMicroUsd": 11416,
+    "uncertainOrReservedRows": 0,
+    "breachRows": 0,
+    "spendHaltRows": 0,
+    "scope": "Local API spend ledger only; it does not verify provider billing or Grok Bot account balance."
+  },
+  "knownLimits": [
+    "One earlier Arc-backed job read returned HTTP 503 while the API remained healthy. The upstream exception was deliberately redacted, so the exact cause remains unknown.",
+    "The confirmed-release/local-journal-error branch passed focused tests but did not reproduce live on the successful read-only resume.",
+    "Grok Bot auto top-up state, complete provider cash ledger, production average authoring cost, and the 180-run campaign remain unverified."
+  ]
+}

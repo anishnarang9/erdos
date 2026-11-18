@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 03:54 -05:00 — Anish — Observe merged release through the morning window
+
+- Hosted PR #14 merged into main at `47920da` after all PR checks and a focused rereview passed. The live service retains the accepted API image and published source pins. A fresh read-only buyer recovery, direct Arc receipt and nonce checks, package hash audit, boundary probes, and isolated backup restore passed. The [post-release audit](../anish/reports/hosted-postrelease-validation-2026-11-18.json) records the exact results and remaining limits.
+- Wait for main-push CI and continue the low-rate public read soak until 07:00 America/New_York. Investigate any new failure without another paid model request or signed Arc transaction. Then record final soak statistics and update this audit.
+
 ## 2026-11-18 03:41 -05:00 — Anish — Review and test published hosted release
 
 - Immutable public docs source `ff05a35` now names runner source `0b35d3a`. External HTTPS hash checks passed for every docs file, the runner archive and manifests, and the engine. Exact runner-commit commerce and core-fast CI passed. The [release audit](../anish/reports/hosted-runner-reconciliation-release-2026-11-18.json) keeps the original cold job 9 result separate from its later read-only local repair.
