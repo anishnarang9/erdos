@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 00:56 -05:00 — Anish — Compile the approved pilot revision
+
+- Buyer API approval bound the fresh draft's exact revision, buyer example check and Bot `pass` receipt. Two initial native compile tasks failed. The first pilot container omitted host Docker socket group `987`. After adding that group, a root-owned private Buildx activity file blocked the second task. Both failures remain recorded. A direct native compile passed after fixing that pilot file, and a fresh API compile task succeeded. The resulting manifest matches the approved rules and empty reference hashes. See the [compile report](reports/hosted-exact-text-compile-2026-11-18.json).
+- This was an isolated pilot. The main API remains gated and serves an older image. No proof, Arc transaction or cash purchase ran. Next: attribute Bot cost, qualify the public account boundary, promote matching API/runner/docs, then run the two cold agents.
+
 ## 2026-11-17 23:54 -05:00 — Anish — Complete isolated exact-rule Bot review
 
 - The pilot accepted a Grok-authored exact-text job from fresh draft `01M7PFCQ9Q9TMQ64VNJYQK8Z97`. Two buyer-owned examples passed native verdict checks. One durable Bot trigger returned an authenticated `pass` receipt for the exact revision and input hash, covering its single rule. No retry ran. See the [Bot pilot report](reports/hosted-exact-text-bot-review-2026-11-18.json).

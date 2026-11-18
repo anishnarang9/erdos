@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 00:56 -05:00 — Anish — Approved pilot compile succeeded
+
+- The isolated buyer approved the native-valid draft with the exact Bot `pass` and buyer example check. The API compile task succeeded after two recorded pilot environment failures: missing Docker socket group and a root-owned private Buildx activity file. The final package manifest binds the approved rules and reference hashes. See the [compile report](../anish/reports/hosted-exact-text-compile-2026-11-18.json).
+- Public readiness, Bot cost attribution, production account isolation, matching release publication and the cold agents remain open. No Arc job or proof ran.
+
 ## 2026-11-17 23:54 -05:00 — Anish — Isolated exact-rule Bot pass
 
 - One synthetic isolated Bot review returned an authenticated `pass` for the native-valid Grok draft's exact revision, after a separate buyer example check. No retry ran. The callback route returned to main and public buyer readiness remains 503. See the [pilot receipt](../anish/reports/hosted-exact-text-bot-review-2026-11-18.json).
