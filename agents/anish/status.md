@@ -1,3 +1,8 @@
+# 2026-11-18 14:09 -05:00 — Seventh trial passed four draft gates
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. The [seventh report](reports/authoring-seventh-lookup-repair-repeat-2026-11-18.md) records four draft-stage passes and one retained lot failure on source `d0b6b97`. All five tasks and nine provider traces are new. Native, coverage, quotes, and all hidden oracle candidates passed for the four passing cases. Lot stayed plan-invalid after the targeted repair hint.
+- All five reservations settled. New API cost was $0.055114; fourth-campaign attributable API usage is $0.617059. No Bot review, approval, compile, proof, Arc send, or public deploy ran. Next: test a narrow redundant-lookup normalization offline, then measure changed-source reliability. General authoring stays gated.
+
 # 2026-11-18 14:04 -05:00 — Freeze source-locked lookup trial
 
 - Branch `codex/authoring-pilot-round2`, draft PR #19. Built Linux image `sha256:8a8d1a0951eb2896683009457072739d16308009726fc29cdbf96c8486ecfb97` from source `d0b6b97`. The embedded source and engine hashes match. A fresh isolated container is healthy with zero drafts and spend reservations. The [seventh trial](../../docs/authoring-seventh-lookup-repair-repeat-2026-11-18.md) freezes five cases before paid dispatch. Exact-source CI is pending.

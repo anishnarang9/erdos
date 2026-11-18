@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 14:10 -05:00 — Anish — Keep authoring gated after seventh trial
+
+- The [seventh trial](../anish/reports/authoring-seventh-lookup-repair-repeat-2026-11-18.md) passed four of five draft gates. Lot expiry stayed plan-invalid after a precise type-repair hint. Clearance passed after the hint, but one changed outcome does not establish repeat reliability. The five tasks cost $0.055114; fourth-campaign attributable API usage is $0.617059. Anish will test a narrow redundant-lookup normalization offline and preserve the failed lot result. Keep general public authoring and the accepted public release unchanged.
+
 ## 2026-11-18 14:04 -05:00 — Anish — Freeze changed-source lookup trial
 
 - The [seventh trial](../../docs/authoring-seventh-lookup-repair-repeat-2026-11-18.md) freezes two controls and three unstable families on source `d0b6b97`. Its isolated Linux image has the matching source and engine pins; the new database has no drafts or reservations. Exact-source CI is pending. Anish will use a new wallet, one journal per case, and the remaining $10 scope. Keep general authoring and the accepted public release unchanged.
