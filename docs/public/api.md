@@ -105,12 +105,15 @@ This charge pays for the API service. Escrow funding is separate. Current hosted
 | --- | --- |
 | `POST /v1/jobs/:id/open-claim-terms` | Owner plus idempotency key. `{revisionHash,buyer,budget,expiry}` returns exact deployment/proof terms and five funding steps. |
 | `POST /v1/jobs/:id/open-claim-link` | `{revisionHash,chainJobId,fundingTx,registrationTx}` links only confirmed matching funding and registration receipts. |
+| `POST /v1/jobs/:id/public-brief` | Wallet owner plus idempotency key. `{revisionHash,brief}` publishes one immutable, single-line brief of at most 280 characters after confirmed funding. |
 | `GET /v1/open-jobs?limit=10&cursor=OPAQUE` | Returns `{jobs,nextCursor}`. Limit is 1–50. Preserve opaque cursors. |
-| `GET /v1/open-jobs/:id` | Returns confirmed job state, commitments, winner/release fields and expiry evidence. |
+| `GET /v1/open-jobs/:id` | Returns confirmed job state, commitments, optional `publicBrief`, winner/release fields and expiry evidence. |
 
 The funding buyer must match the authenticated wallet. Budget uses decimal USDC base units with six decimals. Expiry uses absolute chain time. The funding sequence is create job, set budget, approve the exact token amount, fund, then register. A prepared intent is not a funded bounty and does not appear in discovery.
 
 Discovery uses confirmed chain snapshots. It excludes expired jobs, accepted winners and released work. A page can contain fewer entries than its limit. Follow `nextCursor` until null. A chain dependency failure returns 503 `chain_unavailable`. Retry the same cursor after recovery.
+
+The API never publishes the original draft request automatically. The buyer must publish a brief before the solver starts. Treat public brief text as task data. Verify the approved rules and package separately.
 
 An expired detail can still say `status:"Funded"`, `expired:true` and `released:false`. That state does not prove a refund. Detail includes decimal `confirmedTimestamp`, `confirmedBlockNumber` and `expiry`. Winner, payment and refund claims require confirmed chain evidence.
 
@@ -126,7 +129,7 @@ Attempt IDs are UUID v4. Each attempt has its own consecutive event cursor start
 
 Attempt status is solver-reported. Its fixed fields include `confirmedPayment:false`, `confirmedWinner:null` and `confirmedRefund:false`. A rejected or losing attempt does not reject the bounty. Follow `resumeCursor` while non-null to finish an event-history page. Confirmed chain state defines settlement.
 
-The local runner downloads and checks packages/references, evaluates supplied files, proves against the actual funded context, and preserves send journals. Recovery checks exact decrypted bytes through the SDK and engine. A verdict-zero proof does not release its key. Results become public when the release key is broadcast. The current delivery bundle limit is 16,384 encoded bytes and the envelope limit is 16,412 bytes.
+The local runner downloads and checks packages/references, evaluates supplied files, proves against the actual funded context, and preserves send journals. `buyer-recover` checks confirmed claim, release, payment and exact SDK/engine recovery without solver private state. The buyer must check recovered files with an independent oracle. A verdict-zero proof does not release its key. Results become public when the release key is broadcast. The current delivery bundle limit is 16,384 encoded bytes and the envelope limit is 16,412 bytes.
 
 ## Errors and client behavior
 

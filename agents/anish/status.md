@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 23:04 -05:00 — Anish — Check combined agent release
+
+- Branch `codex/hosted-release` now contains explicit public brief publication and independent buyer chain recovery. The public guides describe both commands and require the solver to use the published brief. These features are release candidates; neither has been checked against a fresh public job.
+- `pnpm check` passes in `commerce`: all package typechecks, 535 SDK tests, 1,023 API tests, 4 web tests, 1,042 worker tests, and 13 Arc fixture checks. This verifies the combined source at `a7c0497` before this documentation checkpoint. `git diff --check` passes for the documentation changes.
+- Public buyer readiness remains 503. The deployed API and published runner do not contain this candidate. The first paid authoring request remains uncertain under the approved pilot stop rule. Bot dispatch policy, exact release build, fresh funded wallets, native solver proving resources, and two independent cold agents remain gates. No new model call, proof, chain transaction, or deployment ran.
+
 ## 2026-11-17 22:59 -05:00 — Anish — Add independent buyer chain recovery
 
 - Branch `codex/buyer-recovery` adds `buyer-recover` to the installed runner. It reads a completed public job, confirmed Arc registration, unique claim/release events, exact chain state, and the published release key. SDK and engine recover the same files without solver private state or expected output bytes. The command reports `oracleChecked:false`; the buyer must run an independent oracle afterward.

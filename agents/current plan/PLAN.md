@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-17 23:04 -05:00 — Anish — Combined service candidate check
+
+- `codex/hosted-release` integrates explicit, buyer-owned public briefs and a buyer recovery command that reads confirmed Arc events and released key material. Public guides now cover both. The buyer must still run an independent output oracle. No fresh public job has exercised either feature.
+- The combined commerce check passes: all typechecks, 2,604 package tests and 13 Arc fixture checks. Public readiness is still 503. Complete bounded Bot dispatch policy, reconcile the uncertain first authoring attempt under the pilot stop rule, publish exact-source API and runner artifacts, prepare separate funded wallets and a real solver host, then run the two cold agents. Keep the candidate separate from main and PR #8 draft until live evidence and release review.
+
 ## 2026-11-17 21:27 -05:00 — Anish — Merge current main into the hosted release candidate
 
 - `codex/hosted-release` combines hosted source `4ad733f` with main `2e04451`. Resolve API, SDK and worker test conflicts while retaining public-mode ownership, readiness and signer boundaries. All commerce typechecks and 2,589 package tests plus 13 Arc fixtures pass locally. Public deployment, authoring reconciliation, fresh wallets and the two-agent acceptance remain pending.
