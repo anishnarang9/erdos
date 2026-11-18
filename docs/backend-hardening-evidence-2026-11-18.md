@@ -38,4 +38,6 @@ The full commerce check includes API regressions for owner-bound draft idempoten
 4. Set a separate production Bot account boundary and an attributable complete-run cost policy. The target is a 5–10¢ average including Bot review; the model-only mean in the old qualification harness is not enough.
 5. Before any new paid campaign, freeze its cases, call count, maximum spend, per-attempt stop, account meter, and attribution rule. The second pilot stopped after one failed case. Its unused nine calls are not a passing campaign or a reason to spend again automatically.
 
+The [proposed next qualification](authoring-next-bounded-qualification-2026-11-18.md) freezes a ten-case diagnostic stage and names the wider repeat-run gate. It authorizes no spending.
+
 No new paid model call, credit purchase, public deployment, or Arc transaction is part of this offline candidate.

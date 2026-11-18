@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 09:31 -05:00 — Anish — Freeze a bounded next diagnostic scope
+
+- The [next qualification proposal](../../docs/authoring-next-bounded-qualification-2026-11-18.md) fixes ten case IDs, expected classes, hidden-oracle separation, eight maximum Bot reviews, a proposed $1 total/$0.15 per-case cap, no paid repairs, no Arc sends, and stop on the first failure. It is a proposed new campaign, not spending authorization. The stopped second pilot has nine unused numeric slots but no permission to resume after its failure stop.
+- The wider 62-case, three-repeat gate needs a separate budget and dedicated production Bot account. Public authoring stays gated. Next: wait for exact-head PR checks, then use the proposal only if a new bounded scope is approved; otherwise continue offline failure diagnosis and recovery checks.
+
+
 ## 2026-11-18 09:29 -05:00 — Anish — Prove and recover one new corpus case locally
 
 - Branch `codex/authoring-pilot-round2`. Built the new `lab-supplies-receipt-1` plan into a pinned RISC Zero guest package. A synthetic 169-byte context matched the package image, rule hash, and reference hash. The first local command stopped at `prover_setup` before creating an attempt because this shell inherited a disallowed debug setting. A clean environment produced a real verdict-1 proof in 274.676 seconds and 829,173 cycles. The engine decrypted one file; recovered bytes matched the source SHA-256 and the independent oracle passed. The release key file stayed mode 0600. See the [local proof report](reports/offline-procurement-proof-2026-11-18.json).
