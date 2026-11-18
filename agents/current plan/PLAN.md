@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 13:47 -05:00 — Anish — Freeze contract-shape and lookup-scope trial
+
+- A fresh local image contains source `193564b` and the pinned engine. Its database has no draft or spend entries. The [five-case frozen trial](../../docs/authoring-sixth-shape-scope-repeat-2026-11-18.md) includes two passing controls and three previously invalid families. Anish will verify exact-head CI, prepare a new wallet, and run each trial once under the existing $10 testing cap. Keep the accepted public API and general authoring gate unchanged.
+
 ## 2026-11-18 13:45 -05:00 — Anish — Test contract-proven shape and lookup scope
 
 - Retained provider recordings identified an unused duplicate `rows` scalar, a numeric lookup used as a Boolean, and a lookup key with the wrong record scope. The new candidate removes the duplicate only when an explicit buyer output contract proves the array shape and no rule reads the scalar. It also explains lookup value and scope rules to the model. Full local commerce checks pass; no paid call used this source. Anish will pin and test it in a separate frozen cohort. Keep the accepted public API and general authoring gate unchanged.

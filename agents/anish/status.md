@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 13:47 -05:00 — Freeze sixth source trial
+
+- Built image `sha256:bbc78d8d41a348df0602ca2244d92b2d310a0ae96264d6fbc3f6aab106debc8b` from source `193564b` with matching embedded source and engine pins. A fresh isolated database serves `/healthz` 200 on loopback port 8790 and has zero tasks or spend reservations. Exact-head CI is pending. No paid task used this image.
+- Froze five new `-r7` tasks in the [sixth trial](../../docs/authoring-sixth-shape-scope-repeat-2026-11-18.md), with two controls and three previously invalid families. Next: verify CI, prepare a seventh wallet and guarded harness, then dispatch each once. The fourth-campaign API charge remains $0.474852. General authoring remains gated.
+
 ## 2026-11-18 13:45 -05:00 — Repair contract-proven collection shape and prompt scope
 
 - Retained provider recordings identified three distinct final-plan errors in the fifth trial. Added a narrow normalization when an explicit buyer output contract proves a duplicate scalar is an array and no rule reads the scalar. A conflicting fixture or scalar rule blocks normalization. Added prompt instructions that a lookup returns a value and does not add a record scope. Unit and route tests failed before the change and now pass. Offline replay of the saved lot reply removes the duplicate, then reveals a separate operator type error; the original failed task remains failed.
