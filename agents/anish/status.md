@@ -1,3 +1,8 @@
+# 2026-11-18 14:45 -05:00 — Stage the example gate trial
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Built the source-pinned image for `680e93c` and authenticated a new wallet to its isolated database. The dry run verified the corpus, engine, and eleven frozen cases across all three authoring decisions. See the [frozen trial](../../docs/authoring-tenth-example-gate-2026-11-18.md).
+- Full local checks passed on the candidate. Exact-source CI is pending. No paid draft has used this image. Next: verify CI and run the frozen cases with the corrected scorer and the existing campaign ledger.
+
 # 2026-11-18 14:43 -05:00 — Audit and enforce the buyer example gate
 
 - Branch `codex/authoring-pilot-round2`, draft PR #19. Rescored 27 saved tasks with the API example gate. Nine were ready for buyer review. The latest varied cohort had six draft and oracle matches, of which three had usable examples. The [audit](reports/authoring-example-gate-audit-2026-11-18.md) preserves the original outcomes and explains the scorer gap.
