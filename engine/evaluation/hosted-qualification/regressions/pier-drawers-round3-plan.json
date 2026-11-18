@@ -1,0 +1,168 @@
+{
+  "version": 1,
+  "deliverables": [
+    {
+      "name": "drawers.json",
+      "parser": "json/v1",
+      "fields": [
+        {
+          "name": "closeout",
+          "type": "string"
+        }
+      ],
+      "collections": [
+        {
+          "name": "rows",
+          "fields": [
+            {
+              "name": "drawerId",
+              "type": "string"
+            },
+            {
+              "name": "countedCents",
+              "type": "i64"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "closeout.txt",
+      "parser": "text/v1"
+    }
+  ],
+  "references": [
+    {
+      "name": "floats.json",
+      "parser": "json/v1",
+      "collections": [
+        {
+          "name": "rows",
+          "fields": [
+            {
+              "name": "drawerId",
+              "type": "string"
+            },
+            {
+              "name": "expectedCents",
+              "type": "i64"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "op": "eq",
+      "left": {
+        "op": "field",
+        "source": "deliverable",
+        "file": "closeout.txt"
+      },
+      "right": {
+        "op": "literal",
+        "type": "string",
+        "value": "Pier Saturday closed.\n"
+      }
+    },
+    {
+      "op": "eq",
+      "left": {
+        "op": "count",
+        "collection": {
+          "source": "deliverable",
+          "file": "drawers.json",
+          "field": "rows"
+        },
+        "where": {
+          "op": "literal",
+          "type": "bool",
+          "value": true
+        }
+      },
+      "right": {
+        "op": "count",
+        "collection": {
+          "source": "reference",
+          "file": "floats.json",
+          "field": "rows"
+        },
+        "where": {
+          "op": "literal",
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "op": "unique",
+      "collection": {
+        "source": "deliverable",
+        "file": "drawers.json",
+        "field": "rows"
+      },
+      "field": "drawerId"
+    },
+    {
+      "op": "all",
+      "collection": {
+        "source": "deliverable",
+        "file": "drawers.json",
+        "field": "rows"
+      },
+      "where": {
+        "op": "eq",
+        "left": {
+          "op": "record_field",
+          "field": "countedCents",
+          "level": 0
+        },
+        "right": {
+          "op": "lookup",
+          "collection": {
+            "source": "reference",
+            "file": "floats.json",
+            "field": "rows"
+          },
+          "keyField": "drawerId",
+          "key": {
+            "op": "record_field",
+            "field": "drawerId",
+            "level": 0
+          },
+          "valueField": "expectedCents"
+        }
+      }
+    },
+    {
+      "op": "all",
+      "collection": {
+        "source": "reference",
+        "file": "floats.json",
+        "field": "rows"
+      },
+      "where": {
+        "op": "any",
+        "collection": {
+          "source": "deliverable",
+          "file": "drawers.json",
+          "field": "rows"
+        },
+        "where": {
+          "op": "eq",
+          "left": {
+            "op": "record_field",
+            "field": "drawerId",
+            "level": 0
+          },
+          "right": {
+            "op": "record_field",
+            "field": "drawerId",
+            "level": 1
+          }
+        }
+      }
+    }
+  ]
+}

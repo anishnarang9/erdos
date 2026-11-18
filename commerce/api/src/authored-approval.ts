@@ -21,6 +21,7 @@ export function assertAuthoredApproval(deps: Deps, draftId: string | null, revis
     catch { /* Invalid stored records do not qualify. */ }
   }
   if (!checked) blockers.push("usable_examples");
+  if (response.buyerFixtureApprovalReady === false) blockers.push("buyer_fixtures");
   if (!isPlainObject(response.coverage) || response.coverage.ruleCoverageComplete !== true) blockers.push("requirement_coverage");
   if (!isPlainObject(response.coverage) || typeof coverageDigest !== "string" || !/^[0-9a-f]{64}$/.test(coverageDigest) || coverageDigest !== response.coverage.coverageDigest) blockers.push("coverage_review");
   if (!Array.isArray(response.quoteVerification) || response.quoteVerification.length === 0 ||

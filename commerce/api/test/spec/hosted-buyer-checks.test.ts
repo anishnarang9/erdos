@@ -9,8 +9,8 @@ import {createApp,simulatedEngine} from '../../src/index.ts';
 const apps:ReturnType<typeof createApp>[]=[];afterEach(()=>{for(const app of apps.splice(0))app.close();});
 const origin='https://api.example.test',context='0x01'+'a'.repeat(336);
 const examples=[{name:'pass',predictedVerdict:1,files:[{name:'result.json',content:'{"ok":true}'}],evidence:[{name:'signed.json',content:'{"signature":"controlled"}'}],context},{name:'fail',predictedVerdict:0,files:[{name:'result.json',content:'{"ok":false}'}],evidence:[{name:'signed.json',content:'{"signature":"controlled"}'}],context}];
-async function fixture(){
- let evaluations=0,modelCalls=0;const dbPath=join(mkdtempSync(join(tmpdir(),'hosted-buyer-checks-')),'api.sqlite'),plan={version:1,deliverables:[{name:'result.json',parser:'json/v1'}],references:[],rules:[{op:'literal',type:'bool',value:true}]},input={request:'Check that ok is true',outputs:[{name:'result.json',format:'json'}],expirySeconds:600,maxBudget:'10000'};
+async function fixture(buyerFixtures:typeof examples=[]){
+ let evaluations=0,modelCalls=0;const dbPath=join(mkdtempSync(join(tmpdir(),'hosted-buyer-checks-')),'api.sqlite'),plan={version:1,deliverables:[{name:'result.json',parser:'json/v1'}],references:[],rules:[{op:'literal',type:'bool',value:true}]},input={request:'Check that ok is true',outputs:[{name:'result.json',format:'json'}],expirySeconds:600,maxBudget:'10000',...(buyerFixtures.length?{exampleFixtures:buyerFixtures}:{})};
  const app=createApp({dbPath,buyerToken:'controlled-buyer',deployment:{mode:'public',serviceOrigin:origin},engine:{...simulatedEngine(),mode:'real',eval:async input=>{evaluations++;if(input.context!==context||!input.evidence?.length)return{ok:false,kind:'invalid',errors:[{path:'/evidence',message:'Invalid signed context'}]};return{ok:true,verdict:Buffer.from(input.deliverables[0]!.content).toString().includes('true')?1:0};}},budget:{requestCeilingMicroUsd:500000,dailyCeilingMicroUsd:5000000,inputMicroUsdPerMillion:1000000,outputMicroUsdPerMillion:1000000},draftModel:{outputTokenBound:{parameter:'max_tokens',maxTokens:8192},draft:async()=>({model:'controlled',traceId:`buyer-check-${++modelCalls}`,usage:{promptTokens:1,completionTokens:1,cachedTokens:0,reasoningTokens:0,costInUsdTicks:1},result:{kind:'draft',plan,examples:examples.map(({evidence,context,...rest})=>rest) as any,sourceQuotes:[{path:'/request',quote:input.request}],coverage:{requirements:[{id:'ok',text:input.request,ruleIndices:[0],quoteIndices:[0]}],assumptions:[],unresolved:[]}}})}});apps.push(app);
  const transport=((url:string|URL|Request,init?:RequestInit)=>app.app.request(String(url),init)) as typeof fetch;
  const login=async(byte:string)=>{const account=privateKeyToAccount(`0x${byte.repeat(32)}`),anon=hostedClient({baseUrl:origin,fetch:transport}),key=await anon.authenticate(account.address,message=>account.signMessage({message}),`login-${byte}`);return{key:key.key,client:hostedClient({baseUrl:origin,apiKey:key.key,fetch:transport})};};
@@ -31,4 +31,35 @@ it('appends exact buyer witnesses, retains failures and leaves the original task
 });
 it('rejects foreign ownership, changed revision and attempts to replace the plan before evaluation',async()=>{
  const f=await fixture(),before=f.evaluations();expect((await f.post(f.body,f.other.key)).status).toBe(404);expect((await f.post({...f.body,revisionHash:'0'.repeat(64)})).status).toBe(409);expect((await f.post({...f.body,plan:{rules:[]}})).status).toBe(400);expect(f.evaluations()).toBe(before);
+});
+it('checks every buyer fixture and blocks approval when a later example check hides a disagreement',async()=>{
+ const buyerFixtures=[{...examples[0]!,name:'buyer-positive',files:[{name:'result.json',content:'{"ok":false}'}]},
+   {...examples[1]!,name:'buyer-negative'}];
+ const f=await fixture(buyerFixtures);
+ expect(f.result.buyerFixtureChecks).toHaveLength(2);
+ expect(f.result.buyerFixtureApprovalReady).toBe(false);
+ expect(f.result.buyerFixtureChecks[0]).toMatchObject({name:'buyer-positive',predictedVerdict:1,checkerVerdict:0,agrees:false});
+ const checked=await f.post(f.body);expect(checked.status).toBe(201);
+ const check:any=await checked.json();expect(check.exampleApprovalReady).toBe(true);
+ const approval={revisionHash:f.result.revisionHash,referenceDigest:f.result.revision.referenceDigest,
+   coverageDigest:f.result.coverage.coverageDigest,exampleCheckId:check.exampleCheckId};
+ const response=await f.app.app.request(`/v1/jobs/${f.job.jobId}/approve`,{method:'POST',headers:{authorization:`Bearer ${f.owner.key}`,
+   'content-type':'application/json','idempotency-key':crypto.randomUUID(),'if-match':`"${f.result.revisionHash}"`},body:JSON.stringify(approval)});
+ expect(response.status).toBe(409);
+ const body:any=await response.json();expect(body.error.details.blockers).toContain('buyer_fixtures');
+});
+it('keeps a matching buyer fixture pair eligible for exact-revision approval',async()=>{
+ const buyerFixtures=examples.map((item,i)=>({...item,name:`buyer-${i}`}));
+ const f=await fixture(buyerFixtures);
+ expect(f.result.buyerFixtureApprovalReady).toBe(true);
+ expect(f.result.buyerFixtureChecks).toMatchObject([
+   {predictedVerdict:1,checkerVerdict:1,agrees:true},
+   {predictedVerdict:0,checkerVerdict:0,agrees:true},
+ ]);
+ const checked=await f.post(f.body);expect(checked.status).toBe(201);
+ const check:any=await checked.json();expect(check.exampleApprovalReady).toBe(true);
+ const approval={revisionHash:f.result.revisionHash,referenceDigest:f.result.revision.referenceDigest,
+   coverageDigest:f.result.coverage.coverageDigest,exampleCheckId:check.exampleCheckId};
+ const approved:any=await f.owner.client.approve(f.job.jobId,approval,'matching-buyer-fixtures');
+ expect(approved.approval.exampleCheckId).toBe(check.exampleCheckId);
 });

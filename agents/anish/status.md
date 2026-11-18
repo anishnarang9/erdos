@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 11:07 -05:00 — Anish — Bind every buyer example to the generated plan
+
+- Branch `codex/authoring-pilot-round2`. Found that draft authoring evaluated only model-selected examples. A model could omit a buyer's positive fixture, then a later passing check could allow approval despite the original disagreement. Added native checks for every supplied fixture, reused results when the model selected the exact immutable fixture, and made a stored mismatch block exact-revision approval. The negative test failed before the fix; mismatch, matching-fixture and no-duplicate-evaluation tests now pass.
+- Preserved the exact third-pilot `pier-drawers` plan as a regression fixture. Native validation accepts it, but it rejects a valid public example and both valid hidden answers. The 69 hosted qualification tests and full commerce check pass: SDK 535 plus 13 chain fixtures, API 1,040, web 4, worker 1,048, and all typechecks. This is an offline candidate only. No additional paid call, Bot review, Arc transaction, or public deployment ran. Next: wait for exact-head PR #19 CI, then qualify any future live run under a new explicit budget and production account policy.
+
 ## 2026-11-18 10:50 -05:00 — Anish — Reconcile the failed task after pilot restart
 
 - Branch `codex/authoring-pilot-round2`. Restarted the isolated stopped pilot with its saved state. A read-only `GET` of the saved third-diagnostic task returned `succeeded` with the same revision hash and provider usage as the protected journal. This used zero paid calls and did not retry the failed case. Stopped the pilot again; public readiness and open-job discovery stayed HTTP 200. Added the restart evidence to the [third failure record](reports/authoring-round3-first-failure-2026-11-18.json).

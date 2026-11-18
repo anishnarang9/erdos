@@ -409,6 +409,25 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       const rules = isPlainObject(result.plan) && Array.isArray(result.plan.rules) ? result.plan.rules.length : 0;
       const coverage = assessCoverage(rules, result.coverage, quoteVerification);
       const examples = await labelExamples(result, body.references, body.exampleFixtures, signal);
+      // Buyer examples are constraints on the exact draft even if the model does not select them.
+      // A selected immutable fixture was already checked above; reuse that result.
+      const selectedFixtures = new Map<string, ExampleLabel>();
+      result.examples.forEach((example, index) => {
+        if (!("fixtureName" in example) || selectedFixtures.has(example.fixtureName)) return;
+        const fixture = body.exampleFixtures.find(item => item.name === example.fixtureName);
+        if (fixture && fixture.predictedVerdict === example.predictedVerdict) selectedFixtures.set(fixture.name, examples[index]!);
+      });
+      const unselectedFixtures = body.exampleFixtures.filter(item => !selectedFixtures.has(item.name));
+      const separatelyChecked = unselectedFixtures.length
+        ? await labelExamples({ ...result, examples: unselectedFixtures }, body.references, [], signal)
+        : [];
+      const separateByName = new Map(separatelyChecked.map(item => [item.name, item]));
+      const buyerFixtureChecks: ExampleLabel[] = body.exampleFixtures.map(fixture => {
+        const checked = selectedFixtures.get(fixture.name) ?? separateByName.get(fixture.name);
+        if (!checked) throw new Error("Buyer fixture check is missing");
+        return { ...checked, name: fixture.name, predictedVerdict: fixture.predictedVerdict };
+      });
+      const buyerFixtureApprovalReady = buyerFixtureChecks.every(item => item.agrees === true);
       const counts = usableExamples(examples);
       const revision: Revision = {
         plan: result.plan,
@@ -430,12 +449,23 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         examples,
         exampleInputs: exampleReviewInputs(result.examples, body.exampleFixtures),
         exampleApprovalReady: counts.positive > 0 && counts.negative > 0 && !counts.blocked,
+        ...(body.exampleFixtures.length ? { buyerFixtureChecks, buyerFixtureApprovalReady } : {}),
         sourceQuotes: result.sourceQuotes,
         quoteVerification,
         coverage,
         model: reply.model,
         traceId: reply.traceId,
       };
+      if (!buyerFixtureApprovalReady) {
+        return { attempt, response, hash, fatal: false, feedback: {
+          attempt: 1, reason: "examples",
+          errors: [{ path: "/exampleFixtures", message: "The checker disagrees with a buyer-supplied example" }],
+          counterexamples: buyerFixtureChecks.filter(item => item.agrees !== true).map(item => ({
+            name: item.name, predictedVerdict: item.predictedVerdict, checkerVerdict: item.checkerVerdict,
+            checkerError: typeof item.checkerError === "string" ? item.checkerError : null,
+          })),
+        } };
+      }
       if (counts.positive > 0 && counts.negative > 0 && !counts.blocked) {
         if (!coverage.ruleCoverageComplete && (result.coverage !== undefined || deps.deployment.mode === "public")) {
           return { attempt, response, hash, fatal: false, feedback: { attempt: 1, reason: "coverage", errors: coverage.omissions.map(message => ({ path: "/coverage", message })), counterexamples: [] } };

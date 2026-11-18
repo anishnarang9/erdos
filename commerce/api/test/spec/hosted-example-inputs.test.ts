@@ -23,6 +23,8 @@ it("resolves public fixture selections and evaluates exact decoded files, eviden
  {...simulatedEngine(),eval:async(input:any)=>{seen.push(input);return{ok:true,verdict:JSON.parse(Buffer.from(input.deliverables[0].content).toString()).ok?1:0};}});
  const res=await post(a,{...body,exampleFixtures:fixtures});expect(res.status,await res.clone().text()).toBe(200);
  const result=await res.json() as any;expect(result.examples.map((e:any)=>e.checkerVerdict)).toEqual([1,0]);
+ expect(result.buyerFixtureChecks.map((e:any)=>e.checkerVerdict)).toEqual([1,0]);
+ expect(result.buyerFixtureApprovalReady).toBe(true);
  expect(result.exampleInputs).toEqual(fixtures.map(f=>({...f,fixtureName:f.name,status:"complete"})));
  expect(seen).toHaveLength(2);expect(seen[0].context).toBe(context);expect(Buffer.from(seen[0].evidence[0].content).toString()).toBe('{"signed":"public-example"}');
  expect(Buffer.from(seen[0].deliverables[0].content).toString()).toBe('{"ok":true}');
