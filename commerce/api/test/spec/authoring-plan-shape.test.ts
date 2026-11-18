@@ -1,3 +1,5 @@
+import { normalizeExplicitKeyRejection } from "../../src/authoring-plan-shape.ts";
+
 import { describe, expect, it } from "vitest";
 import { removeProvenDuplicateScalars, removeFixtureContradictedOutputScalars, removeRedundantNumericLookupGuard, correctNumericReferenceFields } from "../../src/authoring-plan-shape.ts";
 
@@ -181,5 +183,36 @@ describe("buyer-positive output shape", () => {
     const negative = fixture({ rows: [] }).map(item => ({ ...item, predictedVerdict: 0 as const }));
     expect(removeFixtureContradictedOutputScalars(withCapacity(), negative).paths).toEqual([]);
     expect(removeFixtureContradictedOutputScalars(withCapacity(), []).paths).toEqual([]);
+  });
+});
+
+describe("explicit unknown key rejection", () => {
+  const output = { source: "deliverable", file: "out.json", field: "rows" };
+  const reference = { source: "reference", file: "ref.json", field: "rows" };
+  const field = (level: number) => ({ op: "record_field", field: "id", level });
+  const predicate = { op: "eq", left: field(0), right: field(1) };
+  const rule = { op: "all", collection: output, where: { op: "any", collection: reference, where: predicate } };
+  const source = {
+    deliverables: [{name: output.file, collections: [{name: "rows", fields: [{name: "id", type: "string"}]}]}],
+    references: [{name: reference.file, collections: [{name: "rows", fields: [{name: "id", type: "string"}]}]}],
+    rules: [rule],
+  };
+  const brief = "Check the rows. Reject the input if a row in out.json uses a id missing from ref.json.";
+  const refs = [{name: reference.file, text: '{"rows":[{"id":"known"}]}'}];
+
+  it("normalizes only the membership predicate and preserves its rule index", () => {
+    const repaired = normalizeExplicitKeyRejection(source, brief, refs);
+    expect(repaired.paths).toEqual(["/rules/0/where"]);
+    expect(repaired.plan).toMatchObject({rules: [{...rule, where: {op: "eq", left: field(0), right: {
+      op: "lookup", collection: reference, keyField: "id", valueField: "id", key: field(0),
+    }}}]});
+    expect(source.rules[0]?.where.op).toBe("any");
+  });
+
+  it("leaves other briefs, nonunique reference keys, and extended predicates alone", () => {
+    expect(normalizeExplicitKeyRejection(source, "Return verdict 0 for an unknown ID.", refs).paths).toEqual([]);
+    expect(normalizeExplicitKeyRejection(source, brief, [{...refs[0]!, text: '{"rows":[{"id":"x"},{"id":"x"}]}'}]).paths).toEqual([]);
+    const extended = {...source, rules: [{...rule, where: {...rule.where, where: {...predicate, op: "and"}}}]};
+    expect(normalizeExplicitKeyRejection(extended, brief, refs).paths).toEqual([]);
   });
 });

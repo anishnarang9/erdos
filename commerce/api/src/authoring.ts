@@ -8,7 +8,7 @@ import canonicalize from "canonicalize";
 import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { assessCoverage } from "./coverage.ts";
-import { removeFixtureContradictedOutputScalars, removeProvenDuplicateScalars, removeRedundantNumericLookupGuard, correctNumericReferenceFields } from "./authoring-plan-shape.ts";
+import { removeFixtureContradictedOutputScalars, removeProvenDuplicateScalars, removeRedundantNumericLookupGuard, correctNumericReferenceFields, normalizeExplicitKeyRejection } from "./authoring-plan-shape.ts";
 import { explainRepairErrors } from "./authoring-repair-errors.ts";
 import { assertBotApproved } from "./bot-review-gate.ts";
 import { withinDraftDeadline, registerDraftDeadline } from "./draft-deadline.ts";
@@ -311,8 +311,9 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
           : normalized;
         const typed = parsed.kind === "draft" ? correctNumericReferenceFields(narrowed.plan, textReferences) : narrowed;
         const deduplicated = parsed.kind === "draft" ? removeRedundantNumericLookupGuard(typed.plan) : typed;
-        const result: ModelDraft = parsed.kind === "draft" ? { ...parsed, plan: deduplicated.plan } : parsed;
-        const paths = [...normalized.paths, ...narrowed.paths, ...typed.paths, ...deduplicated.paths];
+        const membership = parsed.kind === "draft" ? normalizeExplicitKeyRejection(deduplicated.plan, body.request, textReferences) : deduplicated;
+        const result: ModelDraft = parsed.kind === "draft" ? { ...parsed, plan: membership.plan } : parsed;
+        const paths = [...normalized.paths, ...narrowed.paths, ...typed.paths, ...deduplicated.paths, ...membership.paths];
         if (paths.length > 0) normalizedPlanPaths.set(reply.traceId, paths);
         return { reply: { ...reply, result }, result };
       } catch (err) {

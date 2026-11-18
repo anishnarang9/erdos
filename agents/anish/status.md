@@ -1,3 +1,8 @@
+# 2026-11-18 16:39 -05:00 — Honor explicitly requested unknown-key rejection
+
+- Draft PR #19. The retained nights plan expressed reference membership with an existential predicate, which returned verdict 0 for an unknown program. The new normalization recognizes the exact rejection clause, a plain per-row membership predicate, matching string-key schemas, and unique keys in the supplied reference. It converts only that predicate to lookup equality and retains its coverage index. Other membership rules remain untouched.
+- The new focused tests pass. Offline replay of the retained nights reply matches all nine hidden outcomes. Its paid result remains failed. Full commerce checks are running. Attributable campaign API usage remains $1.369126.
+
 # 2026-11-18 16:09 -05:00 — Record nested lookup trial results
 
 - Draft PR #19. The [six-case report](reports/authoring-nested-guard-trial-2026-11-18.md) records five review-ready drafts and one unknown-key failure. Lab passed all nine hidden outcomes without normalization. Saved offline replay verifies the new nested normalization. Original failures remain in the record.

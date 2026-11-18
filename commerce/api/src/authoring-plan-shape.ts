@@ -250,3 +250,71 @@ export function correctNumericReferenceFields(plan: unknown, references: { name:
   });
   return paths.length ? { plan: copy, paths } : { plan, paths };
 }
+
+/** Honor an explicit reject clause for a plain per-row reference membership predicate. */
+export function normalizeExplicitKeyRejection(
+  plan: unknown, request: string, references: {name: string; text: string}[],
+): {plan: unknown; paths: string[]} {
+  if (!isPlainObject(plan) || !Array.isArray(plan.rules) ||
+    !Array.isArray(plan.deliverables) || !Array.isArray(plan.references)) return {plan, paths: []};
+
+  const clauses = [...request.matchAll(/(?:^|[.!?]\s+)Reject the input if a row in ([\w.-]+) uses an? (\w+) missing from ([\w.-]+)\.(?=\s|$)/g)];
+  if (clauses.length === 0) return {plan, paths: []};
+
+  const exact = (value: unknown, keys: string): value is Record<string, unknown> =>
+    isPlainObject(value) && Object.keys(value).sort().join() === keys;
+  const rowsOf = (files: unknown[], name: unknown, collectionName: unknown, key: unknown) => {
+    const file = files.find(item => isPlainObject(item) && item.name === name);
+    if (!isPlainObject(file) || !Array.isArray(file.collections) || file.collections.length !== 1) return false;
+    const [collection] = file.collections;
+    return isPlainObject(collection) && collection.name === collectionName && Array.isArray(collection.fields) &&
+      collection.fields.some(item => isPlainObject(item) && item.name === key && item.type === "string");
+  };
+  const uniqueRows = (name: string, collection: string, key: string): boolean => {
+    const file = references.find(item => item.name === name);
+    if (!file) return false;
+    try {
+      const data: unknown = JSON.parse(file.text);
+      if (!isPlainObject(data) || !Array.isArray(data[collection])) return false;
+      const rows: unknown[] = data[collection];
+      const keys = new Set<string>();
+      for (const row of rows) {
+        if (!isPlainObject(row) || typeof row[key] !== "string" || keys.has(row[key])) return false;
+        keys.add(row[key]);
+      }
+      return true;
+    } catch { return false; }
+  };
+
+  const paths: string[] = [];
+  const deliverables: unknown[] = plan.deliverables;
+  const referenceFiles: unknown[] = plan.references;
+  const rules = plan.rules.map((rule, index) => {
+    if (!exact(rule, "collection,op,where") || rule.op !== "all" || !exact(rule.collection, "field,file,source") ||
+      rule.collection.source !== "deliverable" || !exact(rule.where, "collection,op,where") ||
+      rule.where.op !== "any" || !exact(rule.where.collection, "field,file,source") ||
+      rule.where.collection.source !== "reference" || !exact(rule.where.where, "left,op,right") ||
+      rule.where.where.op !== "eq") return rule;
+
+    const output = rule.collection, reference = rule.where.collection;
+    const {left, right} = rule.where.where;
+    if (!exact(left, "field,level,op") || !exact(right, "field,level,op") ||
+      left.op !== "record_field" || right.op !== "record_field" ||
+      left.field !== right.field || typeof left.field !== "string" ||
+      !((left.level === 0 && right.level === 1) || (left.level === 1 && right.level === 0))) return rule;
+
+    const key = left.field;
+    if (typeof reference.file !== "string" || typeof reference.field !== "string" ||
+      !clauses.some(([, file, field, ref]) => file === output.file && field === key && ref === reference.file) ||
+      !rowsOf(deliverables, output.file, output.field, key) ||
+      !rowsOf(referenceFiles, reference.file, reference.field, key) ||
+      !uniqueRows(reference.file, reference.field, key)) return rule;
+
+    const outputKey = {op: "record_field", field: key, level: 0};
+    paths.push(`/rules/${index}/where`);
+    return {...rule, where: {op: "eq", left: outputKey, right: {
+      op: "lookup", collection: reference, keyField: key, valueField: key, key: outputKey,
+    }}};
+  });
+  return paths.length ? {plan: {...plan, rules}, paths} : {plan, paths};
+}
