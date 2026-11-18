@@ -371,6 +371,19 @@ function lotSensor(delivery, reference) {
   ]);
 }
 
+function purchaseOrderReceipt(delivery, reference) {
+  const rows = delivery.values['receipt.json'].rows;
+  const ordered = keyed(reference.values['purchase-order.json'].rows, 'itemId');
+  const paired = rows.map((row) => ({row, order: member(ordered, row.itemId)}));
+  return violations([
+    ['unique-item', distinct(rows, 'itemId')],
+    ['item-count', rows.length === ordered.size],
+    ['nonnegative-received', rows.every((row) => row.received >= 0n)],
+    ['item-limit', paired.every(({row, order}) => row.received <= order.limit)],
+    ['receipt-capacity', checkedSum(rows.map((row) => row.received)) <= reference.values['capacity.json'].capacity],
+  ]);
+}
+
 function categoryCap(delivery, reference) {
   const rows = delivery.values['lines.json'].rows;
   const categories = keyed(reference.values['categories.json'].rows, 'category');
@@ -846,6 +859,9 @@ export async function evaluateCandidate(challenge, candidateDirectory, {referenc
         break;
       case 'lot-sensor':
         violated = lotSensor(delivery, reference);
+        break;
+      case 'purchase-order-receipt':
+        violated = purchaseOrderReceipt(delivery, reference);
         break;
       case 'category-cap':
         violated = categoryCap(delivery, reference);

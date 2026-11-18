@@ -215,6 +215,7 @@ test('supported candidates match the independent oracle', async () => {
     'mass-1', 'yield-1', 'mixture-1', 'dilution-1',
     'seal-1', 'crate-1', 'transfer-1', 'dual-seal-1',
     'firmware-1', 'firmware-pair-1', 'firmware-note-1', 'firmware-opaque-1',
+    'lab-supplies-receipt-1', 'clinic-supplies-receipt-1',
   ]);
   const directory = await mkdtemp(join(tmpdir(), 'ubc26-corpus-'));
   try {
@@ -253,13 +254,13 @@ test('supported candidates match the independent oracle', async () => {
   }
 });
 
-test('the frozen corpus has 40 supported, 10 ambiguous, and 10 unsupported requests', async () => {
+test('the extended corpus has 42 supported, 10 ambiguous, and 10 unsupported requests', async () => {
   const {corpus} = await load();
   const challenges = corpus.buildCorpus();
   const counts = {supported: 0, ambiguous: 0, unsupported: 0};
   const banned = /^(expense|ledger|inventory|schedule|file|signed|ambiguous|unsupported)-/;
   const historical = ['expenses.json', 'stock.json', 'assignments.json', 'note.txt'];
-  assert.equal(new Set(challenges.map((item) => item.id)).size, 60);
+  assert.equal(new Set(challenges.map((item) => item.id)).size, 62);
   for (const challenge of challenges) {
     counts[challenge.classification] += 1;
     assert.equal(banned.test(challenge.id), false, challenge.id);
@@ -277,8 +278,8 @@ test('the frozen corpus has 40 supported, 10 ambiguous, and 10 unsupported reque
       assert.ok(challenge.unsupportedDraft);
     }
   }
-  assert.deepEqual(counts, {supported: 40, ambiguous: 10, unsupported: 10});
-  assert.equal(new Set(challenges.filter((item) => item.classification === 'supported').map((item) => item.family)).size, 10);
+  assert.deepEqual(counts, {supported: 42, ambiguous: 10, unsupported: 10});
+  assert.equal(new Set(challenges.filter((item) => item.classification === 'supported').map((item) => item.family)).size, 12);
   const {createHash} = await import('node:crypto');
   const digest = createHash('sha256').update(JSON.stringify(corpus.canonicalCorpus(challenges))).digest('hex');
   assert.equal(digest, corpus.CORPUS_DIGEST);

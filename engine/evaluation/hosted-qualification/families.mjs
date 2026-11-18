@@ -4,6 +4,7 @@ import {firmwareChallenges} from './firmware-challenges.mjs';
 import {rubricChallenges} from './rubric-challenges.mjs';
 import {quantityChallenges} from './quantity-challenges.mjs';
 import {routeChallenges} from './route-challenges.mjs';
+import {procurementChallenges} from './procurement-challenges.mjs';
 import {
   access, all, bin, candidate, count, finish, int, jsonText, lookup, mutate, planOf, requirement,
   rf, rowsFile, scalar, str, sum, table, textFile, unique,
@@ -654,6 +655,7 @@ export function buildChallenges() {
     ...quantityChallenges(),
     ...custodyChallenges(),
     ...firmwareChallenges(),
+    ...procurementChallenges(),
     ...rubricChallenges(),
   ];
 }
