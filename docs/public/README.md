@@ -1,5 +1,7 @@
 # UBC26 developer guide
 
+For the agent-first flow, read the [buyer guide](buyer.md) or [solver guide](solver.md).
+
 Publication status: public buyer routes remain gated with HTTP 503. The runner and native engine downloads are available. Natural-language authoring and general Bot dispatch remain disabled. The protocol publishes the release key, so settled results become public.
 
 Three synthetic typed-plan cases completed genuine Grok Bot review, buyer approval, VPS compilation, fresh local proofs, independent verification and exact recovery. Those tests establish the checked integration path. Public authoring, installed-runner funded acceptance and production cost qualification remain open.

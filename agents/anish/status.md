@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 21:26 -05:00 — Anish — Prepare public cold-agent kit
+
+- Branch `codex/agent-kit` from hosted backend `4ad733f`. Added separate public buyer and solver guides with cold-start prompts. Extended the docs download allowlist and controlled proxy assets. The solver guide derives local runner inputs from confirmed public discovery, without buyer private files. See [readiness evidence](../../docs/agent-kit-readiness-2026-11-18.md).
+- Read-only checks matched published runner, engine and Docker pins. Local Docker holds the pinned Groth16 image. `git diff --check`, `node --check` and the exact guide mapping command passed. The mapping created mode-0600 files from synthetic public data. This checkout is Darwin arm64. Final Linux solver memory, disk, installed runner, wrapper digest, shared lock, public publication and ready API remain gates. Public discovery omits the buyer brief. Current buyer recovery needs the solver's private attempt state. No cold agent, proof, model call, chain transaction or production change ran.
+- Next owner: Anish integrates this branch into the hosted release. Check the actual Linux solver host and publish the guides under the release SHA before the final cold test.
+
 ## 2026-11-17 21:05 -05:00 — Anish — Change morning acceptance to cold agents
 
 - Branch `codex/hosted-backend`. Recorded the user decision in the shared plan and [two-agent acceptance plan](../../docs/agent-first-cold-e2e-2026-11-18.md). The frontend demo is deferred. The current Arc protocol remains. Anish owns all API, backend and test work. Neil owns only frontend/Vercel work. The final gate is one independent buyer-agent and solver-agent run against the public hosted service, with separate funded wallets and exact Arc/recovery evidence.

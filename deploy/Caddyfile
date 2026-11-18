@@ -57,7 +57,7 @@
 	@documentation_downloads path /downloads/docs /downloads/docs/*
 	handle @documentation_downloads {
 		@documentation_asset {
-			path_regexp documentation_asset "^/downloads/docs/[0-9a-f]{40}/(README[.]md|api[.]md|capabilities[.]json|plan-v1[.]schema[.]json|example-revision[.]json|example-review[.]json|open-claim-arc-testnet[.]json|release[.]json|SHA256SUMS)$"
+			path_regexp documentation_asset "^/downloads/docs/[0-9a-f]{40}/(README[.]md|api[.]md|buyer[.]md|solver[.]md|capabilities[.]json|plan-v1[.]schema[.]json|example-revision[.]json|example-review[.]json|open-claim-arc-testnet[.]json|release[.]json|SHA256SUMS)$"
 			method GET HEAD
 		}
 		header Cache-Control "public, max-age=0, must-revalidate"
