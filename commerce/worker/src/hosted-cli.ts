@@ -26,6 +26,7 @@ const commandFlags: Record<string, readonly string[]> = {
   job: ["api", "job"],
   discover: ["api", "cursor", "limit"],
   "open-job": ["api", "job"],
+  "public-brief": [...common, "job", "input", "idempotency"],
   approve: [...common, "job", "revision", "reference-digest", "coverage-digest", "example-check", "bot-review", "idempotency"],
   "request-bot-review": [...common, "job", "revision", "input", "idempotency"],
   "bot-review": [...common, "job", "review", "wait-ms"],
@@ -163,6 +164,12 @@ export async function hostedCli(args: string[]): Promise<unknown> {
     case "job": return client.job(need("job"));
     case "discover": return client.openJobs({ ...(f.cursor ? { cursor: f.cursor } : {}), ...(f.limit ? { limit: Number(f.limit) } : {}) });
     case "open-job": return client.openJob(need("job"));
+    case "public-brief": {
+      need("key-file");
+      const body = object(input());
+      requireSprint(Object.keys(body).length === 2 && typeof body.revisionHash === "string" && typeof body.brief === "string");
+      return client.publishBrief(need("job"), { revisionHash: body.revisionHash, brief: body.brief }, need("idempotency"));
+    }
     case "attempts": return client.attempts(need("job"), { ...(f.cursor ? { cursor: f.cursor } : {}), ...(f.limit ? { limit: Number(f.limit) } : {}) });
     case "hosted-attempt": return client.attempt(need("job"), need("attempt"), { ...(f["after-cursor"] ? { afterCursor: Number(f["after-cursor"]) } : {}) });
     case "publish-attempt": {

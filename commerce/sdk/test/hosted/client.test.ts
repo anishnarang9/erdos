@@ -75,6 +75,13 @@ describe("hosted client", () => {
     expect(new Headers(calls[0]!.init?.headers).get("authorization")).toBe("Bearer secret-key");
     expect(calls[0]!.init?.redirect).toBe("error");
   });
+  it("publishes only caller-supplied public brief text with an idempotency key", async () => {
+    const { client, calls } = fixture([{ jobId: "job_1", revisionHash: "0xabc", publicBrief: "Create one JSON total." }]);
+    await client.publishBrief("job_1", { revisionHash: "0xabc", brief: "Create one JSON total." }, "brief-1");
+    expect(calls[0]!.url).toBe("https://bounty.example/v1/jobs/job_1/public-brief");
+    expect(JSON.parse(String(calls[0]!.init?.body))).toEqual({ revisionHash: "0xabc", brief: "Create one JSON total." });
+    expect(new Headers(calls[0]!.init?.headers).get("idempotency-key")).toBe("brief-1");
+  });
   it("does not send a mutation without a valid idempotency key", async () => {
     const { client, calls } = fixture([]);
     await expect(client.draft({}, "bad key")).rejects.toThrow(); expect(calls).toHaveLength(0);

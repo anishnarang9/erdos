@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 22:58 -05:00 — Anish — Add explicit public brief publication
+
+- Branch `codex/public-brief` adds a buyer-owned, immutable short brief after confirmed open-claim funding. The API does not publish the original draft automatically. Public discovery includes only the brief the buyer explicitly supplies. SDK and installed runner commands expose the publication route.
+- Focused API, SDK and runner tests pass. The tests cover owner isolation, confirmed funding, exact replay, mutation rejection, and public discovery. All commerce typechecks pass. Publication and a fresh public job check remain pending. No model call, chain write, or deployment ran.
+- Next: integrate into `codex/hosted-release`, update public guides, and require combined release checks.
+
 ## 2026-11-17 22:55 -05:00 — Anish — Remove rejected xAI Chat field
 
 - The official xAI Chat Completions OpenAPI contract says requests that set deprecated `search_parameters` fail. Our failed draft sent `{ "mode": "off" }`. The exact original HTTP status is lost, so this is a likely cause, not a proven reconstruction. The adapter now omits that field and supplies no tools. A request-body regression failed before the fix; all 1,020 API tests and the API typecheck pass afterward. See [contract evidence](reports/hosted-xai-request-compatibility-2026-11-17.json).

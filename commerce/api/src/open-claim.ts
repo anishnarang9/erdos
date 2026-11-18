@@ -66,6 +66,7 @@ type Revision = { id: string; revision_hash: string; revision_json: string };
 type Manifest = { image_id: string; rules_hash: string; reference_hash: string };
 type Intent = { job_id: string; revision_id: string; buyer: string; budget: string; expiry: string };
 type Link = { job_id: string; chain_id: number; core: string; adapter: string; chain_job_id: string; funding_tx: string; registration_tx: string };
+type PublicBrief = { revision_id: string; brief: string };
 
 function address(value: unknown, field: string): Address {
   if (typeof value !== "string" || !ADDRESS.test(value)) throw new ApiError("validation_failed", `${field} must be an address`);
@@ -196,6 +197,8 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     link: db.prepare("SELECT * FROM open_claim_links WHERE job_id = ?"),
     insertLink: db.prepare("INSERT INTO open_claim_links (job_id, chain_id, core, adapter, chain_job_id, funding_tx, registration_tx, verified_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"),
     linkPage: db.prepare("SELECT * FROM open_claim_links WHERE job_id > ? ORDER BY job_id ASC LIMIT ?"),
+    publicBrief: db.prepare("SELECT revision_id, brief FROM open_claim_public_briefs WHERE job_id = ?"),
+    insertPublicBrief: db.prepare("INSERT INTO open_claim_public_briefs (job_id, revision_id, brief, published_at) VALUES (?, ?, ?, ?)"),
     setState: db.prepare("UPDATE jobs SET state = ?, updated_at = ? WHERE id = ?"),
   };
   const load = (id: string) => {
@@ -321,6 +324,45 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     });
   });
 
+  app.post("/v1/jobs/:id/public-brief", readBody, buyer, parseJson, requireJobId, owned, idem.middleware, async c => {
+    const principal = c.get("principal");
+    if (principal?.kind !== "wallet") throw new ApiError("forbidden", "A wallet-owned buyer must publish the brief");
+    const body = c.get("json");
+    if (!isPlainObject(body) || Object.keys(body).some(k => !["revisionHash", "brief"].includes(k))) {
+      throw new ApiError("validation_failed", "Public brief body has unknown fields");
+    }
+    const revisionHash = hash(body.revisionHash, "revisionHash");
+    const brief = body.brief;
+    if (typeof brief !== "string" || brief.trim() !== brief || !/[A-Za-z]/.test(brief) ||
+        [...brief].length < 1 || [...brief].length > 280 || /[\x00-\x1f\x7f]/.test(brief)) {
+      throw new ApiError("validation_failed", "Public brief must be one plain-text line of at most 280 characters");
+    }
+    const id = c.req.param("id") ?? "";
+    const { job, revision } = load(id);
+    if (!same(revision.revision_hash, revisionHash)) throw new ApiError("revision_conflict", "Brief revision is not current");
+    const intent = q.intent.get(id) as Intent | undefined;
+    if (!intent || !sameAddress(intent.buyer, principal.wallet)) throw new ApiError("not_found", "Job not found");
+    const link = q.link.get(id) as Link | undefined;
+    if (!link || job.state !== "open_registered") throw new ApiError("wrong_state", "Job must have confirmed funding");
+    const publicJob = await view(link);
+    if (publicJob.status !== "Funded" || publicJob.expired || publicJob.winner || publicJob.released) {
+      throw new ApiError("wrong_state", "Job is not open for a public brief");
+    }
+    const existing = q.publicBrief.get(id) as PublicBrief | undefined;
+    if (existing && (existing.revision_id !== revision.id || existing.brief !== brief)) {
+      throw new ApiError("wrong_state", "Public brief cannot change after publication");
+    }
+    const result = { jobId: id, revisionHash, publicBrief: brief };
+    return idem.commit(c, 200, result, () => {
+      const current = q.publicBrief.get(id) as PublicBrief | undefined;
+      if (current) {
+        if (current.revision_id !== revision.id || current.brief !== brief) {
+          throw new ApiError("wrong_state", "Public brief cannot change after publication");
+        }
+      } else q.insertPublicBrief.run(id, revision.id, brief, isoAt(deps.now()));
+    });
+  });
+
   async function view(link: Link): Promise<Record<string, unknown>> {
     if (!config || link.chain_id !== config.chainId || !sameAddress(link.core, config.core) ||
         !sameAddress(link.adapter, config.adapter)) termsMismatch("deployment");
@@ -334,7 +376,9 @@ export function registerOpenClaimRoutes(ctx: RouteContext, config: OpenClaimConf
     assertSnapshot(snapshot, config, intent, manifest);
     // Expiry uses this snapshot's confirmed timestamp and this snapshot's job expiry together.
     const expired = snapshot.timestamp >= snapshot.job.expiry;
+    const publicBrief = q.publicBrief.get(job.id) as PublicBrief | undefined;
     return { jobId: job.id, revisionHash: revision.revision_hash, chainJobId: link.chain_job_id,
+      ...(publicBrief && publicBrief.revision_id === revision.id ? { publicBrief: publicBrief.brief } : {}),
       chainId: config.chainId, core: config.core, adapter: config.adapter, status: snapshot.job.status,
       winner: snapshot.submission.accepted ? snapshot.submission.solver : null,
       envelopeHash: snapshot.submission.accepted ? snapshot.submission.envelopeHash : null,

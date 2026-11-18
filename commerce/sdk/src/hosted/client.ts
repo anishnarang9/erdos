@@ -301,6 +301,8 @@ export function hostedClient(options: HostedClientOptions) {
       return { jobs: page.jobs, ...(hasCursor ? { nextCursor: page.nextCursor as string | null } : {}) };
     },
     openJob: (id: string) => request("GET", `/v1/open-jobs/${encodeURIComponent(id)}`, undefined, undefined, false),
+    publishBrief: (jobId: string, body: { revisionHash: string; brief: string }, replayKey: string) =>
+      request("POST", `/v1/jobs/${encodeURIComponent(jobId)}/public-brief`, body, replayKey),
     publishAttempt: async (jobId: string, input: HostedAttemptInput, replayKey: string): Promise<HostedAttemptPublication> => {
       const body = hostedAttemptInput(input), v = object(await request("POST", `/v1/jobs/${encodeURIComponent(jobId)}/attempts`, body, replayKey));
       const summary = attemptSummary(v, jobId, body.attemptId), events = attemptEvents(v.events, summary, 20);

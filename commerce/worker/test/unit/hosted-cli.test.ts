@@ -8,6 +8,11 @@ it("rejects duplicate flags and secrets in argument flags", () => {
 it("parses a restart-safe compilation request", () => {
   expect(parseHostedArgs(["compile", "--api", "https://a", "--key-file", "/private/key", "--job", "j1", "--revision", "0xabc", "--idempotency", "build-1"])).toMatchObject({ command: "compile", flags: { api: "https://a", job: "j1", idempotency: "build-1" } });
 });
+it("accepts an explicit public brief file for one owned job", () => {
+  expect(parseHostedArgs(["public-brief", "--api", "https://a", "--key-file", "/private/key", "--job", "j1", "--input", "/private/brief.json", "--idempotency", "brief-1"])).toMatchObject({
+    command: "public-brief", flags: { job: "j1", input: "/private/brief.json", idempotency: "brief-1" },
+  });
+});
 it("shows a standalone help command without a checkout or network", async () => {
   expect(await hostedCli(["help"])).toMatchObject({ version: 1, privacy: "Results become public when the release key is broadcast." });
 });
