@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 14:22 -05:00 — Anish — Keep release gated after eighth trial
+
+- The [eighth trial](../anish/reports/authoring-eighth-lookup-normalization-repeat-2026-11-18.md) passed four of five draft gates. A fresh lot task passed with the recorded lookup normalization. Clearance failed because its repair changed a numeric reference field to `string`. The five tasks cost $0.046902; fourth-campaign attributable API usage is $0.663961. Anish will test a reference-byte-backed field-type correction offline, then measure changed-source reliability. Keep general authoring and the accepted public release unchanged.
+
 ## 2026-11-18 14:16 -05:00 — Anish — Freeze normalized-source trial
 
 - The [eighth trial](../../docs/authoring-eighth-lookup-normalization-repeat-2026-11-18.md) freezes two controls and three unstable families on source `492a2c8`. Its isolated image has the matching source and engine pins; the new database has no drafts or reservations. Exact-source CI is pending. Anish will prepare a new wallet and run each case once after CI. Keep public authoring gated and the accepted public release unchanged.
