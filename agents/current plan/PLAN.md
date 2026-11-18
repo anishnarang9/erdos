@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 00:15 -05:00 — Anish — Solver-host preflight is running
+
+- The checked public source now has a matching compiler prewarm. Both fresh testnet wallets still hold 20 native and 20 ERC-20 USDC. The existing VPS has the pinned `r0vm`, Groth16 image and installed runner. A synthetic proof is active in `ubc26-solver-preflight-33a9883-run2.service`; observe this unit before deciding resource readiness. See the [preflight record](../anish/reports/hosted-solver-preflight-in-progress-2026-11-18.json).
+- Keep public authoring and Bot dispatch disabled. The provider-bound reservation is about $2.54 per call, and the Bot app currently shows a $10 monthly limit with no task-level attribution for the latest review. Qualify the account and cost policy before the final cold-agent test.
+
 ## 2026-11-18 00:01 -05:00 — Anish — Matching release staged in public, buyer gate closed
 
 - Source `33a9883` now runs as the main API and is the public pin for runner, engine and role guides. HTTPS downloads and hashes passed. Public buyer readiness remains 503. A full pre-promotion state snapshot and previous image remain for rollback. See the [gated release report](../anish/reports/hosted-gated-release-2026-11-18.json).

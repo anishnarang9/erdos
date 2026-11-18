@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 00:15 -05:00 — Anish — Run synthetic solver-host proof preflight
+
+- Rewarmed the main compiler against source `33a9883`; the native pass/fail checks succeeded. Readiness now fails only because public authoring and Bot dispatch remain disabled. Fresh Arc reads at block 72,797,119 show 20 native testnet USDC and 20 ERC-20 testnet USDC in each cold-agent wallet, with adapter code present. Installed official, SHA-256-verified RISC Zero `r0vm` 3.1.0 and the pinned Groth16 image on the existing VPS. The published runner verifies under Node 24 on that host.
+- Added an active 8 GiB swap file. The first synthetic proof unit failed before proving because the published engine file lacked execute permission; fixed that mode. The second unit, `ubc26-solver-preflight-33a9883-run2.service`, is active with `r0vm`. Follow that exact unit to a terminal result. This preflight has a synthetic context, no Arc transaction, and no cash purchase. See the [in-progress report](reports/hosted-solver-preflight-in-progress-2026-11-18.json).
+- The production provider-bound authoring policy reserves about $2.54 per model call. The Bot account shows a $10 monthly limit that I could not lower through its edit control. Keep public buyer readiness gated while account scope and cost controls are unresolved.
+
 ## 2026-11-18 00:01 -05:00 — Anish — Publish matching artifacts behind gate
 
 - Promoted checked API image `sha256:7ac4a8d…` from source `33a9883` after stopping the old API and saving a full state snapshot. The prior image and snapshot remain for rollback. The container source pin and health passed. External `/healthz` returned 200; `/readyz` and buyer routes stayed at 503. Published the matching runner, native engine, buyer guide, solver guide and release manifest under that source pin. Downloaded runner and guide hashes matched their manifests. See the [gated release report](reports/hosted-gated-release-2026-11-18.json).

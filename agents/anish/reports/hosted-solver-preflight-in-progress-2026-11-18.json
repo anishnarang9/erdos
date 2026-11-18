@@ -1,0 +1,33 @@
+{
+  "status": "synthetic-proof-running",
+  "checkedAt": "2026-11-18T05:15:28Z",
+  "releaseSource": "33a9883e729b17da8fd97bc5a8981ee989dc9a36",
+  "publicCompilerReady": "passed after exact-source prewarm; verdicts 1 and 0",
+  "publicReadinessFailedChecks": ["authoring_release: disabled", "bot_review: dispatch_disabled"],
+  "arcRead": {
+    "block": 72797119,
+    "buyerNativeWei": "20000000000000000000",
+    "buyerUsdcAtomic": "20000000",
+    "solverNativeWei": "20000000000000000000",
+    "solverUsdcAtomic": "20000000",
+    "adapterCodeBytes": 11311
+  },
+  "solverHost": {
+    "architecture": "x86_64",
+    "memory": "7.8 GiB",
+    "swap": "8 GiB active, not yet configured for reboot persistence",
+    "rootDiskAvailableBeforeImagePull": "132 GiB",
+    "r0vmVersion": "3.1.0",
+    "r0vmSha256": "990c7e55c5627c6d78968c5fa6c6c98119a6282b5298831ccb52178f0dff9310",
+    "r0vmOfficialArchiveSha256": "415ca205d4408f5d768b9e4d623f2aac6b869329a6cf965f0c57a88a6dbb5871",
+    "groth16ImageDigest": "sha256:49093ed164b82aca9305dd80e4a6eb996bd443201ac7bd50b52909b2761ef583",
+    "nodeVersion": "v24.22.3",
+    "runnerInstallStatus": "installation-verified"
+  },
+  "proofUnit": "ubc26-solver-preflight-33a9883-run2.service",
+  "proofInput": "separate synthetic job context and exact-text pilot package; not a funded Arc job",
+  "firstPreflightUnit": "failed before proving because the published engine lacked executable mode; mode corrected to 0555",
+  "proofResult": "pending; observe existing unit",
+  "chainTransactions": 0,
+  "cashPurchasesUsd": 0
+}
