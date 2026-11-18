@@ -2,6 +2,14 @@
 
 Follow the [shared status rules](../AGENTS.md#status-and-handoffs). Add a heading with date, time, and UTC offset for each new entry. Keep the newest entry first.
 
+## 2026-11-18 00:28 -05:00 — Anish — Verified restart against merged main
+
+- Branch `codex/sprint-resume-verification-20261118`, base remote main `2e04451`. Preserved the old engine-commerce worktree's unpublished files. Git ancestry confirms saved integration `ae1295a`, engine `adda3a3`, Nick `57c387f` and Neil `8584b04` are on main. Neil's PR #5 is merged. PR #6 and Nick's PR #4 are closed.
+- Fresh clean-source checks passed 2,297 commerce tests, all four typechecks, Rust format/Clippy/51 tests, wire fixtures and 34 Meridian oracle tests. Three prepared guest tests remained ignored. The [resume report](reports/core-sprint-resume-2026-11-18.json) identifies checks not repeated and pins the exact source and evidence hashes.
+- Read-only RPC independently confirmed the canonical successful fund, claim and release receipts for live job 7. Events show 10,000 units, not 1,000,000. Reviewed historical evidence establishes public-chain dual recovery for that open-claim run and a clean local-only 1-USDC selected-provider exchange.
+- Corrected stale current handoff/goal guidance. The original live 1-USDC selected-provider gate remains open. Next owner is buyer/operator for current exact run terms and spending authority. No new wallet access, signature, deployment, proof or live write occurred. Grok was absent from the OpenCode model catalog. One available subagent performed a read-only evidence audit.
+- This checkpoint contains documentation and a sanitized audit only. Publish after independent review and link/JSON/whitespace checks. No source behavior, proof pins, owner statuses or historical raw reports changed.
+
 ## 2026-11-16 11:04 -05:00 — Anish — Full prepared Arc workflow passed
 
 - PR #7 runtime source `8fe6dc5` completed [live job 7](reports/open-claim-arc-live-acceptance-2026-11-16.md): buyer approval, all five protected funding calls, confirmed funded reads, one fresh real proof, winning claim, key release and exact 0.01-USDC payout. Proving plus private recovery validation took 1,095.026 seconds. Public-chain SDK and engine recovery matched the original bytes. Both recovered directories passed the independent oracle. The API reports Completed and excludes the job from the open market.

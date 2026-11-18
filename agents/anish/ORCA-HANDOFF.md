@@ -1,6 +1,18 @@
 # Orca handoff — UBC-26 engine integration
 
-Continue in the engine-commerce worktree, branch `codex/engine-commerce`.
+Resume from current remote `main` in an isolated worktree. Preserve unpublished files in older owner checkouts.
+
+## 2026-11-18 — Anish — Verified resume boundary
+
+Remote main `2e04451` contains saved integration `ae1295a`, engine sprint head `adda3a3`, Nick `57c387f` and Neil's merged PR #5. PR #6 and Nick's PR #4 are closed. Do not repeat their merges.
+
+The [resume audit](reports/core-sprint-resume-2026-11-18.json) records fresh clean-source checks and read-only Arc receipt verification. Commerce passed 2,297 tests and four typechecks. Rust passed formatting, Clippy and 51 tests. Three prepared guest tests remained ignored. Wire checks and 34 Meridian oracle tests passed.
+
+Job 7's canonical funding, claim and release receipts confirm **0.01 USDC through the open-claim adapter**. See the [live report](reports/open-claim-arc-live-acceptance-2026-11-16.md). The separate [1-USDC selected-provider result](reports/fresh-exchange-local-2026-11-15.json) is local-only. Do not relabel either result as the original live 1-USDC target.
+
+Next owner: buyer/operator. A new selected-provider run requires current exact approval of the workload, commitments, identities, expiry, 1-USDC bounty and gas caps. Existing small-run evidence is not that approval. No credential search, wallet access, new proof or live write occurred during this audit.
+
+Main includes a buyer web implementation. Browser acceptance and fresh HTTP-model authoring remain separate claims. The entries below are historical snapshots. Their open-PR, missing-UI and no-live-run statements are not current.
 
 ## 2026-11-15 — Anish — Current sprint handoff
 

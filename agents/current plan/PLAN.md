@@ -2,6 +2,13 @@
 
 Follow the [shared planning rules](AGENTS.md). Add dated entries newest first.
 
+## 2026-11-18 00:28 -05:00 — Anish — Restart audit confirms main integration; preserve exact acceptance boundary
+
+- Resumed the original sprint against remote main `2e04451` in an isolated worktree. Saved integration `ae1295a`, Nick `57c387f`, engine sprint head `adda3a3` and Neil's PR #5 are included. No repeated merge is required. Preserved all unpublished changes in the old checkout.
+- The [resume audit](../anish/reports/core-sprint-resume-2026-11-18.json) records 2,297 passing commerce tests, four typechecks, Rust formatting/Clippy/51 tests, wire checks and 34 Meridian oracle tests. Three prepared guest tests remained ignored. Other slow checks were not repeated.
+- Fresh read-only Arc checks confirm job 7's canonical funding, accepted claim and key-release/payment receipts for 10,000 units. This is the later approved 0.01-USDC open-claim workflow, not the original live 1-USDC selected-provider target. The separate clean 1-USDC selected-provider report is local-only.
+- Corrected current handoff banners without rewriting historical evidence. Next owner is the buyer/operator for current exact workload, commitment, identity, expiry, bounty and gas authority before any new live run. Existing small-run approval does not silently expand to 1 USDC. No wallet access, new proof, deployment or live write occurred.
+
 ## 2026-11-16 11:04 -05:00 — Anish — Prepared Arc acceptance complete; publish final evidence
 
 - The [live report](../anish/reports/open-claim-arc-live-acceptance-2026-11-16.md) closes the prepared buyer-to-solver Arc run at runtime source `8fe6dc5`. Job 7 confirms buyer approval, five signed funding steps, fresh funded-context proof acceptance, winning claim, key release, exact 0.01-USDC payout and byte-exact SDK/engine recovery. Both recovered directories pass the independent oracle. A second solver abstains after observing the winner. The separate invalid claim and job-6 expiry refund passed. Failed job 5 was preserved and refunded.
