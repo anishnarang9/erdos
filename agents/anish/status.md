@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-18 06:00 -05:00 — Anish — One hour of soak remains
+
+- The public monitor has 213 reads: 210 HTTP 200 and the one preserved three-request client transport cycle at 04:30. No new curl error has occurred since the logger restart. Median completed latency is 0.749 seconds; maximum 1.856 seconds. The API remains healthy at about 73 MiB of 1 GiB, with zero restarts or OOM. The three settled draft charges still total 11,416 micro-USD, with no pending reservation. Continue until 07:00 and preserve the raw log.
+
 ## 2026-11-18 05:00 -05:00 — Anish — Two hours of soak remain
 
 - The public read monitor has 114 requests: 111 HTTP 200 and the one preserved three-request client transport gap. The improved monitor now records curl exit codes, with no new failure. The live API ledger remains three settled drafts for 11,416 micro-USD and zero pending reservation. API health is green, with no restart or OOM and about 73 MiB of its 1 GiB limit. Continue to 07:00 and record the raw timing rows.
