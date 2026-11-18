@@ -1,3 +1,8 @@
+# 2026-11-18 15:15 -05:00 — Preserve the capacity rule from the retained lab draft
+
+- Draft PR #19. The [two-example trial](reports/authoring-paired-example-trial-2026-11-18.md) returned two examples per provider draft. Zero of six tasks reached buyer review readiness. Two plans failed native validation, two accepted hidden outputs they should reject, one rejected two valid outputs, and one used verdict 0 for an unknown key. All six charges settled. Campaign attributable API usage is $1.113676.
+- The retained lab first reply had the capacity constraint, which the repair removed. The new normalization corrects a standalone numeric lookup only when another top-level rule reads the same lookup in a comparison over the same collection. The offline lab replay matched all nine hidden outcomes. Category and clearance remain failed in replay. The original paid results remain unchanged.
+
 # 2026-11-18 15:08 -05:00 — Stage paired-example trial and audit acceptance gates
 
 - Draft PR #19. The isolated image from `fe446c1` has the expected source and engine digests and an empty database. The new wallet authenticated. The [frozen trial](../../docs/authoring-paired-example-trial-2026-11-18.md) repeats the same six clarified inputs. Exact-source CI is pending, and the image has received no paid draft yet.

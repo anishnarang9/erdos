@@ -124,14 +124,15 @@ export function removeRedundantNumericLookupGuard(plan: unknown): { plan: unknow
     return collection.fields.some((item: unknown) => isPlainObject(item) &&
       item.name === value.valueField && item.type === "i64");
   };
-  const sameLookup = (left: unknown, right: unknown): boolean =>
+  const sameExpression = (left: unknown, right: unknown): boolean =>
     canonicalize(left) !== undefined && canonicalize(left) === canonicalize(right);
+  const comparisonOperands = (comparison: unknown): unknown[] =>
+    isPlainObject(comparison) && ["eq", "lt", "lte", "gt", "gte"].includes(String(comparison.op))
+      ? [comparison.left, comparison.right] : [];
   const replacement = (node: Record<string, unknown>): unknown => {
     if (node.op !== "and" || Object.keys(node).sort().join() !== "left,op,right") return null;
     for (const [guard, comparison] of [[node.left, node.right], [node.right, node.left]]) {
-      if (!numericReferenceLookup(guard) || !isPlainObject(comparison) ||
-        !["eq", "lt", "lte", "gt", "gte"].includes(String(comparison.op))) continue;
-      if (sameLookup(guard, comparison.left) || sameLookup(guard, comparison.right)) return comparison;
+      if (numericReferenceLookup(guard) && comparisonOperands(comparison).some(operand => sameExpression(guard, operand))) return comparison;
     }
     return null;
   };
@@ -143,7 +144,23 @@ export function removeRedundantNumericLookupGuard(plan: unknown): { plan: unknow
     for (const [key, child] of Object.entries(value)) value[key] = visit(child, `${path}/${key}`);
     return value;
   };
-  copy.rules = visit(copy.rules, "/rules") as unknown[];
+  const rules = visit(copy.rules, "/rules") as unknown[];
+  const comparisonLookups = new Set<string>();
+  for (const rule of rules) {
+    if (!isPlainObject(rule) || rule.op !== "all" || !isPlainObject(rule.collection)) continue;
+    for (const operand of comparisonOperands(rule.where)) {
+      if (numericReferenceLookup(operand)) comparisonLookups.add(canonicalize([rule.collection, operand])!);
+    }
+  }
+  copy.rules = rules.map((rule, index) => {
+    if (!isPlainObject(rule) || rule.op !== "all" || !isPlainObject(rule.collection) ||
+      Object.keys(rule).sort().join() !== "collection,op,where" || !numericReferenceLookup(rule.where)) return rule;
+    const lookup = rule.where;
+    if (!comparisonLookups.has(canonicalize([rule.collection, lookup])!)) return rule;
+    // Preserve the coverage index and the missing-key error. The sibling retains the bound.
+    paths.push(`/rules/${index}/where`);
+    return { ...rule, where: { op: "eq", left: lookup, right: lookup } };
+  });
   return paths.length ? { plan: copy, paths } : { plan, paths };
 }
 

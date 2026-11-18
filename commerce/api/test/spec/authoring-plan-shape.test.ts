@@ -83,6 +83,27 @@ describe("redundant numeric lookup guard", () => {
     expect(removeRedundantNumericLookupGuard(withRule({ op: "and", left: lookup,
       right: { op: "or", left: compare, right: { op: "literal", type: "bool", value: true } } })).paths).toEqual([]);
   });
+
+  it("makes the standalone numeric guard Boolean without dropping any sibling rule or changing its index", () => {
+    const collection = { source: "deliverable", file: "out.json", field: "rows" };
+    const guard = { op: "all", collection, where: lookup };
+    const comparison = { op: "all", collection, where: compare };
+    const cap = { op: "literal", type: "bool", value: true };
+    const original = { ...withRule(guard), rules: [guard, comparison, cap] };
+    const result = removeRedundantNumericLookupGuard(original);
+    expect(result.paths).toEqual(["/rules/0/where"]);
+    expect(result.plan).toMatchObject({rules: [
+      { ...guard, where: { op: "eq", left: lookup, right: lookup } }, comparison, cap,
+    ]});
+    expect(original.rules[0]).toEqual(guard);
+  });
+
+  it("keeps a standalone guard when a comparison runs over another collection", () => {
+    const collection = { source: "deliverable", file: "out.json", field: "rows" };
+    const guard = { op: "all", collection, where: lookup };
+    const comparison = { op: "all", collection: { ...collection, field: "otherRows" }, where: compare };
+    expect(removeRedundantNumericLookupGuard({ ...withRule(guard), rules: [guard, comparison] }).paths).toEqual([]);
+  });
 });
 
 describe("reference-backed numeric fields", () => {
