@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 22:59 -05:00 — Anish — Add independent buyer chain recovery
+
+- Branch `codex/buyer-recovery` adds `buyer-recover` to the installed runner. It reads a completed public job, confirmed Arc registration, unique claim/release events, exact chain state, and the published release key. SDK and engine recover the same files without solver private state or expected output bytes. The command reports `oracleChecked:false`; the buyer must run an independent oracle afterward.
+- Worker typecheck, 13 focused unit checks, and all 957 default worker tests pass. The retained local receipt integration test requires its archived Anvil and engine environment, which is not active in this checkout. No live signing, model call, chain transaction, or deployment ran.
+- Next: finish checks, integrate into the hosted release, and test against a fresh confirmed Arc payout.
+
 ## 2026-11-17 22:58 -05:00 — Anish — Add explicit public brief publication
 
 - Branch `codex/public-brief` adds a buyer-owned, immutable short brief after confirmed open-claim funding. The API does not publish the original draft automatically. Public discovery includes only the brief the buyer explicitly supplies. SDK and installed runner commands expose the publication route.

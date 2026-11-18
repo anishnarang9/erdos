@@ -26,3 +26,11 @@ it("accepts signed-evidence and exact context files for a local checker preview"
 it("exposes the read-only funded-context exporter without wallet or API credentials",()=>{
   expect(parseHostedArgs(["job-input","--rpc-url","https://rpc.testnet.arc.io","--manifest","deployment.json","--job-id","7","--solver","0x2222222222222222222222222222222222222222","--out","job.json"]).command).toBe("job-input");
 });
+it("accepts buyer recovery from a public job without solver state or output files", () => {
+  const args = ["buyer-recover", "--api", "https://example.test", "--job", "api-job-7",
+    "--rpc-url", "https://rpc.testnet.arc.io", "--manifest", "deployment.json",
+    "--engine-config", "engine.json", "--out", "recovered"];
+  expect(parseHostedArgs(args)).toMatchObject({ command: "buyer-recover",
+    flags: { job: "api-job-7", out: "recovered" } });
+  expect(() => parseHostedArgs([...args, "--state", "solver-private.json"])).toThrow();
+});
