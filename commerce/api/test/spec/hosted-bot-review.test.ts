@@ -87,6 +87,19 @@ describe("live Bot review integration with a controlled transport", () => {
         dispatch: async () => undefined, pilotOwner: owner, maxDispatches: 3 } });
     created.close();
   });
+  it("accepts ten dispatches only for a local one-wallet pilot", () => {
+    const owner = privateKeyToAccount(PROVIDER_KEY).address.toLowerCase();
+    const botReview = { serviceToken: SERVICE, dispatch: async () => undefined,
+      pilotOwner: owner, maxDispatches: 10 as const };
+    expect(() => createApp({ dbPath: ":memory:", buyerToken: BUYER_TOKEN,
+      deployment: { mode: "public", serviceOrigin: "https://api.example.test" },
+      engine: simulatedEngine(), botReview })).toThrow("Public Bot dispatch requires the one-wallet pilot policy");
+    expect(() => createApp({ dbPath: ":memory:", buyerToken: BUYER_TOKEN,
+      deployment: { mode: "local", serviceOrigin: "https://api.example.test" },
+      engine: simulatedEngine(), botReview: { ...botReview, pilotOwner: undefined } })).toThrow();
+    const created = setup({ botReview });
+    expect(created.app).toBeDefined();
+  });
   it("restricts a live pilot to one owner and one durable trigger", async () => {
     const owner = privateKeyToAccount(PROVIDER_KEY).address.toLowerCase();
     const dispatch = vi.fn(async () => undefined);

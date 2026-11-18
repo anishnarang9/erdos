@@ -44,6 +44,9 @@ describe("production Bot callback profile", () => {
     expect(config?.dispatch).toBeTypeOf("function");
     expect(botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "2" }, callback)?.maxDispatches).toBe(2);
     expect(botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "3" }, callback)?.maxDispatches).toBe(3);
+    expect(() => botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "10" }, callback)).toThrow();
+    expect(() => botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "10" }, callback, "public")).toThrow();
+    expect(botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "10" }, callback, "local")?.maxDispatches).toBe(10);
     for (const changed of [{ BOT_REVIEW_PILOT_OWNER: undefined }, { BOT_REVIEW_PILOT_MAX_DISPATCHES: "4" },
       { BOT_REVIEW_WEBHOOK_TOKEN: undefined }, { BOT_REVIEW_WEBHOOK_URL: "http://bot.example/hook" }]) {
       expect(() => botReviewFromEnv({ ...live, ...changed }, callback)).toThrow();

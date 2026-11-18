@@ -340,7 +340,7 @@ function readyInput(db?: Db): ReadyInput {
   };
 }
 
-const botReview = botReviewFromEnv(process.env, serviceOrigin + "/integrations/grok-bot/mcp");
+const botReview = botReviewFromEnv(process.env, serviceOrigin + "/integrations/grok-bot/mcp", deploymentMode);
 const configReport = withBotReviewReady(await evaluateReady(readyInput()), botReview);
 const budgetFailed = budget !== undefined && configReport.checks.some((item) => item.name === "budget" && !item.ok);
 if (budgetFailed || (deploymentMode === "public" && blocksPublicListen(configReport))) {

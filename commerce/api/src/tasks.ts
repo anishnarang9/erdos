@@ -283,7 +283,7 @@ export function registerTaskRoutes(
      FROM spend_reservations WHERE state IN ('reserved', 'settled', 'uncertain') AND created_at >= ?`,
   );
   const pilotDraftCount = db.prepare(
-    "SELECT COUNT(*) AS n FROM spend_reservations WHERE purpose = 'draft' AND owner_wallet = ?",
+    "SELECT COUNT(*) AS n FROM tasks WHERE operation = 'draft' AND owner_wallet = ?",
   );
   const settleUnknown = db.prepare(
     "UPDATE spend_reservations SET state = 'uncertain', updated_at = ? WHERE task_id = ? AND state = 'reserved'",
@@ -342,7 +342,7 @@ export function registerTaskRoutes(
     }
     let input: unknown;
     if (operation === "draft") {
-      if (deps.deployment.mode === "public" && deps.botReview?.pilotOwner
+      if (deps.botReview?.pilotOwner
         && wallet !== deps.botReview.pilotOwner) {
         throw new ApiError("forbidden", "Authoring pilot wallet required");
       }
@@ -379,7 +379,7 @@ export function registerTaskRoutes(
     const response = idem.commit(c, 202, null, () => {
       const existing = findDup.get(wallet, operation, inputHash, ...DEDUP_STATES) as TaskRow | undefined;
       if (existing) return { status: 202, body: taskView(existing) };
-      if (operation === "draft" && deps.deployment.mode === "public" && deps.botReview?.pilotOwner
+      if (operation === "draft" && deps.botReview?.pilotOwner
         && sqlCount(pilotDraftCount.get(wallet)) >= (deps.botReview.maxDispatches ?? 1)) {
         throw new ApiError("service_disabled", "Authoring pilot draft limit reached");
       }

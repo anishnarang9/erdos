@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 07:48 -05:00 — Anish — Bound local ten-case Bot pilot
+
+- Branch `codex/ten-case-pilot` starts from remote main `3fb5249`. Local mode now accepts a one-wallet maximum of ten Bot dispatches. Default and public configuration still reject ten; public mode keeps its maximum of three. The Bot store counts ticketed claims, including uncertain sends, across database restarts. Local draft admission uses the same owner and durable total cap.
+- Focused tests first failed at the missing local configuration, wallet restriction, and app validation. After the changes, 60 focused tests passed. API typecheck and the full commerce check passed: SDK 535 tests plus 13 chain fixtures, API 1,034 tests, web 4 tests, and worker 1,048 tests.
+- No paid model request, Bot webhook, Arc transaction, deployment, or public service setting changed. The next owner can prepare the isolated local database and synthetic cases. This source checkpoint does not start the campaign or authorize spending.
+
 ## 2026-11-18 07:39 -05:00 — Anish — Audit original pilot billing window
 
 - PR [#15](https://github.com/anishnarang9/UBC-26/pull/15) merged the post-release audit into main at `71c4c8a`. The public readiness, discovery, and job 9 detail routes returned HTTP 200 during this read-only check.
