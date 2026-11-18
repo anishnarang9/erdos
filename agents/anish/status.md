@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 08:38 -05:00 — Anish — Prepare second qualification scope
+
+- PR [#18](https://github.com/anishnarang9/UBC-26/pull/18) merged at `fc3ea3e` after both GitHub commerce checks passed. The public API remains on its prior image. The adapter and prompt changes have no live provider qualification yet.
+- Wrote the [second controlled qualification](../../docs/authoring-round2-qualification-2026-11-18.md) with ten varied cases, isolated source and state, exact Bot gating, cost stops, rollback checks, and failure preservation. This is preparation, not a new paid dispatch. The previous ten-draft allowance is exhausted; a new cap was requested from the user.
+
 ## 2026-11-18 08:33 -05:00 — Anish — Audit plan-invalid drafts and fix nullable examples
 
 - A read-only query of the retained isolated drafts table found the exact native errors for three supported briefs. `badge-zone-1` and `nights-1` declared `rows` as both scalar field and collection. `lot-range-1` compared Boolean `unique` to numeric `count`. No provider call was made.
