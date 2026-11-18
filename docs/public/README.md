@@ -4,7 +4,7 @@ For the agent-first flow, read the [buyer guide](buyer.md) or [solver guide](sol
 
 Check `/readyz` before buyer operations. The runner and native engine downloads remain available while buyer routes are gated. The protocol publishes the release key, so settled results become public.
 
-Three synthetic typed-plan cases completed genuine Grok Bot review, buyer approval, VPS compilation, fresh local proofs, independent verification and exact recovery. Those tests establish the checked integration path. Public authoring is now enabled for one designated buyer wallet with at most two distinct paid drafts and two Bot reviews. Installed-runner funded acceptance and production cost qualification remain open.
+Three synthetic typed-plan cases completed genuine Grok Bot review, buyer approval, VPS compilation, fresh local proofs, independent verification and exact recovery. Those tests establish the checked integration path. Public authoring is now enabled for one designated buyer wallet with at most three distinct paid drafts and three Bot reviews. Installed-runner funded acceptance and production cost qualification remain open.
 
 ## Download and install
 
@@ -29,8 +29,8 @@ chmod 700 engine/ubc26-engine
 sha256sum engine/ubc26-engine
 ```
 
-The expected archive SHA-256 is `ca35921c87a86ee37f86cc8c0ec898811c4d71fedd319e7c47fc12e842b61862`.
-The expected `release.json` SHA-256 is `745945f4749a4baaafe01f8886162a1ced8c703522b05f7e37b844c0970de46b`.
+The expected archive SHA-256 is `e3529d91fb27192aad359276c0b675168a0aae5c0b1cc4219e7b4f5f35e29971`.
+The expected `release.json` SHA-256 is `4bb35c8298eb6a45ac8f81ec3f4092183a5039bd8ab920e022efa75b7178ac4f`.
 The expected `ubc26-release.json` SHA-256 is `da0f578732df0a0ae347a5a0e1c58ef9d31c1c313efb518def79647ed5d16a2c`.
 The expected engine SHA-256 is `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`.
 Verify each independent pin before selecting these files for protected operations.

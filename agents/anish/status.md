@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 02:41 -05:00 — Anish — Correct public artifact pins before release
+
+- Branch `codex/hosted-release`. The new runner archive and manifest reached the VPS through a temporary private transfer branch. `sha256sum -c SHA256SUMS` passed on the VPS. The public guide still named two stale file hashes and the prior two-draft limit. I corrected those values to the verified artifact hashes and the three-dispatch candidate policy. No live API upgrade or new paid request has occurred yet.
+- Next: install and verify the matching runner and engine, publish the guide, take a quiesced backup, promote the API, then start a new independent buyer and solver pair.
+
 ## 2026-11-18 02:22 -05:00 — Anish — Audit job 8 and repair example guidance for one more cold attempt
 
 - Arc job 8 completed with a confirmed claim, release and 0.01 testnet USDC payout. The solver proof had verdict 1 and took 612.796 seconds from saved phase timestamps. Buyer recovery from confirmed chain data matched the independent four-byte `Done` oracle through both SDK and engine. The solver's saved `release_sent` state later reconciled to `released` and `paymentConfirmed:true` without a new send. See the [intervened job report](reports/hosted-intervened-arc-job8-2026-11-18.json). It remains a failed cold-start attempt because the buyer and solver needed operator repairs.
