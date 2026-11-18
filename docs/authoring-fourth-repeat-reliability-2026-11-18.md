@@ -1,0 +1,9 @@
+# Fourth campaign: repeat reliability probe
+
+**Frozen before dispatch, 2026-11-18 12:39 -05:00.** Use API source `fc2e71706bd529c04063f66cb725ed27fdd60f89`, Linux amd64 image `sha256:9434d49905211dbab6dda4310b0cbc32c50d7c264a3880b6ac268d6a6bcf849f`, and corpus digest `8acf192a48f3c72a200a53ed628246a2fbdcbe339bcc4743253a7789d85f2cd7`. Use one fresh isolated state database and wallet. Keep every earlier task unchanged.
+
+Run six predeclared trials in this order: `lab-supplies-receipt-1-r1`, `clinic-supplies-receipt-1-r1`, `firmware-note-1-r1`, then the same three cases with `-r2`. The suffix is a trial identity only. Each pair uses the same frozen public brief, references, and buyer fixtures, but separate task IDs and idempotency keys. This measures whether a result repeats on one source. Do not rerun an individual trial after its final result.
+
+All six cases are expected to produce supported drafts. Each must pass native validation, both buyer fixtures, quote and coverage gates, and every hidden oracle candidate. A complete success also needs exact-revision Bot pass, buyer approval, queued compile, package and reference verification, and local proof where practical. Record draft-stage and complete-stage results separately. Do not send Arc transactions. Keep expected plans, hidden candidates, and oracle decisions outside model and Bot inputs.
+
+Allow at most one model repair call per task. Reserve $0.15 per task against the user's $10 cumulative testing ceiling. Earlier fourth-campaign API charges total $0.135685. Reconcile each exact settled charge before the next dispatch, and stop paid work on an uncertain charge or task. The account Dashboard meter is unavailable, so these are API-only trials until it can be read. Do not dispatch Bot without cost attribution. Keep the accepted public API unchanged. Six trials are an early reliability probe, not a production qualification.

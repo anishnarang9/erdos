@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 12:39 -05:00 — Freeze six same-source reliability trials
+
+- Built source `fc2e717` as Linux amd64 image `sha256:9434d49905211dbab6dda4310b0cbc32c50d7c264a3880b6ac268d6a6bcf849f`. Froze two predeclared trials each for lab receipt, clinic receipt, and firmware note in the [reliability probe](../../docs/authoring-fourth-repeat-reliability-2026-11-18.md). Every trial will use a new task and idempotency key. No trial has run for this source yet; exact-source CI is pending.
+- Fourth-campaign settled API cost remains $0.135685. The six trials reserve at most $0.90 more. Bot still needs a fresh account meter. Next: stage the isolated state, wait for CI, run each trial once, and score both repeats without replacing failures.
+
 ## 2026-11-18 12:36 -05:00 — Narrow membership and assumption prompt
 
 - The preserved procurement tasks show two model-policy errors. The lab plan used a missing-key lookup to test ordered-item presence, which returned `reject` instead of a false rule verdict. The clinic plan put stated facts and rule consequences in `coverage.assumptions`, which blocked approval. The prompt now describes `all` plus `any` for membership and reserves assumptions for genuinely unstated facts. The full commerce check passes: API 1,050, worker 1,051, SDK 535 plus 13 Arc fixtures, web 4, and typechecks.
