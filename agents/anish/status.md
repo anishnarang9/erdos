@@ -1,3 +1,9 @@
+# 2026-11-18 17:49 -05:00 — Promote bounded buyer API and prepare updated guide
+
+- PR #19 checks passed at merged source `4fc9452`: commerce, engine, contracts, and Vercel. The VPS built image `sha256:bbd96cf1e854242851d619e4de7cc736ff6dc715fcf784e80ed84ec5629426fd` from that source. Its native engine SHA-256 matches the published `be5c06f9…` pin. An isolated container started with the intended Bot pilot settings and returned `/healthz` 200 without paid work.
+- Before promotion, a quiesced snapshot preserved 141 files and 21 migrations at `/srv/ubc26-backups/snapshot-20261118T224440Z`; its manifest hash is `3d0f84c42a0c4e66343008aea3b82fa1b021e712cfa67defbd4a94ad3cf50dab`. The prior image and environment copies remain available. The live database had three settled drafts, two dispatched Bot reviews, and no pending or uncertain paid task. The new API image is running. Its compiler prewarm passed on the exact source and public `/readyz` returned HTTP 200. Configuration permits a fourth draft while retaining the three-review cap.
+- Updated the public developer guide to describe this bounded release. It still needs a versioned publication and external hash check. No new draft, Bot dispatch, proof, or Arc transaction has run since promotion. Next: publish the guide, check wallet/runner readiness, then start independent buyer and solver agents for one fresh funded job.
+
 # 2026-11-18 17:38 -05:00 — Integrate current main for final buyer release
 
 - Merged remote main `6df439d` into `codex/authoring-pilot-round2`. Its new work is the frontend demo and runbook. Preserved both Anish status histories across the sole merge conflict. The backend draft/Bot pilot change remains on the branch.
