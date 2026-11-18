@@ -1,5 +1,9 @@
 # anish status
 
+## 2026-11-18 05:00 -05:00 — Anish — Two hours of soak remain
+
+- The public read monitor has 114 requests: 111 HTTP 200 and the one preserved three-request client transport gap. The improved monitor now records curl exit codes, with no new failure. The live API ledger remains three settled drafts for 11,416 micro-USD and zero pending reservation. API health is green, with no restart or OOM and about 73 MiB of its 1 GiB limit. Continue to 07:00 and record the raw timing rows.
+
 ## 2026-11-18 04:32 -05:00 — Anish — Preserve one client transport incident in the soak
 
 - The low-rate public monitor recorded HTTP code `000` on readiness, discovery, and job detail in one cycle at 09:30:06 UTC. Each curl call ended in 10–21 ms without an HTTP response. Its script did not save the exit code or stderr, so the exact cause is unknown. API health and readiness logs returned 200 before, during, and after the cycle. Manual external reads of all three routes returned 200 afterward, and neither API nor proxy restarted. Record this as a client-observed transport incident, separate from the earlier HTTP 503. The [post-release audit](reports/hosted-postrelease-validation-2026-11-18.json) retains it. Continue the soak and investigate any recurrence.
