@@ -494,30 +494,24 @@ export function registerTaskRoutes(
       const billing = isPlainObject(result) && isPlainObject(result.billing) ? result.billing : null;
       const microUsd = billing?.microUsd;
       if (billing?.state === "settled" && typeof microUsd === "number" && Number.isSafeInteger(microUsd) && microUsd >= 0) {
-        let settled = false;
-        tx(db, () => {
-          const ceilingRow = reservationCeiling.get(id) as { ceiling_micro_usd: number } | undefined;
-          const overCeiling = typeof ceilingRow?.ceiling_micro_usd === "number" && microUsd > ceilingRow.ceiling_micro_usd;
-          const breach = billing.breach === true || overCeiling ? 1 : 0;
-          const updated = settleKnown.run(microUsd, breach, at(), id);
-          if (Number(updated.changes) !== 1) return;
-          settled = true;
-          if (breach !== 1) return;
-          const reservation = reservationIdentity.get(id) as { id: string; ceiling_micro_usd: number } | undefined;
-          if (!reservation) return;
-          insertHalt.run(newId(), reservation.id, id, microUsd, reservation.ceiling_micro_usd, at());
-        });
-        if (settled) return;
+        const ceilingRow = reservationCeiling.get(id) as { ceiling_micro_usd: number } | undefined;
+        const overCeiling = typeof ceilingRow?.ceiling_micro_usd === "number" && microUsd > ceilingRow.ceiling_micro_usd;
+        const breach = billing.breach === true || overCeiling ? 1 : 0;
+        const updated = settleKnown.run(microUsd, breach, at(), id);
+        if (Number(updated.changes) === 1) {
+          if (breach === 1) {
+            const reservation = reservationIdentity.get(id) as { id: string; ceiling_micro_usd: number } | undefined;
+            if (reservation) insertHalt.run(newId(), reservation.id, id, microUsd, reservation.ceiling_micro_usd, at());
+          }
+          return;
+        }
       }
       settleUnknown.run(at(), id);
     };
     const work = async (): Promise<void> => {
+      let result: unknown;
       try {
-        const result = await execute(row);
-        if (!db.isOpen) return;
-        finish.run("succeeded", JSON.stringify(result), null, at(), row.id);
-        noteTaskFinished(deps, row.operation, "succeeded");
-        if (row.operation === "draft") applyBilling(result, row.id);
+        result = await execute(row);
       } catch (err) {
         if (!db.isOpen) return;
         if (draining) {
@@ -536,18 +530,27 @@ export function registerTaskRoutes(
           return;
         }
         const error = taskError(err);
-        finish.run("failed", null, JSON.stringify(error), at(), row.id);
+        tx(db, () => {
+          finish.run("failed", null, JSON.stringify(error), at(), row.id);
+          if (row.operation !== "draft") return;
+          const details = err instanceof ApiError ? err.details : undefined;
+          if (details && isPlainObject(details.billing)) {
+            applyBilling({ billing: details.billing }, row.id);
+            return;
+          }
+          const dispatched = dispatchState.get(row.id) as { dispatched_at: string | null } | undefined;
+          if (!dispatched?.dispatched_at && RELEASE_CODES.has(error.code)) releaseReservation.run(at(), row.id);
+          else settleUnknown.run(at(), row.id);
+        });
         noteTaskFinished(deps, row.operation, "failed", error.code);
-        if (row.operation !== "draft") return;
-        const details = err instanceof ApiError ? err.details : undefined;
-        if (details && isPlainObject(details.billing)) {
-          applyBilling({ billing: details.billing }, row.id);
-          return;
-        }
-        const dispatched = dispatchState.get(row.id) as { dispatched_at: string | null } | undefined;
-        if (!dispatched?.dispatched_at && RELEASE_CODES.has(error.code)) releaseReservation.run(at(), row.id);
-        else settleUnknown.run(at(), row.id);
+        return;
       }
+      if (!db.isOpen) return;
+      tx(db, () => {
+        finish.run("succeeded", JSON.stringify(result), null, at(), row.id);
+        if (row.operation === "draft") applyBilling(result, row.id);
+      });
+      noteTaskFinished(deps, row.operation, "succeeded");
     };
     if (row.operation === "draft" && openHalt.get()) {
       requeueDraft.run(at(), row.id);

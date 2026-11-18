@@ -35,6 +35,8 @@ The current proof cannot establish an unstated buyer goal or external truth. A m
 
 The full commerce check includes API regressions for owner-bound draft idempotency, retained spend reservations after an uncertain dispatch, Bot callback replay and failed delivery, and queued Bot work after restart. Worker tests cover a confirmed release receipt when local journal reconciliation fails, plus read-only resume without another claim or release send. The new native compiler test starts with no state directories. These tests exercise controlled failures. They do not prove that every live RPC, provider callback, or filesystem failure is recoverable. Job 9's transient first recovery read and local journal error remain observed operational faults.
 
+A charge-write fault test found that a completed draft could be stored before its spend reservation settled. Task result and charge state now commit in one SQLite transaction. An injected settlement write failure leaves the dispatched task `running`; restart marks it `uncertain` and does not make a second model call. This is controlled local evidence, not a live provider crash drill.
+
 After the stopped third diagnostic, the isolated pilot restarted with its saved state. A read-only task fetch returned the same revision and provider usage as the protected journal, with no new paid call. The pilot stopped again; public readiness and discovery remained HTTP 200. This confirms one saved-task recovery path, not all uncertain dispatch or callback failures.
 
 ## Release gate still open

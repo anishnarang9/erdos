@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 11:17 -05:00 — Anish — Commit draft result and charge together
+
+- Branch `codex/authoring-pilot-round2`. A fault-injection regression showed that a charge-write failure after a model dispatch could leave a `succeeded` task with a `reserved` spend entry. The test failed on that split state. Draft result and billing now commit in one SQLite transaction. The same test passes: a failed commit leaves the task `running`; restart marks it `uncertain`, and a new pump makes no second model call. The failure path for provider errors also commits task and billing together.
+- The full commerce check passes at this checkpoint: SDK 535 plus 13 chain fixtures, API 1,041, web 4, worker 1,048, and all typechecks. The focused paid-usage fault test also passes. Exact-head CI is pending. No paid model call, Bot review, Arc transaction, or public deployment ran. Next: push this checkpoint and inspect PR #19 CI. General authoring stays gated.
+
 ## 2026-11-18 11:07 -05:00 — Anish — Bind every buyer example to the generated plan
 
 - Branch `codex/authoring-pilot-round2`. Found that draft authoring evaluated only model-selected examples. A model could omit a buyer's positive fixture, then a later passing check could allow approval despite the original disagreement. Added native checks for every supplied fixture, reused results when the model selected the exact immutable fixture, and made a stored mismatch block exact-revision approval. The negative test failed before the fix; mismatch, matching-fixture and no-duplicate-evaluation tests now pass.

@@ -445,6 +445,63 @@ describe("durable tasks", () => {
     })).toThrow(/positive integer/);
   });
 
+  it("keeps a paid draft uncertain if task result and charge cannot commit together", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-billing-commit-"));
+    const dbPath = join(dir, "api.db");
+    const model = {
+      calls: 0,
+      async draft() {
+        model.calls += 1;
+        return { ...clarification(), usage: {
+          promptTokens: 10, completionTokens: 5, cachedTokens: 0, reasoningTokens: 0, costInUsdTicks: null,
+        } };
+      },
+    };
+    try {
+      const first = createApp({
+        dbPath,
+        buyerToken: BUYER_TOKEN,
+        now: () => T0,
+        deployment: { mode: "local", serviceOrigin: ORIGIN },
+        draftModel: model,
+        budget: { requestCeilingMicroUsd: 50_000, dailyCeilingMicroUsd: 100_000,
+          inputMicroUsdPerMillion: 1_250_000, outputMicroUsdPerMillion: 2_500_000 },
+      });
+      opened.push(first);
+      const key = await issue(first.app, accountA);
+      const admitted = await post(first.app, "/v1/tasks", draftTask("Count words in paid.txt"), auth(key));
+      const taskId = ((await admitted.json()) as { id: string }).id;
+      expect(admitted.status).toBe(202);
+      const fault = new DatabaseSync(dbPath);
+      fault.exec("CREATE TRIGGER block_charge BEFORE UPDATE OF state ON spend_reservations WHEN NEW.state = 'settled' BEGIN SELECT RAISE(ABORT, 'injected charge write failure'); END");
+      fault.close();
+      await expect(first.pumpTasks()).rejects.toThrow("injected charge write failure");
+      const after = new DatabaseSync(dbPath);
+      expect(after.prepare("SELECT state FROM tasks WHERE id = ?").get(taskId)).toEqual({ state: "running" });
+      expect(after.prepare("SELECT state FROM spend_reservations WHERE task_id = ?").get(taskId)).toEqual({ state: "reserved" });
+      after.exec("DROP TRIGGER block_charge");
+      after.close();
+      first.close();
+      const second = createApp({
+        dbPath,
+        buyerToken: BUYER_TOKEN,
+        now: () => T0,
+        deployment: { mode: "local", serviceOrigin: ORIGIN },
+        draftModel: model,
+      });
+      opened.push(second);
+      second.reconcileTasks();
+      const recovered = await (await second.app.request(`/v1/tasks/${taskId}`, {
+        headers: { authorization: `Bearer ${key}` },
+      })).json() as { state: string };
+      expect(recovered.state).toBe("uncertain");
+      await second.pumpTasks();
+      expect(model.calls).toBe(1);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it("rejects a legacy token, a foreign compile, and a public draft without prices", async () => {
     const model = countingModel();
     const { created } = clocked({ draftModel: model });
