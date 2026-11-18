@@ -19,11 +19,12 @@ After editing a script or stylesheet, bump the `?v=` number on the references in
 
 ## Deploying on Vercel
 
-`commerce/web/vercel.json` deploys the landing site and the workspace UI as static files. Import `anishnarang9/UBC-26` in Vercel with **Root Directory = `commerce/web`** and Framework Preset **Other**; leave build settings empty. The install step runs one level up so the pnpm workspace (and `@ubc26/sdk`) resolves. Every push to `main` then redeploys.
+The Vercel project links to `anishnarang9/UBC-26`. Use `commerce/web` as the root directory and Other as the framework preset. Enable source files outside the root for the pnpm workspace and SDK. The checked-in commands install from `commerce/` and build into `commerce/web/dist`.
 
-Use `commerce/web`, not `commerce`: from `commerce` Vercel sees the `api/` folder and tries to turn the backend into serverless functions.
+Push a branch to request a preview. Vercel redeploys production when a change reaches `main`. Use Git deployments so Vercel builds tracked files from the reviewed commit.
 
-- `/` opens the app, which sends visitors to the landing page at `/site/index.html`; `/#/app` is the workspace.
-- `/rpc` is forwarded to the Arc testnet RPC, so the browser can read chain data.
-- The API is not deployed: it needs a disk database, a background indexer and the WSL prover. On Vercel the workspace therefore cannot run live jobs until the API is hosted elsewhere and `/v1` is forwarded to it.
-- Never deploy with the CLI from `commerce/`: the CLI uploads untracked `.env` files, which hold wallet and API keys.
+- Open `/` for the landing page or `/#/app` for the public workspace.
+- Open `/#/job/<id>` for a live, read-only Arc open bounty.
+- Use **Play recorded demo** to watch the recorded selected-provider run at 4× speed.
+- Vercel forwards `/rpc` to Arc testnet and forwards `/healthz` and the public open-bounty routes to the hosted API.
+- Use the local workspace for legacy drafting, quote selection and funding. The public workspace has no signing controls or API token field.

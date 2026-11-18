@@ -1,5 +1,12 @@
 # anish status
 
+
+## 2026-11-18 15:17 -0500 — Anish — Verify the Vercel frontend preview
+
+- Created `ubc-26` under the existing Hobby scope and connected it to `anishnarang9/UBC-26`. The production branch is `main`. The project root is `commerce/web` per Neil's PR #21, with the parent workspace available at build time.
+- [PR #22](https://github.com/anishnarang9/UBC-26/pull/22) adds a read-only public workspace and Neil's labeled Arc recording. The routing test, five web tests, and both Vite build modes passed. The initial Git deployment became the production baseline. Its Arc RPC passed and its API routes returned 404 as expected for the original config.
+- Vercel built the first PR preview. The browser origin gate denied access. Check the latest preview in a browser and verify GitHub CI before merging. Keep paid work and settlement with the backend owner.
+
 ## 2026-11-18 08:33 -05:00 — Anish — Audit plan-invalid drafts and fix nullable examples
 
 - A read-only query of the retained isolated drafts table found the exact native errors for three supported briefs. `badge-zone-1` and `nights-1` declared `rows` as both scalar field and collection. `lot-range-1` compared Boolean `unique` to numeric `count`. No provider call was made.
