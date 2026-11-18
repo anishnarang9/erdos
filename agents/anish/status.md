@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 11:24 -05:00 — Anish — Freeze a fourth diagnostic proposal
+
+- Branch `codex/authoring-pilot-round2`. PR #19 exact-head commerce, engine and contracts CI passed at `322f8e8`. Read-only public `/readyz` and `/v1/open-jobs` both returned HTTP 200. The public API remains on its accepted release.
+- Froze a separate [fourth diagnostic proposal](../../docs/authoring-fourth-bounded-diagnostic-2026-11-18.md) at the current source and public-example corpus, with ten ordered cases, 10 maximum drafts, 8 maximum Bot reviews, $1 total and $0.15 per-case observed caps, no paid repairs or Arc sends, and a first-failure stop. This is a proposal, not a paid-call authorization. No model call, Bot review, credit purchase, Arc transaction, or deployment ran. Next: prepare and verify an isolated candidate without paid dispatch, then obtain separate spending approval; keep public authoring gated pending repeat reliability and production account isolation.
+
 ## 2026-11-18 11:17 -05:00 — Anish — Commit draft result and charge together
 
 - Branch `codex/authoring-pilot-round2`. A fault-injection regression showed that a charge-write failure after a model dispatch could leave a `succeeded` task with a `reserved` spend entry. The test failed on that split state. Draft result and billing now commit in one SQLite transaction. The same test passes: a failed commit leaves the task `running`; restart marks it `uncertain`, and a new pump makes no second model call. The failure path for provider errors also commits task and billing together.
