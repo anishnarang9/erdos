@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 15:08 -05:00 — Anish — Check generated examples before release qualification
+
+- The [reference membership diagnostic](../anish/reports/authoring-membership-contract-trial-2026-11-18.md) produced three draft and oracle matches, all with rejected examples. The next [frozen trial](../../docs/authoring-paired-example-trial-2026-11-18.md) changes the model's generated example contract while preserving the same briefs and oracle. The [release gate audit](../anish/reports/agent-first-gate-audit-2026-11-18.md) records what remains before the final two-agent attempt.
+
 ## 2026-11-18 15:00 -05:00 — Anish — Record results after integrating current main
 
 - The [six-case diagnostic](../anish/reports/authoring-eleventh-plan-repair-2026-11-18.md) ran on a candidate that includes main at `a3f6cae`. Three briefs were ready for buyer review. Keep the release gated while model rule and example failures persist. Future evaluation inputs must state any input-rejection distinctions used in scoring.

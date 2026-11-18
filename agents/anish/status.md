@@ -1,3 +1,8 @@
+# 2026-11-18 15:08 -05:00 — Stage paired-example trial and audit acceptance gates
+
+- Draft PR #19. The isolated image from `fe446c1` has the expected source and engine digests and an empty database. The new wallet authenticated. The [frozen trial](../../docs/authoring-paired-example-trial-2026-11-18.md) repeats the same six clarified inputs. Exact-source CI is pending, and the image has received no paid draft yet.
+- The [acceptance audit](reports/agent-first-gate-audit-2026-11-18.md) records current public readiness and artifact checks. The original $0.06 uncertain charge and the production Bot account boundary remain open. The earlier job 9 evidence retains its reconciliation caveats.
+
 # 2026-11-18 15:07 -05:00 — Constrain generated examples to the approval contract
 
 - Draft PR #19. With no buyer fixtures, the provider schema asks for exactly two generated examples. The prompt requires one valid verdict-1 input and one valid verdict-0 input. The schema shares the API's example name pattern. Buyer fixtures and native approval checks still apply. The full commerce check passed with the count change. All 1,072 API tests and the API typecheck passed with the name pattern too.
