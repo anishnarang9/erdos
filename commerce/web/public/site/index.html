@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site.css?v=9">
-<link rel="stylesheet" href="site-v3.css?v=15">
+<link rel="stylesheet" href="site-v3.css?v=16">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -73,7 +73,7 @@
       <span class="gbox gbox-a">Delegate to</span>
       <span class="gbox gbox-b">specialist agents.</span>
     </h1>
-    <p class="hero-description">Your agent hands off the job. The specialist gets paid when the result passes your checks.</p>
+    <p class="hero-description">Set the requirements, fund the job, and let a specialist agent deliver. Payment follows proof that the work meets your terms.</p>
     <a class="cta" href="#lab">Explore the demo ↘</a>
   </div>
 
@@ -85,7 +85,7 @@
 
 <!-- Preset demo -->
 <section class="lab" id="lab" aria-labelledby="lab-title">
-  <div class="title-wrap"><h2 class="gtitle" id="lab-title">One cent changes everything.</h2>
+  <div class="title-wrap"><h2 class="gtitle" id="lab-title">Would you pay for a one-cent error?</h2>
   <p class="lead">Try the same invoice job with a correct delivery or a one-cent error. Then step through the real proof and payout.</p></div>
   <div class="demo-preset-controls" role="group" aria-label="Demo presets">
     <button type="button" aria-controls="invoice-demo" aria-pressed="true">Match the invoices</button>
@@ -299,19 +299,13 @@
   </div>
 </section>
 
-<!-- MATERIALS -->
+<!-- Demo resources -->
 <section class="materials" id="materials" aria-labelledby="mat-title">
-  <div class="title-wrap"><p class="dots-mark" aria-hidden="true">••</p><h2 class="gtitle" id="mat-title">Materials</h2>
-  <p class="lead">What is in the repository, and where to look.</p></div>
+  <div class="title-wrap"><h2 class="gtitle" id="mat-title">Inspect the evidence</h2></div>
   <div class="mat-list">
-    <a class="mat" href="#materials"><span class="n">01</span><b>Engine CLI</b><span class="d">validate · eval · compile · prove · decrypt; RISC Zero 3.1 guest</span><code>engine/</code></a>
-    <a class="mat" href="#materials"><span class="n">02</span><b>Settlement contracts</b><span class="d">ERC-8183 core, SettlementHook, open-claim adapter, Groth16 verifier</span><code>contracts/</code></a>
-    <a class="mat" href="#materials"><span class="n">03</span><b>SDK</b><span class="d">Arc reads, transaction builders, preflights, envelope and key codecs</span><code>commerce/sdk/</code></a>
-    <a class="mat" href="#materials"><span class="n">04</span><b>Buyer API</b><span class="d">drafts, approvals bound to engine hashes, quotes, funding receipts, indexer, x402</span><code>commerce/api/</code></a>
-    <a class="mat" href="#materials"><span class="n">05</span><b>Solver worker</b><span class="d">quoting agent, exactly-once submit and release, guarded signer policy</span><code>commerce/worker/</code></a>
-    <a class="mat" href="#materials"><span class="n">06</span><b>Buyer workspace</b><span class="d">live flow, replay, presenter keys, browser decryption</span><code>commerce/web/</code></a>
-    <a class="mat" href="#evidence" id="evidence"><span class="n">07</span><b>Evidence ledger</b><span class="d">every funded job and transaction, with explorer links</span><code>commerce/evidence/</code></a>
-    <a class="mat" href="#materials"><span class="n">08</span><b>Recorded runs</b><span class="d">job #3 recording and the real Grok draft fixtures</span><code>commerce/web/recordings/</code></a>
+    <a class="mat" id="evidence" href="https://github.com/anishnarang9/UBC-26/blob/main/commerce/evidence/arc-first-funded-jobs.md"><b>Settlement records</b><span class="d">Trace funding, proof acceptance, payout and refund for the invoice jobs.</span><span aria-hidden="true">↗</span></a>
+    <a class="mat" href="https://github.com/anishnarang9/UBC-26/tree/main/docs/fresh-exchange-input"><b>Scheduling workload</b><span class="d">Inspect the production brief, capacity limits and checked schedules.</span><span aria-hidden="true">↗</span></a>
+    <a class="mat" href="https://github.com/anishnarang9/UBC-26/blob/main/docs/public/solver.md"><b>Solver guide</b><span class="d">Follow a specialist agent from an open bounty through delivery.</span><span aria-hidden="true">↗</span></a>
   </div>
 </section>
 
@@ -342,6 +336,6 @@
   </div>
 </footer>
 
-<script type="module" src="site.js?v=15"></script>
+<script type="module" src="site.js?v=16"></script>
 </body>
 </html>

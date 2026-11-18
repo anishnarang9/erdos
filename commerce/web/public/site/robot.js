@@ -130,6 +130,26 @@ export function initRobot(host, { reduced = false } = {}) {
   const dust = new THREE.Points(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)), new THREE.PointsMaterial({ color: 0x9aa4ff, size: .04, transparent: true, opacity: .7, depthWrite: false, blending: THREE.AdditiveBlending }));
   scene.add(dust);
 
+  // Two distant planes give the stars depth while leaving the robot's silhouette clear.
+  function starLayer(count, depth, size, color) {
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - .5) * 24;
+      positions[i * 3 + 1] = (Math.random() - .5) * 15 + 1.25;
+      positions[i * 3 + 2] = depth - Math.random() * 2;
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const stars = new THREE.Points(geometry, new THREE.PointsMaterial({
+      size, color, transparent: true, opacity: .68, depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }));
+    scene.add(stars);
+    return stars;
+  }
+  const distantStars = starLayer(720, -7, .026, 0xc1cfff);
+  const nearStars = starLayer(190, -4, .043, 0xc2f5ff);
+
   // Poses per step: [bodyYaw, headYaw, headPitch, L shoulder z, L elbow z, R shoulder z, R shoulder x, R elbow z, eyeScaleY, eyeColor]
   const POSE = [
     [-.35, .25, .12, -.25, -.2, .55, -.9, .9, 1, 0xffffff],      // reading the brief
@@ -246,6 +266,9 @@ export function initRobot(host, { reduced = false } = {}) {
     core.material.color.copy(eyeCol); core.scale.setScalar(1 + Math.sin(time * 3) * .2); chestRing.rotation.z += motionDt * (step === 3 ? 4 : .5);
     leds.forEach((l, i) => l.scale.setScalar(.7 + .6 * Math.max(0, Math.sin(time * (step === 3 ? 12 : 4) - i * 1.2))));
     pr1.rotation.z = time * .2; dust.rotation.y += motionDt * .04;
+    distantStars.rotation.z = Math.sin(time * .04) * .025;
+    nearStars.position.x = Math.sin(time * .12) * .13;
+    nearStars.material.opacity = .68 + .12 * Math.sin(time * .9);
     renderer.render(scene, camera);
   }
   requestAnimationFrame(frame);

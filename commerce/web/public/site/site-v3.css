@@ -332,11 +332,44 @@ body[data-lab="released"] .demo-verdict h3 { color: var(--ok); }
 .escrow-inspector[data-outcome="refund"] #escrow-value { color: var(--amber); }
 .escrow-inspector[data-outcome="refund"] .escrow-route i { background: linear-gradient(90deg, #635578, var(--amber)); }
 #escrow-history { color: var(--dim); font: 1rem/1.55 var(--sans); margin-block: 10px; }
-@media (min-width: 1101px) {
-  .lab-grid, .cases .case-grid { padding-right: clamp(48px, 6vw, 112px); }
-  .demo-preset-controls, .demo-followup { margin-right: clamp(48px, 6vw, 112px); }
-}
 @media (max-width: 760px) {
   .scope-examples { grid-template-columns: 1fr; }
   .scope-examples > * { padding: 12px 14px; }
+}
+
+/* Shared content edges leave space for the section rail on wide screens. */
+:root {
+  --page-inset: max(clamp(64px, 5vw, 96px), calc((100% - 1584px) / 2));
+  --panel-gap: clamp(16px, 1.6vw, 28px);
+}
+.lab-grid, .cases .case-grid, .statement, .closing, .footer,
+.title-wrap, .sol-left, .demo-more-runs > summary { padding-inline: var(--page-inset); }
+.stack, .layer, .eco-head, .token-grid, .token-links, .mat-list, .faq-list,
+.demo-preset-controls, .demo-followup { margin-inline: var(--page-inset); }
+.eco-head .title-wrap, .token-left, .token-right { padding-inline: 0; }
+.hero-copy { left: var(--page-inset); }
+.hero .quote { left: var(--page-inset); }
+.hero .flow { right: var(--page-inset); }
+.topbar { padding-inline: var(--page-inset); }
+.topbar .brand { padding-left: 0; }
+.eco-head, .lab-grid, .cases .case-grid, .scope-examples { column-gap: var(--panel-gap); }
+.eco-lead { padding-inline: 0; }
+.guides i:first-child { left: var(--page-inset); }
+.guides i:last-child { right: var(--page-inset); }
+.lab .gtitle, .cases .gtitle { font-size: clamp(2rem, 4vw, 4.25rem); text-wrap: balance; }
+.hero-description, .lead { line-height: 1.5; text-wrap: pretty; }
+.nav > a { font-family: var(--sans); font-weight: 500; font-size: .95rem; }
+.ledger, .metrics, #escrow-value { font-variant-numeric: tabular-nums; }
+.mat-list .mat { grid-template-columns: minmax(12rem, 1fr) minmax(0, 2fr) auto; }
+.mat-list .mat > :last-child { color: var(--cyan); }
+@media (max-width: 760px) {
+  .mat-list .mat { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; }
+  .mat-list .mat .d { display: block; grid-column: 1; }
+  .mat-list .mat > :last-child { grid-column: 2; grid-row: 1 / 3; }
+}
+.demo-link { text-decoration-thickness: 1px; }
+.sol-left { max-width: none; padding-right: var(--panel-gap); }
+@media (max-width: 1100px) {
+  :root { --page-inset: clamp(20px, 4vw, 40px); }
+  .hero-copy { max-width: calc(100% - 2 * var(--page-inset)); }
 }

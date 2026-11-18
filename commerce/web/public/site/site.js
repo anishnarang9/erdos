@@ -1,5 +1,5 @@
 import { initGlobe } from './globe.js?v=9';
-import { initRobot } from './robot.js?v=15';
+import { initRobot } from './robot.js?v=16';
 import { initRecordedProof } from './recorded-proof.js?v=12';
 import { initCoin } from './coin.js?v=9';
 import { LAYERS, ICONS } from './layers.js?v=9';
