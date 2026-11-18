@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-17 19:55 -05:00 — Anish — ORBIT-26 frontend spec
+
+- Added the [ORBIT-26 frontend spec](../../docs/ORBIT-26-FRONTEND-SPEC.md) as the named UI handoff. It records the latest editorial/orbital visual direction, the preset demo screen list, status and evidence rules, and later integration with the hosted open-bounty API. The spec contains no person assignment. The [demo checklist](../../docs/demo-launch-checklist-2026-11-18.md) retains the task ownership.
+- This is documentation only. The current hosted branch does not contain the merged frontend from main. Public buyer routes remain 503. The frontend integration and release checks remain pending.
+
 ## 2026-11-17 19:45 -05:00 — Anish — November 18 preset demo ownership
 
 - The user assigned Neil only the demo UI. Neil replaces the current free-text, quote, wallet-funding and workspace entry with preset cards, exact checks, confirmed Arc status, receipt links and agent handoff. Anish owns preset content, API and runner data, funding, proofs, rehearsal and publication. Nick owns independent Arc state and receipt verification. This changes the earlier broad commerce ownership for this demo only.

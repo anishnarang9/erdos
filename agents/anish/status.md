@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-17 19:55 -05:00 — Anish — Publish named frontend specification
+
+- Branch `codex/hosted-backend`. Added [ORBIT-26](../../docs/ORBIT-26-FRONTEND-SPEC.md), a person-neutral frontend specification. It covers the agreed visual direction, preset UI, evidence labels, and later hosted integration. The shared plan and demo checklist link it.
+- Documentation only. No frontend merge, API change, proof, chain transaction, or deployment ran. The spec contains no person name or placeholder. Its ten links and the checklist's fifteen links have valid local targets. `git diff --check` passed. Next: integrate the merged frontend with the hosted release branch and freeze the preset data.
+
 ## 2026-11-17 19:45 -05:00 — Anish — Document tomorrow's preset demo split
 
 - Branch `codex/hosted-backend`. Added the [November 18 demo checklist](../../docs/demo-launch-checklist-2026-11-18.md) and updated the shared plan. Neil owns only demo UI. Anish owns presets, operator flow, runner handoff, rehearsal and publication. Nick owns independent Arc verification.
