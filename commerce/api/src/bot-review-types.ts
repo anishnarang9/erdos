@@ -15,5 +15,5 @@ export interface BotReviewConfig {
   /** Restricts the live synthetic pilot to one wallet. */
   pilotOwner?: string;
   /** Durable maximum number of webhook claims for that wallet. */
-  maxDispatches?: 1 | 2;
+  maxDispatches?: 1 | 2 | 3;
 }

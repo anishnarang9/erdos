@@ -1,0 +1,25 @@
+{
+  "classification": "failed_cold_start_before_bot_or_chain",
+  "date": "2026-11-18",
+  "publicOrigin": "https://ubc26-159-89-149-133.sslip.io",
+  "buyerWallet": "0x2bF5574C455E5F66266b17f07d7172bAEC97675F",
+  "privateWorkDirectory": "/home/ubc26buyer/cold-final.ct4jw1ls",
+  "draftTaskId": "01M7PR5YJARF0FKYZRQZJFT97Q",
+  "draftId": "01M7PR5YPNWJ3J1Z5B49XVX1X9",
+  "revisionHash": "0xca0439d88731c1b177cba2a1c2b53ed91879b09d13dca6d78ce0eda87c735bed",
+  "settledDraftCostMicroUsd": 4760,
+  "modelTraceId": "a20d1bab-76f5-949c-a6c6-c4b6317aa35b",
+  "generatedExamples": "All three returned Invalid example input; no generated positive/negative qualification.",
+  "buyerFallback": {
+    "cliResult": "generic redacted error",
+    "cause": "Buyer-chosen example names contained spaces. API example names must match ASCII letters, digits, dots, underscores, or hyphens.",
+    "directApiResult": "409 revision_conflict",
+    "directApiCause": "The diagnostic JSON omitted the required draftId field. The SDK CLI includes it.",
+    "idempotencyNote": "One diagnostic key was reused with changed bytes and correctly returned 422. Later diagnostic requests used distinct keys."
+  },
+  "botReviewStarted": false,
+  "jobCreated": false,
+  "compileStarted": false,
+  "arcTransactionsSent": 0,
+  "coldStartPass": false
+}

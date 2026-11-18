@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-18 02:22 -05:00 — Anish — Audit job 8 and repair example guidance for one more cold attempt
+
+- Arc job 8 completed with a confirmed claim, release and 0.01 testnet USDC payout. The solver proof had verdict 1 and took 612.796 seconds from saved phase timestamps. Buyer recovery from confirmed chain data matched the independent four-byte `Done` oracle through both SDK and engine. The solver's saved `release_sent` state later reconciled to `released` and `paymentConfirmed:true` without a new send. See the [intervened job report](reports/hosted-intervened-arc-job8-2026-11-18.json). It remains a failed cold-start attempt because the buyer and solver needed operator repairs.
+- A new fresh buyer submitted one paid draft for `marker.txt` at 4,760 micro-USD. Its three model examples were invalid. Its fallback examples used names with spaces, so the CLI returned a generic validation error. A direct API probe omitted `draftId` and returned 409. No Bot review, job, compile or Arc send occurred. See the [failed buyer report](reports/hosted-cold-buyer-example-failure-2026-11-18.json). This fresh attempt cannot count as a pass.
+- The buyer and API guides now state the exact example-name rule and direct API body. A focused red test proved the live pilot rejected a third bounded draft. The candidate now allows max dispatch count 3 for the same wallet. Focused Bot config and task tests plus API typecheck passed. Full `commerce` check passed: 535 SDK, 1,030 API, 4 web, 1,043 worker tests and 13 Arc fixtures. This candidate is not deployed yet. Next: commit, publish a matching release and guide, verify public readiness, then start a new independent buyer and solver pair.
+
 ## 2026-11-18 01:49 -05:00 — Anish — Fund Arc job 8 and diagnose solver preparation
 
 - The buyer resumed its saved journal. Arc job 8 is funded with 10,000 atomic USDC, registered, linked to API job `01M7PKYWPXG1NH2TJ3G7BVRA3H`, and visible through public discovery. All five buyer receipts succeeded. Buyer gas cost was 0.01336398 native testnet USDC; the bounty cost was 0.01 testnet USDC. This buyer run remains intervened because the public funding guide and runner needed repair.

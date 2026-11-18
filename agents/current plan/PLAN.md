@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 02:22 -05:00 — Anish — Use one more bounded draft for strict cold acceptance
+
+- The intervened Arc job 8 completed and buyer recovery matched the independent oracle. A new fresh buyer failed before Bot review because its fallback example names had spaces. The public guide omitted the name rule and direct API `draftId` body field. Preserve this failed attempt and its 4,760 micro-USD model cost.
+- Publish the corrected guides and a one-wallet policy that permits a third distinct draft and at most three Bot dispatches. Keep the existing daily model reservation ceiling and use prepaid credit without a new cash purchase. Verify the exact release pins and rollback path. Then start a new pair of fresh low-reasoning buyer and solver agents. Do not relabel either earlier run as cold-start success.
+
 ## 2026-11-18 01:49 -05:00 — Anish — Complete intervened job before strict attempt
 
 - Arc job 8 is funded, registered, and public. The first independent solver made its own answer and passed the native check, but its initial proof preparation stopped before proof or transaction. A diagnostic read-only resume has started one native proof from the same saved work. Keep this whole job labeled intervened.

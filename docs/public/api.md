@@ -27,11 +27,11 @@ Sign the exact returned challenge message. Check its service origin, wallet, act
 | `POST /v1/jobs/:id/bot-reviews` | Owner plus idempotency key. Body: `{revisionHash,request?,examples}`. Imports supply the original brief. Authored revisions use the stored brief and buyer answers. |
 | `GET /v1/jobs/:id/bot-reviews/:reviewId` | Owner-only read of the saved review. Poll this identifier. |
 | `POST /v1/jobs/:id/approve` | Owner plus idempotency key and exact `If-Match`. Body contains `revisionHash`, `referenceDigest`, and the passed `botReviewId` when required. Authored revisions also require their exact `coverageDigest` and native example-check selection. |
-| `POST /v1/drafts/:draftId/example-checks` | Owner plus idempotency key and exact `If-Match`. Appends immutable native examples for the exact draft/revision. |
+| `POST /v1/drafts/:draftId/example-checks` | Owner plus idempotency key and exact `If-Match`. Body: `{draftId,revisionHash,examples}`. Appends immutable native examples for the exact draft/revision. |
 
 A revision contains `plan`, `referenceDigest`, `outputs`, `expirySeconds` and decimal `maxBudget`. The downloadable examples show a complete import. Empty references have digest `0xaa21c0b6ffa196eb88cb407d47551d6695f2624a81c57e499efae120cf687d95`. Authored approval uses its immutable initial native example check by default. An explicit `exampleCheckId` can select a later successful check.
 
-Each review example contains `name`, `predictedVerdict` and `files`. Files contain `name`, `content` and optional `encoding`. Supply a passing example and a failing example. Evidence and context are required when the plan uses those capabilities. Native validation and agreeing example verdicts precede review acceptance.
+Each review example contains `name`, `predictedVerdict` and `files`. Files contain `name`, `content` and optional `encoding`. Example and file names use 1–128 ASCII letters, digits, dots, underscores, or hyphens; spaces are invalid. Supply a passing example and a failing example. Evidence and context are required when the plan uses those capabilities. Native validation and agreeing example verdicts precede review acceptance.
 
 Review acceptance returns HTTP 202 and an owner/revision-bound identifier. The initial response can say `queued` after a fast callback completes. Polling returns `queued`, `dispatching`, `waiting`, `uncertain`, `expired` or `completed`. A completed review has `decision`, `result`, `inputHash` and `resultHash`.
 

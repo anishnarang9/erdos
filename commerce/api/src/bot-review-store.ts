@@ -16,7 +16,7 @@ export interface BotReviewView {
   status: Status; decision: BotReviewResult["decision"] | null; result: BotReviewResult | null;
   resultHash: string | null; createdAt: number; expiresAt: number; completedAt: number | null;
 }
-export interface BotDispatchPolicy { ownerWallet: string; maxDispatches: 1 | 2 }
+export interface BotDispatchPolicy { ownerWallet: string; maxDispatches: 1 | 2 | 3 }
 const hash = (text: string) => createHash("sha256").update(text, "utf8").digest("hex");
 const ticketHash = (ticket: string) => hash("UBC26/bot-review-ticket/v1" + ticket);
 function view(row: Row): BotReviewView {
@@ -34,7 +34,7 @@ function snapshot(row: Row): BotReviewSnapshot {
 /** Synchronous transactions protect claims and receipts across API processes. No network call occurs here. */
 export function botReviewStore(db: Db) {
   const load = (id: string) => db.prepare("SELECT * FROM bot_reviews WHERE id=?").get(id) as Row | undefined;
-  const pilotDispatchAvailable = (ownerWallet: string, maxDispatches: 1 | 2): boolean => {
+  const pilotDispatchAvailable = (ownerWallet: string, maxDispatches: 1 | 2 | 3): boolean => {
     const row = db.prepare("SELECT COUNT(*) AS n FROM bot_reviews WHERE owner_wallet=? AND ticket_hash IS NOT NULL")
       .get(ownerWallet) as { n: number };
     return row.n < maxDispatches;
