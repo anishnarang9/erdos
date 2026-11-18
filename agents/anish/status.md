@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-17 23:47 -05:00 — Anish — Stage exact runner and image candidate
+
+- At source `33a9883`, `pnpm check` passed all commerce typechecks, 535 SDK tests, 1,027 API tests, 4 web tests, 1,042 worker tests and 13 Arc fixtures. The runner tarball and manifest have SHA-256 digests `e2e69cc55ea2788fd1d0b475613397bc524b30f5009ba534c1301513814c61fd` and `d39989cf405fc432c2da350b9dd997a150b224a6841f1fd05e13f1a303d028aa`. Same-source reproducibility, checksum verification and an offline Linux container install passed. The matching VPS image is `sha256:7ac4a8d97c6b22f30d5669b7c57a9fd7ffd5cd3d34022ab9b541169adeacae52`.
+- The runner is staged in a private VPS candidate directory, not published. The main API and public runner still serve older source. Pilot Bot dispatch lacks a webhook configuration; its callback would route to the main API while the draft is in the isolated database. No Bot review was sent. Next: make one exact pilot callback path, verify Bot account scope, then review the accepted draft before public promotion.
+
 ## 2026-11-17 23:43 -05:00 — Anish — Validate a fresh text draft and buyer examples
 
 - Isolated source `d6b1790` returned a fresh, native-valid `text/v1` plan for the corrected exact-text brief. The xAI call settled at 5,309 micro-USD. Its original passing example named a nonexistent fixture, so the initial example check was not approval ready. A separate owner API call supplied exact positive and negative files; the native checker returned verdicts 1 and 0 with both predictions correct. See the [sixth diagnostic](reports/hosted-sixth-authoring-diagnostic-2026-11-18.json).
