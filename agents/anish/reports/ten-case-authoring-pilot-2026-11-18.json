@@ -182,6 +182,8 @@
   },
   "findings": [
     "Five supported drafts failed with provider invalid_reply; three were classified unsupported; one passed local oracle and Bot review but compile failed because the isolated state lacked tmp/cache directories.",
+    "The xAI Console log for pier-drawers shows a completed response with 900 completion tokens. Its outer JSON is valid, but planJson is malformed at character 1777 because an extra closing brace follows a nested rule. The other four invalid_reply bodies have not been inspected. The protected raw log is outside the repository.",
+    "The retained isolated drafts table confirms three separate native plan errors. badge-zone-1 and nights-1 declared rows as both a scalar field and a collection. lot-range-1 compared the Boolean result of unique to a numeric count. These drafts parsed, so the structured-plan wire change alone does not fix them.",
     "The ambiguous brief was classified unsupported instead of asking for the two required clarifications.",
     "A separate direct compile of the same ninth-case plan succeeded after creating tmp/cache. The ninth-case attempt remains failed; no operator repair was counted as a pass.",
     "The original HTTPS Bot callback ingress was restored; the pilot container was stopped and its state retained."

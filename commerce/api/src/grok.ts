@@ -151,19 +151,18 @@ export function parseModelDraft(raw: unknown): ModelDraft {
   return r.data as ModelDraft;
 }
 
-/**
- * Converts a wire reply to a ModelDraft: a draft carries its plan as JSON text in `planJson` (see
- * draftResponseSchema); a reply that already has a `plan` object is passed through.
- */
+/** Converts either a structured plan reply or a legacy planJson reply to a ModelDraft. */
 export function fromWireReply(raw: unknown): unknown {
-  if (!isPlainObject(raw) || raw.kind !== "draft" || !("planJson" in raw)) return raw;
+  if (!isPlainObject(raw) || raw.kind !== "draft") return raw;
   const { planJson, ...rest } = raw;
-  if (typeof planJson !== "string") throw new ModelError("invalid_reply", "Draft planJson is not a string");
-  let plan: unknown;
-  try {
-    plan = JSON.parse(planJson);
-  } catch {
-    throw new ModelError("invalid_reply", "Draft planJson is not valid JSON");
+  let plan: unknown = rest.plan;
+  if ("planJson" in raw) {
+    if (typeof planJson !== "string") throw new ModelError("invalid_reply", "Draft planJson is not a string");
+    try {
+      plan = JSON.parse(planJson);
+    } catch {
+      throw new ModelError("invalid_reply", "Draft planJson is not valid JSON");
+    }
   }
   const examples = Array.isArray(rest.examples) ? rest.examples.map(example => {
     if (isPlainObject(example) && example.context === null) {
@@ -176,13 +175,10 @@ export function fromWireReply(raw: unknown): unknown {
 }
 
 /**
- * JSON schema sent as `response_format.json_schema.schema` (strict). Kept to the subset xAI documents
- * for structured outputs: object/array/string/integer/enum/anyOf, every property required,
- * additionalProperties false, no length bounds (1..5 questions is enforced on our side).
- *
- * The engine's plan schema uses $ref, `not` and `const`, which strict mode may not accept, so the plan
- * travels as JSON text in `planJson`. The plan schema and the capability catalog are given to the model
- * in the prompt, and `engine validate` checks every plan. `_planSchema` is kept for API compatibility.
+ * JSON schema sent as `response_format.json_schema.schema` (strict). The plan is an object so the
+ * provider must produce valid nested JSON. Its recursive engine schema cannot be enforced by the
+ * provider's non-circular $ref subset. Native engine validation still checks the complete plan.
+ * `_planSchema` is kept for API compatibility.
  */
 export function draftResponseSchema(_planSchema?: unknown): Record<string, unknown> {
   const str = { type: "string" };
@@ -196,7 +192,7 @@ export function draftResponseSchema(_planSchema?: unknown): Record<string, unkno
     anyOf: [
       obj({
         kind: { type: "string", enum: ["draft"] },
-        planJson: str,
+        plan: { type: "object", additionalProperties: true },
         examples: {
           type: "array",
           items: { anyOf: [
@@ -232,9 +228,11 @@ export const DRAFT_SYSTEM_PROMPT = [
   "checker gives each one, and verbatim quotes (`sourceQuotes`) from the request or the named reference",
   "files that justify each rule.",
   "Reply with exactly one JSON object, one of:",
-  '- { "kind": "draft", "planJson", "examples", "sourceQuotes", "coverage" } where planJson is the plan as JSON text',
+  '- { "kind": "draft", "plan", "examples", "sourceQuotes", "coverage" } where plan is a JSON object',
   '- { "kind": "clarification", "questions" } with 1 to 5 short questions, when the request is ambiguous',
   '- { "kind": "unsupported", "reason" } when the task cannot be checked deterministically',
+  "If buyer-supplied facts such as a reference table, unit, or threshold would make a check deterministic,",
+  "ask for those facts as targeted clarifications. Missing facts alone do not make a task unsupported.",
   "The plan must follow the engine plan schema and use only the parsers, value types, operations and",
   "evidence profiles in the capability catalog (both are given below). Declare exactly the buyer's",
   "`outputs` as plan.deliverables (format json -> parser json/v1, text -> text/v1, binary -> opaque/v1)",
@@ -242,6 +240,9 @@ export const DRAFT_SYSTEM_PROMPT = [
   "For a numeric literal, set type to `i64` and value to a decimal string, for example {\"op\":\"literal\",\"type\":\"i64\",\"value\":\"9400\"}. Do not use type `string` for a numeric comparison.",
   "A JSON field whose value is an integer decimal string has plan field type `i64`. Use `string` only for text. Boolean `and`, `or`, and `not` take Boolean expressions; compare numeric expressions with `eq`, `gte`, or another typed comparison first.",
   "Use `record_field` only inside a collection rule. A JSON object's scalar field names and collection names must be distinct.",
+  "Never also declare a collection name such as rows as a scalar field, even when the JSON file has a rows key.",
+  "The unique operation returns a Boolean. Use it as a Boolean rule or combine it with Boolean rules;",
+  "never compare unique to a numeric count.",
   "To compare a full text/v1 file, use a field expression with `source` and `file` only. Omit the `field` key. Do not invent a `content` field. For json/v1, `field` must name a declared scalar field.",
   "If the job needs an operation, parser or evidence profile that is NOT in the catalog, still reply with",
   "kind draft and write the plan with the exact name of the missing capability where it is needed; the",
