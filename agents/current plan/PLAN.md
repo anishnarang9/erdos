@@ -1,6 +1,11 @@
 # Current plan
 
-## 2026-11-18 00:56 -05:00 — Anish — Approved pilot compile succeeded
+## 2026-11-18 00:01 -05:00 — Anish — Matching release staged in public, buyer gate closed
+
+- Source `33a9883` now runs as the main API and is the public pin for runner, engine and role guides. HTTPS downloads and hashes passed. Public buyer readiness remains 503. A full pre-promotion state snapshot and previous image remain for rollback. See the [gated release report](../anish/reports/hosted-gated-release-2026-11-18.json).
+- The Bot app currently displays a $10 monthly additional-usage limit and $4.56 existing credits. The previous $1 limit is not in force; the latest Bot review has no task-level cost attribution. Do not send another Bot review until the limit and account scope are controlled. General customer account isolation and the final cold-agent Arc test remain required.
+
+## 2026-11-17 23:56 -05:00 — Anish — Approved pilot compile succeeded
 
 - The isolated buyer approved the native-valid draft with the exact Bot `pass` and buyer example check. The API compile task succeeded after two recorded pilot environment failures: missing Docker socket group and a root-owned private Buildx activity file. The final package manifest binds the approved rules and reference hashes. See the [compile report](../anish/reports/hosted-exact-text-compile-2026-11-18.json).
 - Public readiness, Bot cost attribution, production account isolation, matching release publication and the cold agents remain open. No Arc job or proof ran.

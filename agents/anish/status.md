@@ -1,6 +1,11 @@
 # anish status
 
-## 2026-11-18 00:56 -05:00 — Anish — Compile the approved pilot revision
+## 2026-11-18 00:01 -05:00 — Anish — Publish matching artifacts behind gate
+
+- Promoted checked API image `sha256:7ac4a8d…` from source `33a9883` after stopping the old API and saving a full state snapshot. The prior image and snapshot remain for rollback. The container source pin and health passed. External `/healthz` returned 200; `/readyz` and buyer routes stayed at 503. Published the matching runner, native engine, buyer guide, solver guide and release manifest under that source pin. Downloaded runner and guide hashes matched their manifests. See the [gated release report](reports/hosted-gated-release-2026-11-18.json).
+- The active ingress lacked buyer and solver filenames. Its only source difference was that allowlist. Updated it, validated Caddy, and verified both guide URLs. A backup of the old Caddyfile remains. The Bot app showed $4.56 existing credits, $0.60 monthly additional usage and a $10 monthly limit. Its edit control made no observable change, so do not assume the prior $1 cap still applies. The latest review charge remains unattributed. No cash purchase occurred. Public dispatch, account isolation and the cold agents remain open.
+
+## 2026-11-17 23:56 -05:00 — Anish — Compile the approved pilot revision
 
 - Buyer API approval bound the fresh draft's exact revision, buyer example check and Bot `pass` receipt. Two initial native compile tasks failed. The first pilot container omitted host Docker socket group `987`. After adding that group, a root-owned private Buildx activity file blocked the second task. Both failures remain recorded. A direct native compile passed after fixing that pilot file, and a fresh API compile task succeeded. The resulting manifest matches the approved rules and empty reference hashes. See the [compile report](reports/hosted-exact-text-compile-2026-11-18.json).
 - This was an isolated pilot. The main API remains gated and serves an older image. No proof, Arc transaction or cash purchase ran. Next: attribute Bot cost, qualify the public account boundary, promote matching API/runner/docs, then run the two cold agents.
