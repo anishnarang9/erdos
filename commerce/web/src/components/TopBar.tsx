@@ -2,6 +2,7 @@
 // evidence. The signer list reflects GET /v1/demo/capabilities; choosing one in the UI grants no authority.
 import { useEffect, useState } from "react";
 import { api, getToken, setToken } from "../lib/api";
+import { hostedDemo } from "../lib/hosted";
 import { hasInjectedWallet } from "../lib/chain";
 import { store, useDemo } from "../lib/store";
 import { Wordmark } from "./Wordmark";
@@ -20,7 +21,7 @@ export function TopBar({ onEvidence, onSolver }: { onEvidence: (el: HTMLElement)
   const [demoSigner, setDemoSigner] = useState<{ enabled: boolean } | null>(null);
 
   useEffect(() => {
-    if (!token || mode !== "live") return;
+    if (hostedDemo || !token || mode !== "live") return;
     api.capabilities().then(setDemoSigner, () => setDemoSigner({ enabled: false }));
   }, [token, mode]);
   useEffect(() => {
@@ -31,7 +32,7 @@ export function TopBar({ onEvidence, onSolver }: { onEvidence: (el: HTMLElement)
     <header className="ws-top">
       <Wordmark />
       {mode === "live" ? (
-        <span className="mode-chip live"><i aria-hidden />Live · Arc testnet</span>
+        <span className="mode-chip live"><i aria-hidden />{hostedDemo ? "Public · read only" : "Live · Arc testnet"}</span>
       ) : (
         <span className="mode-chip replay"><i aria-hidden />Recorded run · {recordedAt ? new Date(recordedAt).toLocaleString() : ""}</span>
       )}
@@ -41,7 +42,7 @@ export function TopBar({ onEvidence, onSolver }: { onEvidence: (el: HTMLElement)
       {focus === "act2" && <span className="badge rejected">Act two · tampered delivery</span>}
       {jobId && <span className="jobid" title={jobId}>job {jobId.slice(-8)}{chainJob ? ` · Arc #${chainJob}` : ""}</span>}
       <span className="spacer" />
-      {mode === "live" && (!token ? (
+      {!hostedDemo && mode === "live" && (!token ? (
         <form onSubmit={(e) => { e.preventDefault(); const v = (new FormData(e.currentTarget).get("t") as string).trim(); setToken(v); setTok(v); }} style={{ display: "flex", gap: 8 }}>
           <input name="t" type="password" placeholder="Buyer API token" aria-label="Buyer API token" />
           <button>Connect</button>
@@ -49,7 +50,7 @@ export function TopBar({ onEvidence, onSolver }: { onEvidence: (el: HTMLElement)
       ) : (
         <span className="badge verified">✓ Buyer connected</span>
       ))}
-      {mode === "live" && (
+      {!hostedDemo && mode === "live" && (
         <label style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}>
           <span>Signer</span>
           <select value={signer} onChange={(e) => store.set({ signer: e.target.value as "demo" | "wallet" })}>

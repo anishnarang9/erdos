@@ -2,6 +2,7 @@
 // F fullscreen, S start/stop recording. Keys are ignored while typing in a field.
 import { useEffect } from "react";
 import { CAPTIONS } from "../components/Captions";
+import { hostedDemo } from "./hosted";
 import { startLive } from "./live";
 import { downloadRecording, isRecording, playRecording, startRecording, stopRecording, type Recording } from "./replay";
 import { stageOf, store } from "./store";
@@ -61,6 +62,7 @@ export function usePresenterKeys(onToast: (msg: string) => void) {
           break;
         case "d":
         case "D": {
+          if (hostedDemo) break;
           const id = act2JobId();
           if (!id) return onToast("No act-two job set: open the page with ?act2=<jobId>");
           store.reset({ focus: "act2" });
@@ -70,6 +72,7 @@ export function usePresenterKeys(onToast: (msg: string) => void) {
         }
         case "r":
         case "R": {
+          if (hostedDemo) break;
           const r = await pickRecording();
           if (r) {
             playRecording(r, e.shiftKey ? 4 : 1);
@@ -79,6 +82,7 @@ export function usePresenterKeys(onToast: (msg: string) => void) {
         }
         case "s":
         case "S":
+          if (hostedDemo) break;
           if (isRecording()) {
             const r = stopRecording();
             if (r) downloadRecording(r);
