@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 13:28 -05:00 — Preserve corrected-input repeat and isolate membership error
+
+- The nine frozen output-contract tasks settled once each on source `fc2e717`. Two supported drafts (`mass-1`, `firmware-1`) passed native, coverage, quotes, and all hidden oracle cases. Four plans remained invalid after one repair; three native-valid plans disagreed with the oracle in five candidate cases. The [repeat report](reports/authoring-fourth-output-contract-repeat-2026-11-18.md) lists each cause. Nine tasks made 18 model calls and cost $0.104980; fourth-campaign unique API cost is $0.416085. No Bot, approval, compile, proof, Arc, or public deploy ran for this cohort.
+- Exact-head PR #19 commerce, engine, and contracts CI passed. The local commerce check passed on rerun after one process-cleanup test missed a child PID file deadline under load; all 71 qualification tests passed. Next: test and correct prompt guidance for unknown reference keys, diagnose the four invalid-plan shapes, and freeze another source-locked cohort before paid calls. Keep general authoring gated.
+
 ## 2026-11-18 13:21 -05:00 — Freeze public output-contract repeat
 
 - Added a separate [output-contract corpus](../../engine/evaluation/hosted-qualification/contract-corpus.mjs) with public JSON field names and types for 42 supported briefs. It does not change hidden candidates, references, or examples. It creates `category-clear-1` with the contradictory budget sentence removed and leaves the old case intact. The new digest is `5a3553958b0e674fe1c0e514d39e64138549d885084ae640c25b4a281e8c35f0`. The test failed before the module existed; the new tests and all 71 hosted qualification tests pass.

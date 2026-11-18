@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 13:28 -05:00 — Anish — Keep release gated after corrected-input repeat
+
+- The [output-contract repeat](../anish/reports/authoring-fourth-output-contract-repeat-2026-11-18.md) produced two draft-stage passes in nine tasks. Four plans were invalid after repair. Three native-valid plans disagreed with the independent oracle, including unknown reference keys classified as rule failures instead of input rejections. The cohort settled $0.104980 in API charges; fourth-campaign cumulative unique API charge is $0.416085. Exact-head PR #19 checks passed. Anish will correct the reference-membership prompt with a native regression, then freeze a changed-source cohort. Keep the accepted public release and general authoring gate.
+
 ## 2026-11-18 13:21 -05:00 — Anish — Freeze corrected public output contracts
 
 - The [output-contract revision](../../engine/evaluation/hosted-qualification/contract-corpus.mjs) supplies named public fields and types for supported output files without exposing hidden cases. It corrects the contradictory category brief under a new case ID. Seventy-one hosted qualification tests pass, including checks that hidden candidates remain unchanged. The [nine-case repeat](../../docs/authoring-fourth-output-contract-repeat-2026-11-18.md) is frozen on the same API source and a new wallet. It has sent no paid call. Anish will run it sequentially and preserve original results. Public authoring stays gated.
