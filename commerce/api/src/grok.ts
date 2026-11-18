@@ -285,7 +285,6 @@ export function draftProviderPayload(input: DraftModelInput, model: string, maxT
     temperature: 0,
     max_completion_tokens: maxTokens,
     n: 1,
-    search_parameters: { mode: "off" },
     messages: [
       { role: "system", content: DRAFT_SYSTEM_PROMPT },
       {

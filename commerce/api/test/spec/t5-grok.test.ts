@@ -104,6 +104,8 @@ describe("grokDraftModel request", () => {
     const body = JSON.parse(c.body) as Record<string, any>;
     expect(body.model).toBe("grok-4-spec");
     expect(body.temperature).toBe(0);
+    expect(body).not.toHaveProperty("search_parameters");
+    expect(body).not.toHaveProperty("tools");
     expect(body.response_format?.type).toBe("json_schema");
     expect(body.response_format?.json_schema?.name).toBe("ubc26_draft");
     expect(body.response_format?.json_schema?.strict).toBe(true);

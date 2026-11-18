@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-17 22:55 -05:00 — Anish — Remove rejected xAI Chat field
+
+- The official xAI Chat Completions OpenAPI contract says requests that set deprecated `search_parameters` fail. Our failed draft sent `{ "mode": "off" }`. The exact original HTTP status is lost, so this is a likely cause, not a proven reconstruction. The adapter now omits that field and supplies no tools. A request-body regression failed before the fix; all 1,020 API tests and the API typecheck pass afterward. See [contract evidence](reports/hosted-xai-request-compatibility-2026-11-17.json).
+- The xAI team shows $10 in existing credits and no reported usage for the failed request, but its durable 6¢ reservation remains uncertain. No new paid request, Bot task, proof, chain transaction or deployment ran. The approved pilot stop rule still blocks another dispatch without a revised decision.
+- The three subagents' new tasks stopped at a usage limit. Their worktrees retain partial buyer recovery and public brief edits. Next: inspect and finish those edits, then review public dispatch policy and the release candidate.
+
 ## 2026-11-17 21:32 -05:00 — Anish — Restore restricted VPS access and check agent readiness
 
 - The operator public IPv4 changed. I added its `/32` SSH firewall rule, verified pinned SSH, then removed the stale `/32`. The firewall again permits one operator IPv4. Public HTTPS returns 200 for `/healthz` and 503 for `/readyz` and open-job discovery.

@@ -14,7 +14,7 @@ it("advertises the visible cap only for the reviewed exact non-reasoning model",
  expect((model as unknown as {id?:string}).id).toBe('grok-4.20-0309-non-reasoning');
  expect(model.outputTokenBound).toEqual({parameter:'max_completion_tokens',maxTokens:8192});
  await model.draft({request:'Check a policy',outputs:[],referenceNames:[],clarifications:[],schema:{}});
- expect(sent.max_completion_tokens).toBe(8192);expect(sent.max_tokens).toBeUndefined();expect(sent.n).toBe(1);expect(sent.search_parameters).toEqual({mode:'off'});
+ expect(sent.max_completion_tokens).toBe(8192);expect(sent.max_tokens).toBeUndefined();expect(sent.n).toBe(1);expect(sent.search_parameters).toBeUndefined();expect(sent.tools).toBeUndefined();
 });
 it("preserves reasoning tokens that exceed visible completion tokens and keeps the exact bill",()=>{
  const usage=readModelUsage({usage:{prompt_tokens:32,completion_tokens:9,total_tokens:135,completion_tokens_details:{reasoning_tokens:94},cost_in_usd_ticks:120000}});
