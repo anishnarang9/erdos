@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 12:50 -05:00 — Freeze varied authoring cohort
+
+- Froze 13 distinct briefs across supported, ambiguous, and unsupported classes in the [breadth cohort](../../docs/authoring-fourth-breadth-cohort-2026-11-18.md). Source remains `fc2e717`, the accepted public release is unchanged, and prior unique fourth-campaign API cost is $0.181299. This cohort has not sent a paid request. A new wallet and task/trace identity guards are required before dispatch.
+- The model-authored lab plan compiled locally and its public positive example passed native evaluation. A first proof setup check stopped before an attempt because `r0vm` was absent from the shell path. The pinned binary and image digest were found; the same package is proving with an explicit binary path. Next: confirm proof and recovery, then run the frozen breadth cohort. Bot cost attribution and production account isolation still block general authoring.
+
 ## 2026-11-18 12:49 -05:00 — Six independent drafts pass three-family repeat
 
 - A new wallet ran the three frozen `-r3` tasks on source `fc2e717` with task and trace IDs distinct from the first wallet. All three passed native validation, buyer fixtures, coverage, quotes, and every hidden oracle case. Together with the first-wallet tasks, this is six independent draft-stage passes over three briefs, two per brief. The [independent repeat report](reports/authoring-fourth-independent-repeat-2026-11-18.md) records IDs, costs, and scope. The three same-wallet replay requests remain excluded.

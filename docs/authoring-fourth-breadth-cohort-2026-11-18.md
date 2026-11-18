@@ -1,0 +1,9 @@
+# Fourth campaign: varied authoring cohort
+
+**Frozen before dispatch, 2026-11-18.** Use source `fc2e71706bd529c04063f66cb725ed27fdd60f89`, local API image `sha256:9434d49905211dbab6dda4310b0cbc32c50d7c264a3880b6ac268d6a6bcf849f`, and corpus digest `8acf192a48f3c72a200a53ed628246a2fbdcbe339bcc4743253a7789d85f2cd7`. Keep the accepted public release unchanged. Use a new wallet for these distinct trials. Reject a reused task ID or trace ID.
+
+Run the following 13 briefs in order. The first nine are supported: `pier-variance`, `lot-expiry-1`, `category-1`, `clearance-1`, `instrument-1`, `berth-fit-1`, `mass-1`, `seal-1`, and `firmware-1`. Then run `hq-ambiguous-1` and `hq-ambiguous-10`; require all frozen clarification facets. Finally run `hq-unsupported-2` and `hq-unsupported-8`; require the exact missing capability and no payable job. These cover JSON, text, and binary outputs, reference lookups, units, and missing information. Keep expected outcomes and hidden candidates outside model inputs.
+
+For supported briefs, require native validation, buyer fixture agreement when fixtures exist, complete coverage, verified source quotes, and agreement with every hidden oracle candidate. Record each original result, including failure. Count a complete success only after exact-revision Bot review, buyer approval, compile, package verification, and proof. This cohort is API-only while Bot cost attribution remains unavailable. Do not send Arc transactions.
+
+The user authorized $10 of testing for this fourth campaign. Prior unique API charges total $0.181299. Reserve at most $0.15 before each new draft. Reconcile its unique settled API charge before the next call. Stop on uncertain task identity, charge, account attribution, or a possible breach of the ceiling. The API task charge is exact for these isolated authoring calls. Do not infer an account-wide balance or any Bot cost from it.

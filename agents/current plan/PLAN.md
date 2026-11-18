@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 12:50 -05:00 — Anish — Widen source-locked API qualification
+
+- Frozen [breadth cohort](../../docs/authoring-fourth-breadth-cohort-2026-11-18.md) covers 13 new briefs across output formats and decision classes on source `fc2e717`. Use a new wallet and exclude any reused task or provider trace. The prior six draft-stage passes and $0.181299 unique API charge remain separate evidence. The cohort is API-only while Bot spend attribution remains unavailable.
+- The model-authored lab plan compiled locally and its public positive example passed. The initial proof setup stopped before an attempt because the pinned `r0vm` binary was outside the shell path. A retry with its explicit path is in progress. General public authoring stays gated and the accepted API release remains in place.
+
 ## 2026-11-18 12:49 -05:00 — Anish — Keep full-run gate after six draft-stage passes
 
 - Source `fc2e717` passed exact-source CI and six independent API draft tasks across two wallets. Lab receipt, clinic receipt, and firmware note each passed twice on native validation, buyer fixtures, coverage, quotes, and all hidden oracle cases. Same-wallet replay responses remain excluded. The [repeat report](../anish/reports/authoring-fourth-independent-repeat-2026-11-18.md) records six unique tasks, $0.045614 for these tasks, and $0.181299 cumulative fourth-campaign API spend.
