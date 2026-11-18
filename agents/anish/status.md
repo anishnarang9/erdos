@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 03:58 -05:00 — Anish — Main checks and proxy controls pass
+
+- Main merge commit `47920da` passed both [commerce CI](https://github.com/anishnarang9/UBC-26/actions/runs/44270857368) and [core-fast CI](https://github.com/anishnarang9/UBC-26/actions/runs/44270857041). The deployed Caddyfile hash matches the repository. A controlled proxy run passed readiness transitions, Bot callback auth, static allowlists, and private-field log redaction. Public HTTP redirects to HTTPS with HSTS and `nosniff`.
+- The installed runner still passes `verify-install` and has the expected wrapper digest. Credential-named files remain private to their owners, and the solver no longer belongs to the Docker group. The sustained public read soak remains active; no paid request or Arc send was made.
+
 ## 2026-11-18 03:54 -05:00 — Anish — Merge hosted release and continue read-only soak
 
 - PR [#14](https://github.com/anishnarang9/UBC-26/pull/14) merged into main at `47920da` after commerce, engine, and contracts PR checks passed and a focused rereview found no Important or Critical issue. The live API still uses the accepted image source `1ee322e`; public runner and engine use `0b35d3a`, and public guides use docs source `ff05a35`. Main-push CI is running.

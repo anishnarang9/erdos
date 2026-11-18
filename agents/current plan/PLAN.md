@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-18 03:58 -05:00 — Anish — Continue sustained read check after main CI
+
+- Both main-push workflows passed at the hosted merge commit. The deployed proxy configuration matched source and passed a controlled authorization/download test. The installed runner verification, credential file modes, and TLS redirect/header checks passed. Continue the low-rate public read soak and preserve any failure, timing, and service-resource evidence in the [post-release audit](../anish/reports/hosted-postrelease-validation-2026-11-18.json).
+
 ## 2026-11-18 03:54 -05:00 — Anish — Observe merged release through the morning window
 
 - Hosted PR #14 merged into main at `47920da` after all PR checks and a focused rereview passed. The live service retains the accepted API image and published source pins. A fresh read-only buyer recovery, direct Arc receipt and nonce checks, package hash audit, boundary probes, and isolated backup restore passed. The [post-release audit](../anish/reports/hosted-postrelease-validation-2026-11-18.json) records the exact results and remaining limits.
