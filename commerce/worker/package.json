@@ -20,7 +20,8 @@
     "open-claim:operator": "tsx src/open-claim/operator.ts",
     "test:open-claim-recovery": "vitest run --config vitest.open-claim-recovery.config.ts",
     "hosted": "tsx src/hosted-cli.ts",
-    "package:runner": "node scripts/package-runner.mjs"
+    "package:runner": "node scripts/package-runner.mjs",
+    "agent": "tsx scripts/agent.ts"
   },
   "dependencies": {
     "@ubc26/api": "workspace:*",
