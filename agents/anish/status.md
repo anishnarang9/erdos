@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 07:09 -05:00 — Anish — Finish the requested morning soak
+
+- The 07:00 Eastern public read soak finished with 97 cycles and 291 requests: 288 HTTP 200, zero HTTP 5xx, and one preserved three-request client transport gap at 04:30. Successful reads had median 0.747 seconds, 95th percentile 1.493 seconds, and maximum 1.856 seconds. The [raw timing log](reports/hosted-public-read-soak-2026-11-18.jsonl) is SHA-256 `58b68483436027d3385379c20c5c87ba3ea9c1a96d3ddb632e11ad9032f737f2`. The API access log since merge shows no 5xx. At the final check, the API was healthy with zero restarts/OOM and about 78 MiB of its 1 GiB limit.
+- The draft ledger still has three settled rows totaling 11,416 micro-USD and no pending reservation. No new paid model, Bot, or chain action was initiated. Update the [post-release audit](reports/hosted-postrelease-validation-2026-11-18.json) and [handoff](reports/hosted-agent-first-acceptance-summary-2026-11-18.md), then mark PR #15 ready and merge the documentation audit after verification.
+
 ## 2026-11-18 06:00 -05:00 — Anish — One hour of soak remains
 
 - The public monitor has 213 reads: 210 HTTP 200 and the one preserved three-request client transport cycle at 04:30. No new curl error has occurred since the logger restart. Median completed latency is 0.749 seconds; maximum 1.856 seconds. The API remains healthy at about 73 MiB of 1 GiB, with zero restarts or OOM. The three settled draft charges still total 11,416 micro-USD, with no pending reservation. Continue until 07:00 and preserve the raw log.

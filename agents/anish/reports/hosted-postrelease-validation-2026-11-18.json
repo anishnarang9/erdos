@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "status": "in_progress",
+  "status": "completed_with_client_transport_incident",
   "scope": "Read-only and local validation after merging the hosted release. No new paid draft, Bot dispatch, proof, or Arc transaction was initiated.",
   "release": {
     "pullRequest": "https://github.com/anishnarang9/UBC-26/pull/14",
@@ -26,7 +26,22 @@
     "staticBoundary": "8 HEAD, range, method, unlisted-file, traversal, and extension probes passed",
     "discoveryValidation": "4 malformed query probes returned HTTP 400",
     "repeatedJobRead": "30/30 HTTP 200 over about 77 seconds; max 0.853 seconds, median 0.774 seconds",
-    "sustainedReadSoak": "At 06:00 Eastern: 213 reads, 210 HTTP 200 and one three-request client transport incident at 09:30:06 UTC. Continues until 07:00 Eastern. The replacement monitor records curl exit codes and has seen no new failure.",
+    "sustainedReadSoak": {
+      "startUtc": "2026-11-18T08:45:12.736738Z",
+      "lastReadUtc": "2026-11-18T11:59:39.319526Z",
+      "scheduledEnd": "2026-11-18T12:00:00Z",
+      "cycles": 97,
+      "requests": 291,
+      "http200": 288,
+      "clientTransportWithoutHttpResponse": 3,
+      "http5xx": 0,
+      "medianSuccessfulSeconds": 0.747,
+      "p95SuccessfulSeconds": 1.493,
+      "maxSuccessfulSeconds": 1.856,
+      "rawLog": "agents/anish/reports/hosted-public-read-soak-2026-11-18.jsonl",
+      "rawLogSha256": "58b68483436027d3385379c20c5c87ba3ea9c1a96d3ddb632e11ad9032f737f2",
+      "note": "The three transport failures occurred in one cycle at 09:30:06 UTC. The first monitor did not record curl exit codes; the replacement monitor recorded no further curl error."
+    },
     "buyerRecoveryWithCorrectedRunner": "SDK and engine recovered exactly one signal.txt each, bytes 4f4b4159, SHA-256 315d31b420de24f9bd8dea4375b05c492060a963544cc7751f5af9fd1dc0aacf",
     "arcReceipts": "Claim and release status 1 at nonces 2 and 3; latest and pending solver nonce 4",
     "backupRestore": "Pinned post-acceptance backup restored into a protected isolated directory; SQLite integrity ok, 9 jobs and 2 open-claim links; temporary restore removed",
@@ -34,7 +49,8 @@
     "controlledProxy": "Pinned Caddyfile hash matched the live mount; isolated proxy readiness, Bot callback auth, download allowlist, and log-redaction phases passed",
     "httpSecurity": "Plain HTTP redirected to HTTPS 308; HTTPS returned HSTS and nosniff; eight static path and method probes passed",
     "credentialFiles": "Six buyer and two solver credential-named files had no group or world permission bits; solver has no Docker group membership",
-    "serviceResources": "At 06:00 Eastern, API healthy, 0 restarts, no OOM, about 73 MiB of 1 GiB; HTTPS earlier about 34 MiB of 128 MiB; root disk 119 GiB free"
+    "serviceResources": "At 07:08 Eastern, API healthy, 0 restarts, no OOM, about 78 MiB of 1 GiB; HTTPS earlier about 34 MiB of 128 MiB; root disk 119 GiB free",
+    "apiRequestStatusSinceReleaseMerge": "5,359 HTTP 200, 19 HTTP 404, no HTTP 5xx in API access logs"
   },
   "spendLedger": {
     "settledDrafts": 3,

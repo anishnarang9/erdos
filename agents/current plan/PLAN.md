@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 07:09 -05:00 — Anish — Close morning validation audit
+
+- The requested soak ended at 07:00 Eastern: 291 reads, 288 HTTP 200, zero HTTP 5xx, and one three-request local transport gap at 04:30. The API stayed healthy and its access log had no 5xx since release merge. Main CI, read-only recovery, Arc receipt and nonce checks, public artifact hashes, proxy security, and isolated backup restore passed. The [post-release audit](../anish/reports/hosted-postrelease-validation-2026-11-18.json) and raw log preserve the details.
+- Verify the final audit files and merge the documentation PR. Do not infer production cost qualification or Bot cash state from this acceptance.
+
 ## 2026-11-18 04:32 -05:00 — Anish — Distinguish client transport failure from service HTTP failure
 
 - One three-route soak cycle at 09:30:06 UTC returned curl code `000` within 21 ms on each request. API health and readiness logs remained 200 at that time; later external reads succeeded. The exact local transport cause is unknown because the monitor saved only HTTP codes and latency. Preserve it in the [post-release audit](../anish/reports/hosted-postrelease-validation-2026-11-18.json). Continue monitoring through 07:00 and do not relabel it as an API 503.
