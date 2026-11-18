@@ -269,8 +269,8 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     };
     const taskId = c.get("taskId") ?? "";
     const started = deps.now();
-    const attempts: { reply: DraftModelResult; result: ModelDraft; failureReason?: string }[] = [];
-    const attemptViews = () => attempts.map(item => ({ kind: item.failureReason ? "model_failed" : item.result.kind, model: item.reply.model || null, traceId: item.reply.traceId || null, usage: item.reply.usage ?? null, ...(item.failureReason ? { reason: item.failureReason } : {}) }));
+    const attempts: { reply: DraftModelResult; result: ModelDraft; failureReason?: string; httpStatus?: number; providerCode?: string }[] = [];
+    const attemptViews = () => attempts.map(item => ({ kind: item.failureReason ? "model_failed" : item.result.kind, model: item.reply.model || null, traceId: item.reply.traceId || null, usage: item.reply.usage ?? null, ...(item.failureReason ? { reason: item.failureReason } : {}), ...(item.httpStatus !== undefined ? { httpStatus: item.httpStatus } : {}), ...(item.providerCode ? { providerCode: item.providerCode } : {}) }));
     terminalMetadata = () => {
       const last = attempts.at(-1)?.reply;
       return { qualification: {
@@ -283,7 +283,10 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     const failedAttempt = (err: unknown) => {
       const failure = err instanceof ModelError ? err : new ModelError("error");
       const result: ModelDraft = { kind: "unsupported", reason: "model_failed" };
-      return { result, failureReason: failure.reason, reply: { result, model: failure.model ?? "", traceId: failure.traceId ?? "", ...(failure.usage ? { usage: failure.usage } : {}) } };
+      return { result, failureReason: failure.reason,
+        ...(failure.httpStatus !== undefined ? { httpStatus: failure.httpStatus } : {}),
+        ...(failure.providerCode ? { providerCode: failure.providerCode } : {}),
+        reply: { result, model: failure.model ?? "", traceId: failure.traceId ?? "", ...(failure.usage ? { usage: failure.usage } : {}) } };
     };
 
     const persistUsage = (): void => {
