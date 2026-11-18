@@ -4,7 +4,7 @@
 
 ## Frozen inputs and candidate
 
-- Candidate code is PR #19 commit `322f8e8` on `codex/authoring-pilot-round2`. Commerce, engine, and contracts CI passed at this SHA. Build and record the isolated image digest from this commit; reject a source or engine pin mismatch. Keep the public API on its accepted release.
+- Candidate code is PR #19 commit `322f8e8` on `codex/authoring-pilot-round2`. Commerce, engine, and contracts CI passed at this SHA. The local preflight image was built from its documentation-only successor `84238b6`; its image ID, source label and engine pin are in the [local preflight report](../agents/anish/reports/authoring-fourth-local-preflight-2026-11-18.json). Use that exact image or rebuild from a separately verified release SHA. Reject a source or engine pin mismatch. Keep the public API on its accepted release.
 - Use corpus revision `hosted-qualification-2026-11-18-public-examples`, digest `8acf192a48f3c72a200a53ed628246a2fbdcbe339bcc4743253a7789d85f2cd7`. It adds 16 buyer-visible positive and negative fixtures to the eight supported briefs below. The hidden candidate files, expected classes, reference answers, and oracle stay outside model and Bot inputs. Preserve the original corpus and all failed pilot records.
 - Run these ten distinct case IDs once each, in order: `pier-drawers`, `lot-range-1`, `badge-zone-1`, `nights-1`, `firmware-note-1`, `lab-supplies-receipt-1`, `clinic-supplies-receipt-1`, `route-1`, `hq-ambiguous-7`, `hq-unsupported-1`. The first eight are supported. The ninth must ask for both the toll table and currency unit. The last must name the missing `regex_match` capability and must not create a payable job. A repeat of a case is a new trial, not a repair of its old failure.
 

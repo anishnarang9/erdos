@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-18 11:27 -05:00 — Anish — Build and smoke the fourth candidate locally
+
+- Branch `codex/authoring-pilot-round2`. Built the immutable Linux amd64 image from `84238b6` with source label and embedded pin matching that commit. Image ID is `sha256:dab3e4b47e3ea6f8d5127aa298efa09d669779f4ac491d21eb2c93b1a30e4e0e`; the engine hash matches the published `be5c06f...` pin. An isolated container with no network or published ports migrated an empty database, ran the native engine, became healthy, and served `/healthz` 200. `/readyz` was 503 as expected without a model or chain. The container was removed. See the [local preflight report](reports/authoring-fourth-local-preflight-2026-11-18.json).
+- This is local image evidence only. No VPS staging, provider credential, paid call, Bot review, compile, proof, Arc transaction, or public deployment ran. Public readiness and open-job discovery remained HTTP 200. Next: check PR #19 CI at this source pin, then stage the isolated pilot when a fourth campaign is authorized. General authoring remains gated.
+
 ## 2026-11-18 11:24 -05:00 — Anish — Freeze a fourth diagnostic proposal
 
 - Branch `codex/authoring-pilot-round2`. PR #19 exact-head commerce, engine and contracts CI passed at `322f8e8`. Read-only public `/readyz` and `/v1/open-jobs` both returned HTTP 200. The public API remains on its accepted release.

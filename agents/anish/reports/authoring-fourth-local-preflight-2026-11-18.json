@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-18 11:27 -05:00",
+  "status": "passed-local-image-startup-only",
+  "sourceSha": "84238b6383aabd32fcfacef358a18906b5bc6e51",
+  "imageId": "sha256:dab3e4b47e3ea6f8d5127aa298efa09d669779f4ac491d21eb2c93b1a30e4e0e",
+  "platform": "linux/amd64",
+  "engineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+  "checks": {
+    "imageRevisionMatchesSource": true,
+    "embeddedEngineMatchesPin": true,
+    "nativeEngineCapabilitiesRun": true,
+    "emptyStateDatabaseMigrated": true,
+    "containerHealthy": true,
+    "healthzStatus": 200,
+    "readyzStatusWithoutModelOrChain": 503,
+    "network": "none",
+    "publishedPorts": 0,
+    "containerRemovedAfterCheck": true,
+    "publicReadyzStatus": 200,
+    "publicOpenJobsStatus": 200
+  },
+  "scope": "Local image build and isolated clean-state startup only. No provider credential, Bot callback, model call, package compile, proof, Arc transaction, public deployment, or VPS staging."
+}
