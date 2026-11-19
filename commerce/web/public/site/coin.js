@@ -36,14 +36,25 @@ export function initCoin(host, { reduced = false } = {}) {
     const lines = []; let sd = z > 0 ? 7 : 19; const r = () => ((sd = (sd * 1664525 + 1013904223) >>> 0) / 4294967296);
     for (let i = 0; i < 46; i++) { const a = r() * Math.PI * 2, r0 = .5 + r() * 1.5, len = .2 + r() * .5, horiz = r() < .5; const x = Math.cos(a) * r0, y = Math.sin(a) * r0; lines.push(x, y, .004, x + (horiz ? len : 0), y + (horiz ? 0 : len), .004); }
     side.add(new THREE.LineSegments(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(lines, 3)), new THREE.LineBasicMaterial({ color: 0x2a2a3c })));
-    // Emblem: the Erdos mark, an E drawn as a graph whose middle arm bends into a check, in a flowing gradient.
-    const P = (x, y) => new THREE.Vector3((x - 16) / 11, (16 - y) / 11, .12);
-    const edge = (pts, r) => { const path = new THREE.CurvePath(); for (let i = 1; i < pts.length; i++) path.add(new THREE.LineCurve3(P(...pts[i - 1]), P(...pts[i]))); side.add(new THREE.Mesh(new THREE.TubeGeometry(path, 24 * pts.length, r, 10, false), gradMat)); };
-    edge([[8, 6.5], [8, 25.5]], .085); edge([[8, 6.5], [22.5, 6.5]], .07); edge([[8, 25.5], [22.5, 25.5]], .07); edge([[8, 16], [13.2, 21.2], [26, 9.6]], .095);
-    [[8, 6.5], [8, 16], [8, 25.5], [22.5, 6.5], [22.5, 25.5], [26, 9.6]].forEach(([x, y], i) => {
-      const n = new THREE.Mesh(new THREE.SphereGeometry(i === 5 ? .2 : .15, 20, 14), new THREE.MeshBasicMaterial({ color: i === 5 ? 0xffb0d8 : 0xffffff, toneMapped: false }));
-      n.position.copy(P(x, y)); n.position.z = .16; side.add(n);
-    });
+    // Emblem: the Erdos mark, two robots shaking hands under a gold coin, in the coin's flowing gradient.
+    const P = (x, y, z = .12) => new THREE.Vector3((x - 24) / 15, (24 - y) / 15, z);
+    const tube = (curve, r) => side.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 64, r, 10, false), gradMat));
+    const poly = (pts) => { const path = new THREE.CurvePath(); for (let i = 1; i < pts.length; i++) path.add(new THREE.LineCurve3(P(...pts[i - 1]), P(...pts[i]))); return path; };
+    const box = (x, y, w, h) => poly([[x, y], [x + w, y], [x + w, y + h], [x, y + h], [x, y]]);
+    tube(box(3, 15, 12, 10), .075); tube(box(33, 15, 12, 10), .075);
+    tube(poly([[9, 15], [9, 11.4]]), .065); tube(poly([[39, 15], [39, 11.4]]), .065);
+    tube(new THREE.CubicBezierCurve3(P(12, 25), P(13, 30), P(16, 32.5), P(20.5, 33.5)), .075);
+    tube(new THREE.CubicBezierCurve3(P(36, 25), P(35, 30), P(32, 32.5), P(27.5, 33.5)), .075);
+    const clasp = new THREE.Mesh(new THREE.BoxGeometry(11 / 15, 7 / 15, .14), gradMat); clasp.position.copy(P(24, 33.5)); side.add(clasp);
+    const dot = (x, y, r, color) => { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 14), new THREE.MeshBasicMaterial({ color, toneMapped: false })); m.position.copy(P(x, y, .16)); side.add(m); };
+    dot(9, 10.4, .11, 0xffffff); dot(39, 10.4, .11, 0xffffff); dot(12, 20, .1, 0xffffff); dot(36, 20, .1, 0xffffff);
+    const gold = new THREE.Mesh(new THREE.CylinderGeometry(.42, .42, .08, 40), new THREE.MeshBasicMaterial({ color: 0xffd166, toneMapped: false }));
+    gold.rotation.x = Math.PI / 2; gold.position.copy(P(24, 13, .16)); side.add(gold);
+    const goldRim = new THREE.Mesh(new THREE.TorusGeometry(.42, .03, 10, 48), new THREE.MeshBasicMaterial({ color: 0xffb65c, toneMapped: false })); goldRim.position.copy(P(24, 13, .2)); side.add(goldRim);
+    const ink = new THREE.MeshBasicMaterial({ color: 0x0b0d16 });
+    const s = new THREE.CatmullRomCurve3([[26.3, 10.7], [24, 9.6], [21.7, 11.1], [24, 13], [26.3, 14.9], [24, 16.4], [21.7, 15.3]].map(([x, y]) => P(x, y, .21)));
+    side.add(new THREE.Mesh(new THREE.TubeGeometry(s, 48, .028, 8, false), ink));
+    side.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(P(24, 8.4, .21), P(24, 17.6, .21)), 4, .022, 8, false), ink));
   }
 
   let scrollT = 0, time = 0, last = performance.now(), visible = true, mx = 0, my = 0, spin = 0;

@@ -34,7 +34,7 @@ export function initToolNetwork(host) {
       const hub = document.createElement('div');
       hub.className = 'tool-hub'; hub.style.gridRow = String(r + 1); hub.style.gridColumn = `${c + 1} / span 2`;
       const logo = document.querySelector('.brand svg')?.cloneNode(true);
-      if (logo) { logo.querySelector('linearGradient')?.setAttribute('id', 'lg-tools'); logo.querySelectorAll('[stroke="url(#lg)"]').forEach((n) => n.setAttribute('stroke', 'url(#lg-tools)')); }
+      if (logo) { logo.querySelector('linearGradient')?.setAttribute('id', 'lg-tools'); logo.querySelectorAll('[stroke="url(#lg)"]').forEach((n) => n.setAttribute('stroke', 'url(#lg-tools)')); logo.querySelectorAll('[fill="url(#lg)"]').forEach((n) => n.setAttribute('fill', 'url(#lg-tools)')); }
       hub.innerHTML = '<span class="hub-disc"></span><span class="hub-label">ERDOS</span>';
       if (logo) hub.querySelector('.hub-disc').append(logo);
       hub.setAttribute('aria-label', 'Erdos, proof-gated escrow');
