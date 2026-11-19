@@ -131,7 +131,7 @@ export function initRobot(host, { reduced = false } = {}) {
   scene.add(dust);
 
   // Two distant planes give the stars depth while leaving the robot's silhouette clear.
-  function starLayer(count, depth, size, color) {
+  function starLayer(count, depth, size, color, map = null) {
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
       positions[i * 3] = (Math.random() - .5) * 24;
@@ -141,7 +141,7 @@ export function initRobot(host, { reduced = false } = {}) {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     const stars = new THREE.Points(geometry, new THREE.PointsMaterial({
-      size, color, transparent: true, opacity: .68, depthWrite: false,
+      size, color, map, transparent: true, opacity: .68, depthWrite: false,
       blending: THREE.AdditiveBlending,
     }));
     scene.add(stars);
@@ -149,6 +149,29 @@ export function initRobot(host, { reduced = false } = {}) {
   }
   const distantStars = starLayer(720, -7, .026, 0xc1cfff);
   const nearStars = starLayer(190, -4, .043, 0xc2f5ff);
+
+  // A shared sprite gives the brightest stars a tight core and soft diffraction rays.
+  const sprite = document.createElement('canvas');
+  sprite.width = sprite.height = 96;
+  const brush = sprite.getContext('2d');
+  brush.translate(48, 48);
+  const halo = brush.createRadialGradient(0, 0, 0, 0, 0, 48);
+  halo.addColorStop(0, '#ffffff');
+  halo.addColorStop(.1, '#ffffffef');
+  halo.addColorStop(.3, '#ffffff78');
+  halo.addColorStop(1, '#ffffff00');
+  brush.fillStyle = halo;
+  brush.fillRect(-48, -48, 96, 96);
+  for (let axis = 0; axis < 2; axis++) {
+    brush.save();
+    brush.rotate(Math.PI * axis / 2);
+    brush.scale(1, .10);
+    brush.fillRect(-48, -48, 96, 96);
+    brush.restore();
+  }
+  const glintMap = new THREE.CanvasTexture(sprite);
+  const iceStars = starLayer(92, -5, .42, 0xa8ebff, glintMap);
+  const violetStars = starLayer(52, -6, .58, 0xd4b7ff, glintMap);
 
   // Poses per step: [bodyYaw, headYaw, headPitch, L shoulder z, L elbow z, R shoulder z, R shoulder x, R elbow z, eyeScaleY, eyeColor]
   const POSE = [
@@ -271,6 +294,8 @@ export function initRobot(host, { reduced = false } = {}) {
     distantStars.rotation.z = Math.sin(time * .04) * .025;
     nearStars.position.x = Math.sin(time * .12) * .13;
     nearStars.material.opacity = .68 + .12 * Math.sin(time * .9);
+    iceStars.material.opacity = .82 + .12 * Math.sin(time * .8);
+    violetStars.material.opacity = .78 + .16 * Math.cos(time * .61);
     renderer.render(scene, camera);
   }
   requestAnimationFrame(frame);
