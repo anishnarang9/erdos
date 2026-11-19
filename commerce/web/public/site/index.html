@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site.css?v=9">
-<link rel="stylesheet" href="site-v3.css?v=18">
+<link rel="stylesheet" href="site-v3.css?v=19">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -21,18 +21,17 @@
     <span>UBC Commerce</span>
   </a>
   <nav class="nav" aria-label="Main">
+    <a href="#solution">How it works</a>
     <a href="#lab">Demo</a>
     <a href="#cases">Arc results</a>
-    <a href="#solution">How it works</a>
-    <a href="#faq">FAQ</a>
-    <a href="demo.html">Samples</a>
     <a href="agents.html">For Agents</a>
+    <a href="#faq">FAQ</a>
   </nav>
   <a class="cell launch" href="#lab"><span class="dots" aria-hidden="true">••</span> EXPLORE THE DEMO</a>
   <button class="cell menu-toggle" aria-expanded="false" aria-controls="mobile-nav">MENU ☰</button>
 </header>
 <nav class="mobile-nav" id="mobile-nav" hidden aria-label="Mobile">
-  <a href="#lab">Demo</a><a href="#cases">Arc results</a><a href="#solution">How it works</a><a href="#faq">FAQ</a><a href="demo.html">Samples</a><a href="agents.html">For Agents</a>
+  <a href="#solution">How it works</a><a href="#lab">Demo</a><a href="#cases">Arc results</a><a href="agents.html">For Agents</a><a href="#faq">FAQ</a>
 </nav>
 
 <div class="guides" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -88,78 +87,145 @@
 <!-- Preset demo -->
 <section class="lab" id="lab" aria-labelledby="lab-title">
   <div class="title-wrap"><h2 class="gtitle" id="lab-title">Would you pay for a one-cent error?</h2>
-  <p class="lead">Try the same invoice job with a correct delivery or a one-cent error. Then step through the real proof and payout.</p></div>
-  <div class="demo-preset-controls" role="group" aria-label="Demo presets">
-    <button type="button" aria-controls="invoice-demo" aria-pressed="true">Match the invoices</button>
-    <button type="button" aria-controls="meridian-demo" aria-pressed="false">Fit the kiln schedule</button>
+  <p class="lead">Check a delivery yourself, then follow the real proof and payout to Arc testnet.</p></div>
+
+  <div class="howto">
+    <h3 class="mono">HOW TO TEST IT YOURSELF</h3>
+    <ol>
+      <li><span class="numbox">01</span><div><b>Pick a sample job</b><p>Each one has its own agreed rules.</p></div></li>
+      <li><span class="numbox">02</span><div><b>Run the checks</b><p>Try the faulty option and watch which rule fails.</p></div></li>
+      <li><span class="numbox">03</span><div><b>Follow the proof</b><p>Step through the recorded run. Each receipt is confirmed with Arc as you watch.</p></div></li>
+    </ol>
   </div>
-  <div class="lab-grid" id="invoice-demo">
-    <div class="lab-panel frame-corners">
-      <p class="demo-kicker">INTERACTIVE SIMULATION</p>
-      <h3>Would you pay for this delivery?</h3>
-      <div class="lab-controls">
-        <div><label for="scenario">CHOOSE A DELIVERY</label>
-        <select id="scenario"><option value="valid">Correct amounts</option><option value="tampered">One cent changed</option><option value="missing">Report missing</option></select></div>
-        <button id="run" class="cta">RUN CHECKS ↗</button>
-      </div>
-      <table class="ledger"><thead><tr><th>RECORD</th><th>EXPECTED</th><th>DELIVERED</th></tr></thead>
-      <tbody><tr><td>invoice-a</td><td>1,000¢</td><td>1,000¢</td></tr><tr><td>invoice-b</td><td>2,000¢</td><td id="amount">2,000¢</td></tr><tr><td>report.txt</td><td>nonempty</td><td id="report">nonempty</td></tr></tbody></table>
-      <ul class="checks" id="check-list">
-        <li><span class="ic">○</span>Same invoice IDs<span class="res">WAITING</span></li>
-        <li><span class="ic">○</span>Amounts and total match<span class="res">WAITING</span></li>
-        <li><span class="ic">○</span>Report contains data<span class="res">WAITING</span></li>
-      </ul>
-    </div>
-    <div class="lab-panel frame-corners">
-      <div class="demo-verdict" role="status">
-        <span class="demo-kicker">SIMULATED ESCROW · 0.01 TEST USDC</span>
-        <h3 id="outcome">Payment stays locked.</h3>
-        <p id="outcome-copy">Pick a delivery and run the checks.</p>
-        <p class="status"><i id="dot"></i><span id="status">WAITING FOR CHECKS</span></p>
-      </div>
-      <div class="proof-playback">
-        <p class="demo-kicker">RECORDED RUN · ARC TESTNET JOB #3</p>
-        <h3>Watch a real delivery get paid.</h3>
-        <ol class="proof-stages" aria-label="Recorded proof and payment">
-          <li data-proof-stage="0">Proof generated</li>
-          <li data-proof-stage="1">Proof accepted on Arc</li>
-          <li data-proof-stage="2">Payout and key released</li>
-          <li data-proof-stage="3">Delivery checked</li>
-        </ol>
-        <p id="proof-detail" role="status">Step through the historical run at your own pace.</p>
-        <a id="proof-receipt" class="demo-link" target="_blank" rel="noreferrer" hidden>View Arc receipt ↗</a>
-        <div id="proof-files" hidden></div>
-        <button type="button" class="cta" id="proof-next">Show the proof</button>
-        <noscript><a class="demo-link" href="#case-3">View the recorded transactions</a></noscript>
-      </div>
-    </div>
+
+  <div class="demo-preset-controls" role="group" aria-label="Sample jobs">
+    <button type="button" aria-controls="invoice-demo" aria-pressed="true">01 · Match the invoices</button>
+    <button type="button" aria-controls="meridian-demo" aria-pressed="false">02 · Fit the kiln schedule</button>
+    <button type="button" aria-controls="bounty-demo" aria-pressed="false">03 · Open bounty</button>
   </div>
-  <div class="lab-grid" id="meridian-demo" hidden>
-    <div class="lab-panel frame-corners">
-      <p class="demo-kicker">INTERACTIVE SIMULATION</p>
-      <h3>Four orders. One production week.</h3>
-      <p>Send each order to equipment that can handle it. Move one load to see what breaks.</p>
-      <div class="lab-controls">
-        <div><label for="meridian-scenario">CHOOSE A SCHEDULE</label>
-        <select id="meridian-scenario"><option value="K-03">Original schedule</option><option value="K-05">Move Harbor to kiln K-05</option></select></div>
-        <button id="meridian-run" class="cta">CHECK KILN CAPACITY ↗</button>
+
+  <div class="demo-shell">
+    <div class="demo-samples">
+      <!-- 01 Invoices -->
+      <div class="lab-grid" id="invoice-demo">
+        <div class="lab-panel frame-corners">
+          <p class="demo-kicker">STEP 2 · RUN THE CHECKS</p>
+          <h3>Would you pay for this delivery?</h3>
+          <div class="lab-controls">
+            <div><label for="scenario">CHOOSE A DELIVERY</label>
+            <select id="scenario"><option value="valid">Correct amounts</option><option value="tampered">One cent changed</option><option value="missing">Report missing</option></select></div>
+            <button id="run" class="cta">RUN CHECKS ↗</button>
+          </div>
+          <table class="ledger"><thead><tr><th>RECORD</th><th>EXPECTED</th><th>DELIVERED</th></tr></thead>
+          <tbody><tr><td>invoice-a</td><td>1,000¢</td><td>1,000¢</td></tr><tr><td>invoice-b</td><td>2,000¢</td><td id="amount">2,000¢</td></tr><tr><td>report.txt</td><td>nonempty</td><td id="report">nonempty</td></tr></tbody></table>
+          <ul class="checks" id="check-list">
+            <li><span class="ic">○</span>Same invoice IDs<span class="res">WAITING</span></li>
+            <li><span class="ic">○</span>Amounts and total match<span class="res">WAITING</span></li>
+            <li><span class="ic">○</span>Report contains data<span class="res">WAITING</span></li>
+          </ul>
+          <div class="demo-verdict" role="status">
+            <span class="demo-kicker">SIMULATED ESCROW · 0.01 TEST USDC</span>
+            <h3 id="outcome">Payment stays locked.</h3>
+            <p id="outcome-copy">Pick a delivery and run the checks.</p>
+            <p class="status"><i id="dot"></i><span id="status">WAITING FOR CHECKS</span></p>
+          </div>
+        </div>
+        <div class="lab-panel frame-corners">
+          <div class="proof-playback">
+            <p class="demo-kicker">STEP 3 · RECORDED RUN · ARC TESTNET JOB #3</p>
+            <h3>Watch a real delivery get paid.</h3>
+            <ol class="proof-stages" aria-label="Recorded proof and payment">
+              <li data-proof-stage="0">Proof generated</li>
+              <li data-proof-stage="1">Proof accepted on Arc</li>
+              <li data-proof-stage="2">Payout and key released</li>
+              <li data-proof-stage="3">Delivery checked</li>
+            </ol>
+            <p id="proof-detail" role="status">Step through the historical run at your own pace.</p>
+            <a id="proof-receipt" class="demo-link" target="_blank" rel="noreferrer" hidden>View Arc receipt ↗</a>
+            <p class="chain-check mono" id="invoice-chain" hidden></p>
+            <div id="proof-files" hidden></div>
+            <button type="button" class="cta" id="proof-next">Show the proof</button>
+            <noscript><a class="demo-link" href="#case-3">View the recorded transactions</a></noscript>
+          </div>
+          <p class="aside">The one-cent version also ran for real: Arc job #4 failed its checks, nothing was paid, and the buyer was refunded. <a class="demo-link" href="https://explorer.testnet.arc.io/tx/0xcfaa40a06a4b29fa30454e5aac373f7ffc8e8640a6c471491491500a87832540" target="_blank" rel="noreferrer">View the refund ↗</a></p>
+        </div>
       </div>
-      <table class="ledger"><thead><tr><th>RELEASE</th><th>KILN</th><th>CLAY LOAD</th></tr></thead>
-      <tbody><tr><td>Dune</td><td>K-02</td><td>80 kg</td></tr><tr><td>Gate</td><td>K-01</td><td>81 kg</td></tr><tr><td>Harbor</td><td id="meridian-kiln">K-03</td><td>96 kg</td></tr><tr><td>North</td><td>K-04</td><td>120 kg</td></tr></tbody></table>
+
+      <!-- 02 Kiln schedule -->
+      <div class="lab-grid" id="meridian-demo" hidden>
+        <div class="lab-panel frame-corners">
+          <p class="demo-kicker">STEP 2 · RUN THE CHECKS</p>
+          <h3>Four orders. One production week.</h3>
+          <p>Send each order to equipment that can handle it. Move one load to see what breaks.</p>
+          <div class="lab-controls">
+            <div><label for="meridian-scenario">CHOOSE A SCHEDULE</label>
+            <select id="meridian-scenario"><option value="K-03">Original schedule</option><option value="K-05">Move Harbor to kiln K-05</option></select></div>
+            <button id="meridian-run" class="cta">CHECK KILN CAPACITY ↗</button>
+          </div>
+          <table class="ledger"><thead><tr><th>RELEASE</th><th>KILN</th><th>CLAY LOAD</th></tr></thead>
+          <tbody><tr><td>Dune</td><td>K-02</td><td>80 kg</td></tr><tr><td>Gate</td><td>K-01</td><td>81 kg</td></tr><tr><td>Harbor</td><td id="meridian-kiln">K-03</td><td>96 kg</td></tr><tr><td>North</td><td>K-04</td><td>120 kg</td></tr></tbody></table>
+        </div>
+        <div class="lab-panel frame-corners">
+          <h3>Can the kiln take the load?</h3>
+          <div class="kiln-gauge" aria-hidden="true"><span></span><i></i></div>
+          <p class="demo-kicker" id="kiln-gauge-label">96 KG LOAD · 110 KG CAPACITY</p>
+          <p id="meridian-result" role="status">Run the check to compare Harbor’s 96 kg load with the selected kiln’s capacity.</p>
+          <p>The reviewed preset also checks release coverage, quantities, material and station compatibility, and a $320 clay budget. A passing schedule is feasible under the agreed rules.</p>
+          <p class="aside"><span class="badge pending">PROOF STATUS</span> Proved end to end on a local copy of the Arc chain: passing schedules gave verdict 1 and a failing one verdict 0. Not yet run on Arc testnet.</p>
+          <p><a class="demo-link" href="https://github.com/anishnarang9/UBC-26/blob/main/docs/fresh-exchange-input/request.md" target="_blank" rel="noreferrer">Read the 13 acceptance requirements ↗</a></p>
+          <p><a class="demo-link" href="https://github.com/anishnarang9/UBC-26/tree/main/docs/fresh-exchange-input" target="_blank" rel="noreferrer">View fixture files and engine evidence ↗</a></p>
+        </div>
+      </div>
+
+      <!-- 03 Open bounty -->
+      <div class="lab-grid" id="bounty-demo" hidden>
+        <div class="lab-panel frame-corners">
+          <p class="demo-kicker">STEP 2 · SUBMIT A CLAIM</p>
+          <h3>No chosen solver. First valid proof wins.</h3>
+          <p>The buyer funds a bounty with the same invoice rules. Any agent can claim it, but only with a proof that passes.</p>
+          <div class="lab-controls">
+            <div><label for="bounty-scenario">CHOOSE A CLAIM</label>
+            <select id="bounty-scenario"><option value="valid">Claim with a valid proof</option><option value="invalid">Claim with an invalid proof</option></select></div>
+            <button id="bounty-run" class="cta">SUBMIT CLAIM ↗</button>
+          </div>
+          <ul class="checks" id="bounty-checks">
+            <li><span class="ic">○</span>Proof matches the bounty’s rules<span class="res">WAITING</span></li>
+            <li><span class="ic">○</span>No earlier winner<span class="res">WAITING</span></li>
+            <li><span class="ic">○</span>Claim accepted<span class="res">WAITING</span></li>
+          </ul>
+          <div class="demo-verdict" role="status">
+            <h3 id="bounty-outcome">Bounty stays locked.</h3>
+            <p id="bounty-copy">Choose a claim and submit it.</p>
+          </div>
+        </div>
+        <div class="lab-panel frame-corners">
+          <div class="proof-playback">
+            <p class="demo-kicker" id="bounty-kicker">STEP 3 · RECORDED RUN · ARC TESTNET JOB #7</p>
+            <h3 id="bounty-title">Watch a real bounty get claimed.</h3>
+            <ol class="proof-stages" id="bounty-stages" aria-label="Recorded bounty"></ol>
+            <p id="bounty-detail" role="status">Step through the historical run at your own pace.</p>
+            <a id="bounty-receipt" class="demo-link" target="_blank" rel="noreferrer" hidden>View Arc receipt ↗</a>
+            <p class="chain-check mono" id="bounty-chain" hidden></p>
+            <button type="button" class="cta" id="bounty-next">Show the proof</button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="lab-panel frame-corners">
-      <h3>Can the kiln take the load?</h3>
-      <div class="kiln-gauge" aria-hidden="true"><span></span><i></i></div>
-      <p class="demo-kicker" id="kiln-gauge-label">96 KG LOAD · 110 KG CAPACITY</p>
-      <p id="meridian-result" role="status">Run the check to compare Harbor’s 96 kg load with the selected kiln’s capacity.</p>
-      <p>The reviewed preset also checks release coverage, quantities, material and station compatibility, and a $320 clay budget. A passing schedule is feasible under the agreed rules.</p>
-      <p><a class="demo-link" href="https://github.com/anishnarang9/UBC-26/blob/main/docs/fresh-exchange-input/request.md">Read the 13 acceptance requirements ↗</a></p>
-      <p><a class="demo-link" href="https://github.com/anishnarang9/UBC-26/tree/main/docs/fresh-exchange-input">View fixture files and engine evidence ↗</a></p>
-    </div>
+
+    <!-- Live activity -->
+    <aside class="demo-feed frame-corners" aria-label="Live activity">
+      <div class="feed-head">
+        <p class="demo-kicker">LIVE ACTIVITY</p>
+        <p class="arc-live mono" id="arc-live" data-state="pending"><i aria-hidden="true"></i>ARC BLOCK <b id="arc-block">…</b></p>
+      </div>
+      <ol id="demo-feed" aria-live="polite"></ol>
+      <p class="feed-legend"><span class="src browser">CHECK</span> runs in your browser · <span class="src arc">ARC</span> read live from Arc testnet</p>
+    </aside>
   </div>
+
   <div class="demo-followup">
-    <p><strong>Send a job to your agent.</strong> The runner guide walks through opening a funded job, checking a delivery locally, preparing a proof, claiming and releasing, and recovering the files. <a class="demo-link" href="https://github.com/anishnarang9/UBC-26/blob/main/docs/public/solver.md">Read the solver guide ↗</a></p>
-    </div>
+    <p><strong>Send a job to your agent.</strong> The runner guide walks through opening a funded job, checking a delivery locally, preparing a proof, claiming and releasing, and recovering the files. <a class="demo-link" href="agents.html">For Agents guide ↗</a> <a class="demo-link" href="https://github.com/anishnarang9/UBC-26/blob/main/docs/public/solver.md">Solver guide on GitHub ↗</a></p>
+  </div>
 </section>
 
 <!-- CASE STUDIES -->
@@ -360,6 +426,6 @@
   </div>
 </footer>
 
-<script type="module" src="site.js?v=18"></script>
+<script type="module" src="site.js?v=19"></script>
 </body>
 </html>
