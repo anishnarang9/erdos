@@ -889,3 +889,71 @@ body[data-lab="released"] .demo-verdict h3 { color: var(--ok); }
   .hero-ctas { margin-top: 22px; }
 }
 @media (min-width: 1101px) { .hero-copy { max-width: 720px; } .hero-copy h1 .gbox { white-space: nowrap; } }
+
+/* ---------- proof engine (replaces the robot) ---------- */
+.robot, .demo-robot { display: grid; place-items: center; }
+.engine { width: min(100%, 560px); height: auto; max-height: 100%; aspect-ratio: 1; overflow: visible; }
+.demo-robot .engine { width: min(100%, 300px); }
+.engine .grid { fill: none; stroke: rgba(99, 240, 255, .08); stroke-width: 1; }
+.engine .spin { fill: none; stroke: rgba(99, 240, 255, .35); stroke-width: 1.5; stroke-dasharray: 2 12; transform-origin: 300px 300px; animation: eng-spin 40s linear infinite; }
+.engine[data-step="3"] .spin { stroke: rgba(255, 182, 92, .7); animation-duration: 4s; }
+.engine .seg { fill: none; stroke: rgba(255, 255, 255, .08); stroke-width: 10; stroke-linecap: round; transition: stroke .5s, filter .5s; }
+.engine .seg.done { stroke: #63f0ff; filter: drop-shadow(0 0 6px rgba(99, 240, 255, .55)); }
+.engine .seg.active { stroke: #ffb65c; filter: drop-shadow(0 0 10px rgba(255, 182, 92, .8)); animation: eng-pulse 1.6s ease-in-out infinite; }
+.engine .num { font: 500 15px var(--mono); fill: rgba(255, 255, 255, .25); text-anchor: middle; dominant-baseline: middle; transition: fill .4s; }
+.engine .num.done { fill: #63f0ff; } .engine .num.active { fill: #ffb65c; }
+.engine .gl { fill: none; stroke: #63f0ff; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transform: scale(.88); transform-origin: 300px 300px; transition: opacity .45s, transform .6s cubic-bezier(.2, .9, .3, 1.2); }
+.engine .gl.on { opacity: 1; transform: none; filter: drop-shadow(0 0 12px rgba(99, 240, 255, .35)); }
+.engine .scan { fill: rgba(99, 240, 255, .35); stroke: none; animation: eng-scan 1.8s ease-in-out infinite alternate; }
+.engine .rule { stroke: rgba(99, 240, 255, .35); }
+.engine .tick { stroke: #6bffd8; stroke-dasharray: 60; stroke-dashoffset: 60; }
+.engine .gl-check.on .t1 { animation: eng-draw .5s .2s forwards; } .engine .gl-check.on .t2 { animation: eng-draw .5s .8s forwards; } .engine .gl-check.on .t3 { animation: eng-draw .5s 1.4s forwards; }
+.engine .gl-escrow .coin { stroke: #ffb65c; }
+.engine .gl-escrow.on .coin { animation: eng-drop 1.6s cubic-bezier(.5, 0, .5, 1) infinite; }
+.engine .keyhole { stroke: rgba(99, 240, 255, .6); }
+.engine .gl-prove .hex { transform-origin: 300px 300px; animation: eng-spin 9s linear infinite; }
+.engine .gl-prove .hex2 { stroke: #ffb65c; transform-origin: 300px 300px; animation: eng-spin 5s linear infinite reverse; }
+.engine .gl-prove .orbit { fill: #63f0ff; stroke: none; transform-origin: 300px 300px; animation: eng-spin 3s linear infinite; }
+.engine .gl-paid { stroke: #6bffd8; }
+.engine .gl-paid .shackle { transform-origin: 345px 270px; }
+.engine .gl-paid.on .shackle { animation: eng-open .6s .1s cubic-bezier(.2, .9, .3, 1.3) forwards; }
+.engine .gl-paid .coin { stroke: #ffb65c; }
+.engine .gl-paid.on .coin { animation: eng-leave 1.8s .5s cubic-bezier(.5, 0, .5, 1) infinite; }
+.engine .gl-files .ok { stroke: #6bffd8; stroke-dasharray: 120; stroke-dashoffset: 120; }
+.engine .gl-files.on .ok { animation: eng-draw .7s 1.1s forwards; }
+.engine .gl-files .key { stroke: #ffb65c; }
+.engine .gl-files.on .key { animation: eng-key 1s .1s cubic-bezier(.2, .8, .3, 1) forwards; }
+@keyframes eng-spin { to { transform: rotate(360deg); } }
+@keyframes eng-pulse { 50% { stroke-opacity: .55; } }
+@keyframes eng-scan { from { transform: translateY(0); } to { transform: translateY(170px); } }
+@keyframes eng-draw { to { stroke-dashoffset: 0; } }
+@keyframes eng-drop { 0% { transform: translateY(-30px); opacity: 0; } 25% { opacity: 1; } 70% { transform: translateY(80px); opacity: 1; } 85%, 100% { transform: translateY(95px); opacity: 0; } }
+@keyframes eng-open { to { transform: translateY(-18px) rotate(-28deg); } }
+@keyframes eng-leave { 0% { transform: translate(0, 0); opacity: 1; } 70% { transform: translate(150px, -110px); opacity: 0; } 100% { transform: translate(150px, -110px); opacity: 0; } }
+@keyframes eng-key { from { transform: translate(-40px, 30px); opacity: 0; } to { transform: translate(70px, -50px); opacity: 1; } }
+.engine.still *, .engine.still .gl { animation: none !important; }
+.engine.still .tick, .engine.still .ok { stroke-dashoffset: 0; }
+@media (prefers-reduced-motion: reduce) { .engine * { animation: none !important; } .engine .tick, .engine .ok { stroke-dashoffset: 0; } }
+
+/* ---------- intro statement ---------- */
+.statement { padding: 140px var(--col) 0 32px; }
+.statement .big { max-width: 24em; }
+.statement em .w.lit { color: var(--cyan); }
+@media (max-width: 1100px) { .statement { padding: 90px 20px 0; } }
+
+/* ---------- layers keep their original colours ---------- */
+.sys { --blue: #7d8cff; --violet: #a86bff; --pink: #ff5fd2; --grad: linear-gradient(100deg, var(--cyan), #7d8cff 35%, #a86bff 65%, #ff5fd2); }
+
+/* ---------- marketplace: live flash and funding box ---------- */
+.mk-row.flash { animation: mk-flash 1.6s ease-out; }
+@keyframes mk-flash { 0% { background: rgba(255, 182, 92, .25); } 100% { background: transparent; } }
+.m-pill.draft { color: var(--faint); }
+.mk-fund { display: grid; gap: 8px; padding: 14px 10px 4px; border-top: 1px solid var(--line-2); }
+.mk-fund p { margin: 0; font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+.mk-fund .cta { justify-self: start; padding: 10px 14px; font-size: 12px; }
+.mk-fund span { font-size: 12px; color: var(--dim); line-height: 1.45; }
+.mk-copy { display: flex; justify-content: space-between; gap: 8px; padding: 7px 10px; border: 1px solid var(--line-2); border-radius: 8px; background: none; color: var(--dim); font: 13px var(--sans); cursor: pointer; text-align: left; }
+.mk-copy code { font: 12px var(--mono); color: var(--cyan); }
+.mk-copy:hover { border-color: var(--cyan); color: var(--ink); }
+.mk-copy.copied::after { content: "copied"; font: 11px var(--mono); color: var(--ok); }
+.mk-copy.copied code { display: none; }

@@ -1,9 +1,9 @@
-import { initGlobe } from './globe.js?v=24';
-import { initRobot } from './robot.js?v=20';
-import { initToolNetwork } from './tool-network.js?v=6';
-import { initScopeMap } from './scope.js?v=3';
-import { initCoin } from './coin.js?v=10';
-import { LAYERS, ICONS } from './layers.js?v=11';
+import { initGlobe } from './globe.js?v=25';
+import { initRobot } from './engine.js?v=2';
+import { initToolNetwork } from './tool-network.js?v=7';
+import { initScopeMap } from './scope.js?v=4';
+import { initCoin } from './coin.js?v=11';
+import { LAYERS, ICONS } from './layers.js?v=12';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -117,7 +117,7 @@ function renderLayers() {
     const dia = $('.diagram', el);
     const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('class', 'wires'); svg.setAttribute('aria-hidden', 'true');
     svg.innerHTML = `<defs><marker id="ah${li}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L7 4 L1 7" fill="none" stroke="#8a8aa0" stroke-width="1.4"/></marker>
-      <linearGradient id="wg${li}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${W}" y2="0"><stop offset="0" stop-color="#63f0ff"/><stop offset=".5" stop-color="#3fa9ff"/><stop offset="1" stop-color="#2fe0a8"/></linearGradient></defs>`;
+      <linearGradient id="wg${li}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${W}" y2="0"><stop offset="0" stop-color="#63f0ff"/><stop offset=".5" stop-color="#a86bff"/><stop offset="1" stop-color="#ff5fd2"/></linearGradient></defs>`;
     dia.append(svg);
     const byId = Object.fromEntries(layer.nodes.map((n) => [n.id, n]));
     layer.edges.forEach(([from, to], ei) => {
@@ -277,4 +277,18 @@ for (const [id, selector] of Object.entries(MORE)) {
     button.querySelector('span').textContent = open ? 'Hide details' : 'Show details';
   });
   head.append(button);
+}
+
+// Intro statement: words light up as the reader scrolls through it.
+const statementText = $('.statement .big');
+if (statementText) {
+  statementText.innerHTML = statementText.innerHTML.split(/(\s+|<em>|<\/em>)/).map((t) => (/^\s*$/.test(t) || /^<\/?em>$/.test(t) ? t : `<span class="w">${t}</span>`)).join('');
+  const words = $$('.statement .w');
+  const light = () => {
+    const r = statementText.getBoundingClientRect(), vh = innerHeight;
+    const p = Math.max(0, Math.min(1, (vh * .85 - r.top) / (r.height + vh * .45)));
+    const lit = Math.round(p * words.length);
+    words.forEach((w, i) => w.classList.toggle('lit', reduced || i < lit));
+  };
+  addEventListener('scroll', () => requestAnimationFrame(light), { passive: true }); light();
 }
