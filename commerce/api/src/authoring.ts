@@ -62,14 +62,6 @@ export function referenceText(content: Uint8Array): string {
   return new TextDecoder("utf-8", { fatal: true }).decode(content);
 }
 
-function quoteFound(path: string, quote: string, request: string, files: { name: string; text: string }[]): boolean {
-  if (quote.length === 0) return false;
-  if (path === "/request" || path === "request") return request.includes(quote);
-  const named = files.find((file) => file.name === path);
-  if (named) return named.text.includes(quote);
-  return false;
-}
-
 function exampleCounts(examples: { predictedVerdict: 0 | 1 }[]): { positive: number; negative: number } {
   return {
     positive: examples.filter((item) => item.predictedVerdict === 1).length,
@@ -255,7 +247,17 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
           byteLength: file.content.byteLength, sha256: createHash("sha256").update(file.content).digest("hex") };
       }
     });
-    const textReferences = referenceFiles.filter((file): file is { name: string; text: string } => "text" in file);
+    const quoteSources = new Map<string, string>();
+    for (const file of referenceFiles) {
+      if ("text" in file) quoteSources.set(file.name, file.text);
+    }
+    quoteSources.set("/request", body.request);
+    quoteSources.set("request", body.request);
+    body.clarifications.forEach(({ answer }, index) => {
+      quoteSources.set(`/clarifications/${index}/answer`, answer);
+    });
+    const verifyQuotes = (quotes: Extract<ModelDraft, { kind: "draft" }>["sourceQuotes"]) =>
+      quotes.map(item => ({ ...item, found: item.quote.length > 0 && quoteSources.get(item.path)?.includes(item.quote) === true }));
     const baseInput: DraftModelInput = {
       request: body.request,
       outputs: body.outputs,
@@ -414,7 +416,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
           feedback: { attempt: 1, reason: "file_errors", errors: fileErrors, counterexamples: [] },
         };
       }
-      const quoteVerification = result.sourceQuotes.map(item => ({ ...item, found: quoteFound(item.path, item.quote, body.request, textReferences) }));
+      const quoteVerification = verifyQuotes(result.sourceQuotes);
       const rules = isPlainObject(result.plan) && Array.isArray(result.plan.rules) ? result.plan.rules.length : 0;
       const coverage = assessCoverage(rules, result.coverage, quoteVerification);
       const examples = await labelExamples(result, body.references, body.exampleFixtures, signal);
@@ -519,7 +521,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     const billing = totalBilling();
     if (billing) response = { ...response, billing };
     if (response.kind === "draft" && result.kind === "draft") {
-      const quoteVerification = result.sourceQuotes.map(item => ({ ...item, found: quoteFound(item.path, item.quote, body.request, textReferences) }));
+      const quoteVerification = verifyQuotes(result.sourceQuotes);
       const rules = isPlainObject(result.plan) && Array.isArray(result.plan.rules) ? result.plan.rules.length : 0;
       const coverage = assessCoverage(rules, result.coverage, quoteVerification);
       const counts = exampleCounts(result.examples);

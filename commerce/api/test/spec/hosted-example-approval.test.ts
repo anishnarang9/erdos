@@ -1,5 +1,7 @@
 import {afterEach,expect,it} from "vitest";
-import {createApp,simulatedEngine,type CreateAppOptions} from "../../src/index.ts";
+import {createApp,simulatedEngine,type CreateAppOptions,type Revision} from "../../src/index.ts";
+import {hostedClient} from "@ubc26/sdk";
+import {privateKeyToAccount} from "viem/accounts";
 const token="synthetic-example-approval-token",apps:ReturnType<typeof createApp>[]=[];
 afterEach(()=>{for(const a of apps.splice(0))a.close();});
 const input={request:"Accept result only when ok is true",outputs:[{name:"result.json",format:"json"}],expirySeconds:600,maxBudget:"10000"};
@@ -40,4 +42,101 @@ it("requires the exact buyer-reviewed coverage digest before public approval",as
  const job:any=await client.createJob({source:'grok',draftId:result.draftId,revision:result.revision},'review-job'),body={revisionHash:result.revisionHash,referenceDigest:result.revision.referenceDigest};
  for(const review of [undefined,'0'.repeat(64)])await expect(client.approve(job.jobId,{...body,...(review?{coverageDigest:review}:{})},`review-bad-${review??'missing'}`)).rejects.toMatchObject({status:409,code:'approval_required'});
  expect(await client.approve(job.jobId,{...body,coverageDigest:result.coverage.coverageDigest},'review-good')).toMatchObject({state:'approved'});
+});
+
+it.each([
+  ["/clarifications/0/answer", "The capacity is 40 units.", true],
+  ["/clarifications/0/answer", "What capacity should I use?", false],
+  ["/clarifications/0/question", "What capacity should I use?", false],
+  ["/clarifications/0/answer", "The capacity is 90 units.", false],
+  ["/clarifications/2/answer", "The capacity is 40 units.", false],
+] as const)("checks clarification quote %s (%s) before approval", async (path, quote, found) => {
+  const origin = "https://api.example.test";
+  const sourceQuotes = [{path, quote}];
+  const buyerInput = {
+    request: "Check the shipment capacity.",
+    clarifications: [
+      {question:"What capacity should I use?", answer:"The capacity is 40 units."},
+      {question:"What is the reserve capacity?", answer:"The capacity is 90 units."},
+    ],
+    outputs: [{name:"shipment.json", format:"json"}],
+    expirySeconds: 600,
+    maxBudget: "10000",
+  };
+  const app = createApp({
+    dbPath: ":memory:",
+    buyerToken: token,
+    deployment: {mode:"public", serviceOrigin:origin},
+    budget: {requestCeilingMicroUsd:500000, dailyCeilingMicroUsd:5000000, inputMicroUsdPerMillion:1000000, outputMicroUsdPerMillion:1000000},
+    engine: {
+      ...simulatedEngine(),
+      mode: "real",
+      async eval({deliverables}) {
+        const shipment = JSON.parse(Buffer.from(deliverables[0]!.content).toString()) as {units:string};
+        return {ok:true, verdict:Number(shipment.units) <= 40 ? 1 : 0};
+      },
+    },
+    draftModel: {
+      outputTokenBound: {parameter:"max_tokens", maxTokens:8192},
+      async draft() {
+        return {
+          model: "controlled",
+          traceId: "clarification-quote",
+          usage,
+          result: {
+            kind: "draft",
+            plan: {
+              version: 1,
+              deliverables: [{name:"shipment.json", parser:"json/v1", fields:[{name:"units", type:"i64"}]}],
+              references: [],
+              rules: [{
+                op: "lte",
+                left: {op:"field", source:"deliverable", file:"shipment.json", field:"units"},
+                right: {op:"literal", type:"i64", value:"40"},
+              }],
+            },
+            examples: [
+              {name:"pass", predictedVerdict:1, files:[{name:"shipment.json", content:'{"units":"40"}'}]},
+              {name:"fail", predictedVerdict:0, files:[{name:"shipment.json", content:'{"units":"41"}'}]},
+            ],
+            sourceQuotes,
+            coverage: {
+              requirements: [{id:"capacity", text:"Check the shipment capacity.", ruleIndices:[0], quoteIndices:[0]}],
+              assumptions: [],
+              unresolved: [],
+            },
+          },
+        };
+      },
+    },
+  });
+  apps.push(app);
+  const transport = ((url: string | URL | Request, init?: RequestInit) => app.app.request(String(url), init)) as typeof fetch;
+  const account = privateKeyToAccount(`0x${"ad".repeat(32)}`);
+  const anon = hostedClient({baseUrl:origin, fetch:transport});
+  const key = await anon.authenticate(account.address, message => account.signMessage({message}), "clarification-login");
+  const client = hostedClient({baseUrl:origin, apiKey:key.key, fetch:transport});
+  const task = await client.draft(buyerInput, "clarification-draft");
+  await app.pumpTasks();
+  const done = await client.task(task.id);
+  expect(done.state).toBe("succeeded");
+  const draft = done.result as {
+    draftId: string;
+    revision: Revision;
+    revisionHash: string;
+    exampleApprovalReady: boolean;
+    quoteVerification: unknown;
+    coverage: {ruleCoverageComplete:boolean; coverageDigest:string};
+  };
+  expect(draft.exampleApprovalReady).toBe(true);
+  expect(draft.quoteVerification).toEqual([{path,quote,found}]);
+  expect(draft.coverage.ruleCoverageComplete).toBe(found);
+  const job = await client.createJob({source:"grok", draftId:draft.draftId, revision:draft.revision}, "clarification-job") as {jobId:string};
+  const approval = client.approve(job.jobId, {
+    revisionHash: draft.revisionHash,
+    referenceDigest: draft.revision.referenceDigest,
+    coverageDigest: draft.coverage.coverageDigest,
+  }, "clarification-approval");
+  if (found) await expect(approval).resolves.toMatchObject({state:"approved"});
+  else await expect(approval).rejects.toMatchObject({status:409, code:"approval_required"});
 });
