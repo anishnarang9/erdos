@@ -1,3 +1,8 @@
+# 2026-11-18 19:48 -0500 — Give buyers precise plan type errors without a model retry
+
+- Verified that the live API had neither Grok recording nor replay configured. The saved Flash High task does not include the generated expression. The offline fixture reproduces the reported error path and validation message, but it is not a replay of the provider reply.
+- The API now returns the deterministic type hint already computed for optional repair. The failed plan stays rejected. The queued-task regression proves the hint reaches the buyer without exposing the fixture's private field name or dispatching a second model call. All 1,082 API tests and API typecheck passed. The live draft cap remains exhausted.
+
 # 2026-11-18 19:40 -0500 — Promote bounded pilot and record the Flash High draft failure
 
 - Source `6385abe` passed both commerce CI runs, engine and contracts. Verified the isolated API health check with five draft slots and four Bot dispatch slots. Backed up live state to `snapshot-20261119T003536Z`, manifest SHA-256 `ce84e1fe9f5c0738a8164398657b0cf58362cd9653fc987d28376cc6c7286990`. Promoted the pinned image, verified compiler prewarm and public readiness, and retained private environment rollback copies.

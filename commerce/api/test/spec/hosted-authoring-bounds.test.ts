@@ -157,6 +157,28 @@ describe("one repair", () => {
     });
   });
 
+  it("gives a buyer the type repair hint without a second model call", async () => {
+    const model = fakeModel(() => ({ ...draftReply({ rules: [{ op: "all", where: {
+      op: "and", left: { op: "lookup", valueField: "private-field-name" }, right: { op: "eq" },
+    } }] }), usage }));
+    const engine = countingEngine({ validate: async () => ({ ok: false, kind: "invalid", errors: [{
+      path: "/plan/rules/0/where", message: "Operand types do not match the operation",
+    }] }) });
+    const created = appWith({ draftModel: model, engine: engine as CreateAppOptions["engine"], authoringRepairs: false });
+    const key = await issue(created.app);
+    const queued = await post(created.app, "/v1/tasks", { operation: "draft", input: DRAFT_BODY }, auth(key));
+    expect(queued.status).toBe(202);
+    const task = await queued.json() as { id: string };
+    await created.pumpTasks();
+    const result = await created.app.request(`/v1/tasks/${task.id}`, { headers: auth(key) });
+    const payload = await result.text();
+    expect(JSON.parse(payload)).toMatchObject({ result: { kind: "unsupported", reason: "plan_invalid",
+      errors: [{ path: "/plan/rules/0/where", message: expect.stringContaining("The left lookup returns a value.") }],
+    } });
+    expect(payload).not.toContain("private-field-name");
+    expect(model.calls).toHaveLength(1);
+  });
+
   it("repairs one invalid plan when usage is known and does not repair a capability refusal", async () => {
     let calls = 0;
     const model = fakeModel(() => {

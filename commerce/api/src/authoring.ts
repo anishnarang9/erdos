@@ -402,12 +402,13 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         };
       }
       if (!verdict.ok) {
+        const errors = explainRepairErrors(result.plan, verdict.errors);
         return {
           attempt,
-          response: { kind: "unsupported", draftId, reason: "plan_invalid", errors: verdict.errors },
+          response: { kind: "unsupported", draftId, reason: "plan_invalid", errors },
           hash: null,
           fatal: false,
-          feedback: { attempt: 1, reason: "plan_invalid", errors: explainRepairErrors(result.plan, verdict.errors), counterexamples: [] },
+          feedback: { attempt: 1, reason: "plan_invalid", errors, counterexamples: [] },
         };
       }
       const fileErrors = checkPlanFiles(result.plan, body.outputs, body.references.length > 0 ? body.references.map((file) => file.name) : null);
