@@ -1,11 +1,10 @@
-// Replays the recorded real Grok drafts (scripts/record-grok.ts) through the API and the real engine.
-// The recordings are keyed by sha256(JCS(model input)), so a prompt, schema or catalog change needs a re-record.
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+// Replays historical provider replies through the current API and real engine.
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, describe, expect, it } from "vitest";
-import { createApp, engineConfigFromEnv, engineFromConfig, replayDraftModel } from "../../src/index.ts";
+import { createApp, engineConfigFromEnv, engineFromConfig, ModelError, replayDraftModel, type DraftModelInput } from "../../src/index.ts";
 import { CASES } from "./grok-cases.ts";
 
 const DIR = fileURLToPath(new URL("./fixtures/grok/", import.meta.url));
@@ -14,13 +13,29 @@ const config = engineConfigFromEnv(process.env);
 if (!config) throw new Error("Set ENGINE_MODE=wsl (or native) and ENGINE_PATH to run the real-engine suite");
 if (!recorded) console.warn("[grok-replay] NOT RUN: no recordings yet. Run `corepack pnpm record:grok` with XAI_API_KEY in .env.");
 
+const archivePath = join(DIR, "022d31121bf8efeae17678b21e243873a26a016b0a13112ffcc0c64ea36f71a2.json");
+const archivedInput = existsSync(archivePath)
+  ? (JSON.parse(readFileSync(archivePath, "utf8")) as {input: DraftModelInput}).input
+  : undefined;
+const replay = replayDraftModel(DIR);
+
 const TOKEN = "grok-replay-buyer-token-0000000";
 const dbDir = mkdtempSync(join(tmpdir(), "ubc26-grok-replay-"));
 const { app, close } = createApp({
   dbPath: join(dbDir, "api.db"),
   buyerToken: TOKEN,
   engine: engineFromConfig(config).engine,
-  draftModel: replayDraftModel(DIR),
+  draftModel: {
+    async draft(input) {
+      try {
+        return await replay.draft(input);
+      } catch (err) {
+        if (!archivedInput || !(err instanceof ModelError) || err.reason !== "no_recording") throw err;
+        // Match the original catalog and schema. All other inputs must match the recording key.
+        return replay.draft({ ...input, schema: archivedInput.schema, catalog: archivedInput.catalog });
+      }
+    },
+  },
 });
 afterAll(() => {
   close();

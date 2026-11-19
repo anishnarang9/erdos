@@ -246,6 +246,7 @@ export const DRAFT_SYSTEM_PROMPT = [
   "The unique operation returns a Boolean. Use it as a Boolean rule or combine it with Boolean rules;",
   "never compare unique to a numeric count.",
   "Both operands of and and or always run. They cannot guard a lookup that may reject.",
+  "If the capability catalog lists if, use op if with a Boolean condition and same-type then and else expressions. Only the selected branch runs.",
   "Use any or count with a predicate to treat a missing match as a rule failure. Lookup rejects a missing or duplicate key.",
   "To compare a full text/v1 file, use a field expression with `source` and `file` only. Omit the `field` key. Do not invent a `content` field. For json/v1, `field` must name a declared scalar field.",
   "If the job needs an operation, parser or evidence profile that is NOT in the catalog, still reply with",

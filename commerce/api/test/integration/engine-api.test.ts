@@ -1,8 +1,8 @@
 // Real-engine integration: the API drives Anish's engine CLI (validate, eval, compile) with no simulation.
 // Run: ENGINE_MODE=wsl ENGINE_PATH=/home/<you>/.../engine/target/debug/engine ENGINE_WORK_DIR='\\wsl.localhost\Ubuntu\...'
 //      PACKAGES_DIR='\\wsl.localhost\Ubuntu\...' pnpm --filter @ubc26/api test:engine
-// The fixture is engine/fixtures/reconciliation (codex/anish-engine adda3a3). Its expected commitments are
-// the ones Anish's checked-in receipts were proved against, so this test also checks the build is reproducible.
+// The fixture keeps the historical rules, structure, and reference commitments.
+// Compare two builds from the current engine because guest source changes can change the image ID.
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
@@ -25,6 +25,7 @@ import {
   referenceDigestOf,
   type DraftModel,
   type Engine,
+  type Manifest,
 } from "../../src/index.ts";
 
 const run = promisify(execFile);
@@ -37,10 +38,8 @@ const dir = (rel: string) =>
     .sort()
     .map((name) => ({ name, content: read(`${rel}/${name}`).toString("utf8") }));
 
-// Commitments of Anish's reconciliation receipts (engine/fixtures/reconciliation/job.json and the compile
-// manifest). A fresh compile on this machine must reproduce them.
+// Stable plan and reference commitments for the reconciliation fixture.
 const EXPECT = {
-  imageId: "0x57eb5af820f9f227023577d40efc83ef67d7dc7628f35611df2efa019298d62d",
   rulesHash: "0x9d80733e84535cb38cc0190be30cf6438f6e2fbdbff9d7228336ae7f3e4b3457",
   referenceHash: "0x49a43354a7e390a36a5d0f3281e4fe32e7b2be0052b46c970dfe32de09ce07dd",
   structureHash: "0x5a474b90a9150289128216f73e7bcbee037c3b02ce424180532af972e7bcc021",
@@ -118,6 +117,7 @@ describe("engine contract", () => {
 describe("typed import -> approve -> compile on the real engine", () => {
   let jobId: string;
   let revisionHash: string;
+  let compiledManifest: Manifest;
 
   it("POST /v1/jobs validates with the real engine and stores its hashes", async () => {
     makeApp();
@@ -162,11 +162,17 @@ describe("typed import -> approve -> compile on the real engine", () => {
     expect(r.body.approval).toMatchObject({ rulesHash: EXPECT.rulesHash, structureHash: EXPECT.structureHash, referenceDigest: EXPECT.referenceHash });
   });
 
-  it("compile reproduces Anish's image ID and keeps the package", async () => {
+  it("compile agrees with the current native compiler and keeps the package", async () => {
     const r = await post(`/v1/jobs/${jobId}/compile`, { revisionHash });
     expect(r.status, JSON.stringify(r.body)).toBe(200);
-    expect(r.body.manifest).toMatchObject(EXPECT);
-    expect(r.body.manifest.riscZero).toBe("3.1.0");
+    compiledManifest = r.body.manifest as Manifest;
+    expect(compiledManifest).toMatchObject(EXPECT);
+    expect(compiledManifest.imageId).toMatch(/^0x[0-9a-f]{64}$/);
+    expect(compiledManifest.riscZero).toBe("3.1.0");
+    const direct = await engine.compile({ plan: PLAN, reference: [LEDGER] });
+    expect(direct.ok).toBe(true);
+    if (!direct.ok) throw new Error("Native compile failed");
+    expect(direct.manifest).toEqual(compiledManifest);
     expect(r.body.packageUrl).toBe(`/v1/jobs/${jobId}/package`);
   });
 
@@ -206,7 +212,7 @@ describe("typed import -> approve -> compile on the real engine", () => {
         body: JSON.stringify({ revisionHash }),
       });
       expect(cached.status, await cached.clone().text()).toBe(200);
-      expect(await cached.json()).toMatchObject({ state: "compiled", manifest: EXPECT, packageUrl: `/v1/jobs/${jobId}/package` });
+      expect(await cached.json()).toMatchObject({ state: "compiled", manifest: compiledManifest, packageUrl: `/v1/jobs/${jobId}/package` });
       const market: MarketApp = { ...restarted, db, dbPath: persistedPath!, clock: { ms: now } };
       const quote = await quoteBody(provider, config.chainId, { revisionHash }, now);
       const quoted = await postQuote(market, jobId, provider, quote);
@@ -218,7 +224,7 @@ describe("typed import -> approve -> compile on the real engine", () => {
       });
       expect(selected.status, await selected.clone().text()).toBe(200);
       expect(await selected.json()).toMatchObject({ state: "selected", fundingTerms: {
-        imageId: EXPECT.imageId, rulesHash: EXPECT.rulesHash, referenceHash: EXPECT.referenceHash,
+        imageId: compiledManifest.imageId, rulesHash: EXPECT.rulesHash, referenceHash: EXPECT.referenceHash,
         expiredAt: String(timestamp + 3600n), description: `ubc26:${jobId}`,
       }, txRequests: [{ kind: "approve" }, { kind: "createJob" }], afterCreate: { order: ["createJob", "setBudget", "approve", "fund"] } });
     } finally { restarted.close(); db.close(); }
@@ -295,10 +301,16 @@ describe("edits void the approval (real engine)", () => {
 });
 
 describe("drafting with engine-labelled examples (fixed model reply, real engine)", () => {
-  it("examples are labelled by `engine eval`, and a wrong model prediction is flagged", async () => {
+  it.each(["legacy", "conditional"])("labels %s plan examples with the native engine", async (mode) => {
+    const condition = { op: "literal", type: "bool", value: true };
     const reply = {
       kind: "draft",
-      plan: PLAN,
+      plan: mode === "conditional" ? {
+        ...PLAN,
+        rules: (PLAN.rules as unknown[]).map(rule => ({
+          op: "if", condition, then: rule, else: { op: "literal", type: "bool", value: false },
+        })),
+      } : PLAN,
       examples: [
         { name: "pass", files: dir("pass"), predictedVerdict: 1 },
         { name: "fail-but-model-says-pass", files: dir("fail"), predictedVerdict: 1 },
@@ -316,7 +328,11 @@ describe("drafting with engine-labelled examples (fixed model reply, real engine
     });
     expect(r.status, JSON.stringify(r.body)).toBe(200);
     expect(r.body.kind).toBe("draft");
-    expect(r.body.engine).toEqual({ structureHash: EXPECT.structureHash, rulesHash: EXPECT.rulesHash });
+    const native = await engine.validate(reply.plan);
+    expect(native.ok).toBe(true);
+    if (!native.ok) throw new Error("Native validation failed");
+    expect(r.body.engine).toEqual(native.hashes);
+    if (mode === "legacy") expect(native.hashes).toEqual({ structureHash: EXPECT.structureHash, rulesHash: EXPECT.rulesHash });
     expect(r.body.examples[0]).toMatchObject({ name: "pass", checkerVerdict: 1, agrees: true });
     expect(r.body.examples[1]).toMatchObject({ name: "fail-but-model-says-pass", checkerVerdict: 0, agrees: false });
     expect(r.body.examples[2]).toMatchObject({ name: "broken-json", checkerVerdict: null, agrees: null });

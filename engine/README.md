@@ -98,6 +98,8 @@ Collection operations use a collection object with source, file, and field. The 
 
 The checker evaluates both operands of `and` and `or`. A missing lookup key rejects the input even if the other operand determines the Boolean result. Use `any` or `count` with a predicate when no matching row should produce verdict 0.
 
+Use `{"op":"if","condition":...,"then":...,"else":...}` to guard an expression. The condition must be Boolean, and both branches must have the same type. The checker validates both branches and evaluates the selected branch only. File and evidence validation still runs before any rule.
+
 Use record_field inside a collection expression. Its field identifies the record field. An optional level selects an outer record scope, with 0 for the current record. An empty collection satisfies all and fails any. Empty sums and counts return 0. Arithmetic remains checked. The checker limits each evaluation to 1,000,000 expression visits.
 
 ## Verify signed evidence

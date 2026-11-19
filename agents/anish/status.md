@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-19 09:25 -05:00 — Anish — Add a typed conditional for guarded rules
+
+- The engine now supports `if` with a Boolean condition and same-type branches. Both branches count toward the static limits and rules commitment. The checker evaluates only the selected branch. Existing Boolean operators stay eager. The API's schema and catalog match the engine.
+- The conditional warehouse plan matched all 11 frozen oracle cases. On a 128-hop route the guest used 7,087,607 cycles, down from 57,702,261 for the pairwise plan. Both checkers returned verdict 1 on the continuous route and verdict 0 on the broken route. The prior 96-order package still executes with its original image and cycle count.
+- Rust format, Clippy, workspace tests, 86 qualification checks, 326 frozen comparisons, wire checks, and full commerce checks passed. All 16 native API integration tests passed. Historical Grok recordings keep their original schema and catalog in the test adapter. The package integration test compares the API and current native compiler manifests and still pins the original rules and reference commitments.
+- Both Opus and Sonnet requests through `agy` hit the quota before dispatch. The two-hop local Groth16 run is active on the same checker image as the 128-hop workload. No deployment or Arc transaction ran.
+
 ## 2026-11-19 09:15 -05:00 — Anish — Verify the 96-order Groth16 proof and recovery
 
 - The longer local run completed with verdict 1 in 926,238 ms at 5,038,205 guest cycles. The CLI verified the receipt against checker image `0xae8a9dc695b18d2f00986f0e273ade1a20923385f2251796dc3bf682f6da06d1`. The seal is 260 bytes with selector `0xe71e6620`.

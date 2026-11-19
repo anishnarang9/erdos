@@ -136,6 +136,16 @@ struct Unary {
     value: Value,
 }
 
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Conditional {
+    condition: Value,
+    #[serde(rename = "then")]
+    then_branch: Value,
+    #[serde(rename = "else")]
+    else_branch: Value,
+}
+
 fn decode<T: serde::de::DeserializeOwned>(value: Value, path: &str) -> Result<T, PlanError> {
     serde_path_to_error::deserialize(value).map_err(|error| {
         let mut pointer = path.to_owned();
@@ -280,6 +290,33 @@ impl<'a> Lowerer<'a> {
                     return Err(PlanError::invalid(path, "Expected a Boolean operand"));
                 }
                 Ok((Kind::Bool, json!({"op": op, "value": value})))
+            }
+            "if" => {
+                let input: Conditional = decode(operands, path)?;
+                let condition_path = format!("{path}/condition");
+                let (kind, condition) =
+                    self.expression(input.condition, &condition_path, depth + 1)?;
+                if kind != Kind::Bool {
+                    return Err(PlanError::invalid(
+                        &condition_path,
+                        "Expected a Boolean condition",
+                    ));
+                }
+                let (then_kind, then_branch) =
+                    self.expression(input.then_branch, &format!("{path}/then"), depth + 1)?;
+                let else_path = format!("{path}/else");
+                let (else_kind, else_branch) =
+                    self.expression(input.else_branch, &else_path, depth + 1)?;
+                if then_kind != else_kind {
+                    return Err(PlanError::invalid(
+                        &else_path,
+                        "Both branches must have the same type",
+                    ));
+                }
+                Ok((
+                    then_kind,
+                    json!({"op":op,"condition":condition,"then":then_branch,"else":else_branch}),
+                ))
             }
             "add" | "sub" | "mul" | "lt" | "lte" | "gt" | "gte" | "eq" | "ne" | "and" | "or" => {
                 let input: Binary = decode(operands, path)?;

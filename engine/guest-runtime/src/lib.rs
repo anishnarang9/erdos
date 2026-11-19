@@ -219,6 +219,13 @@ pub enum Expression {
     Not {
         value: Box<Expression>,
     },
+    If {
+        condition: Box<Expression>,
+        #[serde(rename = "then")]
+        then_branch: Box<Expression>,
+        #[serde(rename = "else")]
+        else_branch: Box<Expression>,
+    },
     Add(Binary),
     Sub(Binary),
     Mul(Binary),
@@ -635,6 +642,18 @@ impl<'a> Evaluator<'a> {
                     return Err(CheckError::Rule);
                 };
                 Scalar::Bool(!value)
+            }
+            If {
+                condition,
+                then_branch,
+                else_branch,
+            } => {
+                let condition = self.evaluate(condition, depth + 1)?;
+                let Scalar::Bool(condition) = condition.as_scalar() else {
+                    return Err(CheckError::Rule);
+                };
+                let branch = if *condition { then_branch } else { else_branch };
+                return self.evaluate(branch, depth + 1);
             }
             Add(binary) | Sub(binary) | Mul(binary) | Lt(binary) | Lte(binary) | Gt(binary)
             | Gte(binary) | Eq(binary) | Ne(binary) | And(binary) | Or(binary) => {

@@ -71,6 +71,25 @@ fn assert_rejected(input: &Value, parameters: &Value) {
 }
 
 #[test]
+fn an_if_type_checks_the_branch_that_will_not_run() {
+    let valid = structure(json!({
+        "op":"if",
+        "condition":{"op":"parameter","slot":0,"type":"bool"},
+        "then":{"op":"parameter","slot":1,"type":"bool"},
+        "else":{"op":"parameter","slot":2,"type":"bool"}
+    }));
+    let params = json!([
+        {"type":"bool","value":true},
+        {"type":"bool","value":true},
+        {"type":"bool","value":false}
+    ]);
+    assert_eq!(run(&valid, &params, &json!([])), Ok(Verdict::Pass));
+    let mut invalid = valid;
+    invalid["rules"][0]["else"]["slot"] = json!(999);
+    assert_rejected(&invalid, &params);
+}
+
+#[test]
 fn rejects_invalid_selectors_and_types_inside_empty_quantifiers() {
     for body in [
         record(999, 0),
