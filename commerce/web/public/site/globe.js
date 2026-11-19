@@ -148,6 +148,28 @@ export function initGlobe(host, { reduced = false } = {}) {
   const stGeo = new THREE.BufferGeometry(); stGeo.setAttribute('position', new THREE.Float32BufferAttribute(st, 3));
   scene.add(new THREE.Points(stGeo, new THREE.PointsMaterial({ color: 0x7c86c8, size: .05, transparent: true, opacity: .5, depthWrite: false })));
 
+  // A loose spiral occupies the open sky above the headline.
+  const spiralPositions = [], spiralColors = [];
+  const starPalette = [0x98d9ff, 0xb1a4ff, 0xe0f6ff].map(hex => new THREE.Color(hex));
+  for (let i = 0; i < 420; i++) {
+    const radius = Math.sqrt(rnd()) * 6.5;
+    const angle = (i % 3) * Math.PI * 2 / 3 + radius * .48 + (rnd() - .5) * 1.45;
+    spiralPositions.push(radius * Math.cos(angle), radius * Math.sin(angle), -rnd());
+    const color = starPalette[i % starPalette.length];
+    spiralColors.push(color.r, color.g, color.b);
+  }
+  const spiralGeometry = new THREE.BufferGeometry();
+  spiralGeometry.setAttribute('position', new THREE.Float32BufferAttribute(spiralPositions, 3));
+  spiralGeometry.setAttribute('color', new THREE.Float32BufferAttribute(spiralColors, 3));
+  const spiral = new THREE.Points(spiralGeometry, new THREE.PointsMaterial({
+    map: glowTex, vertexColors: true, size: .26, transparent: true,
+    depthWrite: false, blending: THREE.AdditiveBlending,
+  }));
+  const spiralPlane = new THREE.Group();
+  spiralPlane.rotation.set(.82, -.12, .24);
+  spiralPlane.add(spiral);
+  scene.add(spiralPlane);
+
   // State feedback from the (simulated) experiment: cyan pulse on pass, magenta-red on fail.
   let pulseColor = new THREE.Color(0, 0, 0), pulseAmt = 0, tintMix = 0;
   const pass = new THREE.Color(0x52ffd9), fail = new THREE.Color(0xff3d6e);
@@ -157,6 +179,9 @@ export function initGlobe(host, { reduced = false } = {}) {
   let layout = { x: 0, y: 0, s: 1 };
   function resize() {
     const w = host.clientWidth, h = host.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    const skyHeight = 2 * (camera.position.z + 9) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    spiralPlane.position.set(-.28 * skyHeight * camera.aspect, .24 * skyHeight, -9);
+    spiralPlane.scale.setScalar(w < 760 ? .64 : 1);
     world.position.set(layout.x, layout.y, 0); world.scale.setScalar(layout.s * (w < 760 ? .62 : 1));
     dirty = true;
   }
@@ -174,6 +199,8 @@ export function initGlobe(host, { reduced = false } = {}) {
     if (!paused) { time += dt; dirty = true; }
     if (!dirty) return;
     vx += (mx - vx) * Math.min(1, dt * 3); vy += (my - vy) * Math.min(1, dt * 3);
+    spiral.rotation.z = time * .045;
+    spiral.material.opacity = .85 + .1 * Math.sin(time * .65);
     spin.rotation.y = 3.0 + time * .03 + yaw;
     world.rotation.set(vy, vx, 0);
     orbit.rotation.y = time * .015; field.rotation.y = time * .01; field.rotation.x = Math.sin(time * .05) * .05;
