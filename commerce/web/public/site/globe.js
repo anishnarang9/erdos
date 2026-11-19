@@ -234,24 +234,30 @@ export function initGlobe(host, { reduced = false } = {}) {
   // local spacing and height of the flame tips without restarting a loop.
   const flareMaterial = new THREE.ShaderMaterial({
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    uniforms: { clock: { value: 0 } },
+    uniforms: { clock: { value: 0 }, turn: { value: 0 }, viewShift: { value: 0 } },
     vertexShader: `varying vec2 disc;
       void main() {
         disc = position.xy;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.);
+        vec4 center = modelViewMatrix * vec4(0., 0., 0., 1.);
+        center.xy += position.xy * length(modelViewMatrix[0].xyz);
+        gl_Position = projectionMatrix * center;
       }`,
     fragmentShader: `varying vec2 disc;
-      uniform float clock;
+      uniform float clock, turn, viewShift;
       void main() {
         float radius = length(disc);
-        float angle = atan(disc.y, disc.x);
-        float phase = clock * 1.8 + .85 * sin(clock * .73);
-        float swell = .5 + .5 * sin(5. * angle - phase + sin(3. * angle + clock * .8));
-        float ripple = .5 + .5 * sin(13. * angle + phase + 2. * swell - 4. * radius);
-        float height = .09 + .42 * swell * swell + .14 * ripple;
+        float angle = atan(disc.y, disc.x) - turn;
+        float t = clock + viewShift;
+        float drift = sin(2. * angle - .43 * t) + .5 * sin(5. * angle + .67 * t + 1.1);
+        float warped = angle + .19 * drift;
+        float phase = 1.55 * t + .9 * sin(.71 * t + drift);
+        float swell = .5 + .5 * sin(5. * warped - phase + .8 * sin(3. * angle + .8 * t));
+        float ripple = .5 + .5 * sin(13. * warped + phase + 2. * swell - 4. * radius);
+        float burst = pow(.5 + .5 * sin(3. * angle + .57 * t + 1.4 * drift), 4.);
+        float height = .07 + (.21 + .36 * burst) * swell * swell + .14 * ripple;
         float altitude = max(radius - .98, 0.);
         float plume = 1. - smoothstep(.02, height, altitude);
-        float filament = .5 + .5 * cos(27. * angle - phase + 9. * altitude + 2. * ripple);
+        float filament = .5 + .5 * cos(27. * warped - phase + 9. * altitude + 2. * ripple);
         float strength = smoothstep(.96, 1.01, radius) * plume * (.35 + .65 * filament);
         vec3 color = mix(vec3(1., .12, .012), vec3(1., .66, .13), plume * plume);
         gl_FragColor = vec4(color, strength);
@@ -259,42 +265,50 @@ export function initGlobe(host, { reduced = false } = {}) {
       }`,
   });
   const flareWaves = new THREE.Mesh(new THREE.PlaneGeometry(3.5, 3.5), flareMaterial);
-  scene.add(flareWaves);
+  sun.axis.add(flareWaves);
 
   // A rotating helix tapers to zero displacement at both planetary limbs.
   const pathShape = new THREE.CylinderGeometry(1, 1, 1, 8, 96, true);
-  const links = [[mars, sun], [sun, saturn]].map(([from, to], index) => {
+  const earthLimb = { axis: world, localRadius: R };
+  const links = [saturn, mars].map(from => {
     const path = new THREE.Group();
     for (const [radius, opacity] of [[.016, .95], [.042, .16]]) {
       const material = new THREE.ShaderMaterial({
         transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
         uniforms: {
           clock: flareMaterial.uniforms.clock, radius: { value: radius }, brightness: { value: opacity },
-          speed: { value: index === 0 ? 1.8 : -2.1 }, amplitude: { value: index === 0 ? .29 : .20 },
         },
-        vertexShader: `uniform float clock, radius, speed, amplitude;
+        vertexShader: `uniform float clock, radius; varying float along;
           void main() {
             float t = clamp(position.y + .5, 0., 1.);
             float envelope = 4. * t * (1. - t);
-            float phase = 15.708 * t + speed * clock;
+            along = t;
+            float phase = 15.708 * t + 1.8 * clock;
             vec3 p = position;
-            p.xz = position.xz * radius + amplitude * envelope * vec2(cos(phase), sin(phase));
+            p.xz = position.xz * radius + .18 * envelope * vec2(cos(phase), sin(phase));
             gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.);
           }`,
-        fragmentShader: `uniform float brightness;
-          void main() { gl_FragColor = vec4(1., 1., 1., brightness); }`,
+        fragmentShader: `uniform float brightness; varying float along;
+          void main() {
+            float repeatPos = along * 10.;
+            float edge = abs(fract(repeatPos + .5) - .5);
+            float aa = clamp(fwidth(repeatPos), .005, .12);
+            float dash = 1. - smoothstep(.31 - aa, .31 + aa, edge);
+            vec3 color = mix(vec3(.22, .62, 1.), vec3(.74, .36, 1.), along);
+            gl_FragColor = vec4(color, dash * brightness);
+          }`,
       });
       const mesh = new THREE.Mesh(pathShape, material);
       path.add(mesh);
     }
     scene.add(path);
-    return { from, to, path };
+    return { from, to: earthLimb, path };
   });
   const up = new THREE.Vector3(0, 1, 0);
   const start = new THREE.Vector3(), end = new THREE.Vector3(), direction = new THREE.Vector3();
   const eyeDirection = new THREE.Vector3(), toward = new THREE.Vector3();
   function visibleLimb(body, neighbor, point) {
-    const center = body.axis.position, radius = body.axis.scale.x;
+    const center = body.axis.position, radius = body.axis.scale.x * (body.localRadius ?? 1);
     eyeDirection.subVectors(camera.position, center);
     const distance = eyeDirection.length();
     eyeDirection.divideScalar(distance);
@@ -333,13 +347,11 @@ export function initGlobe(host, { reduced = false } = {}) {
       planet.axis.position.set(x * planetHeight * camera.aspect, y * planetHeight, planet.depth);
       planet.axis.scale.setScalar(planet.radius * (w < 760 ? .6 : 1));
     }
-    flareWaves.position.copy(sun.axis.position);
-    flareWaves.lookAt(camera.position);
-    flareWaves.scale.copy(sun.axis.scale);
-    placeLinks();
+    flareMaterial.uniforms.viewShift.value = reduced ? 0 : (layout.s - .74) * 3;
     spiralPlane.position.set(-.28 * skyHeight * camera.aspect, .24 * skyHeight, -9);
     spiralPlane.scale.setScalar(w < 760 ? .64 : 1);
     world.position.set(layout.x, layout.y, 0); world.scale.setScalar(layout.s * (w < 760 ? .62 : 1));
+    placeLinks();
     dirty = true;
   }
   new ResizeObserver(resize).observe(host); resize();
@@ -350,7 +362,7 @@ export function initGlobe(host, { reduced = false } = {}) {
   const owners = new Map([[earth, null]]);
   for (const planet of planets) {
     for (const mesh of planet.axis.children) {
-      if (mesh.isMesh) owners.set(mesh, planet);
+      if (mesh.isMesh && mesh !== flareWaves) owners.set(mesh, planet);
     }
   }
   const targets = Array.from(owners.keys());
@@ -411,6 +423,7 @@ export function initGlobe(host, { reduced = false } = {}) {
     for (const planet of planets) planet.body.rotation.y = planet.yaw + time * planet.speed;
     corona.scale.setScalar(4.5 + .18 * Math.sin(time * 1.6));
     flareMaterial.uniforms.clock.value = time;
+    flareMaterial.uniforms.turn.value = sun.body.rotation.y + .55 * sun.axis.rotation.x;
     spiral.rotation.z = time * .045;
     spiral.material.opacity = .85 + .1 * Math.sin(time * .65);
     spin.rotation.y = 3.0 + time * .03 + yaw;
