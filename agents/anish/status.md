@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-19 08:48 -05:00 — Anish — Check dispatch at the collection limit
+
+- The independent dispatch test now runs nine cases each at 96 and 256 orders. All 84 qualification tests and all 326 frozen native comparisons pass.
+- The 256-order guest executed a valid allocation at 11,632,501 user cycles. Compile reused the 96-order guest image when the budget and references changed. The collection limit remains 256 rows.
+- The 96-order local proof is in progress. Two first-pass `agy` authoring probes on the synthetic telescope brief missed its frozen oracle. Opus chose a different output collection name. Sonnet added an invalid comment field. The brief leaves its expected output layout unstated. Repeat with explicit buyer clarification before attributing those results to the engine or live authoring service.
+
 ## 2026-11-19 08:45 -05:00 — Anish — Reuse lookup indexes during evaluation
 
 - Sonnet via `agy` proposed lazy indexes keyed by source, file, collection and key field. Opus reviewed compatibility risks. Each evaluation reuses borrowed rows and still rejects duplicate keys in any used column.
