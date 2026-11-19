@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-19 09:10 -05:00 — Anish — Clarify array and Boolean evaluation rules
+
+- Four direct plan-authoring probes through `agy` covered inventory, badge policy, berth allocation, and route feasibility. All four plans validated. Inventory and berth matched every oracle case. The badge and route drafts chose different array names from the fixtures. The briefs did not require those fixture names.
+- A diagnostic rename alone recovered all seven badge comparisons. The route plan also used `or` to guard a lookup for a missing next hop. The checker evaluates both operands. The authoring prompt now specifies a default `rows` array for an unspecified table and explains eager evaluation and missing-key rejection. The original runs remain unchanged. The fresh follow-up probes hit the `agy` quota before dispatch.
+- Full commerce checks passed before the prompt-only change, including 1,045 API and 1,051 worker tests. The latest prompt passed 34 focused provider and budget tests plus typecheck. The worker timeout and SIGTERM checks also passed in an isolated Linux container.
+- The 96-order proof retry remains live under PID 71238 with a 40-minute limit. At 11 minutes a stack sample showed native RISC Zero recursion, before the Groth16 container. Continue observing the existing run. No deployment or Arc transaction ran.
+
 ## 2026-11-19 09:08 -05:00 — Anish — Stop prover processes when the worker stops
 
 - Sonnet via `agy` reviewed the native timeout path. A new regression showed that the worker timed out while its prover child kept running. The worker now uses the compiler's process-group cleanup and keeps its existing per-stream output limit and error codes.

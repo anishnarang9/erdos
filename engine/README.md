@@ -96,6 +96,8 @@ Run the following command. Replace pass with fail to check a changed amount.
 
 Collection operations use a collection object with source, file, and field. The count operation can include a Boolean where expression. The sum operation uses an integer value expression. The all and any operations use a Boolean where expression. The unique operation names a record field. The lookup operation names keyField and valueField and takes a typed key expression. A lookup requires one matching row and rejects duplicate keys in its source collection.
 
+The checker evaluates both operands of `and` and `or`. A missing lookup key rejects the input even if the other operand determines the Boolean result. Use `any` or `count` with a predicate when no matching row should produce verdict 0.
+
 Use record_field inside a collection expression. Its field identifies the record field. An optional level selects an outer record scope, with 0 for the current record. An empty collection satisfies all and fails any. Empty sums and counts return 0. Arithmetic remains checked. The checker limits each evaluation to 1,000,000 expression visits.
 
 ## Verify signed evidence
