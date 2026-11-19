@@ -1,3 +1,8 @@
+# 2026-11-18 19:29 -0500 — Retry throttled Arc role history reads
+
+- The Arc role audit retries the same log range up to twice on HTTP 429 or RPC -32005. Permanent errors still stop the audit. The chain anchor and role checks must pass before the audit caches results.
+- Used Sonnet 4.6 through `agy` to review the retry and its invariants. Project guidance now names Sonnet for harder tasks and Opus for work that needs deeper reasoning. Fifteen focused tests and worker typecheck passed. A repeat live run with this change remains pending.
+
 # 2026-11-18 19:23 -0500 — Report the buyer recovery failure stage
 
 - Flash High used a scoped headless command to inspect the prior recovery process for settled Arc job 10. The process exited with a redacted generic error. The runner now reports a fixed recovery stage for local and chain validation failures and preserves SDK-sanitized public API errors.

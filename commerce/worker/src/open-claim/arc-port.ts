@@ -1,5 +1,6 @@
+import { setTimeout as delay } from "node:timers/promises";
 import {
-  decodeEventLog, hexToBytes, isAddressEqual, keccak256, parseAbi, stringToHex, zeroHash,
+  BaseError, HttpRequestError, LimitExceededRpcError, decodeEventLog, hexToBytes, isAddressEqual, keccak256, parseAbi, stringToHex, zeroHash,
   type Abi, type Address, type Hex, type PublicClient,
 } from "viem";
 import { arcCoreAbi, arcErc20Abi, createViemOpenClaimPort, openClaimSignatureAbi } from "@ubc26/sdk";
@@ -78,6 +79,20 @@ export function createArcOpenClaimPort(options: ArcOpenClaimPortOptions): OpenCl
   must(Number.isSafeInteger(roleLogIntervalMs) && roleLogIntervalMs >= 0 && roleLogIntervalMs <= 10_000,
     "deployment", "invalid role-log pacing interval");
   let roleAudit: { block: bigint; hash: Hex; seen: Map<string, Set<string>> } | undefined;
+  async function readRoleLogs(fromBlock: bigint, toBlock: bigint) {
+    const args = { address: witness.core, events: roleHistoryEvents, fromBlock, toBlock };
+    for (let attempt = 0; ; attempt++) {
+      try { return await pub.getLogs(args); }
+      catch (error) {
+        const throttled = error instanceof BaseError && error.walk(cause =>
+          cause instanceof LimitExceededRpcError ||
+          cause instanceof HttpRequestError && cause.status === 429);
+        if (!throttled || attempt === 2) throw error;
+        await delay(Math.max(1000, roleLogIntervalMs) * 2 ** attempt);
+      }
+    }
+  }
+
   async function verifyRoleHistory(blockNumber: bigint): Promise<void> {
     const anchor = await pub.getBlock({ blockNumber });
     must(anchor.hash && anchor.number === blockNumber, "deployment", "confirmed block has no stable hash");
@@ -95,7 +110,7 @@ export function createArcOpenClaimPort(options: ArcOpenClaimPortOptions): OpenCl
     for (let from = previous ? previous.block + 1n : options.coreDeploymentBlock; from <= blockNumber; from += 10_000n) {
       const to = from + 9_999n < blockNumber ? from + 9_999n : blockNumber;
       if (roleLogIntervalMs) await new Promise(resolve => setTimeout(resolve, roleLogIntervalMs));
-      const logs = await pub.getLogs({ address: witness.core, events: roleHistoryEvents, fromBlock: from, toBlock: to });
+      const logs = await readRoleLogs(from, to);
       must(Array.isArray(logs), "deployment", "core role history is unavailable");
       logs.sort((a, b) => a.blockNumber === b.blockNumber ? (a.logIndex ?? 0) - (b.logIndex ?? 0)
         : a.blockNumber! < b.blockNumber! ? -1 : 1);
