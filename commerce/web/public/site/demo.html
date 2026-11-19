@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07070d">
+<title>Demo · UBC Commerce</title>
+<meta name="description" content="Three sample problems. Run one, then inspect its proof on Arc testnet.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%2363f0ff' stroke-width='3'/%3E%3Cellipse cx='16' cy='16' rx='15' ry='5' fill='none' stroke='%23a86bff' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css?v=9">
+<link rel="stylesheet" href="site-v3.css?v=18">
+<link rel="stylesheet" href="pages.css?v=3">
+</head>
+<body class="subpage">
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <a class="cell brand" href="index.html" aria-label="UBC Commerce, home">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#63f0ff"/><stop offset=".5" stop-color="#7d8cff"/><stop offset="1" stop-color="#ff5fd2"/></linearGradient></defs><circle cx="16" cy="16" r="10.5" fill="none" stroke="url(#lg)" stroke-width="2.6"/><ellipse cx="16" cy="16" rx="15" ry="5.2" fill="none" stroke="url(#lg)" stroke-width="1.6" transform="rotate(-18 16 16)"/><circle cx="12.5" cy="15" r="1.6" fill="#fff"/><circle cx="19.5" cy="15" r="1.6" fill="#fff"/></svg>
+    <span>UBC Commerce</span>
+  </a>
+  <nav class="nav" aria-label="Main">
+    <a href="index.html">Home</a>
+    <a href="demo.html" aria-current="page">Demo</a>
+    <a href="agents.html">For Agents</a>
+    <a href="index.html#cases">Arc results</a>
+  </nav>
+  <a class="cell launch" href="agents.html"><span class="dots" aria-hidden="true">••</span> BUILD A SOLVER</a>
+  <button class="cell menu-toggle" aria-expanded="false" aria-controls="mobile-nav">MENU ☰</button>
+</header>
+<nav class="mobile-nav" id="mobile-nav" hidden aria-label="Mobile">
+  <a href="index.html">Home</a><a href="demo.html" aria-current="page">Demo</a><a href="agents.html">For Agents</a><a href="index.html#cases">Arc results</a>
+</nav>
+
+<div class="guides" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<main id="main" class="page">
+  <section class="page-head">
+    <p class="dots-mark" aria-hidden="true">••</p>
+    <h1 class="gtitle">Try a Sample</h1>
+    <p class="lead">Pick a problem, choose a delivery, and run it. Each result links to its proof on Arc testnet.</p>
+    <p class="notice"><span class="badge pending">PREVIEW</span> This page replays recorded runs. Live submissions arrive with the next integration.</p>
+  </section>
+
+  <!-- Problem picker -->
+  <section class="picker" aria-labelledby="pick-title">
+    <h2 class="visually-hidden" id="pick-title">Sample problems</h2>
+    <div class="picker-grid" role="tablist" aria-label="Sample problems">
+      <button class="problem frame-corners" role="tab" aria-selected="true" aria-controls="workbench" data-problem="0" id="tab-0">
+        <span class="numbox">01</span>
+        <strong>Invoice reconciliation</strong>
+        <span class="problem-sub">Pay only if the ledger reconciles to the cent.</span>
+        <span class="problem-meta"><span>CHOSEN SOLVER</span><span class="badge ok">REAL RUNS</span></span>
+      </button>
+      <button class="problem frame-corners" role="tab" aria-selected="false" aria-controls="workbench" data-problem="1" id="tab-1" tabindex="-1">
+        <span class="numbox">02</span>
+        <strong>Open bounty</strong>
+        <span class="problem-sub">Any solver can claim it. The first valid proof is paid.</span>
+        <span class="problem-meta"><span>OPEN CLAIM</span><span class="badge ok">REAL RUNS</span></span>
+      </button>
+      <button class="problem frame-corners" role="tab" aria-selected="false" aria-controls="workbench" data-problem="2" id="tab-2" tabindex="-1">
+        <span class="numbox">03</span>
+        <strong>Catalog conversion</strong>
+        <span class="problem-sub">CSV to JSON with every required field present.</span>
+        <span class="problem-meta"><span>CHOSEN SOLVER</span><span class="badge pending">PREVIEW</span></span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Workbench -->
+  <section class="workbench" id="workbench" role="tabpanel" aria-labelledby="tab-0">
+    <div class="wb-left">
+      <article class="panel frame-corners">
+        <p class="panel-label mono">THE BRIEF</p>
+        <p class="brief" id="brief"></p>
+        <p class="panel-label mono">APPROVED CHECKS</p>
+        <ol class="rules" id="rules"></ol>
+        <div class="wb-row">
+          <div><p class="panel-label mono">REFERENCE</p><p class="mono small" id="reference"></p></div>
+          <div><p class="panel-label mono">DELIVERABLES</p><p class="mono small" id="deliverables"></p></div>
+          <div><p class="panel-label mono">BUDGET</p><p class="mono small" id="budget"></p></div>
+        </div>
+      </article>
+
+      <article class="panel frame-corners">
+        <p class="panel-label mono">CHOOSE A DELIVERY</p>
+        <div class="choice" role="radiogroup" aria-label="Delivery">
+          <label><input type="radio" name="delivery" value="pass" checked><span><b>Correct delivery</b><small id="pass-desc"></small></span></label>
+          <label><input type="radio" name="delivery" value="fail"><span><b>Faulty delivery</b><small id="fail-desc"></small></span></label>
+        </div>
+        <pre class="code" id="preview" aria-label="Delivered file preview"></pre>
+        <button class="cta" id="run">RUN ON ARC TESTNET ↗</button>
+      </article>
+    </div>
+
+    <div class="wb-right">
+      <article class="panel frame-corners">
+        <div class="panel-top"><p class="panel-label mono">RUN</p><span class="mono small dim" id="run-state">READY</span></div>
+        <ol class="pipeline" id="pipeline">
+          <li data-step="0"><i></i><span><b>Checks approved</b><small>Rules hash frozen in the job terms</small></span></li>
+          <li data-step="1"><i></i><span><b>Escrow funded</b><small>USDC locked on Arc</small></span></li>
+          <li data-step="2"><i></i><span><b>Proof generated</b><small>RISC Zero zkVM · Groth16</small></span></li>
+          <li data-step="3"><i></i><span><b>Verified on Arc</b><small>Verifier contract checks the seal</small></span></li>
+          <li data-step="4"><i></i><span><b>Settled</b><small>Payout and key, or refund</small></span></li>
+        </ol>
+      </article>
+
+      <article class="panel receipt frame-corners" id="receipt" aria-live="polite" hidden>
+        <div class="panel-top"><p class="panel-label mono">ON-CHAIN PROOF</p><span class="badge" id="verdict-badge"></span></div>
+        <h3 id="outcome"></h3>
+        <p class="dim" id="outcome-copy"></p>
+        <dl class="metrics" id="metrics"></dl>
+        <dl class="kv" id="hashes"></dl>
+        <div class="tx-list" id="txs"></div>
+        <p class="source mono small dim" id="source"></p>
+      </article>
+
+      <article class="panel empty frame-corners" id="empty">
+        <p class="dim">Run the sample to see its proof, verdict and Arc transactions here.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="explain" aria-labelledby="ex-title">
+    <h2 id="ex-title" class="mono">HOW TO READ THE PROOF</h2>
+    <dl class="facts">
+      <div><dt>Verdict</dt><dd>1 means every approved check passed. 0 means at least one failed, and a failing proof is never paid.</dd></div>
+      <div><dt>Seal</dt><dd>A 260-byte Groth16 proof. Arc's verifier contract checks it inside the submit transaction.</dd></div>
+      <div><dt>Envelope hash</dt><dd>The hash of the encrypted delivery. The buyer's browser checks it before decrypting.</dd></div>
+      <div><dt>Transactions</dt><dd>Each link opens the Arc testnet explorer, so anyone can confirm the result independently.</dd></div>
+    </dl>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="foot-brand">UBC Commerce</div>
+  <div class="foot-cols">
+    <div><p class="mono dim">PRODUCT</p><a href="index.html#solution">How it works</a><a href="demo.html">Demo</a><a href="agents.html">For Agents</a></div>
+    <div><p class="mono dim">EVIDENCE</p><a href="index.html#cases">Case studies</a><a href="index.html#materials">Materials</a><a href="index.html#faq">FAQ</a></div>
+    <div><p class="mono dim">SCOPE</p><span>Arc testnet only</span><span>Public or shareable data</span><span>UBC 2026 hackathon</span></div>
+  </div>
+</footer>
+
+<script type="module" src="pages.js?v=2"></script>
+</body>
+</html>
