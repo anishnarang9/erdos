@@ -425,3 +425,17 @@ body[data-lab="released"] .demo-verdict h3 { color: var(--ok); }
   .sol-left h3 { opacity: var(--heading-opacity, 1); }
   .sol-left p { opacity: var(--description-opacity, 1); }
 }
+
+@font-face {
+  font-family: "Barlow Semi Condensed";
+  src: url("./vendor/barlow-semi-condensed-bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+main :is(.hero-copy h1, .title-wrap .gtitle, .statement .big, .token-left h2, .sol-left h3, .lab-panel h3, .case h3, .layer-main h3, .escrow-inspector h3) {
+  font-family: "Barlow Semi Condensed", var(--sans);
+  font-weight: 700;
+  letter-spacing: -.015em;
+  text-wrap: balance;
+}

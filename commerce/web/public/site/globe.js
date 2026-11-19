@@ -269,34 +269,39 @@ export function initGlobe(host, { reduced = false } = {}) {
 
   // Prominence arcades have paired footpoints on the rotating photosphere.
   // Neighbouring strands rise to different heights and carry moving hot knots.
-  const prominenceMaterial = new THREE.ShaderMaterial({
+  const prominenceShader = {
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    uniforms: { clock: flareMaterial.uniforms.clock },
-    vertexShader: `uniform float clock; varying float along; varying float phase;
+    vertexShader: `uniform float clock, activity; varying float along; varying float phase;
       void main() {
         along = uv.x;
         phase = position.y * 2.8 + position.z * 1.6;
         float crest = sin(3.141593 * along);
         float lift = .037 * crest * sin(.84 * clock + phase + along * 4.);
-        vec3 displaced = position + normalize(position) * lift;
+        // Both footpoints stay on the photosphere as the arch inflates and drains.
+        vec3 surface = normalize(position);
+        vec3 displaced = mix(surface, position + surface * lift, activity);
         gl_Position = projectionMatrix * modelViewMatrix * vec4(displaced, 1.);
       }`,
-    fragmentShader: `uniform float clock; varying float along; varying float phase;
+    fragmentShader: `uniform float clock, heat; varying float along; varying float phase;
       void main() {
         float knot = pow(.5 + .5 * cos(8. * along - clock * 1.45 + phase), 3.);
         float feet = pow(abs(2. * along - 1.), 5.);
-        vec3 heat = mix(vec3(1., .19, .018), vec3(1., .80, .31), max(knot, feet));
-        gl_FragColor = vec4(heat, .52 + .40 * max(knot, feet));
+        vec3 plasma = mix(vec3(.85, .10, .012), vec3(1., .80, .31), heat * (.30 + .70 * max(knot, feet)));
+        gl_FragColor = vec4(plasma, heat * (.52 + .40 * max(knot, feet)));
         #include <colorspace_fragment>
       }`,
-  });
+  };
   const arcades = [
     { longitude: .10, latitude: .32, height: .56 },
     { longitude: 2.97, latitude: -.36, height: .36 },
     { longitude: 1.53, latitude: .68, height: .42 },
     { longitude: 4.70, latitude: -.55, height: .49 },
   ];
-  for (const { longitude, latitude, height } of arcades) {
+  const prominenceMaterials = arcades.map(({ longitude, latitude, height }) => {
+    const material = new THREE.ShaderMaterial({
+      ...prominenceShader,
+      uniforms: { clock: flareMaterial.uniforms.clock, activity: { value: 1 }, heat: { value: 1 } },
+    });
     const arcade = new THREE.Group();
     arcade.rotation.order = 'YXZ';
     arcade.rotation.y = longitude;
@@ -311,9 +316,19 @@ export function initGlobe(host, { reduced = false } = {}) {
         new THREE.Vector3(apex + .09, spread * 1.45, .04 * strand),
         new THREE.Vector3(foot, spread, 0));
       const tube = new THREE.TubeGeometry(curve, 36, strand === 1 ? .023 : .015, 6, false);
-      arcade.add(new THREE.Mesh(tube, prominenceMaterial));
+      arcade.add(new THREE.Mesh(tube, material));
     }
     sun.body.add(arcade);
+    return material;
+  });
+  function updateProminences(seconds) {
+    const smooth = THREE.MathUtils.smoothstep;
+    prominenceMaterials.forEach((material, index) => {
+      const phase = (seconds / 16 + .34 + index * .026) % 1;
+      // Heating precedes expansion; cooling and drainage take longer than onset.
+      material.uniforms.heat.value = smooth(phase, .08, .26) * (1 - smooth(phase, .42, .83));
+      material.uniforms.activity.value = smooth(phase, .11, .37) * (1 - smooth(phase, .48, .89));
+    });
   }
 
   // Straight dashed paths run between the visible limbs of adjacent bodies.
@@ -324,17 +339,19 @@ export function initGlobe(host, { reduced = false } = {}) {
       const material = new THREE.ShaderMaterial({
         transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
         uniforms: {
-          radius: { value: radius }, brightness: { value: opacity },
+          radius: { value: radius }, brightness: { value: opacity }, pathPixels: { value: 1 },
         },
-        vertexShader: `uniform float radius; varying float along;
+        vertexShader: `uniform float radius; varying float along, screenAlong;
           void main() {
             along = position.y + .5;
             vec3 p = vec3(position.x * radius, position.y, position.z * radius);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.);
+            screenAlong = along * gl_Position.w;
           }`,
-        fragmentShader: `uniform float brightness; varying float along;
+        fragmentShader: `uniform float brightness, pathPixels; varying float along, screenAlong;
           void main() {
-            float repeatPos = along * 10.;
+            // One 14px period on both paths, independent of depth and viewport size.
+            float repeatPos = screenAlong * gl_FragCoord.w * pathPixels / 14.;
             float edge = abs(fract(repeatPos + .5) - .5);
             float aa = clamp(fwidth(repeatPos), .005, .12);
             float dash = 1. - smoothstep(.31 - aa, .31 + aa, edge);
@@ -363,10 +380,16 @@ export function initGlobe(host, { reduced = false } = {}) {
     point.copy(center).addScaledVector(eyeDirection, radius * cosine)
       .addScaledVector(toward, radius * Math.sqrt(1 - cosine * cosine));
   }
-  function placeLinks() {
+  const clipStart = new THREE.Vector3(), clipEnd = new THREE.Vector3();
+  function placeLinks(width, height) {
+    camera.updateMatrixWorld();
     for (const { from, to, path } of links) {
       visibleLimb(from, to, start);
       visibleLimb(to, from, end);
+      clipStart.copy(start).project(camera);
+      clipEnd.copy(end).project(camera);
+      const pixels = .5 * Math.hypot((clipEnd.x - clipStart.x) * width, (clipEnd.y - clipStart.y) * height);
+      for (const mesh of path.children) mesh.material.uniforms.pathPixels.value = pixels;
       direction.subVectors(end, start);
       path.scale.y = direction.length();
       path.position.lerpVectors(start, end, .5);
@@ -395,7 +418,7 @@ export function initGlobe(host, { reduced = false } = {}) {
     spiralPlane.position.set(-.28 * skyHeight * camera.aspect, .24 * skyHeight, -9);
     spiralPlane.scale.setScalar(w < 760 ? .64 : 1);
     world.position.set(layout.x, layout.y, 0); world.scale.setScalar(layout.s * (w < 760 ? .62 : 1));
-    placeLinks();
+    placeLinks(w, h);
     dirty = true;
   }
   new ResizeObserver(resize).observe(host); resize();
@@ -467,6 +490,7 @@ export function initGlobe(host, { reduced = false } = {}) {
     for (const planet of planets) planet.body.rotation.y = planet.yaw + time * planet.speed;
     corona.scale.setScalar(4.5 + .18 * Math.sin(time * 1.6));
     flareMaterial.uniforms.clock.value = time;
+    updateProminences(time);
     flareMaterial.uniforms.turn.value = sun.body.rotation.y + .55 * sun.axis.rotation.x;
     spiral.rotation.z = time * .045;
     spiral.material.opacity = .85 + .1 * Math.sin(time * .65);
