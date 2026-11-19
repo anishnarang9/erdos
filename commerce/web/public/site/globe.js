@@ -266,6 +266,8 @@ export function initGlobe(host, { reduced = false } = {}) {
     planet.axis = new THREE.Group();
     planet.axis.rotation.z = planet.tilt;
     planet.body = new THREE.Mesh(planetSphere, material);
+    // Mars sits behind Earth's rings and arcs; draw it last and on top so no line cuts across it.
+    if (planet.name === 'Mars') { material.depthTest = false; material.depthWrite = false; planet.body.renderOrder = 20; }
     planet.axis.add(planet.body);
     scene.add(planet.axis);
     const ringSystem = rings[planet.name];

@@ -846,3 +846,35 @@ body[data-lab="released"] .demo-verdict h3 { color: var(--ok); }
 .market-status { display: flex; justify-content: center; }
 .demo-page .market { padding-bottom: 140px; }
 @media (max-width: 1100px) { .cases, .tools, .materials, .faq { padding-top: 90px; } .demo-page .market { padding-bottom: 90px; } }
+
+/* ---------- section titles: a plain underline instead of the frame ---------- */
+.gtitle { padding: 0 0 .2em; }
+.gtitle::before { display: none; }
+.gtitle::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; border-radius: 3px; background: linear-gradient(90deg, #63f0ff, #7d8cff 50%, #ff5fd2); transform-origin: left; }
+@media (prefers-reduced-motion: no-preference) {
+  .title-wrap.scroll-enter .gtitle::after { animation: underline-in .9s cubic-bezier(.2, .7, .2, 1) .15s both; }
+}
+@keyframes underline-in { from { transform: scaleX(0); } }
+
+/* ---------- real results ---------- */
+.results { width: min(1180px, calc(100vw - 240px)); margin: 0 auto; display: grid; gap: 28px; }
+.cases .title-wrap { text-align: center; margin: 0 auto 48px; }
+.result-stats { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.result-stats div { padding: 22px 24px; border: 1px solid var(--line-2); border-radius: 14px; background: linear-gradient(160deg, #191c2e, #10121e); }
+.result-stats dt { font: 600 clamp(36px, 3.4vw, 52px)/1 var(--sans); background: linear-gradient(90deg, #63f0ff, #ff5fd2); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.result-stats dd { margin: 8px 0 0; color: var(--dim); font-size: 15px; }
+.result-table { width: 100%; border-collapse: collapse; font-size: 15px; border: 1px solid var(--line-2); border-radius: 14px; overflow: hidden; }
+.result-table th { text-align: left; font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); padding: 14px 16px; background: rgba(255, 255, 255, .02); border-bottom: 1px solid var(--line-2); }
+.result-table td { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.result-table tr:last-child td { border-bottom: 0; }
+.result-table tbody tr { transition: background-color .15s; }
+.result-table tbody tr:hover { background: rgba(99, 240, 255, .04); }
+@media (max-width: 1100px) {
+  .results { width: auto; margin: 0 20px; }
+  .result-stats { grid-template-columns: minmax(0, 1fr); }
+  .result-table thead { display: none; }
+  .result-table tr { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+  .result-table td { padding: 0; border: 0; }
+  .result-table td:nth-child(2) { grid-column: 2 / -1; }
+  .result-table td:nth-child(4), .result-table td:nth-child(5) { font-size: 13px; color: var(--dim); }
+}

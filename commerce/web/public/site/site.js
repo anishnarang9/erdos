@@ -1,9 +1,9 @@
-import { initGlobe } from './globe.js?v=21';
+import { initGlobe } from './globe.js?v=22';
 import { initRobot } from './robot.js?v=18';
 import { initToolNetwork } from './tool-network.js?v=5';
 import { initScopeMap } from './scope.js?v=2';
 import { initCoin } from './coin.js?v=9';
-import { LAYERS, ICONS } from './layers.js?v=9';
+import { LAYERS, ICONS } from './layers.js?v=10';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -255,7 +255,6 @@ initToolNetwork(document.getElementById('tools'));
 // Sections lead with headlines; a toggle under each title reveals the descriptive text.
 const MORE = {
   scope: '.scope-lead, .snode span',
-  cases: '.case p',
   tools: '.tools-head p.dim',
   materials: '.mat .d',
 };
