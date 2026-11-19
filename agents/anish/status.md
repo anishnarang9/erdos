@@ -2,6 +2,7 @@
 
 - Flash High used a scoped headless command to inspect the prior recovery process for settled Arc job 10. The process exited with a redacted generic error. The runner now reports a fixed recovery stage for local and chain validation failures and preserves SDK-sanitized public API errors.
 - Verified the CLI regression before and after the fix. Fifteen focused tests and worker typecheck passed. Live recheck pending. This checkpoint made no paid draft, Bot dispatch, or transaction send.
+- VPS replay of the packaged candidate on settled Arc job 10 failed at `deployment`. A separate Flash High session read the real error using its one scoped command and reported the correct stage. Sampled history queries from the VPS reproduced HTTP 429 on the primary Arc RPC. QuickNode answered five sampled history windows. Those samples do not identify the exact failed read in the replay. Focused tests and typecheck passed. The pilot remains at four completed drafts and three Bot dispatches. Removed the temporary SSH rule.
 
 # 2026-11-18 19:20 -0500 — Confirm Flash High and API-only interaction
 
