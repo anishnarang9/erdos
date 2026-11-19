@@ -25,9 +25,9 @@ describe('reviewable requirement links',()=>{
   expect(()=>parseModelDraft({...draft,coverage:{...complete,requirements:Array(65).fill(complete.requirements[0])}})).toThrow();
  });
 });
-import {createApp,simulatedEngine} from '../../src/index.ts';
+import {createApp,EngineError,simulatedEngine} from '../../src/index.ts';
 import {BUYER_TOKEN} from './helpers.ts';
-it.each(['draft', 'unsupported', 'clarification', 'invalid-plan'] as const)('handles a repair with outcome %s', async (repair) => {
+it.each(['draft', 'unsupported', 'clarification', 'invalid-plan', 'checker-outage'] as const)('handles a repair with outcome %s', async (repair) => {
   let calls = 0;
   const input = {request:'Check both conditions', outputs:[{name:'result.json',format:'json'}], expirySeconds:600, maxBudget:'10000'};
   const plan = {
@@ -43,9 +43,13 @@ it.each(['draft', 'unsupported', 'clarification', 'invalid-plan'] as const)('han
     buyerToken: BUYER_TOKEN,
     engine: {
       ...controlledEngine,
-      validate: (candidate, options) => (candidate as {version?: number}).version === 0
-        ? Promise.resolve({ok:false, kind:'invalid', errors:[{path:'/version', message:'Expected version 1'}]})
-        : controlledEngine.validate(candidate, options),
+      validate: async (candidate, options) => {
+        if (calls === 2 && repair === 'checker-outage') throw new EngineError('spawn', 'Controlled checker outage');
+        if ((candidate as {version?: number}).version === 0) {
+          return {ok:false, kind:'invalid', errors:[{path:'/version', message:'Expected version 1'}]};
+        }
+        return controlledEngine.validate(candidate, options);
+      },
       eval: async ({deliverables}) => ({ok:true, verdict:deliverables[0]?.content[0] === 49 ? 1 : 0}),
     },
     draftModel: {

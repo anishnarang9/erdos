@@ -39,7 +39,7 @@ export interface DraftModelInput {
   /** Present only on the one allowed repair call. */
   repair?: {
     attempt: 1;
-    reason: "plan_invalid" | "file_errors" | "examples" | "coverage";
+    reason: "invalid_reply" | "plan_invalid" | "file_errors" | "examples" | "coverage";
     errors: { path: string; message: string }[];
     counterexamples: {
       name: string;

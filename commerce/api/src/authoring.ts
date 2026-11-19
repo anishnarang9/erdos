@@ -11,7 +11,6 @@ import { assessCoverage } from "./coverage.ts";
 import { assertBotApproved } from "./bot-review-gate.ts";
 import { withinDraftDeadline, registerDraftDeadline } from "./draft-deadline.ts";
 import { appendExampleCheck, exampleCheckView } from "./example-checks.ts";
-import { tx } from "./db.ts";
 import { isoAt, readBody, parseJson, requireJobId, type AppEnv, type Deps } from "./context.ts";
 import { expensiveGuard } from "./limits.ts";
 import { ownerWallet, requireOwnedJob } from "./ownership.ts";
@@ -306,20 +305,37 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         throw err;
       }
     };
-    const chargedUsage = (err: unknown): ModelUsage | undefined => {
-      if (!(err instanceof ModelError) || !err.usage || !usageComplete(err.usage)) return undefined;
-      return err.usage;
+    const recordCall = async (input: DraftModelInput): Promise<(typeof attempts)[number]> => {
+      let attempt: (typeof attempts)[number];
+      try {
+        attempt = await callModel(input);
+      } catch (err) {
+        attempt = failedAttempt(err);
+      }
+      attempts.push(attempt);
+      persistUsage();
+      signal.throwIfAborted();
+      return attempt;
     };
-    const failCall = (err: unknown): never => {
-      const reason = err instanceof ModelError ? err.reason : "error";
-      const usage = chargedUsage(err);
-      attempts.push(failedAttempt(err));
+    const totalBilling = (): Record<string, unknown> | undefined => {
+      if (!deps.budget) return undefined;
+      let microUsd = 0;
+      const sources = new Set<string>();
+      for (const { reply } of attempts) {
+        const charge = reply.usage ? authoringCharge(reply.usage, deps.budget) : null;
+        if (!charge || !Number.isSafeInteger(microUsd + charge.microUsd)) return { state: "uncertain" };
+        microUsd += charge.microUsd;
+        sources.add(charge.source);
+      }
+      const source = sources.size > 1 ? "mixed" : sources.values().next().value;
+      const breach = microUsd > deps.budget.requestCeilingMicroUsd;
+      return { state: "settled", microUsd, source, ...(breach ? { breach: true } : {}) };
+    };
+    const failDraft = (reason: string): never => {
       const at = isoAt(deps.now());
-      tx(deps.db, () => {
-        insertDraft.run(draftId, requestJson, JSON.stringify({ error: { code: "model_failed", reason }, ...terminalMetadata?.() }), null, null, null, at, owner);
-        if (usage && taskId !== "" && deps.budget) noteDraftUsage(deps.db, taskId, JSON.stringify([usage]), at);
-      });
-      const billing = usage && deps.budget ? chargeBilling(usage, deps.budget) : undefined;
+      insertDraft.run(draftId, requestJson, JSON.stringify({ error: { code: "model_failed", reason }, ...terminalMetadata?.() }), null, null, null, at, owner);
+      const usage = attempts[0]?.reply.usage;
+      const billing = attempts.length > 1 ? totalBilling() : usage && deps.budget ? chargeBilling(usage, deps.budget) : undefined;
       throw modelFailure(reason, billing);
     };
 
@@ -335,14 +351,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       }
       firstInput = { ...baseInput, maxCompletionTokens: limit.maxTokens };
     }
-    let first: { reply: DraftModelResult; result: ModelDraft };
-    try {
-      first = await callModel(firstInput);
-    } catch (err) {
-      first = failCall(err);
-    }
-    attempts.push(first);
-    persistUsage();
+    const first = await recordCall(firstInput);
 
     type Assessment = {
       attempt: { reply: DraftModelResult; result: ModelDraft };
@@ -467,9 +476,10 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       };
     };
 
-    let chosen = await assess(first);
-    let repairUnpriced = false;
-    let repairAttempted = false;
+    let chosen = first.failureReason ? undefined : await assess(first);
+    const feedback: DraftModelInput["repair"] = first.failureReason === "invalid_reply"
+      ? { attempt: 1, reason: "invalid_reply", errors: [{ path: "", message: "Return one complete reply that matches the response schema." }], counterexamples: [] }
+      : chosen?.feedback;
     // The repair payload includes its feedback. The supported completion maximum is not a smaller hint.
     const repairFits = (feedback: NonNullable<DraftModelInput["repair"]>): boolean => {
       if (!deps.budget) return true;
@@ -480,59 +490,34 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       const remaining = deps.budget.requestCeilingMicroUsd - charge.microUsd;
       return supportedCallFits(model, { ...baseInput, repair: feedback }, limit.maxTokens, remaining, deps.budget);
     };
-    const canRepair = deps.authoringRepairs && chosen.feedback !== undefined && usageComplete(first.reply.usage) && deps.now() - started < DRAFT_TIMEOUT_MS && repairFits(chosen.feedback);
-    if (chosen.fatal && !canRepair) throw modelFailure("plan_not_hashable");
-    if (canRepair && chosen.feedback) {
-      repairAttempted = true;
-      try {
-        const second = await callModel({
-          ...baseInput,
-          repair: chosen.feedback,
-          ...(deps.budget ? { maxCompletionTokens: limit.maxTokens } : {}),
-        });
-        attempts.push(second);
-        persistUsage();
-        const repaired = await assess(second);
-        // Keep a valid draft after a failed repair. Return any actionable clarification.
-        if (chosen.hash === null || repaired.hash !== null || repaired.response.kind === "clarification") {
-          chosen = repaired;
+    if (deps.authoringRepairs && feedback && usageComplete(first.reply.usage)
+      && deps.now() - started < DRAFT_TIMEOUT_MS && repairFits(feedback)) {
+      const second = await recordCall({
+        ...baseInput,
+        repair: feedback,
+        ...(deps.budget ? { maxCompletionTokens: limit.maxTokens } : {}),
+      });
+      if (!second.failureReason) {
+        try {
+          const repaired = await assess(second);
+          // Keep a valid draft after a failed repair. Return any actionable clarification.
+          if (!chosen?.hash || repaired.hash !== null || repaired.response.kind === "clarification") {
+            chosen = repaired;
+          }
+        } catch (err) {
+          if (signal.aborted || !chosen?.hash || !(err instanceof ApiError) || err.code !== "engine_failed") throw err;
+          // The repair was billed once. A checker outage leaves the first draft available for review.
         }
-      } catch (err) {
-        const usage = chargedUsage(err);
-        attempts.push(failedAttempt(err));
-        persistUsage();
-        if (signal.aborted) throw new ModelError("timeout");
-        if (!usage) repairUnpriced = true;
       }
     }
+    if (!chosen) return failDraft(first.failureReason ?? "error");
     if (chosen.fatal) throw modelFailure("plan_not_hashable");
 
     const reply = chosen.attempt.reply;
     const result = chosen.attempt.result;
     let response = chosen.response;
-    if (deps.budget) {
-      let microUsd = 0;
-      let known = !repairUnpriced && attempts.length > 0;
-      let sawActual = false;
-      let sawTariff = false;
-      for (const item of attempts) {
-        const charge = item.reply.usage ? authoringCharge(item.reply.usage, deps.budget) : null;
-        if (!charge || !Number.isSafeInteger(microUsd + charge.microUsd)) known = false;
-        else {
-          microUsd += charge.microUsd;
-          if (charge.source === "actual") sawActual = true;
-          else sawTariff = true;
-        }
-      }
-      const source = sawActual && sawTariff ? "mixed" : sawActual ? "actual" : "tariff";
-      const breach = known && microUsd > deps.budget.requestCeilingMicroUsd;
-      response = {
-        ...response,
-        billing: known
-          ? { state: "settled", microUsd, source, ...(breach ? { breach: true } : {}) }
-          : { state: "uncertain" },
-      };
-    }
+    const billing = totalBilling();
+    if (billing) response = { ...response, billing };
     if (response.kind === "draft" && result.kind === "draft") {
       const quoteVerification = result.sourceQuotes.map(item => ({ ...item, found: quoteFound(item.path, item.quote, body.request, textReferences) }));
       const rules = isPlainObject(result.plan) && Array.isArray(result.plan.rules) ? result.plan.rules.length : 0;
@@ -567,7 +552,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       ...response,
       qualification: {
         model: reply.model, promptVersion: draftPromptVersion(), catalogVersion: CATALOG_VERSION,
-        latencyMs: Math.max(0, deps.now() - started), repairCount: repairAttempted ? 1 : Math.max(0, attempts.length - 1),
+        latencyMs: Math.max(0, deps.now() - started), repairCount: Math.max(0, attempts.length - 1),
         traceId: reply.traceId, traceIds: attempts.map(item => item.reply.traceId).filter(id => id.length > 0),
         usage: attempts.map(item => item.reply.usage ?? null),
       },

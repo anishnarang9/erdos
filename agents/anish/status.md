@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-19 09:02 -05:00 — Anish — Recover from a priced malformed model reply
+
+- Sonnet via `agy` traced why a malformed first reply skipped the existing repair path. Authoring can now make one repair after `invalid_reply` when usage is complete and the existing repair, deadline, and spend checks permit it. The repair sends a fixed instruction. It does not copy the rejected reply.
+- The controlled provider tests reproduced the previous one-call failure. The updated API recovers a valid draft, settles both known charges on a terminal failure, and retains uncertain billing for an unpriced repair. A queued task test checks the durable spend ledger. All 34 focused tests and API typecheck passed.
+- The longer local proof retry is live on the same pinned 96-order package. A separate worker regression reproduced an orphaned prover child after timeout. No live authoring, deployment, or Arc transaction ran.
+
 ## 2026-11-19 08:56 -05:00 — Anish — Record dispatch authoring and proof limits
 
 - Fresh Opus and Sonnet sessions through `agy` each authored a valid 96-order dispatch plan from the buyer brief, schema, and references. Each plan matched all nine independent oracle cases. These direct probes did not exercise hosted authoring or settlement.
