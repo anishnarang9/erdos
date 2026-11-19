@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-19 11:11 -0500 — Anish — Score the plan bound to buyer approval
+
+- The live rerun exposed an assessment bug. Hosted drafts store the plan in the revision, while the benchmark read the obsolete top-level field. The benchmark now evaluates the revision plan and retains support for legacy task results without revisions.
+- The rerun produced two supported drafts that agreed with all hidden cases. One passed public-mode buyer approval and compile. The other stayed blocked on quote and assumption coverage. The fresh approved plan is proving locally.
+- All 107 qualification tests passed. The controlled repeat approved eight drafts and compiled three. It checked the exact plans returned by the API against the independent native oracle.
+
 ## 2026-11-19 11:06 -0500 — Anish — Ground Grok repairs and example selection
 
 - The first live campaign on the pinned model sent 19 calls across 11 briefs. xAI reported $0.1316041 in charges. Six of eight supported drafts failed native validation. The other two disagreed with the independent checker on 12 of 16 cases and could not pass example approval. The two ambiguous briefs and the division capability probe also missed their expected outcomes.

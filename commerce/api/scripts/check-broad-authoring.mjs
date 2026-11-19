@@ -71,9 +71,6 @@ async function main() {
     const client = hostedClient({baseUrl: origin, apiKey: key.key, fetch: transport});
     for (const challenge of challenges) {
       const {id, prompt, plan, candidates} = challenge;
-      const oracle = await assessSupportedDraft(challenge, plan, {UBC26_ENGINE: enginePath});
-      assert.equal(oracle.engineValid, true, id);
-      for (const candidate of oracle.candidateResults) assert.equal(candidate.engine, candidate.oracle, `${id}/${candidate.id}`);
       const witness = status => candidates.find(candidate => candidate.expected.status === status);
       const example = (candidate, verdict) => ({
         name: candidate.id, predictedVerdict: verdict, files: fileInputs(candidate.deliveryFiles),
@@ -95,6 +92,9 @@ async function main() {
       assert.equal(draft.state, 'succeeded', `${id}: ${JSON.stringify(draft.error)}`);
       const result = draft.result;
       assert.equal(result.kind, 'draft', id);
+      const oracle = await assessSupportedDraft(challenge, result.revision.plan, {UBC26_ENGINE: enginePath});
+      assert.equal(oracle.engineValid, true, id);
+      for (const candidate of oracle.candidateResults) assert.equal(candidate.engine, candidate.oracle, `${id}/${candidate.id}`);
       assert.equal(result.coverage.ruleCoverageComplete, true, id);
       assert.equal(result.exampleApprovalReady, true, id);
       assert.deepEqual(result.examples.map(row => row.checkerVerdict), [1, 0], id);
