@@ -1,4 +1,4 @@
-import { initGlobe } from './globe.js?v=19';
+import { initGlobe } from './globe.js?v=21';
 import { initRobot } from './robot.js?v=18';
 import { initToolNetwork } from './tool-network.js?v=4';
 import { initScopeMap } from './scope.js?v=2';
@@ -256,7 +256,6 @@ initToolNetwork(document.getElementById('tools'));
 const MORE = {
   scope: '.scope-lead, .snode span',
   cases: '.case p',
-  solution: '.sol-left p',
   tools: '.tools-head p.dim',
   materials: '.mat .d',
 };

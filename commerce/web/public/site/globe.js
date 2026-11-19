@@ -175,7 +175,7 @@ export function initGlobe(host, { reduced = false } = {}) {
   const planets = [
     { name: 'Saturn', radius: .55, depth: -5, dark: 0x734a47, light: 0xf8ce9b, bands: 18, tilt: -.31, speed: .10, x: -.36, y: .40, mobileX: -.34, mobileY: .40 },
     { name: 'Sun', radius: 1.5, depth: -24, sun: true, tilt: -.2, speed: .03, x: -.12, y: .40, mobileX: .23, mobileY: .41 },
-    { name: 'Mars', radius: .15, depth: -1, dark: 0x5a2014, light: 0xe0703f, bands: 0, cap: 1, tilt: -.15, speed: .085, x: .42, y: -.17, mobileX: .42, mobileY: .005 },
+    { name: 'Mars', radius: .2, depth: -7, dark: 0x5a2014, light: 0xe0703f, bands: 0, cap: 1, tilt: -.15, speed: .085, x: .42, y: -.17, mobileX: .42, mobileY: .005 },
   ];
   const rings = {
     Saturn: { color: 0xf2c498, tilt: 1.23, bands: [[1.27, 1.52, .55], [1.57, 1.85, .38], [1.9, 1.99, .24]] },
@@ -282,21 +282,33 @@ export function initGlobe(host, { reduced = false } = {}) {
   // Constellation links: dotted trails Sun -> Neptune -> Mars with light packets travelling along them.
   const linkGroup = new THREE.Group(); scene.add(linkGroup);
   const links = [];
-  const dotMat = new THREE.PointsMaterial({ color: 0xffd9a0, size: .13, transparent: true, opacity: .8, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
-  const packetGeo = new THREE.BufferGeometry(); const packetPos = new Float32Array(6 * 3);
+  const dotMat = new THREE.PointsMaterial({ color: 0xffd9a0, size: .085, transparent: true, opacity: .5, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+  const packetGeo = new THREE.BufferGeometry(); const packetPos = new Float32Array(9 * 3);
   packetGeo.setAttribute('position', new THREE.BufferAttribute(packetPos, 3));
-  const packets = new THREE.Points(packetGeo, new THREE.PointsMaterial({ color: 0xfff1c8, size: .34, transparent: true, opacity: 1, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+  const packets = new THREE.Points(packetGeo, new THREE.PointsMaterial({ color: 0xfff1c8, size: .24, transparent: true, opacity: .95, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
   packets.frustumCulled = false;
   linkGroup.add(packets);
+  // Spokes from the Sun to each planet, drawn on one plane so they meet the planets on screen, stopping at
+  // each body's edge and bowing away from Earth.
   function buildLinks() {
     linkGroup.children.filter((c) => c !== packets).forEach((c) => { c.geometry.dispose(); linkGroup.remove(c); });
     links.length = 0;
-    const pts = planets.map((p) => p.axis.position);
-    for (let i = 0; i < pts.length - 1; i++) {
-      const a = pts[i], b = pts[i + 1], mid = a.clone().add(b).multiplyScalar(.5);
-      const bow = new THREE.Vector3(-(b.y - a.y), b.x - a.x, 0).multiplyScalar(i % 2 ? -.22 : .22);
-      const curve = new THREE.QuadraticBezierCurve3(a.clone(), mid.add(bow), b.clone());
-      const dots = new THREE.Points(new THREE.BufferGeometry().setFromPoints(curve.getSpacedPoints(Math.max(8, Math.round(curve.getLength() * 3.2)))), dotMat);
+    const Z = -8, cz = camera.position.z;
+    const flat = (pos) => { const k = (cz - Z) / (cz - pos.z); return new THREE.Vector3(pos.x * k, pos.y * k, Z); };
+    const reach = (p) => p.axis.scale.x * (cz - Z) / (cz - p.axis.position.z) * (p.sun ? 1.55 : p.name === 'Saturn' ? 2.2 : 1.6);
+    // Chain: Saturn -> Sun -> Earth -> Mars. Each link stops at both bodies' edges, so none crosses the globe.
+    const body = (p) => ({ at: flat(p.axis.position), r: reach(p) });
+    const byName = Object.fromEntries(planets.map((p) => [p.name, p]));
+    const earth = { at: flat(world.position), r: R * world.scale.x * (cz - Z) / cz * 1.08 };
+    const chain = [body(byName.Saturn), body(byName.Sun), earth, body(byName.Mars)];
+    for (let i = 0; i < chain.length - 1; i++) {
+      const A = chain[i], B = chain[i + 1], dir = B.at.clone().sub(A.at).normalize();
+      const a = A.at.clone().addScaledVector(dir, A.r), b = B.at.clone().addScaledVector(dir, -B.r);
+      if (a.distanceTo(b) < .5) continue;
+      const mid = a.clone().add(b).multiplyScalar(.5), normal = new THREE.Vector3(-dir.y, dir.x, 0);
+      if (normal.y < 0) normal.negate();
+      const curve = new THREE.QuadraticBezierCurve3(a, mid.addScaledVector(normal, a.distanceTo(b) * .1), b);
+      const dots = new THREE.Points(new THREE.BufferGeometry().setFromPoints(curve.getSpacedPoints(Math.max(10, Math.round(curve.getLength() * 4.5)))), dotMat);
       linkGroup.add(dots); links.push(curve);
     }
   }
@@ -318,10 +330,10 @@ export function initGlobe(host, { reduced = false } = {}) {
       planet.axis.position.set(x * planetHeight * camera.aspect, y * planetHeight, planet.depth);
       planet.axis.scale.setScalar(planet.radius * (w < 760 ? .6 : 1));
     }
-    buildLinks();
     spiralPlane.position.set(-.28 * skyHeight * camera.aspect, .24 * skyHeight, -9);
     spiralPlane.scale.setScalar(w < 760 ? .64 : 1);
     world.position.set(layout.x, layout.y, 0); world.scale.setScalar(layout.s * (w < 760 ? .62 : 1));
+    buildLinks();
     dirty = true;
   }
   new ResizeObserver(resize).observe(host); resize();
@@ -406,7 +418,7 @@ export function initGlobe(host, { reduced = false } = {}) {
     sun.corona.scale.setScalar(5.2 + .12 * Math.sin(time * .5));
     links.forEach((curve, i) => {
       for (let k = 0; k < 3; k++) {
-        const u = (time * .09 + k / 3 + i * .17) % 1, pt = curve.getPoint(u), j = (i * 3 + k) * 3;
+        const u = (time * .07 + k / 3 + i * .33) % 1, pt = curve.getPoint(u), j = (i * 3 + k) * 3;
         packetPos[j] = pt.x; packetPos[j + 1] = pt.y; packetPos[j + 2] = pt.z;
       }
     });
