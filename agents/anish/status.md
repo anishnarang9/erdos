@@ -1,3 +1,9 @@
+# 2026-11-18 21:02 -0500 — Confirm live Arc funding prerequisites
+
+- Job `01M7RP5JHE7XP43490EN051N2H` remains `open_prepared` with Bot pass `01M7RR24FWXCVQW3CJ2B2KYZ7F`. At Arc Testnet block 72945855, the buyer and solver balances covered the bounty and both preview gas ceilings. The expiry had 42,875 seconds remaining.
+- The on-chain core, implementation, adapter and verifier bytecode hashes match the deployment manifest. The core proxy storage slot points to the pinned implementation. The checks used public chain reads at the same block.
+- Funding remains pending approval for this exact job and its testnet gas ceilings. No signing, transaction, new draft, or Bot dispatch ran.
+
 # 2026-11-18 21:01 -0500 — Verify the Flash High package and Arc funding preview
 
 - The live API returned `open_prepared` for `01M7RP5JHE7XP43490EN051N2H`. All 20 downloaded package files matched the declared sizes and SHA-256 hashes. The approval still binds Bot pass `01M7RR24FWXCVQW3CJ2B2KYZ7F`.
