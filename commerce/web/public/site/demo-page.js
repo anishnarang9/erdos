@@ -1,6 +1,6 @@
 // Demo page: mobile menu plus the three-sample replay (demo-lab.js). ?sample=paid|refused|bounty preselects a sample.
 import { initDemoLab } from './demo-lab.js?v=11';
-import { initMarket } from './market.js?v=4';
+import { initMarket } from './market.js?v=6';
 
 const toggle = document.querySelector('.menu-toggle'), mobile = document.getElementById('mobile-nav');
 toggle?.addEventListener('click', () => { const open = toggle.getAttribute('aria-expanded') !== 'true'; toggle.setAttribute('aria-expanded', String(open)); mobile.hidden = !open; });
