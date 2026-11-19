@@ -1,3 +1,10 @@
+# 2026-11-18 18:58 -05:00 — Verify job 10 payout and publish the tested runner
+
+- Audited all seven Arc receipts and both wallets' gas-adjusted balance changes. Job 10 paid 0.01 testnet USDC. The solver reconciled both transaction hashes and reported confirmed payment. The [job 10 report](reports/hosted-arc-job10-acceptance-2026-11-18.md) records the source pins, authoring cost, proof timing, receipts, and RPC workarounds.
+- Reproduced RPC throttling from the API container. Changed only `OPEN_CLAIM_RPC_URL` to the verified PublicNode Arc Testnet endpoint with a mode-0600 environment rollback copy. Public readiness and six consecutive completed-job detail reads passed.
+- Full commerce checks passed, including 1,053 worker tests. PR #19 CI passed at head `f3560d5`. Published the corresponding Linux CI runner built against merge source `97783a7a3a168e168fb2ab5c78b66764fd16721e`. The public archive matched SHA-256 `8e1473d801536038f83736c9478ac0855b0937d50e98df29c5c2c9a11b2cb025`.
+- The buyer's documented recovery command failed after payout. Independent recovery diagnosis remains in progress.
+
 # 2026-11-18 18:52 -05:00 — Verify fresh Arc job 10 through claim
 
 - Published the versioned buyer and solver guides at source `e872b96` and verified their HTTP responses and release pins. The initial buyer attempt received a stored HTTP 429 before task admission. Two requests with that key created zero tasks or reservations. The live daily authoring ceiling is now $2.552376, equal to settled usage before the successful draft plus one provider request ceiling.
