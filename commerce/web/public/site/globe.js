@@ -209,7 +209,7 @@ export function initGlobe(host, { reduced = false } = {}) {
   const planets = [
     { name: 'Saturn', radius: .76, dark: 0x734a47, light: 0xf8ce9b, bands: 18, tilt: -.31, speed: .28, depth: -4.8, x: -.34, y: .32, mobileX: -.34, mobileY: .40 },
     { name: 'Sun', radius: .57, dark: 0xed5208, light: 0xffe99b, bands: -1, tilt: .4, speed: .34, depth: -6.5, x: -.13, y: .375, mobileX: .23, mobileY: .39 },
-    { name: 'Mars', radius: .29, dark: 0x713c3c, light: 0xffaa7b, bands: 0, tilt: -.15, speed: .24, depth: -8.8, x: .42, y: -.17, mobileX: .42, mobileY: .005 },
+    { name: 'Mars', radius: .29, dark: 0x803724, light: 0xf18252, bands: 0, tilt: -.15, speed: .24, depth: -8.8, x: .42, y: -.17, mobileX: .42, mobileY: .005 },
   ];
   const rings = {
     Saturn: { color: 0xf2c498, tilt: 1.23, bands: [[1.27, 1.52, .55], [1.57, 1.85, .38], [1.9, 1.99, .24]] },
@@ -232,7 +232,14 @@ export function initGlobe(host, { reduced = false } = {}) {
           float sun = max(0., dot(n, normalize(vec3(-.65,.6,.5))));
           vec3 col = mix(dark, light, mixAmount) * (.15 + .95 * sun);
           col += light * pow(1. - max(n.z, 0.), 3.) * (.12 + .35 * sun);
-          if (bands < 0.) {
+          if (bands == 0.) {
+            // Broad basalt plains and uneven ice caps stay legible on Mars's small disc.
+            float terrain = sin(3.4 * p.x + 2.1 * p.z + swirls * .55) + .55 * cos(5. * p.y - 2. * p.z);
+            vec3 soil = mix(dark, light, smoothstep(-1.1, .7, terrain));
+            float frost = smoothstep(.90, .97, abs(p.y) + .018 * swirls);
+            col = mix(soil, vec3(.85, .77, .68), frost) * (.24 + .91 * sun);
+            col += vec3(.24, .059, .023) * pow(1. - max(n.z, 0.), 4.) * sun;
+          } else if (bands < 0.) {
             float granules = sin(23. * p.x + swirls) * sin(17. * p.y - 4. * p.z);
             col = mix(dark, light, smoothstep(-1.5, 1.6, swirls + .35 * granules));
             col += vec3(.45,.12,.01) * pow(1. - max(n.z, 0.), 2.);
