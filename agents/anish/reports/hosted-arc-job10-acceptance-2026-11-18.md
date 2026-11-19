@@ -40,3 +40,7 @@ The service returned intermittent HTTP 503 for open-job detail while its Arc end
 The original buyer recovery command failed with a redacted error after confirmed release. The buyer traced it to HTTP 429 during a core role history query. The unmodified pinned runner recovered through QuickNode's public Arc RPC. An independent receipt check passed. It found each ordered item once, with counts 3, 4, and 2 and total 9 of 9. The root audit compared the 148 recovered SDK bytes with the native engine output and the original solver file. All three matched byte for byte. The buyer needed no solver files or wallet to recover the receipt.
 
 Job 10 proves independent completion with RPC workarounds. The published guide alone has yet to reproduce this flow reliably.
+
+The operator independently repeated recovery in a fresh directory with candidate runner source `57dfe4787e135a1ed97e735482e28e036297eeea` and its reviewed wrapper pin. QuickNode returned the same SDK and engine bytes and the exact gas-adjusted payout. The repeat used no model dispatch, Bot review, proof generation, or signed send. The service ledger has four settled drafts totaling $0.021312 and three Bot dispatches for the pilot wallet. This ledger does not measure Grok Bot billing.
+
+Temporary buyer and solver SSH keys, solver Docker group membership, and the temporary SSH firewall rule were removed after verification.
