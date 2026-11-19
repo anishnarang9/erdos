@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-19 09:08 -05:00 — Anish — Stop prover processes when the worker stops
+
+- Sonnet via `agy` reviewed the native timeout path. A new regression showed that the worker timed out while its prover child kept running. The worker now uses the compiler's process-group cleanup and keeps its existing per-stream output limit and error codes.
+- Opus via `agy` reviewed shutdown handling. A second regression showed that a default worker SIGTERM left a detached engine alive. The shared runner now cleans up its groups and preserves the original signal exit. Callers with their own signal handlers retain control.
+- All 59 focused worker tests, 11 compiler shutdown tests, and both typechecks passed. The longer 96-order proof is still running. Windows continues to signal the direct child.
+
 ## 2026-11-19 09:02 -05:00 — Anish — Recover from a priced malformed model reply
 
 - Sonnet via `agy` traced why a malformed first reply skipped the existing repair path. Authoring can now make one repair after `invalid_reply` when usage is complete and the existing repair, deadline, and spend checks permit it. The repair sends a fixed instruction. It does not copy the rejected reply.
