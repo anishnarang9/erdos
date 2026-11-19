@@ -493,7 +493,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         attempts.push(second);
         persistUsage();
         const repaired = await assess(second);
-        // Keep a valid draft when repair yields no draft or actionable clarification.
+        // Keep a valid draft after a failed repair. Return any actionable clarification.
         if (chosen.hash === null || repaired.hash !== null || repaired.response.kind === "clarification") {
           chosen = repaired;
         }

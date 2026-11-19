@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-19 08:41 -05:00 — Anish — Measure a 96-order dispatch workload
+
+- Added a native dispatch test outside the frozen corpus. An independent oracle checks two valid allocations, five isolated rule failures, and two input rejections. The qualification suite passed 74 tests. The frozen corpus passed all 326 native comparisons and the wire fixture passed.
+- An isolated Docker compile generated a guest in 26.4 seconds. The pinned `r0vm` 3.1.0 executed the valid and over-budget allocations with verdicts 1 and 0. Each used 38,718,586 user cycles. Next, measure the effect of reusing join indexes on this same workload.
+- Draft [PR #33](https://github.com/anishnarang9/UBC-26/pull/33) is open. GitHub Actions reported a billing or spending limit issue before starting jobs. No live authoring, proof, or settlement ran.
+
 ## 2026-11-19 08:37 -05:00 — Anish — Preserve a validated draft after a failed repair
 
 - Sonnet via `agy` proposed retaining the first validated draft when a repair yields an invalid or unsupported plan. The API now keeps that draft for review and records both attempts with the existing billing logic. Actionable clarification questions still reach the buyer. The draft still needs to pass the normal approval gates.
