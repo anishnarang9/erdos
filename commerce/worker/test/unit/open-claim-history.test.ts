@@ -35,6 +35,7 @@ function fixture(roleLogIntervalMs=0){
 it("rechecks the canonical audit anchor and scans only new role history",async()=>{
   const f=fixture();await f.port.verifyPins();expect(f.pub.getLogs).toHaveBeenCalledTimes(3);
   await f.port.verifyPins();expect(f.pub.getLogs).toHaveBeenCalledTimes(3);
+  expect(f.pub.getLogs.mock.calls[0]?.[0].events.map((event: {name:string}) => event.name).sort()).toEqual(["Initialized", "RoleGranted", "RoleRevoked", "Upgraded"]);
   f.state.head++;await f.port.verifyPins();expect(f.pub.getLogs.mock.calls.at(-1)?.[0]).toMatchObject({fromBlock:20008n,toBlock:20008n});
 });
 it("paces every log window on a live RPC",async()=>{

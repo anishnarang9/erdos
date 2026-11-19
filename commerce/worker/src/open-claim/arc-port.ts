@@ -14,6 +14,8 @@ import type {
 
 const adminRole = keccak256(stringToHex("ADMIN_ROLE"));
 const verifierAbi = parseAbi(["function VERSION() view returns (string)", "function SELECTOR() view returns (bytes4)"]);
+const roleHistoryEvents = arcCoreAbi.filter(item => item.type === "event" &&
+  ["Upgraded", "Initialized", "RoleGranted", "RoleRevoked"].includes(item.name));
 const statusNames = ["Open", "Funded", "Submitted", "Completed", "Rejected", "Expired"] as const;
 const requiredChecks = ["chain", "runtime", "implementation", "verifier", "fees", "freeze", "adapter-wiring", "job-roles", "hook"] as const;
 const same = (left: string, right: string) => left.toLowerCase() === right.toLowerCase();
@@ -93,7 +95,7 @@ export function createArcOpenClaimPort(options: ArcOpenClaimPortOptions): OpenCl
     for (let from = previous ? previous.block + 1n : options.coreDeploymentBlock; from <= blockNumber; from += 10_000n) {
       const to = from + 9_999n < blockNumber ? from + 9_999n : blockNumber;
       if (roleLogIntervalMs) await new Promise(resolve => setTimeout(resolve, roleLogIntervalMs));
-      const logs = await pub.getLogs({ address: witness.core, fromBlock: from, toBlock: to });
+      const logs = await pub.getLogs({ address: witness.core, events: roleHistoryEvents, fromBlock: from, toBlock: to });
       must(Array.isArray(logs), "deployment", "core role history is unavailable");
       logs.sort((a, b) => a.blockNumber === b.blockNumber ? (a.logIndex ?? 0) - (b.logIndex ?? 0)
         : a.blockNumber! < b.blockNumber! ? -1 : 1);
