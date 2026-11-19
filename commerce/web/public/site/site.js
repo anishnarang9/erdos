@@ -111,13 +111,38 @@ $$('[data-escrow]').forEach(button => button.addEventListener('click', () => {
   $('#escrow-receipt').href = 'https://explorer.testnet.arc.io/tx/' + hash;
   $('#escrow-receipt').textContent = 'Inspect ' + action + ' receipt ↗';
 }));
+const robotCanvas = $('#robot canvas');
+let robotFade;
 function setRow(i) {
-  if (i === activeRow) return; activeRow = i;
-  rows.forEach((r, k) => r.classList.toggle('active', k === i));
-  if (i < 0) return;
-  const label = robot ? robot.setStep(Number(rows[i].dataset.step)) : '';
-  if (robotLabel) decode(robotLabel, 0, `SOLVER AGENT · ${label}`);
-  decodeAll(rows[i], 60, 70);
+  if (i === activeRow) return;
+  const firstStage = activeRow < 0;
+  activeRow = i;
+  rows.forEach((row, index) => row.classList.toggle('active', index === i));
+  if (i < 0 || !robot) return;
+
+  const showPose = () => {
+    const label = robot.setStep(Number(rows[i].dataset.step));
+    robotLabel.textContent = `SOLVER AGENT \u00b7 ${label}`;
+  };
+  if (firstStage || reduced || !robotCanvas) {
+    showPose();
+    return;
+  }
+
+  // A new scroll target takes over from the opacity currently on screen.
+  const opacity = Number(getComputedStyle(robotCanvas).opacity);
+  robotFade?.cancel();
+  robotFade = robotCanvas.animate([{ opacity }, { opacity: 0 }], {
+    duration: 200 * opacity, easing: 'ease-in', fill: 'forwards',
+  });
+  robotFade.onfinish = () => {
+    if (i !== activeRow) return;
+    showPose();
+    robotFade.cancel();
+    robotFade = robotCanvas.animate([{ opacity: 0 }, { opacity: 1 }], {
+      duration: 360, easing: 'ease-out',
+    });
+  };
 }
 
 // ---------- ecosystem layers ----------
@@ -220,6 +245,16 @@ function onScroll() {
   // Solutions: the row whose centre is nearest the viewport centre is active.
   if (sol) {
     const sr = sol.getBoundingClientRect();
+    if (!reduced && sr.top < vh && sr.bottom > 0) {
+      for (const row of rows) {
+        const copy = row.querySelector('.sol-left');
+        const bounds = copy.getBoundingClientRect();
+        if (bounds.top > vh || bounds.bottom < 0) continue;
+        const progress = (vh - bounds.top) / (vh * .24);
+        copy.style.setProperty('--heading-opacity', clamp(progress));
+        copy.style.setProperty('--description-opacity', clamp(progress - .16));
+      }
+    }
     if (sr.top < vh * .7 && sr.bottom > vh * .3) {
       let best = 0, bd = Infinity; rows.forEach((r, i) => { const b = r.getBoundingClientRect(); const d = Math.abs(b.top + b.height / 2 - vh / 2); if (d < bd) { bd = d; best = i; } });
       setRow(best);
@@ -244,7 +279,7 @@ addEventListener('resize', onScroll); onScroll();
 // Reveal each block once. Content is readable before observation and on anchor jumps.
 if (!reduced) {
   document.documentElement.classList.add('motion');
-  const blocks = $$('.reveal, .case, .mat, .faq details, .title-wrap, .lab-panel, .sol-left, .scope-examples > *, .token-left, .escrow-inspector, .token-links, .eco-lead');
+  const blocks = $$('.reveal, .case, .mat, .faq details, .title-wrap, .lab-panel, .scope-examples > *, .token-left, .escrow-inspector, .token-links, .eco-lead');
   const observer = new IntersectionObserver(entries => {
     const destination = document.querySelector(':target');
     for (const entry of entries) {

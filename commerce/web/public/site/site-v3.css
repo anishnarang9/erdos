@@ -419,3 +419,9 @@ body[data-lab="released"] .demo-verdict h3 { color: var(--ok); }
     to { opacity: 1; transform: translateY(0); }
   }
 }
+
+.sol-left p { max-width: 32ch; margin: clamp(14px, 1.6vw, 24px) 0 0; font-size: clamp(1.1rem, 1.5vw, 1.375rem); line-height: 1.5; }
+@media (prefers-reduced-motion: no-preference) {
+  .sol-left h3 { opacity: var(--heading-opacity, 1); }
+  .sol-left p { opacity: var(--description-opacity, 1); }
+}
