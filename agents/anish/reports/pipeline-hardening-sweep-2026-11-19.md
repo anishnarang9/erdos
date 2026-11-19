@@ -8,9 +8,11 @@ The local sweep tested plan authoring, example review, compilation, proof accept
 | Independent native comparisons | 326 frozen hosted comparisons, 341 comparisons in the engine corpus, and 17 new invoice and battery dispatch cases passed. |
 | Historical authoring replay | 180 initial recorded outcomes and 35 repairs. A total of 141 of 180 met the historical fidelity gate after repair. The 39 remaining defects concerned clarification or unsupported capability explanations. These were historical Luna outputs. |
 | Local Arc contracts | 168 passed. One live-fork test was skipped. |
-| Real proof replay | Local Solidity accepted 14 proofs when checked against their actual journals. Each of the six verdict-0 proofs rejected a changed passing verdict. |
+| Real proof replay | Local Solidity accepted 15 proofs when checked against their actual journals. Each of the six verdict-0 proofs rejected a changed passing verdict. |
 | Claim and payout | Fresh 96-order dispatch and two-hop route proofs passed the real adapter and core on a simulated EVM with a mock payment token. |
-| Recovery | Seven packages with available private keys recovered byte for byte. The archived inventory proof passed verification, but its key was unavailable. |
+| Recovery | Eight packages with available private keys recovered byte for byte. The archived inventory proof passed verification, but its key was unavailable. |
+
+The fresh 128-hop route produced a passing Groth16 proof in 1,386,696 ms at 7,087,607 guest cycles. The local verifier accepted its independently reconstructed journal. Decryption matched the submitted route byte for byte. Its proof JSON SHA-256 is `3d609c2052c68c3bf0b4de5d9ca8e44272901b2d104c9cc94f62075a3e6b8a85`.
 
 ## Defects reproduced
 

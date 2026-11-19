@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-19 09:55 -05:00 — Anish — Verify the 128-hop route proof
+
+- The full 128-hop Groth16 run passed at 7,087,607 guest cycles and 1,386,696 ms. The local Solidity verifier accepted the fresh receipt against the reconstructed journal. Both decryption checks matched the original route bytes.
+- The final local replay verified 15 receipts and recovered eight deliveries. All six verdict-0 receipts rejected a changed passing verdict. No live payment or provider charge occurred.
+
 ## 2026-11-19 09:54 -05:00 — Anish — Enforce the live Grok test cap
 
 - The authorized $0.10 live API cap could not cover the pinned model's $2.54096 provider-bound reservation. The exact-cap test returned `model_unavailable` before dispatch and released the reservation. Twelve model safety tests and API typecheck passed. No amount was spent.
