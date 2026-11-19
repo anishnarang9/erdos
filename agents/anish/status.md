@@ -1,3 +1,9 @@
+# 2026-11-18 21:07 -0500 — Check the independent solver's synthetic receipt
+
+- Prepared a synthetic receipt from the committed reference files for job `01M7RP5JHE7XP43490EN051N2H`. The supplied file is 117 bytes with SHA-256 `910cf96e972614bd8f3c3b13b568dfc464ffb5cf6a436acd554dc4b1112fe4cf`.
+- The local native engine and the Linux executable from the exact release image both returned verdict 1 against the saved approved plan and verified references. The fixture stays separate from the buyer work directory. Record it as supplied input if the solver uses it.
+- A fresh funded-context proof, settlement and independent buyer recovery remain pending. No new draft, Bot call or signed transaction ran.
+
 # 2026-11-18 21:05 -0500 — Verify buyer guide commands against the staged job
 
 - Added exact approval, compile, task polling, package download and reference commands to the public buyer guide. Added the recovery path variables and the private work directory requirement. The installed runner rejected a path through the macOS `/tmp` symlink. Both downloads passed when run from a private directory under the home directory.
