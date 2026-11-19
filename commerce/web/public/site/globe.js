@@ -173,24 +173,82 @@ export function initGlobe(host, { reduced = false } = {}) {
   // Secondary planets sit between the star spiral and Earth.
   const planetSphere = new THREE.SphereGeometry(1, 48, 32);
   const planets = [
-    { name: 'Saturn', radius: .76, dark: 0x734a47, light: 0xf8ce9b, bands: 18, tilt: -.31, speed: .10, x: -.34, y: .32, mobileX: -.34, mobileY: .40 },
-    { name: 'Neptune', radius: .47, dark: 0x22467d, light: 0x77d6ff, bands: 10, tilt: .4, speed: .14, x: -.13, y: .375, mobileX: .23, mobileY: .39 },
-    { name: 'Mars', radius: .29, dark: 0x713c3c, light: 0xffaa7b, bands: 0, tilt: -.15, speed: .085, x: .42, y: -.17, mobileX: .42, mobileY: .005 },
+    { name: 'Saturn', radius: .55, depth: -5, dark: 0x734a47, light: 0xf8ce9b, bands: 18, tilt: -.31, speed: .10, x: -.36, y: .40, mobileX: -.34, mobileY: .40 },
+    { name: 'Sun', radius: 1.5, depth: -24, sun: true, tilt: -.2, speed: .03, x: -.12, y: .40, mobileX: .23, mobileY: .41 },
+    { name: 'Mars', radius: .2, depth: -7, dark: 0x5a2014, light: 0xe0703f, bands: 0, cap: 1, tilt: -.15, speed: .085, x: .42, y: -.17, mobileX: .42, mobileY: .005 },
   ];
   const rings = {
     Saturn: { color: 0xf2c498, tilt: 1.23, bands: [[1.27, 1.52, .55], [1.57, 1.85, .38], [1.9, 1.99, .24]] },
-    Neptune: { color: 0x9bdbff, tilt: 1.06, bands: [[1.32, 1.43, .77], [1.64, 1.72, .62]] },
   };
+  const sunTime = { value: 0 };
+  const sunMaterial = new THREE.ShaderMaterial({
+    uniforms: { t: sunTime },
+    vertexShader: `varying vec3 surface; varying vec3 facing;
+      void main() { surface = normal; facing = normalMatrix * normal;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
+    fragmentShader: `uniform float t; varying vec3 surface, facing;
+      float h(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
+      float n3(vec3 p) { vec3 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+        return mix(mix(mix(h(i), h(i + vec3(1,0,0)), f.x), mix(h(i + vec3(0,1,0)), h(i + vec3(1,1,0)), f.x), f.y),
+                   mix(mix(h(i + vec3(0,0,1)), h(i + vec3(1,0,1)), f.x), mix(h(i + vec3(0,1,1)), h(i + vec3(1,1,1)), f.x), f.y), f.z); }
+      void main() {
+        vec3 p = normalize(surface), n = normalize(facing);
+        float g = n3(p * 9. + t * .35) * .55 + n3(p * 23. - t * .6) * .3 + n3(p * 51. + t) * .15;
+        float spots = smoothstep(.72, .8, n3(p * 4. + vec3(0., t * .05, 0.)));
+        vec3 col = mix(vec3(.95, .3, .02), vec3(1., .72, .22), smoothstep(.25, .85, g));
+        col = mix(col, vec3(.55, .14, .02), spots * .55);
+        float limb = pow(max(n.z, 0.), .45);
+        col *= .55 + .65 * limb;
+        col += vec3(1., .55, .15) * pow(1. - max(n.z, 0.), 2.5) * .9;
+        gl_FragColor = vec4(col * .95, 1.);
+        #include <colorspace_fragment>
+      }`,
+  });
+  // Soft corona sprite.
+  const coronaCanvas = document.createElement('canvas'); coronaCanvas.width = coronaCanvas.height = 256;
+  { const c = coronaCanvas.getContext('2d'), gr = c.createRadialGradient(128, 128, 30, 128, 128, 128);
+    gr.addColorStop(0, 'rgba(255,200,120,.95)'); gr.addColorStop(.32, 'rgba(255,140,40,.45)'); gr.addColorStop(.6, 'rgba(255,90,20,.12)'); gr.addColorStop(1, 'rgba(255,60,0,0)');
+    c.fillStyle = gr; c.fillRect(0, 0, 256, 256); }
+  const coronaTex = new THREE.CanvasTexture(coronaCanvas);
+  // Solar flares: arcs that grow out of the limb and fade, each re-erupting after an irregular pause.
+  const flares = [];
+  const flareMat = () => new THREE.MeshBasicMaterial({ color: 0xffa040, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+  function spawnFlare(f, now) {
+    const theta = Math.random() * Math.PI * 2, spread = .07 + Math.random() * .16, height = 1.08 + Math.random() * (Math.random() < .15 ? .32 : .16);
+    const at = (a, r) => new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, .25);
+    const curve = new THREE.CubicBezierCurve3(at(theta - spread, .98), at(theta - spread * .55, height), at(theta + spread * .55, height), at(theta + spread, .98));
+    f.mesh.geometry.dispose();
+    f.mesh.geometry = new THREE.TubeGeometry(curve, 48, .012 + Math.random() * .014, 5, false);
+    f.count = f.mesh.geometry.index.count;
+    f.born = now; f.dur = 5 + Math.random() * 6; f.peak = .16 + Math.random() * .2;
+    f.mesh.material.color.setHSL(.025 + Math.random() * .035, 1, .5 + Math.random() * .08);
+  }
+
   for (const planet of planets) {
+    if (planet.sun) {
+      planet.yaw = 0;
+      planet.axis = new THREE.Group(); planet.axis.rotation.z = planet.tilt;
+      planet.body = new THREE.Mesh(planetSphere, sunMaterial);
+      const corona = new THREE.Sprite(new THREE.SpriteMaterial({ map: coronaTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, toneMapped: false }));
+      corona.scale.setScalar(5.2); planet.corona = corona;
+      planet.axis.add(corona, planet.body);
+      for (let i = 0; i < 4; i++) {
+        const f = { mesh: new THREE.Mesh(new THREE.BufferGeometry(), flareMat()), born: -10, dur: 0, next: Math.random() * 2.5 };
+        f.mesh.visible = false;
+        planet.axis.add(f.mesh); flares.push(f);
+      }
+      scene.add(planet.axis);
+      continue;
+    }
     const material = new THREE.ShaderMaterial({
       uniforms: {
         dark: { value: new THREE.Color(planet.dark) }, light: { value: new THREE.Color(planet.light) },
-        bands: { value: planet.bands },
+        bands: { value: planet.bands }, cap: { value: planet.cap || 0 },
       },
       vertexShader: `varying vec3 surface; varying vec3 facing;
         void main() { surface = normal; facing = normalMatrix * normal;
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
-      fragmentShader: `uniform vec3 dark, light; uniform float bands; varying vec3 surface, facing;
+      fragmentShader: `uniform vec3 dark, light; uniform float bands, cap; varying vec3 surface, facing;
         void main() {
           vec3 p = normalize(surface), n = normalize(facing);
           float swirls = sin(p.x * 8. + sin(p.z * 7.)) + .5 * cos(p.z * 11. + p.y * 4.);
@@ -199,6 +257,7 @@ export function initGlobe(host, { reduced = false } = {}) {
           float sun = max(0., dot(n, normalize(vec3(-.65,.6,.5))));
           vec3 col = mix(dark, light, mixAmount) * (.15 + .95 * sun);
           col += light * pow(1. - max(n.z, 0.), 3.) * (.12 + .35 * sun);
+          col = mix(col, vec3(.95, .93, .9) * (.3 + .8 * sun), cap * smoothstep(.8, .9, abs(p.y)));
           gl_FragColor = vec4(col, 1.);
           #include <colorspace_fragment>
         }`,
@@ -220,6 +279,40 @@ export function initGlobe(host, { reduced = false } = {}) {
     }
   }
 
+  // Constellation links: dotted trails Sun -> Neptune -> Mars with light packets travelling along them.
+  const linkGroup = new THREE.Group(); scene.add(linkGroup);
+  const links = [];
+  const dotMat = new THREE.PointsMaterial({ color: 0xffd9a0, size: .085, transparent: true, opacity: .5, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+  const packetGeo = new THREE.BufferGeometry(); const packetPos = new Float32Array(9 * 3);
+  packetGeo.setAttribute('position', new THREE.BufferAttribute(packetPos, 3));
+  const packets = new THREE.Points(packetGeo, new THREE.PointsMaterial({ color: 0xfff1c8, size: .24, transparent: true, opacity: .95, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+  packets.frustumCulled = false;
+  linkGroup.add(packets);
+  // Spokes from the Sun to each planet, drawn on one plane so they meet the planets on screen, stopping at
+  // each body's edge and bowing away from Earth.
+  function buildLinks() {
+    linkGroup.children.filter((c) => c !== packets).forEach((c) => { c.geometry.dispose(); linkGroup.remove(c); });
+    links.length = 0;
+    const Z = -8, cz = camera.position.z;
+    const flat = (pos) => { const k = (cz - Z) / (cz - pos.z); return new THREE.Vector3(pos.x * k, pos.y * k, Z); };
+    const reach = (p) => p.axis.scale.x * (cz - Z) / (cz - p.axis.position.z) * (p.sun ? 1.55 : p.name === 'Saturn' ? 2.2 : 1.6);
+    // Chain: Saturn -> Sun -> Earth -> Mars. Each link stops at both bodies' edges, so none crosses the globe.
+    const body = (p) => ({ at: flat(p.axis.position), r: reach(p) });
+    const byName = Object.fromEntries(planets.map((p) => [p.name, p]));
+    const earth = { at: flat(world.position), r: R * world.scale.x * (cz - Z) / cz * 1.08 };
+    const chain = [body(byName.Saturn), body(byName.Sun), earth, body(byName.Mars)];
+    for (let i = 0; i < chain.length - 1; i++) {
+      const A = chain[i], B = chain[i + 1], dir = B.at.clone().sub(A.at).normalize();
+      const a = A.at.clone().addScaledVector(dir, A.r), b = B.at.clone().addScaledVector(dir, -B.r);
+      if (a.distanceTo(b) < .5) continue;
+      const mid = a.clone().add(b).multiplyScalar(.5), normal = new THREE.Vector3(-dir.y, dir.x, 0);
+      if (normal.y < 0) normal.negate();
+      const curve = new THREE.QuadraticBezierCurve3(a, mid.addScaledVector(normal, a.distanceTo(b) * .1), b);
+      const dots = new THREE.Points(new THREE.BufferGeometry().setFromPoints(curve.getSpacedPoints(Math.max(10, Math.round(curve.getLength() * 4.5)))), dotMat);
+      linkGroup.add(dots); links.push(curve);
+    }
+  }
+
   // State feedback from the (simulated) experiment: cyan pulse on pass, magenta-red on fail.
   let pulseColor = new THREE.Color(0, 0, 0), pulseAmt = 0, tintMix = 0;
   const pass = new THREE.Color(0x52ffd9), fail = new THREE.Color(0xff3d6e);
@@ -230,17 +323,17 @@ export function initGlobe(host, { reduced = false } = {}) {
   function resize() {
     const w = host.clientWidth, h = host.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
     const skyHeight = 2 * (camera.position.z + 9) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-    const planetDepth = -6;
-    const planetHeight = skyHeight * (camera.position.z - planetDepth) / (camera.position.z + 9);
     for (const planet of planets) {
       const x = w <= 1100 ? planet.mobileX : planet.x;
       const y = w <= 1100 ? planet.mobileY : planet.y;
-      planet.axis.position.set(x * planetHeight * camera.aspect, y * planetHeight, planetDepth);
+      const planetHeight = skyHeight * (camera.position.z - planet.depth) / (camera.position.z + 9);
+      planet.axis.position.set(x * planetHeight * camera.aspect, y * planetHeight, planet.depth);
       planet.axis.scale.setScalar(planet.radius * (w < 760 ? .6 : 1));
     }
     spiralPlane.position.set(-.28 * skyHeight * camera.aspect, .24 * skyHeight, -9);
     spiralPlane.scale.setScalar(w < 760 ? .64 : 1);
     world.position.set(layout.x, layout.y, 0); world.scale.setScalar(layout.s * (w < 760 ? .62 : 1));
+    buildLinks();
     dirty = true;
   }
   new ResizeObserver(resize).observe(host); resize();
@@ -308,6 +401,28 @@ export function initGlobe(host, { reduced = false } = {}) {
     if (!dirty) return;
     vx += (mx - vx) * Math.min(1, dt * 3); vy += (my - vy) * Math.min(1, dt * 3);
     for (const planet of planets) planet.body.rotation.y = planet.yaw + time * planet.speed;
+    sunTime.value = time;
+    const sun = planets.find((p) => p.sun);
+    let flareGlow = 0;
+    for (const f of flares) {
+      if (time >= f.next && time - f.born > f.dur) { spawnFlare(f, time); f.next = time + f.dur + 1 + Math.random() * Math.random() * 9; }
+      const u = f.dur ? (time - f.born) / f.dur : 2;
+      if (u < 0 || u > 1) { f.mesh.visible = false; continue; }
+      f.mesh.visible = true;
+      const grow = Math.min(1, u / .45);
+      f.mesh.geometry.setDrawRange(0, Math.floor(f.count * grow / 6) * 6);
+      const o = Math.sin(Math.PI * Math.min(1, u)) ** 1.5 * f.peak;
+      f.mesh.material.opacity = o; flareGlow = Math.max(flareGlow, o);
+    }
+    sun.corona.material.opacity = .72 + .06 * Math.sin(time * .7) + flareGlow * .08;
+    sun.corona.scale.setScalar(5.2 + .12 * Math.sin(time * .5));
+    links.forEach((curve, i) => {
+      for (let k = 0; k < 3; k++) {
+        const u = (time * .07 + k / 3 + i * .33) % 1, pt = curve.getPoint(u), j = (i * 3 + k) * 3;
+        packetPos[j] = pt.x; packetPos[j + 1] = pt.y; packetPos[j + 2] = pt.z;
+      }
+    });
+    packetGeo.attributes.position.needsUpdate = true;
     spiral.rotation.z = time * .045;
     spiral.material.opacity = .85 + .1 * Math.sin(time * .65);
     spin.rotation.y = 3.0 + time * .03 + yaw;

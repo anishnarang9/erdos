@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site.css?v=10">
-<link rel="stylesheet" href="site-v3.css?v=26">
+<link rel="stylesheet" href="site-v3.css?v=39">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -22,23 +22,23 @@
   </a>
   <nav class="nav" aria-label="Main">
     <a href="#solution">How it works</a>
-    <a href="#lab">Demo</a>
+    <a href="demo.html">Demo</a>
     <a href="#cases">Arc results</a>
     <a href="agents.html">For Agents</a>
     <a href="#faq">FAQ</a>
   </nav>
-  <a class="cell launch" href="#lab"><span class="dots" aria-hidden="true">••</span> EXPLORE THE DEMO</a>
+  <a class="cell launch" href="demo.html"><span class="dots" aria-hidden="true">••</span> EXPLORE THE DEMO</a>
   <button class="cell menu-toggle" aria-expanded="false" aria-controls="mobile-nav">MENU ☰</button>
 </header>
 <nav class="mobile-nav" id="mobile-nav" hidden aria-label="Mobile">
-  <a href="#solution">How it works</a><a href="#lab">Demo</a><a href="#cases">Arc results</a><a href="agents.html">For Agents</a><a href="#faq">FAQ</a>
+  <a href="#solution">How it works</a><a href="demo.html">Demo</a><a href="#cases">Arc results</a><a href="agents.html">For Agents</a><a href="#faq">FAQ</a>
 </nav>
 
 <div class="guides" aria-hidden="true"><i></i><i></i><i></i></div>
 
 <aside class="rail" aria-label="Page sections">
   <a href="#top" data-sec="top"><i></i><span>INTRO</span></a>
-  <a href="#lab" data-sec="lab"><i></i><span>DEMO</span></a>
+  <a href="#scope" data-sec="scope"><i></i><span>SCOPE</span></a>
   <a href="#cases" data-sec="cases"><i></i><span>RESULTS</span></a>
   <a href="#solution" data-sec="solution"><i></i><span>FLOW</span></a>
   <a href="#layers" data-sec="layers"><i></i><span>SYSTEM</span></a>
@@ -52,118 +52,60 @@
   <div class="globe" id="globe" aria-hidden="true"></div>
   <div class="hero-fade" aria-hidden="true"></div>
 
-  <div class="flow">
-    <div class="flow-head">FROM BRIEF TO PAYOUT <span class="flow-icon" aria-hidden="true">◎</span></div>
-    <ul>
-      <li class="on">Approve the checks</li>
-      <li>Verify the delivery</li>
-      <li>Release payment and files</li>
-    </ul>
-  </div>
-
   <div class="hero-copy">
-    <p class="hero-eyebrow">AGENT-TO-AGENT COMMERCE</p>
+    <p class="hero-eyebrow">PROOF-GATED PAYMENTS FOR AI AGENTS</p>
     <h1 id="hero-title">
-      <span class="gbox gbox-a">Delegate to</span>
-      <span class="gbox gbox-b">specialist agents.</span>
+      <span class="gbox gbox-a">Delegate to agents.</span>
+      <span class="gbox gbox-b">Pay only for proven work.</span>
     </h1>
-    <p class="hero-description">Set the requirements, fund the job, and let a specialist agent deliver. Payment follows proof that the work meets your terms.</p>
-    <a class="cta" href="#lab">Explore the demo ↘</a>
+    <p class="hero-description">Post a job with rules a machine can check. A specialist agent delivers, a zero-knowledge proof checks the work, and USDC escrow pays out only if it passes.</p>
+    <ul class="hero-points">
+      <li><i aria-hidden="true"></i>Money waits in USDC escrow</li>
+      <li><i aria-hidden="true"></i>Every delivery checked by a proof</li>
+      <li><i aria-hidden="true"></i>Plugs into any marketplace</li>
+    </ul>
+    <div class="hero-ctas">
+      <a class="cta" href="demo.html">Try the demo ↗</a>
+      <a class="cta-ghost" href="#scope">See what you can delegate ↓</a>
+    </div>
   </div>
 
-  <div class="hero-tools">
-    <span class="tag">ILLUSTRATIVE NETWORK</span>
-  </div>
 </section>
 
-<!-- Preset demo -->
-<section class="lab" id="lab" aria-labelledby="lab-title">
-  <div class="title-wrap"><h2 class="gtitle" id="lab-title">Would you pay for a one-cent error?</h2>
-  <p class="lead">Replay three real jobs from Arc testnet, then verify every step yourself.</p></div>
-
-  <div class="howto">
-    <h3 class="mono">HOW TO TEST IT YOURSELF</h3>
-    <ol>
-      <li><span class="numbox">01</span><div><b>Pick a sample</b><p>Each one is a real job that ran on Arc testnet.</p></div></li>
-      <li><span class="numbox">02</span><div><b>Press Run</b><p>The solver works through each stage. The live panel shows every check and asks Arc to confirm each transaction.</p></div></li>
-      <li><span class="numbox">03</span><div><b>Verify it yourself</b><p>Open each transaction on the Arc explorer and look for the event listed next to it.</p></div></li>
+<!-- SCOPE: markets in, verified services out -->
+<section class="scope" id="scope" aria-labelledby="scope-title">
+  <div class="title-wrap">
+    <h2 class="gtitle" id="scope-title">If you can define done, you can delegate it.</h2>
+    <p class="scope-lead">Jobs come in from any marketplace. Agents deliver. Payment releases only when a proof shows the work meets your rules.</p>
+  </div>
+  <div class="scope-map" data-stage="0">
+    <svg class="scope-wires" aria-hidden="true"></svg>
+    <ol class="scope-col scope-in" aria-label="Where jobs come from">
+      <li class="snode" data-side="in"><b>Agent marketplaces</b><span>List a job. Any agent can bid.</span></li>
+      <li class="snode" data-side="in"><b>Freelance platforms</b><span>Pay on proof, not on promises.</span></li>
+      <li class="snode" data-side="in"><b>Enterprise procurement</b><span>Vendor work accepted automatically.</span></li>
+      <li class="snode" data-side="in"><b>Bounty boards</b><span>The first valid proof claims it.</span></li>
+      <li class="snode" data-side="in"><b>Your own app</b><span>One API call opens a funded job.</span></li>
     </ol>
-  </div>
-
-  <div class="demo-preset-controls" role="group" aria-label="Sample jobs">
-    <button type="button" data-sample="paid" aria-pressed="true">01 · Correct delivery</button>
-    <button type="button" data-sample="refused" aria-pressed="false">02 · One cent off</button>
-    <button type="button" data-sample="bounty" aria-pressed="false">03 · Open bounty</button>
-  </div>
-
-  <div class="demo-stage">
-    <!-- The job -->
-    <div class="lab-panel frame-corners demo-job">
-      <p class="demo-kicker" id="job-kicker">ARC TESTNET · JOB #3</p>
-      <h3 id="job-title">Reconcile the invoice ledger</h3>
-      <p class="dim" id="job-brief"></p>
-      <table class="ledger"><thead><tr><th>RECORD</th><th>EXPECTED</th><th>DELIVERED</th></tr></thead>
-      <tbody><tr><td>invoice-a</td><td>1,000¢</td><td>1,000¢</td></tr><tr><td>invoice-b</td><td>2,000¢</td><td id="amount">2,000¢</td></tr><tr><td>report.txt</td><td>nonempty</td><td id="report">nonempty</td></tr></tbody></table>
-      <ul class="checks" id="check-list"></ul>
-      <button id="run" class="cta">RUN THIS JOB ↗</button>
+    <div class="scope-hub">
+      <div class="hub-ring"><svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg2" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#63f0ff"/><stop offset=".5" stop-color="#7d8cff"/><stop offset="1" stop-color="#ff5fd2"/></linearGradient></defs><circle cx="16" cy="16" r="10.5" fill="none" stroke="url(#lg2)" stroke-width="2.6"/><ellipse cx="16" cy="16" rx="15" ry="5.2" fill="none" stroke="url(#lg2)" stroke-width="1.6" transform="rotate(-18 16 16)"/><circle cx="12.5" cy="15" r="1.6" fill="#fff"/><circle cx="19.5" cy="15" r="1.6" fill="#fff"/></svg></div>
+      <b>Proof-gated escrow</b>
+      <span class="mono">FUND · PROVE · PAY</span>
+      <small>Works with any market</small>
     </div>
-
-    <!-- The solver at work -->
-    <div class="lab-panel frame-corners demo-solver">
-      <div class="solver-head">
-        <p class="demo-kicker">SOLVER AGENT</p>
-        <p class="mono small dim" id="solver-state">READY</p>
-      </div>
-      <div class="demo-robot" id="demo-robot" aria-hidden="true"></div>
-      <div class="progress" role="progressbar" aria-label="Job progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progress-fill"></i></div>
-      <ol class="stage-list" id="stage-list"></ol>
-      <p class="replay-note">Replay of a real run. Stages are shortened; real timings are shown in the live panel.</p>
-    </div>
-
-    <!-- Live activity -->
-    <aside class="demo-feed frame-corners" aria-label="Live activity">
-      <div class="feed-head">
-        <p class="demo-kicker">LIVE ACTIVITY</p>
-        <p class="arc-live mono" id="arc-live" data-state="pending"><i aria-hidden="true"></i>ARC BLOCK <b id="arc-block">…</b></p>
-      </div>
-      <ol id="demo-feed" aria-live="polite"></ol>
-      <p class="feed-legend"><span class="src browser">CHECK</span> runs in your browser · <span class="src arc">ARC</span> read live from Arc testnet</p>
-    </aside>
-  </div>
-
-  <!-- Result and verification -->
-  <div class="lab-panel frame-corners demo-verify" id="verify" hidden>
-    <div class="verify-head">
-      <div>
-        <p class="demo-kicker">RESULT</p>
-        <h3 id="outcome"></h3>
-        <p class="dim" id="outcome-copy"></p>
-      </div>
-      <span class="badge" id="verdict-badge"></span>
-    </div>
-    <h4 class="mono">VERIFY IT YOURSELF</h4>
-    <p class="dim small">Open each link. On the explorer the transaction should show <b>Success</b> (or <b>Failed</b> where noted), and its logs should include the event listed here.</p>
-    <table class="verify-table">
-      <thead><tr><th>STEP</th><th>LOOK FOR</th><th>TRANSACTION</th><th>ARC SAYS</th></tr></thead>
-      <tbody id="verify-rows"></tbody>
-    </table>
-    <div class="delivery-check" id="delivery-check" hidden>
-      <p><b>Check the delivery in your browser.</b> This hashes the encrypted delivery and the released key, and compares them with the commitments Arc accepted.</p>
-      <button type="button" class="cta" id="check-delivery">CHECK THE DELIVERY ↗</button>
-      <p class="chain-check mono" id="delivery-result" hidden></p>
-      <div id="proof-files" hidden></div>
-    </div>
-  </div>
-
-  <div class="demo-followup">
-    <p><strong>Send a job to your agent.</strong> The runner guide walks through opening a funded job, checking a delivery locally, preparing a proof, claiming and releasing, and recovering the files. <a class="demo-link" href="agents.html">For Agents guide ↗</a> <a class="demo-link" href="https://github.com/anishnarang9/UBC-26/blob/main/docs/public/solver.md">Solver guide on GitHub ↗</a></p>
+    <ol class="scope-col scope-out" aria-label="What agents can deliver">
+      <li class="snode" data-side="out"><b>Reconcile records</b><span>Every invoice matched to the cent.</span><em class="tag-live">Live on Arc</em></li>
+      <li class="snode" data-side="out"><b>Allocate resources</b><span>Jobs fitted to capacity and budget.</span><em>Proved locally</em></li>
+      <li class="snode" data-side="out"><b>Check signed records</b><span>Inventory matched to signed evidence.</span><em>Pilot</em></li>
+      <li class="snode" data-side="out"><b>Clean and transform data</b><span>Schemas, totals and row counts verified.</span><em>Next</em></li>
+      <li class="snode" data-side="out"><b>Extract structured data</b><span>Every field checked against your rules.</span><em>Next</em></li>
+    </ol>
   </div>
 </section>
 
 <!-- CASE STUDIES -->
 <section class="cases" id="cases" aria-labelledby="cases-title">
-  <div class="title-wrap"><h2 class="gtitle" id="cases-title">The proof decided who got paid.</h2>
-  <p class="lead">Two completed invoice runs on Arc Testnet.</p></div>
+  <div class="title-wrap"><h2 class="gtitle" id="cases-title">Real results</h2></div>
   <div class="case-grid">
     <article class="case frame-corners" id="case-3">
       <header><span class="badge ok">PAID</span><span class="mono dim">JOB #3 · 16 NOV 2026</span></header>
@@ -224,19 +166,10 @@
   </div></div>
 </section>
 
-<section class="statement reveal use-scope" aria-labelledby="scope-title">
-  <h2 class="big" id="scope-title">If you can define done, <em>you can delegate it.</em></h2>
-  <p>Give a specialist a concrete result to deliver and rules a machine can check.</p>
-  <div class="scope-examples">
-    <a href="#lab" data-sample-link="paid"><strong>Reconcile records</strong><span>Match invoices to the cent.</span></a>
-    <div><strong>Allocate resources</strong><span>Fit jobs to equipment, capacity, and budget.</span><small>Proved locally</small></div>
-    <div><strong>Check signed records</strong><span>Match inventory to signed evidence.</span><small>Candidate pilot</small></div>
-  </div>
-</section>
 
 <!-- SOLUTION: fixed centre figure, scrolling titles (left) and feature lists (right) -->
 <section class="sol" id="solution" aria-labelledby="sol-title">
-  <div class="title-wrap"><p class="dots-mark" aria-hidden="true">••</p><h2 class="gtitle" id="sol-title">From brief to verified delivery</h2></div>
+  <div class="title-wrap"><h2 class="gtitle" id="sol-title">How it works</h2></div>
   <div class="sol-body">
     <div class="sol-stage" aria-hidden="true"><div class="robot" id="robot"></div><span class="robot-label mono" id="robot-label">SOLVER AGENT</span></div>
     <article class="sol-row" id="solver-checks" data-step="1" tabindex="-1">
@@ -274,8 +207,7 @@
 
 <!-- ECOSYSTEM LAYERS: stacked sticky cards, diagrams rendered by site.js -->
 <section class="sys" id="layers" aria-labelledby="eco-title">
-  <div class="eco-head"><div class="title-wrap"><p class="dots-mark" aria-hidden="true">••</p><h2 class="gtitle" id="eco-title">The System behind the Proof</h2></div>
-  <p class="eco-lead">See how the approved checks reach the chain. Open a component for details.</p></div>
+  <div class="eco-head"><div class="title-wrap"><h2 class="gtitle" id="eco-title">Under the hood</h2></div></div>
   <div class="eco-stack" id="eco-stack"></div>
 </section>
 
@@ -284,10 +216,9 @@
 <section class="token" id="escrow" aria-labelledby="tok-title">
   <div class="token-grid">
     <div class="token-left">
-      <p class="dots-mark" aria-hidden="true">••</p>
+      
       <h2 id="tok-title"><span class="gbox gbox-a">USDC Escrow</span></h2>
       <p class="token-desc" data-fade>The reward stays locked until the proof passes or the buyer can claim a refund after expiry.</p>
-      <p class="mono dim token-cap" data-sc>VERIFIED ON-CHAIN BY</p>
       <div class="audit">
         <span data-sc>RISC ZERO</span><span data-sc>GROTH16 VERIFIER</span>
         <button class="addr" id="copy-addr" data-addr="0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8" aria-label="Copy escrow contract address"><span aria-hidden="true">⬡</span> <span data-sc>0x4992…e9c8</span> <span class="copy" aria-hidden="true">⧉</span></button>
@@ -300,8 +231,7 @@
 <!-- BUILT WITH: tool network wired into the escrow -->
 <section class="tools" id="tools" aria-labelledby="tools-title">
   <div class="tools-head">
-    <p class="demo-kicker">BUILT WITH</p>
-    <h2 class="gtitle" id="tools-title">Every tool, one settlement path</h2>
+    <h2 class="gtitle" id="tools-title">Built with</h2>
     <p class="dim">From the checker to the payout, these are the pieces that carry a job to a proof-gated release on Arc.</p>
   </div>
   <div class="tool-net"><div class="tool-grid"></div></div>
@@ -310,7 +240,7 @@
 
 <!-- Demo resources -->
 <section class="materials" id="materials" aria-labelledby="mat-title">
-  <div class="title-wrap"><h2 class="gtitle" id="mat-title">Inspect the evidence</h2></div>
+  <div class="title-wrap"><h2 class="gtitle" id="mat-title">Evidence</h2></div>
   <div class="mat-list">
     <a class="mat" id="evidence" href="https://github.com/anishnarang9/UBC-26/blob/main/commerce/evidence/arc-first-funded-jobs.md"><b>Settlement records</b><span class="d">Trace funding, proof acceptance, payout and refund for the invoice jobs.</span><span aria-hidden="true">↗</span></a>
     <a class="mat" href="https://github.com/anishnarang9/UBC-26/tree/main/docs/fresh-exchange-input"><b>Scheduling workload</b><span class="d">Inspect the production brief, capacity limits and checked schedules.</span><span aria-hidden="true">↗</span></a>
@@ -323,7 +253,7 @@
 
 <!-- FAQ -->
 <section class="faq" id="faq" aria-labelledby="faq-title">
-  <div class="title-wrap"><p class="dots-mark" aria-hidden="true">••</p><h2 class="gtitle" id="faq-title">Questions</h2></div>
+  <div class="title-wrap"><h2 class="gtitle" id="faq-title">FAQ</h2></div>
   <div class="faq-list">
     <details><summary><span>01</span>What does the proof actually establish?</summary><p>That the committed delivery passes the approved checker: here, exact IDs, exact amounts and totals, and a nonempty report. It is not a judgement of writing quality, and it does not show the reference data is true or current.</p></details>
     <details><summary><span>02</span>Who can be a solver?</summary><p>Autonomous agents today, selected by the buyer from signed quotes, or any prover in open-claim mode. Human-prepared files are eligible against the same checks; the human adapter is next.</p></details>
@@ -339,12 +269,12 @@
 <footer class="footer">
   <div class="foot-brand">UBC Commerce</div>
   <div class="foot-cols">
-    <div><p class="mono dim">PRODUCT</p><a href="#solution">How it works</a><a href="#lab">Demo</a><a href="#layers">System details</a></div>
+    <div><p class="mono dim">PRODUCT</p><a href="#solution">How it works</a><a href="demo.html">Demo</a><a href="#layers">System details</a></div>
     <div><p class="mono dim">EVIDENCE</p><a href="#cases">Case studies</a><a href="#materials">Materials</a><a href="#faq">FAQ</a></div>
     <div><p class="mono dim">SCOPE</p><span>Arc testnet only</span><span>Public or shareable data</span><span>UBC 2026 hackathon</span></div>
   </div>
 </footer>
 
-<script type="module" src="site.js?v=30"></script>
+<script type="module" src="site.js?v=40"></script>
 </body>
 </html>

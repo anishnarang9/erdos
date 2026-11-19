@@ -33,7 +33,11 @@ export function initToolNetwork(host) {
     if (!name) {
       const hub = document.createElement('div');
       hub.className = 'tool-hub'; hub.style.gridRow = String(r + 1); hub.style.gridColumn = `${c + 1} / span 2`;
-      hub.innerHTML = '<span>PROOF-GATED ESCROW</span>';
+      const logo = document.querySelector('.brand svg')?.cloneNode(true);
+      if (logo) { logo.querySelector('linearGradient')?.setAttribute('id', 'lg-tools'); logo.querySelectorAll('[stroke="url(#lg)"]').forEach((n) => n.setAttribute('stroke', 'url(#lg-tools)')); }
+      hub.innerHTML = '<span class="hub-disc"></span><span class="hub-label">UBC COMMERCE</span>';
+      if (logo) hub.querySelector('.hub-disc').append(logo);
+      hub.setAttribute('aria-label', 'UBC Commerce, proof-gated escrow');
       grid.append(hub);
       return;
     }
@@ -78,6 +82,8 @@ export function initToolNetwork(host) {
     return `M${x} ${y0} V${bus - vy * r} Q${x} ${bus} ${x + dir * r} ${bus} H${tx - dir * r} Q${tx} ${bus} ${tx} ${bus + vy * r} V${up ? hubT : hubB}`;
   }
   function draw() {
+    const tileBox = tiles[0]?.el.getBoundingClientRect();
+    if (tileBox && getComputedStyle(svg).display !== "none") { hub.style.width = hub.style.height = `${tileBox.height}px`; } else { hub.style.width = hub.style.height = ""; }
     if (getComputedStyle(svg).display === 'none') return;
     const box = host.querySelector('.tool-net').getBoundingClientRect();
     svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
