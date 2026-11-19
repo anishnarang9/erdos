@@ -1,3 +1,9 @@
+# 2026-11-18 20:08 -0500 — Promote corrected authoring and verify remaining pilot capacity
+
+- Commerce, engine and contract checks passed for `0bea9a9`. Promoted image `sha256:5a74a5a3f1637f3dc7aaa359b82deae25dadaffbe257a2e062092ac884a0a8d0` after backup `snapshot-20261119T010608Z` with manifest SHA-256 `4d196fa01972be348662a826f63453d9b78e6a210b0dc8be96229727df9cbc07`. Prewarm and public readiness passed. The prior private configuration is available for rollback.
+- Flash High completed a restricted buyer identity check with normal command approval. The separate draft invocation failed before SSH connected. VPS storage confirms no work directory, no new draft, and no new reservation. Live limits allow six drafts and four Bot reviews. Five drafts are settled at $0.030392, with one draft and one Bot review slot still available.
+- Removed the temporary key and firewall rule. The independent buyer still needs a reliable scoped transport. No provider call, Bot review, proof or signed send ran.
+
 # 2026-11-18 20:00 -0500 — Prepare one fresh draft slot for the corrected workflow
 
 - The candidate accepts an explicit sixth draft for the same pilot wallet. It retains the four-review ceiling. The restart test admits only that one extra distinct draft after five prior drafts and rejects a seventh. The configured live caps have not changed.
