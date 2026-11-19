@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-19 09:15 -05:00 — Anish — Verify the 96-order Groth16 proof and recovery
+
+- The longer local run completed with verdict 1 in 926,238 ms at 5,038,205 guest cycles. The CLI verified the receipt against checker image `0xae8a9dc695b18d2f00986f0e273ade1a20923385f2251796dc3bf682f6da06d1`. The seal is 260 bytes with selector `0xe71e6620`.
+- The vendored Solidity verifier accepted the fresh seal on a local Ganache EVM and rejected four mutations to the seal, image ID, journal, and verdict. Its verification gas estimate was 257,748. The decrypted assignment file matched the original byte for byte.
+- Proof JSON SHA-256 is `afc716ced90816093908aff5e9d6711957fa0924a236d6f7ff902f065525f3ef`. Recovered assignment SHA-256 is `7ded4d3711e4af022cfb6c66754d7e7a64c662455c3b7e8919ec20cfff38cb60`. The earlier 12-minute timeout remains a separate result.
+- Draft [PR #33](https://github.com/anishnarang9/UBC-26/pull/33) contains the hardening changes. GitHub Actions remains blocked at job startup. The 256-order result covers guest execution. Hosted authoring reliability and live settlement on this branch remain open.
+
 ## 2026-11-19 09:10 -05:00 — Anish — Clarify array and Boolean evaluation rules
 
 - Four direct plan-authoring probes through `agy` covered inventory, badge policy, berth allocation, and route feasibility. All four plans validated. Inventory and berth matched every oracle case. The badge and route drafts chose different array names from the fixtures. The briefs did not require those fixture names.
