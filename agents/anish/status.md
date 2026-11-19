@@ -1,3 +1,9 @@
+# 2026-11-18 19:40 -0500 — Promote bounded pilot and record the Flash High draft failure
+
+- Source `6385abe` passed both commerce CI runs, engine and contracts. Verified the isolated API health check with five draft slots and four Bot dispatch slots. Backed up live state to `snapshot-20261119T003536Z`, manifest SHA-256 `ce84e1fe9f5c0738a8164398657b0cf58362cd9653fc987d28376cc6c7286990`. Promoted the pinned image, verified compiler prewarm and public readiness, and retained private environment rollback copies.
+- Flash High authenticated through its scoped helper. Direct draft execution ran into the local sandbox, so Flash High requested the draft with a local trigger and the operator bridge submitted the prepared request once. Preserve that intervention in the acceptance evidence.
+- Task `01M7RKXQ3309Y2J76QCPKKYMJE` ended with draft outcome `unsupported / plan_invalid`. The first rule's operand types did not match at `/plan/rules/0/where`. Trace `05c93399-7d34-942a-b6a9-9606daffa057`. One provider call settled at $0.009080. The response preserves the trace and stage but omits the raw plan. No Bot review, funding, proof, or transaction followed. Live ledger totals are five settled drafts at $0.030392 and three dispatched reviews. Removed the temporary SSH rule.
+
 # 2026-11-18 19:31 -0500 — Prepare capacity for one fresh Flash High run
 
 - The public configuration can explicitly allow five drafts and four Bot dispatches for the same wallet. Existing limits remain valid. The fifth draft survives an API restart and a sixth distinct draft is rejected. The live service still uses its existing caps.
