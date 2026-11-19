@@ -170,6 +170,40 @@ export function initGlobe(host, { reduced = false } = {}) {
   spiralPlane.add(spiral);
   scene.add(spiralPlane);
 
+  // Short, staggered meteor passes across the sky behind the planetary network.
+  const meteorMap = canvasTex(ctx => {
+    const tail = ctx.createLinearGradient(0, 0, 111, 0);
+    tail.addColorStop(0, 'transparent');
+    tail.addColorStop(.72, '#8cb9ff80');
+    tail.addColorStop(1, '#e9faff');
+    ctx.fillStyle = tail;
+    ctx.beginPath();
+    ctx.moveTo(0, 64); ctx.lineTo(111, 59); ctx.lineTo(111, 69); ctx.fill();
+    const glow = ctx.createRadialGradient(110, 64, 0, 110, 64, 16);
+    glow.addColorStop(0, '#fff'); glow.addColorStop(.3, '#c1eaff'); glow.addColorStop(1, 'transparent');
+    ctx.fillStyle = glow; ctx.fillRect(94, 48, 32, 32);
+  });
+  const meteors = [[-.47, .39, 1.2], [-.16, .46, 5.1], [.12, .32, 9.3]].map(([x, y, delay]) => {
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: meteorMap, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, rotation: -.38,
+    }));
+    sprite.scale.set(2.6, .57, 1);
+    scene.add(sprite);
+    return { sprite, x, y, delay };
+  });
+  let meteorSkyHeight = 1;
+  function updateMeteors(time) {
+    for (const { sprite, x, y, delay } of meteors) {
+      const t = ((time + 14 - delay) % 14) / 1.05;
+      sprite.visible = !reduced && t < 1;
+      if (!sprite.visible) continue;
+      const travel = t * Math.min(6, meteorSkyHeight * camera.aspect * .42);
+      sprite.position.set(x * meteorSkyHeight * camera.aspect + travel,
+        y * meteorSkyHeight - travel * Math.tan(.38), -12);
+      sprite.material.opacity = Math.min(1, t * 8, (1 - t) * 5);
+    }
+  }
+
   // Secondary planets sit between the star spiral and Earth.
   const planetSphere = new THREE.SphereGeometry(1, 48, 32);
   const planets = [
@@ -333,13 +367,14 @@ export function initGlobe(host, { reduced = false } = {}) {
 
   // Straight dashed paths run between the visible limbs of adjacent bodies.
   const pathShape = new THREE.CylinderGeometry(1, 1, 1, 8, 1, true);
-  const links = [[saturn, sun], [sun, mars]].map(([from, to]) => {
+  const links = [[saturn, sun], [sun, mars]].map(([from, to], leg) => {
     const path = new THREE.Group();
     for (const [radius, opacity] of [[.016, .95], [.042, .16]]) {
       const material = new THREE.ShaderMaterial({
         transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
         uniforms: {
           radius: { value: radius }, brightness: { value: opacity }, pathPixels: { value: 1 },
+          clock: flareMaterial.uniforms.clock, leg: { value: leg },
         },
         vertexShader: `uniform float radius; varying float along, screenAlong;
           void main() {
@@ -348,15 +383,21 @@ export function initGlobe(host, { reduced = false } = {}) {
             gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.);
             screenAlong = along * gl_Position.w;
           }`,
-        fragmentShader: `uniform float brightness, pathPixels; varying float along, screenAlong;
+        fragmentShader: `uniform float brightness, pathPixels, clock, leg; varying float along, screenAlong;
           void main() {
             // One 14px period on both paths, independent of depth and viewport size.
-            float repeatPos = screenAlong * gl_FragCoord.w * pathPixels / 14.;
+            float positionOnScreen = screenAlong * gl_FragCoord.w;
+            float repeatPos = positionOnScreen * pathPixels / 14. - clock * .95;
             float edge = abs(fract(repeatPos + .5) - .5);
             float aa = clamp(fwidth(repeatPos), .005, .12);
             float dash = 1. - smoothstep(.31 - aa, .31 + aa, edge);
-            vec3 color = mix(vec3(.22, .62, 1.), vec3(.74, .36, 1.), along);
-            gl_FragColor = vec4(color, dash * brightness);
+            float route = leg + positionOnScreen;
+            float head = mod(clock * .72, 2.4);
+            float packet = 1. - smoothstep(.025, .23, abs(route - head));
+            float hue = .5 + .5 * sin(3.14159 * (route - clock * .36));
+            vec3 color = mix(vec3(.19, .59, 1.), vec3(.77, .33, 1.), hue);
+            color = mix(color, vec3(.78, .93, 1.), packet * .85);
+            gl_FragColor = vec4(color, dash * brightness * (.70 + .30 * packet));
           }`,
       });
       const mesh = new THREE.Mesh(pathShape, material);
@@ -406,6 +447,7 @@ export function initGlobe(host, { reduced = false } = {}) {
   let layout = { x: 0, y: 0, s: 1 };
   function resize() {
     const w = host.clientWidth, h = host.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    meteorSkyHeight = 2 * (camera.position.z + 12) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
     const skyHeight = 2 * (camera.position.z + 9) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
     for (const planet of planets) {
       const planetHeight = skyHeight * (camera.position.z - planet.depth) / (camera.position.z + 9);
@@ -492,6 +534,7 @@ export function initGlobe(host, { reduced = false } = {}) {
     flareMaterial.uniforms.clock.value = time;
     updateProminences(time);
     flareMaterial.uniforms.turn.value = sun.body.rotation.y + .55 * sun.axis.rotation.x;
+    updateMeteors(time);
     spiral.rotation.z = time * .045;
     spiral.material.opacity = .85 + .1 * Math.sin(time * .65);
     spin.rotation.y = 3.0 + time * .03 + yaw;
