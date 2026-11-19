@@ -224,7 +224,7 @@ export function initGlobe(host, { reduced = false } = {}) {
     }
   }
 
-  const sun = planets.find(body => body.name === 'Sun');
+  const [saturn, sun, mars] = planets;
   const corona = new THREE.Sprite(new THREE.SpriteMaterial({
     map: glowTex, color: 0xff720f, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
   }));
@@ -316,25 +316,20 @@ export function initGlobe(host, { reduced = false } = {}) {
     sun.body.add(arcade);
   }
 
-  // A rotating helix tapers to zero displacement at both planetary limbs.
-  const pathShape = new THREE.CylinderGeometry(1, 1, 1, 8, 96, true);
-  const earthLimb = { axis: world, localRadius: R };
-  const links = planets.map(from => {
+  // Straight dashed paths run between the visible limbs of adjacent bodies.
+  const pathShape = new THREE.CylinderGeometry(1, 1, 1, 8, 1, true);
+  const links = [[saturn, sun], [sun, mars]].map(([from, to]) => {
     const path = new THREE.Group();
     for (const [radius, opacity] of [[.016, .95], [.042, .16]]) {
       const material = new THREE.ShaderMaterial({
         transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
         uniforms: {
-          clock: flareMaterial.uniforms.clock, radius: { value: radius }, brightness: { value: opacity },
+          radius: { value: radius }, brightness: { value: opacity },
         },
-        vertexShader: `uniform float clock, radius; varying float along;
+        vertexShader: `uniform float radius; varying float along;
           void main() {
-            float t = clamp(position.y + .5, 0., 1.);
-            float envelope = 4. * t * (1. - t);
-            along = t;
-            float phase = 15.708 * t + 1.8 * clock;
-            vec3 p = position;
-            p.xz = position.xz * radius + .18 * envelope * vec2(cos(phase), sin(phase));
+            along = position.y + .5;
+            vec3 p = vec3(position.x * radius, position.y, position.z * radius);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.);
           }`,
         fragmentShader: `uniform float brightness; varying float along;
@@ -351,13 +346,13 @@ export function initGlobe(host, { reduced = false } = {}) {
       path.add(mesh);
     }
     scene.add(path);
-    return { from, to: earthLimb, path };
+    return { from, to, path };
   });
   const up = new THREE.Vector3(0, 1, 0);
   const start = new THREE.Vector3(), end = new THREE.Vector3(), direction = new THREE.Vector3();
   const eyeDirection = new THREE.Vector3(), toward = new THREE.Vector3();
   function visibleLimb(body, neighbor, point) {
-    const center = body.axis.position, radius = body.axis.scale.x * (body.localRadius ?? 1);
+    const center = body.axis.position, radius = body.axis.scale.x;
     eyeDirection.subVectors(camera.position, center);
     const distance = eyeDirection.length();
     eyeDirection.divideScalar(distance);
