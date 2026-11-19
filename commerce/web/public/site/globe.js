@@ -230,26 +230,44 @@ export function initGlobe(host, { reduced = false } = {}) {
   }));
   corona.position.z = -.35;
   sun.axis.add(corona);
-  const flares = [0.3, 2.4, 4.9].map(angle => {
-    const loop = new THREE.CubicBezierCurve3(
-      new THREE.Vector3(.94, -.22, 0), new THREE.Vector3(1.63, -.45, .08),
-      new THREE.Vector3(1.48, .44, .13), new THREE.Vector3(.94, .20, 0));
-    const flare = new THREE.Mesh(new THREE.TubeGeometry(loop, 28, .024, 6, false),
-      new THREE.MeshBasicMaterial({ color: 0xffa02a, transparent: true, depthWrite: false }));
-    const pivot = new THREE.Group();
-    pivot.rotation.z = angle;
-    pivot.add(flare);
-    sun.axis.add(pivot);
-    return flare;
+  // Layer two travelling waves around the limb. Their relative phase changes the
+  // local spacing and height of the flame tips without restarting a loop.
+  const flareMaterial = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    uniforms: { clock: { value: 0 } },
+    vertexShader: `varying vec2 disc;
+      void main() {
+        disc = position.xy;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.);
+      }`,
+    fragmentShader: `varying vec2 disc;
+      uniform float clock;
+      void main() {
+        float radius = length(disc);
+        float angle = atan(disc.y, disc.x);
+        float phase = clock * 1.8 + .85 * sin(clock * .73);
+        float swell = .5 + .5 * sin(5. * angle - phase + sin(3. * angle + clock * .8));
+        float ripple = .5 + .5 * sin(13. * angle + phase + 2. * swell - 4. * radius);
+        float height = .09 + .42 * swell * swell + .14 * ripple;
+        float altitude = max(radius - .98, 0.);
+        float plume = 1. - smoothstep(.02, height, altitude);
+        float filament = .5 + .5 * cos(27. * angle - phase + 9. * altitude + 2. * ripple);
+        float strength = smoothstep(.96, 1.01, radius) * plume * (.35 + .65 * filament);
+        vec3 color = mix(vec3(1., .12, .012), vec3(1., .66, .13), plume * plume);
+        gl_FragColor = vec4(color, strength);
+        #include <colorspace_fragment>
+      }`,
   });
+  const flareWaves = new THREE.Mesh(new THREE.PlaneGeometry(3.5, 3.5), flareMaterial);
+  scene.add(flareWaves);
 
   // Unit cylinders stretch from limb to limb. Perspective projects the distant segment thinner.
   const pathShape = new THREE.CylinderGeometry(1, 1, 1, 8, 1, true);
-  const links = [[mars, sun], [sun, saturn]].map(([from, to], i) => {
+  const links = [[mars, sun], [sun, saturn]].map(([from, to]) => {
     const path = new THREE.Group();
-    for (const [radius, opacity] of [[.012, .72], [.038, .12]]) {
+    for (const [radius, opacity] of [[.016, .95], [.042, .16]]) {
       const mesh = new THREE.Mesh(pathShape, new THREE.MeshBasicMaterial({
-        color: i === 0 ? 0xff985b : 0xffda9a, transparent: true, opacity, depthWrite: false,
+        color: 0xffffff, transparent: true, opacity, depthWrite: false,
         blending: THREE.AdditiveBlending,
       }));
       mesh.scale.set(radius, 1, radius);
@@ -260,15 +278,23 @@ export function initGlobe(host, { reduced = false } = {}) {
   });
   const up = new THREE.Vector3(0, 1, 0);
   const start = new THREE.Vector3(), end = new THREE.Vector3(), direction = new THREE.Vector3();
+  const eyeDirection = new THREE.Vector3(), toward = new THREE.Vector3();
+  function visibleLimb(body, neighbor, point) {
+    const center = body.axis.position, radius = body.axis.scale.x;
+    eyeDirection.subVectors(camera.position, center);
+    const distance = eyeDirection.length();
+    eyeDirection.divideScalar(distance);
+    toward.subVectors(neighbor.axis.position, center);
+    toward.addScaledVector(eyeDirection, -toward.dot(eyeDirection)).normalize();
+    // A tangent from the camera touches the sphere slightly ahead of its equator.
+    const cosine = radius / distance;
+    point.copy(center).addScaledVector(eyeDirection, radius * cosine)
+      .addScaledVector(toward, radius * Math.sqrt(1 - cosine * cosine));
+  }
   function placeLinks() {
     for (const { from, to, path } of links) {
-      start.copy(from.axis.position);
-      end.copy(to.axis.position);
-      // Use the screen-plane direction so each endpoint touches its visible disc.
-      const ratio = (camera.position.z - start.z) / (camera.position.z - end.z);
-      direction.set(end.x * ratio - start.x, end.y * ratio - start.y, 0).normalize();
-      start.addScaledVector(direction, from.axis.scale.x * .98);
-      end.addScaledVector(direction, -to.axis.scale.x * .98);
+      visibleLimb(from, to, start);
+      visibleLimb(to, from, end);
       direction.subVectors(end, start);
       path.scale.y = direction.length();
       path.position.lerpVectors(start, end, .5);
@@ -293,6 +319,9 @@ export function initGlobe(host, { reduced = false } = {}) {
       planet.axis.position.set(x * planetHeight * camera.aspect, y * planetHeight, planet.depth);
       planet.axis.scale.setScalar(planet.radius * (w < 760 ? .6 : 1));
     }
+    flareWaves.position.copy(sun.axis.position);
+    flareWaves.lookAt(camera.position);
+    flareWaves.scale.copy(sun.axis.scale);
     placeLinks();
     spiralPlane.position.set(-.28 * skyHeight * camera.aspect, .24 * skyHeight, -9);
     spiralPlane.scale.setScalar(w < 760 ? .64 : 1);
@@ -367,11 +396,7 @@ export function initGlobe(host, { reduced = false } = {}) {
     vx += (mx - vx) * Math.min(1, dt * 3); vy += (my - vy) * Math.min(1, dt * 3);
     for (const planet of planets) planet.body.rotation.y = planet.yaw + time * planet.speed;
     corona.scale.setScalar(4.5 + .18 * Math.sin(time * 1.6));
-    flares.forEach((flare, i) => {
-      const pulse = .5 + .5 * Math.sin(time * (1.2 + .2 * i) + i * 2.1);
-      flare.scale.x = .9 + .14 * pulse;
-      flare.material.opacity = .55 + .45 * pulse;
-    });
+    flareMaterial.uniforms.clock.value = time;
     spiral.rotation.z = time * .045;
     spiral.material.opacity = .85 + .1 * Math.sin(time * .65);
     spin.rotation.y = 3.0 + time * .03 + yaw;
