@@ -159,9 +159,10 @@ describe("one repair", () => {
 
   it("repairs one invalid plan when usage is known and does not repair a capability refusal", async () => {
     let calls = 0;
-    const model = fakeModel(() => {
+    const model = fakeModel((input) => {
       calls += 1;
-      return { ...draftReply(calls === 1 ? { version: 1 } : { version: 2 }), usage };
+      const version = input.repair?.previousPlan?.version === 1 ? 2 : 1;
+      return { ...draftReply({ version }), usage };
     });
     const engine = countingEngine({
       validate: async (plan) => (plan as { version?: number }).version === 2

@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { privateKeyToAccount } from "viem/accounts";
 import { createApp, simulatedEngine, type CreateAppOptions } from "../../src/index.ts";
 import { ENGINE_CATALOG, PLAN_SCHEMA } from "../../src/authoring.ts";
-import { DRAFT_MAX_COMPLETION_TOKENS, ModelError, draftCallTokenBound, grokDraftModel, readModelUsage, type DraftModelInput } from "../../src/grok.ts";
+import { DRAFT_MAX_COMPLETION_TOKENS, ModelError, draftCallTokenBound, draftProviderPayload, grokDraftModel, readModelUsage, type DraftModelInput } from "../../src/grok.ts";
 import { authoringCharge, maxCallMicroUsd, ticksToMicroUsd } from "../../src/tasks.ts";
 import { BUYER_TOKEN, T0, freshKey } from "./helpers.ts";
 
@@ -18,6 +18,18 @@ const input = {
   clarifications: [] as { question: string; answer: string }[],
   schema: {},
 };
+
+
+it("offers only generated examples when the buyer did not supply fixtures", () => {
+  const schema = (fixtures: DraftModelInput["exampleFixtures"]) => {
+    const payload = JSON.parse(draftProviderPayload({ ...input, exampleFixtures: fixtures }, "grok-x", 8192));
+    return payload.response_format.json_schema.schema.anyOf[0].properties.examples.items;
+  };
+  expect(schema(undefined).required).toContain("files");
+  const supplied = schema([{ name: "buyer-pass", predictedVerdict: 1, files: [] }]);
+  const selection = supplied.anyOf.find((item: { required: string[] }) => item.required.includes("fixtureName"));
+  expect(selection.properties.fixtureName.enum).toEqual(["buyer-pass"]);
+});
 
 describe("provider response bounds", () => {
   it("cancels an oversized provider response before buffering its complete body", async () => {

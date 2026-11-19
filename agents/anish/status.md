@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-19 11:06 -0500 — Anish — Ground Grok repairs and example selection
+
+- The first live campaign on the pinned model sent 19 calls across 11 briefs. xAI reported $0.1316041 in charges. Six of eight supported drafts failed native validation. The other two disagreed with the independent checker on 12 of 16 cases and could not pass example approval. The two ambiguous briefs and the division capability probe also missed their expected outcomes.
+- Repairs now receive the rejected plan and precise error paths. The provider response schema can select only buyer-supplied fixture names. Generated examples remain available. The prompt explains Boolean collection predicates and typed lookups.
+- API typecheck and all 1,054 API tests passed. The live comparison is running on the same briefs within the shared $5 cap. No live settlement or Grok Bot call was made.
+
 ## 2026-11-19 09:55 -05:00 — Anish — Verify the 128-hop route proof
 
 - The full 128-hop Groth16 run passed at 7,087,607 guest cycles and 1,386,696 ms. The local Solidity verifier accepted the fresh receipt against the reconstructed journal. Both decryption checks matched the original route bytes.

@@ -41,6 +41,7 @@ export interface DraftModelInput {
     attempt: 1;
     reason: "invalid_reply" | "plan_invalid" | "file_errors" | "examples" | "coverage";
     errors: { path: string; message: string }[];
+    previousPlan?: Record<string, unknown>;
     counterexamples: {
       name: string;
       predictedVerdict: 0 | 1;
@@ -180,7 +181,7 @@ export function fromWireReply(raw: unknown): unknown {
  * provider's non-circular $ref subset. Native engine validation still checks the complete plan.
  * `_planSchema` is kept for API compatibility.
  */
-export function draftResponseSchema(_planSchema?: unknown): Record<string, unknown> {
+export function draftResponseSchema(_planSchema?: unknown, fixtures: readonly ExampleFixture[] = []): Record<string, unknown> {
   const str = { type: "string" };
   const obj = (properties: Record<string, unknown>) => ({
     type: "object",
@@ -188,22 +189,23 @@ export function draftResponseSchema(_planSchema?: unknown): Record<string, unkno
     required: Object.keys(properties),
     additionalProperties: false,
   });
+  const verdict = { type: "integer", enum: [0, 1] };
+  const generatedExample = obj({
+    name: str,
+    predictedVerdict: verdict,
+    files: { type: "array", items: obj({ name: str, content: str, encoding: { type: "string", enum: ["utf8", "base64"] } }) },
+    evidence: { type: "array", items: obj({ name: str, content: str, encoding: { type: "string", enum: ["utf8", "base64"] } }) },
+    context: { anyOf: [str, { type: "null" }] },
+  });
+  const example = fixtures.length === 0 ? generatedExample : {
+    anyOf: [obj({ name: str, predictedVerdict: verdict, fixtureName: { type: "string", enum: fixtures.map(fixture => fixture.name) } }), generatedExample],
+  };
   return {
     anyOf: [
       obj({
         kind: { type: "string", enum: ["draft"] },
         plan: { type: "object", additionalProperties: true },
-        examples: {
-          type: "array",
-          items: { anyOf: [
-            obj({ name: str, predictedVerdict: { type: "integer", enum: [0, 1] }, fixtureName: str }),
-            obj({ name: str, predictedVerdict: { type: "integer", enum: [0, 1] },
-              files: { type: "array", items: obj({ name: str, content: str, encoding: { type: "string", enum: ["utf8", "base64"] } }) },
-              evidence: { type: "array", items: obj({ name: str, content: str, encoding: { type: "string", enum: ["utf8", "base64"] } }) },
-              context: { anyOf: [str, { type: "null" }] },
-            }),
-          ] },
-        },
+        examples: { type: "array", items: example },
         sourceQuotes: { type: "array", maxItems: 64, items: obj({ path: str, quote: str }) },
         coverage: obj({
           requirements: { type: "array", minItems: 1, maxItems: 64, items: obj({
@@ -249,6 +251,8 @@ export const DRAFT_SYSTEM_PROMPT = [
   "never compare unique to a numeric count.",
   "Both operands of and and or always run. They cannot guard a lookup that may reject.",
   "If the capability catalog lists if, use op if with a Boolean condition and same-type then and else expressions. Only the selected branch runs.",
+  "For all, any, and count, a where expression must return a Boolean. A lookup returns the declared type of valueField.",
+  "To check a numeric or text lookup against a record field, wrap the lookup and field in a typed comparison such as eq.",
   "Use any or count with a predicate to treat a missing match as a rule failure. Lookup rejects a missing or duplicate key.",
   "To compare a full text/v1 file, use a field expression with `source` and `file` only. Omit the `field` key. Do not invent a `content` field. For json/v1, `field` must name a declared scalar field.",
   "If the job needs an operation, parser or evidence profile that is NOT in the catalog, still reply with",
@@ -256,12 +260,14 @@ export const DRAFT_SYSTEM_PROMPT = [
   "engine turns that into a capability request. Use kind unsupported only for tasks that no deterministic",
   "check of the delivered files could ever decide.",
   "Binary references provide full base64 bytes, size and SHA-256 identity. These fields do not establish parsed or external semantics.",
-  "Select a public exampleFixture with {name,predictedVerdict,fixtureName}, or provide complete files, optional evidence and preview context.",
+  "Only use fixtureName when exampleFixtures contains that exact name and predictedVerdict. Otherwise generate the full example files.",
+  "Use short example names with only ASCII letters, digits, periods, underscores and hyphens.",
   "Generated files use explicit utf8 or base64 encoding. Include evidence:[] and context:null when unused in the wire response.",
   "Never invent a trusted signature. Signed fixtures bind exact rules/reference/context hashes and may require new buyer-supplied witnesses.",
   "Each example is a complete set of deliverable files (every output, by name) and the",
   "verdict you predict. Give at least one passing and one failing example. The engine labels them itself.",
   "Use a well-formed example for verdict 0. A malformed file, missing lookup key, or invalid signature rejects the input.",
+  "For a repair, use repair.previousPlan as the starting point when present. Fix the reported errors and keep the buyer's other requirements.",
   "List every stated requirement in coverage.requirements with a unique id and text. Link each to zero-based ruleIndices and sourceQuotes quoteIndices.",
   "Every rule needs a requirement link. Every requirement needs verified quotes. List assumptions and unresolved requirements explicitly, never silently weaken them.",
   "Coverage links support buyer review. They do not prove that prose and rules have the same meaning.",
@@ -308,7 +314,7 @@ export function draftProviderPayload(input: DraftModelInput, model: string, maxT
     ],
     response_format: {
       type: "json_schema",
-      json_schema: { name: "ubc26_draft", strict: true, schema: draftResponseSchema(input.schema) },
+      json_schema: { name: "ubc26_draft", strict: true, schema: draftResponseSchema(input.schema, input.exampleFixtures) },
     },
   });
 }

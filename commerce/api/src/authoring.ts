@@ -485,9 +485,10 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     };
 
     let chosen = first.failureReason ? undefined : await assess(first);
+    const previousPlan = first.result.kind === "draft" && isPlainObject(first.result.plan) ? first.result.plan : undefined;
     const feedback: DraftModelInput["repair"] = first.failureReason === "invalid_reply"
       ? { attempt: 1, reason: "invalid_reply", errors: [{ path: "", message: "Return one complete reply that matches the response schema." }], counterexamples: [] }
-      : chosen?.feedback;
+      : chosen?.feedback && { ...chosen.feedback, ...(previousPlan ? { previousPlan } : {}) };
     // The repair payload includes its feedback. The supported completion maximum is not a smaller hint.
     const repairFits = (feedback: NonNullable<DraftModelInput["repair"]>): boolean => {
       if (!deps.budget) return true;
