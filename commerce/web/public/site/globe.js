@@ -173,13 +173,12 @@ export function initGlobe(host, { reduced = false } = {}) {
   // Secondary planets sit between the star spiral and Earth.
   const planetSphere = new THREE.SphereGeometry(1, 48, 32);
   const planets = [
-    { name: 'Saturn', radius: .76, dark: 0x734a47, light: 0xf8ce9b, bands: 18, tilt: -.31, speed: .10, x: -.34, y: .32, mobileX: -.34, mobileY: .40 },
-    { name: 'Neptune', radius: .47, dark: 0x22467d, light: 0x77d6ff, bands: 10, tilt: .4, speed: .14, x: -.13, y: .375, mobileX: .23, mobileY: .39 },
-    { name: 'Mars', radius: .29, dark: 0x713c3c, light: 0xffaa7b, bands: 0, tilt: -.15, speed: .085, x: .42, y: -.17, mobileX: .42, mobileY: .005 },
+    { name: 'Saturn', radius: .76, dark: 0x734a47, light: 0xf8ce9b, bands: 18, tilt: -.31, speed: .28, depth: -4.8, x: -.34, y: .32, mobileX: -.34, mobileY: .40 },
+    { name: 'Sun', radius: .57, dark: 0xed5208, light: 0xffe99b, bands: -1, tilt: .4, speed: .34, depth: -6.5, x: -.13, y: .375, mobileX: .23, mobileY: .39 },
+    { name: 'Mars', radius: .29, dark: 0x713c3c, light: 0xffaa7b, bands: 0, tilt: -.15, speed: .24, depth: -8.8, x: .42, y: -.17, mobileX: .42, mobileY: .005 },
   ];
   const rings = {
     Saturn: { color: 0xf2c498, tilt: 1.23, bands: [[1.27, 1.52, .55], [1.57, 1.85, .38], [1.9, 1.99, .24]] },
-    Neptune: { color: 0x9bdbff, tilt: 1.06, bands: [[1.32, 1.43, .77], [1.64, 1.72, .62]] },
   };
   for (const planet of planets) {
     const material = new THREE.ShaderMaterial({
@@ -199,6 +198,11 @@ export function initGlobe(host, { reduced = false } = {}) {
           float sun = max(0., dot(n, normalize(vec3(-.65,.6,.5))));
           vec3 col = mix(dark, light, mixAmount) * (.15 + .95 * sun);
           col += light * pow(1. - max(n.z, 0.), 3.) * (.12 + .35 * sun);
+          if (bands < 0.) {
+            float granules = sin(23. * p.x + swirls) * sin(17. * p.y - 4. * p.z);
+            col = mix(dark, light, smoothstep(-1.5, 1.6, swirls + .35 * granules));
+            col += vec3(.45,.12,.01) * pow(1. - max(n.z, 0.), 2.);
+          }
           gl_FragColor = vec4(col, 1.);
           #include <colorspace_fragment>
         }`,
@@ -220,6 +224,58 @@ export function initGlobe(host, { reduced = false } = {}) {
     }
   }
 
+  const [saturn, sun, mars] = planets;
+  const corona = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: glowTex, color: 0xff720f, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  }));
+  corona.position.z = -.35;
+  sun.axis.add(corona);
+  const flares = [0.3, 2.4, 4.9].map(angle => {
+    const loop = new THREE.CubicBezierCurve3(
+      new THREE.Vector3(.94, -.22, 0), new THREE.Vector3(1.63, -.45, .08),
+      new THREE.Vector3(1.48, .44, .13), new THREE.Vector3(.94, .20, 0));
+    const flare = new THREE.Mesh(new THREE.TubeGeometry(loop, 28, .024, 6, false),
+      new THREE.MeshBasicMaterial({ color: 0xffa02a, transparent: true, depthWrite: false }));
+    const pivot = new THREE.Group();
+    pivot.rotation.z = angle;
+    pivot.add(flare);
+    sun.axis.add(pivot);
+    return flare;
+  });
+
+  // Unit cylinders stretch from limb to limb. Perspective projects the distant segment thinner.
+  const pathShape = new THREE.CylinderGeometry(1, 1, 1, 8, 1, true);
+  const links = [[mars, sun], [sun, saturn]].map(([from, to], i) => {
+    const path = new THREE.Group();
+    for (const [radius, opacity] of [[.012, .72], [.038, .12]]) {
+      const mesh = new THREE.Mesh(pathShape, new THREE.MeshBasicMaterial({
+        color: i === 0 ? 0xff985b : 0xffda9a, transparent: true, opacity, depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }));
+      mesh.scale.set(radius, 1, radius);
+      path.add(mesh);
+    }
+    scene.add(path);
+    return { from, to, path };
+  });
+  const up = new THREE.Vector3(0, 1, 0);
+  const start = new THREE.Vector3(), end = new THREE.Vector3(), direction = new THREE.Vector3();
+  function placeLinks() {
+    for (const { from, to, path } of links) {
+      start.copy(from.axis.position);
+      end.copy(to.axis.position);
+      // Use the screen-plane direction so each endpoint touches its visible disc.
+      const ratio = (camera.position.z - start.z) / (camera.position.z - end.z);
+      direction.set(end.x * ratio - start.x, end.y * ratio - start.y, 0).normalize();
+      start.addScaledVector(direction, from.axis.scale.x * .98);
+      end.addScaledVector(direction, -to.axis.scale.x * .98);
+      direction.subVectors(end, start);
+      path.scale.y = direction.length();
+      path.position.lerpVectors(start, end, .5);
+      path.quaternion.setFromUnitVectors(up, direction.normalize());
+    }
+  }
+
   // State feedback from the (simulated) experiment: cyan pulse on pass, magenta-red on fail.
   let pulseColor = new THREE.Color(0, 0, 0), pulseAmt = 0, tintMix = 0;
   const pass = new THREE.Color(0x52ffd9), fail = new THREE.Color(0xff3d6e);
@@ -230,14 +286,14 @@ export function initGlobe(host, { reduced = false } = {}) {
   function resize() {
     const w = host.clientWidth, h = host.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
     const skyHeight = 2 * (camera.position.z + 9) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-    const planetDepth = -6;
-    const planetHeight = skyHeight * (camera.position.z - planetDepth) / (camera.position.z + 9);
     for (const planet of planets) {
+      const planetHeight = skyHeight * (camera.position.z - planet.depth) / (camera.position.z + 9);
       const x = w <= 1100 ? planet.mobileX : planet.x;
       const y = w <= 1100 ? planet.mobileY : planet.y;
-      planet.axis.position.set(x * planetHeight * camera.aspect, y * planetHeight, planetDepth);
+      planet.axis.position.set(x * planetHeight * camera.aspect, y * planetHeight, planet.depth);
       planet.axis.scale.setScalar(planet.radius * (w < 760 ? .6 : 1));
     }
+    placeLinks();
     spiralPlane.position.set(-.28 * skyHeight * camera.aspect, .24 * skyHeight, -9);
     spiralPlane.scale.setScalar(w < 760 ? .64 : 1);
     world.position.set(layout.x, layout.y, 0); world.scale.setScalar(layout.s * (w < 760 ? .62 : 1));
@@ -250,7 +306,9 @@ export function initGlobe(host, { reduced = false } = {}) {
   const pointer = new THREE.Vector2();
   const owners = new Map([[earth, null]]);
   for (const planet of planets) {
-    for (const mesh of planet.axis.children) owners.set(mesh, planet);
+    for (const mesh of planet.axis.children) {
+      if (mesh.isMesh) owners.set(mesh, planet);
+    }
   }
   const targets = Array.from(owners.keys());
   let draggedPlanet = null;
@@ -308,6 +366,12 @@ export function initGlobe(host, { reduced = false } = {}) {
     if (!dirty) return;
     vx += (mx - vx) * Math.min(1, dt * 3); vy += (my - vy) * Math.min(1, dt * 3);
     for (const planet of planets) planet.body.rotation.y = planet.yaw + time * planet.speed;
+    corona.scale.setScalar(4.5 + .18 * Math.sin(time * 1.6));
+    flares.forEach((flare, i) => {
+      const pulse = .5 + .5 * Math.sin(time * (1.2 + .2 * i) + i * 2.1);
+      flare.scale.x = .9 + .14 * pulse;
+      flare.material.opacity = .55 + .45 * pulse;
+    });
     spiral.rotation.z = time * .045;
     spiral.material.opacity = .85 + .1 * Math.sin(time * .65);
     spin.rotation.y = 3.0 + time * .03 + yaw;
