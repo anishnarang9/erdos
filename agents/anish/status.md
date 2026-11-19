@@ -1,3 +1,9 @@
+# 2026-11-18 20:27 -0500 — Verify the saved Flash High draft can receive a new review
+
+- On `codex/authoring-pilot-round2`, extended the public API integration test to exercise an explicit buyer resubmission after a Bot objection. The API created revision 2 with the same content hash and draft ID. It preserved the first objection, required a new review ID and rejected approval with the old receipt. The new receipt allowed approval only with the saved coverage and example checks.
+- The controlled authoring model ran once across the two revisions. Flash High can use this path for its saved receipt job after the live routine correction. All 1,085 API tests and API typecheck passed. Public readiness returned true.
+- The live Bot routine still needs the prompt edit and one scoped review slot. The app did not expose billing in this check, so auto top-up remains unverified. No live edit, dispatch, funding or draft took place.
+
 # 2026-11-18 20:24 -0500 — Clarify native lookup semantics for Bot review
 
 - On `codex/authoring-pilot-round2`, updated both Grok Bot routine templates. They explain that an evaluated lookup rejects a missing key. They also distinguish checking receipt IDs against the order from requiring every order ID in the receipt.
