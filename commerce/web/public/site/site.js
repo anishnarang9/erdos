@@ -1,7 +1,7 @@
-import { initGlobe } from './globe.js?v=14';
+import { initGlobe } from './globe.js?v=18';
 import { initRobot } from './robot.js?v=18';
-import { initToolNetwork } from './tool-network.js?v=2';
-import { initDemoLab } from './demo-lab.js?v=6';
+import { initToolNetwork } from './tool-network.js?v=4';
+import { initScopeMap } from './scope.js?v=1';
 import { initCoin } from './coin.js?v=9';
 import { LAYERS, ICONS } from './layers.js?v=9';
 
@@ -223,7 +223,7 @@ addEventListener('resize', onScroll); onScroll();
 // Reveal each block once. Content is readable before observation and on anchor jumps.
 if (!reduced) {
   document.documentElement.classList.add('motion');
-  const blocks = $$('.reveal, .case, .mat, .faq details, .title-wrap, .lab-panel, .lab .howto, .demo-preset-controls, .demo-feed, .demo-followup, .scope-examples > *, .token-left, .tools-head, .tool-caption, .eco-lead');
+  const blocks = $$('.reveal, .case, .mat, .faq details, .title-wrap, .teaser, .teaser-cta, .token-left, .tools-head, .tool-caption, .eco-lead');
   const observer = new IntersectionObserver(entries => {
     const destination = document.querySelector(':target');
     for (const entry of entries) {
@@ -246,7 +246,7 @@ $('#copy-addr')?.addEventListener('click', async (e) => {
 });
 
 // ---------- demo (three samples, proof replays, live Arc feed) ----------
-initDemoLab({ onOutcome: (kind) => globe?.setOutcome(kind) });
+initScopeMap(document.getElementById('scope'));
 
 window.siteDiagnostics = () => ({ globe: globe?.diagnostics(), row: activeRow, robot: robot?.label(), layers: $$('.layer').length, live: $$('.layer.live').length, lab: document.body.dataset.lab });
 
