@@ -170,6 +170,50 @@ export function initGlobe(host, { reduced = false } = {}) {
   spiralPlane.add(spiral);
   scene.add(spiralPlane);
 
+  // Secondary planets sit between the star spiral and Earth.
+  const planetSphere = new THREE.SphereGeometry(1, 48, 32);
+  const planets = [
+    { name: 'Saturn', radius: .76, dark: 0x734a47, light: 0xf8ce9b, bands: 18, tilt: -.31, speed: .10, x: -.32, y: .24 },
+    { name: 'Neptune', radius: .47, dark: 0x22467d, light: 0x77d6ff, bands: 10, tilt: .4, speed: .14, x: -.07, y: .36 },
+    { name: 'Mars', radius: .29, dark: 0x713c3c, light: 0xffaa7b, bands: 0, tilt: -.15, speed: .085, x: .38, y: -.14 },
+  ];
+  for (const planet of planets) {
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        dark: { value: new THREE.Color(planet.dark) }, light: { value: new THREE.Color(planet.light) },
+        bands: { value: planet.bands },
+      },
+      vertexShader: `varying vec3 surface; varying vec3 facing;
+        void main() { surface = normal; facing = normalMatrix * normal;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
+      fragmentShader: `uniform vec3 dark, light; uniform float bands; varying vec3 surface, facing;
+        void main() {
+          vec3 p = normalize(surface), n = normalize(facing);
+          float swirls = sin(p.x * 8. + sin(p.z * 7.)) + .5 * cos(p.z * 11. + p.y * 4.);
+          float pattern = bands > 0. ? sin(p.y * bands + swirls * .7) : sin(4. * p.y + swirls * 1.8);
+          float mixAmount = .48 + .32 * pattern + .12 * sin(3. * swirls);
+          float sun = max(0., dot(n, normalize(vec3(-.65,.6,.5))));
+          vec3 col = mix(dark, light, mixAmount) * (.15 + .95 * sun);
+          col += light * pow(1. - max(n.z, 0.), 3.) * (.12 + .35 * sun);
+          gl_FragColor = vec4(col, 1.);
+          #include <colorspace_fragment>
+        }`,
+    });
+    planet.axis = new THREE.Group();
+    planet.axis.rotation.z = planet.tilt;
+    planet.body = new THREE.Mesh(planetSphere, material);
+    planet.axis.add(planet.body);
+    scene.add(planet.axis);
+    if (planet.name === 'Saturn') {
+      for (const [inner, outer, opacity] of [[1.27, 1.52, .55], [1.57, 1.85, .38], [1.9, 1.99, .24]]) {
+        const ring = new THREE.Mesh(new THREE.RingGeometry(inner, outer, 96),
+          new THREE.MeshBasicMaterial({ color: 0xf2c498, transparent: true, opacity, side: THREE.DoubleSide, depthWrite: false }));
+        ring.rotation.x = 1.23;
+        planet.axis.add(ring);
+      }
+    }
+  }
+
   // State feedback from the (simulated) experiment: cyan pulse on pass, magenta-red on fail.
   let pulseColor = new THREE.Color(0, 0, 0), pulseAmt = 0, tintMix = 0;
   const pass = new THREE.Color(0x52ffd9), fail = new THREE.Color(0xff3d6e);
@@ -180,6 +224,12 @@ export function initGlobe(host, { reduced = false } = {}) {
   function resize() {
     const w = host.clientWidth, h = host.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
     const skyHeight = 2 * (camera.position.z + 9) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    const planetDepth = -6;
+    const planetHeight = skyHeight * (camera.position.z - planetDepth) / (camera.position.z + 9);
+    for (const planet of planets) {
+      planet.axis.position.set(planet.x * planetHeight * camera.aspect, planet.y * planetHeight, planetDepth);
+      planet.axis.scale.setScalar(planet.radius * (w < 760 ? .6 : 1));
+    }
     spiralPlane.position.set(-.28 * skyHeight * camera.aspect, .24 * skyHeight, -9);
     spiralPlane.scale.setScalar(w < 760 ? .64 : 1);
     world.position.set(layout.x, layout.y, 0); world.scale.setScalar(layout.s * (w < 760 ? .62 : 1));
@@ -199,6 +249,7 @@ export function initGlobe(host, { reduced = false } = {}) {
     if (!paused) { time += dt; dirty = true; }
     if (!dirty) return;
     vx += (mx - vx) * Math.min(1, dt * 3); vy += (my - vy) * Math.min(1, dt * 3);
+    for (const planet of planets) planet.body.rotation.y = time * planet.speed;
     spiral.rotation.z = time * .045;
     spiral.material.opacity = .85 + .1 * Math.sin(time * .65);
     spin.rotation.y = 3.0 + time * .03 + yaw;

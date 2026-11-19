@@ -1,4 +1,4 @@
-import { initGlobe } from './globe.js?v=10';
+import { initGlobe } from './globe.js?v=11';
 import { initRobot } from './robot.js?v=18';
 import { initRecordedProof } from './recorded-proof.js?v=12';
 import { initCoin } from './coin.js?v=9';
