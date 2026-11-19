@@ -1032,3 +1032,9 @@ body[data-lab="released"] .demo-verdict h3 { color: var(--ok); }
 @media (max-width: 1300px) { .mk-app { height: auto; } .mk-list { max-height: 520px; } }
 
 .brand svg { width: 34px; height: 34px; }
+
+/* ---------- intro statement: words fade in as you scroll ---------- */
+.statement .w { display: inline-block; color: var(--ink); opacity: 0; filter: blur(6px); transform: translateY(10px); transition: opacity .6s ease-out, filter .6s ease-out, transform .7s cubic-bezier(.2, .7, .2, 1); }
+.statement .w.lit { opacity: 1; filter: none; transform: none; }
+.statement em .w.lit { color: var(--cyan); }
+@media (prefers-reduced-motion: reduce) { .statement .w { opacity: 1; filter: none; transform: none; transition: none; } }
