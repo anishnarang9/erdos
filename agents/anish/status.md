@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-19 08:51 -05:00 — Anish — Clarify valid and malformed authoring examples
+
+- The production authoring prompt now distinguishes verdict 0 from rejected input. It directs the model to follow the buyer's required JSON layout and omit properties outside the schema.
+- Fresh Opus and Sonnet runs through `agy` each matched all nine telescope oracle cases after receiving the exact output layout and rejection rules. The original misses remain in the prior entry. These were direct plan-authoring probes and did not call the hosted service.
+- Full commerce checks passed after the prompt change. A separate harder authoring probe and the local 96-order proof are in progress. No production deployment or Arc transaction ran.
+
 ## 2026-11-19 08:48 -05:00 — Anish — Check dispatch at the collection limit
 
 - The independent dispatch test now runs nine cases each at 96 and 256 orders. All 84 qualification tests and all 326 frozen native comparisons pass.
