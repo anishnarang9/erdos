@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-19 09:32 -05:00 — Anish — Prove and recover a conditional route
+
+- The two-hop route returned verdict 1 in 529,817 ms at 2,034,015 guest cycles. Its checker image is `0x54738e4ff8e9a5d398d7cd065e0b3620584530ca4e6123745b3b90b482d5ba64`, the same image used for the 128-hop benchmark. The CLI verified the receipt. The seal is 260 bytes with selector `0xe71e6620`.
+- Recovery matched the original route bytes. Proof JSON SHA-256 is `cadc763fa2fe16a55555ae07a25abf58d82ebb017b5cd21d2eeed6dd589188ed`. Recovered route SHA-256 is `a839b49f3975435922e4109668b02fd8ec561e01591d4a0a91f8f05d8a9ff317`.
+- The 128-hop proof is running locally with a 45-minute limit. Local package reproducibility, the relocated API build, and deployment tests passed. GitHub Actions still reports its billing or spending-limit blocker.
+
 ## 2026-11-19 09:25 -05:00 — Anish — Add a typed conditional for guarded rules
 
 - The engine now supports `if` with a Boolean condition and same-type branches. Both branches count toward the static limits and rules commitment. The checker evaluates only the selected branch. Existing Boolean operators stay eager. The API's schema and catalog match the engine.
