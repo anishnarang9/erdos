@@ -214,14 +214,14 @@ export function initGlobe(host, { reduced = false } = {}) {
   const flares = [];
   const flareMat = () => new THREE.MeshBasicMaterial({ color: 0xffa040, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
   function spawnFlare(f, now) {
-    const theta = Math.random() * Math.PI * 2, spread = .18 + Math.random() * .38, height = 1.35 + Math.random() * (Math.random() < .25 ? 1.1 : .55);
+    const theta = Math.random() * Math.PI * 2, spread = .07 + Math.random() * .16, height = 1.08 + Math.random() * (Math.random() < .15 ? .32 : .16);
     const at = (a, r) => new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, .25);
     const curve = new THREE.CubicBezierCurve3(at(theta - spread, .98), at(theta - spread * .55, height), at(theta + spread * .55, height), at(theta + spread, .98));
     f.mesh.geometry.dispose();
-    f.mesh.geometry = new THREE.TubeGeometry(curve, 48, .035 + Math.random() * .05, 6, false);
+    f.mesh.geometry = new THREE.TubeGeometry(curve, 48, .012 + Math.random() * .014, 5, false);
     f.count = f.mesh.geometry.index.count;
-    f.born = now; f.dur = 1.6 + Math.random() * 2.4; f.peak = .55 + Math.random() * .45;
-    f.mesh.material.color.setHSL(.06 + Math.random() * .05, 1, .55 + Math.random() * .15);
+    f.born = now; f.dur = 5 + Math.random() * 6; f.peak = .16 + Math.random() * .2;
+    f.mesh.material.color.setHSL(.025 + Math.random() * .035, 1, .5 + Math.random() * .08);
   }
 
   for (const planet of planets) {
@@ -232,7 +232,7 @@ export function initGlobe(host, { reduced = false } = {}) {
       const corona = new THREE.Sprite(new THREE.SpriteMaterial({ map: coronaTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, toneMapped: false }));
       corona.scale.setScalar(5.2); planet.corona = corona;
       planet.axis.add(corona, planet.body);
-      for (let i = 0; i < 7; i++) {
+      for (let i = 0; i < 4; i++) {
         const f = { mesh: new THREE.Mesh(new THREE.BufferGeometry(), flareMat()), born: -10, dur: 0, next: Math.random() * 2.5 };
         f.mesh.visible = false;
         planet.axis.add(f.mesh); flares.push(f);
@@ -393,17 +393,17 @@ export function initGlobe(host, { reduced = false } = {}) {
     const sun = planets.find((p) => p.sun);
     let flareGlow = 0;
     for (const f of flares) {
-      if (time >= f.next && time - f.born > f.dur) { spawnFlare(f, time); f.next = time + f.dur + .4 + Math.random() * Math.random() * 6; }
+      if (time >= f.next && time - f.born > f.dur) { spawnFlare(f, time); f.next = time + f.dur + 1 + Math.random() * Math.random() * 9; }
       const u = f.dur ? (time - f.born) / f.dur : 2;
       if (u < 0 || u > 1) { f.mesh.visible = false; continue; }
       f.mesh.visible = true;
-      const grow = Math.min(1, u / .35);
+      const grow = Math.min(1, u / .45);
       f.mesh.geometry.setDrawRange(0, Math.floor(f.count * grow / 6) * 6);
-      const o = (u < .35 ? u / .35 : 1 - (u - .35) / .65) * f.peak;
+      const o = Math.sin(Math.PI * Math.min(1, u)) ** 1.5 * f.peak;
       f.mesh.material.opacity = o; flareGlow = Math.max(flareGlow, o);
     }
-    sun.corona.material.opacity = .78 + .12 * Math.sin(time * 1.3) + flareGlow * .25;
-    sun.corona.scale.setScalar(5.2 + .3 * Math.sin(time * .9) + flareGlow * .5);
+    sun.corona.material.opacity = .72 + .06 * Math.sin(time * .7) + flareGlow * .08;
+    sun.corona.scale.setScalar(5.2 + .12 * Math.sin(time * .5));
     links.forEach((curve, i) => {
       for (let k = 0; k < 3; k++) {
         const u = (time * .09 + k / 3 + i * .17) % 1, pt = curve.getPoint(u), j = (i * 3 + k) * 3;

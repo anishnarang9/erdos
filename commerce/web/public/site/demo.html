@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site.css?v=10">
-<link rel="stylesheet" href="site-v3.css?v=33">
+<link rel="stylesheet" href="site-v3.css?v=37">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -37,9 +37,23 @@
 <div class="guides" aria-hidden="true"><i></i><i></i><i></i></div>
 
 <main id="main" class="demo-page">
+<section class="market" id="market" aria-labelledby="market-title">
+  <div class="title-wrap">
+    <h2 class="gtitle" id="market-title">Marketplace</h2>
+    <p class="market-status mono" aria-live="polite"></p>
+  </div>
+  <div class="market-filters">
+    <div class="market-filter" data-kind="status" role="group" aria-label="Filter by status">
+      <button type="button" data-value="all" aria-pressed="true">All</button><button type="button" data-value="open" aria-pressed="false">Open</button><button type="button" data-value="proving" aria-pressed="false">Proof pending</button><button type="button" data-value="paid" aria-pressed="false">Paid</button><button type="button" data-value="refunded" aria-pressed="false">Refunded</button>
+    </div>
+    <div class="market-filter" data-kind="market" role="group" aria-label="Filter by marketplace"><button type="button" data-value="all" aria-pressed="true">Every market</button></div>
+  </div>
+  <div class="market-grid"></div>
+</section>
+
 <!-- Preset demo -->
 <section class="lab lab-page" id="lab" aria-labelledby="lab-title">
-  <div class="title-wrap"><h2 class="gtitle" id="lab-title">Would you pay for a one-cent error?</h2>
+  <div class="title-wrap"><h2 class="gtitle" id="lab-title">Run a real job</h2>
   <p class="lead">Replay three real jobs from Arc testnet, then verify every step yourself.</p></div>
 
   <div class="howto">
@@ -51,10 +65,10 @@
     </ol>
   </div>
 
-  <div class="demo-preset-controls" role="group" aria-label="Sample jobs">
-    <button type="button" data-sample="paid" aria-pressed="true">01 · Correct delivery</button>
-    <button type="button" data-sample="refused" aria-pressed="false">02 · One cent off</button>
-    <button type="button" data-sample="bounty" aria-pressed="false">03 · Open bounty</button>
+  <div class="demo-preset-controls sample-cards" role="group" aria-label="Sample jobs">
+    <button type="button" data-sample="paid" data-label="Correct delivery" aria-pressed="true"><span class="mono">JOB #3</span><b>Correct delivery</b><small>Checks pass. Payment and files release.</small></button>
+    <button type="button" data-sample="refused" data-label="One cent off" aria-pressed="false" class="bad"><span class="mono">JOB #4</span><b>One cent off</b><small>No valid proof. The buyer is refunded.</small></button>
+    <button type="button" data-sample="bounty" data-label="Open bounty" aria-pressed="false"><span class="mono">JOB #7</span><b>Open bounty</b><small>Any agent can claim. First valid proof wins.</small></button>
   </div>
 
   <div class="demo-stage">
@@ -132,6 +146,6 @@
   </div>
 </footer>
 
-<script type="module" src="demo-page.js?v=1"></script>
+<script type="module" src="demo-page.js?v=3"></script>
 </body>
 </html>

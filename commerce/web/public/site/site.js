@@ -1,7 +1,7 @@
-import { initGlobe } from './globe.js?v=18';
+import { initGlobe } from './globe.js?v=19';
 import { initRobot } from './robot.js?v=18';
 import { initToolNetwork } from './tool-network.js?v=4';
-import { initScopeMap } from './scope.js?v=1';
+import { initScopeMap } from './scope.js?v=2';
 import { initCoin } from './coin.js?v=9';
 import { LAYERS, ICONS } from './layers.js?v=9';
 
@@ -223,7 +223,7 @@ addEventListener('resize', onScroll); onScroll();
 // Reveal each block once. Content is readable before observation and on anchor jumps.
 if (!reduced) {
   document.documentElement.classList.add('motion');
-  const blocks = $$('.reveal, .case, .mat, .faq details, .title-wrap, .teaser, .teaser-cta, .token-left, .tools-head, .tool-caption, .eco-lead');
+  const blocks = $$('.reveal, .case, .mat, .faq details, .title-wrap, .token-left, .tools-head, .tool-caption');
   const observer = new IntersectionObserver(entries => {
     const destination = document.querySelector(':target');
     for (const entry of entries) {
@@ -251,3 +251,32 @@ initScopeMap(document.getElementById('scope'));
 window.siteDiagnostics = () => ({ globe: globe?.diagnostics(), row: activeRow, robot: robot?.label(), layers: $$('.layer').length, live: $$('.layer.live').length, lab: document.body.dataset.lab });
 
 initToolNetwork(document.getElementById('tools'));
+
+// Sections lead with headlines; a toggle under each title reveals the descriptive text.
+const MORE = {
+  scope: '.scope-lead, .snode span',
+  cases: '.case p',
+  solution: '.sol-left p',
+  tools: '.tools-head p.dim',
+  materials: '.mat .d',
+};
+for (const [id, selector] of Object.entries(MORE)) {
+  const section = document.getElementById(id);
+  if (!section) continue;
+  const parts = $$(selector, section);
+  if (!parts.length) continue;
+  parts.forEach((el) => el.classList.add('more'));
+  section.classList.add('has-more');
+  const head = $('.title-wrap, .tools-head', section);
+  const button = document.createElement('button');
+  button.type = 'button'; button.className = 'more-toggle';
+  button.setAttribute('aria-expanded', 'false');
+  button.innerHTML = '<span>Show details</span><i aria-hidden="true">+</i>';
+  button.addEventListener('click', () => {
+    const open = !section.classList.contains('show-more');
+    section.classList.toggle('show-more', open);
+    button.setAttribute('aria-expanded', String(open));
+    button.querySelector('span').textContent = open ? 'Hide details' : 'Show details';
+  });
+  head.append(button);
+}

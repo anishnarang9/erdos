@@ -226,7 +226,7 @@ export function initDemoLab({ onOutcome = () => {}, setStatus = () => {} } = {})
     }
   });
 
-  $$('.demo-preset-controls button').forEach((b) => b.addEventListener('click', () => { showSample(b.dataset.sample); feed(`Selected sample: ${b.textContent.replace(/^\d+\s·\s/, '')}`); }));
+  $$('.demo-preset-controls button').forEach((b) => b.addEventListener('click', () => { showSample(b.dataset.sample); feed(`Selected sample: ${b.dataset.label || b.textContent}`); }));
   $('#run').addEventListener('click', run);
   $$('[data-sample-link]').forEach((a) => a.addEventListener('click', () => showSample(a.dataset.sampleLink)));
   showSample('paid');

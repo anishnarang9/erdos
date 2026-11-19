@@ -8,8 +8,8 @@ export function initScopeMap(root) {
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const svg = map.querySelector('.scope-wires');
   const hub = map.querySelector('.scope-hub');
-  const ins = [...map.querySelectorAll('.scope-in .node')];
-  const outs = [...map.querySelectorAll('.scope-out .node')];
+  const ins = [...map.querySelectorAll('.scope-in .snode')];
+  const outs = [...map.querySelectorAll('.scope-out .snode')];
   let wires = [];
 
   function draw() {
