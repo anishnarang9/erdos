@@ -43,14 +43,10 @@ export function initCoin(host, { reduced = false } = {}) {
     const box = (x, y, w, h) => poly([[x, y], [x + w, y], [x + w, y + h], [x, y + h], [x, y]]);
     tube(box(3, 15, 12, 10), .075); tube(box(33, 15, 12, 10), .075);
     tube(poly([[9, 15], [9, 11.4]]), .065); tube(poly([[39, 15], [39, 11.4]]), .065);
-    // Two smiles: an inner one from the robots' inner bottom corners, a wider one from their outer corners.
-    const smile = (x0, x1, y0, depth) => {
-      const path = new THREE.CurvePath();
-      path.add(new THREE.CubicBezierCurve3(P(x0, y0), P(x0 + 1.2, y0 + depth * .75), P(24 - (24 - x0) * .5, y0 + depth), P(24, y0 + depth)));
-      path.add(new THREE.CubicBezierCurve3(P(24, y0 + depth), P(24 + (x1 - 24) * .5, y0 + depth), P(x1 - 1.2, y0 + depth * .75), P(x1, y0)));
-      return path;
-    };
-    tube(smile(13, 35, 25, 9.5), .075); tube(smile(4.5, 43.5, 25, 17.5), .06);
+    // Mouth: a half circle, a smile closed across the top by a straight line between its ends.
+    const arc = Array.from({ length: 25 }, (_, i) => { const a = Math.PI - (Math.PI * i) / 24; return P(24 + 11 * Math.cos(a), 25 + 11 * Math.sin(a)); });
+    tube(new THREE.CatmullRomCurve3(arc), .075);
+    tube(new THREE.LineCurve3(P(13, 25), P(35, 25)), .075);
     const dot = (x, y, r, color) => { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 14), new THREE.MeshBasicMaterial({ color, toneMapped: false })); m.position.copy(P(x, y, .16)); side.add(m); };
     dot(9, 10.4, .11, 0xffffff); dot(39, 10.4, .11, 0xffffff); dot(12, 20, .1, 0xffffff); dot(36, 20, .1, 0xffffff);
     const gold = new THREE.Mesh(new THREE.CylinderGeometry(.42, .42, .08, 40), new THREE.MeshBasicMaterial({ color: 0xffd166, toneMapped: false }));
