@@ -261,16 +261,30 @@ export function initGlobe(host, { reduced = false } = {}) {
   const flareWaves = new THREE.Mesh(new THREE.PlaneGeometry(3.5, 3.5), flareMaterial);
   scene.add(flareWaves);
 
-  // Unit cylinders stretch from limb to limb. Perspective projects the distant segment thinner.
-  const pathShape = new THREE.CylinderGeometry(1, 1, 1, 8, 1, true);
-  const links = [[mars, sun], [sun, saturn]].map(([from, to]) => {
+  // A rotating helix tapers to zero displacement at both planetary limbs.
+  const pathShape = new THREE.CylinderGeometry(1, 1, 1, 8, 96, true);
+  const links = [[mars, sun], [sun, saturn]].map(([from, to], index) => {
     const path = new THREE.Group();
     for (const [radius, opacity] of [[.016, .95], [.042, .16]]) {
-      const mesh = new THREE.Mesh(pathShape, new THREE.MeshBasicMaterial({
-        color: 0xffffff, transparent: true, opacity, depthWrite: false,
-        blending: THREE.AdditiveBlending,
-      }));
-      mesh.scale.set(radius, 1, radius);
+      const material = new THREE.ShaderMaterial({
+        transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+        uniforms: {
+          clock: flareMaterial.uniforms.clock, radius: { value: radius }, brightness: { value: opacity },
+          speed: { value: index === 0 ? 1.8 : -2.1 }, amplitude: { value: index === 0 ? .29 : .20 },
+        },
+        vertexShader: `uniform float clock, radius, speed, amplitude;
+          void main() {
+            float t = clamp(position.y + .5, 0., 1.);
+            float envelope = 4. * t * (1. - t);
+            float phase = 15.708 * t + speed * clock;
+            vec3 p = position;
+            p.xz = position.xz * radius + amplitude * envelope * vec2(cos(phase), sin(phase));
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.);
+          }`,
+        fragmentShader: `uniform float brightness;
+          void main() { gl_FragColor = vec4(1., 1., 1., brightness); }`,
+      });
+      const mesh = new THREE.Mesh(pathShape, material);
       path.add(mesh);
     }
     scene.add(path);
