@@ -8,6 +8,14 @@ Plan documents in `current plan/`:
 - [COMMERCE-IMPLEMENTATION.md](current%20plan/COMMERCE-IMPLEMENTATION.md) covers agent-to-agent commerce.
 - [ARCHITECTURE.md](current%20plan/ARCHITECTURE.md) and [MARKETPLACES.md](current%20plan/MARKETPLACES.md) hold research notes. The banner at the top of each says which parts are superseded.
 
+## Agent selection and delegation
+
+- Use `agy` first for bounded work that another agent can do independently. Prefer the lowest capability model that can do the work. Run `agy models` to confirm the available model IDs.
+- Use available `agy` free credits for useful work before moving to another provider or paid capacity. This includes work suitable for Claude or GPT: use the available Claude or GPT option through `agy` when a stronger model is needed. Continue through `agy` until its free allowance is exhausted for the work session. Do not spend credits on filler or retry loops.
+- For buyer acceptance, start a fresh `agy --model gemini-3.8-flash-low` session. Give it the public guide, the task, and scoped test access. Assume the buyer will need clear instructions and may get stuck. Have the solver agent help through the intended workflow when needed. Record the first blocker, the help given, and the result. Keep the buyer on Flash Low while measuring the buyer experience.
+- The Arc demo tests the workflow. The solver can use any suitable model, including Flash Low, and can receive a prepared receipt or other test deliverable. Label the supplied input in the evidence. The solver still needs to verify it, generate a fresh proof bound to the new funded job, settle on Arc, and let the buyer recover the exact bytes.
+- Keep delegated access scoped to the task. Keep credentials and wallet secrets out of prompts and logs. Review agent output and verify consequential actions before depending on them.
+
 ## Workstreams
 
 | # | Workstream | Owner | Plan |

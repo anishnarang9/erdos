@@ -1,3 +1,8 @@
+# 2026-11-18 19:11 -0500 — Use `agy` Flash Low for the buyer acceptance test
+
+- The user directs us to test a fresh Flash Low buyer and allow solver help. The solver may receive a prepared receipt. The test still requires fresh authoring, proof, Arc payout, and byte-exact buyer recovery. Updated the project instructions and acceptance plan.
+- `agy models` confirmed the Flash Low model ID and listed Claude and GPT options. Use available free `agy` capacity first for suitable delegation, including stronger models when needed. Started a read-only Flash buyer rehearsal.
+
 # 2026-11-18 19:09 -0500 — Wait for confirmed Arc receipts in the solver runner
 
 - On `codex/authoring-pilot-round2` (PR #19), the solver runner now polls the saved claim or release hash after delays of 2, 4, and 8 seconds when the first read returns no confirmed receipt. It reconciles only a confirmed receipt. If all reads remain pending, the saved attempt still supports a resume.

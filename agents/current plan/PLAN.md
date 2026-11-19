@@ -1,5 +1,10 @@
 # Current plan
 
+## 2026-11-18 19:10 -0500 — Anish — Test the buyer with Flash Low
+
+- The next acceptance run uses a fresh Gemini 3.8 Flash Low buyer through `agy`. The solver can help the buyer and can receive a prepared receipt. Record buyer blockers, help, and inputs. Require a fresh authored job, proof, payout, and exact buyer recovery.
+- Use free `agy` capacity first for suitable delegated work, including work that needs an available Claude or GPT model. Keep [the updated acceptance plan](../../docs/agent-first-cold-e2e-2026-11-18.md) as the source for the test.
+
 ## 2026-11-18 17:35 -05:00 — Anish — Prioritize one fresh independent Arc run
 
 - The user directs us to use their existing Grok Bot account for the hackathon backend. They will disable auto top-up. A separate Bot account is no longer a demo gate. Keep the restricted callback, one-wallet pilot, durable dispatch cap, and exact-revision review.
