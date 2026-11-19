@@ -1,3 +1,9 @@
+# 2026-11-18 20:31 -0500 — Stage one review claim for the blocked Flash High job
+
+- On `codex/authoring-pilot-round2`, added an optional pilot setting that resolves the target job and content hash from a completed objection. When the normal cap is exhausted, only that owner, job and hash can claim one more review. The slot counts at claim time, including uncertain delivery. It uses the existing database and preserves draft limits.
+- The API test failed before the change and now passes. It checks the saved job across restarts and refuses another job, changed content and a second recovery. The store test verifies that an unrelated queued record does not block recovery. It also verifies that a second database connection cannot reclaim an uncertain send. All 1,087 API tests and typecheck passed.
+- [PR #19](https://github.com/anishnarang9/UBC-26/pull/19) holds the release candidate. The optional setting and the corrected Bot prompt are pending live application. Auto top-up remains unverified. No paid model call or chain transaction ran.
+
 # 2026-11-18 20:27 -0500 — Verify the saved Flash High draft can receive a new review
 
 - On `codex/authoring-pilot-round2`, extended the public API integration test to exercise an explicit buyer resubmission after a Bot objection. The API created revision 2 with the same content hash and draft ID. It preserved the first objection, required a new review ID and rejected approval with the old receipt. The new receipt allowed approval only with the saved coverage and example checks.

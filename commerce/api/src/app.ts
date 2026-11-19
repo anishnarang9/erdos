@@ -125,6 +125,11 @@ export function createApp(opts: CreateAppOptions): CreatedApp {
   if (opts.botReview?.maxDispatches === 10
     && (opts.deployment?.mode !== "local" || !/^0x[0-9a-f]{40}$/.test(opts.botReview.pilotOwner ?? "")))
     throw new Error("Ten Bot dispatches require a local one-wallet pilot");
+  if (opts.botReview?.recoveryReviewId !== undefined
+    && (!opts.botReview.dispatch || !/^0x[0-9a-f]{40}$/.test(opts.botReview.pilotOwner ?? "")
+      || ![1, 2, 3, 4].includes(opts.botReview.maxDispatches ?? 0)
+      || !/^[0-9A-HJKMNP-TV-Z]{26}$/.test(opts.botReview.recoveryReviewId)))
+    throw new Error("Bot recovery requires a bounded pilot and a review ID");
   if (opts.botReview?.maxDrafts !== undefined
     && (!/^0x[0-9a-f]{40}$/.test(opts.botReview.pilotOwner ?? "")
       || ![1, 2, 3, 4, 5, 6, ...(opts.deployment?.mode === "public" ? [] : [10])].includes(opts.botReview.maxDrafts)))

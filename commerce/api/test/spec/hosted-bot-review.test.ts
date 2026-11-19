@@ -112,6 +112,47 @@ describe("live Bot review integration with a controlled transport", () => {
     expect((await review(app, key, second.jobId, second.revisionHash)).status).toBe(503);
     expect(dispatch).toHaveBeenCalledTimes(1);
   });
+  it("allows one more dispatch for the configured objection across API restarts", async () => {
+    const dbDir = mkdtempSync(join(tmpdir(), "ubc26-recovery-"));
+    dirs.push(dbDir);
+    const dbPath = join(dbDir, "db.sqlite");
+    const sends: Delivery[] = [];
+    const pilot = {
+      serviceToken: SERVICE, pilotOwner: privateKeyToAccount(PROVIDER_KEY).address.toLowerCase(),
+      maxDispatches: 1 as const, dispatch: async (delivery: Delivery) => { sends.push(delivery); },
+    };
+    const first = setup({ dbPath, botReview: pilot });
+    const key = await issue(first.app), target = await job(first.app, key);
+    expect((await review(first.app, key, target.jobId, target.revisionHash)).status).toBe(202);
+    const objection = sends[0]!;
+    await callback(first.app, objection, { ...result(objection), decision: "needs_changes",
+      findings: [{ kind: "omission", sourceQuote: "Require approval.", ruleIndices: [0], message: "Review this rule." }] });
+    const revise = (app: typeof first.app, value = revision(), ifMatch = target.revisionHash) => post(app,
+      `/v1/jobs/${target.jobId}/revisions`, { source: "import", revision: value }, key, { "if-match": ifMatch });
+    const other = await job(first.app, key);
+    first.close();
+
+    const botReview = { ...pilot, recoveryReviewId: objection.reviewId };
+    const second = setup({ dbPath, botReview });
+    expect((await review(second.app, key, other.jobId, other.revisionHash)).status).toBe(503);
+    const existing = await review(second.app, key, target.jobId, target.revisionHash);
+    expect((await existing.json() as any).reviewId).toBe(objection.reviewId);
+    expect(sends).toHaveLength(1);
+    const different = await revise(second.app, { ...revision(), maxBudget: "6000000" });
+    expect(different.status).toBe(201);
+    const { revision: { revisionHash: differentHash } } = await different.json() as { revision: { revisionHash: string } };
+    expect((await review(second.app, key, target.jobId, differentHash)).status).toBe(503);
+    expect((await revise(second.app, revision(), differentHash)).status).toBe(201);
+    expect((await review(second.app, key, target.jobId, target.revisionHash)).status).toBe(202);
+    expect(sends).toHaveLength(2);
+    expect(sends[1]!.reviewId).not.toBe(objection.reviewId);
+    second.close();
+
+    const third = setup({ dbPath, botReview });
+    expect((await revise(third.app)).status).toBe(201);
+    expect((await review(third.app, key, target.jobId, target.revisionHash)).status).toBe(503);
+    expect(sends).toHaveLength(2);
+  });
   it("remains disabled without configuration", async () => {
     const { app } = setup({ botReview: undefined }); const key = await issue(app), task = await job(app, key);
     expect((await review(app, key, task.jobId, task.revisionHash)).status).toBe(503);

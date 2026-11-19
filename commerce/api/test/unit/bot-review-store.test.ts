@@ -26,7 +26,7 @@ function create(store: ReturnType<typeof botReviewStore>, snapshot = input()) {
 }
 function changeRevision(db: Db) {
   db.prepare("INSERT INTO revisions (id,job_id,n,revision_json,plan_json,reference_digest,revision_hash,source,created_at) SELECT 'changed',job_id,2,revision_json,plan_json,reference_digest,revision_hash,source,created_at FROM revisions WHERE id='rev'").run();
-  db.prepare("UPDATE jobs SET current_revision_id='changed'").run();
+  db.prepare("UPDATE jobs SET current_revision_id='changed' WHERE id='job'").run();
 }
 afterEach(() => { for (const db of databases.splice(0)) if (db.isOpen) db.close(); for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true }); });
 
@@ -63,9 +63,36 @@ describe("durable Bot review records", () => {
     store.uncertain("review1");
     const secondDb = openDb(path, () => 1002); databases.push(secondDb);
     const second = botReviewStore(secondDb);
-    expect(second.pilotDispatchAvailable(owner, 1)).toBe(false);
+    expect(second.pilotDispatchAvailable({ ownerWallet: owner, maxDispatches: 1 }, "job", hash)).toBe(false);
     expect(second.claim("review1", 1002, { ownerWallet: owner, maxDispatches: 1 })).toBeNull();
     expect(db.prepare("SELECT COUNT(*) AS n FROM bot_reviews WHERE ticket_hash IS NOT NULL").get()).toEqual({ n: 1 });
+  });
+
+  it("skips older unrelated queue entries and spends the recovery on claim across connections", () => {
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-bot-recovery-")); dirs.push(dir);
+    const path = join(dir, "state.db"), { store, db } = setup(path);
+    create(store);
+    const original = store.claim("review1", 1001)!;
+    store.complete("review1", original.ticket, { ...pass(), decision: "needs_changes",
+      findings: [{ kind: "omission", sourceQuote: "Require approval.", ruleIndices: [0], message: "Review this rule." }] }, 1002);
+    db.prepare("INSERT INTO jobs (id,state,current_revision_id,created_at,updated_at,owner_wallet) VALUES ('other-job','drafted','other-rev','now','now',?)").run(owner);
+    db.prepare("INSERT INTO revisions (id,job_id,n,revision_json,plan_json,reference_digest,revision_hash,source,created_at) SELECT 'other-rev','other-job',1,revision_json,plan_json,reference_digest,revision_hash,source,created_at FROM revisions WHERE id='rev'").run();
+    store.create({ id: "unrelated", owner, jobId: "other-job", revisionId: "other-rev", snapshot: input(), now: 1003, expiresAt: 61000 });
+    changeRevision(db);
+    store.create({ id: "recovery", owner, jobId: "job", revisionId: "changed", snapshot: input(), now: 1004, expiresAt: 61000 });
+    const policy = { ownerWallet: owner, maxDispatches: 1 as const, recoveryReviewId: "review1" };
+    expect(store.nextQueued(1005, policy)).toBe("recovery");
+    expect(store.claim("unrelated", 1005, policy)).toBeNull();
+
+    const secondDb = openDb(path, () => 1005); databases.push(secondDb);
+    const second = botReviewStore(secondDb);
+    expect(second.nextQueued(1005, policy)).toBe("recovery");
+    expect(store.claim("recovery", 1005, policy)).not.toBeNull();
+    store.uncertain("recovery");
+    expect(second.claim("recovery", 1006, policy)).toBeNull();
+    expect(second.nextQueued(1006, policy)).toBeNull();
+    expect(second.pilotDispatchAvailable(policy, "job", hash)).toBe(false);
+    expect(second.get("unrelated", owner, "other-job", 61000)?.status).toBe("expired");
   });
 
   it("counts ten ticketed claims, including uncertain sends, after a restart", () => {
@@ -86,7 +113,7 @@ describe("durable Bot review records", () => {
     db.close();
     const secondDb = openDb(path, () => 1002); databases.push(secondDb);
     const second = botReviewStore(secondDb);
-    expect(second.pilotDispatchAvailable(owner, 10)).toBe(false);
+    expect(second.pilotDispatchAvailable(policy, "job11", hash)).toBe(false);
     expect(second.nextQueued(1002, policy)).toBeNull();
     expect(second.claim("review11", 1002, policy)).toBeNull();
     expect(secondDb.prepare("SELECT COUNT(*) AS n FROM bot_reviews WHERE ticket_hash IS NOT NULL").get()).toEqual({ n: 10 });
