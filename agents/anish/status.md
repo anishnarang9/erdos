@@ -1,3 +1,8 @@
+# 2026-11-18 21:05 -0500 — Verify buyer guide commands against the staged job
+
+- Added exact approval, compile, task polling, package download and reference commands to the public buyer guide. Added the recovery path variables and the private work directory requirement. The installed runner rejected a path through the macOS `/tmp` symlink. Both downloads passed when run from a private directory under the home directory.
+- All buyer shell snippets passed syntax checks. The installed runner verified the staged job's package and both reference files. The guide update is committed on the pilot branch. Public publication and the funded run remain pending.
+
 # 2026-11-18 21:02 -0500 — Confirm live Arc funding prerequisites
 
 - Job `01M7RP5JHE7XP43490EN051N2H` remains `open_prepared` with Bot pass `01M7RR24FWXCVQW3CJ2B2KYZ7F`. At Arc Testnet block 72945855, the buyer and solver balances covered the bounty and both preview gas ceilings. The expiry had 42,875 seconds remaining.
