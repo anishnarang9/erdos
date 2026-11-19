@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-19 08:37 -05:00 — Anish — Preserve a validated draft after a failed repair
+
+- Sonnet via `agy` proposed retaining the first validated draft when a repair yields an invalid or unsupported plan. The API now keeps that draft for review and records both attempts with the existing billing logic. Actionable clarification questions still reach the buyer. The draft still needs to pass the normal approval gates.
+- The unsupported and invalid repair regressions failed before the fix. Successful repairs and clarifications still pass. Full commerce checks passed, including 1,039 API tests, 535 SDK tests plus 13 wire tests, 5 web tests, and 1,048 worker tests.
+- Branch `codex/engine-hardening`. The changes ran offline with controlled model replies. Live authoring reliability remains unmeasured on this revision.
+
 ## 2026-11-19 08:35 -05:00 — Anish — Initialize compiler temporary state on first use
 
 - The native CLI reproduced the pilot's `build_failure` before Docker when its configured `TMPDIR` did not exist. Compile now creates the temporary root before fingerprinting. The new regression confirms the guest builder runs and the failed build leaves no partial package.

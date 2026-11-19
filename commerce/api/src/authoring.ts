@@ -492,7 +492,11 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         });
         attempts.push(second);
         persistUsage();
-        chosen = await assess(second);
+        const repaired = await assess(second);
+        // Keep a valid draft when repair yields no draft or actionable clarification.
+        if (chosen.hash === null || repaired.hash !== null || repaired.response.kind === "clarification") {
+          chosen = repaired;
+        }
       } catch (err) {
         const usage = chargedUsage(err);
         attempts.push(failedAttempt(err));
