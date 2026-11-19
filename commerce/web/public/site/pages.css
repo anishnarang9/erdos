@@ -68,3 +68,14 @@
   .steps-list { grid-template-columns: minmax(0, 1fr); }
   .subpage .lab-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ---------- finished guide ---------- */
+.doc-section h3 { margin: 26px 0 10px; font: 600 17px var(--sans); }
+.callout { display: grid; gap: 4px; margin-top: 20px; padding: 14px 16px; border: 1px solid rgba(99, 240, 255, .3); border-radius: 12px; background: rgba(99, 240, 255, .05); font-size: 15px; line-height: 1.55; }
+.callout em, .howto-list em { font-style: normal; color: var(--cyan); }
+.howto-list { margin: 0 0 16px; padding-left: 20px; display: grid; gap: 8px; line-height: 1.55; }
+.rule-list { margin: 14px 0; padding-left: 18px; display: grid; gap: 8px; line-height: 1.55; }
+.note { color: var(--dim); font-size: 14px; line-height: 1.55; }
+.doc-section code { font: 13px var(--mono); color: var(--cyan); }
+.doc-section pre.code code { color: var(--ink); }
+.ref td a { word-break: break-all; }
