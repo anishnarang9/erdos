@@ -29,3 +29,7 @@ From `engine`, run `node --test evaluation/hosted-qualification/*.test.mjs` with
 Run `forge test --network arc --offline` from `contracts` with the pinned Arc Foundry build. Open-claim contract tests include the actual Groth16 verifier.
 
 These results measure the software paths and finite checker expectations. Fresh Grok authoring quality, Grok Bot review quality, and hosted settlement reliability remain open.
+
+## Live spend preflight
+
+The user authorized up to $0.10 of existing Grok API credit. The pinned model's provider-bound reservation is $2.54096 per call. The exact-budget test confirmed that the API made zero provider requests and released the unused reservation. The documented postpaid limit does not cap prepaid spend. Provider token counts can include framing outside the tokenizer result. Live spend remains $0.

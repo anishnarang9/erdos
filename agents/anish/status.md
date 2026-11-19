@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-19 09:54 -05:00 — Anish — Enforce the live Grok test cap
+
+- The authorized $0.10 live API cap could not cover the pinned model's $2.54096 provider-bound reservation. The exact-cap test returned `model_unavailable` before dispatch and released the reservation. Twelve model safety tests and API typecheck passed. No amount was spent.
+- Full commerce checks after the recovery change passed, including 1,052 API tests and 1,052 worker tests. The 128-hop proof is still active. All changes are on draft PR #33.
+
 ## 2026-11-19 09:51 -05:00 — Anish — Test Grok authoring and proof acceptance across domains
 
 - The real Grok adapter processed nine controlled replies through the public-mode local API. Eight supported jobs passed native examples and approval, including rejection of bad evidence for approval. Three compiled with Docker. The unsupported division case produced the exact native capability request. No provider was called.

@@ -194,6 +194,42 @@ function callCost(input: DraftModelInput, completionTokens: number): number {
 }
 
 describe("request spend ceiling", () => {
+  it("holds the ten-cent live campaign before dispatch with the pinned Grok model", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-ten-cent-preflight-"));
+    const dbPath = join(dir, "api.db");
+    let dispatched = 0;
+    const created = appFor({
+      dbPath,
+      budget: {
+        requestCeilingMicroUsd: 100_000,
+        dailyCeilingMicroUsd: 100_000,
+        inputMicroUsdPerMillion: 2_500_000,
+        outputMicroUsdPerMillion: 5_000_000,
+        reservationMode: "provider-bound",
+      },
+      draftModel: grokDraftModel({
+        apiKey: "synthetic-only",
+        model: "grok-4.20-0309-non-reasoning",
+        fetch: async () => {
+          dispatched += 1;
+          throw new Error("Preflight must stop before inference");
+        },
+      }),
+    }, dbPath);
+    const key = await issue(created.app);
+    const accepted = await post(created.app, "/v1/tasks", {
+      operation: "draft",
+      input: { request: smallProviderInput.request, outputs: smallProviderInput.outputs, expirySeconds: 3600, maxBudget: "10000" },
+    }, auth(key));
+    expect(accepted.status).toBe(202);
+    const {id} = await accepted.json() as {id: string};
+    await created.pumpTasks();
+    const response = await created.app.request(`/v1/tasks/${id}`, {headers: {authorization: `Bearer ${key}`}});
+    expect(await response.json()).toMatchObject({state: "failed", error: {code: "model_unavailable"}});
+    expect(dispatched).toBe(0);
+    expect(reservation(dbPath)).toMatchObject({state: "released", dispatched_at: null, settled_micro_usd: null});
+  });
+
   it("does not dispatch when the serialized prompt and supported completion maximum exceed the ceiling", async () => {
     const dir = mkdtempSync(join(tmpdir(), "ubc26-ceiling-"));
     const dbPath = join(dir, "api.db");
