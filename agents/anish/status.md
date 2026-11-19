@@ -1,3 +1,8 @@
+# 2026-11-18 20:00 -0500 — Prepare one fresh draft slot for the corrected workflow
+
+- The candidate accepts an explicit sixth draft for the same pilot wallet. It retains the four-review ceiling. The restart test admits only that one extra distinct draft after five prior drafts and rejects a seventh. The configured live caps have not changed.
+- Twenty-one focused tests and API typecheck passed. Release and independent Flash High acceptance remain pending. No paid request or Arc transaction ran.
+
 # 2026-11-18 19:59 -0500 — Protect Bot capacity and correct receipt authoring instructions
 
 - The public API now checks stored draft binding, buyer fixtures, source quotes and coverage before dispatching a Bot review on a Grok revision. The existing approval gate still binds the buyer-selected coverage digest and native example check. The preflight permits replacement examples and the Bot route still validates those bytes.

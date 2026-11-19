@@ -17,5 +17,5 @@ export interface BotReviewConfig {
   /** Durable maximum number of webhook claims for that wallet. */
   maxDispatches?: 1 | 2 | 3 | 4 | 10;
   /** Durable draft limit for the same wallet. Defaults to maxDispatches. */
-  maxDrafts?: 1 | 2 | 3 | 4 | 5 | 10;
+  maxDrafts?: 1 | 2 | 3 | 4 | 5 | 6 | 10;
 }

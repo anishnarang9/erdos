@@ -155,23 +155,23 @@ describe("durable tasks", () => {
   });
 
   it("admits one more public draft after restart with the bounded acceptance caps", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "ubc26-fifth-public-draft-"));
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-sixth-public-draft-"));
     const dbPath = join(dir, "service.db");
     const options: Partial<CreateAppOptions> = {
       dbPath,
       deployment: { mode: "public", serviceOrigin: ORIGIN },
       draftModel: countingModel(),
       budget: { reservationMode: "provider-bound", requestCeilingMicroUsd: 2_540_960,
-        dailyCeilingMicroUsd: 15_245_760, inputMicroUsdPerMillion: 2_500_000,
+        dailyCeilingMicroUsd: 17_786_720, inputMicroUsdPerMillion: 2_500_000,
         outputMicroUsdPerMillion: 5_000_000 },
       botReview: { serviceToken: "callback-only-test-credential-0123456789",
         pilotOwner: accountA.address.toLowerCase(), maxDispatches: 4,
-        maxDrafts: 5, dispatch: async () => {} },
+        maxDrafts: 6, dispatch: async () => {} },
     };
     try {
       const first = clocked(options).created;
       const key = await issue(first.app, accountA);
-      for (let n = 1; n <= 4; n++) {
+      for (let n = 1; n <= 5; n++) {
         expect((await post(first.app, "/v1/tasks", draftTask(`Prior case ${n}`), auth(key))).status).toBe(202);
       }
       first.close();

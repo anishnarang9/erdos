@@ -23,7 +23,7 @@ export function botReviewFromEnv(env: Record<string, string | undefined>, callba
   const maxDrafts = env.BOT_REVIEW_PILOT_MAX_DRAFTS;
   if (!owner || !/^0x[0-9a-f]{40}$/.test(owner)
     || !["1", "2", "3", "4", ...(deploymentMode === "local" ? ["10"] : [])].includes(maxDispatches ?? "")
-    || (maxDrafts !== undefined && !["1", "2", "3", "4", "5", ...(deploymentMode === "local" ? ["10"] : [])].includes(maxDrafts))
+    || (maxDrafts !== undefined && !["1", "2", "3", "4", "5", "6", ...(deploymentMode === "local" ? ["10"] : [])].includes(maxDrafts))
     || !env.BOT_REVIEW_WEBHOOK_URL || !env.BOT_REVIEW_WEBHOOK_TOKEN || !callbackUrl
     || env.BOT_REVIEW_WEBHOOK_TOKEN === token || env.BOT_REVIEW_WEBHOOK_TOKEN === env.BUYER_API_TOKEN
     || env.BOT_REVIEW_WEBHOOK_TOKEN === env.OPERATOR_TOKEN) throw new Error("Live Bot dispatch requires a reviewed spending policy");
@@ -32,7 +32,7 @@ export function botReviewFromEnv(env: Record<string, string | undefined>, callba
   return { serviceToken: token, pilotOwner: owner,
     maxDispatches: maxDispatches === "10" ? 10 : maxDispatches === "4" ? 4 : maxDispatches === "3" ? 3
       : maxDispatches === "2" ? 2 : 1,
-    ...(maxDrafts === undefined ? {} : { maxDrafts: maxDrafts === "10" ? 10 : maxDrafts === "5" ? 5 : maxDrafts === "4" ? 4
+    ...(maxDrafts === undefined ? {} : { maxDrafts: maxDrafts === "10" ? 10 : maxDrafts === "6" ? 6 : maxDrafts === "5" ? 5 : maxDrafts === "4" ? 4
       : maxDrafts === "3" ? 3 : maxDrafts === "2" ? 2 : 1 }), dispatch };
 }
 
