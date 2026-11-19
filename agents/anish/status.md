@@ -1,3 +1,9 @@
+# 2026-11-18 20:14 -0500 — Test direct HTTPS from Flash High
+
+- Flash High reached the hosted API with a scoped authenticated GET and reported the expected buyer wallet and scope. A later POST failed DNS resolution before HTTP. The VPS confirmed zero matching idempotency rows and unchanged draft and spend counters.
+- The replay kept the exact request bytes and key, pinned the verified address, and kept TLS validation enabled. Flash High reported a connection failure before TLS. Removed local copies of the scoped API credential and verified the temporary firewall rule was gone. Public readiness remains green.
+- The buyer transport still needs a reliable supported execution environment. No funded acceptance or payout followed this probe.
+
 # 2026-11-18 20:08 -0500 — Promote corrected authoring and verify remaining pilot capacity
 
 - Commerce, engine and contract checks passed for `0bea9a9`. Promoted image `sha256:5a74a5a3f1637f3dc7aaa359b82deae25dadaffbe257a2e062092ac884a0a8d0` after backup `snapshot-20261119T010608Z` with manifest SHA-256 `4d196fa01972be348662a826f63453d9b78e6a210b0dc8be96229727df9cbc07`. Prewarm and public readiness passed. The prior private configuration is available for rollback.
