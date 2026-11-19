@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-19 08:31 -05:00 — Anish — Preserve native qualification failures
+
+- Branch `codex/engine-hardening` starts from `6da430f`. The native host runner now reports plan validation failures even when all selected plans fail before candidate evaluation.
+- The new regression failed with exit 2 before the fix. All five host runner tests now pass. The frozen corpus still passes all 326 native comparisons. The baseline Rust workspace and 1,036 API tests also passed.
+- Opus and Sonnet are preparing a harder native workload and a repair fallback regression through `agy`. No public deployment, application model call, or Arc transaction ran.
 
 ## 2026-11-18 15:17 -0500 — Anish — Verify the Vercel frontend preview
 
