@@ -1,3 +1,8 @@
+# 2026-11-18 19:31 -0500 — Prepare capacity for one fresh Flash High run
+
+- The public configuration can explicitly allow five drafts and four Bot dispatches for the same wallet. Existing limits remain valid. The fifth draft survives an API restart and a sixth distinct draft is rejected. The live service still uses its existing caps.
+- Twenty-one focused API tests and API typecheck passed. Full release checks and the live recovery retry are pending. This checkpoint did not dispatch a draft or Bot review.
+
 # 2026-11-18 19:29 -0500 — Retry throttled Arc role history reads
 
 - The Arc role audit retries the same log range up to twice on HTTP 429 or RPC -32005. Permanent errors still stop the audit. The chain anchor and role checks must pass before the audit caches results.

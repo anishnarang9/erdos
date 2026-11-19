@@ -47,11 +47,14 @@ describe("production Bot callback profile", () => {
     const oneMoreDraft = botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "3",
       BOT_REVIEW_PILOT_MAX_DRAFTS: "4" }, callback, "public");
     expect(oneMoreDraft).toMatchObject({ maxDispatches: 3, maxDrafts: 4 });
-    expect(() => botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DRAFTS: "5" }, callback, "public")).toThrow();
+    const flashAcceptance = { ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "4", BOT_REVIEW_PILOT_MAX_DRAFTS: "5" };
+    expect(botReviewFromEnv(flashAcceptance, callback, "public")).toMatchObject({ maxDispatches: 4, maxDrafts: 5 });
+    expect(() => botReviewFromEnv({ ...flashAcceptance, BOT_REVIEW_PILOT_MAX_DRAFTS: "6" }, callback, "public")).toThrow();
+    expect(() => botReviewFromEnv({ ...flashAcceptance, BOT_REVIEW_PILOT_MAX_DISPATCHES: "5" }, callback, "public")).toThrow();
     expect(() => botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "10" }, callback)).toThrow();
     expect(() => botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "10" }, callback, "public")).toThrow();
     expect(botReviewFromEnv({ ...live, BOT_REVIEW_PILOT_MAX_DISPATCHES: "10" }, callback, "local")?.maxDispatches).toBe(10);
-    for (const changed of [{ BOT_REVIEW_PILOT_OWNER: undefined }, { BOT_REVIEW_PILOT_MAX_DISPATCHES: "4" },
+    for (const changed of [{ BOT_REVIEW_PILOT_OWNER: undefined }, { BOT_REVIEW_PILOT_MAX_DISPATCHES: "5" },
       { BOT_REVIEW_WEBHOOK_TOKEN: undefined }, { BOT_REVIEW_WEBHOOK_URL: "http://bot.example/hook" }]) {
       expect(() => botReviewFromEnv({ ...live, ...changed }, callback)).toThrow();
     }

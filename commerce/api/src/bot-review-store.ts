@@ -16,7 +16,7 @@ export interface BotReviewView {
   status: Status; decision: BotReviewResult["decision"] | null; result: BotReviewResult | null;
   resultHash: string | null; createdAt: number; expiresAt: number; completedAt: number | null;
 }
-export interface BotDispatchPolicy { ownerWallet: string; maxDispatches: 1 | 2 | 3 | 10 }
+export interface BotDispatchPolicy { ownerWallet: string; maxDispatches: 1 | 2 | 3 | 4 | 10 }
 const hash = (text: string) => createHash("sha256").update(text, "utf8").digest("hex");
 const ticketHash = (ticket: string) => hash("UBC26/bot-review-ticket/v1" + ticket);
 function view(row: Row): BotReviewView {

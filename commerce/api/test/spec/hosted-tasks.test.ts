@@ -154,8 +154,8 @@ describe("durable tasks", () => {
     expect((await post(created.app, "/v1/tasks", draftTask("First"), auth(key))).status).toBe(202);
   });
 
-  it("admits one more public draft without increasing the Bot dispatch cap", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "ubc26-fourth-public-draft-"));
+  it("admits one more public draft after restart with the bounded acceptance caps", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-fifth-public-draft-"));
     const dbPath = join(dir, "service.db");
     const options: Partial<CreateAppOptions> = {
       dbPath,
@@ -165,13 +165,13 @@ describe("durable tasks", () => {
         dailyCeilingMicroUsd: 15_245_760, inputMicroUsdPerMillion: 2_500_000,
         outputMicroUsdPerMillion: 5_000_000 },
       botReview: { serviceToken: "callback-only-test-credential-0123456789",
-        pilotOwner: accountA.address.toLowerCase(), maxDispatches: 3,
-        maxDrafts: 4, dispatch: async () => {} },
+        pilotOwner: accountA.address.toLowerCase(), maxDispatches: 4,
+        maxDrafts: 5, dispatch: async () => {} },
     };
     try {
       const first = clocked(options).created;
       const key = await issue(first.app, accountA);
-      for (let n = 1; n <= 3; n++) {
+      for (let n = 1; n <= 4; n++) {
         expect((await post(first.app, "/v1/tasks", draftTask(`Prior case ${n}`), auth(key))).status).toBe(202);
       }
       first.close();
