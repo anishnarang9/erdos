@@ -1,8 +1,8 @@
 // Home page demo: replay three real Arc testnet jobs. A progress bar walks the stages while the solver robot acts
 // each one out, and the live panel logs every step and asks Arc to confirm each transaction as it is reached.
 // Honesty: the checks run in this browser; every transaction is a real recorded one, confirmed live from Arc.
-import { initRobot } from './robot.js?v=18';
-import { verifyDelivery } from './recorded-proof.js?v=13';
+import { initRobot } from './engine.js?v=1';
+import { verifyDelivery } from './recorded-proof.js?v=14';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];

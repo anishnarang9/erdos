@@ -71,7 +71,7 @@ export const LAYERS = [
       { id: 'seal', icon: 'seal', label: 'GROTH16 SEAL', x: 850, y: 95, chips: ['260 BYTES', 'VERDICT 1', '0xE71E6620'], detail: 'A constant-size proof that the committed delivery passed the approved checker.' },
       { id: 'preflight', icon: 'stop', label: 'PREFLIGHT', x: 850, y: 345, chips: ['ETH_CALL FIRST', 'VERDICT 0 → STOP'], detail: 'Before any send, the worker simulates the call. A failing proof is never submitted.' },
       { id: 'none', kind: 'chip', label: 'NOTHING SENT ON FAILURE', x: 600, y: 490 },
-      { id: 'out', kind: 'chip', label: 'FILES RECOVERED', x: 1085, y: 215, link: '#case-3' },
+      { id: 'out', kind: 'chip', label: 'FILES RECOVERED', x: 1085, y: 215, link: '#cases' },
     ],
     edges: [['solver', 'files'], ['files', 'envelope'], ['envelope', 'zkvm'], ['guest', 'zkvm'], ['zkvm', 'seal'], ['zkvm', 'preflight'], ['zkvm', 'none'], ['zkvm', 'out']],
   },

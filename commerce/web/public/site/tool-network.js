@@ -1,7 +1,7 @@
 // "Built with" network: every tool we use, wired by circuit traces into the proof-gated escrow.
 // Hover or focus a tile: it enlarges with a glowing edge in its brand colour and a pulse runs to the centre.
 // While idle, a random tool pings every couple of seconds.
-import { TOOLS } from './tool-data.js?v=2';
+import { TOOLS } from './tool-data.js?v=3';
 
 const ORDER = [
   ['TypeScript', 'Node.js', 'Hono', 'Zod', 'RISC Zero', 'Groth16', 'Rust', 'SQLite', 'Docker', 'GitHub'],
@@ -9,7 +9,7 @@ const ORDER = [
   ['Vitest', 'esbuild', 'pnpm', 'viem', 'Circle', 'Ethereum', 'ethers', 'noble', 'xAI Grok', 'Vercel'],
 ];
 // Brand glow for marks whose official colour is near black.
-const GLOW = { Rust: '#f0a070', 'Three.js': '#e5e7eb', 'xAI Grok': '#e5e7eb', Vercel: '#e5e7eb', GitHub: '#c4b5fd', Solidity: '#9ca3af', Ethereum: '#8a92ff', SQLite: '#5fb4e0', ethers: '#6c7cff' };
+const GLOW = { Rust: '#f0a070', 'Three.js': '#e5e7eb', 'xAI Grok': '#e5e7eb', Vercel: '#e5e7eb', GitHub: '#9fd8ff', Solidity: '#9ca3af', Ethereum: '#8a92ff', SQLite: '#5fb4e0', ethers: '#6c7cff' };
 const SVGNS = 'http://www.w3.org/2000/svg';
 
 function luminance(hex) {

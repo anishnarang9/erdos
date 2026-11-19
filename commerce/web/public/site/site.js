@@ -1,9 +1,9 @@
-import { initGlobe } from './globe.js?v=21';
-import { initRobot } from './robot.js?v=18';
-import { initToolNetwork } from './tool-network.js?v=5';
-import { initScopeMap } from './scope.js?v=2';
-import { initCoin } from './coin.js?v=9';
-import { LAYERS, ICONS } from './layers.js?v=9';
+import { initGlobe } from './globe.js?v=25';
+import { initRobot } from './engine.js?v=2';
+import { initToolNetwork } from './tool-network.js?v=7';
+import { initScopeMap } from './scope.js?v=4';
+import { initCoin } from './coin.js?v=12';
+import { LAYERS, ICONS } from './layers.js?v=12';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -255,7 +255,6 @@ initToolNetwork(document.getElementById('tools'));
 // Sections lead with headlines; a toggle under each title reveals the descriptive text.
 const MORE = {
   scope: '.scope-lead, .snode span',
-  cases: '.case p',
   tools: '.tools-head p.dim',
   materials: '.mat .d',
 };
@@ -278,4 +277,18 @@ for (const [id, selector] of Object.entries(MORE)) {
     button.querySelector('span').textContent = open ? 'Hide details' : 'Show details';
   });
   head.append(button);
+}
+
+// Intro statement: words light up as the reader scrolls through it.
+const statementText = $('.statement .big');
+if (statementText) {
+  statementText.innerHTML = statementText.innerHTML.split(/(\s+|<em>|<\/em>)/).map((t) => (/^\s*$/.test(t) || /^<\/?em>$/.test(t) ? t : `<span class="w">${t}</span>`)).join('');
+  const words = $$('.statement .w');
+  const light = () => {
+    const r = statementText.getBoundingClientRect(), vh = innerHeight;
+    const p = Math.max(0, Math.min(1, (vh * .85 - r.top) / (r.height + vh * .45)));
+    const lit = Math.round(p * words.length);
+    words.forEach((w, i) => w.classList.toggle('lit', reduced || i < lit));
+  };
+  addEventListener('scroll', () => requestAnimationFrame(light), { passive: true }); light();
 }
