@@ -174,9 +174,13 @@ export function initGlobe(host, { reduced = false } = {}) {
   const planetSphere = new THREE.SphereGeometry(1, 48, 32);
   const planets = [
     { name: 'Saturn', radius: .76, dark: 0x734a47, light: 0xf8ce9b, bands: 18, tilt: -.31, speed: .10, x: -.34, y: .32, mobileX: -.34, mobileY: .40 },
-    { name: 'Neptune', radius: .47, dark: 0x22467d, light: 0x77d6ff, bands: 10, tilt: .4, speed: .14, x: -.06, y: .39, mobileX: .32, mobileY: .39 },
+    { name: 'Neptune', radius: .47, dark: 0x22467d, light: 0x77d6ff, bands: 10, tilt: .4, speed: .14, x: -.13, y: .375, mobileX: .23, mobileY: .39 },
     { name: 'Mars', radius: .29, dark: 0x713c3c, light: 0xffaa7b, bands: 0, tilt: -.15, speed: .085, x: .42, y: -.17, mobileX: .42, mobileY: .005 },
   ];
+  const rings = {
+    Saturn: { color: 0xf2c498, tilt: 1.23, bands: [[1.27, 1.52, .55], [1.57, 1.85, .38], [1.9, 1.99, .24]] },
+    Neptune: { color: 0x9bdbff, tilt: 1.06, bands: [[1.32, 1.43, .77], [1.64, 1.72, .62]] },
+  };
   for (const planet of planets) {
     const material = new THREE.ShaderMaterial({
       uniforms: {
@@ -205,11 +209,12 @@ export function initGlobe(host, { reduced = false } = {}) {
     planet.body = new THREE.Mesh(planetSphere, material);
     planet.axis.add(planet.body);
     scene.add(planet.axis);
-    if (planet.name === 'Saturn') {
-      for (const [inner, outer, opacity] of [[1.27, 1.52, .55], [1.57, 1.85, .38], [1.9, 1.99, .24]]) {
+    const ringSystem = rings[planet.name];
+    if (ringSystem) {
+      for (const [inner, outer, opacity] of ringSystem.bands) {
         const ring = new THREE.Mesh(new THREE.RingGeometry(inner, outer, 96),
-          new THREE.MeshBasicMaterial({ color: 0xf2c498, transparent: true, opacity, side: THREE.DoubleSide, depthWrite: false }));
-        ring.rotation.x = 1.23;
+          new THREE.MeshBasicMaterial({ color: ringSystem.color, transparent: true, opacity, side: THREE.DoubleSide, depthWrite: false }));
+        ring.rotation.x = ringSystem.tilt;
         planet.axis.add(ring);
       }
     }
