@@ -1,3 +1,9 @@
+# 2026-11-18 21:01 -0500 — Verify the Flash High package and Arc funding preview
+
+- The live API returned `open_prepared` for `01M7RP5JHE7XP43490EN051N2H`. All 20 downloaded package files matched the declared sizes and SHA-256 hashes. The approval still binds Bot pass `01M7RR24FWXCVQW3CJ2B2KYZ7F`.
+- Sonnet through `agy` checked the saved terms against the pinned deployment and compiled manifest. Chain ID 5042002, contract addresses, budget, image ID, rules hash and reference hash matched. Sonnet misconverted the Unix expiry. A direct conversion gave 2026-11-19 13:56:48 UTC, with 42,947 seconds remaining at the checked Arc block.
+- The protected runner reported `prepared` for the five-call funding sequence. The 0.01 testnet USDC bounty is separate from the buyer's 0.0375 testnet USDC gas ceiling. The solver gas ceiling is 0.02275 testnet USDC. Signing remains disabled. The previous exact signing terms do not cover this job. No new draft, Bot dispatch, proof, or chain transaction ran.
+
 # 2026-11-18 20:54 -0500 — Release scoped recovery and obtain a genuine Bot pass
 
 - The user approved release with local checks while GitHub Actions could not start jobs due to billing. API typecheck and all 1,087 API tests passed. The Linux image pins and JavaScript bundle verified. Released source `1aab048` and VPS image `sha256:6a037297f927b07dc98d5c3e4832826e0d86de9fa319073e166f1b94173b359a` after backup `snapshot-20261119T015025Z` with manifest SHA-256 `6b21e650a103a3acf163b3d72c6ca595a56451c4540f44f3c5221a0366948c5c`. Native prewarm verified verdicts 1 and 0. Public readiness passed.
