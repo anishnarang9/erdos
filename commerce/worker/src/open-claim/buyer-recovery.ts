@@ -1,10 +1,10 @@
 import { createPublicClient, getAddress, http, isAddressEqual, parseAbiItem, zeroAddress, type Address, type Hex, type PublicClient } from "viem";
-import { hostedClient } from "@ubc26/sdk";
+import { HostedApiError, hostedClient } from "@ubc26/sdk";
 import { createSprintEngineRunner } from "../sprint-runner.ts";
 import { readOperatorJson } from "../sprint-authorization.ts";
 import { createArcOpenClaimPort } from "./arc-port.ts";
 import { parseOpenClaimManifest, verifyOpenClaimCreation, type ParsedOpenClaimManifest } from "./manifest.ts";
-import { recoverOpenClaimFromChain } from "./recovery.ts";
+import { OpenClaimRecoveryError, recoverOpenClaimFromChain } from "./recovery.ts";
 import type { OpenClaimFundedJob } from "./types.ts";
 
 const claimEvent = parseAbiItem("event ClaimAccepted(uint256 indexed jobId, address indexed solver, bytes32 envelopeHash, bytes32 keyCommitment, bytes envelope)");
@@ -24,6 +24,18 @@ function decimal(value: unknown): bigint {
   const result = BigInt(value); must(result < 1n << 256n); return result;
 }
 type PublicEvent = { jobId: bigint; solver: string; transactionHash: Hex; blockNumber: bigint };
+
+/** A public GET may fail while the service recovers. Retry it once; never retry an invalid or missing job. */
+export async function readPublicJobForRecovery(id: string, openJob: (id: string) => Promise<unknown>): Promise<unknown> {
+  try { return await openJob(id); }
+  catch (error) {
+    const retryable = error instanceof HostedApiError && [502, 503, 504].includes(error.status)
+      || error instanceof DOMException && error.name === "TimeoutError";
+    if (!retryable) throw error;
+  }
+  await new Promise<void>(resolve => setTimeout(resolve, 250));
+  return openJob(id);
+}
 
 /** The public API identifies the approved job. Confirmed Arc logs identify its solver transactions. */
 export function selectBuyerRecovery(
@@ -76,14 +88,19 @@ export async function recoverBuyerOpenClaim(input: {
   apiUrl: string; apiJobId: string; rpcUrl: string; manifestPath: string; engineConfigPath: string; directory: string;
   publicClient?: PublicClient; publicJob?: unknown;
 }) {
+  let stage: OpenClaimRecoveryError["stage"] = "configuration";
   try {
     const manifest = parseOpenClaimManifest(readOperatorJson(input.manifestPath));
     const pub = input.publicClient ?? createPublicClient({ cacheTime: 0, transport: http(input.rpcUrl, { retryCount: 2, retryDelay: 1000 }) });
-    const view = input.publicJob ?? await hostedClient({ baseUrl: input.apiUrl }).openJob(input.apiJobId);
+    const runner = createSprintEngineRunner(readOperatorJson(input.engineConfigPath));
+    stage = "public_job";
+    const view = input.publicJob ?? await readPublicJobForRecovery(input.apiJobId,
+      id => hostedClient({ baseUrl: input.apiUrl }).openJob(id));
     must(view !== null && typeof view === "object" && !Array.isArray(view));
     const publicView = view as Record<string, unknown>;
     const jobId = decimal(publicView.chainJobId);
     const registrationTx = hash(publicView.registrationTx);
+    stage = "deployment";
     await verifyOpenClaimCreation(pub, manifest);
     const registration = await pub.getTransactionReceipt({ hash: registrationTx });
     must(registration.status === "success" && registration.to && isAddressEqual(registration.to, manifest.witness.adapter));
@@ -92,13 +109,17 @@ export async function recoverBuyerOpenClaim(input: {
     const head = await pub.getBlockNumber({ cacheTime: 0 });
     must(head >= registration.blockNumber + 3n);
     const confirmed = head - 3n;
+    stage = "settlement_logs";
     const found = await events(pub, manifest, jobId, registration.blockNumber, confirmed);
     const selected = selectBuyerRecovery(view, input.apiJobId, manifest, found.claims, found.releases);
     const readPort = createArcOpenClaimPort({ publicClient: pub, ...manifest,
       signer: { account: selected.job.solver, chainId: 5042002, noKeyRpcSimulation: true },
       roleLogIntervalMs: 2000, confirmations: 3n, send: async () => { throw Error("read only"); } });
     const recovered = await recoverOpenClaimFromChain({ publicClient: pub, port: readPort, witness: manifest.witness,
-      ...selected, runner: createSprintEngineRunner(readOperatorJson(input.engineConfigPath)), directory: input.directory });
+      ...selected, runner, directory: input.directory });
     return { ...recovered, apiJobId: input.apiJobId, oracleChecked: false };
-  } catch { throw Error("Buyer recovery failed (details redacted)"); }
+  } catch (error) {
+    if (error instanceof HostedApiError || error instanceof OpenClaimRecoveryError) throw error;
+    throw new OpenClaimRecoveryError(stage);
+  }
 }

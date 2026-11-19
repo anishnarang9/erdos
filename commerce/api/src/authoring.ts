@@ -8,6 +8,8 @@ import canonicalize from "canonicalize";
 import type { BundleFile } from "@ubc26/sdk";
 import { ApiError } from "./errors.ts";
 import { assessCoverage } from "./coverage.ts";
+import { removeFixtureContradictedOutputScalars, removeProvenDuplicateScalars, removeRedundantNumericLookupGuard, correctNumericReferenceFields, normalizeExplicitKeyRejection } from "./authoring-plan-shape.ts";
+import { explainRepairErrors } from "./authoring-repair-errors.ts";
 import { assertBotApproved } from "./bot-review-gate.ts";
 import { withinDraftDeadline, registerDraftDeadline } from "./draft-deadline.ts";
 import { appendExampleCheck, exampleCheckView } from "./example-checks.ts";
@@ -270,6 +272,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
     const taskId = c.get("taskId") ?? "";
     const started = deps.now();
     const attempts: { reply: DraftModelResult; result: ModelDraft; failureReason?: string; httpStatus?: number; providerCode?: string }[] = [];
+    const normalizedPlanPaths = new Map<string, string[]>();
     const attemptViews = () => attempts.map(item => ({ kind: item.failureReason ? "model_failed" : item.result.kind, model: item.reply.model || null, traceId: item.reply.traceId || null, usage: item.reply.usage ?? null, ...(item.failureReason ? { reason: item.failureReason } : {}), ...(item.httpStatus !== undefined ? { httpStatus: item.httpStatus } : {}), ...(item.providerCode ? { providerCode: item.providerCode } : {}) }));
     terminalMetadata = () => {
       const last = attempts.at(-1)?.reply;
@@ -299,7 +302,19 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       const reply = await withinDraftDeadline(model.draft({ ...input, signal }), signal);
       try {
         if (typeof reply?.model !== "string" || typeof reply.traceId !== "string") throw new ModelError("invalid_reply");
-        const result = parseModelDraft(reply.result);
+        const parsed = parseModelDraft(reply.result);
+        const normalized = parsed.kind === "draft"
+          ? removeProvenDuplicateScalars(parsed.plan, body.exampleFixtures, textReferences, body.request)
+          : { plan: null, paths: [] };
+        const narrowed = parsed.kind === "draft"
+          ? removeFixtureContradictedOutputScalars(normalized.plan, body.exampleFixtures)
+          : normalized;
+        const typed = parsed.kind === "draft" ? correctNumericReferenceFields(narrowed.plan, textReferences) : narrowed;
+        const deduplicated = parsed.kind === "draft" ? removeRedundantNumericLookupGuard(typed.plan) : typed;
+        const membership = parsed.kind === "draft" ? normalizeExplicitKeyRejection(deduplicated.plan, body.request, textReferences) : deduplicated;
+        const result: ModelDraft = parsed.kind === "draft" ? { ...parsed, plan: membership.plan } : parsed;
+        const paths = [...normalized.paths, ...narrowed.paths, ...typed.paths, ...deduplicated.paths, ...membership.paths];
+        if (paths.length > 0) normalizedPlanPaths.set(reply.traceId, paths);
         return { reply: { ...reply, result }, result };
       } catch (err) {
         if (err instanceof ModelError) { err.model = typeof reply?.model === "string" ? reply.model : undefined; err.traceId = typeof reply?.traceId === "string" ? reply.traceId : undefined; err.usage = reply?.usage; }
@@ -387,12 +402,13 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         };
       }
       if (!verdict.ok) {
+        const errors = explainRepairErrors(result.plan, verdict.errors);
         return {
           attempt,
-          response: { kind: "unsupported", draftId, reason: "plan_invalid", errors: verdict.errors },
+          response: { kind: "unsupported", draftId, reason: "plan_invalid", errors },
           hash: null,
           fatal: false,
-          feedback: { attempt: 1, reason: "plan_invalid", errors: verdict.errors, counterexamples: [] },
+          feedback: { attempt: 1, reason: "plan_invalid", errors, counterexamples: [] },
         };
       }
       const fileErrors = checkPlanFiles(result.plan, body.outputs, body.references.length > 0 ? body.references.map((file) => file.name) : null);
@@ -409,6 +425,25 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       const rules = isPlainObject(result.plan) && Array.isArray(result.plan.rules) ? result.plan.rules.length : 0;
       const coverage = assessCoverage(rules, result.coverage, quoteVerification);
       const examples = await labelExamples(result, body.references, body.exampleFixtures, signal);
+      // Buyer examples are constraints on the exact draft even if the model does not select them.
+      // A selected immutable fixture was already checked above; reuse that result.
+      const selectedFixtures = new Map<string, ExampleLabel>();
+      result.examples.forEach((example, index) => {
+        if (!("fixtureName" in example) || selectedFixtures.has(example.fixtureName)) return;
+        const fixture = body.exampleFixtures.find(item => item.name === example.fixtureName);
+        if (fixture && fixture.predictedVerdict === example.predictedVerdict) selectedFixtures.set(fixture.name, examples[index]!);
+      });
+      const unselectedFixtures = body.exampleFixtures.filter(item => !selectedFixtures.has(item.name));
+      const separatelyChecked = unselectedFixtures.length
+        ? await labelExamples({ ...result, examples: unselectedFixtures }, body.references, [], signal)
+        : [];
+      const separateByName = new Map(separatelyChecked.map(item => [item.name, item]));
+      const buyerFixtureChecks: ExampleLabel[] = body.exampleFixtures.map(fixture => {
+        const checked = selectedFixtures.get(fixture.name) ?? separateByName.get(fixture.name);
+        if (!checked) throw new Error("Buyer fixture check is missing");
+        return { ...checked, name: fixture.name, predictedVerdict: fixture.predictedVerdict };
+      });
+      const buyerFixtureApprovalReady = buyerFixtureChecks.every(item => item.agrees === true);
       const counts = usableExamples(examples);
       const revision: Revision = {
         plan: result.plan,
@@ -430,21 +465,39 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         examples,
         exampleInputs: exampleReviewInputs(result.examples, body.exampleFixtures),
         exampleApprovalReady: counts.positive > 0 && counts.negative > 0 && !counts.blocked,
+        ...(body.exampleFixtures.length ? { buyerFixtureChecks, buyerFixtureApprovalReady } : {}),
         sourceQuotes: result.sourceQuotes,
         quoteVerification,
         coverage,
         model: reply.model,
         traceId: reply.traceId,
+        ...(normalizedPlanPaths.has(reply.traceId) ? { planNormalizations: normalizedPlanPaths.get(reply.traceId) } : {}),
       };
+      if (!buyerFixtureApprovalReady) {
+        return { attempt, response, hash, fatal: false, feedback: {
+          attempt: 1, reason: "examples",
+          errors: [{ path: "/exampleFixtures", message: "The checker disagrees with a buyer-supplied example" }],
+          counterexamples: buyerFixtureChecks.filter(item => item.agrees !== true).map(item => ({
+            name: item.name, predictedVerdict: item.predictedVerdict, checkerVerdict: item.checkerVerdict,
+            checkerError: typeof item.checkerError === "string" ? item.checkerError : null,
+          })),
+        } };
+      }
       if (counts.positive > 0 && counts.negative > 0 && !counts.blocked) {
         if (!coverage.ruleCoverageComplete && (result.coverage !== undefined || deps.deployment.mode === "public")) {
-          return { attempt, response, hash, fatal: false, feedback: { attempt: 1, reason: "coverage", errors: coverage.omissions.map(message => ({ path: "/coverage", message })), counterexamples: [] } };
+          const quoteErrors = quoteVerification.flatMap((quote, index) => quote.found ? [] : [{
+            path: `/sourceQuotes/${index}/quote`,
+            message: "Copy one contiguous excerpt verbatim from the named source. Use separate entries for separate excerpts.",
+          }]);
+          const errors = [...quoteErrors, ...coverage.omissions.map(message => ({ path: "/coverage", message }))];
+          return { attempt, response, hash, fatal: false, feedback: { attempt: 1, reason: "coverage", errors, counterexamples: [] } };
         }
         return { attempt, response, hash, fatal: false };
       }
       const errors: FieldError[] = [];
       if (counts.positive === 0) errors.push({ path: "/examples", message: "An engine-checked passing example is required" });
       if (counts.negative === 0) errors.push({ path: "/examples", message: "An engine-checked verdict-0 example is required" });
+      if (counts.blocked) errors.push({ path: "/examples", message: "Correct or replace each rejected example or example with a verdict mismatch." });
       const counterexamples = examples.flatMap((item) => {
         const name = item.name;
         const predicted = item.predictedVerdict;
@@ -463,7 +516,12 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         response,
         hash,
         fatal: false,
-        feedback: { attempt: 1, reason: "examples", errors, counterexamples },
+        feedback: {
+          attempt: 1, reason: "examples", errors, counterexamples,
+          // A checked verdict mismatch can indicate a rule defect. A missing or
+          // invalid generated example alone does not justify replacing rules.
+          ...(examples.some(example => example.agrees === false) ? {} : { preservePlan: true }),
+        },
       };
     };
 
@@ -480,19 +538,25 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       const remaining = deps.budget.requestCeilingMicroUsd - charge.microUsd;
       return supportedCallFits(model, { ...baseInput, repair: feedback }, limit.maxTokens, remaining, deps.budget);
     };
-    const canRepair = deps.authoringRepairs && chosen.feedback !== undefined && usageComplete(first.reply.usage) && deps.now() - started < DRAFT_TIMEOUT_MS && repairFits(chosen.feedback);
+    const feedback = chosen.feedback && {
+      ...chosen.feedback,
+      ...(first.result.kind === "draft" && !chosen.fatal ? { previousPlan: first.result.plan } : {}),
+    };
+    const canRepair = deps.authoringRepairs && feedback !== undefined && usageComplete(first.reply.usage) && deps.now() - started < DRAFT_TIMEOUT_MS && repairFits(feedback);
     if (chosen.fatal && !canRepair) throw modelFailure("plan_not_hashable");
-    if (canRepair && chosen.feedback) {
+    if (canRepair && feedback) {
       repairAttempted = true;
       try {
         const second = await callModel({
           ...baseInput,
-          repair: chosen.feedback,
+          repair: feedback,
           ...(deps.budget ? { maxCompletionTokens: limit.maxTokens } : {}),
         });
         attempts.push(second);
         persistUsage();
-        chosen = await assess(second);
+        const repaired = await assess(second);
+        const breaksPlanLock = feedback.preservePlan && repaired.hash !== chosen.hash;
+        if (!breaksPlanLock && (chosen.hash === null || repaired.hash !== null)) chosen = repaired;
       } catch (err) {
         const usage = chargedUsage(err);
         attempts.push(failedAttempt(err));

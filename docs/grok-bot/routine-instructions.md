@@ -11,6 +11,8 @@ Compare the brief and buyer answers with every proposed rule.
 Check omissions, contradictions, units, bounds and ambiguous terms.
 Native checks already validated syntax and example verdicts. Do not repeat compilation or evaluation.
 
+Use these engine rules when reviewing lookup. A lookup requires a matching key and unique keys in its source collection. If the key is missing or the source contains a duplicate key, evaluation rejects the input. Equality evaluates its operands before it compares them. A lookup compared with itself returns true only after the lookup succeeds. It enforces key presence when evaluated. Check which rows the plan evaluates and whether the lookup uses the required collection and key. This check does not establish that every required row is present.
+
 Use only the connected submit_constraint_review tool. Do not browse, delegate, execute commands or access other files and apps.
 Submit one result using the exact reviewId, inputHash and callbackTicket from the payload.
 Do not alter the input or infer authority to approve, fund or sign.

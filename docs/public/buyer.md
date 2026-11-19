@@ -6,7 +6,7 @@ Use the [developer guide](README.md) to install and verify the Linux x64 runner 
 
 ## Create one job
 
-1. Create a new mode-0700 work directory. Save the plain-English task, output names and formats, reference bytes, budget, and expiry policy in `draft.json`. The [API contract](api.md#durable-tasks-and-compilation) defines its exact fields and gives a complete example. Keep the original request unchanged for replay.
+1. Create a new mode-0700 work directory under your home directory. Use its real path, with no symlink components. Save the plain-English task, output names and formats, reference bytes, budget, and expiry policy in `draft.json`. The [API contract](api.md#durable-tasks-and-compilation) defines its exact fields and gives a complete example. Keep the original request unchanged for replay.
 2. Authenticate with your buyer wallet. Save the API key in a mode-0600 file. Use the installed `ubc26` command. Pass the wallet password through an inherited file descriptor.
 3. Run `ubc26 draft --api "$API" --key-file "$KEY_FILE" --input "$WORK/draft.json" --idempotency "$DRAFT_KEY"`. Save the returned task ID. Poll it with `ubc26 task` until it ends. Do not submit a second paid draft when its state is uncertain.
 4. Inspect the full generated revision, source quotes, requirement coverage, output declarations, native example results, and both verdict labels. If the result asks for clarification or reports unsupported work, stop or answer through the documented API. If the model's examples fail, make your own passing and failing examples for the same revision. Save them as `{ "examples": [...] }` and run `ubc26 check-examples --api "$API" --key-file "$KEY_FILE" --draft "$DRAFT_ID" --revision "$REVISION_HASH" --input "$WORK/examples.json" --idempotency "$EXAMPLE_KEY"`. Each example name and file name must use 1–128 ASCII letters, digits, dots, underscores, or hyphens. Names cannot contain spaces. Use a different idempotency key when you change the examples. Require native verdicts 1 and 0 to agree with your labels. This does not send another model draft.
@@ -14,6 +14,52 @@ Use the [developer guide](README.md) to install and verify the Linux x64 runner 
 6. Approve only the exact revision, reference digest, coverage digest, selected native example-check ID, and passed Bot review. Pass `--coverage-digest`, `--example-check`, and `--bot-review` to `ubc26 approve`. Run `ubc26 compile` for that revision. Poll its task ID. Download the package and references into new private directories. The runner checks their hashes.
 
 Use unique idempotency keys for distinct operations. Reuse a key only for the same request bytes. Save task IDs, review IDs, and each command response in the private work directory. The [developer guide](README.md) gives the full flags for each command.
+
+If the CLI reports an API rejection, use its HTTP status and error code to identify the next step. The API can save a 429 response for the original idempotency key. Before using a new key, confirm that the rejected request created no task or spend reservation. Keep the original key if admission or billing remains uncertain.
+
+## Check the draft before you request Bot review
+
+Save the terminal task response as `draft-result.json`. A task state of `succeeded` means the service finished processing. Require `result.kind == "draft"` before you continue. Read the revision hash from `result.revisionHash`, the draft ID from `result.draftId`, and the reference digest from `result.revision.referenceDigest`.
+
+Read the coverage digest from `result.coverage.coverageDigest`. Require `ruleCoverageComplete == true` and verified source quotes. If any buyer fixtures were supplied, require `buyerFixtureApprovalReady == true`. A new example check cannot clear a coverage or buyer-fixture blocker. Stop before requesting Bot review when one of those gates fails.
+
+For a fresh receipt request, supply a buyer passing example and a failing example in `exampleFixtures`. A partial receipt still includes every ordered item once. Use smaller counts to represent partial delivery. Put all ordered rows in the failing example too, and change one count to isolate the check you want to test.
+
+If the initial examples agree, use `result.exampleCheckId`. Build the Bot input from the checked examples. Copy their names, verdict labels, and files from `result.exampleInputs`. Include any required evidence or context. Omit the API response fields `status` and `reason`.
+
+If the generated examples disagree, save your corrected `{"examples":[...]}` file and run `check-examples` as shown above. Read the selected ID from `exampleCheckId` in that response. Require `exampleApprovalReady == true`. Save the exact same input file for Bot review.
+
+```sh
+ubc26 request-bot-review --api "$API" --key-file "$KEY_FILE" \
+  --job "$JOB" --revision "$REVISION_HASH" --input "$WORK/examples.json" \
+  --idempotency "$REVIEW_KEY" > "$WORK/review-submit.json"
+ubc26 bot-review --api "$API" --key-file "$KEY_FILE" \
+  --job "$JOB" --review "$BOT_REVIEW_ID" --wait-ms 60000 > "$WORK/review-result.json"
+```
+
+Read `JOB` from `jobId` in the accept-draft response and confirm `revision.revisionHash` matches the draft. Read `BOT_REVIEW_ID` from `reviewId` in the review submission response before polling. In the final response, require `status == "completed"`, `decision == "pass"`, and the same revision hash.
+
+## Approve and compile
+
+Set `REFERENCE_DIGEST` from `result.revision.referenceDigest` and `COVERAGE_DIGEST` from `result.coverage.coverageDigest`. Set `EXAMPLE_CHECK_ID` to the native check you selected above. Generate and save one idempotency key for approval and a different key for compilation.
+
+```sh
+ubc26 approve --api "$API" --key-file "$KEY_FILE" \
+  --job "$JOB" --revision "$REVISION_HASH" --reference-digest "$REFERENCE_DIGEST" \
+  --coverage-digest "$COVERAGE_DIGEST" --example-check "$EXAMPLE_CHECK_ID" \
+  --bot-review "$BOT_REVIEW_ID" --idempotency "$APPROVE_KEY" > "$WORK/approval.json"
+ubc26 compile --api "$API" --key-file "$KEY_FILE" \
+  --job "$JOB" --revision "$REVISION_HASH" \
+  --idempotency "$COMPILE_KEY" > "$WORK/compile-submit.json"
+COMPILE_TASK=$(jq -er .id "$WORK/compile-submit.json")
+ubc26 task --api "$API" --key-file "$KEY_FILE" \
+  --task "$COMPILE_TASK" --wait-ms 1800000 > "$WORK/compile-result.json"
+jq -e '.state == "succeeded"' "$WORK/compile-result.json" > /dev/null
+ubc26 download --api "$API" --job "$JOB" --out "$WORK/package"
+ubc26 references --api "$API" --job "$JOB" --out "$WORK/reference"
+```
+
+If the wait ends before compilation finishes, poll the same task ID. Continue only after the task succeeds and both downloads pass verification.
 
 ## Fund and publish
 
@@ -85,7 +131,7 @@ This command writes `funding-result.json` and links confirmed funding to the API
 
 After confirmed funding, save `{ "revisionHash": "...", "brief": "..." }` in a private `public-brief.json` file. Run `ubc26 public-brief --api "$API" --key-file "$KEY_FILE" --job "$JOB" --input "$WORK/public-brief.json" --idempotency "$BRIEF_KEY"`. The service publishes only this brief. Publish the API job ID, on-chain job ID, public job URL, and package and reference URLs. Do not publish credentials, wallet files, journals, or the solver's answer.
 
-After confirmed release, run `ubc26 buyer-recover --api "$API" --job "$JOB" --rpc-url "$RPC" --manifest "$MANIFEST" --engine-config "$ENGINE_CONFIG" --out "$WORK/recovered"`. This command reads confirmed chain data and checks SDK and engine recovery. It does not need the solver's attempt files. Check the recovered files with your independent oracle. Record payment and gas receipts.
+Set `MANIFEST="$WORK/manifest.json"` and `ENGINE_CONFIG="$WORK/engine.json"`. After confirmed release, run `ubc26 buyer-recover --api "$API" --job "$JOB" --rpc-url "$RPC" --manifest "$MANIFEST" --engine-config "$ENGINE_CONFIG" --out "$WORK/recovered"`. This command reads confirmed chain data and checks SDK and engine recovery. It does not need the solver's attempt files. If the public Arc RPC throttles historical log reads, retry this read-only command with an archive-capable Arc Testnet RPC. Job 10 recovered successfully with `--rpc-url https://rpc.quicknode.testnet.arc.io`. Check the recovered files with your independent oracle. Record payment and gas receipts.
 
 ## Cold-start prompt
 

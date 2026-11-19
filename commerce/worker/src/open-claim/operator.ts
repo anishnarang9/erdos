@@ -155,10 +155,22 @@ export async function openClaimOperator(args: string[], credentials?: { buyerTok
     return { ...t, maxFeePerGas: t.maxFeePerGas ?? null, maxPriorityFeePerGas: t.maxPriorityFeePerGas ?? null };
   } };
   const signer = { account: solver, chainId: 5042002, noKeyRpcSimulation: true };
-  const readPort = createArcOpenClaimPort({ publicClient: pub, ...manifest, signer, roleLogIntervalMs: local ? 0 : 2000,
-    confirmations: 3n, send: async () => { throw Error("read only"); } });
+  type PortOptions = Parameters<typeof createArcOpenClaimPort>[0];
+  let sendSolver: PortOptions["send"] | undefined;
+  let recoverSolverBroadcast: PortOptions["recoverBroadcast"];
+  const port = createArcOpenClaimPort({ publicClient: pub, ...manifest, signer, roleLogIntervalMs: local ? 0 : 2000,
+    confirmations: 3n,
+    send: async tx => {
+      requireSprint(sendSolver);
+      return sendSolver(tx);
+    },
+    recoverBroadcast: async tx => {
+      requireSprint(recoverSolverBroadcast);
+      return recoverSolverBroadcast(tx);
+    },
+  });
   await verifyOpenClaimCreation(pub, manifest);
-  await readPort.verifyPins();
+  await port.verifyPins();
   if (parsed.command === "fund") {
     const account = await load("buyer");
     requireSprint(buyerApiToken && typeof c.apiUrl === "string" && typeof c.apiJobId === "string");
@@ -176,13 +188,13 @@ export async function openClaimOperator(args: string[], credentials?: { buyerTok
         referenceHash: approval.referenceHash, description: approval.description },
       apiJobId: c.apiJobId, revisionHash: approval.revision, journalRoot: c.journalRoot,
       maxGas: buyerGas, maxFeePerGas: fee, maxPriorityFeePerGas: priority, nativeGasBudget: buyerBudget,
-      operationalReserveSeconds: c.purpose === "expiry-refund" ? 750n : 2460n, hookMarginSeconds: 120n, verifyDeployment: readPort.verifyPins });
+      operationalReserveSeconds: c.purpose === "expiry-refund" ? 750n : 2460n, hookMarginSeconds: 120n, verifyDeployment: port.verifyPins });
     try { const result = await funding.run(); writeResult(c.directory, "funding-result.json", result); return result; }
     finally { await funding.close(); }
   }
   const funded = readOperatorJson(join(c.directory, "funding-result.json")) as any;
   const jobId = positive(funded.jobId);
-  const snap = await readPort.snapshot(jobId);
+  const snap = await port.snapshot(jobId);
   const job: OpenClaimFundedJob = { ...manifest.witness, jobId,
     buyer, solver, imageId: approval.imageId, rulesHash: approval.rulesHash, referenceHash: approval.referenceHash, budget, expiry };
   const same = (a:string,b:string) => a.toLowerCase() === b.toLowerCase();
@@ -227,8 +239,8 @@ export async function openClaimOperator(args: string[], credentials?: { buyerTok
         const transfers=events.filter(e=>same(e.address,job.usdc)&&e.eventName==="Transfer") as any[];
         requireSprint(refunds.length===1 && refunds[0].args.jobId===jobId && same(refunds[0].args.client,buyer) && refunds[0].args.amount===budget &&
           transfers.some(e=>same(e.args.from,job.core)&&same(e.args.to,buyer)&&e.args.value===budget) &&
-          (await readPort.snapshot(jobId)).job.status === "Expired");
-      } else requireSprint((await readPort.snapshot(jobId)).submission === null &&
+          (await port.snapshot(jobId)).job.status === "Expired");
+      } else requireSprint((await port.snapshot(jobId)).submission === null &&
         (await pub.getBlock({blockNumber:receipt.blockNumber})).timestamp < expiry);
       const address=account.address;
       const before=await pub.getBalance({address,blockNumber:receipt.blockNumber-1n}),after=await pub.getBalance({address,blockNumber:receipt.blockNumber});
@@ -240,7 +252,7 @@ export async function openClaimOperator(args: string[], credentials?: { buyerTok
   }
   if (parsed.command === "recover") {
     const state = readOperatorJson(join(c.attemptDir,"state.json")) as any;
-    return recoverOpenClaimFromChain({ publicClient:pub,port:readPort,witness:manifest.witness,job,
+    return recoverOpenClaimFromChain({ publicClient:pub,port,witness:manifest.witness,job,
       claimTx:sprintHash(state.claimTx),releaseTx:sprintHash(state.releaseTx),expectedOutputs:readFilesFrom(c.deliverablesDir),
       runner:createSprintEngineRunner(c.engine),directory:join(c.directory,`recovery-${jobId}`) });
   }
@@ -261,9 +273,10 @@ export async function openClaimOperator(args: string[], credentials?: { buyerTok
         { kind: "release", jobId, caller: solver, winner: solver, key, context: proof.contextBytes, keyCommitment: proof.keyCommitment, gas: releaseGas },
       ] }); return broadcaster;
   };
-  const port = createArcOpenClaimPort({ publicClient: pub, ...manifest, signer, roleLogIntervalMs: local ? 0 : 2000,
-    send: async tx => (await getBroadcaster()).broadcast(tx),
-    recoverBroadcast: async tx => (await getBroadcaster()).transactionHash(tx) });
+  if (!prepareOnly) {
+    sendSolver = async tx => (await getBroadcaster()).broadcast(tx);
+    recoverSolverBroadcast = async tx => (await getBroadcaster()).transactionHash(tx);
+  }
   const receipt = port.receipt;
   let releaseJournalUncertain = false;
   port.receipt = async hash => {
@@ -271,7 +284,7 @@ export async function openClaimOperator(args: string[], credentials?: { buyerTok
       async h => (await getBroadcaster()).reconcile(h), h => {
         const saved = attemptStatus(JSON.parse(readSafeFile(join(c.attemptDir, "state.json"), true).toString()));
         return (saved.phase === "release_sent" || saved.phase === "released") && saved.releaseTx === h.toLowerCase();
-      });
+      }, { delaysMs: [2000, 4000, 8000] });
     releaseJournalUncertain ||= observed.releaseJournalUncertain;
     return observed.receipt;
   };

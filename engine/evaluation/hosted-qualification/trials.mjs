@@ -1,7 +1,7 @@
 import {pathToFileURL} from 'node:url';
 import {CORPUS_ID, CORPUS_DIGEST, canonicalCorpus} from './corpus.mjs';
 import {assessSupportedDraft} from './assess.mjs';
-import {scoreTrial} from './score.mjs';
+import {scoreHostedDraftGates, scoreTrial} from './score.mjs';
 import {applyTaskView, committedMicroUsd, dispatchDecision, newLedger, persistLedger, readLedger, reserveTrial, TICKS_PER_MICRO_USD, withLedgerLock} from './budget.mjs';
 
 import {bindCampaign, bindTrial, campaignError, clock, failCampaign, fingerprint, principal, validateGlobalEvidence, validateTaskBinding} from './campaign.mjs';
@@ -213,7 +213,7 @@ function freshCostGate(fresh) {
 export function aggregateGates(trials) {
   const dispatched = trials.filter((item) => item.dispatched);
   const fresh = dispatched.filter((item) => item.fresh);
-  const closed = {passed: false, freshTrials: fresh.length, fundingApproval: false, meanCostMicroUsd: null, semanticRate: null};
+  const closed = {passed: false, freshTrials: fresh.length, fundingApproval: false, meanCostMicroUsd: null, semanticRate: null, buyerReviewRate: null};
   if (fresh.length === 0 || fresh.length !== dispatched.length) {
     return {...closed, reason: fresh.length === 0 ? 'no-fresh-trials' : 'incomplete-trial'};
   }
@@ -223,15 +223,19 @@ export function aggregateGates(trials) {
   const agreed = supported.filter((item) => item.score?.semanticAgreement === true && item.engineValid === true
     && Number.isSafeInteger(item.repairCount) && item.repairCount <= 1);
   const semanticRate = supported.length === 0 ? 0 : agreed.length / supported.length;
+  const buyerReviewRate = supported.length === 0 ? 0
+    : agreed.filter(item => item.draftGates?.readyForBuyerReview === true).length / supported.length;
   const falseAccepts = supported.reduce((total, item) => total + (item.score?.falseAccepts ?? 0), 0);
   const malformedAccepts = supported.reduce((total, item) => total + (item.score?.malformedAccepts ?? 0), 0);
   const quotes = fresh.every((item) => item.score?.quoteFidelity === true);
-  const ambiguousOk = fresh.filter((item) => item.classification === 'ambiguous').every((item) => item.score?.inventedConditions === 0);
+  const ambiguousOk = fresh.filter((item) => item.classification === 'ambiguous')
+    .every(item => item.score?.inventedConditions === 0 && item.score?.facetCount > 0
+      && item.score.clarificationFacets === item.score.facetCount);
   const unsupportedOk = fresh.filter((item) => item.classification === 'unsupported')
     .every((item) => item.score?.weakerPayableJob === false && item.score?.unsupportedExplanation === true);
   const costGate = freshCostGate(fresh);
   const meanCostMicroUsd = costGate.meanCostMicroUsd;
-  const passed = supported.length > 0 && semanticRate >= 0.95 && falseAccepts === 0 && malformedAccepts === 0
+  const passed = supported.length > 0 && buyerReviewRate >= 0.95 && falseAccepts === 0 && malformedAccepts === 0
     && quotes && ambiguousOk && unsupportedOk && costGate.underCap;
   return {
     passed,
@@ -239,6 +243,7 @@ export function aggregateGates(trials) {
     freshTrials: fresh.length,
     fundingApproval: false,
     semanticRate,
+    buyerReviewRate,
     falseAccepts,
     malformedAccepts,
     meanCostMicroUsd,
@@ -554,15 +559,20 @@ export async function runBenchmark({challenges, config, ledgerPath, fetchImpl, t
       const metadataDependency = wrongLiveModel ? 'live-model-mismatch' : missingLiveVersion ? 'qualification-metadata-missing' : repairCount == null ? 'qualification-metadata-missing' : repairCount > 1 ? 'repair-limit' : traceIds.length === 0 ? 'provider-trace-missing' : null;
       let assessment = {engineValid: null, candidateResults: []};
       try {
-        if (view.state === 'succeeded' && view.result?.kind === 'draft' && challenge.classification === 'supported') assessment = config.assessImpl ? await config.assessImpl(challenge, view.result) : await assessSupportedDraft(challenge, view.result.plan);
+        if (view.state === 'succeeded' && view.result?.kind === 'draft' && challenge.classification === 'supported') {
+          assessment = config.assessImpl ? await config.assessImpl(challenge, view.result)
+            : await assessSupportedDraft(challenge, view.result.revision?.plan);
+        }
       } catch { return finish('assessment-failed'); }
       const score = scoreTrial({challenge, response: view.result, candidateResults: assessment.candidateResults ?? [], repairCount, cost: entry.cost,
         latencyMs: Number.isSafeInteger(view.result?.qualification?.latencyMs) ? view.result.qualification.latencyMs : null, live: config.live === true});
+      const draftGates = scoreHostedDraftGates({challenge, response: view.result,
+        engineValid: assessment.engineValid, candidateResults: assessment.candidateResults ?? []});
       trials.push({...base, dispatched: true, method: outcome.method, state: entry.state, taskState: view.state, taskId: entry.taskId, attempt: entry.attempt,
         statusCode: outcome.status ?? null, replayed: entry.replayed === true, provenanceAccepted: entry.provenance.accepted,
         terminal: true, repairCount, traceIds, qualification, artifacts: artifactPair(view), cost: entry.cost,
         actualCostMicroUsd: entry.costSource === 'actual-ticks' ? entry.costMicroUsd : null, costInUsdTicks: entry.costInUsdTicks,
-        tariffMicroUsd: entry.tariffMicroUsd, metadataDependency, engineValid: assessment.engineValid, score, fresh: false});
+        tariffMicroUsd: entry.tariffMicroUsd, metadataDependency, engineValid: assessment.engineValid, score, draftGates, fresh: false});
       if (metadataDependency) {
         await locked(async () => { failCampaign(ledger, ledger.entries[key], metadataDependency); await persistLedger(ledgerPath, ledger); });
         return finish(metadataDependency);

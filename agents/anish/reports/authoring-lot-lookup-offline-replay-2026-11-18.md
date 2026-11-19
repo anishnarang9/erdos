@@ -1,0 +1,7 @@
+# Lot lookup normalization replay, 2026-11-18
+
+The original paid `lot-expiry-1-r10` task `01M7R0Y1K0RMVVMMXVSR8J7QEY` remains a failed task. Its retained second provider plan placed the same `i64` reference lookup both directly under Boolean `and` and inside an `lte` comparison. The direct operand was invalid. The new normalization removes it only when the lookup reads a declared reference `i64` field and the other `and` branch compares that same lookup directly. The comparison still reads the key and rejects an unknown key. It does not remove a Boolean lookup or a guard around `or`.
+
+The offline replay applied the existing buyer-contract output-shape normalization and then the new lookup normalization to the retained second plan. It recorded paths `/deliverables/0/fields/0` and `/rules/0/where`. The pinned local engine accepted the resulting plan. The independent hidden-case scorer returned seven exact matches: two valid passes, three rule failures, and two input rejections, including the unknown-lot case. This is diagnostic replay, not a new model success or a complete job.
+
+Three new regression cases passed. Full `commerce/pnpm check` passed: SDK 535 plus 13 Arc fixtures, API 1,062, web 4, worker 1,051, and all typechecks. No paid call, Bot review, Arc send, or public deployment used this source candidate. Next: push the checkpoint, verify exact-source CI, build an isolated image, and freeze a fresh changed-source trial. General public authoring remains gated.

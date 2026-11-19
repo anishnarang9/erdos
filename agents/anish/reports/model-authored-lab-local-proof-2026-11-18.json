@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-18",
+  "scope": "Local synthetic job using an API model-authored lab receipt plan. No Bot review, buyer approval, funded Arc job, or payout occurred.",
+  "sourceSha": "fc2e71706bd529c04063f66cb725ed27fdd60f89",
+  "taskId": "01M7QW5H49VGWYHFPXKSWP2EPQ",
+  "corpusDigest": "8acf192a48f3c72a200a53ed628246a2fbdcbe339bcc4743253a7789d85f2cd7",
+  "engineSha256": "979b6038734ad2cc287996da401eb960c57dd96605181bf2ee0dd742c97a4a47",
+  "planSha256": "0x5c8081de06fc29559afdaf84ae252574e4b9890f4148c0cf59ab9bdf0057d2ce",
+  "manifest": {
+    "imageId": "0x593890f623262db3cb90d8ec7b88a20eacb901ab47b06a0782fd9c29f17e401b",
+    "rulesHash": "0x883b896a03f0fd607add3787461358804172c53babebfe876b0fc524a062616b",
+    "referenceHash": "0xf935950ea9c99a24f4095899b6c5649816f9e1c2ebf961a43b56859cee163805",
+    "compileMillis": 29029
+  },
+  "syntheticContextBytes": 169,
+  "positiveExampleVerdict": 1,
+  "proof": {
+    "verdict": 1,
+    "proveMillis": 346588,
+    "userCycles": 876334,
+    "proofSha256": "0xfc4f3d485021d0614c120654560df6fb09e55fa79f5784f4d1ea754f9e81c29e",
+    "imageRulesAndReferenceMatchedPackage": true
+  },
+  "recovery": {
+    "file": "receipt.json",
+    "sourceSha256": "0x73d37ae9e6ec861426c77c1c5690cd0cef3c0dc7e44ae27bbf6797acdbc627ca",
+    "recoveredSha256": "0x73d37ae9e6ec861426c77c1c5690cd0cef3c0dc7e44ae27bbf6797acdbc627ca",
+    "byteExact": true,
+    "independentOracle": "pass"
+  },
+  "firstProofSetup": "Stopped before an attempt because r0vm was absent from the shell path. The same package succeeded with the pinned r0vm 3.1.0 binary at an explicit path.",
+  "releaseKeyMode": "0600",
+  "botReviews": 0,
+  "arcTransactions": 0,
+  "privateEvidence": "Protected package, synthetic job, proof, release key and recovered file under hosted-operator/model-authored-lab-proof-fc2. Key value omitted."
+}

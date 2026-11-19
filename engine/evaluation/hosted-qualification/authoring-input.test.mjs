@@ -14,7 +14,7 @@ import {syntheticSigner} from './shape.mjs';
 
 const SIGNED = ['seal-1', 'crate-1', 'transfer-1', 'dual-seal-1'];
 const PRE_FACET_DIGEST = '621ac9137f29ee3969150da63430860af0f9c706d3745aafbb1a374f72953391';
-const HIDDEN_DIGEST = '591f9766bbb51388f6f488781826ce1e33da236de5ece8608b2fbc9bf23d2d10';
+const HIDDEN_DIGEST = '2a1e28f3a85b427ff27a4434852d9a5767b3967ab2be8ae60530c30e4dd1a260';
 const PRIVATE_SEED = Buffer.alloc(32, 0x31).toString('hex');
 const PRIVATE_HEADER = '302e020100300506032b657004220420';
 const RUBRIC_OUTPUTS = {

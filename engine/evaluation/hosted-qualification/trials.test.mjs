@@ -377,6 +377,7 @@ test('fractional actual ticks round up for the reservation and keep raw ticks fo
     classification: 'supported',
     repairCount: 0,
     engineValid: true,
+    draftGates: {readyForBuyerReview: true},
     score,
   };
   const under = aggregateGates([{...fresh, actualCostMicroUsd: 100_000, costInUsdTicks: 999_999_999}]);
@@ -654,6 +655,21 @@ test('synthetic scores and aggregate gates stay closed without a live trial', ()
   });
   assert.equal(named.unsupportedExplanation, true);
   assert.equal(named.weakerPayableJob, false);
+  const apiCapability = scoreTrial({
+    challenge: {classification: 'unsupported', prompt: 'Match a pattern.', capabilityRequests: [{kind: 'operation', name: 'regex_match'}]},
+    response: {kind: 'unsupported', reason: 'capability_unsupported', capabilityError: {
+      code: 'unsupported_capability', request: {kind: 'operation', name: 'regex_match'},
+    }},
+  });
+  assert.equal(apiCapability.unsupportedExplanation, true);
+  assert.equal(apiCapability.weakerPayableJob, false);
+  const wrongCapability = scoreTrial({
+    challenge: {classification: 'unsupported', prompt: 'Match a pattern.', capabilityRequests: [{kind: 'operation', name: 'regex_match'}]},
+    response: {kind: 'unsupported', reason: 'capability_unsupported', capabilityError: {
+      code: 'unsupported_capability', request: {kind: 'operation', name: 'shortest_path'},
+    }},
+  });
+  assert.equal(wrongCapability.unsupportedExplanation, false);
   const weaker = scoreTrial({
     challenge: {classification: 'unsupported', prompt: 'Divide.', capabilityRequests: [{kind: 'operation', name: 'div'}]},
     response: {kind: 'draft', live: false},
@@ -683,9 +699,19 @@ test('synthetic scores and aggregate gates stay closed without a live trial', ()
     repairCount: 0,
     engineValid: true,
     actualCostMicroUsd: 1,
+    draftGates: {readyForBuyerReview: true},
     score: {live: true, semanticAgreement: true, falseAccepts: 0, malformedAccepts: 0, quoteFidelity: true, inventedConditions: 0, weakerPayableJob: false},
   }]);
   assert.equal(open.passed, true);
+  assert.equal(open.buyerReviewRate, 1);
+  const blockedExamples = aggregateGates([{
+    dispatched: true, fresh: true, classification: 'supported', repairCount: 0,
+    engineValid: true, actualCostMicroUsd: 1, draftGates: {readyForBuyerReview: false},
+    score: {live: true, semanticAgreement: true, falseAccepts: 0, malformedAccepts: 0, quoteFidelity: true},
+  }]);
+  assert.equal(blockedExamples.semanticRate, 1);
+  assert.equal(blockedExamples.buyerReviewRate, 0);
+  assert.equal(blockedExamples.passed, false);
   const costly = aggregateGates([{
     ...open && {},
     dispatched: true,
@@ -715,6 +741,7 @@ test('synthetic scores and aggregate gates stay closed without a live trial', ()
     repairCount: 0,
     engineValid: true,
     actualCostMicroUsd: 0,
+    draftGates: {readyForBuyerReview: true},
     score: {live: true, semanticAgreement: true, falseAccepts: 0, malformedAccepts: 0, quoteFidelity: true, inventedConditions: 0, weakerPayableJob: false},
   }]);
   assert.equal(zeroBill.passed, true);

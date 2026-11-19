@@ -10,6 +10,15 @@ import type { OpenClaimAdapterPort, OpenClaimFundedJob } from "./types.ts";
 const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
 function must(value: unknown): asserts value { if (!value) throw Error("Open-claim recovery failed"); }
 
+type RecoveryStage = "configuration" | "public_job" | "deployment" | "settlement_logs"
+  | "settlement_receipts" | "payout" | "output";
+
+export class OpenClaimRecoveryError extends Error {
+  constructor(readonly stage: RecoveryStage) {
+    super(`Open-claim recovery failed at ${stage}`);
+  }
+}
+
 /** Recover from confirmed public transactions and key events. No solver key file or API response is trusted.
  * If supplied, expected files are independently supplied bytes. Both SDK and engine must reproduce them.
  * This check also requires the solver's native USDC delta, adjusted for both transaction fees, to equal the bounty.
@@ -19,6 +28,7 @@ export async function recoverOpenClaimFromChain(input: {
   job: OpenClaimFundedJob; claimTx: Hex; releaseTx: Hex; expectedOutputs?: BundleFile[];
   runner: EngineRunner; directory: string;
 }) {
+  let stage: RecoveryStage = "deployment";
   let ownedKey: string | undefined;
   try {
     const { job: j, port, publicClient: pub } = input;
@@ -30,6 +40,7 @@ export async function recoverOpenClaimFromChain(input: {
       same(snap.terms.rulesHash,j.rulesHash) && same(snap.terms.referenceHash,j.referenceHash) &&
       snap.terms.budget === j.budget && snap.terms.expiry === j.expiry && snap.job.budget === j.budget && snap.job.expiredAt === j.expiry &&
       same(snap.job.provider,j.adapter) && same(snap.job.evaluator,j.adapter) && same(snap.job.hook,zeroAddress));
+    stage = "settlement_receipts";
     const claim = await port.receipt(input.claimTx), release = await port.receipt(input.releaseTx);
     must(claim?.status === "success" && release?.status === "success");
     const outcome = observeClaimOutcome({ adapter:j.adapter,core:j.core,self:j.solver,jobId:j.jobId,logs:claim.logs });
@@ -52,6 +63,7 @@ export async function recoverOpenClaimFromChain(input: {
       keyCommitment:commitment,journal:bytesToHex(journal),seal};
     const proof = parseProofJson(proofJson), files = decodeBundle(decryptEnvelope(proof.envelope,hexToBytes(key),proof.contextBytes));
     if (input.expectedOutputs) must(sameFiles(files,input.expectedOutputs));
+    stage = "payout";
     const cr = await pub.getTransactionReceipt({hash:input.claimTx}), rr = await pub.getTransactionReceipt({hash:input.releaseTx});
     must(cr.blockNumber > 0n && (rr.blockNumber > cr.blockNumber || rr.blockNumber === cr.blockNumber && rr.transactionIndex > cr.transactionIndex));
     const [before,after,tokenBefore,tokenAfter] = await Promise.all([
@@ -61,6 +73,7 @@ export async function recoverOpenClaimFromChain(input: {
     ]);
     const gasCost = cr.gasUsed*cr.effectiveGasPrice + rr.gasUsed*rr.effectiveGasPrice;
     must(after-before+gasCost === j.budget*1_000_000_000_000n);
+    stage = "output";
     checkArtifactAncestors(dirname(input.directory));
     try { mkdirSync(input.directory,{mode:0o700}); }
     catch (error) { if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error; }
@@ -80,6 +93,6 @@ export async function recoverOpenClaimFromChain(input: {
       nativeBefore:String(before),nativeAfter:String(after),gasCostNative:String(gasCost),
       erc20Before:String(tokenBefore),erc20After:String(tokenAfter),gasAdjustedPayoutExact:true,
       files:files.map(f=>({name:f.name,sha256:sha256(f.content)})),engineMatches:true,sdkMatches:true};
-  } catch { throw Error("Open-claim recovery failed (details redacted)"); }
+  } catch { throw new OpenClaimRecoveryError(stage); }
   finally {if(ownedKey) unlinkSync(ownedKey);}
 }

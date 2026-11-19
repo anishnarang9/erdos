@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "corpusId": "hosted-qualification-2026-11-18",
+  "corpusDigest": "ea51f1ff461c88d63dfafc75b4cd5f048cab0958ce7b51d7c2ca5f36054688d8",
+  "cases": {
+    "pier-drawers": [
+      {
+        "name": "positive",
+        "predictedVerdict": 1,
+        "files": [
+          {
+            "name": "drawers.json",
+            "content": "ewogICJyb3dzIjogWwogICAgewogICAgICAiZHJhd2VySWQiOiAiZHJhd2VyLWMiLAogICAgICAiY291bnRlZENlbnRzIjogIjEyNSIKICAgIH0sCiAgICB7CiAgICAgICJkcmF3ZXJJZCI6ICJkcmF3ZXItYiIsCiAgICAgICJjb3VudGVkQ2VudHMiOiAiMjUwIgogICAgfSwKICAgIHsKICAgICAgImRyYXdlcklkIjogImRyYXdlci1hIiwKICAgICAgImNvdW50ZWRDZW50cyI6ICI0MDAiCiAgICB9CiAgXQp9Cg==",
+            "encoding": "base64"
+          },
+          {
+            "name": "closeout.txt",
+            "content": "UGllciBTYXR1cmRheSBjbG9zZWQuCg==",
+            "encoding": "base64"
+          }
+        ]
+      },
+      {
+        "name": "negative",
+        "predictedVerdict": 0,
+        "files": [
+          {
+            "name": "drawers.json",
+            "content": "ewogICJyb3dzIjogWwogICAgewogICAgICAiZHJhd2VySWQiOiAiZHJhd2VyLWMiLAogICAgICAiY291bnRlZENlbnRzIjogIjEyNiIKICAgIH0sCiAgICB7CiAgICAgICJkcmF3ZXJJZCI6ICJkcmF3ZXItYiIsCiAgICAgICJjb3VudGVkQ2VudHMiOiAiMjUwIgogICAgfSwKICAgIHsKICAgICAgImRyYXdlcklkIjogImRyYXdlci1hIiwKICAgICAgImNvdW50ZWRDZW50cyI6ICI0MDAiCiAgICB9CiAgXQp9Cg==",
+            "encoding": "base64"
+          },
+          {
+            "name": "closeout.txt",
+            "content": "UGllciBTYXR1cmRheSBjbG9zZWQuCg==",
+            "encoding": "base64"
+          }
+        ]
+      }
+    ],
+    "lot-range-1": [
+      {
+        "name": "positive",
+        "predictedVerdict": 1,
+        "files": [
+          {
+            "name": "vials.json",
+            "content": "ewogICJyb3dzIjogWwogICAgewogICAgICAibG90SWQiOiAibG90LXAiLAogICAgICAidmlhbHMiOiAiNCIsCiAgICAgICJjb2xkT2siOiB0cnVlCiAgICB9LAogICAgewogICAgICAibG90SWQiOiAibG90LXEiLAogICAgICAidmlhbHMiOiAiMyIsCiAgICAgICJjb2xkT2siOiBmYWxzZQogICAgfQogIF0KfQo=",
+            "encoding": "base64"
+          }
+        ]
+      },
+      {
+        "name": "negative",
+        "predictedVerdict": 0,
+        "files": [
+          {
+            "name": "vials.json",
+            "content": "ewogICJyb3dzIjogWwogICAgewogICAgICAibG90SWQiOiAibG90LXAiLAogICAgICAidmlhbHMiOiAiNiIsCiAgICAgICJjb2xkT2siOiB0cnVlCiAgICB9LAogICAgewogICAgICAibG90SWQiOiAibG90LXEiLAogICAgICAidmlhbHMiOiAiMSIsCiAgICAgICJjb2xkT2siOiBmYWxzZQogICAgfQogIF0KfQo=",
+            "encoding": "base64"
+          }
+        ]
+      }
+    ],
+    "badge-zone-1": [
+      {
+        "name": "positive",
+        "predictedVerdict": 1,
+        "files": [
+          {
+            "name": "scans.json",
+            "content": "ewogICJyb3dzIjogWwogICAgewogICAgICAiYmFkZ2VJZCI6ICJiYWRnZS1hIiwKICAgICAgInpvbmUiOiAiZG9jayIsCiAgICAgICJtaW51dGUiOiAiNSIKICAgIH0sCiAgICB7CiAgICAgICJiYWRnZUlkIjogImJhZGdlLWIiLAogICAgICAiem9uZSI6ICJnYXRlIiwKICAgICAgIm1pbnV0ZSI6ICIyNSIKICAgIH0KICBdCn0K",
+            "encoding": "base64"
+          }
+        ]
+      },
+      {
+        "name": "negative",
+        "predictedVerdict": 0,
+        "files": [
+          {
+            "name": "scans.json",
+            "content": "ewogICJyb3dzIjogWwogICAgewogICAgICAiYmFkZ2VJZCI6ICJiYWRnZS1hIiwKICAgICAgInpvbmUiOiAiZG9jayIsCiAgICAgICJtaW51dGUiOiAiMzEiCiAgICB9LAogICAgewogICAgICAiYmFkZ2VJZCI6ICJiYWRnZS1iIiwKICAgICAgInpvbmUiOiAiZ2F0ZSIsCiAgICAgICJtaW51dGUiOiAiMjUiCiAgICB9CiAgXQp9Cg==",
+            "encoding": "base64"
+          }
+        ]
+      }
+    ],
+    "nights-1": [
+      {
+        "name": "positive",
+        "predictedVerdict": 1,
+        "files": [
+          {
+            "name": "blocks.json",
+            "content": "ewogICJyb3dzIjogWwogICAgewogICAgICAicHJvZ3JhbUlkIjogImFscGhhIiwKICAgICAgIm5pZ2h0IjogIjIiCiAgICB9LAogICAgewogICAgICAicHJvZ3JhbUlkIjogImJldGEiLAogICAgICAibmlnaHQiOiAiMSIKICAgIH0sCiAgICB7CiAgICAgICJwcm9ncmFtSWQiOiAiZ2FtbWEiLAogICAgICAibmlnaHQiOiAiMiIKICAgIH0KICBdCn0K",
+            "encoding": "base64"
+          }
+        ]
+      },
+      {
+        "name": "negative",
+        "predictedVerdict": 0,
+        "files": [
+          {
+            "name": "blocks.json",
+            "content": "ewogICJyb3dzIjogWwogICAgewogICAgICAicHJvZ3JhbUlkIjogImFscGhhIiwKICAgICAgIm5pZ2h0IjogIjIiCiAgICB9LAogICAgewogICAgICAicHJvZ3JhbUlkIjogImJldGEiLAogICAgICAibmlnaHQiOiAiMiIKICAgIH0sCiAgICB7CiAgICAgICJwcm9ncmFtSWQiOiAiZ2FtbWEiLAogICAgICAibmlnaHQiOiAiMiIKICAgIH0KICBdCn0K",
+            "encoding": "base64"
+          }
+        ]
+      }
+    ],
+    "firmware-note-1": [
+      {
+        "name": "positive",
+        "predictedVerdict": 1,
+        "files": [
+          {
+            "name": "notice.txt",
+            "content": "RmlybXdhcmUgbm90ZSBjYWbDqQo=",
+            "encoding": "base64"
+          },
+          {
+            "name": "pad.bin",
+            "content": "QEFCQw==",
+            "encoding": "base64"
+          }
+        ]
+      },
+      {
+        "name": "negative",
+        "predictedVerdict": 0,
+        "files": [
+          {
+            "name": "notice.txt",
+            "content": "RmlybXdhcmUgbm90ZSBjYWbDqQo=",
+            "encoding": "base64"
+          },
+          {
+            "name": "pad.bin",
+            "content": "QA==",
+            "encoding": "base64"
+          }
+        ]
+      }
+    ],
+    "lab-supplies-receipt-1": [
+      {
+        "name": "positive",
+        "predictedVerdict": 1,
+        "files": [
+          {
+            "name": "receipt.json",
+            "content": "ewogICJyb3dzIjogWwogICAgewogICAgICAiaXRlbUlkIjogIm5pdHJpbGUtZ2xvdmVzIiwKICAgICAgInJlY2VpdmVkIjogIjIiCiAgICB9LAogICAgewogICAgICAiaXRlbUlkIjogInBpcGV0dGUtdGlwcyIsCiAgICAgICJyZWNlaXZlZCI6ICIzIgogICAgfSwKICAgIHsKICAgICAgIml0ZW1JZCI6ICJzYW1wbGUtdHViZXMiLAogICAgICAicmVjZWl2ZWQiOiAiNCIKICAgIH0KICBdCn0K",
+            "encoding": "base64"
+          }
+        ]
+      },
+      {
+        "name": "negative",
+        "predictedVerdict": 0,
+        "files": [
+          {
+            "name": "receipt.json",
+            "content": "ewogICJyb3dzIjogWwogICAgewogICAgICAiaXRlbUlkIjogIm5pdHJpbGUtZ2xvdmVzIiwKICAgICAgInJlY2VpdmVkIjogIjIiCiAgICB9LAogICAgewogICAgICAiaXRlbUlkIjogInBpcGV0dGUtdGlwcyIsCiAgICAgICJyZWNlaXZlZCI6ICIzIgogICAgfSwKICAgIHsKICAgICAgIml0ZW1JZCI6ICJzYW1wbGUtdHViZXMiLAogICAgICAicmVjZWl2ZWQiOiAiNSIKICAgIH0KICBdCn0K",
+            "encoding": "base64"
+          }
+        ]
+      }
+    ],
+    "clinic-supplies-receipt-1": [
+      {
+        "name": "positive",
+        "predictedVerdict": 1,
+        "files": [
+          {
+            "name": "receipt.json",
+            "content": "ewogICJyb3dzIjogWwogICAgewogICAgICAiaXRlbUlkIjogInN0ZXJpbGUtZ2F1emUiLAogICAgICAicmVjZWl2ZWQiOiAiMyIKICAgIH0sCiAgICB7CiAgICAgICJpdGVtSWQiOiAic2FsaW5lLXBhY2tzIiwKICAgICAgInJlY2VpdmVkIjogIjQiCiAgICB9LAogICAgewogICAgICAiaXRlbUlkIjogInRlc3Qta2l0cyIsCiAgICAgICJyZWNlaXZlZCI6ICI0IgogICAgfQogIF0KfQo=",
+            "encoding": "base64"
+          }
+        ]
+      },
+      {
+        "name": "negative",
+        "predictedVerdict": 0,
+        "files": [
+          {
+            "name": "receipt.json",
+            "content": "ewogICJyb3dzIjogWwogICAgewogICAgICAiaXRlbUlkIjogInN0ZXJpbGUtZ2F1emUiLAogICAgICAicmVjZWl2ZWQiOiAiNCIKICAgIH0sCiAgICB7CiAgICAgICJpdGVtSWQiOiAic2FsaW5lLXBhY2tzIiwKICAgICAgInJlY2VpdmVkIjogIjUiCiAgICB9LAogICAgewogICAgICAiaXRlbUlkIjogInRlc3Qta2l0cyIsCiAgICAgICJyZWNlaXZlZCI6ICIzIgogICAgfQogIF0KfQo=",
+            "encoding": "base64"
+          }
+        ]
+      }
+    ],
+    "route-1": [
+      {
+        "name": "positive",
+        "predictedVerdict": 1,
+        "files": [
+          {
+            "name": "hops.json",
+            "content": "ewogICJyb3dzIjogWwogICAgewogICAgICAiZWRnZUlkIjogImMiLAogICAgICAic2VxIjogIjEiCiAgICB9LAogICAgewogICAgICAiZWRnZUlkIjogImQiLAogICAgICAic2VxIjogIjIiCiAgICB9CiAgXQp9Cg==",
+            "encoding": "base64"
+          }
+        ]
+      },
+      {
+        "name": "negative",
+        "predictedVerdict": 0,
+        "files": [
+          {
+            "name": "hops.json",
+            "content": "ewogICJyb3dzIjogWwogICAgewogICAgICAiZWRnZUlkIjogImEiLAogICAgICAic2VxIjogIjEiCiAgICB9LAogICAgewogICAgICAiZWRnZUlkIjogImxvbmciLAogICAgICAic2VxIjogIjIiCiAgICB9CiAgXQp9Cg==",
+            "encoding": "base64"
+          }
+        ]
+      }
+    ]
+  }
+}

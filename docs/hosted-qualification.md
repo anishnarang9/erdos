@@ -1,5 +1,7 @@
 # Hosted qualification
 
+**2026-11-18 update:** The original 60-case corpus and its 180-trial gate below are historical. A new 62-case offline corpus has a separate ID and digest. Its current evidence and release limits are in [backend hardening evidence](backend-hardening-evidence-2026-11-18.md). No live reliability claim follows from its local tests.
+
 Current coordinator state: the source harness passes 63 offline/native checks. Actual-API integration uses three synthetic wallets and a controlled model. It verifies task acceptance, unchanged results on resume, stale semantic-cache rejection and same-wallet credential rejection. Genuine application trials remain zero. Later sections retain historical worker probes at their stated source checkpoints.
 
 Worker B owns `engine/` and this report on branch `codex/hosted-qualification`. The source base is `c21ec6e`. The reviewed main is `6ed9d2d`. Qualification is not complete.

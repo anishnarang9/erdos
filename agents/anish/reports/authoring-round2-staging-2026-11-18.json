@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-18",
+  "sourceSha": "fc3ea3eca7f6bc1a5dd7ac3ddfa82c6d29effc6f",
+  "sourceArchiveSha256": "c1582dd7ccd89c988461438394c0cf9706275514a30e7d79ca669b17539f1120",
+  "imageId": "sha256:396a0fc90b25a863b4ff1d9adde2d0d7cf2f6cf7819e538ef8e6143b345e093e",
+  "publishedEngineSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
+  "isolatedState": "/srv/ubc26-state/pilot-ten-fc3ea3e",
+  "pilotContainer": "ubc26-authoring-pilot-ten-fc3ea3e",
+  "ingress": "/opt/ubc26-release/ingress-ten-fc3ea3e",
+  "staging": {
+    "firstLaunch": "failed before health because the copied protected environment retained the prior source SHA",
+    "firstLaunchPaidDrafts": 0,
+    "firstLaunchBotDispatches": 0,
+    "firstLaunchDisposition": "failed preflight container and state preserved under failed-preflight names; original HTTPS ingress restored",
+    "correction": "Set SOURCE_SHA to the image source; preflight now verifies the environment source pin before launch",
+    "secondLaunch": "healthy",
+    "publicReady": true,
+    "publicApiImageUnchanged": true,
+    "callbackRoute": "only authenticated HTTPS Bot callback routed to isolated pilot",
+    "newScopedBuyerKey": "created in protected local file; value omitted",
+    "secondRoundPaidDrafts": 1,
+    "secondRoundBotDispatches": 0
+  },
+  "firstCaseResult": "pier-drawers returned plan_invalid; one settled 6600 micro-USD draft charge; no Bot dispatch; stopped and restored original ingress",
+  "next": "Diagnose the saved invalid plan offline. Keep this failed campaign classified as failed; do not spend the remaining allowance or promote the pilot image."
+}

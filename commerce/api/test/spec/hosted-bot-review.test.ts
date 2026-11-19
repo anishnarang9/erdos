@@ -112,6 +112,47 @@ describe("live Bot review integration with a controlled transport", () => {
     expect((await review(app, key, second.jobId, second.revisionHash)).status).toBe(503);
     expect(dispatch).toHaveBeenCalledTimes(1);
   });
+  it("allows one more dispatch for the configured objection across API restarts", async () => {
+    const dbDir = mkdtempSync(join(tmpdir(), "ubc26-recovery-"));
+    dirs.push(dbDir);
+    const dbPath = join(dbDir, "db.sqlite");
+    const sends: Delivery[] = [];
+    const pilot = {
+      serviceToken: SERVICE, pilotOwner: privateKeyToAccount(PROVIDER_KEY).address.toLowerCase(),
+      maxDispatches: 1 as const, dispatch: async (delivery: Delivery) => { sends.push(delivery); },
+    };
+    const first = setup({ dbPath, botReview: pilot });
+    const key = await issue(first.app), target = await job(first.app, key);
+    expect((await review(first.app, key, target.jobId, target.revisionHash)).status).toBe(202);
+    const objection = sends[0]!;
+    await callback(first.app, objection, { ...result(objection), decision: "needs_changes",
+      findings: [{ kind: "omission", sourceQuote: "Require approval.", ruleIndices: [0], message: "Review this rule." }] });
+    const revise = (app: typeof first.app, value = revision(), ifMatch = target.revisionHash) => post(app,
+      `/v1/jobs/${target.jobId}/revisions`, { source: "import", revision: value }, key, { "if-match": ifMatch });
+    const other = await job(first.app, key);
+    first.close();
+
+    const botReview = { ...pilot, recoveryReviewId: objection.reviewId };
+    const second = setup({ dbPath, botReview });
+    expect((await review(second.app, key, other.jobId, other.revisionHash)).status).toBe(503);
+    const existing = await review(second.app, key, target.jobId, target.revisionHash);
+    expect((await existing.json() as any).reviewId).toBe(objection.reviewId);
+    expect(sends).toHaveLength(1);
+    const different = await revise(second.app, { ...revision(), maxBudget: "6000000" });
+    expect(different.status).toBe(201);
+    const { revision: { revisionHash: differentHash } } = await different.json() as { revision: { revisionHash: string } };
+    expect((await review(second.app, key, target.jobId, differentHash)).status).toBe(503);
+    expect((await revise(second.app, revision(), differentHash)).status).toBe(201);
+    expect((await review(second.app, key, target.jobId, target.revisionHash)).status).toBe(202);
+    expect(sends).toHaveLength(2);
+    expect(sends[1]!.reviewId).not.toBe(objection.reviewId);
+    second.close();
+
+    const third = setup({ dbPath, botReview });
+    expect((await revise(third.app)).status).toBe(201);
+    expect((await review(third.app, key, target.jobId, target.revisionHash)).status).toBe(503);
+    expect(sends).toHaveLength(2);
+  });
   it("remains disabled without configuration", async () => {
     const { app } = setup({ botReview: undefined }); const key = await issue(app), task = await job(app, key);
     expect((await review(app, key, task.jobId, task.revisionHash)).status).toBe(503);
@@ -379,4 +420,81 @@ describe("live Bot review integration with a controlled transport", () => {
     }
     expect(errors).toEqual([]);
   });
+});
+
+it.each([false, true])("checks coverage before public review and can reuse a qualified draft (%s)", async qualified => {
+  const dispatch = vi.fn(async (_delivery: Delivery) => {});
+  const request = "Require approval.";
+  const draft = vi.fn(async () => ({
+    model: "controlled", traceId: "public-coverage", result: {
+      kind: "draft" as const, plan, examples, sourceQuotes: [{ path: "/request", quote: request }],
+      coverage: { assumptions: [], unresolved: qualified ? [] : ["A requirement is unresolved."],
+        requirements: [{ id: "approval", text: request, ruleIndices: [0], quoteIndices: [0] }] },
+    },
+  }));
+  const { app, pumpTasks } = setup({
+    deployment: { mode: "public", serviceOrigin: "https://api.example.test" },
+    engine: { ...simulatedEngine(), mode: "real", eval: async ({ deliverables }) => ({
+      ok: true, verdict: Buffer.from(deliverables[0]!.content).toString() === "yes" ? 1 : 0,
+    }) },
+    budget: { requestCeilingMicroUsd: 500000, dailyCeilingMicroUsd: 5000000,
+      inputMicroUsdPerMillion: 1000000, outputMicroUsdPerMillion: 1000000 },
+    botReview: { serviceToken: SERVICE, pilotOwner: privateKeyToAccount(PROVIDER_KEY).address.toLowerCase(),
+      maxDispatches: 2, dispatch },
+    draftModel: { outputTokenBound: { parameter: "max_tokens", maxTokens: 8192 }, draft },
+  });
+  const key = await issue(app);
+  const queued = await post(app, "/v1/tasks", { operation: "draft", input: {
+    request, outputs: revision().outputs, expirySeconds: 600, maxBudget: "5000000",
+  } }, key);
+  expect(queued.status, await queued.clone().text()).toBe(202);
+  const { id } = await queued.json() as { id: string };
+  await pumpTasks();
+  const done = await app.request(`/v1/tasks/${id}`, { headers: { authorization: `Bearer ${key}` } });
+  const { result: drafted } = await done.json() as any;
+  expect(drafted.kind).toBe("draft");
+  const created = await post(app, "/v1/jobs", { source: "grok", draftId: drafted.draftId, revision: drafted.revision }, key);
+  expect(created.status, await created.clone().text()).toBe(201);
+  const { jobId } = await created.json() as { jobId: string };
+  const reviewed = await post(app, `/v1/jobs/${jobId}/bot-reviews`, { revisionHash: drafted.revisionHash, examples }, key);
+  expect(reviewed.status, await reviewed.clone().text()).toBe(qualified ? 202 : 409);
+  expect(dispatch).toHaveBeenCalledTimes(qualified ? 1 : 0);
+  if (!qualified) {
+    expect(await reviewed.json()).toMatchObject({
+      error: { code: "approval_required", details: { blockers: ["requirement_coverage"] } },
+    });
+    return;
+  }
+
+  const rejected = dispatch.mock.calls[0]![0];
+  const objection = await callback(app, rejected, {
+    ...result(rejected), decision: "needs_changes",
+    findings: [{ kind: "omission", sourceQuote: request, ruleIndices: [0], message: "The rule needs review." }],
+  });
+  expect(objection.result.structuredContent).toMatchObject({ decision: "needs_changes" });
+  const revised = await post(app, `/v1/jobs/${jobId}/revisions`, {
+    source: "grok", draftId: drafted.draftId, revision: drafted.revision,
+  }, key, { "if-match": drafted.revisionHash });
+  expect(revised.status, await revised.clone().text()).toBe(201);
+  expect(await revised.json()).toMatchObject({ revision: { n: 2, revisionHash: drafted.revisionHash } });
+
+  const second = await post(app, `/v1/jobs/${jobId}/bot-reviews`, { revisionHash: drafted.revisionHash, examples }, key);
+  expect(second.status, await second.clone().text()).toBe(202);
+  expect(dispatch).toHaveBeenCalledTimes(2);
+  const accepted = dispatch.mock.calls[1]![0];
+  expect(accepted.reviewId).not.toBe(rejected.reviewId);
+  expect(accepted.inputHash).toBe(rejected.inputHash);
+  await callback(app, accepted);
+  const approval = (botReviewId: string) => post(app, `/v1/jobs/${jobId}/approve`, {
+    revisionHash: drafted.revisionHash, referenceDigest: EMPTY_REF_HASH, botReviewId,
+    coverageDigest: drafted.coverage.coverageDigest, exampleCheckId: drafted.exampleCheckId,
+  }, key, { "if-match": drafted.revisionHash });
+  expect((await approval(rejected.reviewId)).status).toBe(409);
+  const approved = await approval(accepted.reviewId);
+  expect(approved.status, await approved.clone().text()).toBe(200);
+  const prior = await app.request(`/v1/jobs/${jobId}/bot-reviews/${rejected.reviewId}`, {
+    headers: { authorization: `Bearer ${key}` },
+  });
+  expect(await prior.json()).toMatchObject({ decision: "needs_changes" });
+  expect(draft).toHaveBeenCalledTimes(1);
 });

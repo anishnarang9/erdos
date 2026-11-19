@@ -30,6 +30,19 @@ function blank(base) {
   };
 }
 
+/** Score the hosted draft before Bot review, approval or compilation. */
+export function scoreHostedDraftGates({challenge, response, engineValid, candidateResults}) {
+  const score = scoreTrial({challenge, response, candidateResults});
+  const quotes = response?.quoteVerification;
+  const checksMatch = challenge.classification === 'supported' && response?.kind === 'draft'
+    && engineValid === true && score.semanticAgreement && score.quoteFidelity
+    && response.coverage?.ruleCoverageComplete === true
+    && Array.isArray(quotes) && quotes.length > 0 && quotes.every(item => item.found === true);
+  const readyForBuyerReview = checksMatch && response.exampleApprovalReady === true
+    && (!(challenge.exampleFixtures?.length > 0) || response.buyerFixtureApprovalReady === true);
+  return {checksMatch, readyForBuyerReview};
+}
+
 export function scoreTrial({challenge, response, candidateResults = [], repairCount = null, cost = null, latencyMs = null, live = false}) {
   const text = referenceText(challenge);
   const quotes = response?.sourceQuotes ?? [];
@@ -47,11 +60,18 @@ export function scoreTrial({challenge, response, candidateResults = [], repairCo
     };
   }
   if (challenge.classification === 'unsupported') {
-    const name = challenge.capabilityRequests?.[0]?.name ?? '';
+    const expected = challenge.capabilityRequests?.[0];
+    const reason = response?.reason;
+    const request = response?.capabilityError?.request;
+    const exactCapability = reason === 'capability_unsupported'
+      && response?.capabilityError?.code === 'unsupported_capability'
+      && request?.kind === expected?.kind && request?.name === expected?.name;
+    const namedExplanation = typeof reason === 'string' && reason !== 'capability_unsupported'
+      && typeof expected?.name === 'string' && reason.includes(expected.name);
     return {
       ...blank(base),
       weakerPayableJob: response?.kind === 'draft',
-      unsupportedExplanation: response?.kind === 'unsupported' && typeof response.reason === 'string' && response.reason.includes(name),
+      unsupportedExplanation: response?.kind === 'unsupported' && (exactCapability || namedExplanation),
     };
   }
   const falseAccepts = candidateResults.filter((item) => item.engine === 'pass' && item.oracle !== 'pass').length;

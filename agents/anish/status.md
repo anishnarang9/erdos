@@ -1,11 +1,545 @@
-# anish status
+# 2026-11-18 21:11 -0500 — Recheck buyer recovery on the current public release
 
+- The installed buyer runner recovered settled Arc job 10 through the current API and QuickNode RPC. It reported exact gas-adjusted payout of 10,000 USDC base units. The native engine and SDK both recovered receipt SHA-256 `3e454c9b45f5db52a29bb27210f06014b987b9ee062c3acaa51d4243fe3af971`, which matches the original solver file.
+- The SSH observation timed out while the VPS process continued. A follow-up read confirmed the same process finished and checked both output files. A separate local container exited with a redacted error. The supported VPS runner completed without a credential or solver files.
+- This verifies recovery of an existing settlement on the current release. The new Flash High job still needs signing approval. No new proof, draft, review or transaction ran.
 
-## 2026-11-18 15:17 -0500 — Anish — Verify the Vercel frontend preview
+# 2026-11-18 21:07 -0500 — Check the independent solver's synthetic receipt
+
+- Prepared a synthetic receipt from the committed reference files for job `01M7RP5JHE7XP43490EN051N2H`. The supplied file is 117 bytes with SHA-256 `910cf96e972614bd8f3c3b13b568dfc464ffb5cf6a436acd554dc4b1112fe4cf`.
+- The local native engine and the Linux executable from the exact release image both returned verdict 1 against the saved approved plan and verified references. The fixture stays separate from the buyer work directory. Record it as supplied input if the solver uses it.
+- A fresh funded-context proof, settlement and independent buyer recovery remain pending. No new draft, Bot call or signed transaction ran.
+
+# 2026-11-18 21:05 -0500 — Verify buyer guide commands against the staged job
+
+- Added exact approval, compile, task polling, package download and reference commands to the public buyer guide. Added the recovery path variables and the private work directory requirement. The installed runner rejected a path through the macOS `/tmp` symlink. Both downloads passed when run from a private directory under the home directory.
+- All buyer shell snippets passed syntax checks. The installed runner verified the staged job's package and both reference files. The guide update is committed on the pilot branch. Public publication and the funded run remain pending.
+
+# 2026-11-18 21:02 -0500 — Confirm live Arc funding prerequisites
+
+- Job `01M7RP5JHE7XP43490EN051N2H` remains `open_prepared` with Bot pass `01M7RR24FWXCVQW3CJ2B2KYZ7F`. At Arc Testnet block 72945855, the buyer and solver balances covered the bounty and both preview gas ceilings. The expiry had 42,875 seconds remaining.
+- The on-chain core, implementation, adapter and verifier bytecode hashes match the deployment manifest. The core proxy storage slot points to the pinned implementation. The checks used public chain reads at the same block.
+- Funding remains pending approval for this exact job and its testnet gas ceilings. No signing, transaction, new draft, or Bot dispatch ran.
+
+# 2026-11-18 21:01 -0500 — Verify the Flash High package and Arc funding preview
+
+- The live API returned `open_prepared` for `01M7RP5JHE7XP43490EN051N2H`. All 20 downloaded package files matched the declared sizes and SHA-256 hashes. The approval still binds Bot pass `01M7RR24FWXCVQW3CJ2B2KYZ7F`.
+- Sonnet through `agy` checked the saved terms against the pinned deployment and compiled manifest. Chain ID 5042002, contract addresses, budget, image ID, rules hash and reference hash matched. Sonnet misconverted the Unix expiry. A direct conversion gave 2026-11-19 13:56:48 UTC, with 42,947 seconds remaining at the checked Arc block.
+- The protected runner reported `prepared` for the five-call funding sequence. The 0.01 testnet USDC bounty is separate from the buyer's 0.0375 testnet USDC gas ceiling. The solver gas ceiling is 0.02275 testnet USDC. Signing remains disabled. The previous exact signing terms do not cover this job. No new draft, Bot dispatch, proof, or chain transaction ran.
+
+# 2026-11-18 20:54 -0500 — Release scoped recovery and obtain a genuine Bot pass
+
+- The user approved release with local checks while GitHub Actions could not start jobs due to billing. API typecheck and all 1,087 API tests passed. The Linux image pins and JavaScript bundle verified. Released source `1aab048` and VPS image `sha256:6a037297f927b07dc98d5c3e4832826e0d86de9fa319073e166f1b94173b359a` after backup `snapshot-20261119T015025Z` with manifest SHA-256 `6b21e650a103a3acf163b3d72c6ca595a56451c4540f44f3c5221a0366948c5c`. Native prewarm verified verdicts 1 and 0. Public readiness passed.
+- Grok Bot billing showed auto top-up off, $4.13 in credits, and a $10 monthly limit before the edit. The existing webhook routine confirmed its lookup instruction update.
+- A fresh Flash High session received the full buyer guide and used the scoped HTTP adapter. It resubmitted the saved draft without another generation call. The exact revision received genuine Bot pass `01M7RR24FWXCVQW3CJ2B2KYZ7F` with all five rule indices and no findings or questions. The first objection remains on record.
+- Flash High bound the passing receipt and selected native example check, then queued compile task `01M7RR5XE7QD8N4TCFT3MP90EK`. It succeeded on attempt 1. The public job reports `compiled` and lists 20 package files. Funding and solver acceptance remain pending.
+
+# 2026-11-18 20:31 -0500 — Stage one review claim for the blocked Flash High job
+
+- On `codex/authoring-pilot-round2`, added an optional pilot setting that resolves the target job and content hash from a completed objection. When the normal cap is exhausted, only that owner, job and hash can claim one more review. The slot counts at claim time, including uncertain delivery. It uses the existing database and preserves draft limits.
+- The API test failed before the change and now passes. It checks the saved job across restarts and refuses another job, changed content and a second recovery. The store test verifies that an unrelated queued record does not block recovery. It also verifies that a second database connection cannot reclaim an uncertain send. All 1,087 API tests and typecheck passed.
+- [PR #19](https://github.com/anishnarang9/UBC-26/pull/19) holds the release candidate. The optional setting and the corrected Bot prompt are pending live application. Auto top-up remains unverified. No paid model call or chain transaction ran.
+
+# 2026-11-18 20:27 -0500 — Verify the saved Flash High draft can receive a new review
+
+- On `codex/authoring-pilot-round2`, extended the public API integration test to exercise an explicit buyer resubmission after a Bot objection. The API created revision 2 with the same content hash and draft ID. It preserved the first objection, required a new review ID and rejected approval with the old receipt. The new receipt allowed approval only with the saved coverage and example checks.
+- The controlled authoring model ran once across the two revisions. Flash High can use this path for its saved receipt job after the live routine correction. All 1,085 API tests and API typecheck passed. Public readiness returned true.
+- The live Bot routine still needs the prompt edit and one scoped review slot. The app did not expose billing in this check, so auto top-up remains unverified. No live edit, dispatch, funding or draft took place.
+
+# 2026-11-18 20:24 -0500 — Clarify native lookup semantics for Bot review
+
+- On `codex/authoring-pilot-round2`, updated both Grok Bot routine templates. They explain that an evaluated lookup rejects a missing key. They also distinguish checking receipt IDs against the order from requiring every order ID in the receipt.
+- Opus through `agy` correctly reviewed three synthetic variants. It accepted both directions of membership and flagged each missing direction in the defective variants. All four native procurement checks passed.
+- The live app's Edit control opens a chat draft. Cleared the draft without submitting it. The live routine still needs the prompt applied, and the pilot dispatch allowance is exhausted. No new model draft, live Bot review, or Arc transaction ran. The existing Flash High review remains binding.
+
+# 2026-11-18 20:20 -0500 — Flash High authors a qualified plan and receives Bot findings
+
+- Flash High invoked narrowly scoped local MCP tools that called the hosted API using a protected buyer credential. The buyer and solver had no side channel. The tools submitted the prepared brief through TLS using the original idempotency key. No transport retry consumed a second draft.
+- Task `01M7RP1NBGMVXVRAMMP47H5WEG` settled at $0.010246. The authored plan had complete coverage and all three buyer fixtures passed. One generated negative confused an unknown ID with a missing row. Flash High checked replacement examples for the same revision with no extra model call. Example check `01M7RP4BEBG2K24ZNJXTCAY7E1` passed verdicts 1, 0, 0.
+- Flash High accepted job `01M7RP5JHE7XP43490EN051N2H` and requested Bot review `01M7RP5JVJV9F539JPHZS4FCSA` for revision `0x12dd775a5794012cb8dabc7a18e54bc06e0a3977ce80df038e264100495167d2`. The Bot completed with `needs_changes`. It treated a missing lookup key as undefined behavior and took the numeric self-comparison for an unenforced membership check.
+- Independently replayed the exact reviewed plan and reference bytes with the pinned native engine. Valid receipt returned 1, missing ordered item returned 0, and both unknown-key cases returned `invalid_deliverable`. The Bot result remains binding. No approval, compile, funding, solver contact, or signed transaction followed. Removed the temporary MCP registration and local credential copy.
+
+# 2026-11-18 20:14 -0500 — Test direct HTTPS from Flash High
+
+- Flash High reached the hosted API with a scoped authenticated GET and reported the expected buyer wallet and scope. A later POST failed DNS resolution before HTTP. The VPS confirmed zero matching idempotency rows and unchanged draft and spend counters.
+- The replay kept the exact request bytes and key, pinned the verified address, and kept TLS validation enabled. Flash High reported a connection failure before TLS. Removed local copies of the scoped API credential and verified the temporary firewall rule was gone. Public readiness remains green.
+- The buyer transport still needs a reliable supported execution environment. No funded acceptance or payout followed this probe.
+
+# 2026-11-18 20:08 -0500 — Promote corrected authoring and verify remaining pilot capacity
+
+- Commerce, engine and contract checks passed for `0bea9a9`. Promoted image `sha256:5a74a5a3f1637f3dc7aaa359b82deae25dadaffbe257a2e062092ac884a0a8d0` after backup `snapshot-20261119T010608Z` with manifest SHA-256 `4d196fa01972be348662a826f63453d9b78e6a210b0dc8be96229727df9cbc07`. Prewarm and public readiness passed. The prior private configuration is available for rollback.
+- Flash High completed a restricted buyer identity check with normal command approval. The separate draft invocation failed before SSH connected. VPS storage confirms no work directory, no new draft, and no new reservation. Live limits allow six drafts and four Bot reviews. Five drafts are settled at $0.030392, with one draft and one Bot review slot still available.
+- Removed the temporary key and firewall rule. The independent buyer still needs a reliable scoped transport. No provider call, Bot review, proof or signed send ran.
+
+# 2026-11-18 20:00 -0500 — Prepare one fresh draft slot for the corrected workflow
+
+- The candidate accepts an explicit sixth draft for the same pilot wallet. It retains the four-review ceiling. The restart test admits only that one extra distinct draft after five prior drafts and rejects a seventh. The configured live caps have not changed.
+- Twenty-one focused tests and API typecheck passed. Release and independent Flash High acceptance remain pending. No paid request or Arc transaction ran.
+
+# 2026-11-18 19:59 -0500 — Protect Bot capacity and correct receipt authoring instructions
+
+- The public API now checks stored draft binding, buyer fixtures, source quotes and coverage before dispatching a Bot review on a Grok revision. The existing approval gate still binds the buyer-selected coverage digest and native example check. The preflight permits replacement examples and the Bot route still validates those bytes.
+- Added prompt guidance for linking presence and uniqueness, mapping unknown-ID rejection to the lookup that enforces it, and including every ordered row in passing partial receipts. This is based on the exact saved reply. The old incomplete coverage remains rejected.
+- Route regressions show an incomplete draft spends no Bot dispatch and a qualified draft can dispatch. Full API tests and typecheck passed. No new paid calls or chain transactions ran.
+
+# 2026-11-18 19:56 -0500 — Replay the stored Flash reply through the API
+
+- Replayed the exact stored request and parsed provider output through a local API and native engine. The replay uses the canonical shipping normalizer. The original type error cleared and all six source quotes verified.
+- The saved positive example omits an ordered item, so native evaluation returns 0. The uniqueness rule has no requirement link, and the unknown-item requirement remains unresolved. The same revision can accept replacement examples but the public approval gate still rejects incomplete coverage.
+- Updated the buyer guide to identify the exact response fields, native check ID, Bot review payload, and pass gate. No provider call, Bot dispatch, or signed transaction ran. The funded Flash High acceptance remains open.
+
+# 2026-11-18 19:53 -0500 — Repair the exact stored Flash draft offline
+
+- The private draft row retains the parsed Grok result even when the separate recorder is disabled. Read the exact plan for trace `05c93399-7d34-942a-b6a9-9606daffa057`. Native validation reproduced the original type failure. A numeric lookup was a conjunct in the first rule. A sibling `all` rule compares the identical lookup over the identical row collection.
+- The normalizer types that conjunct as lookup equality with itself, preserving the lookup error, the lower bound, the sibling upper bound, and rule indices. It traverses only conjunctions under the same `all` scope. The regression also confirms a different collection cannot authorize the change.
+- The native engine validated the corrected saved plan. Offline evaluations gave verdict 1 for a valid partial receipt and verdict 0 for negative count, item excess, total excess, missing item, and duplicate item. An unknown key returned `invalid_deliverable`. Forty-one focused tests and API typecheck passed. Sonnet supplied a partial review before its time limit. No paid or signed operations ran. The original live attempt remains failed.
+
+# 2026-11-18 19:48 -0500 — Give buyers precise plan type errors without a model retry
+
+- Verified that the live API had neither Grok recording nor replay configured. The saved Flash High task does not include the generated expression. The offline fixture reproduces the reported error path and validation message, but it is not a replay of the provider reply.
+- The API now returns the deterministic type hint already computed for optional repair. The failed plan stays rejected. The queued-task regression proves the hint reaches the buyer without exposing the fixture's private field name or dispatching a second model call. All 1,082 API tests and API typecheck passed. The live draft cap remains exhausted.
+
+# 2026-11-18 19:40 -0500 — Promote bounded pilot and record the Flash High draft failure
+
+- Source `6385abe` passed both commerce CI runs, engine and contracts. Verified the isolated API health check with five draft slots and four Bot dispatch slots. Backed up live state to `snapshot-20261119T003536Z`, manifest SHA-256 `ce84e1fe9f5c0738a8164398657b0cf58362cd9653fc987d28376cc6c7286990`. Promoted the pinned image, verified compiler prewarm and public readiness, and retained private environment rollback copies.
+- Flash High authenticated through its scoped helper. Direct draft execution ran into the local sandbox, so Flash High requested the draft with a local trigger and the operator bridge submitted the prepared request once. Preserve that intervention in the acceptance evidence.
+- Task `01M7RKXQ3309Y2J76QCPKKYMJE` ended with draft outcome `unsupported / plan_invalid`. The first rule's operand types did not match at `/plan/rules/0/where`. Trace `05c93399-7d34-942a-b6a9-9606daffa057`. One provider call settled at $0.009080. The response preserves the trace and stage but omits the raw plan. No Bot review, funding, proof, or transaction followed. Live ledger totals are five settled drafts at $0.030392 and three dispatched reviews. Removed the temporary SSH rule.
+
+# 2026-11-18 19:31 -0500 — Prepare capacity for one fresh Flash High run
+
+- The public configuration can explicitly allow five drafts and four Bot dispatches for the same wallet. Existing limits remain valid. The fifth draft survives an API restart and a sixth distinct draft is rejected. The live service still uses its existing caps.
+- Twenty-one focused API tests and API typecheck passed. Full release checks and the live recovery retry are pending. This checkpoint did not dispatch a draft or Bot review.
+- The VPS runner packaged at `1e28834` recovered job 10 through QuickNode with the deployment audit enabled. Compared the 148 SDK and engine bytes against the original solver receipt with `cmp`. Both matched and the runner confirmed the exact gas-adjusted payout. This replay used no paid or signed operation.
+- Built the API image from committed source `6385abe5f7c959cdc5c3431fabb01c28e39b95a7`. Image `sha256:a5654da7e37b4f85fd90763b7d5f2b4b2cc8bb12f2bbc68e3a8b2f8fa33c43dc` carries the expected source and engine pins. Promotion and the funded Flash High test remain pending. Removed the temporary SSH firewall rule.
+
+# 2026-11-18 19:29 -0500 — Retry throttled Arc role history reads
+
+- The Arc role audit retries the same log range up to twice on HTTP 429 or RPC -32005. Permanent errors still stop the audit. The chain anchor and role checks must pass before the audit caches results.
+- Used Sonnet 4.6 through `agy` to review the retry and its invariants. Project guidance now names Sonnet for harder tasks and Opus for work that needs deeper reasoning. Fifteen focused tests and worker typecheck passed. A repeat live run with this change remains pending.
+
+# 2026-11-18 19:23 -0500 — Report the buyer recovery failure stage
+
+- Flash High used a scoped headless command to inspect the prior recovery process for settled Arc job 10. The process exited with a redacted generic error. The runner now reports a fixed recovery stage for local and chain validation failures and preserves SDK-sanitized public API errors.
+- Verified the CLI regression before and after the fix. Fifteen focused tests and worker typecheck passed. Live recheck pending. This checkpoint made no paid draft, Bot dispatch, or transaction send.
+- VPS replay of the packaged candidate on settled Arc job 10 failed at `deployment`. A separate Flash High session read the real error using its one scoped command and reported the correct stage. Sampled history queries from the VPS reproduced HTTP 429 on the primary Arc RPC. QuickNode answered five sampled history windows. Those samples do not identify the exact failed read in the replay. Focused tests and typecheck passed. The pilot remains at four completed drafts and three Bot dispatches. Removed the temporary SSH rule.
+
+# 2026-11-18 19:20 -0500 — Confirm Flash High and API-only interaction
+
+- The user selected Gemini 3.8 Flash High and clarified that buyer and solver interact only through the public API. The solver may receive a prepared receipt. Updated the project instructions and the acceptance plan.
+- A scoped headless Flash Low rehearsal read live job 10 through the public API. That rehearsal predates the Flash High decision and does not count as funded buyer acceptance.
+
+# 2026-11-18 19:11 -0500 — Use `agy` Flash Low for the buyer acceptance test
+
+- We recorded Flash Low and solver help here. The user later corrected both choices. The solver may receive a prepared receipt. The test still requires fresh authoring, proof, Arc payout, and byte-exact buyer recovery. Updated the project instructions and acceptance plan.
+- `agy models` confirmed the Flash Low model ID and listed Claude and GPT options. Use available free `agy` capacity first for suitable delegation, including stronger models when needed. The read-only Flash rehearsal hit a headless command permission denial when it tried to fetch the guide. With the same public guide supplied in the prompt, Flash Low correctly outlined draft creation, wallet authentication, and one draft submission. The run made no paid xAI requests and sent no Arc transactions. The funded Flash test still needs scoped command access and live pilot capacity.
+
+# 2026-11-18 19:09 -0500 — Wait for confirmed Arc receipts in the solver runner
+
+- On `codex/authoring-pilot-round2` (PR #19), the solver runner now polls the saved claim or release hash after delays of 2, 4, and 8 seconds when the first read returns no confirmed receipt. It reconciles only a confirmed receipt. If all reads remain pending, the saved attempt still supports a resume.
+- Verified the regression before and after the fix. All 34 focused open-claim tests and the worker typecheck passed. Full commerce checks and release qualification remain pending. No draft, Bot review, proof, or chain send ran during this checkpoint.
+
+# 2026-11-18 18:58 -05:00 — Verify job 10 payout and publish the tested runner
+
+- Audited all seven Arc receipts and both wallets' gas-adjusted balance changes. Job 10 paid 0.01 testnet USDC. The solver reconciled both transaction hashes and reported confirmed payment. The [job 10 report](reports/hosted-arc-job10-acceptance-2026-11-18.md) records the source pins, authoring cost, proof timing, receipts, and RPC workarounds.
+- Reproduced RPC throttling from the API container. Changed only `OPEN_CLAIM_RPC_URL` to the verified PublicNode Arc Testnet endpoint with a mode-0600 environment rollback copy. Public readiness and six consecutive completed-job detail reads passed.
+- Full commerce checks passed, including 1,053 worker tests. PR #19 CI passed at head `f3560d5`. Published the corresponding Linux CI runner built against merge source `97783a7a3a168e168fb2ab5c78b66764fd16721e`. The public archive matched SHA-256 `8e1473d801536038f83736c9478ac0855b0937d50e98df29c5c2c9a11b2cb025`.
+- The buyer's documented recovery command failed after payout. Independent recovery diagnosis remains in progress.
+
+# 2026-11-18 18:52 -05:00 — Verify fresh Arc job 10 through claim
+
+- Published the versioned buyer and solver guides at source `e872b96` and verified their HTTP responses and release pins. The initial buyer attempt received a stored HTTP 429 before task admission. Two requests with that key created zero tasks or reservations. The live daily authoring ceiling is now $2.552376, equal to settled usage before the successful draft plus one provider request ceiling.
+- A fresh buyer independently submitted task `01M7RE1DE3Q2TMHTRNT2QNJFGB`. One provider dispatch settled at $0.009896. The buyer verified native examples, received exact-revision Grok Bot approval, compiled, funded Arc job 10, and published the receipt brief. The first malformed Bot request failed validation before dispatch.
+- A fresh solver discovered the job, produced its own receipt, and generated a verdict-1 proof in 18m34s. Public Arc RPC reads repeatedly throttled the preflight. The solver used a custom read transport with an explorer history snapshot and live RPC tail. The historical scan therefore depends on explorer completeness. Two RPCs confirmed the claim receipt `0x003f13d21faf50e9984bddc4d45d560dcddb5f5698d1d5d3fcd4497a372d2546`. The solver is resuming the same journal after `claim_sent`. Release, payout, and buyer recovery remain open.
+- Pushed `f872c9b` for safe CLI HTTP rejection diagnostics and `fb9bd5a` to reuse verified Arc deployment history within one process, retaining live canonical checks. Focused worker checks passed (six CLI tests, 34 operator/history/reconciliation tests, and typecheck). The candidate remains on PR #19. Job 10 uses the earlier published runner.
+
+# 2026-11-18 17:49 -05:00 — Promote bounded buyer API and prepare updated guide
+
+- PR #19 checks passed at merged source `4fc9452`: commerce, engine, contracts, and Vercel. The VPS built image `sha256:bbd96cf1e854242851d619e4de7cc736ff6dc715fcf784e80ed84ec5629426fd` from that source. Its native engine SHA-256 matches the published `be5c06f9…` pin. An isolated container started with the intended Bot pilot settings and returned `/healthz` 200 without paid work.
+- Before promotion, a quiesced snapshot preserved 141 files and 21 migrations at `/srv/ubc26-backups/snapshot-20261118T224440Z`; its manifest hash is `3d0f84c42a0c4e66343008aea3b82fa1b021e712cfa67defbd4a94ad3cf50dab`. The prior image and environment copies remain available. The live database had three settled drafts, two dispatched Bot reviews, and no pending or uncertain paid task. The new API image is running. Its compiler prewarm passed on the exact source and public `/readyz` returned HTTP 200. Configuration permits a fourth draft while retaining the three-review cap.
+- Updated the public developer guide to describe this bounded release. It still needs a versioned publication and external hash check. No new draft, Bot dispatch, proof, or Arc transaction has run since promotion. Next: publish the guide, check wallet/runner readiness, then start independent buyer and solver agents for one fresh funded job.
+
+# 2026-11-18 17:38 -05:00 — Integrate current main for final buyer release
+
+- Merged remote main `6df439d` into `codex/authoring-pilot-round2`. Its new work is the frontend demo and runbook. Preserved both Anish status histories across the sole merge conflict. The backend draft/Bot pilot change remains on the branch.
+- Combined `commerce/pnpm check` passed: SDK 535 plus 13 Arc fixtures, web 5, API 1,081, worker 1,051, and all typechecks. `git diff --check` passed. Exact-merge CI, deployment, one fresh Bot review, and funded Arc acceptance remain pending.
+- Next: push the combined source, check PR #19 CI, build the pinned API image, snapshot the public state, set the one-extra-draft pilot option without raising Bot dispatches, promote, and run the independent buyer/solver test.
+
+# 2026-11-18 17:35 -05:00 — Separate final buyer draft from Bot dispatch cap
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. The user chose their existing Grok Bot account for the hackathon backend and made the independent buyer/solver Arc run the next priority. Broad paid draft diagnostics stop. Public readiness is HTTP 200; the release wallet has used three of three draft slots and two of three Bot dispatches.
+- Added `BOT_REVIEW_PILOT_MAX_DRAFTS=4` as an optional, one-wallet public pilot setting. It defaults to the existing dispatch cap, so current deployments retain their limit. The Bot cap remains three. A durable restart test first failed at the fourth draft, then passed. Full commerce checks passed: SDK 535, web 4, API 1,081, worker 1,051, and all four typechecks. No paid call, Bot dispatch, deployment, or Arc send occurred.
+- Next: finish full checks, integrate current main, verify exact-source CI, publish a pinned release with backup, and run the cold buyer/solver acceptance with the existing restricted Bot account. Keep the old six-cent uncertain reservation separate.
+
+# 2026-11-18 16:39 -05:00 — Honor explicitly requested unknown-key rejection
+
+- Draft PR #19. The retained nights plan expressed reference membership with an existential predicate, which returned verdict 0 for an unknown program. The new normalization recognizes the exact rejection clause, a plain per-row membership predicate, matching string-key schemas, and unique keys in the supplied reference. It converts only that predicate to lookup equality and retains its coverage index. Other membership rules remain untouched.
+- The new focused tests pass. Offline replay of the retained nights reply matches all nine hidden outcomes. Its paid result remains failed. Full commerce checks are running. Attributable campaign API usage remains $1.369126.
+
+# 2026-11-18 16:09 -05:00 — Record nested lookup trial results
+
+- Draft PR #19. The [six-case report](reports/authoring-nested-guard-trial-2026-11-18.md) records five review-ready drafts and one unknown-key failure. Lab passed all nine hidden outcomes without normalization. Saved offline replay verifies the new nested normalization. Original failures remain in the record.
+- Candidate CI passed. All six charges settled. Campaign API usage is $1.369126. General authoring, Bot cost and account qualification, and the final independent Arc run remain open.
+
+# 2026-11-18 16:06 -05:00 — Stage the nested lookup diagnostic
+
+- Draft PR #19. Full commerce checks passed on source `453716f`. The [frozen diagnostic](../../docs/authoring-nested-guard-trial-2026-11-18.md) binds the matching Linux image, pinned engine, empty database, and fresh authenticated wallet. Exact-source CI is pending. No paid task has used the image.
+
+# 2026-11-18 16:03 -05:00 — Preserve aggregate bounds when typing nested lookups
+
+- Draft PR #19. The retained lab reply contained the total capacity rule. Its paid repair removed that rule while typing a lookup. The service now converts a redundant numeric lookup inside nested conjunctions to a Boolean test when a required sibling comparison reads the exact same lookup. The rule list and coverage indices stay intact. The normalization does not traverse alternatives or nested collection scopes to find a match.
+- The new regression failed before the change and passed afterward. Offline replay of the original lab reply matched all nine independently scored outcomes, including over-capacity rejection as a failed rule. Nights still returned verdict 0 for an unknown program. No paid result changed. Full commerce checks are in progress. Campaign attributable API usage remains $1.330633.
+
+# 2026-11-18 15:59 -05:00 — Verify reference key guard live
+
+- Draft PR #19. The [six-case report](reports/authoring-key-guard-trial-2026-11-18.md) records four review-ready drafts and one live use of the new key guard on badge. Lab still accepted over-capacity input. Nights returned verdict 0 instead of rejecting an unknown program. Campaign API usage is $1.330633.
+- Exact-source CI passed. Original paid failures remain in the record. Bot cost and account qualification, general authoring release, and the final independent Arc run remain open.
+
+# 2026-11-18 15:55 -05:00 — Stage the reference key trial
+
+- Draft PR #19. The [frozen trial](../../docs/authoring-key-guard-trial-2026-11-18.md) uses source `eda9e5b`, matching engine pins, a verified empty database, and a fresh authenticated wallet. Full local commerce checks passed, including 1,077 API tests. Exact-source CI is pending. No paid task has used this image.
+
+# 2026-11-18 15:53 -05:00 — Preserve reference-key checks in badge drafts
+
+- Draft PR #19. The saved badge reply used a string key lookup as an operand of `and`; its paid repair then returned malformed syntax. The guarded fix types that lookup as key equality only when the sibling comparison reads the same reference row. It leaves Boolean operands, other keys, and malformed scope declarations to the engine.
+- The saved first badge reply became native-valid offline and matched all seven hidden outcomes. The original paid result remains failed. Clearance and nights first replies remained invalid in replay. The saved nights repair omitted a per-row allowed-value check. The prompt now distinguishes that check from counts and existence. Focused plan tests and API typecheck passed. Attributable API usage stays $1.262147. Next: check the final source and qualify the guard live.
+
+# 2026-11-18 15:49 -05:00 — Record the exact quote trial
+
+- Draft PR #19. The [six-case trial report](reports/authoring-exact-quote-trial-2026-11-18.md) records three drafts ready for buyer review. Final drafts had verified quotes. The live sample did not trigger the new indexed feedback. Nights accepted a hidden night-zero output, and clearance and badge-zone remained native-invalid.
+- All six charges settled. Campaign attributable API usage is $1.262147. Candidate CI and 89 focused recovery and gate tests passed. Bot qualification, production authoring readiness, and the final independent Arc run remain open.
+
+# 2026-11-18 15:43 -05:00 — Stage the exact quote repeat
+
+- Draft PR #19. The [frozen trial](../../docs/authoring-exact-quote-trial-2026-11-18.md) pins source `d87d59d` with latest fetched main and the unchanged membership corpus. The isolated image pins and authenticated wallet match. Full local commerce checks passed before the merge, including 1,075 API tests. CI for the merged image source is running. The trial has made no paid requests.
+
+# 2026-11-18 15:41 -05:00 — Verify pier proof recovery and target invalid quotes
+
+- The [local pier proof](reports/model-authored-pier-local-proof-2026-11-18.md) produced verdict 1 in 296,325 ms and recovered byte-exact `drawers.json`. The independent oracle passed on the recovered bytes. The report preserves both preflight errors and their corrections. No Bot dispatch or Arc transaction ran.
+- The saved nights repair combined separate excerpts with an ellipsis. The authoring prompt now requires contiguous verbatim excerpts. Coverage repair identifies each unverified quote by index. The route regression failed before the change and passed afterward. Campaign attributable API usage remains $1.181259.
+
+# 2026-11-18 15:24 -05:00 — Verify lookup guard on a fresh draft and restart old tasks
+
+- Draft PR #19. The [six-case report](reports/authoring-lookup-guard-trial-2026-11-18.md) records two drafts ready for buyer review. Pier used the new standalone lookup normalization and passed every hidden outcome. Lab passed on its first reply. Category and nights remain blocked by a false accept and an unverified quote, respectively. Two drafts remained native-invalid.
+- All charges settled. Campaign attributable API usage is $1.181259. Restarted the prior isolated service and recovered all six saved tasks by ID with unchanged results and billing. The new model-authored pier plan compiled locally, and its synthetic proof and recovery run is in progress. Production readiness and final acceptance remain open.
+
+# 2026-11-18 15:17 -05:00 — Verify the Vercel frontend preview
 
 - Created `ubc-26` under the existing Hobby scope and connected it to `anishnarang9/UBC-26`. The production branch is `main`. The project root is `commerce/web` per Neil's PR #21, with the parent workspace available at build time.
 - [PR #22](https://github.com/anishnarang9/UBC-26/pull/22) adds a read-only public workspace and Neil's labeled Arc recording. The routing test, five web tests, and both Vite build modes passed. The initial Git deployment became the production baseline. Its Arc RPC passed and its API routes returned 404 as expected for the original config.
 - Vercel built the first PR preview. The browser origin gate denied access. Check the latest preview in a browser and verify GitHub CI before merging. Keep paid work and settlement with the backend owner.
+
+# 2026-11-18 15:17 -05:00 — Prepare the standalone lookup guard trial
+
+- Draft PR #19. The [frozen diagnostic](../../docs/authoring-lookup-guard-trial-2026-11-18.md) repeats the same six membership briefs on isolated source `eb22e28`. The image and engine pins match. A fresh wallet authenticated after the service finished starting. The database had no drafts or reservations. The dry run verified the case order and corpus hash.
+- Exact-source CI is pending. No paid draft has used this candidate. Campaign attributable API usage remains $1.113676.
+
+# 2026-11-18 15:15 -05:00 — Preserve the capacity rule from the retained lab draft
+
+- Draft PR #19. The [two-example trial](reports/authoring-paired-example-trial-2026-11-18.md) returned two examples per provider draft. Zero of six tasks reached buyer review readiness. Two plans failed native validation, two accepted hidden outputs they should reject, one rejected two valid outputs, and one used verdict 0 for an unknown key. All six charges settled. Campaign attributable API usage is $1.113676.
+- The retained lab first reply had the capacity constraint, which the repair removed. The new normalization corrects a standalone numeric lookup only when another top-level rule reads the same lookup in a comparison over the same collection. The offline lab replay matched all nine hidden outcomes. Category and clearance remain failed in replay. The original paid results remain unchanged.
+
+# 2026-11-18 15:08 -05:00 — Stage paired-example trial and audit acceptance gates
+
+- Draft PR #19. The isolated image from `fe446c1` has the expected source and engine digests and an empty database. The new wallet authenticated. The [frozen trial](../../docs/authoring-paired-example-trial-2026-11-18.md) repeats the same six clarified inputs. Exact-source CI is pending, and the image has received no paid draft yet.
+- The [acceptance audit](reports/agent-first-gate-audit-2026-11-18.md) records current public readiness and artifact checks. The original $0.06 uncertain charge and the production Bot account boundary remain open. The earlier job 9 evidence retains its reconciliation caveats.
+
+# 2026-11-18 15:07 -05:00 — Constrain generated examples to the approval contract
+
+- Draft PR #19. With no buyer fixtures, the provider schema asks for exactly two generated examples. The prompt requires one valid verdict-1 input and one valid verdict-0 input. The schema shares the API's example name pattern. Buyer fixtures and native approval checks still apply. The full commerce check passed with the count change. All 1,072 API tests and the API typecheck passed with the name pattern too.
+- The corrected-input trial had three rejected extras in otherwise agreeing drafts. No new paid call used this source. Attributable usage remains $1.043261. Next: verify this source in an isolated repeat.
+
+# 2026-11-18 15:06 -05:00 — Record clarified input diagnostic
+
+- Draft PR #19. The [six-case membership report](reports/authoring-membership-contract-trial-2026-11-18.md) records three oracle matches and zero drafts ready for buyer review. The clearance unknown-post outcome matched. Rejected example inputs blocked lab, clearance and category. Pier and nights had other oracle mismatches. Badge-zone remained native-invalid.
+- All six charges settled. Cumulative attributable API spend is $1.043261. The public release remains gated. Next: constrain generated examples to one verdict 1 and one verdict 0, and qualify the changed source with the same frozen inputs.
+
+# 2026-11-18 15:03 -05:00 — Freeze clarified membership inputs
+
+- Draft PR #19. The new corpus explicitly states the already-scored reject policy for unknown reference keys in 26 briefs. Each changed brief has a distinct ID. Hidden cases, expected statuses and original scores remain intact. All 74 hosted qualification tests pass.
+- The [frozen diagnostic](../../docs/authoring-membership-contract-trial-2026-11-18.md) uses the same checked API source `82505b5` and a new authenticated wallet. The dry run confirmed the six cases. Campaign usage is $0.946333 and no call used the new inputs yet.
+
+# 2026-11-18 15:00 -05:00 — Record plan repair diagnostic results
+
+- Draft PR #19. Exact-source commerce, engine, and contracts CI passed for `82505b5`, which includes current main. The [six-case report](reports/authoring-eleventh-plan-repair-2026-11-18.md) records four draft and oracle matches and three drafts ready for buyer review. Category still had a rejected example. Badge-zone remained native-invalid. Clearance differed on unknown-post rejection, which its public brief did not specify.
+- All six charges settled. The cohort cost $0.062446, for $0.946333 in attributable campaign usage. The production account, Bot-to-proof qualification, and independent release acceptance remain open.
+
+# 2026-11-18 14:54 -05:00 — Stage plan repair diagnostic on current main
+
+- Merged main at `a3f6cae` into the PR #19 candidate. Source `82505b5` is pinned in the new isolated Linux image. The new wallet authenticated to an empty draft database, and the dry run verified the six [frozen cases](../../docs/authoring-eleventh-plan-repair-2026-11-18.md).
+- Exact-source CI is in progress. The campaign remains at $0.883887. Next: apply the frozen example and oracle gates to each new response after CI passes.
+
+# 2026-11-18 14:53 -05:00 — Keep native-valid plans available after example repair
+
+- Draft PR #19. The retained category task had a native-valid first plan and an invalid second plan. Repair requests now include the first hashable plan under the existing cost check. When only generated examples are missing or malformed, the repair keeps the exact revision. A checked verdict mismatch or a buyer fixture failure can still trigger a rule repair.
+- The service retains the original draft if the repair fails native validation or violates the revision lock. Approval remains subject to the original example and coverage gates. The record retains both provider traces and charges. Three route regressions cover the lock and fallback. The full commerce check passed, including 1,072 API tests.
+- API usage remains $0.883887. Next: integrate current main, verify the resulting commit, and run a frozen repeat of the affected briefs. Production account and complete-run gates remain open.
+
+# 2026-11-18 14:50 -05:00 — Record example gate trial results
+
+- Draft PR #19. The [tenth trial](reports/authoring-tenth-example-gate-2026-11-18.md) ran eleven cases on source `680e93c` after CI passed. Three of seven supported cases reached buyer review readiness. Four matched the hidden oracle and other draft checks. Neither clarification nor either unsupported decision met the frozen scoring rule.
+- All eleven charges settled. Cohort usage was $0.106045, for $0.883887 attributable API usage in the campaign. The public release remains gated. Next: use retained replies to address residual example, type, and decision failures before Bot and end-to-end qualification.
+
+# 2026-11-18 14:45 -05:00 — Stage the example gate trial
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Built the source-pinned image for `680e93c` and authenticated a new wallet to its isolated database. The dry run verified the corpus, engine, and eleven frozen cases across all three authoring decisions. See the [frozen trial](../../docs/authoring-tenth-example-gate-2026-11-18.md).
+- Full local checks passed on the candidate. Exact-source CI is pending. No paid draft has used this image. Next: verify CI and run the frozen cases with the corrected scorer and the existing campaign ledger.
+
+# 2026-11-18 14:43 -05:00 — Audit and enforce the buyer example gate
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Rescored 27 saved tasks with the API example gate. Nine were ready for buyer review. The latest varied cohort had six draft and oracle matches, of which three had usable examples. The [audit](reports/authoring-example-gate-audit-2026-11-18.md) preserves the original outcomes and explains the scorer gap.
+- The provider schema allows only supplied fixture names. Without buyer fixtures, it requires generated files. Repair feedback now identifies aggregate type and record scope errors. The qualification runner reads the plan from the hosted revision and requires the existing 95% threshold to include example readiness. It also checks every expected clarification facet.
+- Full commerce check passed with 1,069 API tests. All 73 hosted qualification tests passed. Campaign API usage remains $0.777842. Next: build and qualify a fresh isolated candidate, then test exact-revision Bot review through proof before release.
+
+# 2026-11-18 14:36 -05:00 — Varied trial passed six of ten draft gates
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. The [ninth report](reports/authoring-ninth-varied-repeat-2026-11-18.md) records ten fresh supported briefs on source `086fbae`: six draft-stage passes, two plan-invalid results, one hidden oracle disagreement, and one unnecessary clarification. All 60 campaign tasks and 100 provider traces are unique. Preserve every failed result.
+- All ten new reservations settled. Cohort API cost was $0.113881; fourth-campaign attributable API usage is $0.777842. No Bot review, approval, compile, proof, Arc send, or public deploy ran. Next: inspect retained failures and fix source-grounded causes offline before another frozen cohort. General authoring stays gated.
+
+# 2026-11-18 14:30 -05:00 — Freeze varied reference-type trial
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Built Linux image `sha256:bda57c43b9a19a2ac2e291ef5d9f5c39f2dd4a1e0b4a7adc440d6c21d91aa352` from source `086fbae`. Embedded source and engine hashes match. The isolated database has no drafts or reservations. The [ninth trial](../../docs/authoring-ninth-varied-repeat-2026-11-18.md) freezes ten supported cases before dispatch. Exact-source CI is pending.
+- No new paid call or public deploy used this image. Campaign attributable API usage stays $0.663961. Next: prepare a new wallet and journal, wait for CI, then run each frozen case once. General authoring stays gated.
+
+# 2026-11-18 14:27 -05:00 — Validate reference-backed type correction offline
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. The new guard changes a reference field from `string` to `i64` only when actual reference bytes prove every value and a numeric lookup uses the field. The original paid clearance failure stays failed. Its retained repaired plan became native-valid and matched all seven independent hidden oracle cases after the change. See the [offline report](reports/authoring-clearance-type-offline-replay-2026-11-18.md).
+- Three new regression cases and full `commerce/pnpm check` pass: SDK 535 plus 13 Arc fixtures, API 1,065, web 4, worker 1,051, and all typechecks. No paid call, Bot review, Arc send, or public deploy used the candidate. Fourth-campaign attributable API usage remains $0.663961. Next: checkpoint, exact-source CI, isolated image, and a frozen fresh trial. General authoring stays gated.
+
+# 2026-11-18 14:22 -05:00 — Eighth trial exposes reference type drift
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. The [eighth report](reports/authoring-eighth-lookup-normalization-repeat-2026-11-18.md) records four draft-stage passes and one clearance failure on source `492a2c8`. The fresh lot task passed native checks and all seven hidden oracle cases with recorded lookup normalization. Clearance's repair changed a numeric reference field to `string` and failed native validation. Preserve that failure.
+- All five reservations settled. New API cost was $0.046902; fourth-campaign attributable API usage is $0.663961. No Bot review, approval, compile, proof, Arc send, or public deploy ran. Next: test a narrow correction backed by actual reference bytes, then measure changed-source reliability. General authoring stays gated.
+
+# 2026-11-18 14:16 -05:00 — Freeze normalized-source trial
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Built Linux image `sha256:99d055f638f383d99755e3f408194d201d4300bbfec59a9e30fbc7cfdd774409` from source `492a2c8`. Embedded source and engine hashes match. The isolated database has zero drafts and reservations. The [eighth trial](../../docs/authoring-eighth-lookup-normalization-repeat-2026-11-18.md) freezes five cases. Exact-source CI is pending.
+- No new paid call or public deploy used this image. Campaign attributable API usage stays $0.617059. Next: prepare a new wallet and journal, wait for CI, then run each frozen task once. General authoring stays gated.
+
+# 2026-11-18 14:14 -05:00 — Validate narrow lookup normalization offline
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Added a guarded normalization for a numeric reference lookup repeated inside its typed comparison. The original failed lot task stays failed. Its retained repaired plan became native-valid after the normalization and matched all seven independent hidden oracle cases, including unknown-key rejection. See the [offline report](reports/authoring-lot-lookup-offline-replay-2026-11-18.md).
+- Three new regression cases and full `commerce/pnpm check` pass: SDK 535 plus 13 Arc fixtures, API 1,062, web 4, worker 1,051, and all typechecks. No new paid call, Bot review, Arc send, or public deploy used the candidate. Campaign API usage remains $0.617059. Next: checkpoint, exact-source CI, isolated image, and a frozen fresh trial. General authoring stays gated.
+
+# 2026-11-18 14:09 -05:00 — Seventh trial passed four draft gates
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. The [seventh report](reports/authoring-seventh-lookup-repair-repeat-2026-11-18.md) records four draft-stage passes and one retained lot failure on source `d0b6b97`. All five tasks and nine provider traces are new. Native, coverage, quotes, and all hidden oracle candidates passed for the four passing cases. Lot stayed plan-invalid after the targeted repair hint.
+- All five reservations settled. New API cost was $0.055114; fourth-campaign attributable API usage is $0.617059. No Bot review, approval, compile, proof, Arc send, or public deploy ran. Next: test a narrow redundant-lookup normalization offline, then measure changed-source reliability. General authoring stays gated.
+
+# 2026-11-18 14:04 -05:00 — Freeze source-locked lookup trial
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Built Linux image `sha256:8a8d1a0951eb2896683009457072739d16308009726fc29cdbf96c8486ecfb97` from source `d0b6b97`. The embedded source and engine hashes match. A fresh isolated container is healthy with zero drafts and spend reservations. The [seventh trial](../../docs/authoring-seventh-lookup-repair-repeat-2026-11-18.md) freezes five cases before paid dispatch. Exact-source CI is pending.
+- No new paid call or public deploy used the candidate. Campaign API charge stays $0.561945. Next: prepare a new wallet and protected journal, wait for CI, then dispatch each frozen task once.
+
+# 2026-11-18 14:02 -05:00 — Explain numeric lookup repair errors
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Native type errors now give the repair model a precise hint when a lookup is used as a Boolean in `and`, `or`, `all`, or `any`. Public errors and the preserved failed task stay unchanged. Four focused regressions pass. Full `commerce/pnpm check` passes: SDK 535 plus 13 Arc fixtures, API 1,059, web 4, worker 1,051, and all typechecks.
+- No new paid call, Bot review, Arc send, or public deploy used this candidate. Fourth-campaign unique API cost stays $0.561945. Next: checkpoint and push, verify exact-source CI, build an isolated image, and freeze changed-source cases. General authoring stays gated.
+
+# 2026-11-18 13:58 -05:00 — Independent pier repeat found a native type error
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Two new wallets ran the frozen same-source `pier-variance` trials. `r8` passed native checks and all seven hidden oracle cases. `r9` failed native validation after repair: numeric lookup was used as a Boolean operand. The [report](reports/authoring-sixth-pier-independent-repeat-2026-11-18.md) preserves both tasks, charges, and protected evidence paths. No paid retry occurred.
+- Both reservations settled. New API cost was $0.026959; fourth-campaign unique API cost is $0.561945. No Bot review, approval, compile, proof, Arc send, or public deploy ran. Public authoring stays gated. Next: improve native repair feedback offline, run relevant tests, then freeze a new source-specific cohort.
+
+# anish status
+
+## 2026-11-18 13:54 -05:00 — Freeze independent pier repeat
+
+- Exact-source commerce, engine, and contracts CI passed for source `193564b`. The sixth trial's `pier-variance` success is one independent draft-stage result. Froze [two same-source repeats](../../docs/authoring-sixth-pier-independent-repeat-2026-11-18.md) on separate new wallets and unchanged public input. No `-r8` or `-r9` paid call has run. Prior unique campaign API cost is $0.534986. Next: prepare protected wallets and identity-guarded journals, then dispatch sequentially. General authoring remains gated.
+
+## 2026-11-18 13:52 -05:00 — Preserve sixth trial and keep reliability gate
+
+- The [sixth trial](reports/authoring-sixth-shape-scope-repeat-2026-11-18.md) ran five fresh tasks on source `193564b`. Lab and clinic controls passed again. A repaired `pier-variance` plan passed native, coverage, quotes, and every hidden oracle case for the first time. `lot-expiry` remained plan-invalid; `clearance` rejected two valid outputs. Five reservations settled $0.060134; fourth-campaign unique API cost is $0.534986. No Bot, approval, compile, proof, Arc send, or public deploy ran.
+- Exact-head commerce and contracts CI passed; engine CI was pending at this checkpoint. Next: inspect retained lot and clearance drafts, then freeze independent repeats or a targeted source fix. One successful pier task does not establish repeat reliability. Keep general authoring gated.
+
+## 2026-11-18 13:47 -05:00 — Freeze sixth source trial
+
+- Built image `sha256:bbc78d8d41a348df0602ca2244d92b2d310a0ae96264d6fbc3f6aab106debc8b` from source `193564b` with matching embedded source and engine pins. A fresh isolated database serves `/healthz` 200 on loopback port 8790 and has zero tasks or spend reservations. Exact-head CI is pending. No paid task used this image.
+- Froze five new `-r7` tasks in the [sixth trial](../../docs/authoring-sixth-shape-scope-repeat-2026-11-18.md), with two controls and three previously invalid families. Next: verify CI, prepare a sixth wallet and guarded harness, then dispatch each once. The fourth-campaign API charge remains $0.474852. General authoring remains gated.
+
+## 2026-11-18 13:45 -05:00 — Repair contract-proven collection shape and prompt scope
+
+- Retained provider recordings identified three distinct final-plan errors in the fifth trial. Added a narrow normalization when an explicit buyer output contract proves a duplicate scalar is an array and no rule reads the scalar. A conflicting fixture or scalar rule blocks normalization. Added prompt instructions that a lookup returns a value and does not add a record scope. Unit and route tests failed before the change and now pass. Offline replay of the saved lot reply removes the duplicate, then reveals a separate operator type error; the original failed task remains failed.
+- Full `pnpm check` passes: SDK 535 plus 13 chain fixtures, API 1,055, web 4, worker 1,051, and typechecks. Fourth-campaign unique API cost stays $0.474852. Next: commit and push, build an exact-source local image, freeze new trial IDs, then test the three formerly invalid families and passing controls. Public authoring remains gated.
+
+## 2026-11-18 13:40 -05:00 — Preserve changed-source trial failure
+
+- The five `-r6` tasks ran once on the exact source `5c14ec2` after local checks. Both procurement controls passed draft and hidden-oracle gates without repair. `pier-variance`, `lot-expiry`, and `clearance` failed native plan validation after one repair each, so the trial did not test their prior fail-versus-reject errors. The [trial report](reports/authoring-fifth-membership-repeat-2026-11-18.md) preserves task causes and scope. Five reservations settled $0.058767; fourth-campaign cumulative unique API cost is $0.474852.
+- Exact-head PR #19 commerce, engine, and contracts checks passed. No Bot, approval, compile, proof, Arc send, or public deployment ran. The stronger-model path lacks a reviewed request-wide cost bound. Next: improve plan-shape reliability offline, then freeze a changed-source cohort. General public authoring stays gated.
+
+## 2026-11-18 13:34 -05:00 — Stage exact-source membership trial
+
+- Built Linux image `sha256:402628e99b32dfea47fc6c4c0b95cf999c5658b00549e927333227cd0d0e91ad` from source `5c14ec2` with the embedded source and engine pins matching. A fresh isolated local database serves `/healthz` 200 on loopback port 8789; local `/readyz` is 503 without chain readiness. The accepted public API is untouched. No new paid call has run.
+- Froze five `-r6` briefs in the [membership repeat](../../docs/authoring-fifth-membership-repeat-2026-11-18.md): two earlier passing controls and three unknown-reference-key failures. Next: wait for exact-head CI, prepare a new wallet and idempotency journals, then run each task once. The fourth-campaign API charge remains $0.416085. Bot cost attribution and production account isolation still block general authoring.
+
+## 2026-11-18 13:31 -05:00 — Correct prompt guidance for reference-key outcomes
+
+- Changed the authoring prompt to use `lookup` when an unknown reference key must reject input. It now uses `all` with nested `any` when a missing reference row should produce verdict 0. A native procurement test confirms the two outcomes. The prompt regression failed before the wording change and passes now. This is a new source candidate; it has not received a paid model trial.
+- Full `pnpm check` passes at this checkpoint: SDK 535 plus 13 chain fixtures, API 1,051, web 4, worker 1,051, and typechecks. The hosted qualification suite remains 72/72 after the new native test. Fourth-campaign API spend remains $0.416085. Next: commit and push, build an isolated image at the exact source, wait for CI, then freeze a small changed-source trial of the unknown-key families. Keep public authoring gated.
+
+## 2026-11-18 13:28 -05:00 — Preserve corrected-input repeat and isolate membership error
+
+- The nine frozen output-contract tasks settled once each on source `fc2e717`. Two supported drafts (`mass-1`, `firmware-1`) passed native, coverage, quotes, and all hidden oracle cases. Four plans remained invalid after one repair; three native-valid plans disagreed with the oracle in five candidate cases. The [repeat report](reports/authoring-fourth-output-contract-repeat-2026-11-18.md) lists each cause. Nine tasks made 18 model calls and cost $0.104980; fourth-campaign unique API cost is $0.416085. No Bot, approval, compile, proof, Arc, or public deploy ran for this cohort.
+- Exact-head PR #19 commerce, engine, and contracts CI passed. The local commerce check passed on rerun after one process-cleanup test missed a child PID file deadline under load; all 71 qualification tests passed. Next: test and correct prompt guidance for unknown reference keys, diagnose the four invalid-plan shapes, and freeze another source-locked cohort before paid calls. Keep general authoring gated.
+
+## 2026-11-18 13:21 -05:00 — Freeze public output-contract repeat
+
+- Added a separate [output-contract corpus](../../engine/evaluation/hosted-qualification/contract-corpus.mjs) with public JSON field names and types for 42 supported briefs. It does not change hidden candidates, references, or examples. It creates `category-clear-1` with the contradictory budget sentence removed and leaves the old case intact. The new digest is `5a3553958b0e674fe1c0e514d39e64138549d885084ae640c25b4a281e8c35f0`. The test failed before the module existed; the new tests and all 71 hosted qualification tests pass.
+- Froze nine `-r5` API-only trials in the [repeat plan](../../docs/authoring-fourth-output-contract-repeat-2026-11-18.md). No `-r5` paid call has run. Next: prepare a fourth wallet, verify the harness uses the new corpus and correct fixture gate, then dispatch sequentially within the remaining $10 scope. Bot, Arc, and public authoring remain gated.
+
+## 2026-11-18 13:18 -05:00 — Verify model-authored local proof and audit breadth cohort
+
+- The generated lab plan from fresh API task `01M7QW5H49VGWYHFPXKSWP2EPQ` compiled in 29,029 ms. A synthetic job produced a verdict-1 Groth16 proof in 346,588 ms. Decryption recovered the exact `receipt.json` bytes, and the independent oracle returned pass. The [proof report](reports/model-authored-lab-local-proof-2026-11-18.json) records package and proof hashes. This is local evidence, not Bot approval or Arc funding.
+- The frozen 13-brief breadth cohort made 22 provider calls and settled $0.129806 across 13 distinct tasks. Two supported drafts passed native, coverage, quotes, and all hidden oracle cases after correcting a private harness gate for absent buyer fixtures. Seven supported briefs missed the draft gate; both ambiguous cases missed frozen facets; neither unsupported case met the exact protocol score. The [cohort report](reports/authoring-fourth-breadth-cohort-2026-11-18.md) preserves raw failures and scorer/corpus defects. Fourth-campaign unique API cost is $0.311105. Next: freeze a corpus revision with public output contracts, keep hidden checks private, then repeat on changed inputs. General authoring remains gated.
+
+## 2026-11-18 12:50 -05:00 — Freeze varied authoring cohort
+
+- Froze 13 distinct briefs across supported, ambiguous, and unsupported classes in the [breadth cohort](../../docs/authoring-fourth-breadth-cohort-2026-11-18.md). Source remains `fc2e717`, the accepted public release is unchanged, and prior unique fourth-campaign API cost is $0.181299. This cohort has not sent a paid request. A new wallet and task/trace identity guards are required before dispatch.
+- The model-authored lab plan compiled locally and its public positive example passed native evaluation. A first proof setup check stopped before an attempt because `r0vm` was absent from the shell path. The pinned binary and image digest were found; the same package is proving with an explicit binary path. Next: confirm proof and recovery, then run the frozen breadth cohort. Bot cost attribution and production account isolation still block general authoring.
+
+## 2026-11-18 12:49 -05:00 — Six independent drafts pass three-family repeat
+
+- A new wallet ran the three frozen `-r3` tasks on source `fc2e717` with task and trace IDs distinct from the first wallet. All three passed native validation, buyer fixtures, coverage, quotes, and every hidden oracle case. Together with the first-wallet tasks, this is six independent draft-stage passes over three briefs, two per brief. The [independent repeat report](reports/authoring-fourth-independent-repeat-2026-11-18.md) records IDs, costs, and scope. The three same-wallet replay requests remain excluded.
+- New-wallet API spend was $0.021561. The service database shows six unique settled tasks across two wallets costing $0.045614 for this source; fourth-campaign cumulative API spend is $0.181299. No Bot, approval, compile, proof, Arc send, or public deploy ran. Public `/readyz` stayed 200. Next: local compile/package/proof of the generated lab plan, then a wider frozen corpus. General authoring remains gated.
+
+## 2026-11-18 12:46 -05:00 — Freeze independent wallet repeat
+
+- Froze three new `-r3` trials on source `fc2e717` in the [separate-wallet repeat](../../docs/authoring-fourth-separate-wallet-repeat-2026-11-18.md). They use a new authenticated wallet and reject any task or trace ID from the first-wallet tasks. No `-r3` task has run. Earlier unique fourth-campaign API cost is $0.159738; $0.45 is reserved for these three tasks. Next: prepare a protected new-wallet harness, verify identity guards, then dispatch each trial once.
+
+## 2026-11-18 12:45 -05:00 — Correct repeat reliability and charge ledger
+
+- Six predeclared client requests ran on source `fc2e717` after exact-source CI passed. The first three created unique tasks and passed native, buyer fixtures, coverage, quotes, and hidden oracle checks. The second three used new idempotency keys but the same wallet and input; the API returned the first tasks. They are **replays, not independent repeats**. The private harness initially misreported six successes and double-counted costs. The [replay audit](reports/authoring-fourth-reliability-replay-2026-11-18.md) preserves both rounds and corrects the count using the service database: three tasks, three settled reservations, $0.024053 API cost. Fourth-campaign cumulative API cost is $0.159738.
+- This confirms the API prevented duplicate paid work. The production qualification runner already requires distinct wallet principals per repeat; the private harness missed that rule. No Bot, compile, proof, Arc send, or public deploy ran. Next: freeze a new three-task repeat with a separate wallet, add a duplicate-task guard in the private harness, and count only genuinely new tasks. Public authoring remains gated.
+
+## 2026-11-18 12:39 -05:00 — Freeze six same-source reliability trials
+
+- Built source `fc2e717` as Linux amd64 image `sha256:9434d49905211dbab6dda4310b0cbc32c50d7c264a3880b6ac268d6a6bcf849f`. Froze two predeclared trials each for lab receipt, clinic receipt, and firmware note in the [reliability probe](../../docs/authoring-fourth-repeat-reliability-2026-11-18.md). Every trial will use a new task and idempotency key. No trial has run for this source yet; exact-source CI is pending.
+- Fourth-campaign settled API cost remains $0.135685. The six trials reserve at most $0.90 more. Bot still needs a fresh account meter. Next: stage the isolated state, wait for CI, run each trial once, and score both repeats without replacing failures.
+
+## 2026-11-18 12:36 -05:00 — Narrow membership and assumption prompt
+
+- The preserved procurement tasks show two model-policy errors. The lab plan used a missing-key lookup to test ordered-item presence, which returned `reject` instead of a false rule verdict. The clinic plan put stated facts and rule consequences in `coverage.assumptions`, which blocked approval. The prompt now describes `all` plus `any` for membership and reserves assumptions for genuinely unstated facts. The full commerce check passes: API 1,050, worker 1,051, SDK 535 plus 13 Arc fixtures, web 4, and typechecks.
+- This is an unqualified source candidate. No new paid call, Bot, compile, proof, Arc send, or public deployment ran. Fourth-campaign settled API cost remains $0.135685. Next: checkpoint, push, verify CI, freeze a changed-source cohort, then test the two affected families and a separate baseline. Keep general authoring gated.
+
+## 2026-11-18 12:37 -05:00 — Procurement repeat exposes coverage and failure-class gaps
+
+- Ran three frozen tasks against isolated source `a40b7f4` after exact-source commerce, engine, and contracts CI passed. `firmware-note-1` passed native, fixtures, coverage, and every hidden oracle candidate. `clinic-supplies-receipt-1` matched the oracle but coverage assumptions blocked it. `lab-supplies-receipt-1` differed on two fail/reject classifications. The [repeat report](reports/authoring-fourth-procurement-repeat-2026-11-18.md) preserves task IDs, stage outcomes, latency, and charges.
+- This cohort settled $0.025882 API cost. Fourth-campaign cumulative API cost is $0.135685. No Bot, approval, compile, package check, proof, Arc send, or public deploy ran. The Grok account meter could not be read through the app, so Bot dispatch remains on hold. Next: refine assumption and membership guidance, verify offline, and freeze another changed-source cohort. Keep public authoring gated.
+
+## 2026-11-18 12:31 -05:00 — Freeze procurement shape repeat
+
+- Built source `a40b7f4` into Linux amd64 image `sha256:cce99a353ec5474aff5a3179b5d46292a27bb78666dde7f0c13b2c31aca4bc94`. Froze three fresh tasks in the [procurement repeat](../../docs/authoring-fourth-procurement-repeat-2026-11-18.md): lab receipt, clinic receipt, and firmware note. Prior fourth-campaign API charges total $0.109803 and count against the $10 ceiling. No new paid task has run for this source; exact-source CI is pending. Next: stage fresh local state, wait for CI, then run the three tasks one by one.
+
+## 2026-11-18 12:29 -05:00 — Add buyer-positive output shape guard
+
+- Added a narrow draft normalization: if every buyer-accepted positive JSON fixture omits an output scalar and no rule reads it, remove that required scalar before native validation and revision hashing. Unit and route tests cover the guard and its refusal cases. Offline replay of the preserved `lab-supplies-receipt-1` repair then passed native validation and every hidden oracle case. That replay is not a new success; the original task stays failed.
+- The first full commerce run hit a 1-second timeout in a worker test that starts a Python fixture under suite load. The test passed alone. I raised only that test timeout to 5 seconds. The second full commerce check passed: API 1,050, worker 1,051, SDK 535 plus 13 Arc fixtures, web 4, and all typechecks. No paid call, Bot, Arc send, or public deploy ran for this source candidate. Next: checkpoint, push, verify CI, build a pinned image, and freeze a procurement repeat.
+
+## 2026-11-18 12:23 -05:00 — Changed-source repair diagnostic failed
+
+- The four frozen repeat tasks ran against isolated source `c5f8eab` after its commerce, engine, and contracts CI passed. Each used two provider calls and settled. None passed the complete draft and oracle gate. `pier-drawers` and `nights-1` ended `plan_invalid`; `badge-zone-1` had one hidden fail/reject disagreement; `lab-supplies-receipt-1` rejected both buyer fixtures and valid hidden answers because its output schema invented `capacity`. The [repeat report](reports/authoring-fourth-changed-source-repeat-2026-11-18.md) preserves task IDs, causes, and costs.
+- Repeat API cost was $0.043217. Cumulative fourth-campaign API cost is $0.109803. No Bot review, compile, proof, Arc send, or public deploy ran. Public readiness remained 200. Next: fix only source-grounded output shape errors and inspect saved replies offline before freezing another paid cohort. The account meter remains unavailable for Bot attribution; general authoring stays gated.
+
+## 2026-11-18 12:18 -05:00 — Freeze changed-source repair diagnostic
+
+- Built source `c5f8eab` as Linux amd64 image `sha256:bfe66ec157a1062b54c2554806f93c16ccbef0d54c53d33cf451b376d850e7bb`. Local full commerce checks passed: API 1,046, worker 1,051, SDK 535 plus 13 Arc fixtures, web 4, and typechecks. PR #19 exact-head CI is pending.
+- Froze four changed-source repeat cases and one bounded model repair per task in the [repair diagnostic](../../docs/authoring-fourth-changed-source-repeat-2026-11-18.md). No repeat task or Bot call has run. The previous batch's $0.066586 counts against the $10 campaign ceiling. Next: finish CI, start a fresh isolated local state and journal, then run the four cases without replacing the first-batch records.
+
+## 2026-11-18 12:15 -05:00 — Fourth batch failed; narrow shape repair under test
+
+- Branch `codex/authoring-pilot-round2`, draft PR #19. Ran all ten frozen first-batch API tasks against isolated local image source `84238b6`. Exact settled API usage totals 66,586 micro-USD. One of eight supported drafts passed native and hidden-oracle checks; six returned `plan_invalid`; one valid plan disagreed with the oracle. The ambiguous and unsupported cases failed their frozen outcomes. No Bot, compile, proof, Arc send, or public deploy ran. The [batch report](reports/authoring-fourth-first-batch-2026-11-18.md) records task and cost evidence. Public readiness stayed 200.
+- Added a guarded normalization candidate for duplicate `rows` scalar declarations when buyer fixtures or exact reference JSON prove `rows` is an array. Unit and route tests are passing; full checks and CI remain pending. Offline replay shows this removes the first structural error but leaves other rule and oracle failures. Next: complete full checks, checkpoint and push, then freeze a changed-source repeat. The Grok account meter was unavailable, so Bot dispatch is still on hold.
+
+## 2026-11-18 11:57 -05:00 — Anish — User approves continued paid hardening under $10
+
+- Branch `codex/authoring-pilot-round2`. The user approved up to $10 in testing on their Grok account, without a numeric test-count limit, and asked us not to stop after a diagnostic failure. Updated the [fourth campaign controls](../../docs/authoring-fourth-bounded-diagnostic-2026-11-18.md): keep all failed outcomes, run the ten frozen cases first, then use remaining scope for changed-source or repeat-run reliability. Reconcile exact API usage and the rounded Bot meter before the next paid dispatch. Stop paid work if the ceiling or attribution becomes uncertain. No Arc send or credit purchase is in scope. The personal account is for synthetic testing only, not production Bot review.
+- No paid fourth-campaign call has run yet. PR #19 checks at the recovery-read-retry commit are pending. Next: verify CI, stage an isolated API candidate and fresh state, inspect the current account meter, then run the frozen first batch. Public authoring remains gated.
+
+## 2026-11-18 11:38 -05:00 — Anish — Bound buyer recovery after a transient public read failure
+
+- Branch `codex/authoring-pilot-round2`. The job 9 buyer recovery needed a manual read-only retry after a timeout and public HTTP 503. Added one bounded retry for a public job GET after HTTP 502/503/504 or a timeout. It requests the same job ID, rejects a permanent 404 without retry, and stops after the second failure. The new tests failed before the helper existed and now pass. Fifteen focused confirmed-release receipt and journal tests also pass; this is controlled evidence, not a new live recovery run.
+- Full commerce check passes: SDK 535 plus 13 Arc fixtures, API 1,041, web 4, worker 1,051, and all typechecks. No provider call, Bot review, credit purchase, Arc transaction, or public deployment ran. Next: push this checkpoint and inspect exact-head CI. The fourth paid diagnostic still needs separate user approval; general public authoring remains gated.
+
+## 2026-11-18 11:27 -05:00 — Anish — Build and smoke the fourth candidate locally
+
+- Branch `codex/authoring-pilot-round2`. Built the immutable Linux amd64 image from `84238b6` with source label and embedded pin matching that commit. Image ID is `sha256:dab3e4b47e3ea6f8d5127aa298efa09d669779f4ac491d21eb2c93b1a30e4e0e`; the engine hash matches the published `be5c06f...` pin. An isolated container with no network or published ports migrated an empty database, ran the native engine, became healthy, and served `/healthz` 200. `/readyz` was 503 as expected without a model or chain. The container was removed. See the [local preflight report](reports/authoring-fourth-local-preflight-2026-11-18.json).
+- This is local image evidence only. No VPS staging, provider credential, paid call, Bot review, compile, proof, Arc transaction, or public deployment ran. Public readiness and open-job discovery remained HTTP 200. Next: check PR #19 CI at this source pin, then stage the isolated pilot when a fourth campaign is authorized. General authoring remains gated.
+
+## 2026-11-18 11:24 -05:00 — Anish — Freeze a fourth diagnostic proposal
+
+- Branch `codex/authoring-pilot-round2`. PR #19 exact-head commerce, engine and contracts CI passed at `322f8e8`. Read-only public `/readyz` and `/v1/open-jobs` both returned HTTP 200. The public API remains on its accepted release.
+- Froze a separate [fourth diagnostic proposal](../../docs/authoring-fourth-bounded-diagnostic-2026-11-18.md) at the current source and public-example corpus, with ten ordered cases, 10 maximum drafts, 8 maximum Bot reviews, $1 total and $0.15 per-case observed caps, no paid repairs or Arc sends, and a first-failure stop. This is a proposal, not a paid-call authorization. No model call, Bot review, credit purchase, Arc transaction, or deployment ran. Next: prepare and verify an isolated candidate without paid dispatch, then obtain separate spending approval; keep public authoring gated pending repeat reliability and production account isolation.
+
+## 2026-11-18 11:17 -05:00 — Anish — Commit draft result and charge together
+
+- Branch `codex/authoring-pilot-round2`. A fault-injection regression showed that a charge-write failure after a model dispatch could leave a `succeeded` task with a `reserved` spend entry. The test failed on that split state. Draft result and billing now commit in one SQLite transaction. The same test passes: a failed commit leaves the task `running`; restart marks it `uncertain`, and a new pump makes no second model call. The failure path for provider errors also commits task and billing together.
+- The full commerce check passes at this checkpoint: SDK 535 plus 13 chain fixtures, API 1,041, web 4, worker 1,048, and all typechecks. The focused paid-usage fault test also passes. Exact-head CI is pending. No paid model call, Bot review, Arc transaction, or public deployment ran. Next: push this checkpoint and inspect PR #19 CI. General authoring stays gated.
+
+## 2026-11-18 11:07 -05:00 — Anish — Bind every buyer example to the generated plan
+
+- Branch `codex/authoring-pilot-round2`. Found that draft authoring evaluated only model-selected examples. A model could omit a buyer's positive fixture, then a later passing check could allow approval despite the original disagreement. Added native checks for every supplied fixture, reused results when the model selected the exact immutable fixture, and made a stored mismatch block exact-revision approval. The negative test failed before the fix; mismatch, matching-fixture and no-duplicate-evaluation tests now pass.
+- Preserved the exact third-pilot `pier-drawers` plan as a regression fixture. Native validation accepts it, but it rejects a valid public example and both valid hidden answers. The 69 hosted qualification tests and full commerce check pass: SDK 535 plus 13 chain fixtures, API 1,040, web 4, worker 1,048, and all typechecks. This is an offline candidate only. No additional paid call, Bot review, Arc transaction, or public deployment ran. Next: wait for exact-head PR #19 CI, then qualify any future live run under a new explicit budget and production account policy.
+
+## 2026-11-18 10:50 -05:00 — Anish — Reconcile the failed task after pilot restart
+
+- Branch `codex/authoring-pilot-round2`. Restarted the isolated stopped pilot with its saved state. A read-only `GET` of the saved third-diagnostic task returned `succeeded` with the same revision hash and provider usage as the protected journal. This used zero paid calls and did not retry the failed case. Stopped the pilot again; public readiness and open-job discovery stayed HTTP 200. Added the restart evidence to the [third failure record](reports/authoring-round3-first-failure-2026-11-18.json).
+- The next-corpus public examples are pushed at `0ee691e`, with 68/68 qualification tests passing locally. PR #19 exact-head checks are pending. The public API remains on its accepted release. Next: inspect CI, then keep general authoring gated until a separately funded repeat-run campaign and production account boundary pass.
+- Updated the hardening evidence to state that both stopped campaigns' unused slots authorize no further paid call. The post-campaign source changes made no additional paid call or deployment.
+
+## 2026-11-18 10:48 -05:00 — Anish — Freeze distinct public examples for the next corpus
+
+- Branch `codex/authoring-pilot-round2`. Added a separate `hosted-qualification-2026-11-18-public-examples` corpus revision with digest `8acf192a48f3c72a200a53ed628246a2fbdcbe339bcc4743253a7789d85f2cd7`. It includes 16 public positive/negative examples for the eight supported diagnostic briefs. The original 62-case corpus, hidden candidates, and the stopped third paid result remain unchanged. A native and domain-oracle regression passed all 16 fixtures and confirmed that no complete public example duplicates a hidden candidate. `draftInput` includes the public examples without plan, spec, requirements, or hidden candidates.
+- All 68 hosted qualification tests pass, including the new fixture checks. This is offline preparation only. No further paid draft, Bot review, Arc send, or deployment is authorized by the stopped third campaign. PR #19 remains draft; exact-head CI for the prior checkpoint is pending. Next: verify this checkpoint in CI, then continue local authoring recovery and package/proof checks. A new live campaign needs separate spending scope.
+
+## 2026-11-18 10:41 -05:00 — Anish — Stop third diagnostic after wrong accepted-output rules
+
+- Branch `codex/authoring-pilot-round2`, candidate `adeaf13`. Exact-head commerce, engine, and contracts PR #19 checks passed. The user approved a separate ten-case, $1 observed diagnostic with eight Bot reviews at most, $0.15 per attempt, no paid retries, and a first-failure stop. I staged an isolated image and fresh state, verified clean startup and rollback, and kept the public API image unchanged. A private harness dry run used a frozen ten-case corpus and distinct public examples. An audit found and removed a hidden-candidate-to-Bot leak in that private harness before dispatch.
+- The first `pier-drawers` attempt used one paid draft task. It returned a native-valid plan that invented a top-level `closeout` field in `drawers.json`, rejected both valid hidden answers, used an invalid reference quote path, and had no usable native examples. The task settled $0.008637 API cost; the refreshed rounded dashboard stayed at $0.89 usage and $4.27 credit, so the conservative observed upper bound is $0.028637. No Bot review, approval, compile, package, proof, or Arc transaction ran. The nine remaining cases were not attempted. See the [third failure record](reports/authoring-round3-first-failure-2026-11-18.json).
+- An initial bootstrap-token 401 happened before any draft. A transient pilot health failure during callback ingress setup triggered a successful rollback; I restarted the pilot, checked health, and switched ingress before the paid task. After the failed draft, the original ingress was restored and the isolated pilot stopped with state retained. Public `/readyz` and `/v1/open-jobs` both returned 200. This candidate is not ready for general authoring. Next: add distinct buyer-visible examples, run offline regressions, and qualify any further change only under a separately scoped live campaign. The public release stays unchanged.
+- After stopping the campaign, I made an unqualified source candidate: the provider JSON schema now allows quote paths only for the request and exact supplied reference names, and the prompt says that a separate text output creates no JSON field. A red regression reproduced the old path gap. The focused suite passed 77 tests; the full commerce check passed with API 1,038, worker 1,048, SDK and web tests plus typechecks. These checks do not show a live reliability improvement. PR #19 needs exact-head CI after this checkpoint.
+
+## 2026-11-18 09:37 -05:00 — Anish — Correct unsupported capability scoring
+
+- Branch `codex/authoring-pilot-round2`. The frozen next diagnostic includes an unsupported engine operation. The API returns `reason: capability_unsupported` with the exact missing operation in `capabilityError.request`. The qualification scorer previously looked only for the operation name in reason text, so it would mark that correct API result wrong. A red regression reproduced the mismatch. The scorer now checks the structured kind and name and rejects a different operation. All 66 qualification tests pass. No paid call ran.
+- PR #19 commerce, engine and contracts checks passed at prior head `54ec653`. This scoring change still needs exact-head CI. General authoring remains gated. The proposed next campaign needs its own spending approval and account attribution before dispatch.
+
+
+## 2026-11-18 09:31 -05:00 — Anish — Freeze a bounded next diagnostic scope
+
+- The [next qualification proposal](../../docs/authoring-next-bounded-qualification-2026-11-18.md) fixes ten case IDs, expected classes, hidden-oracle separation, eight maximum Bot reviews, a proposed $1 total/$0.15 per-case cap, no paid repairs, no Arc sends, and stop on the first failure. It is a proposed new campaign, not spending authorization. The stopped second pilot has nine unused numeric slots but no permission to resume after its failure stop.
+- The wider 62-case, three-repeat gate needs a separate budget and dedicated production Bot account. Public authoring stays gated. Next: wait for exact-head PR checks, then use the proposal only if a new bounded scope is approved; otherwise continue offline failure diagnosis and recovery checks.
+
+
+## 2026-11-18 09:29 -05:00 — Anish — Prove and recover one new corpus case locally
+
+- Branch `codex/authoring-pilot-round2`. Built the new `lab-supplies-receipt-1` plan into a pinned RISC Zero guest package. A synthetic 169-byte context matched the package image, rule hash, and reference hash. The first local command stopped at `prover_setup` before creating an attempt because this shell inherited a disallowed debug setting. A clean environment produced a real verdict-1 proof in 274.676 seconds and 829,173 cycles. The engine decrypted one file; recovered bytes matched the source SHA-256 and the independent oracle passed. The release key file stayed mode 0600. See the [local proof report](reports/offline-procurement-proof-2026-11-18.json).
+- No model call, Bot review, Arc transaction, or public deployment occurred. PR #19 checks passed at prior head `bdcf8c8`: commerce, engine and contracts. Next: preserve this proof report and keep general authoring gated until repeat-run live qualification and production account attribution pass.
+
+
+## 2026-11-18 09:09 -05:00 — Anish — Extend offline hardening and test clean startup
+
+- Branch `codex/authoring-pilot-round2`. Classified all ten first-pilot failures and the stopped second-pilot case in the [forensic report](reports/authoring-pilot-failure-classification-2026-11-18.md). Four `invalid_reply` provider bodies are still missing, so their exact parse defects remain unknown. The Grok browser log tab was unavailable during this checkpoint; no new provider request was made.
+- Added two purchase-order cases to a new frozen 62-case offline corpus, with hidden candidates and a domain oracle separate from plan rules. All 66 qualification tests passed. The native engine matched 344 candidate results with zero failures. The new digest and counts are in the [hardening evidence](../../docs/backend-hardening-evidence-2026-11-18.md).
+- Added a failing clean-state compiler regression, then made native engine startup create its configured temp and cache directories. The full commerce check passed: SDK 535 tests and 13 chain fixtures, API 1,037 tests, web 4, worker 1,048, and all typechecks. The public API has not changed. Next: review and ship this offline candidate as a draft PR, then continue recovery and live qualification planning under a new bounded spending scope.
+
+
+## 2026-11-18 08:52 -05:00 — Anish — Stop second authoring pilot on first failed draft
+
+- Branch `codex/authoring-pilot-round2`. The user approved up to ten fresh drafts and nine Bot reviews on the personal account under a fresh $1 observed cap, $0.15 per attempt, and no paid retries. A refreshed Grok Dashboard baseline read $0.89 additional usage and $4.27 credit balance. The first `pier-drawers` task settled a 6,600 micro-USD API charge and returned `unsupported/plan_invalid`: `/plan/rules/2/where/where/right/left` used an undeclared record field. No Bot review, approval, compile, or Arc transaction ran. The dashboard still read $0.89 and $4.27 after the task; the conservative single-case upper bound is 26,600 micro-USD. See the [failure record](reports/authoring-round2-first-failure-2026-11-18.json).
+- Stopped after this failed case under the campaign rule. Reconciled the task charge, kept the private idempotency journal and pilot state, restored the original HTTPS ingress, and stopped the isolated pilot container. The rollback verified the original Caddy mount, public readiness, and unchanged main API image. The failed case remains failed; no remaining case was attempted.
+- Read-only inspection of the retained raw plan found three defects: nested `record_field` levels are reversed, numeric decimal-string fields are typed as `string`, and an unsupported scalar field was invented. A scope-only edit would still fail. Added general nested-scope and evidence-backed field guidance to the prompt as an unqualified local candidate. Next: review this candidate, then test it only under a separately bounded campaign. Keep general authoring gated and this campaign failed. Production account isolation and average complete-run cost remain open.
+- Local API typecheck and 36 focused Grok/model-safety tests passed for the prompt candidate. No provider call tested this wording.
+
+## 2026-11-18 08:48 -05:00 — Anish — Stage second isolated pilot
+
+- The user approved another ten paid drafts and up to nine Bot reviews under a fresh $1 total observed cap, $0.15 per attempt, no paid retries, and the same stop rules. The [round-two plan](../../docs/authoring-round2-qualification-2026-11-18.md) is frozen at nine supported and one ambiguous case.
+- Built source `fc3ea3e` into image `sha256:396a0fc90b25a863b4ff1d9adde2d0d7cf2f6cf7819e538ef8e6143b345e093e`; its Linux engine matches the published digest. The first isolated launch rejected an old `SOURCE_SHA` copied into the protected environment. It made zero paid calls and auto-restored the original ingress. Kept the failed preflight container and state under distinct names, corrected the source pin, and added a private preflight assertion.
+- The second isolated launch is healthy. The original public API image remains running, public `/readyz` is 200, and only the authenticated Bot callback routes to the pilot. A new scoped buyer API key is in a protected file. The [staging record](reports/authoring-round2-staging-2026-11-18.json) omits credentials. Zero second-round drafts or Bot dispatches have run.
+- A fresh Grok meter read is still needed before the first paid call. The user's Chrome activity interrupted a refresh, so no spend was initiated on a stale baseline.
+
+## 2026-11-18 08:38 -05:00 — Anish — Prepare second qualification scope
+
+- PR [#18](https://github.com/anishnarang9/UBC-26/pull/18) merged at `fc3ea3e` after both GitHub commerce checks passed. The public API remains on its prior image. The adapter and prompt changes have no live provider qualification yet.
+- Wrote the [second controlled qualification](../../docs/authoring-round2-qualification-2026-11-18.md) with ten varied cases, isolated source and state, exact Bot gating, cost stops, rollback checks, and failure preservation. This is preparation, not a new paid dispatch. The previous ten-draft allowance is exhausted; a new cap was requested from the user.
 
 ## 2026-11-18 08:33 -05:00 — Anish — Audit plan-invalid drafts and fix nullable examples
 

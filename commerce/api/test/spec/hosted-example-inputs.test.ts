@@ -23,6 +23,8 @@ it("resolves public fixture selections and evaluates exact decoded files, eviden
  {...simulatedEngine(),eval:async(input:any)=>{seen.push(input);return{ok:true,verdict:JSON.parse(Buffer.from(input.deliverables[0].content).toString()).ok?1:0};}});
  const res=await post(a,{...body,exampleFixtures:fixtures});expect(res.status,await res.clone().text()).toBe(200);
  const result=await res.json() as any;expect(result.examples.map((e:any)=>e.checkerVerdict)).toEqual([1,0]);
+ expect(result.buyerFixtureChecks.map((e:any)=>e.checkerVerdict)).toEqual([1,0]);
+ expect(result.buyerFixtureApprovalReady).toBe(true);
  expect(result.exampleInputs).toEqual(fixtures.map(f=>({...f,fixtureName:f.name,status:"complete"})));
  expect(seen).toHaveLength(2);expect(seen[0].context).toBe(context);expect(Buffer.from(seen[0].evidence[0].content).toString()).toBe('{"signed":"public-example"}');
  expect(Buffer.from(seen[0].deliverables[0].content).toString()).toBe('{"ok":true}');
@@ -32,6 +34,59 @@ it("rejects excess illustrative fixtures before any model call",async()=>{
  const fixture={name:"x",predictedVerdict:1,files:[{name:"result.json",content:"{}"}]};
  const res=await post(a,{...body,exampleFixtures:Array.from({length:9},(_,i)=>({...fixture,name:`x${i}`}))});
  expect(res.status).toBe(400);expect(calls).toBe(0);
+});
+
+it("normalizes buyer-proven duplicate collection fields before native validation and revision hashing", async () => {
+ const fixtures=[1,0].map(value=>({
+  name:`fixture-${value}`,
+  predictedVerdict:value,
+  files:[{name:"result.json",content:JSON.stringify({rows:[{id:value===1?"good":"bad"}]})}],
+ })) as any;
+ const plan={version:1,deliverables:[{name:"result.json",parser:"json/v1",fields:[{name:"rows",type:"string"}],collections:[{name:"rows",fields:[{name:"id",type:"string"}]}]}],references:[],rules:[{op:"literal",type:"bool",value:true}]};
+ let validated:any;
+ const a=app({draft:async()=>({model:"controlled",traceId:"duplicate-shape",result:{kind:"draft",plan,examples:fixtures.map((fixture:any)=>({name:fixture.name,predictedVerdict:fixture.predictedVerdict,fixtureName:fixture.name})),sourceQuotes:[]}})},
+ {...simulatedEngine(),validate:async(candidate:unknown)=>{validated=candidate;return{ok:true};},eval:async(input:any)=>({ok:true,verdict:JSON.parse(Buffer.from(input.deliverables[0].content).toString()).rows[0].id==="good"?1:0})});
+ const response=await post(a,{...body,exampleFixtures:fixtures});
+ expect(response.status,await response.clone().text()).toBe(200);
+ const result:any=await response.json();
+ expect(result.planNormalizations).toEqual(["/deliverables/0/fields/0"]);
+ expect(validated.deliverables[0].fields).toEqual([]);
+ expect(result.revision.plan).toEqual(validated);
+ expect(plan.deliverables[0]!.fields).toHaveLength(1);
+ expect(result.buyerFixtureApprovalReady).toBe(true);
+});
+
+it("uses an explicit output contract without buyer fixtures for duplicate collection fields", async () => {
+ const plan={version:1,deliverables:[{name:"result.json",parser:"json/v1",fields:[{name:"rows",type:"string"}],collections:[{name:"rows",fields:[{name:"id",type:"string"}]}]}],references:[],rules:[{op:"literal",type:"bool",value:true}]};
+ let validated:any;
+ const a=app({draft:async()=>({model:"controlled",traceId:"contract-shape",result:{kind:"draft",plan,examples:[],sourceQuotes:[]}})},
+  {...simulatedEngine(),validate:async(candidate:unknown)=>{validated=candidate;return{ok:true};}});
+ const request="Check the supplied result\n\nOutput file contract: result.json: JSON object. rows array of records with fields: id: string.";
+ const response=await post(a,{...body,request});
+ expect(response.status,await response.clone().text()).toBe(200);
+ const result:any=await response.json();
+ expect(result.planNormalizations).toEqual(["/deliverables/0/fields/0"]);
+ expect(validated.deliverables[0].fields).toEqual([]);
+ expect(result.revision.plan).toEqual(validated);
+ expect(plan.deliverables[0]!.fields).toHaveLength(1);
+});
+
+it("removes an unused output scalar omitted by accepted buyer fixtures", async () => {
+ const fixtures=[1,0].map(value=>({
+  name:`fixture-${value}`,predictedVerdict:value,
+  files:[{name:"result.json",content:JSON.stringify({rows:[{id:value===1?"good":"bad"}]})}],
+ })) as any;
+ const plan={version:1,deliverables:[{name:"result.json",parser:"json/v1",fields:[{name:"capacity",type:"i64"}],collections:[{name:"rows",fields:[{name:"id",type:"string"}]}]}],references:[],rules:[{op:"literal",type:"bool",value:true}]};
+ let validated:any;
+ const a=app({draft:async()=>({model:"controlled",traceId:"omitted-scalar",result:{kind:"draft",plan,examples:fixtures.map((fixture:any)=>({name:fixture.name,predictedVerdict:fixture.predictedVerdict,fixtureName:fixture.name})),sourceQuotes:[]}})},
+ {...simulatedEngine(),validate:async(candidate:unknown)=>{validated=candidate;return{ok:true};},eval:async(input:any)=>({ok:true,verdict:JSON.parse(Buffer.from(input.deliverables[0].content).toString()).rows[0].id==="good"?1:0})});
+ const response=await post(a,{...body,exampleFixtures:fixtures});
+ expect(response.status,await response.clone().text()).toBe(200);
+ const result:any=await response.json();
+ expect(result.planNormalizations).toEqual(["/deliverables/0/fields/0"]);
+ expect(validated.deliverables[0].fields).toEqual([]);
+ expect(result.revision.plan).toEqual(validated);
+ expect(result.buyerFixtureApprovalReady).toBe(true);
 });
 
 it("returns the exact bounded generated file bytes for buyer review",async()=>{

@@ -1,0 +1,9 @@
+# Fourth campaign: output-contract repeat
+
+**Frozen before paid dispatch, 2026-11-18 13:21 -05:00.** Keep source `fc2e71706bd529c04063f66cb725ed27fdd60f89` and local image `sha256:9434d49905211dbab6dda4310b0cbc32c50d7c264a3880b6ac268d6a6bcf849f`. Use corpus revision `hosted-qualification-2026-11-18-output-contracts`, digest `5a3553958b0e674fe1c0e514d39e64138549d885084ae640c25b4a281e8c35f0`. The revision adds only public output file names, JSON fields and types to supported briefs. It leaves hidden candidates, reference bytes, and public examples unchanged. It gives the contradictory `category-1` brief a new, corrected `category-clear-1` ID. Preserve the original `category-1` result as failed under its frozen input.
+
+Use a fourth authenticated wallet. Run one new API draft for each brief, in order: `pier-variance`, `lot-expiry-1`, `category-clear-1`, `clearance-1`, `instrument-1`, `berth-fit-1`, `mass-1`, `seal-1`, and `firmware-1`. Distinguish trials with `-r5` suffixes. Reject any task ID or provider trace from the prior 19 tasks. Do not rerun a final result.
+
+For each draft, require native validity, full coverage, verified source quotes, agreement with every supplied buyer fixture and all hidden oracle candidates. Apply the buyer fixture gate only when fixtures exist. Count Bot-to-proof success only after exact-revision review, approval, compile, package verification, and proof. This cohort is API-only while Bot cost attribution is unavailable. Do not send Arc transactions.
+
+The user's fourth-campaign cap is $10. Prior unique API charges total $0.311105. Reserve at most $0.15 per new draft and reconcile its unique settled API usage before the next. Stop on an uncertain task, charge, account attribution, or possible breach of the cap. Keep the accepted public release and general authoring gate unchanged.

@@ -1,5 +1,164 @@
 # Current plan
 
+## 2026-11-18 19:20 -0500 — Anish — Use Flash High and keep the agents separate
+
+- Use a fresh Gemini 3.8 Flash High buyer through `agy`. Buyer and solver interact only through the public API. Give the solver a prepared receipt if needed. The test checks whether the documented workflow accepts a valid solution and fresh proof, pays out, and lets the buyer recover the exact bytes.
+- Use free `agy` capacity first for suitable delegation. See [the acceptance plan](../../docs/agent-first-cold-e2e-2026-11-18.md).
+
+## 2026-11-18 19:10 -0500 — Anish — Test the buyer with Flash Low
+
+- The next acceptance run uses a fresh Gemini 3.8 Flash Low buyer through `agy`. This entry is superseded by the correction above. Require a fresh authored job, proof, payout, and exact buyer recovery.
+- Use free `agy` capacity first for suitable delegated work, including work that needs an available Claude or GPT model. Keep [the updated acceptance plan](../../docs/agent-first-cold-e2e-2026-11-18.md) as the source for the test.
+
+## 2026-11-18 17:35 -05:00 — Anish — Prioritize one fresh independent Arc run
+
+- The user directs us to use their existing Grok Bot account for the hackathon backend. They will disable auto top-up. A separate Bot account is no longer a demo gate. Keep the restricted callback, one-wallet pilot, durable dispatch cap, and exact-revision review.
+- Stop broad paid draft diagnostics. The next paid draft must serve a fresh buyer job that proceeds through Bot review, approval, native compile, Arc funding, independent solver proof, payout, and byte-exact buyer recovery. Keep prior failed trials and job 9 evidence separate.
+- The public wallet has used three draft slots and two of three Bot dispatches. PR #19 now adds an independently configured four-draft limit while retaining the three-dispatch Bot cap. Require full checks, current-main integration, a pinned release, backup, public pin checks, and a fresh buyer/solver run before claiming repeatability. No new paid request or Arc send has run under this entry.
+
+## 2026-11-18 15:08 -05:00 — Anish — Check generated examples before release qualification
+
+- The [reference membership diagnostic](../anish/reports/authoring-membership-contract-trial-2026-11-18.md) produced three draft and oracle matches, all with rejected examples. The next [frozen trial](../../docs/authoring-paired-example-trial-2026-11-18.md) changes the model's generated example contract while preserving the same briefs and oracle. The [release gate audit](../anish/reports/agent-first-gate-audit-2026-11-18.md) records what remains before the final two-agent attempt.
+
+## 2026-11-18 15:00 -05:00 — Anish — Record results after integrating current main
+
+- The [six-case diagnostic](../anish/reports/authoring-eleventh-plan-repair-2026-11-18.md) ran on a candidate that includes main at `a3f6cae`. Three briefs were ready for buyer review. Keep the release gated while model rule and example failures persist. Future evaluation inputs must state any input-rejection distinctions used in scoring.
+
+## 2026-11-18 14:50 -05:00 — Anish — Keep release gated after example trial
+
+- The [eleven-case trial](../anish/reports/authoring-tenth-example-gate-2026-11-18.md) recorded three supported drafts ready for buyer review. Four supported cases missed at least one gate. All four ambiguous or unsupported cases missed their frozen score. Keep the evidence and correct recurring failures before live Bot and proof qualification.
+
+## 2026-11-18 14:43 -05:00 — Anish — Measure review readiness with usable examples
+
+- The [example gate audit](../anish/reports/authoring-example-gate-audit-2026-11-18.md) found three of ten ninth-trial drafts ready for buyer review. The provider schema now requires generated files when the buyer provides no fixtures. The qualification runner now includes usable examples and expected clarification facets in its gates. Anish will qualify the changed source across supported, ambiguous, and unsupported cases before advancing to Bot review and proof.
+
+## 2026-11-18 14:36 -05:00 — Anish — Keep public authoring gated after varied trial
+
+- The [ninth varied trial](../anish/reports/authoring-ninth-varied-repeat-2026-11-18.md) passed six of ten draft gates. Two plans stayed invalid after repair, one native-valid plan disagreed with the oracle, and one supported brief got an unnecessary clarification. The cohort cost $0.113881; fourth-campaign attributable API usage is $0.777842. Anish will inspect retained traces and fix source-grounded causes offline before another frozen cohort. General public authoring and the accepted public release stay unchanged.
+
+## 2026-11-18 14:30 -05:00 — Anish — Freeze varied reference-type trial
+
+- The [ninth trial](../../docs/authoring-ninth-varied-repeat-2026-11-18.md) freezes ten supported briefs on source `086fbae`, including five repeat families and five varied cases. Its isolated image has matching source and engine pins; the new database has no drafts or reservations. Exact-source CI is pending. Anish will prepare a new wallet and run each case once after CI. Keep general public authoring and the accepted public release unchanged.
+
+## 2026-11-18 14:27 -05:00 — Anish — Test reference-backed type correction on fresh tasks
+
+- An [offline replay](../anish/reports/authoring-clearance-type-offline-replay-2026-11-18.md) of the retained failed clearance plan passed native validation and all seven hidden oracle candidates after a guarded type correction. The original paid failure remains failed. Full commerce checks pass. Anish will push the source, verify exact-source CI, and freeze a fresh trial. Keep general public authoring and the accepted public release unchanged.
+
+## 2026-11-18 14:22 -05:00 — Anish — Keep release gated after eighth trial
+
+- The [eighth trial](../anish/reports/authoring-eighth-lookup-normalization-repeat-2026-11-18.md) passed four of five draft gates. A fresh lot task passed with the recorded lookup normalization. Clearance failed because its repair changed a numeric reference field to `string`. The five tasks cost $0.046902; fourth-campaign attributable API usage is $0.663961. Anish will test a reference-byte-backed field-type correction offline, then measure changed-source reliability. Keep general authoring and the accepted public release unchanged.
+
+## 2026-11-18 14:16 -05:00 — Anish — Freeze normalized-source trial
+
+- The [eighth trial](../../docs/authoring-eighth-lookup-normalization-repeat-2026-11-18.md) freezes two controls and three unstable families on source `492a2c8`. Its isolated image has the matching source and engine pins; the new database has no drafts or reservations. Exact-source CI is pending. Anish will prepare a new wallet and run each case once after CI. Keep public authoring gated and the accepted public release unchanged.
+
+## 2026-11-18 14:14 -05:00 — Anish — Test narrow lookup normalization on a fresh source
+
+- An [offline replay](../anish/reports/authoring-lot-lookup-offline-replay-2026-11-18.md) of the retained failed lot plan passed native validation and all seven hidden oracle candidates after a narrow, recorded normalization. The original paid failure remains failed. Full commerce checks pass. Anish will push the source, verify exact-source CI, and freeze a fresh trial. Keep general public authoring and the accepted public release unchanged.
+
+## 2026-11-18 14:10 -05:00 — Anish — Keep authoring gated after seventh trial
+
+- The [seventh trial](../anish/reports/authoring-seventh-lookup-repair-repeat-2026-11-18.md) passed four of five draft gates. Lot expiry stayed plan-invalid after a precise type-repair hint. Clearance passed after the hint, but one changed outcome does not establish repeat reliability. The five tasks cost $0.055114; fourth-campaign attributable API usage is $0.617059. Anish will test a narrow redundant-lookup normalization offline and preserve the failed lot result. Keep general public authoring and the accepted public release unchanged.
+
+## 2026-11-18 14:04 -05:00 — Anish — Freeze changed-source lookup trial
+
+- The [seventh trial](../../docs/authoring-seventh-lookup-repair-repeat-2026-11-18.md) freezes two controls and three unstable families on source `d0b6b97`. Its isolated Linux image has the matching source and engine pins; the new database has no drafts or reservations. Exact-source CI is pending. Anish will use a new wallet, one journal per case, and the remaining $10 scope. Keep general authoring and the accepted public release unchanged.
+
+## 2026-11-18 14:02 -05:00 — Anish — Verify lookup repair feedback before live testing
+
+- A narrow source change explains numeric lookup type errors to the one allowed repair call. Four focused regressions and the full commerce check pass. No paid request used this candidate. Anish will push the checkpoint, verify exact-source CI, build an isolated image, and freeze a changed-source cohort. General public authoring and the accepted public release stay unchanged.
+
+## 2026-11-18 13:58 -05:00 — Anish — Repair pier type error and keep release gated
+
+- The [independent pier repeat](../anish/reports/authoring-sixth-pier-independent-repeat-2026-11-18.md) passed once and failed once on source `193564b`. The failed repair put a numeric lookup directly under Boolean `and`. Three independent pier tasks on this source now have two draft-stage passes and one failure. Fourth-campaign API cost is $0.561945. Anish will improve native repair feedback, verify it offline, then freeze a changed-source trial. General public authoring and the accepted public release stay unchanged.
+
+## 2026-11-18 13:54 -05:00 — Anish — Measure independent pier repeat reliability
+
+- Source `193564b` passed exact-source CI and produced one draft-stage `pier-variance` success after earlier failures. The [same-source repeat](../../docs/authoring-sixth-pier-independent-repeat-2026-11-18.md) freezes two new trials on separate wallets. Anish will preserve both outcomes and use them to assess repeat reliability before another source change. Keep the accepted public release and general authoring gate unchanged.
+
+## 2026-11-18 13:52 -05:00 — Anish — Keep repeat reliability gate after first pier success
+
+- The [sixth trial](../anish/reports/authoring-sixth-shape-scope-repeat-2026-11-18.md) produced three draft-stage passes in five fresh tasks, including the first `pier-variance` oracle match. `lot-expiry` remained plan-invalid and `clearance` rejected two valid outputs. The five tasks settled $0.060134; fourth-campaign cumulative unique API cost is $0.534986. Anish will inspect retained failures and test independent repeat reliability. Keep the accepted public API and general authoring gate unchanged.
+
+## 2026-11-18 13:47 -05:00 — Anish — Freeze contract-shape and lookup-scope trial
+
+- A fresh local image contains source `193564b` and the pinned engine. Its database has no draft or spend entries. The [five-case frozen trial](../../docs/authoring-sixth-shape-scope-repeat-2026-11-18.md) includes two passing controls and three previously invalid families. Anish will verify exact-head CI, prepare a new wallet, and run each trial once under the existing $10 testing cap. Keep the accepted public API and general authoring gate unchanged.
+
+## 2026-11-18 13:45 -05:00 — Anish — Test contract-proven shape and lookup scope
+
+- Retained provider recordings identified an unused duplicate `rows` scalar, a numeric lookup used as a Boolean, and a lookup key with the wrong record scope. The new candidate removes the duplicate only when an explicit buyer output contract proves the array shape and no rule reads the scalar. It also explains lookup value and scope rules to the model. Full local commerce checks pass; no paid call used this source. Anish will pin and test it in a separate frozen cohort. Keep the accepted public API and general authoring gate unchanged.
+
+## 2026-11-18 13:40 -05:00 — Anish — Keep authoring gated after fifth source trial
+
+- The [five-case trial](../anish/reports/authoring-fifth-membership-repeat-2026-11-18.md) kept both procurement controls passing but returned invalid plans for the three unknown-key target families. It cannot establish that the prompt corrected their semantic oracle failures. The five tasks settled $0.058767 in API usage; fourth-campaign cumulative unique API charge is $0.474852. Exact-head CI passed. Anish will improve plan-shape reliability offline or review a bounded provider contract before new paid testing. The accepted public API remains unchanged and general authoring stays gated.
+
+## 2026-11-18 13:34 -05:00 — Anish — Isolate changed-source membership trial
+
+- A new local Linux image contains prompt candidate `5c14ec2` and the published engine pin. A fresh database serves health on loopback while the accepted public API remains unchanged. The [five-case frozen trial](../../docs/authoring-fifth-membership-repeat-2026-11-18.md) includes two passing controls and three unknown-key failures. Anish will run it after exact-head CI and private wallet preparation. No paid call used this source yet. General public authoring stays gated.
+
+## 2026-11-18 13:31 -05:00 — Anish — Test changed reference-key guidance before release
+
+- Source candidate changes the authoring prompt after the output-contract cohort showed unknown IDs returning rule failure instead of input rejection. Native and prompt regressions now distinguish `lookup` rejection from `all`/`any` verdict 0. Full local commerce checks pass. No paid call or public deploy used this candidate yet. Anish will pin and test it in a new isolated cohort. The accepted public release remains unchanged.
+
+## 2026-11-18 13:28 -05:00 — Anish — Keep release gated after corrected-input repeat
+
+- The [output-contract repeat](../anish/reports/authoring-fourth-output-contract-repeat-2026-11-18.md) produced two draft-stage passes in nine tasks. Four plans were invalid after repair. Three native-valid plans disagreed with the independent oracle, including unknown reference keys classified as rule failures instead of input rejections. The cohort settled $0.104980 in API charges; fourth-campaign cumulative unique API charge is $0.416085. Exact-head PR #19 checks passed. Anish will correct the reference-membership prompt with a native regression, then freeze a changed-source cohort. Keep the accepted public release and general authoring gate.
+
+## 2026-11-18 13:21 -05:00 — Anish — Freeze corrected public output contracts
+
+- The [output-contract revision](../../engine/evaluation/hosted-qualification/contract-corpus.mjs) supplies named public fields and types for supported output files without exposing hidden cases. It corrects the contradictory category brief under a new case ID. Seventy-one hosted qualification tests pass, including checks that hidden candidates remain unchanged. The [nine-case repeat](../../docs/authoring-fourth-output-contract-repeat-2026-11-18.md) is frozen on the same API source and a new wallet. It has sent no paid call. Anish will run it sequentially and preserve original results. Public authoring stays gated.
+
+## 2026-11-18 13:18 -05:00 — Anish — Correct evaluation inputs before more paid breadth trials
+
+- The [model-authored lab proof](../anish/reports/model-authored-lab-local-proof-2026-11-18.json) passed local compile, synthetic Groth16 proof, byte-exact recovery, and independent oracle. It had no Bot review, Arc funding, claim, release, or payout. It does not satisfy complete-run acceptance.
+- The [13-brief breadth report](../anish/reports/authoring-fourth-breadth-cohort-2026-11-18.md) records two draft-stage passes after private harness adjudication, seven supported misses, two incomplete clarifications, and two strict unsupported misses. The cohort cost $0.129806 in unique settled API usage; fourth-campaign cumulative cost is $0.311105. The frozen supported corpus omits public output collection names in many cases, and one brief contradicts itself. Anish will freeze a separate revision with complete public output contracts and clean expected labels before another paid cohort. Preserve all original results. Keep public authoring gated and the accepted API release unchanged.
+
+## 2026-11-18 12:50 -05:00 — Anish — Widen source-locked API qualification
+
+- Frozen [breadth cohort](../../docs/authoring-fourth-breadth-cohort-2026-11-18.md) covers 13 new briefs across output formats and decision classes on source `fc2e717`. Use a new wallet and exclude any reused task or provider trace. The prior six draft-stage passes and $0.181299 unique API charge remain separate evidence. The cohort is API-only while Bot spend attribution remains unavailable.
+- The model-authored lab plan compiled locally and its public positive example passed. The initial proof setup stopped before an attempt because the pinned `r0vm` binary was outside the shell path. A retry with its explicit path is in progress. General public authoring stays gated and the accepted API release remains in place.
+
+## 2026-11-18 12:49 -05:00 — Anish — Keep full-run gate after six draft-stage passes
+
+- Source `fc2e717` passed exact-source CI and six independent API draft tasks across two wallets. Lab receipt, clinic receipt, and firmware note each passed twice on native validation, buyer fixtures, coverage, quotes, and all hidden oracle cases. Same-wallet replay responses remain excluded. The [repeat report](../anish/reports/authoring-fourth-independent-repeat-2026-11-18.md) records six unique tasks, $0.045614 for these tasks, and $0.181299 cumulative fourth-campaign API spend.
+- This is draft-stage evidence for three briefs. No new Bot, approval, compile, package, proof, Arc send, or public deployment ran. Anish will test generated package/proof locally and widen the frozen corpus. Keep the accepted public release and general authoring gate. Bot cost attribution and the production account boundary remain open.
+
+## 2026-11-18 12:45 -05:00 — Anish — Correct repeat reliability evidence
+
+- Source `fc2e717` produced three unique API drafts that passed native, fixtures, coverage, quotes, and hidden oracle checks. Three later requests with new idempotency keys replayed those tasks because the same wallet sent identical input. The service created no second paid task. The private harness misreported the replay responses and double-counted cost. The [audit](../anish/reports/authoring-fourth-reliability-replay-2026-11-18.md) corrects the evidence to three unique draft-stage successes, zero independent repeat trials, and $0.024053 new API spend. Fourth-campaign cumulative API spend is $0.159738.
+- Keep general authoring gated. Anish will freeze a separate-wallet repeat on the same source and reject reused task or trace IDs. The public API remains on its accepted release. Bot review, compile, and proof are still pending, as is the production account boundary.
+
+## 2026-11-18 12:37 -05:00 — Anish — Keep public authoring gated after procurement repeat
+
+- The three-case procurement repeat used `a40b7f4` after its CI passed. One case (`firmware-note-1`) passed native, fixtures, coverage, and hidden oracle. The clinic receipt matched the oracle but listed assumptions, so the coverage gate blocked it. The lab receipt differed on two fail/reject classifications. There were zero complete Bot-to-proof successes. Settled API cost was $0.025882; fourth-campaign cumulative API cost is $0.135685. The [repeat report](../anish/reports/authoring-fourth-procurement-repeat-2026-11-18.md) preserves the outcomes.
+- Keep the accepted public API and general authoring gate. Anish will change assumption and membership guidance, then run a changed-source cohort. The account meter is unavailable, so Bot review and complete-run cost remain unmeasured. Production Bot account separation remains required before general release.
+
+## 2026-11-18 12:23 -05:00 — Anish — Keep backend candidate gated after failed repair repeat
+
+- The four-case changed-source repeat used source `c5f8eab` after exact-source CI passed. All four tasks settled with one repair call each. None passed the frozen draft and oracle gate. Two plans remained invalid; one disagreed with the hidden oracle on fail versus reject; one invented an output field and rejected valid answers. The [repeat report](../anish/reports/authoring-fourth-changed-source-repeat-2026-11-18.md) records the outcomes and $0.043217 API spend. Cumulative fourth-campaign API spend is $0.109803. No Bot, compile, proof, Arc send, or public deployment ran.
+- Anish will use saved replies for an offline, source-grounded shape fix and then freeze a changed-source cohort. Keep the accepted public API and general authoring gate. A Bot review still requires a fresh account meter read; the production Bot account boundary remains open.
+
+## 2026-11-18 12:15 -05:00 — Anish — Preserve fourth authoring batch and fix observed plan shapes
+
+- The user approved up to $10 of continued Grok testing without a numeric trial limit. The first frozen batch ran ten API-only tasks in a local isolated candidate. One supported draft passed native and hidden-oracle checks; six supported drafts were `plan_invalid`; one disagreed with the oracle; neither the ambiguous nor unsupported case met its frozen exact outcome. Full supported-job successes were zero. Settled API charges total $0.066586. No Bot review, compile, proof, Arc send, or public deployment ran. The [first-batch report](../anish/reports/authoring-fourth-first-batch-2026-11-18.md) preserves these failures.
+- Keep general public authoring gated. A source candidate now removes only redundant scalar fields that exact buyer fixtures or reference JSON prove are arrays. Offline replay shows other native and semantic errors remain. Verify the code and freeze a changed-source repeat before another paid task. The account Dashboard meter was unavailable during the API-only batch; Bot testing waits for a fresh meter read. Anish owns the next backend qualification step.
+
+## 2026-11-18 10:53 -05:00 — Anish — Preserve third authoring failure and keep public release gated
+
+- The third separately authorized $1 diagnostic stopped after its first case. A native-valid `pier-drawers` draft invented a required JSON field and rejected both valid hidden outputs. Its source quote path was invalid and its examples were unusable. One API call cost $0.008637; no Bot review, compile, proof, or Arc send ran. The other nine cases were not attempted. The [failure record](../anish/reports/authoring-round3-first-failure-2026-11-18.json) preserves the task, costs, rollback, and read-only restart check.
+- Keep the accepted public API release and general authoring gate. PR #19 is an offline candidate with a constrained quote-path schema and a separate next-corpus version that has distinct public examples. Neither change has a live reliability result. Do not reuse the stopped campaign's unused slots. Before a new release, require repeat-run natural-language accuracy, exact Bot/compile/package/proof evidence, attributable complete-run cost, duplicate-safe recovery, and a production Bot account boundary. Frontend integration follows backend readiness.
+
+## 2026-11-18 09:09 -05:00 — Anish — Make repeat reliability the next backend release gate
+
+- The second paid authoring pilot stopped after one `plan_invalid` case. Keep that attempt failed and the public release unchanged. The [hardening evidence](../../docs/backend-hardening-evidence-2026-11-18.md) records the offline compiler startup fix, 62-case corpus, 344 native oracle checks, and remaining live gates.
+- Prioritize complete supported jobs, correct clarifications and unsupported decisions, exact Bot/compile/proof checks, and duplicate-safe recovery before general authoring or frontend-dependent acceptance. The existing cold Arc job 9 remains a scoped pass. New paid qualification needs its own frozen scope, attributable budget, and production account boundary.
+
+
+## 2026-11-18 08:55 -05:00 — Anish — Keep general authoring gated after second pilot failure
+
+- The first case in the newly authorized ten-draft authoring pilot returned `plan_invalid` after one settled $0.0066 API charge. No Bot review or Arc transaction ran. The [failure record](../anish/reports/authoring-round2-first-failure-2026-11-18.json) identifies reversed nested record scopes, two wrong numeric field types, and an invented scalar field. Stop the remaining cases under the campaign failure rule. The original HTTPS ingress is restored; the accepted public API remains on its prior image.
+- An offline prompt candidate now states the nested scope and field declaration rules. Its local checks pass; it has no live qualification. Do not enable general authoring or promote this candidate. Production account isolation and complete-run cost qualification remain open.
+
 ## 2026-11-18 07:09 -05:00 — Anish — Close morning validation audit
 
 - The requested soak ended at 07:00 Eastern: 291 reads, 288 HTTP 200, zero HTTP 5xx, and one three-request local transport gap at 04:30. The API stayed healthy and its access log had no 5xx since release merge. Main CI, read-only recovery, Arc receipt and nonce checks, public artifact hashes, proxy security, and isolated backup restore passed. The [post-release audit](../anish/reports/hosted-postrelease-validation-2026-11-18.json) and raw log preserve the details.

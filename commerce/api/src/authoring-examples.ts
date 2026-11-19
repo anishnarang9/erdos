@@ -7,7 +7,7 @@ export interface ExampleFixture {
 }
 export type ModelExample = ExampleFixture | { name: string; predictedVerdict: 0 | 1; fixtureName: string };
 export const MAX_EXAMPLES = 8;
-const NAME = /^[A-Za-z0-9._-]{1,128}$/;
+export const EXAMPLE_NAME = /^[A-Za-z0-9._-]{1,128}$/;
 const BASE64 = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
 export const EXAMPLE_CONTEXT = /^0x01[0-9a-fA-F]{336}$/;
 function invalid(path: string, message: string): never {
@@ -22,7 +22,7 @@ export function exampleFiles(input: unknown, maximum: number, path: string): Bun
     const at = `${path}/${i}`;
     if (!isPlainObject(raw)) invalid(at, "must be an example file");
     if (Object.keys(raw).some(key => !["name", "content", "encoding"].includes(key))) invalid(at, "unknown file field");
-    if (typeof raw.name !== "string" || !NAME.test(raw.name) || raw.name === "." || raw.name === ".." || seen.has(raw.name.toLowerCase())) invalid(`${at}/name`, "unsafe or duplicate file name");
+    if (typeof raw.name !== "string" || !EXAMPLE_NAME.test(raw.name) || raw.name === "." || raw.name === ".." || seen.has(raw.name.toLowerCase())) invalid(`${at}/name`, "unsafe or duplicate file name");
     seen.add(raw.name.toLowerCase());
     if (typeof raw.content !== "string" || raw.content.length > maximum * 2) invalid(`${at}/content`, "invalid or oversized example content");
     if (raw.encoding !== undefined && raw.encoding !== "utf8" && raw.encoding !== "base64") invalid(`${at}/encoding`, "must be utf8 or base64");
@@ -49,7 +49,7 @@ export function parseExampleFixtures(input: unknown, path = "/exampleFixtures"):
     const at = `${path}/${i}`;
     if (!isPlainObject(raw)) invalid(at, "must be an example fixture");
     if (Object.keys(raw).some(key => !["name", "predictedVerdict", "files", "evidence", "context"].includes(key))) invalid(at, "unknown example field");
-    if (typeof raw.name !== "string" || !NAME.test(raw.name) || names.has(raw.name)) invalid(`${at}/name`, "invalid or duplicate example name");
+    if (typeof raw.name !== "string" || !EXAMPLE_NAME.test(raw.name) || names.has(raw.name)) invalid(`${at}/name`, "invalid or duplicate example name");
     names.add(raw.name);
     if (raw.predictedVerdict !== 0 && raw.predictedVerdict !== 1) invalid(`${at}/predictedVerdict`, "must be 0 or 1");
     exampleFiles(raw.files, 16_384, `${at}/files`);
@@ -60,7 +60,7 @@ export function parseExampleFixtures(input: unknown, path = "/exampleFixtures"):
 }
 export function resolveExample(example: ModelExample, fixtures: ExampleFixture[]): ExampleFixture {
   if (!("fixtureName" in example)) return parseExampleFixtures([example], "/examples")[0]!;
-  if (!NAME.test(example.name) || !NAME.test(example.fixtureName)) invalid("/examples", "invalid example or fixture name");
+  if (!EXAMPLE_NAME.test(example.name) || !EXAMPLE_NAME.test(example.fixtureName)) invalid("/examples", "invalid example or fixture name");
   const found = fixtures.find(item => item.name === example.fixtureName);
   if (!found) invalid("/examples/fixtureName", "unknown request fixture");
   if (found.predictedVerdict !== example.predictedVerdict) invalid("/examples/predictedVerdict", "label differs from the selected request fixture");

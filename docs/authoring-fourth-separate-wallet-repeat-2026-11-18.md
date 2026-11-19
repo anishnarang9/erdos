@@ -1,0 +1,9 @@
+# Fourth campaign: independent same-source repeat
+
+**Frozen before dispatch, 2026-11-18 12:46 -05:00.** Use source `fc2e71706bd529c04063f66cb725ed27fdd60f89`, image `sha256:9434d49905211dbab6dda4310b0cbc32c50d7c264a3880b6ac268d6a6bcf849f`, and corpus digest `8acf192a48f3c72a200a53ed628246a2fbdcbe339bcc4743253a7789d85f2cd7`. Use the same isolated API candidate but authenticate a **new wallet**. The API intentionally deduplicates identical input from one wallet. Reject any task ID or trace ID used by the first wallet.
+
+Run one new trial each, in order: `lab-supplies-receipt-1-r3`, `clinic-supplies-receipt-1-r3`, and `firmware-note-1-r3`. The `-r3` suffix distinguishes these trials from the three first-wallet tasks and the three idempotent replay requests. Each trial uses the original frozen public brief, references, and fixtures. Hidden candidates and oracle outputs stay outside model and Bot inputs. Do not rerun a final result.
+
+Require native validity, both buyer fixtures, quote and coverage gates, and exact agreement on every hidden oracle candidate. Count a complete success only after exact-revision Bot pass, buyer approval, queued compile, package/reference verification, and local proof where practical. Do not send Arc transactions. Record distinct task and trace IDs before counting a repeat. Keep the earlier replay evidence unchanged.
+
+The user's cumulative testing ceiling is $10. Earlier fourth-campaign unique API charges total $0.159738. Reserve $0.15 before each trial and reconcile its unique settled reservation before the next. Stop on an uncertain task, charge, or reused identity. The Grok account meter is unavailable, so this cohort is API-only until Bot cost can be attributed. Keep the accepted public API unchanged. Three independent repeats are still only a small reliability sample.

@@ -2,11 +2,11 @@ import {writeCandidateEvidence, writeChallenge} from './shape.mjs';
 import {buildChallenges} from './families.mjs';
 
 export {writeCandidateEvidence, writeChallenge};
-export const CORPUS_ID = 'hosted-qualification-2026-11-16';
+export const CORPUS_ID = 'hosted-qualification-2026-11-18';
 export const SOURCE_BASE = 'c21ec6e';
 export const REVIEWED_MAIN = '6ed9d2d';
-export const PREVIOUS_CORPUS_DIGEST = 'ab560ef0ab5fe955823c86c4ea3a0a1c7998cf58d3b60f4564cdf42faeac4cc6';
-export const CORPUS_DIGEST = '2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470';
+export const PREVIOUS_CORPUS_DIGEST = '2d4399d2d9b6a15e3c02d243ecd2f2c31e28ec49bd710f673a0700c43c219470';
+export const CORPUS_DIGEST = 'ea51f1ff461c88d63dfafc75b4cd5f048cab0958ce7b51d7c2ca5f36054688d8';
 
 export function buildCorpus() {
   return buildChallenges();

@@ -21,6 +21,8 @@ Bot checks whether the proposed predicates express the buyer's brief. It returns
 - Validate result shape, source quotes, rule indexes and decision consistency. A pass cannot carry questions, findings or unmapped rules. Failed or missing reviews block the app's approval path when the integration is enabled.
 - Keep paid dispatch disabled until account access, cost controls and acceptance pass. Do not weaken the existing public readiness gate for a synthetic result.
 
+The optional `BOT_REVIEW_PILOT_RECOVERY_REVIEW_ID` gives the pilot wallet one extra webhook claim after its normal allowance. Set it to the completed `needs_changes` receipt for the job being recovered. The buyer submits the saved draft as a new revision record with the same content hash. The backend preserves the objection and requires a new passing receipt before approval. The extra claim is limited to the same job and hash. The database counts it even if delivery becomes uncertain. Set this only for an approved recovery attempt after correcting the review instructions.
+
 ## Cost target
 
 Target about $0.05–$0.10 for the entire refinement, including direct API drafting and corrections. Bot validation must be one narrow pass on an already valid candidate. Do not invoke Bot for malformed inputs, repeated downloads, compilation, proving or replay. Avoid browsing, delegation and repository exploration. Permit no open-ended repair loop.

@@ -2,7 +2,7 @@
 import { closeSync, fsyncSync, openSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { hostedClient, type HostedReference } from "@ubc26/sdk";
+import { HostedApiError, hostedClient, type HostedReference } from "@ubc26/sdk";
 import { apiClient } from "./client.ts";
 import { checkReferences, downloadPackage } from "./run.ts";
 import { evaluate, WorkerEngineError } from "./engine.ts";
@@ -13,6 +13,7 @@ import { assertInstalledRelease, workerRepositoryRoot } from "./release-integrit
 import { attemptStatus, prepareHostedAttempt } from "./open-claim/attempt-status.ts";
 import { openClaimOperator } from "./open-claim/operator.ts";
 import { prepareOpenClaimJobInput } from "./open-claim/job-input-cli.ts";
+import { OpenClaimRecoveryError } from "./open-claim/recovery.ts";
 import { recoverBuyerOpenClaim } from "./open-claim/buyer-recovery.ts";
 
 const common = ["api", "key-file"];
@@ -234,6 +235,10 @@ export async function hostedMain(args = process.argv.slice(2)): Promise<void> {
       const known = new Set(["invalid_deliverable", "bundle_input", "invalid_job", "input_io", "invalid_plan", "unsupported_capability", "output_too_large", "timeout", "spawn", "bad_output"]);
       const reason = err instanceof WorkerEngineError ? known.has(err.code) ? err.code : "engine_failed" : "configuration_invalid";
       console.log(JSON.stringify({ status: "check-rejected", reason, mode: "check-only", proofGenerated: false, transactionSent: false }));
+    } else if (err instanceof OpenClaimRecoveryError) {
+      console.error(JSON.stringify({ status: "recovery-failed", stage: err.stage }));
+    } else if (err instanceof HostedApiError) {
+      console.error(JSON.stringify({ status: "api-rejected", httpStatus: err.status, code: err.code }));
     } else console.error("Hosted command failed. Inspect task state or reconcile signed sends before retrying. Secret details are redacted.");
     process.exitCode = 1;
   }

@@ -27,6 +27,46 @@ describe('reviewable requirement links',()=>{
 });
 import {createApp,simulatedEngine} from '../../src/index.ts';
 import {BUYER_TOKEN} from './helpers.ts';
+import type {DraftModelInput} from '../../src/grok.ts';
+
+it('identifies the exact invalid quote for a coverage repair', async () => {
+  const input = {request: 'Check both conditions. Reject missing fields.', outputs: [{name: 'result.json', format: 'json'}], expirySeconds: 600, maxBudget: '10000'};
+  const rule = {op: 'literal', type: 'bool', value: true};
+  const plan = {version: 1, deliverables: [{name: 'result.json', parser: 'json/v1'}], references: [], rules: [rule, rule]};
+  const examples = [
+    {name: 'pass', predictedVerdict: 1 as const, files: [{name: 'result.json', content: '1'}]},
+    {name: 'fail', predictedVerdict: 0 as const, files: [{name: 'result.json', content: '0'}]},
+  ];
+  const calls: DraftModelInput[] = [];
+  const api = createApp({
+    dbPath: ':memory:', buyerToken: BUYER_TOKEN,
+    engine: {...simulatedEngine(), eval: async ({deliverables}) => ({ok: true, verdict: deliverables[0]?.content[0] === 49 ? 1 : 0})},
+    draftModel: {draft: async (call) => {
+      calls.push(call);
+      return {
+        model: 'controlled', traceId: String(calls.length),
+        usage: {promptTokens: 1, completionTokens: 1, cachedTokens: 0, reasoningTokens: 0, costInUsdTicks: 1},
+        result: {kind: 'draft', plan, examples, coverage: complete, sourceQuotes: [
+          {path: '/request', quote: calls.length === 1 ? 'Check ... conditions' : 'Check both conditions'},
+        ]},
+      };
+    }},
+  });
+  try {
+    const response = await api.app.request('/v1/drafts', {
+      method: 'POST', headers: {authorization: `Bearer ${BUYER_TOKEN}`, 'content-type': 'application/json', 'idempotency-key': crypto.randomUUID()},
+      body: JSON.stringify(input),
+    });
+    expect(response.status).toBe(200);
+    expect(calls[1]?.repair?.errors).toContainEqual({
+      path: '/sourceQuotes/0/quote',
+      message: 'Copy one contiguous excerpt verbatim from the named source. Use separate entries for separate excerpts.',
+    });
+    expect(await response.json()).toMatchObject({coverage: {ruleCoverageComplete: true}});
+  } finally {
+    api.close();
+  }
+});
 it('returns checked coverage and repairs one unresolved mapping without replacing source text',async()=>{
  let calls=0;const input={request:'Check both conditions',outputs:[{name:'result.json',format:'json'}],expirySeconds:600,maxBudget:'10000'};
  const plan={version:1,deliverables:[{name:'result.json',parser:'json/v1'}],references:[],rules:[{op:'literal',type:'bool',value:true},{op:'literal',type:'bool',value:true}]};

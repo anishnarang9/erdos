@@ -9,6 +9,7 @@ import { ENGINE_CATALOG } from "./authoring.ts";
 import { engineFailure, jobStore } from "./jobs.ts";
 import { isPlainObject, type Revision } from "./revision.ts";
 import { exampleFiles, parseExampleFixtures } from "./authoring-examples.ts";
+import { assertAuthoredReviewReady } from "./authored-approval.ts";
 import { prepareBotReview } from "./bot-review-contract.ts";
 import { botReviewStore } from "./bot-review-store.ts";
 import { BOT_REVIEW_MCP_PATH, registerBotReviewMcp } from "./bot-review-mcp.ts";
@@ -21,7 +22,8 @@ export function registerBotReviewRoutes(ctx: RouteContext) {
   const { app, deps, buyer, idem, newId } = ctx, store = botReviewStore(deps.db), jobs = jobStore(deps);
   const owned = requireOwnedJob(deps), expensive = expensiveGuard(deps);
   const pilotPolicy = deps.botReview?.pilotOwner && deps.botReview.maxDispatches
-    ? { ownerWallet: deps.botReview.pilotOwner, maxDispatches: deps.botReview.maxDispatches } : undefined;
+    ? { ownerWallet: deps.botReview.pilotOwner, maxDispatches: deps.botReview.maxDispatches,
+      recoveryReviewId: deps.botReview.recoveryReviewId } : undefined;
   let draining = false;
   const active = new Map<string, Promise<void>>();
   async function dispatch(id: string): Promise<void> {
@@ -51,16 +53,17 @@ export function registerBotReviewRoutes(ctx: RouteContext) {
     const owner = ownerWallet(c);
     if (!owner) throw new ApiError("forbidden", "Bot review requires a wallet API key");
     if (config.pilotOwner && owner !== config.pilotOwner) throw new ApiError("forbidden", "Bot review pilot wallet required");
-    if (config.pilotOwner && config.maxDispatches && !store.pilotDispatchAvailable(config.pilotOwner, config.maxDispatches))
-      throw new ApiError("service_disabled", "Bot review pilot dispatch is spent");
     const body = c.get("json");
     if (!isPlainObject(body) || Object.keys(body).some(key => !["revisionHash", "request", "examples"].includes(key))
       || typeof body.revisionHash !== "string") throw invalid();
     const { job, rev } = jobs.loadJob(c.req.param("id") ?? "");
+    if (pilotPolicy && !store.pilotDispatchAvailable(pilotPolicy, job.id, rev.revision_hash))
+      throw new ApiError("service_disabled", "Bot review pilot dispatch is spent");
     if (body.revisionHash.toLowerCase() !== rev.revision_hash) throw new ApiError("revision_conflict", "Bot review requires the current revision");
     if (job.state !== "drafted") throw new ApiError("wrong_state", "Bot review requires a drafted job");
     let request = body.request;
     if (rev.source === "grok") {
+      if (deps.deployment.mode === "public") assertAuthoredReviewReady(deps, rev.draft_id, rev.revision_hash, owner);
       const draft = deps.db.prepare("SELECT request_json FROM drafts WHERE id=? AND owner_wallet=?").get(rev.draft_id ?? "", owner) as { request_json: string } | undefined;
       if (!draft) throw invalid();
       const saved: unknown = JSON.parse(draft.request_json);

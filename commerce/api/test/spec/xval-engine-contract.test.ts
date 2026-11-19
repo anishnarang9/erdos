@@ -5,6 +5,7 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { draftProviderPayload } from "../../src/grok.ts";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
   cliEngine,
@@ -22,6 +23,26 @@ const SCRIPT = fileURLToPath(new URL("../fixtures/engine/fake-engine.mjs", impor
 const TOKEN = "xval-buyer-token-0123456789abcdef";
 const OUT_JSON = [{ name: "out.json", format: "json" }];
 const PLAN = { version: 1, deliverables: [{ name: "out.json", parser: "json/v1" }], references: [], rules: [{ op: "literal", type: "bool", value: true }] };
+
+it("only exposes fixture selection in the provider schema for supplied buyer fixtures", () => {
+  const input = { request: "Check the output", outputs: [], referenceNames: [], clarifications: [], schema: PLAN };
+  const examplesSchema = (fixtureNames: string[]) => {
+    const exampleFixtures = fixtureNames.map(name => ({ name, predictedVerdict: 1 as const, files: [] }));
+    const payload = JSON.parse(draftProviderPayload({ ...input, exampleFixtures }, "test-model", 1024));
+    return payload.response_format.json_schema.schema.anyOf[0].properties.examples;
+  };
+  const generated = examplesSchema([]);
+  expect(generated).toMatchObject({minItems: 2, maxItems: 2});
+  expect(generated.items.required).toContain("files");
+  const exampleName = new RegExp(generated.items.properties.name.pattern);
+  expect(exampleName.test("passing-example")).toBe(true);
+  expect(exampleName.test("passing example")).toBe(false);
+  expect(JSON.stringify(generated.items)).not.toContain("fixtureName");
+  const withFixtures = examplesSchema(["buyer-pass", "buyer-fail"]);
+  expect(withFixtures.maxItems).toBeUndefined();
+  expect(withFixtures.items.anyOf[0].properties.fixtureName.enum).toEqual(["buyer-pass", "buyer-fail"]);
+  expect(withFixtures.items.anyOf[1].required).toContain("files");
+});
 
 let work: string;
 let packagesDir: string;
@@ -640,6 +661,24 @@ describe("7. Grok adapter: structured plan", () => {
     expect(draftBranch.required).toContain("plan");
   });
 
+  it("limits source quote paths to the request and named reference files", async () => {
+    let sent: any;
+    const m = grokDraftModel({
+      apiKey: KEY,
+      model: "grok-x",
+      fetch: (async (_u: any, init: any) => {
+        sent = JSON.parse(init.body);
+        return reply({ kind: "clarification", questions: ["Which amount?"] });
+      }) as any,
+    });
+    await m.draft({ ...input, referenceNames: ["floats.json", "policy.txt"] });
+    const draftBranch = sent.response_format.json_schema.schema.anyOf.find((b: any) => b.properties.kind.enum[0] === "draft");
+    expect(draftBranch.properties.sourceQuotes.items.properties.path.enum).toEqual([
+      "/request", "request", "floats.json", "policy.txt",
+    ]);
+    expect(draftBranch.properties.sourceQuotes.items.properties.path.enum).not.toContain("referenceFiles[0]");
+  });
+
   it("normalizes null context in a structured plan reply", async () => {
     const example = { name: "sample", predictedVerdict: 1, files: [], evidence: [], context: null };
     const m = grokDraftModel({
@@ -666,7 +705,7 @@ describe("7. Grok adapter: structured plan", () => {
     const out = await m.draft(input);
     expect(out.result).toEqual({ kind: "draft", plan: PLAN, examples: [], sourceQuotes: [] });
     const schema = sent.response_format.json_schema.schema;
-    expect(schema).toEqual(draftResponseSchema());
+    expect(schema).toEqual(draftResponseSchema(input.schema, ["/request", "request", ...input.referenceNames]));
     const draftBranch = schema.anyOf.find((b: any) => b.properties.kind.enum[0] === "draft");
     expect(draftBranch.properties.plan).toEqual({ type: "object", additionalProperties: true });
     expect(draftBranch.properties.planJson).toBeUndefined();

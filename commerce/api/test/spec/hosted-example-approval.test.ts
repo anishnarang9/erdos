@@ -1,5 +1,6 @@
 import {afterEach,expect,it} from "vitest";
 import {createApp,simulatedEngine,type CreateAppOptions} from "../../src/index.ts";
+import type {DraftModelInput} from "../../src/grok.ts";
 const token="synthetic-example-approval-token",apps:ReturnType<typeof createApp>[]=[];
 afterEach(()=>{for(const a of apps.splice(0))a.close();});
 const input={request:"Accept result only when ok is true",outputs:[{name:"result.json",format:"json"}],expirySeconds:600,maxBudget:"10000"};
@@ -16,6 +17,41 @@ it("repairs actual example disagreement once and keeps an unresolved draft unapp
 it("keeps missing evaluator and malformed negative examples outside usable counts",async()=>{
  const a=service({draft:async()=>({model:"controlled",traceId:"trace-none",result:{kind:"draft",plan,examples,sourceQuotes:[]}})},simulatedEngine());
  const result=await draft(a);expect(result.exampleApprovalReady).toBe(false);expect(result.coverage.usablePositiveExamples).toBe(0);expect(result.coverage.usableNegativeExamples).toBe(0);
+});
+it.each([false, true])("locks the rules for an example-only repair (rules changed: %s)", async changed => {
+ const inputs: DraftModelInput[] = [];
+ const a = service({draft: async (draftInput: DraftModelInput) => {
+   inputs.push(draftInput);
+   const first = inputs.length === 1;
+   const modelPlan = !first && changed ? {...plan, rules: [{op: "literal", type: "bool", value: false}]} : plan;
+   return {model: "controlled", traceId: first ? "initial" : "repair", usage,
+     result: {kind: "draft", plan: modelPlan, examples: first ? [examples[0]] : examples, sourceQuotes: []}};
+ }}, {...simulatedEngine(), eval: async ({deliverables}) =>
+   ({ok: true, verdict: Buffer.from(deliverables[0]!.content).toString().includes("true") ? 1 : 0})});
+ const result = await draft(a);
+ expect(inputs[1]?.repair).toMatchObject({reason: "examples", previousPlan: plan, preservePlan: true});
+ expect(result.revision.plan).toEqual(plan);
+ expect(result.exampleApprovalReady).toBe(!changed);
+ expect(result.qualification.traceIds).toEqual(["initial", "repair"]);
+ expect(result.qualification.traceId).toBe(changed ? "initial" : "repair");
+});
+
+it("keeps a native-valid draft available when a generated-example repair breaks native validation", async () => {
+ let calls = 0;
+ const brokenPlan = {...plan, rules: [{op: "unknown"}]};
+ const a = service({draft: async () => {
+   const first = ++calls === 1;
+   return {model: "controlled", traceId: first ? "initial" : "repair", usage,
+     result: {kind: "draft", plan: first ? plan : brokenPlan, examples, sourceQuotes: []}};
+ }}, {...simulatedEngine(),
+   validate: async (candidate) => JSON.stringify(candidate).includes("unknown")
+     ? {ok: false as const, kind: "invalid" as const, errors: [{path: "/plan/rules/0", message: "Invalid rule"}]}
+     : {ok: true as const},
+   eval: async () => ({ok: true, verdict: 1})});
+ const result = await draft(a);
+ expect(result.revision.plan).toEqual(plan);
+ expect(result.exampleApprovalReady).toBe(false);
+ expect(result.qualification.traceIds).toEqual(["initial", "repair"]);
 });
 it.each(["clarification","unsupported"])("records model identity and usage on a %s terminal",async(kind)=>{
  const a=service({draft:async()=>({model:"controlled",traceId:`trace-${kind}`,usage,result:kind==='clarification'?{kind,questions:["Which policy?"]}:{kind,reason:"network truth requires an external verifier"}})},simulatedEngine());

@@ -15,5 +15,9 @@ export interface BotReviewConfig {
   /** Restricts the live synthetic pilot to one wallet. */
   pilotOwner?: string;
   /** Durable maximum number of webhook claims for that wallet. */
-  maxDispatches?: 1 | 2 | 3 | 10;
+  maxDispatches?: 1 | 2 | 3 | 4 | 10;
+  /** Allows one extra claim for the job and hash of this completed objection. */
+  recoveryReviewId?: string;
+  /** Durable draft limit for the same wallet. Defaults to maxDispatches. */
+  maxDrafts?: 1 | 2 | 3 | 4 | 5 | 6 | 10;
 }

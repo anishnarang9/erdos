@@ -1,5 +1,5 @@
 import { expect, it, vi } from "vitest";
-import { encodeAbiParameters, encodeEventTopics, keccak256, parseAbi, stringToHex, zeroAddress, zeroHash } from "viem";
+import { HttpRequestError, LimitExceededRpcError, encodeAbiParameters, encodeEventTopics, keccak256, parseAbi, stringToHex, zeroAddress, zeroHash } from "viem";
 import { createArcOpenClaimPort } from "../../src/open-claim/arc-port.ts";
 
 function fixture(roleLogIntervalMs=0){
@@ -35,6 +35,7 @@ function fixture(roleLogIntervalMs=0){
 it("rechecks the canonical audit anchor and scans only new role history",async()=>{
   const f=fixture();await f.port.verifyPins();expect(f.pub.getLogs).toHaveBeenCalledTimes(3);
   await f.port.verifyPins();expect(f.pub.getLogs).toHaveBeenCalledTimes(3);
+  expect(f.pub.getLogs.mock.calls[0]?.[0].events.map((event: {name:string}) => event.name).sort()).toEqual(["Initialized", "RoleGranted", "RoleRevoked", "Upgraded"]);
   f.state.head++;await f.port.verifyPins();expect(f.pub.getLogs.mock.calls.at(-1)?.[0]).toMatchObject({fromBlock:20008n,toBlock:20008n});
 });
 it("paces every log window on a live RPC",async()=>{
@@ -49,4 +50,22 @@ it("paces every log window on a live RPC",async()=>{
 it("rejects an audit-anchor reorg and newly granted authority",async()=>{
   const a=fixture();await a.port.verifyPins();a.state.reorg=true;await expect(a.port.verifyPins()).rejects.toThrow();
   const b=fixture();await b.port.verifyPins();b.state.head++;b.state.grant=true;await expect(b.port.verifyPins()).rejects.toThrow();
+});
+
+it("retries a throttled role log window before advancing the audit", async () => {
+  const f = fixture();
+  const throttled = new HttpRequestError({ status: 429, url: "https://rpc.example.test" });
+  f.pub.getLogs.mockRejectedValueOnce(new LimitExceededRpcError(throttled));
+  await f.port.verifyPins();
+  expect(f.pub.getLogs).toHaveBeenCalledTimes(4);
+  expect(f.pub.getLogs.mock.calls[0]).toEqual(f.pub.getLogs.mock.calls[1]);
+});
+
+it("stops on a permanent log error and does not cache incomplete history", async () => {
+  const f = fixture();
+  f.pub.getLogs.mockRejectedValueOnce(new Error("invalid response"));
+  await expect(f.port.verifyPins()).rejects.toThrow("invalid response");
+  expect(f.pub.getLogs).toHaveBeenCalledOnce();
+  await f.port.verifyPins();
+  expect(f.pub.getLogs.mock.calls[0]).toEqual(f.pub.getLogs.mock.calls[1]);
 });
