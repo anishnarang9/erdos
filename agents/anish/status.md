@@ -1,7 +1,7 @@
 # 2026-11-18 19:11 -0500 — Use `agy` Flash Low for the buyer acceptance test
 
 - The user directs us to test a fresh Flash Low buyer and allow solver help. The solver may receive a prepared receipt. The test still requires fresh authoring, proof, Arc payout, and byte-exact buyer recovery. Updated the project instructions and acceptance plan.
-- `agy models` confirmed the Flash Low model ID and listed Claude and GPT options. Use available free `agy` capacity first for suitable delegation, including stronger models when needed. Started a read-only Flash buyer rehearsal.
+- `agy models` confirmed the Flash Low model ID and listed Claude and GPT options. Use available free `agy` capacity first for suitable delegation, including stronger models when needed. The read-only Flash rehearsal hit a headless command permission denial when it tried to fetch the guide. With the same public guide supplied in the prompt, Flash Low correctly outlined draft creation, wallet authentication, and one draft submission. The run made no paid xAI requests and sent no Arc transactions. The funded Flash test still needs scoped command access and live pilot capacity.
 
 # 2026-11-18 19:09 -0500 — Wait for confirmed Arc receipts in the solver runner
 
