@@ -224,7 +224,7 @@ export function initGlobe(host, { reduced = false } = {}) {
     }
   }
 
-  const [saturn, sun, mars] = planets;
+  const sun = planets.find(body => body.name === 'Sun');
   const corona = new THREE.Sprite(new THREE.SpriteMaterial({
     map: glowTex, color: 0xff720f, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
   }));
@@ -260,17 +260,66 @@ export function initGlobe(host, { reduced = false } = {}) {
         float filament = .5 + .5 * cos(27. * warped - phase + 9. * altitude + 2. * ripple);
         float strength = smoothstep(.96, 1.01, radius) * plume * (.35 + .65 * filament);
         vec3 color = mix(vec3(1., .12, .012), vec3(1., .66, .13), plume * plume);
-        gl_FragColor = vec4(color, strength);
+        gl_FragColor = vec4(color, .65 * strength);
         #include <colorspace_fragment>
       }`,
   });
   const flareWaves = new THREE.Mesh(new THREE.PlaneGeometry(3.5, 3.5), flareMaterial);
   sun.axis.add(flareWaves);
 
+  // Prominence arcades have paired footpoints on the rotating photosphere.
+  // Neighbouring strands rise to different heights and carry moving hot knots.
+  const prominenceMaterial = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    uniforms: { clock: flareMaterial.uniforms.clock },
+    vertexShader: `uniform float clock; varying float along; varying float phase;
+      void main() {
+        along = uv.x;
+        phase = position.y * 2.8 + position.z * 1.6;
+        float crest = sin(3.141593 * along);
+        float lift = .037 * crest * sin(.84 * clock + phase + along * 4.);
+        vec3 displaced = position + normalize(position) * lift;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(displaced, 1.);
+      }`,
+    fragmentShader: `uniform float clock; varying float along; varying float phase;
+      void main() {
+        float knot = pow(.5 + .5 * cos(8. * along - clock * 1.45 + phase), 3.);
+        float feet = pow(abs(2. * along - 1.), 5.);
+        vec3 heat = mix(vec3(1., .19, .018), vec3(1., .80, .31), max(knot, feet));
+        gl_FragColor = vec4(heat, .52 + .40 * max(knot, feet));
+        #include <colorspace_fragment>
+      }`,
+  });
+  const arcades = [
+    { longitude: .10, latitude: .32, height: .56 },
+    { longitude: 2.97, latitude: -.36, height: .36 },
+    { longitude: 1.53, latitude: .68, height: .42 },
+    { longitude: 4.70, latitude: -.55, height: .49 },
+  ];
+  for (const { longitude, latitude, height } of arcades) {
+    const arcade = new THREE.Group();
+    arcade.rotation.order = 'YXZ';
+    arcade.rotation.y = longitude;
+    arcade.rotation.z = latitude;
+    for (let strand = 0; strand < 3; strand++) {
+      const spread = .26 + .045 * strand;
+      const foot = Math.sqrt(1 - spread * spread);
+      const apex = 1 + height + .08 * strand;
+      const curve = new THREE.CubicBezierCurve3(
+        new THREE.Vector3(foot, -spread, 0),
+        new THREE.Vector3(apex, -spread * 1.8, .12),
+        new THREE.Vector3(apex + .09, spread * 1.45, .04 * strand),
+        new THREE.Vector3(foot, spread, 0));
+      const tube = new THREE.TubeGeometry(curve, 36, strand === 1 ? .023 : .015, 6, false);
+      arcade.add(new THREE.Mesh(tube, prominenceMaterial));
+    }
+    sun.body.add(arcade);
+  }
+
   // A rotating helix tapers to zero displacement at both planetary limbs.
   const pathShape = new THREE.CylinderGeometry(1, 1, 1, 8, 96, true);
   const earthLimb = { axis: world, localRadius: R };
-  const links = [saturn, mars].map(from => {
+  const links = planets.map(from => {
     const path = new THREE.Group();
     for (const [radius, opacity] of [[.016, .95], [.042, .16]]) {
       const material = new THREE.ShaderMaterial({
