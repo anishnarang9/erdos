@@ -2,6 +2,8 @@
 
 - The public configuration can explicitly allow five drafts and four Bot dispatches for the same wallet. Existing limits remain valid. The fifth draft survives an API restart and a sixth distinct draft is rejected. The live service still uses its existing caps.
 - Twenty-one focused API tests and API typecheck passed. Full release checks and the live recovery retry are pending. This checkpoint did not dispatch a draft or Bot review.
+- The VPS runner packaged at `1e28834` recovered job 10 through QuickNode with the deployment audit enabled. Compared the 148 SDK and engine bytes against the original solver receipt with `cmp`. Both matched and the runner confirmed the exact gas-adjusted payout. This replay used no paid or signed operation.
+- Built the API image from committed source `6385abe5f7c959cdc5c3431fabb01c28e39b95a7`. Image `sha256:a5654da7e37b4f85fd90763b7d5f2b4b2cc8bb12f2bbc68e3a8b2f8fa33c43dc` carries the expected source and engine pins. Promotion and the funded Flash High test remain pending. Removed the temporary SSH firewall rule.
 
 # 2026-11-18 19:29 -0500 — Retry throttled Arc role history reads
 
