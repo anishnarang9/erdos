@@ -1,5 +1,12 @@
 # anish status
 
+## 2026-11-19 09:51 -05:00 — Anish — Test Grok authoring and proof acceptance across domains
+
+- The real Grok adapter processed nine controlled replies through the public-mode local API. Eight supported jobs passed native examples and approval, including rejection of bad evidence for approval. Three compiled with Docker. The unsupported division case produced the exact native capability request. No provider was called.
+- Fixed exact quote binding to clarification answers, repair selection that lost previously passed approval checks, and native capability scoring. The worker can recover a complete pre-claim proof with a second `prepare` after interruption. The regression checks missing files, verifies the saved delivery, and keeps signing separate.
+- The local sweep verified 14 real proofs, checked six verdict-0 receipts against a false passing verdict, and recovered seven deliveries byte for byte. Fresh dispatch and route proofs passed the real adapter plus core claim and payout on a local EVM with a mock payment token. Arc Forge passed 168 tests with one fork-only skip.
+- The [sweep report](reports/pipeline-hardening-sweep-2026-11-19.md) records historical replay, the new invoice and battery workloads, and a scaled arithmetic overflow gap. The hosted qualification suite passed 106 tests. Opus and Sonnet requests hit quota. Gemini Flash processed a summary. The existing 128-hop proof is active.
+
 ## 2026-11-19 09:38 -05:00 — Anish — Deduplicate concurrent cold guest builds
 
 - Two concurrent CLI compiles reproduced a duplicate guest build for the same fingerprint. The compiler now holds the existing per-fingerprint file lock from cache lookup through build and publication. Other fingerprints can build independently.
