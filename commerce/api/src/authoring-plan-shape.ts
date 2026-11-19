@@ -189,12 +189,19 @@ export function removeRedundantNumericLookupGuard(plan: unknown): { plan: unknow
   }
   copy.rules = rules.map((rule, index) => {
     if (!isPlainObject(rule) || rule.op !== "all" || !isPlainObject(rule.collection) ||
-      Object.keys(rule).sort().join() !== "collection,op,where" || !numericReferenceLookup(rule.where)) return rule;
-    const lookup = rule.where;
-    if (!comparisonLookups.has(canonicalize([rule.collection, lookup])!)) return rule;
-    // Preserve the coverage index and the missing-key error. The sibling retains the bound.
-    paths.push(`/rules/${index}/where`);
-    return { ...rule, where: { op: "eq", left: lookup, right: lookup } };
+      Object.keys(rule).sort().join() !== "collection,op,where") return rule;
+    const collection = rule.collection;
+    const typeGuard = (node: unknown, path: string): unknown => {
+      if (numericReferenceLookup(node) && comparisonLookups.has(canonicalize([collection, node])!)) {
+        // Keep the lookup's missing-key behavior and leave the sibling bound in place.
+        paths.push(path);
+        return { op: "eq", left: node, right: node };
+      }
+      if (!isPlainObject(node) || node.op !== "and" ||
+        Object.keys(node).sort().join() !== "left,op,right") return node;
+      return { ...node, left: typeGuard(node.left, `${path}/left`), right: typeGuard(node.right, `${path}/right`) };
+    };
+    return { ...rule, where: typeGuard(rule.where, `/rules/${index}/where`) };
   });
   return paths.length ? { plan: copy, paths } : { plan, paths };
 }

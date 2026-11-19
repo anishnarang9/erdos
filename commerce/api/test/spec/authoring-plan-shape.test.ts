@@ -126,6 +126,22 @@ describe("redundant numeric lookup guard", () => {
     expect(original.rules[0]).toEqual(guard);
   });
 
+  it("types the saved receipt guard when a sibling all rule retains the same bound", () => {
+    const collection = { source: "deliverable", file: "out.json", field: "rows" };
+    const lowerBound = { op: "gte", left: { op: "record_field", field: "received", level: 0 },
+      right: { op: "literal", type: "i64", value: "0" } };
+    const rule = { op: "all", collection, where: { op: "and", left: lowerBound, right: lookup } };
+    const bound = { op: "all", collection, where: compare };
+    const result = removeRedundantNumericLookupGuard({ ...withRule(rule), rules: [rule, bound] });
+    expect(result.paths).toEqual(["/rules/0/where/right"]);
+    expect(result.plan).toMatchObject({ rules: [{ ...rule, where: {
+      ...rule.where, right: { op: "eq", left: lookup, right: lookup },
+    } }, bound] });
+
+    const otherRows = { ...bound, collection: { ...collection, field: "otherRows" } };
+    expect(removeRedundantNumericLookupGuard({ ...withRule(rule), rules: [rule, otherRows] }).paths).toEqual([]);
+  });
+
   it("keeps a standalone guard when a comparison runs over another collection", () => {
     const collection = { source: "deliverable", file: "out.json", field: "rows" };
     const guard = { op: "all", collection, where: lookup };

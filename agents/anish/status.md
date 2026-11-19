@@ -1,3 +1,9 @@
+# 2026-11-18 19:53 -0500 — Repair the exact stored Flash draft offline
+
+- The private draft row retains the parsed Grok result even when the separate recorder is disabled. Read the exact plan for trace `05c93399-7d34-942a-b6a9-9606daffa057`. Native validation reproduced the original type failure. A numeric lookup was a conjunct in the first rule. A sibling `all` rule compares the identical lookup over the identical row collection.
+- The normalizer types that conjunct as lookup equality with itself, preserving the lookup error, the lower bound, the sibling upper bound, and rule indices. It traverses only conjunctions under the same `all` scope. The regression also confirms a different collection cannot authorize the change.
+- The native engine validated the corrected saved plan. Offline evaluations gave verdict 1 for a valid partial receipt and verdict 0 for negative count, item excess, total excess, missing item, and duplicate item. An unknown key returned `invalid_deliverable`. Forty-one focused tests and API typecheck passed. Sonnet supplied a partial review before its time limit. No paid or signed operations ran. The original live attempt remains failed.
+
 # 2026-11-18 19:48 -0500 — Give buyers precise plan type errors without a model retry
 
 - Verified that the live API had neither Grok recording nor replay configured. The saved Flash High task does not include the generated expression. The offline fixture reproduces the reported error path and validation message, but it is not a replay of the provider reply.
