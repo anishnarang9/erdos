@@ -36,11 +36,12 @@ export function initCoin(host, { reduced = false } = {}) {
     const lines = []; let sd = z > 0 ? 7 : 19; const r = () => ((sd = (sd * 1664525 + 1013904223) >>> 0) / 4294967296);
     for (let i = 0; i < 46; i++) { const a = r() * Math.PI * 2, r0 = .5 + r() * 1.5, len = .2 + r() * .5, horiz = r() < .5; const x = Math.cos(a) * r0, y = Math.sin(a) * r0; lines.push(x, y, .004, x + (horiz ? len : 0), y + (horiz ? 0 : len), .004); }
     side.add(new THREE.LineSegments(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(lines, 3)), new THREE.LineBasicMaterial({ color: 0x2a2a3c })));
-    // Emblem: planet ring, tilted orbit, two eyes (the site mark), in a flowing gradient
-    const planet = new THREE.Mesh(new THREE.TorusGeometry(1.05, .13, 16, 96), gradMat); planet.position.z = .1; side.add(planet);
-    const planetIn = new THREE.Mesh(new THREE.TorusGeometry(.78, .035, 12, 96), new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false, transparent: true, opacity: .8 })); planetIn.position.z = .1; side.add(planetIn);
-    const orbit = new THREE.Mesh(new THREE.TorusGeometry(1.75, .075, 12, 160), gradMat); orbit.scale.y = .34; orbit.rotation.z = -.32; orbit.position.z = .14; side.add(orbit);
-    for (const x of [-.3, .3]) { const e = new THREE.Mesh(new THREE.CapsuleGeometry(.1, .16, 8, 16), new THREE.MeshBasicMaterial({ color: x < 0 ? 0xffffff : 0xb8f3ff, toneMapped: false })); e.position.set(x, .02, .12); side.add(e); }
+    // Emblem: the Erdos mark, a hexagon holding a check whose corners are linked nodes, in a flowing gradient.
+    const hex = new THREE.Mesh(new THREE.TorusGeometry(1.25, .13, 12, 6), gradMat); hex.rotation.z = Math.PI / 6; hex.position.z = .1; side.add(hex);
+    const pts = [[-.62, -.02], [-.18, -.46], [.66, .42]].map(([x, y]) => new THREE.Vector3(x, y, .12));
+    const tick = new THREE.CurvePath(); tick.add(new THREE.LineCurve3(pts[0], pts[1])); tick.add(new THREE.LineCurve3(pts[1], pts[2]));
+    side.add(new THREE.Mesh(new THREE.TubeGeometry(tick, 64, .085, 10, false), gradMat));
+    pts.forEach((p, i) => { const n = new THREE.Mesh(new THREE.SphereGeometry(.15, 20, 14), new THREE.MeshBasicMaterial({ color: i === 2 ? 0xb8f3ff : 0xffffff, toneMapped: false })); n.position.copy(p); n.position.z = .16; side.add(n); });
   }
 
   let scrollT = 0, time = 0, last = performance.now(), visible = true, mx = 0, my = 0, spin = 0;
