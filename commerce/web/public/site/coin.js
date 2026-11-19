@@ -11,13 +11,13 @@ export function initCoin(host, { reduced = false } = {}) {
   // Studio environment for the metal.
   { const s = new THREE.Scene(); s.background = new THREE.Color(0x030308);
     const box = (col, i, x, y, z, sx, sy) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(sx, sy), new THREE.MeshBasicMaterial({ color: new THREE.Color(col).multiplyScalar(i), side: THREE.DoubleSide })); m.position.set(x, y, z); m.lookAt(0, 0, 0); s.add(m); };
-    box(0xffffff, 5, 0, 9, 3, 12, 5); box(0x63f0ff, 6, -9, 0, 3, 4, 10); box(0xff5fd2, 6, 9, 0, 3, 4, 10); box(0xa86bff, 3, 0, -8, 4, 10, 3);
+    box(0xffffff, 5, 0, 9, 3, 12, 5); box(0x63f0ff, 6, -9, 0, 3, 4, 10); box(0x2fe0a8, 6, 9, 0, 3, 4, 10); box(0x3fa9ff, 3, 0, -8, 4, 10, 3);
     const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(s, .03).texture; pm.dispose(); }
   const camera = new THREE.PerspectiveCamera(30, 1, .1, 100); camera.position.set(0, 0, 9.5);
   const keyLight = new THREE.DirectionalLight(0xffffff, 1.2); keyLight.position.set(2, 4, 6); scene.add(keyLight);
 
   const gc = document.createElement('canvas'); gc.width = 512; gc.height = 4; const g = gc.getContext('2d'); const lg = g.createLinearGradient(0, 0, 512, 0);
-  [[0, '#63f0ff'], [.25, '#6bffd8'], [.45, '#ffe66b'], [.6, '#ffb65c'], [.78, '#ff5fd2'], [.9, '#a86bff'], [1, '#63f0ff']].forEach(([o, c]) => lg.addColorStop(o, c));
+  [[0, '#63f0ff'], [.25, '#6bffd8'], [.45, '#ffe66b'], [.6, '#ffb65c'], [.78, '#2fe0a8'], [.9, '#3fa9ff'], [1, '#63f0ff']].forEach(([o, c]) => lg.addColorStop(o, c));
   g.fillStyle = lg; g.fillRect(0, 0, 512, 4); const grad = new THREE.CanvasTexture(gc); grad.colorSpace = THREE.SRGBColorSpace; grad.wrapS = THREE.RepeatWrapping;
   const gradMat = new THREE.MeshBasicMaterial({ map: grad, toneMapped: false });
   const metal = new THREE.MeshPhysicalMaterial({ color: 0x101018, roughness: .28, metalness: 1, clearcoat: 1, clearcoatRoughness: .2 });
@@ -40,7 +40,7 @@ export function initCoin(host, { reduced = false } = {}) {
     const planet = new THREE.Mesh(new THREE.TorusGeometry(1.05, .13, 16, 96), gradMat); planet.position.z = .1; side.add(planet);
     const planetIn = new THREE.Mesh(new THREE.TorusGeometry(.78, .035, 12, 96), new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false, transparent: true, opacity: .8 })); planetIn.position.z = .1; side.add(planetIn);
     const orbit = new THREE.Mesh(new THREE.TorusGeometry(1.75, .075, 12, 160), gradMat); orbit.scale.y = .34; orbit.rotation.z = -.32; orbit.position.z = .14; side.add(orbit);
-    for (const x of [-.3, .3]) { const e = new THREE.Mesh(new THREE.CapsuleGeometry(.1, .16, 8, 16), new THREE.MeshBasicMaterial({ color: x < 0 ? 0xffffff : 0xffb0d8, toneMapped: false })); e.position.set(x, .02, .12); side.add(e); }
+    for (const x of [-.3, .3]) { const e = new THREE.Mesh(new THREE.CapsuleGeometry(.1, .16, 8, 16), new THREE.MeshBasicMaterial({ color: x < 0 ? 0xffffff : 0xb8f3ff, toneMapped: false })); e.position.set(x, .02, .12); side.add(e); }
   }
 
   let scrollT = 0, time = 0, last = performance.now(), visible = true, mx = 0, my = 0, spin = 0;

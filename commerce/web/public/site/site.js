@@ -1,9 +1,9 @@
-import { initGlobe } from './globe.js?v=22';
-import { initRobot } from './robot.js?v=18';
-import { initToolNetwork } from './tool-network.js?v=5';
-import { initScopeMap } from './scope.js?v=2';
-import { initCoin } from './coin.js?v=9';
-import { LAYERS, ICONS } from './layers.js?v=10';
+import { initGlobe } from './globe.js?v=23';
+import { initRobot } from './robot.js?v=19';
+import { initToolNetwork } from './tool-network.js?v=6';
+import { initScopeMap } from './scope.js?v=3';
+import { initCoin } from './coin.js?v=10';
+import { LAYERS, ICONS } from './layers.js?v=11';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -117,7 +117,7 @@ function renderLayers() {
     const dia = $('.diagram', el);
     const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('class', 'wires'); svg.setAttribute('aria-hidden', 'true');
     svg.innerHTML = `<defs><marker id="ah${li}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L7 4 L1 7" fill="none" stroke="#8a8aa0" stroke-width="1.4"/></marker>
-      <linearGradient id="wg${li}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${W}" y2="0"><stop offset="0" stop-color="#63f0ff"/><stop offset=".5" stop-color="#a86bff"/><stop offset="1" stop-color="#ff5fd2"/></linearGradient></defs>`;
+      <linearGradient id="wg${li}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${W}" y2="0"><stop offset="0" stop-color="#63f0ff"/><stop offset=".5" stop-color="#3fa9ff"/><stop offset="1" stop-color="#2fe0a8"/></linearGradient></defs>`;
     dia.append(svg);
     const byId = Object.fromEntries(layer.nodes.map((n) => [n.id, n]));
     layer.edges.forEach(([from, to], ei) => {

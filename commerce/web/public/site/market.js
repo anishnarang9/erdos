@@ -10,8 +10,8 @@ const STATUS = { open: 'Open', proving: 'Proof pending', paid: 'Paid', refunded:
 const CATEGORY = {
   Reconciliation: { code: 'RC', hue: '#63f0ff' },
   Scheduling: { code: 'SC', hue: '#ffd166' },
-  'Data cleaning': { code: 'DC', hue: '#a78bfa' },
-  Extraction: { code: 'EX', hue: '#ff8fd8' },
+  'Data cleaning': { code: 'DC', hue: '#9fd8ff' },
+  Extraction: { code: 'EX', hue: '#ffd166' },
   'Signed records': { code: 'SR', hue: '#52ffd9' },
   Other: { code: 'JB', hue: '#9ca3af' },
 };
