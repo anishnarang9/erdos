@@ -10,7 +10,7 @@ async function sha256(bytes) {
   return '0x' + Array.from(new Uint8Array(hash), byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-async function verifyDelivery(run) {
+export async function verifyDelivery(run) {
   const envelope = fromHex(run.envelopeHex);
   const prefix = new TextEncoder().encode('UBC26/key/v1');
   const context = fromHex(run.contextHex);

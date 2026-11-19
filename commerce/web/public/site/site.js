@@ -1,6 +1,6 @@
 import { initGlobe } from './globe.js?v=14';
 import { initRobot } from './robot.js?v=18';
-import { initRecordedProof } from './recorded-proof.js?v=12';
+import { initDemoLab } from './demo-lab.js?v=6';
 import { initCoin } from './coin.js?v=9';
 import { LAYERS, ICONS } from './layers.js?v=9';
 
@@ -279,7 +279,7 @@ addEventListener('resize', onScroll); onScroll();
 // Reveal each block once. Content is readable before observation and on anchor jumps.
 if (!reduced) {
   document.documentElement.classList.add('motion');
-  const blocks = $$('.reveal, .case, .mat, .faq details, .title-wrap, .lab-panel, .scope-examples > *, .token-left, .escrow-inspector, .token-links, .eco-lead');
+  const blocks = $$('.reveal, .case, .mat, .faq details, .title-wrap, .lab-panel, .lab .howto, .demo-preset-controls, .demo-feed, .demo-followup, .scope-examples > *, .token-left, .escrow-inspector, .token-links, .eco-lead');
   const observer = new IntersectionObserver(entries => {
     const destination = document.querySelector(':target');
     for (const entry of entries) {
@@ -301,75 +301,7 @@ $('#copy-addr')?.addEventListener('click', async (e) => {
   setTimeout(() => decode(label, 0, '0x4992…e9c8'), 1600);
 });
 
-// ---------- proof lab (simulation only) ----------
-const checks = $$('#check-list li');
-const COPY = {
-  idle: ['Payment stays locked.', 'Pick a delivery and run the checks.', 'WAITING FOR CHECKS'],
-  checking: ['Checking the delivery…', 'Comparing the files with the agreed rules.', 'CHECKING'],
-  failed: ['Payment stays locked.', 'A failed check stops the payout.', 'FAILED CHECK · NO PAYOUT'],
-  released: ['Payment can release.', 'All three sample checks passed.', 'SIMULATED RELEASE'],
-};
-let gen = 0;
-function setLab(state) { document.body.dataset.lab = state; const [t, c, s] = COPY[state]; $('#outcome').textContent = t; $('#outcome-copy').textContent = c; decode($('#status'), 0, s); }
-function resetLab() {
-  gen++; const v = $('#scenario').value;
-  $('#run').disabled = false;
-  checks.forEach((r) => { r.className = ''; r.querySelector('.ic').textContent = '○'; r.querySelector('.res').textContent = 'WAITING'; });
-  $('#amount').textContent = v === 'tampered' ? '2,001¢' : '2,000¢'; $('#amount').classList.toggle('bad', v === 'tampered');
-  $('#report').textContent = v === 'missing' ? 'missing' : 'nonempty'; $('#report').classList.toggle('bad', v === 'missing');
-  setLab('idle'); globe?.setOutcome('idle');
-}
-$('#scenario').addEventListener('change', resetLab);
-$('#run').addEventListener('click', () => {
-  resetLab(); const token2 = gen, v = $('#scenario').value, res = [true, v !== 'tampered', v !== 'missing'];
-  $('#run').disabled = true; setLab('checking');
-  checks.forEach((r, i) => setTimeout(() => {
-    if (token2 !== gen) return;
-    r.className = res[i] ? 'pass' : 'fail'; r.querySelector('.ic').textContent = res[i] ? '✓' : '✕'; decode(r.querySelector('.res'), 0, res[i] ? 'PASS' : 'FAIL');
-    if (i === checks.length - 1) { const ok = res.every(Boolean); setLab(ok ? 'released' : 'failed'); globe?.setOutcome(ok ? 'released' : 'failed'); $('#run').disabled = false; }
-  }, reduced ? 0 : 450 + i * 380));
-});
-resetLab();
-initRecordedProof();
-
-const presets = $$('.demo-preset-controls button');
-function selectPreset(panel) {
-  for (const preset of presets) {
-    const target = preset.getAttribute('aria-controls');
-    const selected = target === panel;
-    preset.setAttribute('aria-pressed', String(selected));
-    document.getElementById(target).hidden = !selected;
-  }
-}
-presets.forEach(button => button.addEventListener('click', () => selectPreset(button.getAttribute('aria-controls'))));
-$$('[data-demo-preset]').forEach(link => link.addEventListener('click', () => selectPreset(link.dataset.demoPreset)));
-
-// Harbor's load and kiln limits come from the checked-in Meridian reference and passing schedule.
-const schedule = $('#meridian-scenario');
-const capacityResult = $('#meridian-result');
-const kilnLimits = { 'K-03': 110, 'K-05': 88 };
-const harborLoad = 96;
-function updateKilnGauge() {
-  const limit = kilnLimits[schedule.value];
-  $('.kiln-gauge').style.setProperty('--capacity', `${limit / 120 * 100}%`);
-  $('.kiln-gauge').style.setProperty('--load', `${harborLoad / 120 * 100}%`);
-  $('.kiln-gauge').classList.toggle('over-capacity', harborLoad > limit);
-  $('#kiln-gauge-label').textContent = `${harborLoad} KG LOAD · ${limit} KG CAPACITY`;
-}
-schedule.addEventListener('change', () => {
-  $('#meridian-kiln').textContent = schedule.value;
-  updateKilnGauge();
-  capacityResult.textContent = 'Run the check to compare Harbor’s 96 kg load with the selected kiln’s capacity.';
-  delete capacityResult.dataset.verdict;
-});
-updateKilnGauge();
-$('#meridian-run').addEventListener('click', () => {
-  const limit = kilnLimits[schedule.value];
-  const passes = harborLoad <= limit;
-  capacityResult.dataset.verdict = passes ? 'pass' : 'fail';
-  capacityResult.textContent = passes
-    ? `Pass. Harbor’s ${harborLoad} kg fits in kiln ${schedule.value}, which holds ${limit} kg.`
-    : `Fail. Harbor exceeds kiln ${schedule.value}’s ${limit} kg capacity by ${harborLoad - limit} kg.`;
-});
+// ---------- demo (three samples, proof replays, live Arc feed) ----------
+initDemoLab({ onOutcome: (kind) => globe?.setOutcome(kind) });
 
 window.siteDiagnostics = () => ({ globe: globe?.diagnostics(), row: activeRow, robot: robot?.label(), layers: $$('.layer').length, live: $$('.layer.live').length, lab: document.body.dataset.lab });
