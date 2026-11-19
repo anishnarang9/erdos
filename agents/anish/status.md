@@ -1,3 +1,9 @@
+# 2026-11-18 20:24 -0500 — Clarify native lookup semantics for Bot review
+
+- On `codex/authoring-pilot-round2`, updated both Grok Bot routine templates. They explain that an evaluated lookup rejects a missing key. They also distinguish checking receipt IDs against the order from requiring every order ID in the receipt.
+- Opus through `agy` correctly reviewed three synthetic variants. It accepted both directions of membership and flagged each missing direction in the defective variants. All four native procurement checks passed.
+- The live app's Edit control opens a chat draft. Cleared the draft without submitting it. The live routine still needs the prompt applied, and the pilot dispatch allowance is exhausted. No new model draft, live Bot review, or Arc transaction ran. The existing Flash High review remains binding.
+
 # 2026-11-18 20:20 -0500 — Flash High authors a qualified plan and receives Bot findings
 
 - Flash High invoked narrowly scoped local MCP tools that called the hosted API using a protected buyer credential. The buyer and solver had no side channel. The tools submitted the prepared brief through TLS using the original idempotency key. No transport retry consumed a second draft.
