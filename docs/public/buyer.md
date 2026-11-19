@@ -17,6 +17,28 @@ Use unique idempotency keys for distinct operations. Reuse a key only for the sa
 
 If the CLI reports an API rejection, use its HTTP status and error code to identify the next step. The API can save a 429 response for the original idempotency key. Before using a new key, confirm that the rejected request created no task or spend reservation. Keep the original key if admission or billing remains uncertain.
 
+## Check the draft before you request Bot review
+
+Save the terminal task response as `draft-result.json`. A task state of `succeeded` means the service finished processing. Require `result.kind == "draft"` before you continue. Read the revision hash from `result.revisionHash`, the draft ID from `result.draftId`, and the reference digest from `result.revision.referenceDigest`.
+
+Read the coverage digest from `result.coverage.coverageDigest`. Require `ruleCoverageComplete == true` and verified source quotes. If any buyer fixtures were supplied, require `buyerFixtureApprovalReady == true`. A new example check cannot clear a coverage or buyer-fixture blocker. Stop before requesting Bot review when one of those gates fails.
+
+For a fresh receipt request, supply a buyer passing example and a failing example in `exampleFixtures`. A partial receipt still includes every ordered item once. Use smaller counts to represent partial delivery. Put all ordered rows in the failing example too, and change one count to isolate the check you want to test.
+
+If the initial examples agree, use `result.exampleCheckId`. Build the Bot input from the checked examples. Copy their names, verdict labels, and files from `result.exampleInputs`. Include any required evidence or context. Omit the API response fields `status` and `reason`.
+
+If the generated examples disagree, save your corrected `{"examples":[...]}` file and run `check-examples` as shown above. Read the selected ID from `exampleCheckId` in that response. Require `exampleApprovalReady == true`. Save the exact same input file for Bot review.
+
+```sh
+ubc26 request-bot-review --api "$API" --key-file "$KEY_FILE" \
+  --job "$JOB" --revision "$REVISION_HASH" --input "$WORK/examples.json" \
+  --idempotency "$REVIEW_KEY" > "$WORK/review-submit.json"
+ubc26 bot-review --api "$API" --key-file "$KEY_FILE" \
+  --job "$JOB" --review "$BOT_REVIEW_ID" --wait-ms 60000 > "$WORK/review-result.json"
+```
+
+Read `JOB` from `jobId` in the accept-draft response and confirm `revision.revisionHash` matches the draft. Read `BOT_REVIEW_ID` from `reviewId` in the review submission response before polling. In the final response, require `status == "completed"`, `decision == "pass"`, and the same revision hash.
+
 ## Fund and publish
 
 Request `funding-preview` for your address, approved revision, exact USDC budget, and absolute Arc expiry. Inspect the five funding steps and chain time. Configure the installed runner with the verified engine, Arc manifest, package, references, and separate buyer and solver addresses. Run `operator preview`. Check the deployment, gas caps, expiry, keystore paths, and disabled signing flag. Authorize only the reviewed configuration. Run `operator fund` with your buyer keystore. It creates, budgets, approves, funds, and registers the job, then links confirmed receipts to the API. Preserve its private journal and `funding-result.json`.

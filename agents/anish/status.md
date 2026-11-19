@@ -1,3 +1,9 @@
+# 2026-11-18 19:56 -0500 — Replay the stored Flash reply through the API
+
+- Replayed the exact stored request and parsed provider output through a local API and native engine. The replay uses the canonical shipping normalizer. The original type error cleared and all six source quotes verified.
+- The saved positive example omits an ordered item, so native evaluation returns 0. The uniqueness rule has no requirement link, and the unknown-item requirement remains unresolved. The same revision can accept replacement examples but the public approval gate still rejects incomplete coverage.
+- Updated the buyer guide to identify the exact response fields, native check ID, Bot review payload, and pass gate. No provider call, Bot dispatch, or signed transaction ran. The funded Flash High acceptance remains open.
+
 # 2026-11-18 19:53 -0500 — Repair the exact stored Flash draft offline
 
 - The private draft row retains the parsed Grok result even when the separate recorder is disabled. Read the exact plan for trace `05c93399-7d34-942a-b6a9-9606daffa057`. Native validation reproduced the original type failure. A numeric lookup was a conjunct in the first rule. A sibling `all` rule compares the identical lookup over the identical row collection.
