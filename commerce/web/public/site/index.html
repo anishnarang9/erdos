@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site.css?v=10">
-<link rel="stylesheet" href="site-v3.css?v=23">
+<link rel="stylesheet" href="site-v3.css?v=26">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -294,21 +294,18 @@
       </div>
     </div>
     <div class="coin" id="coin" aria-hidden="true"></div>
-    <div class="escrow-inspector"><p class="demo-kicker">Recorded outcomes · Arc Testnet</p>
-      <h3>Where did the bounty go?</h3>
-      <div role="group" aria-label="Escrow case"><button type="button" data-escrow="paid" aria-pressed="true">Correct delivery</button><button type="button" data-escrow="refund" aria-pressed="false">One cent off</button></div>
-      <div class="escrow-route" aria-hidden="true"><span>Buyer</span><i></i><span>Escrow</span><i></i><span id="route-end">Solver</span></div>
-      <div aria-live="polite"><strong id="escrow-value">0.01 test USDC paid</strong><p id="escrow-history">Job #3 passed its checks. The release paid the solver and published the delivery key.</p></div>
-      <p id="chain-check" role="status"></p>
-      <a id="escrow-receipt" class="demo-link" href="https://explorer.testnet.arc.io/tx/0xb9caccce8c09ad659812fa12021f3728471caf202765a0e709cbea1c382b4956" target="_blank" rel="noreferrer">Inspect release receipt ↗</a>
-    </div>
   </div>
-  <div class="token-links">
-    <span class="mono" data-sc>INSPECT ON ARC:</span>
-    <a href="https://explorer.testnet.arc.io/address/0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8" target="_blank" rel="noreferrer"><b>Escrow core</b><span class="pill">ERC-8183</span><i aria-hidden="true">↗</i></a>
-    <a href="https://explorer.testnet.arc.io/address/0x699d0e4a067F31229Be67C534B37dE964b6eDbAb" target="_blank" rel="noreferrer"><b>Settlement hook</b><span class="pill">SELECTED SOLVER</span><i aria-hidden="true">↗</i></a>
-    <a href="https://explorer.testnet.arc.io/address/0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8" target="_blank" rel="noreferrer"><b>Open-claim adapter</b><span class="pill">FIRST VALID PROOF</span><i aria-hidden="true">↗</i></a>
+</section>
+
+<!-- BUILT WITH: tool network wired into the escrow -->
+<section class="tools" id="tools" aria-labelledby="tools-title">
+  <div class="tools-head">
+    <p class="demo-kicker">BUILT WITH</p>
+    <h2 class="gtitle" id="tools-title">Every tool, one settlement path</h2>
+    <p class="dim">From the checker to the payout, these are the pieces that carry a job to a proof-gated release on Arc.</p>
   </div>
+  <div class="tool-net"><div class="tool-grid"></div></div>
+  <p class="tool-caption mono" aria-live="polite">Hover or focus a tool to see how we use it</p>
 </section>
 
 <!-- Demo resources -->
@@ -318,6 +315,9 @@
     <a class="mat" id="evidence" href="https://github.com/anishnarang9/UBC-26/blob/main/commerce/evidence/arc-first-funded-jobs.md"><b>Settlement records</b><span class="d">Trace funding, proof acceptance, payout and refund for the invoice jobs.</span><span aria-hidden="true">↗</span></a>
     <a class="mat" href="https://github.com/anishnarang9/UBC-26/tree/main/docs/fresh-exchange-input"><b>Scheduling workload</b><span class="d">Inspect the production brief, capacity limits and checked schedules.</span><span aria-hidden="true">↗</span></a>
     <a class="mat" href="https://github.com/anishnarang9/UBC-26/blob/main/docs/public/solver.md"><b>Solver guide</b><span class="d">Follow a specialist agent from an open bounty through delivery.</span><span aria-hidden="true">↗</span></a>
+    <a class="mat" href="https://explorer.testnet.arc.io/address/0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8" target="_blank" rel="noreferrer"><b>Escrow core on Arc</b><span class="d">ERC-8183 escrow that holds the bounty until a proof passes or the job expires.</span><span aria-hidden="true">↗</span></a>
+    <a class="mat" href="https://explorer.testnet.arc.io/address/0x699d0e4a067F31229Be67C534B37dE964b6eDbAb" target="_blank" rel="noreferrer"><b>Settlement hook on Arc</b><span class="d">Verifies the proof for a selected solver, then releases payment and the key.</span><span aria-hidden="true">↗</span></a>
+    <a class="mat" href="https://explorer.testnet.arc.io/address/0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8" target="_blank" rel="noreferrer"><b>Open-claim adapter on Arc</b><span class="d">Lets any agent claim an open bounty; the first valid proof wins.</span><span aria-hidden="true">↗</span></a>
   </div>
 </section>
 
@@ -330,6 +330,7 @@
     <details><summary><span>03</span>Are the files private?</summary><p>Not in this version. Releasing the key on chain makes the delivery decryptable by anyone, so use public or shareable data. Private delivery is future work.</p></details>
     <details><summary><span>04</span>What stops a solver from being paid for bad work?</summary><p>The verifier contract. A delivery that fails a rule yields a verdict-0 receipt, and the escrow only accepts a proof whose verdict passes and whose commitments match the frozen terms.</p></details>
     <details><summary><span>05</span>Is this page moving money?</summary><p>This demo runs sample checks in your browser. The Arc results section links to recorded testnet transactions.</p></details>
+    <details><summary><span>06</span>Where did the bounty go?</summary><p>It follows the proof. In job #3 the delivery passed, so one transaction paid the solver 0.01 test USDC and published the delivery key (<a class="demo-link" href="https://explorer.testnet.arc.io/tx/0xb9caccce8c09ad659812fa12021f3728471caf202765a0e709cbea1c382b4956" target="_blank" rel="noreferrer">release receipt ↗</a>). In job #4 one amount was a cent off, so no valid proof existed; the bounty stayed locked until expiry and went back to the buyer (<a class="demo-link" href="https://explorer.testnet.arc.io/tx/0xcfaa40a06a4b29fa30454e5aac373f7ffc8e8640a6c471491491500a87832540" target="_blank" rel="noreferrer">refund receipt ↗</a>).</p></details>
   </div>
 </section>
 
@@ -344,6 +345,6 @@
   </div>
 </footer>
 
-<script type="module" src="site.js?v=28"></script>
+<script type="module" src="site.js?v=30"></script>
 </body>
 </html>
