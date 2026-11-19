@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-19 08:35 -05:00 — Anish — Initialize compiler temporary state on first use
+
+- The native CLI reproduced the pilot's `build_failure` before Docker when its configured `TMPDIR` did not exist. Compile now creates the temporary root before fingerprinting. The new regression confirms the guest builder runs and the failed build leaves no partial package.
+- Rust format, lints and workspace tests passed. A real Docker compile from an empty engine cache and absent state roots returned a valid guest package in 10.3 seconds. Docker reused build layers. This run exercised compile and did not generate a proof.
+- Branch `codex/engine-hardening`. Next work covers authoring repair and the harder workload. No deployment or Arc transaction ran.
+
 ## 2026-11-19 08:31 -05:00 — Anish — Preserve native qualification failures
 
 - Branch `codex/engine-hardening` starts from `6da430f`. The native host runner now reports plan validation failures even when all selected plans fail before candidate evaluation.

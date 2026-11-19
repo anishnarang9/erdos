@@ -179,6 +179,7 @@ pub(crate) fn compile(plan: &Path, reference: &Path, out: &Path) -> Result<Value
         .map_err(|err| error("invalid_reference", err))?;
     let stage = stage_output(out, ".engine-compile-")?;
     let start = std::time::Instant::now();
+    fs::create_dir_all(std::env::temp_dir()).map_err(|err| error("build_failure", err))?;
     let build_fingerprint = fingerprint(structure).map_err(|err| error("build_failure", err))?;
     let cache = crate::cache::directory().map_err(|err| error("build_failure", err))?;
     let cached = crate::cache::load(&cache, &build_fingerprint);
