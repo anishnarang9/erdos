@@ -100,6 +100,32 @@ fn requires_exactly_one_join_and_bounded_record_lists() {
 }
 
 #[test]
+fn checks_duplicate_join_keys_only_when_that_key_field_is_used() {
+    let mut input = plan();
+    // The extra rows have distinct IDs and share an amount. The ID lookup stays valid.
+    let ledger = json!([
+        {"id":"a","amount":"10"},
+        {"id":"b","amount":"20"},
+        {"id":"c","amount":"30"},
+        {"id":"d","amount":"30"}
+    ]);
+    assert_eq!(run(&input, rows(), ledger.clone()), Ok(Verdict::Pass));
+
+    let amount_lookup = json!({
+        "op":"eq",
+        "left":{
+            "op":"lookup","collection":collection("reference", "ledger.json", "rows"),
+            "keyField":"amount","key":literal("10"),"valueField":"id"
+        },
+        "right":{"op":"literal","type":"string","value":"a"}
+    });
+    input["rules"].as_array_mut().unwrap().push(amount_lookup);
+    assert_eq!(run(&input, rows(), rows()), Ok(Verdict::Pass));
+    // A lookup for 10 rejects duplicate keys elsewhere in the same index.
+    assert_eq!(run(&input, rows(), ledger), Err(CheckError::Rule));
+}
+
+#[test]
 fn handles_empty_quantifiers_and_repeated_runtime_parameters() {
     let mut input = plan();
     let collection = collection("deliverable", "result.json", "rows");

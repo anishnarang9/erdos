@@ -3,7 +3,7 @@ pub mod evidence_crypto;
 mod records;
 mod typecheck;
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{de::DeserializeOwned, Deserialize};
 use serde_json::Value;
@@ -147,7 +147,7 @@ struct Parameter {
     value: Value,
 }
 
-#[derive(Deserialize, PartialEq, Eq)]
+#[derive(Clone, Copy, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(rename_all = "lowercase")]
 pub enum Source {
     Deliverable,
@@ -387,6 +387,7 @@ fn check_internal(
         evidence: &evidence,
         parameters: &parameters,
         scopes: Vec::new(),
+        lookup_indexes: BTreeMap::new(),
         nodes: 0,
     };
     let mut passed = true;
@@ -550,6 +551,7 @@ struct Evaluator<'a> {
     evidence: &'a [ParsedFile],
     parameters: &'a [Scalar],
     scopes: Vec<&'a [Scalar]>,
+    lookup_indexes: records::LookupIndexes<'a>,
     nodes: usize,
 }
 

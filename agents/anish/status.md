@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-19 08:45 -05:00 — Anish — Reuse lookup indexes during evaluation
+
+- Sonnet via `agy` proposed lazy indexes keyed by source, file, collection and key field. Opus reviewed compatibility risks. Each evaluation reuses borrowed rows and still rejects duplicate keys in any used column.
+- The 96-order guest dropped from 38,718,586 to 5,038,205 user cycles for verdict 1, an 87.0% reduction. The over-budget allocation still returns verdict 0 at 5,038,281 cycles. The new host also executes the original package successfully. New packages get a different image ID.
+- Rust formatting, Clippy, workspace tests, 74 qualification checks, 326 frozen native comparisons, and the wire fixture passed. A local Groth16 proof and byte recovery check are in progress. GitHub Actions remains blocked before job start by its billing or spending limit.
+
 ## 2026-11-19 08:41 -05:00 — Anish — Measure a 96-order dispatch workload
 
 - Added a native dispatch test outside the frozen corpus. An independent oracle checks two valid allocations, five isolated rule failures, and two input rejections. The qualification suite passed 74 tests. The frozen corpus passed all 326 native comparisons and the wire fixture passed.
