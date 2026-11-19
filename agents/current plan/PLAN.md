@@ -1,8 +1,13 @@
 # Current plan
 
+## 2026-11-18 19:20 -0500 — Anish — Use Flash High and keep the agents separate
+
+- Use a fresh Gemini 3.8 Flash High buyer through `agy`. Buyer and solver interact only through the public API. Give the solver a prepared receipt if needed. The test checks whether the documented workflow accepts a valid solution and fresh proof, pays out, and lets the buyer recover the exact bytes.
+- Use free `agy` capacity first for suitable delegation. See [the acceptance plan](../../docs/agent-first-cold-e2e-2026-11-18.md).
+
 ## 2026-11-18 19:10 -0500 — Anish — Test the buyer with Flash Low
 
-- The next acceptance run uses a fresh Gemini 3.8 Flash Low buyer through `agy`. The solver can help the buyer and can receive a prepared receipt. Record buyer blockers, help, and inputs. Require a fresh authored job, proof, payout, and exact buyer recovery.
+- The next acceptance run uses a fresh Gemini 3.8 Flash Low buyer through `agy`. This entry is superseded by the correction above. Require a fresh authored job, proof, payout, and exact buyer recovery.
 - Use free `agy` capacity first for suitable delegated work, including work that needs an available Claude or GPT model. Keep [the updated acceptance plan](../../docs/agent-first-cold-e2e-2026-11-18.md) as the source for the test.
 
 ## 2026-11-18 17:35 -05:00 — Anish — Prioritize one fresh independent Arc run

@@ -1,6 +1,11 @@
+# 2026-11-18 19:20 -0500 — Confirm Flash High and API-only interaction
+
+- The user selected Gemini 3.8 Flash High and clarified that buyer and solver interact only through the public API. The solver may receive a prepared receipt. Updated the project instructions and the acceptance plan.
+- A scoped headless Flash Low rehearsal read live job 10 through the public API. That rehearsal predates the Flash High decision and does not count as funded buyer acceptance.
+
 # 2026-11-18 19:11 -0500 — Use `agy` Flash Low for the buyer acceptance test
 
-- The user directs us to test a fresh Flash Low buyer and allow solver help. The solver may receive a prepared receipt. The test still requires fresh authoring, proof, Arc payout, and byte-exact buyer recovery. Updated the project instructions and acceptance plan.
+- We recorded Flash Low and solver help here. The user later corrected both choices. The solver may receive a prepared receipt. The test still requires fresh authoring, proof, Arc payout, and byte-exact buyer recovery. Updated the project instructions and acceptance plan.
 - `agy models` confirmed the Flash Low model ID and listed Claude and GPT options. Use available free `agy` capacity first for suitable delegation, including stronger models when needed. The read-only Flash rehearsal hit a headless command permission denial when it tried to fetch the guide. With the same public guide supplied in the prompt, Flash Low correctly outlined draft creation, wallet authentication, and one draft submission. The run made no paid xAI requests and sent no Arc transactions. The funded Flash test still needs scoped command access and live pilot capacity.
 
 # 2026-11-18 19:09 -0500 — Wait for confirmed Arc receipts in the solver runner

@@ -12,8 +12,9 @@ Plan documents in `current plan/`:
 
 - Use `agy` first for bounded work that another agent can do independently. Prefer the lowest capability model that can do the work. Run `agy models` to confirm the available model IDs.
 - Use available `agy` free credits for useful work before moving to another provider or paid capacity. This includes work suitable for Claude or GPT: use the available Claude or GPT option through `agy` when a stronger model is needed. Continue through `agy` until its free allowance is exhausted for the work session. Do not spend credits on filler or retry loops.
-- For buyer acceptance, start a fresh `agy --model gemini-3.8-flash-low` session. Give it the public guide, the task, and scoped test access. Assume the buyer will need clear instructions and may get stuck. Have the solver agent help through the intended workflow when needed. Record the first blocker, the help given, and the result. Keep the buyer on Flash Low while measuring the buyer experience.
-- The Arc demo tests the workflow. The solver can use any suitable model, including Flash Low, and can receive a prepared receipt or other test deliverable. Label the supplied input in the evidence. The solver still needs to verify it, generate a fresh proof bound to the new funded job, settle on Arc, and let the buyer recover the exact bytes.
+- For buyer acceptance, start a fresh `agy --model gemini-3.8-flash-high` session. Give it the public guide, the task, and scoped test access. Record buyer blockers and improve the public instructions or API when needed. Keep the buyer on Flash High while measuring the buyer experience.
+- Keep buyer and solver sessions, wallets, and private files separate. The agents interact only through the public API. The solver does not coach the buyer.
+- The Arc demo tests whether the instructions and workflow are clear enough to accept a valid solution and proof. The solver can use any suitable model and can receive a prepared test receipt. Label that input in the evidence. The solver verifies the receipt, generates a fresh proof for the funded job, and settles on Arc. The buyer recovers the exact bytes.
 - Keep delegated access scoped to the task. Keep credentials and wallet secrets out of prompts and logs. Review agent output and verify consequential actions before depending on them.
 
 ## Workstreams
