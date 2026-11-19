@@ -245,11 +245,22 @@ let ticking = false;
 addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { onScroll(); ticking = false; }); } }, { passive: true });
 addEventListener('resize', onScroll); onScroll();
 
-// Reveals: blocks rise in; marked text decodes with staggered latency.
+// Reveal each block once. Content is readable before observation and on anchor jumps.
 if (!reduced) {
   document.documentElement.classList.add('motion');
-  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); if (e.target.matches('.token-grid, .token-links, .hero')) decodeAll(e.target, 150, 110); io.unobserve(e.target); } }), { threshold: .18 });
-  $$('.reveal, .case, .mat, .faq details, .title-wrap, .lab-panel, .token-grid, .token-links, .eco-lead, [data-fade]').forEach((el, i) => { el.style.setProperty('--d', `${(i % 4) * 90}ms`); io.observe(el); });
+  const blocks = $$('.reveal, .case, .mat, .faq details, .title-wrap, .lab-panel, .sol-left, .scope-examples > *, .token-left, .escrow-inspector, .token-links, .eco-lead');
+  const observer = new IntersectionObserver(entries => {
+    const destination = document.querySelector(':target');
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      const block = entry.target;
+      const atDestination = destination && (destination.contains(block) || block.contains(destination));
+      if (!atDestination && !block.matches(':focus-within')) block.classList.add('scroll-enter');
+      if (block.matches('.token-left, .token-links')) decodeAll(block, 150, 110);
+      observer.unobserve(block);
+    }
+  }, { rootMargin: '0px 0px -4% 0px' });
+  blocks.forEach(block => observer.observe(block));
 }
 
 // Copy the escrow address.
