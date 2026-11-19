@@ -1,3 +1,8 @@
+# 2026-11-18 19:09 -0500 — Wait for confirmed Arc receipts in the solver runner
+
+- On `codex/authoring-pilot-round2` (PR #19), the solver runner now polls the saved claim or release hash after delays of 2, 4, and 8 seconds when the first read returns no confirmed receipt. It reconciles only a confirmed receipt. If all reads remain pending, the saved attempt still supports a resume.
+- Verified the regression before and after the fix. All 34 focused open-claim tests and the worker typecheck passed. Full commerce checks and release qualification remain pending. No draft, Bot review, proof, or chain send ran during this checkpoint.
+
 # 2026-11-18 18:58 -05:00 — Verify job 10 payout and publish the tested runner
 
 - Audited all seven Arc receipts and both wallets' gas-adjusted balance changes. Job 10 paid 0.01 testnet USDC. The solver reconciled both transaction hashes and reported confirmed payment. The [job 10 report](reports/hosted-arc-job10-acceptance-2026-11-18.md) records the source pins, authoring cost, proof timing, receipts, and RPC workarounds.

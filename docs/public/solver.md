@@ -86,7 +86,7 @@ ubc26 operator run --config "$WORK/operator.json" --password-fd 3 \
 
 The local check must return verdict 1 before proof preparation. Preserve the attempt and send journals after any interruption. Confirm the winner and payout from the public `open-job` record and Arc receipts. If `operator run` returns `phase:"released"`, `paymentConfirmed:true`, and `releaseJournalUncertain:true`, the chain receipt confirms payout but the local gas journal still needs reconciliation. Keep that journal and avoid a new signed transaction from the same wallet until its state is resolved. This flag does not authorize a resend.
 
-A result of `claim_sent` or `release_sent` means the runner has a transaction hash but has yet to confirm the receipt. Check the saved hash on Arc. After the receipt confirms, run the same command with the same configuration, attempt directory, and journal. The runner resumes receipt checks from the saved hash. If the runner reports an uncertain broadcast without a hash, stop and reconcile the journal before proceeding.
+A result of `claim_sent` or `release_sent` means the runner has a transaction hash but has yet to confirm the receipt. Recent runner releases poll the same hash briefly before they return that state. Check the saved hash on Arc. After the receipt confirms, run the same command with the same configuration, attempt directory, and journal. The runner resumes receipt checks from the saved hash. If the runner reports an uncertain broadcast without a hash, stop and reconcile the journal before proceeding.
 
 ## Cold-start prompt
 

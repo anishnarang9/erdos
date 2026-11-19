@@ -284,7 +284,7 @@ export async function openClaimOperator(args: string[], credentials?: { buyerTok
       async h => (await getBroadcaster()).reconcile(h), h => {
         const saved = attemptStatus(JSON.parse(readSafeFile(join(c.attemptDir, "state.json"), true).toString()));
         return (saved.phase === "release_sent" || saved.phase === "released") && saved.releaseTx === h.toLowerCase();
-      });
+      }, { delaysMs: [2000, 4000, 8000] });
     releaseJournalUncertain ||= observed.releaseJournalUncertain;
     return observed.receipt;
   };
