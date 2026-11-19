@@ -37,4 +37,6 @@ The solver hit public RPC rate limits before the prover started. Its custom read
 
 The service returned intermittent HTTP 503 for open-job detail while its Arc endpoint throttled VPS reads. The operator moved the API's open-claim reads to the independently checked PublicNode endpoint. Readiness passed and six consecutive job detail requests returned 200. This sample does not establish long-term RPC reliability.
 
-The original documented buyer recovery command failed with a redacted error after confirmed release. Independent buyer recovery and its file oracle are still in progress.
+The original buyer recovery command failed with a redacted error after confirmed release. The buyer traced it to HTTP 429 during a core role history query. The unmodified pinned runner recovered through QuickNode's public Arc RPC. An independent receipt check passed. It found each ordered item once, with counts 3, 4, and 2 and total 9 of 9. The root audit compared the 148 recovered SDK bytes with the native engine output and the original solver file. All three matched byte for byte. The buyer needed no solver files or wallet to recover the receipt.
+
+Job 10 proves independent completion with RPC workarounds. The published guide alone has yet to reproduce this flow reliably.

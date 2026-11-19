@@ -87,7 +87,7 @@ This command writes `funding-result.json` and links confirmed funding to the API
 
 After confirmed funding, save `{ "revisionHash": "...", "brief": "..." }` in a private `public-brief.json` file. Run `ubc26 public-brief --api "$API" --key-file "$KEY_FILE" --job "$JOB" --input "$WORK/public-brief.json" --idempotency "$BRIEF_KEY"`. The service publishes only this brief. Publish the API job ID, on-chain job ID, public job URL, and package and reference URLs. Do not publish credentials, wallet files, journals, or the solver's answer.
 
-After confirmed release, run `ubc26 buyer-recover --api "$API" --job "$JOB" --rpc-url "$RPC" --manifest "$MANIFEST" --engine-config "$ENGINE_CONFIG" --out "$WORK/recovered"`. This command reads confirmed chain data and checks SDK and engine recovery. It does not need the solver's attempt files. Check the recovered files with your independent oracle. Record payment and gas receipts.
+After confirmed release, run `ubc26 buyer-recover --api "$API" --job "$JOB" --rpc-url "$RPC" --manifest "$MANIFEST" --engine-config "$ENGINE_CONFIG" --out "$WORK/recovered"`. This command reads confirmed chain data and checks SDK and engine recovery. It does not need the solver's attempt files. If the public Arc RPC throttles historical log reads, retry this read-only command with an archive-capable Arc Testnet RPC. Job 10 recovered successfully with `--rpc-url https://rpc.quicknode.testnet.arc.io`. Check the recovered files with your independent oracle. Record payment and gas receipts.
 
 ## Cold-start prompt
 
