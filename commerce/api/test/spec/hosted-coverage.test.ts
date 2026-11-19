@@ -27,7 +27,7 @@ describe('reviewable requirement links',()=>{
 });
 import {createApp,EngineError,simulatedEngine} from '../../src/index.ts';
 import {BUYER_TOKEN} from './helpers.ts';
-it.each(['draft', 'unsupported', 'clarification', 'invalid-plan', 'checker-outage'] as const)('handles a repair with outcome %s', async (repair) => {
+it.each(['draft', 'unsupported', 'clarification', 'invalid-plan', 'checker-outage', 'examples-regression', 'coverage-regression'] as const)('handles a repair with outcome %s', async (repair) => {
   let calls = 0;
   const input = {request:'Check both conditions', outputs:[{name:'result.json',format:'json'}], expirySeconds:600, maxBudget:'10000'};
   const plan = {
@@ -50,19 +50,24 @@ it.each(['draft', 'unsupported', 'clarification', 'invalid-plan', 'checker-outag
         }
         return controlledEngine.validate(candidate, options);
       },
-      eval: async ({deliverables}) => ({ok:true, verdict:deliverables[0]?.content[0] === 49 ? 1 : 0}),
+      eval: async ({deliverables}) => {
+        const losesNegative = (calls === 2 && repair === 'examples-regression') ||
+          (calls === 1 && repair === 'coverage-regression');
+        return {ok:true, verdict:losesNegative || deliverables[0]?.content[0] === 49 ? 1 : 0};
+      },
     },
     draftModel: {
       draft: async () => {
         const reply = {model:'controlled', traceId:`coverage-${++calls}`, usage};
         if (calls === 2 && repair === 'unsupported') return {...reply, result:{kind:'unsupported', reason:'Cannot express this policy'}};
         if (calls === 2 && repair === 'clarification') return {...reply, result:{kind:'clarification', questions:['Which policy?']}};
+        const incompleteCoverage = repair === 'coverage-regression' ? calls === 2 : calls === 1;
         return {
           ...reply,
           result: {
             kind: 'draft',
             plan: calls === 2 && repair === 'invalid-plan' ? {...plan, version:0} : plan,
-            coverage: calls === 1 ? {...complete, unresolved:['which policy?']} : complete,
+            coverage: incompleteCoverage ? {...complete, unresolved:['which policy?']} : complete,
             sourceQuotes: quotes.map(({path, quote}) => ({path, quote})),
             examples: [
               {name:'pass', predictedVerdict:1, files:[{name:'result.json',content:'1'}]},
@@ -96,7 +101,8 @@ it.each(['draft', 'unsupported', 'clarification', 'invalid-plan', 'checker-outag
       expect(body).toMatchObject({
         kind: 'draft',
         revision: {plan},
-        coverage: {ruleCoverageComplete:repaired, requirements:complete.requirements},
+        coverage: {ruleCoverageComplete:repaired || repair === 'coverage-regression', requirements:complete.requirements},
+        exampleApprovalReady: repair !== 'coverage-regression',
         quoteVerification: quotes,
       });
       expect(body).toHaveProperty('coverage.coverageDigest', expect.stringMatching(/^[0-9a-f]{64}$/));

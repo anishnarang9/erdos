@@ -360,6 +360,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       response: Record<string, unknown>;
       hash: string | null;
       fatal: boolean;
+      review?: { examplesReady: boolean; coverageComplete: boolean };
       feedback?: NonNullable<DraftModelInput["repair"]>;
     };
     const assess = async (attempt: { reply: DraftModelResult; result: ModelDraft }): Promise<Assessment> => {
@@ -421,6 +422,10 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       const coverage = assessCoverage(rules, result.coverage, quoteVerification);
       const examples = await labelExamples(result, body.references, body.exampleFixtures, signal);
       const counts = usableExamples(examples);
+      const review = {
+        examplesReady: counts.positive > 0 && counts.negative > 0 && !counts.blocked,
+        coverageComplete: coverage.ruleCoverageComplete,
+      };
       const revision: Revision = {
         plan: result.plan,
         referenceDigest: referenceDigestOf(body.references),
@@ -440,18 +445,18 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         preview: verdict.preview ?? null,
         examples,
         exampleInputs: exampleReviewInputs(result.examples, body.exampleFixtures),
-        exampleApprovalReady: counts.positive > 0 && counts.negative > 0 && !counts.blocked,
+        exampleApprovalReady: review.examplesReady,
         sourceQuotes: result.sourceQuotes,
         quoteVerification,
         coverage,
         model: reply.model,
         traceId: reply.traceId,
       };
-      if (counts.positive > 0 && counts.negative > 0 && !counts.blocked) {
+      if (review.examplesReady) {
         if (!coverage.ruleCoverageComplete && (result.coverage !== undefined || deps.deployment.mode === "public")) {
-          return { attempt, response, hash, fatal: false, feedback: { attempt: 1, reason: "coverage", errors: coverage.omissions.map(message => ({ path: "/coverage", message })), counterexamples: [] } };
+          return { attempt, response, hash, review, fatal: false, feedback: { attempt: 1, reason: "coverage", errors: coverage.omissions.map(message => ({ path: "/coverage", message })), counterexamples: [] } };
         }
-        return { attempt, response, hash, fatal: false };
+        return { attempt, response, hash, review, fatal: false };
       }
       const errors: FieldError[] = [];
       if (counts.positive === 0) errors.push({ path: "/examples", message: "An engine-checked passing example is required" });
@@ -473,6 +478,7 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
         attempt,
         response,
         hash,
+        review,
         fatal: false,
         feedback: { attempt: 1, reason: "examples", errors, counterexamples },
       };
@@ -502,8 +508,11 @@ export function authoringHandlers(deps: Deps, commit: Idempotency["commit"], new
       if (!second.failureReason) {
         try {
           const repaired = await assess(second);
-          // Keep a valid draft after a failed repair. Return any actionable clarification.
-          if (!chosen?.hash || repaired.hash !== null || repaired.response.kind === "clarification") {
+          const preservesReview = repaired.review
+            && (!chosen?.review?.examplesReady || repaired.review.examplesReady)
+            && (!chosen?.review?.coverageComplete || repaired.review.coverageComplete);
+          // Keep passed buyer review checks. Return any actionable clarification.
+          if (!chosen?.hash || preservesReview || repaired.response.kind === "clarification") {
             chosen = repaired;
           }
         } catch (err) {
