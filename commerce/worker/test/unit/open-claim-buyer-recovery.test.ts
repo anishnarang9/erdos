@@ -63,3 +63,20 @@ it("retries one public read timeout, then stops after the second failure", async
   })).rejects.toMatchObject({ name: "TimeoutError" });
   expect(calls).toBe(2);
 });
+
+it("reports the recovery stage without printing a private path", async () => {
+  const { hostedMain } = await import("../../src/hosted-cli.ts");
+  const { vi } = await import("vitest");
+  const stderr = vi.spyOn(console, "error").mockImplementation(() => {});
+  const exitCode = process.exitCode;
+  try {
+    await hostedMain(["buyer-recover", "--api", "https://example.test", "--job", "api-job-7",
+      "--rpc-url", "https://rpc.example.test", "--manifest", "/private/DO_NOT_ECHO/manifest.json",
+      "--engine-config", "/private/DO_NOT_ECHO/engine.json", "--out", "/private/DO_NOT_ECHO/output"]);
+    expect(process.exitCode).toBe(1);
+    expect(stderr.mock.calls).toEqual([[JSON.stringify({ status: "recovery-failed", stage: "configuration" })]]);
+  } finally {
+    stderr.mockRestore();
+    process.exitCode = exitCode;
+  }
+});

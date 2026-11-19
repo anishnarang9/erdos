@@ -1,3 +1,8 @@
+# 2026-11-18 19:23 -0500 — Report the buyer recovery failure stage
+
+- Flash High used a scoped headless command to inspect the prior recovery process for settled Arc job 10. The process exited with a redacted generic error. The runner now reports a fixed recovery stage for local and chain validation failures and preserves SDK-sanitized public API errors.
+- Verified the CLI regression before and after the fix. Fifteen focused tests and worker typecheck passed. Live recheck pending. This checkpoint made no paid draft, Bot dispatch, or transaction send.
+
 # 2026-11-18 19:20 -0500 — Confirm Flash High and API-only interaction
 
 - The user selected Gemini 3.8 Flash High and clarified that buyer and solver interact only through the public API. The solver may receive a prepared receipt. Updated the project instructions and the acceptance plan.
