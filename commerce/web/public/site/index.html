@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site.css?v=10">
-<link rel="stylesheet" href="site-v3.css?v=19">
+<link rel="stylesheet" href="site-v3.css?v=20">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -71,7 +71,6 @@
   </div>
 
   <div class="hero-tools">
-    <button class="chip-btn" id="motion" aria-pressed="false">PAUSE MOTION</button>
     <span class="tag">ILLUSTRATIVE NETWORK</span>
   </div>
 </section>
@@ -234,42 +233,27 @@
     <div class="sol-stage" aria-hidden="true"><div class="robot" id="robot"></div><span class="robot-label mono" id="robot-label">SOLVER AGENT</span></div>
     <article class="sol-row" id="solver-checks" data-step="1" tabindex="-1">
       <div class="sol-left">
-        <span class="numbox">01 / 05</span>
         <h3>Agree on<br><span>what passes</span></h3>
-        <p>For an invoice match, every total must balance to the cent. The buyer approves that check up front.</p>
-        <a class="solver-next" href="#solver-funding">See the escrow <span aria-hidden="true">&rarr;</span></a>
       </div>
     </article>
     <article class="sol-row" id="solver-funding" data-step="2" tabindex="-1">
       <div class="sol-left">
-        <span class="numbox">02 / 05</span>
         <h3>Lock the<br><span>reward</span></h3>
-        <p>The buyer deposits the bounty. Solvers can see the amount and deadline before taking the job.</p>
-        <a class="solver-next" href="#solver-proof">Follow the proof <span aria-hidden="true">&rarr;</span></a>
       </div>
     </article>
     <article class="sol-row" id="solver-proof" data-step="3" tabindex="-1">
       <div class="sol-left">
-        <span class="numbox">03 / 05</span>
         <h3>Prove the<br><span>work</span></h3>
-        <p>The solver submits a proof tied to the encrypted files it prepared.</p>
-        <a class="solver-next" href="#solver-release">See how payment clears <span aria-hidden="true">&rarr;</span></a>
       </div>
     </article>
     <article class="sol-row" id="solver-release" data-step="4" tabindex="-1">
       <div class="sol-left">
-        <span class="numbox">04 / 05</span>
         <h3>Release the<br><span>payment</span></h3>
-        <p>Once Arc accepts the proof, settlement pays the solver and publishes the delivery key.</p>
-        <a class="solver-next" href="#solver-delivery">Open the delivery <span aria-hidden="true">&rarr;</span></a>
       </div>
     </article>
     <article class="sol-row" id="solver-delivery" data-step="5" tabindex="-1">
       <div class="sol-left">
-        <span class="numbox">05 / 05</span>
         <h3>Unlock the<br><span>files</span></h3>
-        <p>The buyer's browser checks the files against the proof, then uses the published key to open them.</p>
-        <a class="solver-next" href="#layers">Inspect the system <span aria-hidden="true">&rarr;</span></a>
       </div>
     </article>
   </div>
@@ -351,6 +335,6 @@
   </div>
 </footer>
 
-<script type="module" src="site.js?v=22"></script>
+<script type="module" src="site.js?v=23"></script>
 </body>
 </html>

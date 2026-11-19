@@ -1,4 +1,4 @@
-import { initGlobe } from './globe.js?v=11';
+import { initGlobe } from './globe.js?v=12';
 import { initRobot } from './robot.js?v=18';
 import { initRecordedProof } from './recorded-proof.js?v=12';
 import { initCoin } from './coin.js?v=9';
@@ -51,10 +51,6 @@ const safe = (fn, name) => { try { return fn(); } catch (err) { console.warn(`${
 const globe = safe(() => initGlobe($('#globe'), { reduced }), 'Globe'); if (!globe) $('#globe').classList.add('no-webgl');
 const robot = safe(() => initRobot($('#robot'), { reduced }), 'Robot');
 const coin = safe(() => initCoin($('#coin'), { reduced }), 'Coin');
-const motionBtn = $('#motion');
-const syncMotion = () => { const p = globe?.isPaused() ?? true; motionBtn.textContent = p ? 'RESUME MOTION' : 'PAUSE MOTION'; motionBtn.setAttribute('aria-pressed', String(p)); };
-motionBtn.addEventListener('click', () => { globe?.setPaused(!globe.isPaused()); syncMotion(); }); syncMotion();
-
 // ---------- solutions: fixed centre robot, scrolling rows ----------
 const rows = $$('.sol-row'), robotLabel = $('#robot-label');
 let activeRow = -1;
@@ -254,7 +250,7 @@ if (!reduced) {
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
       const block = entry.target;
-      const atDestination = destination && (destination.contains(block) || block.contains(destination));
+      const atDestination = destination && ((destination.contains(block) && block.getBoundingClientRect().top < innerHeight && destination.getBoundingClientRect().top >= -1) || block.contains(destination));
       if (!atDestination && !block.matches(':focus-within')) block.classList.add('scroll-enter');
       if (block.matches('.token-left, .token-links')) decodeAll(block, 150, 110);
       observer.unobserve(block);

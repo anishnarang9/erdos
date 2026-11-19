@@ -219,7 +219,7 @@ export function initGlobe(host, { reduced = false } = {}) {
   const pass = new THREE.Color(0x52ffd9), fail = new THREE.Color(0xff3d6e);
   function setOutcome(kind) { if (kind === 'released') { pulseColor.copy(pass); pulseAmt = 1.6; } else if (kind === 'failed') { pulseColor.copy(fail); pulseAmt = 1.6; } else { pulseAmt = 0; } dirty = true; }
 
-  let paused = reduced, visible = true, time = 0, last = performance.now(), mx = 0, my = 0, vx = 0, vy = 0, drag = false, lx = 0, ly = 0, yaw = 0, pitch = 0, yawVel = 0, pitchVel = 0;
+  let visible = true, time = 0, last = performance.now(), mx = 0, my = 0, vx = 0, vy = 0, drag = false, lx = 0, ly = 0, yaw = 0, pitch = 0, yawVel = 0, pitchVel = 0;
   let layout = { x: 0, y: 0, s: 1 };
   function resize() {
     const w = host.clientWidth, h = host.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
@@ -246,7 +246,7 @@ export function initGlobe(host, { reduced = false } = {}) {
     requestAnimationFrame(frame);
     const dt = Math.min(.05, (now - last) / 1000); last = now;
     if (!visible || document.hidden) return;
-    if (!paused) { time += dt; dirty = true; }
+    if (!reduced) { time += dt; dirty = true; }
     if (!dirty) return;
     vx += (mx - vx) * Math.min(1, dt * 3); vy += (my - vy) * Math.min(1, dt * 3);
     for (const planet of planets) planet.body.rotation.y = time * planet.speed;
@@ -279,16 +279,14 @@ export function initGlobe(host, { reduced = false } = {}) {
     if (!drag) { yaw += yawVel * dt; pitch = THREE.MathUtils.clamp(pitch + pitchVel * dt, -.6, .6); yawVel *= Math.pow(.2, dt); pitchVel *= Math.pow(.2, dt); }
     spin.rotation.x = .32 + pitch;
     renderer.render(scene, camera);
-    dirty = paused && pulseAmt > 0;
+    dirty = reduced && pulseAmt > 0;
   }
   requestAnimationFrame(frame);
   el.addEventListener('webglcontextlost', (e) => e.preventDefault());
 
   return {
-    setPaused(p) { paused = p; dirty = true; },
-    isPaused: () => paused,
     setLayout(l) { layout = { ...layout, ...l }; resize(); },
     setOutcome,
-    diagnostics: () => ({ texturesLoaded, arcs: arcs.length, rings: bands.length, drawCalls: renderer.info.render.calls, time, paused }),
+    diagnostics: () => ({ texturesLoaded, arcs: arcs.length, rings: bands.length, drawCalls: renderer.info.render.calls, time, paused: reduced }),
   };
 }

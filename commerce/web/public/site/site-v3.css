@@ -27,7 +27,6 @@
 .sol-row.active { opacity: 1; }
 .sol-left { padding: 40px 32px; max-width: 500px; }
 .sol-left h3 { margin: 22px 0 0; font: 500 clamp(34px, 3.3vw, 54px)/1.08 var(--sans); letter-spacing: -.03em; }
-.sol-left p { margin: 34px 0 0; font-size: 19px; line-height: 1.5; max-width: 23em; }
 .sol-link { display: flex; justify-content: flex-end; align-items: center; gap: 16px; margin-top: 90px; padding: 16px; border-top: 1px solid var(--line-2); font: 600 13px var(--mono); letter-spacing: .06em; }
 .sol-link b { font-size: 22px; font-weight: 400; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; transition: transform .2s; }
 .sol-link:hover b { transform: translate(3px, -3px); }
@@ -124,7 +123,6 @@
   .robot { width: 100%; }
   .sol-row { grid-template-columns: minmax(0, 1fr); min-height: 0; padding: 26px 0 40px; }
   .sol-left { padding: 0 20px; }
-  .sol-left p { margin-top: 18px; font-size: 17px; }
   .sol-link { margin-top: 0; }
   .eco-head { grid-template-columns: 1fr; margin-right: 0; gap: 20px; }
   .eco-lead { padding: 0 20px; }
@@ -311,7 +309,6 @@ body[data-lab="released"] .demo-verdict h3 { color: var(--ok); }
 .sol-row { opacity: 1; }
 .sol-row.active { background: linear-gradient(90deg, #a68cff0b, transparent 38%, transparent 70%, #63f0ff08); }
 .sol-left h3 { margin-top: 12px; }
-.sol-left p { margin-top: 16px; font-size: clamp(1rem, 1.4vw, 1.12rem); }
 .escrow-inspector {
   padding: clamp(14px, 2vw, 26px);
   border: 1px solid var(--line-2);
@@ -382,11 +379,7 @@ body[data-lab="released"] .demo-verdict h3 { color: var(--ok); }
 #solver-release { --accent: #81ecd0; }
 #solver-delivery { --accent: #ffb5d8; }
 .sol-row .sol-left h3 span { background: none; color: var(--accent); }
-.sol-row .numbox { width: auto; padding-inline: .7em; color: var(--accent); }
-.sol-left h3 { font-size: clamp(2.7rem, 5.2vw, 5.8rem); line-height: 1.02; }
-.sol-left p { max-width: 32ch; font-size: clamp(1.05rem, 1.55vw, 1.4rem); }
-.solver-next { display: inline-flex; gap: .7em; align-items: center; min-height: 44px; margin-top: 12px; color: var(--accent); font-weight: 600; }
-.solver-next:hover, .solver-next:focus-visible { text-decoration: underline; text-underline-offset: .25em; }
+.sol-left h3 { margin: 0; font-size: clamp(2.6rem, 5.6vw, 6rem); line-height: 1.02; }
 @media (min-width: 761px) {
   .sol-stage { --stage-height: calc(100svh - var(--bar)); height: var(--stage-height); margin-bottom: calc(-1 * var(--stage-height)); background: none; }
   .sol-stage .robot { left: 50%; width: 50%; transform: none; border-left: 1px solid var(--line-2); }
