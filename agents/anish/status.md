@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-19 08:56 -05:00 — Anish — Record dispatch authoring and proof limits
+
+- Fresh Opus and Sonnet sessions through `agy` each authored a valid 96-order dispatch plan from the buyer brief, schema, and references. Each plan matched all nine independent oracle cases. These direct probes did not exercise hosted authoring or settlement.
+- The local 96-order Groth16 attempt reached its 12-minute run limit and exited 124. It left no receipt or recovery result. The earlier guest execution and cycle measurements remain valid. Check full proving on this workload before claiming end-to-end qualification.
+- All changes are checkpointed on `codex/engine-hardening` in draft [PR #33](https://github.com/anishnarang9/UBC-26/pull/33). Rust, commerce, qualification and wire checks passed locally. GitHub Actions blocked job startup for an account billing or spending limit issue. No production deployment or Arc transaction ran.
+
 ## 2026-11-19 08:51 -05:00 — Anish — Clarify valid and malformed authoring examples
 
 - The production authoring prompt now distinguishes verdict 0 from rejected input. It directs the model to follow the buyer's required JSON layout and omit properties outside the schema.
