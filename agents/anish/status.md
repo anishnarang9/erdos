@@ -1,3 +1,10 @@
+# 2026-11-18 20:20 -0500 — Flash High authors a qualified plan and receives Bot findings
+
+- Flash High invoked narrowly scoped local MCP tools that called the hosted API using a protected buyer credential. The buyer and solver had no side channel. The tools submitted the prepared brief through TLS using the original idempotency key. No transport retry consumed a second draft.
+- Task `01M7RP1NBGMVXVRAMMP47H5WEG` settled at $0.010246. The authored plan had complete coverage and all three buyer fixtures passed. One generated negative confused an unknown ID with a missing row. Flash High checked replacement examples for the same revision with no extra model call. Example check `01M7RP4BEBG2K24ZNJXTCAY7E1` passed verdicts 1, 0, 0.
+- Flash High accepted job `01M7RP5JHE7XP43490EN051N2H` and requested Bot review `01M7RP5JVJV9F539JPHZS4FCSA` for revision `0x12dd775a5794012cb8dabc7a18e54bc06e0a3977ce80df038e264100495167d2`. The Bot completed with `needs_changes`. It treated a missing lookup key as undefined behavior and took the numeric self-comparison for an unenforced membership check.
+- Independently replayed the exact reviewed plan and reference bytes with the pinned native engine. Valid receipt returned 1, missing ordered item returned 0, and both unknown-key cases returned `invalid_deliverable`. The Bot result remains binding. No approval, compile, funding, solver contact, or signed transaction followed. Removed the temporary MCP registration and local credential copy.
+
 # 2026-11-18 20:14 -0500 — Test direct HTTPS from Flash High
 
 - Flash High reached the hosted API with a scoped authenticated GET and reported the expected buyer wallet and scope. A later POST failed DNS resolution before HTTP. The VPS confirmed zero matching idempotency rows and unchanged draft and spend counters.
