@@ -1,3 +1,10 @@
+# 2026-11-18 20:54 -0500 — Release scoped recovery and obtain a genuine Bot pass
+
+- The user approved release with local checks while GitHub Actions could not start jobs due to billing. API typecheck and all 1,087 API tests passed. The Linux image pins and JavaScript bundle verified. Released source `1aab048` and VPS image `sha256:6a037297f927b07dc98d5c3e4832826e0d86de9fa319073e166f1b94173b359a` after backup `snapshot-20261119T015025Z` with manifest SHA-256 `6b21e650a103a3acf163b3d72c6ca595a56451c4540f44f3c5221a0366948c5c`. Native prewarm verified verdicts 1 and 0. Public readiness passed.
+- Grok Bot billing showed auto top-up off, $4.13 in credits, and a $10 monthly limit before the edit. The existing webhook routine confirmed its lookup instruction update.
+- A fresh Flash High session received the full buyer guide and used the scoped HTTP adapter. It resubmitted the saved draft without another generation call. The exact revision received genuine Bot pass `01M7RR24FWXCVQW3CJ2B2KYZ7F` with all five rule indices and no findings or questions. The first objection remains on record.
+- Flash High bound the passing receipt and selected native example check, then queued compile task `01M7RR5XE7QD8N4TCFT3MP90EK`. It succeeded on attempt 1. The public job reports `compiled` and lists 20 package files. Funding and solver acceptance remain pending.
+
 # 2026-11-18 20:31 -0500 — Stage one review claim for the blocked Flash High job
 
 - On `codex/authoring-pilot-round2`, added an optional pilot setting that resolves the target job and content hash from a completed objection. When the normal cap is exhausted, only that owner, job and hash can claim one more review. The slot counts at claim time, including uncertain delivery. It uses the existing database and preserves draft limits.
