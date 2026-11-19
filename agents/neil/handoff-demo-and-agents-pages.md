@@ -16,13 +16,15 @@ All pages share one menu: How it works, Demo, Arc results, For Agents, FAQ.
 
 ## What is real
 
-| Sample | Step 2 (checks) | Step 3 (proof) |
-| --- | --- | --- |
-| 01 Match the invoices | Browser simulation (same rules as before) | Real Arc job #3 replay; job #4 refund linked |
-| 02 Fit the kiln schedule | Browser simulation of the Meridian kiln limits | Proved on a local Arc fork only; no Arc testnet run yet |
-| 03 Open bounty | Browser simulation | Real Arc open-claim jobs #7 (valid claim) and #6 (reverted claim, refund) |
+The demo replays three real Arc testnet jobs. Press Run: a progress bar walks the stages, the solver robot (`robot.js`, second instance) acts out each stage, and the live panel logs each check and asks Arc to confirm each transaction (`eth_getTransactionReceipt`), with a live block ticker (`eth_blockNumber`).
 
-The live activity feed labels every line: CHECK runs in the browser; ARC is read live from Arc testnet (`eth_getTransactionReceipt` for each receipt shown, `eth_blockNumber` every 4 s for the block ticker). Calls go to `/rpc` (Vercel and dev-server rewrite) and fall back to `https://rpc.testnet.arc.io`.
+| Sample | Transactions confirmed live |
+| --- | --- |
+| 01 Correct delivery (job #3) | fund `0xaf13…1be0`, submit `0x0569…f76c`, release `0xb9ca…4956`; plus in-browser delivery check (`verifyDelivery` from `recorded-proof.js`) |
+| 02 One cent off (job #4) | fund `0x941f…696e`, refund `0xcfaa…2540` (failing proof never sent) |
+| 03 Open bounty (job #7) | fund `0x0382…e061`, claim `0x7105…1491`, release `0x78b6…13e2`; invalid claim on job #6 `0xfd70…90a2` shown as reverted |
+
+After a run, "Verify it yourself" lists each transaction, the event to look for on the explorer, and Arc's live status. The checks run in the browser; transaction hashes come from the API's indexed events and `agents/anish/reports`. The kiln sample was removed from the demo because it has no Arc testnet run yet.
 
 ## To integrate later
 

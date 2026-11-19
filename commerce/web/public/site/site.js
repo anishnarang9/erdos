@@ -1,6 +1,6 @@
 import { initGlobe } from './globe.js?v=9';
 import { initRobot } from './robot.js?v=17';
-import { initDemoLab } from './demo-lab.js?v=1';
+import { initDemoLab } from './demo-lab.js?v=3';
 import { initCoin } from './coin.js?v=9';
 import { LAYERS, ICONS } from './layers.js?v=9';
 
@@ -260,6 +260,6 @@ $('#copy-addr')?.addEventListener('click', async (e) => {
 });
 
 // ---------- demo (three samples, proof replays, live Arc feed) ----------
-initDemoLab({ onOutcome: (kind) => globe?.setOutcome(kind), setStatus: (text) => decode($('#status'), 0, text) });
+initDemoLab({ onOutcome: (kind) => globe?.setOutcome(kind) });
 
 window.siteDiagnostics = () => ({ globe: globe?.diagnostics(), row: activeRow, robot: robot?.label(), layers: $$('.layer').length, live: $$('.layer.live').length, lab: document.body.dataset.lab });

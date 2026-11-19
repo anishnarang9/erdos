@@ -1,14 +1,65 @@
-// Home page demo: three sample jobs, the recorded proof replays, live Arc confirmations and an activity feed.
-// Honesty rule: the checks run in this browser and send nothing; receipts and block numbers are read live from Arc.
-import { initRecordedProof } from './recorded-proof.js?v=12';
+// Home page demo: replay three real Arc testnet jobs. A progress bar walks the stages while the solver robot acts
+// each one out, and the live panel logs every step and asks Arc to confirm each transaction as it is reached.
+// Honesty: the checks run in this browser; every transaction is a real recorded one, confirmed live from Arc.
+import { initRobot } from './robot.js?v=17';
+import { verifyDelivery } from './recorded-proof.js?v=13';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const EXPLORER = 'https://explorer.testnet.arc.io/tx/';
 const RPCS = ['/rpc', 'https://rpc.testnet.arc.io'];
+const sleep = (ms) => new Promise((r) => setTimeout(r, reduced ? 0 : ms));
+const short = (h) => `${h.slice(0, 6)}…${h.slice(-4)}`;
 
-// ---------- Arc RPC (same request the escrow inspector uses) ----------
+// Robot poses (robot.js): 0 reading, 1 compiling, 2 escrow funded, 3 proving, 4 paid, 5 files recovered.
+const INVOICE_CHECKS = ['Same invoice IDs', 'Amounts and total match', 'Report contains data'];
+const SAMPLES = {
+  paid: {
+    kicker: 'ARC TESTNET · JOB #3', title: 'Reconcile the invoice ledger',
+    brief: 'The buyer pays 0.01 test USDC only if the delivered file has every invoice, each amount exact, and a short report.',
+    amount: '2,000¢', report: 'nonempty', checks: INVOICE_CHECKS, results: [true, true, true],
+    outcome: ['Paid · files released', 'Arc accepted the proof. One transaction paid the solver and released the key; the files are recoverable from chain data.'], verdict: 1,
+    stages: [
+      { label: 'Check the delivery', pose: 0, checks: true },
+      { label: 'Fund the escrow', pose: 2, tx: '0xaf13982078e44f2217d61ba37b6e53943cd1c6e28413d6bb1e0dbf7e04981be0', look: 'JobFunded', note: 'Buyer locked 0.01 test USDC' },
+      { label: 'Generate the proof', pose: 3, info: 'Real run: 260-byte Groth16 proof, 937,488 cycles, 147.7 s, verdict 1' },
+      { label: 'Arc verifies the proof', pose: 3, tx: '0x05693a09af7886d83b0c7cdac00b0bd134bfc471be76cc9e7b0abaa704abf76c', look: 'JobSubmitted, ProofAccepted', note: 'Verifier contract accepted the proof' },
+      { label: 'Payout and key released', pose: 4, tx: '0xb9caccce8c09ad659812fa12021f3728471caf202765a0e709cbea1c382b4956', look: 'PaymentReleased, KeyReleased', note: 'Solver paid; delivery key published' },
+      { label: 'Files recovered', pose: 5, info: 'Buyer can now decrypt the files from chain data' },
+    ],
+    delivery: true,
+  },
+  refused: {
+    kicker: 'ARC TESTNET · JOB #4', title: 'Same job, one cent off',
+    brief: 'A cheaper solver delivered invoice-b as 2,001¢. The rules do not change, so neither does the outcome.',
+    amount: '2,001¢', report: 'nonempty', checks: INVOICE_CHECKS, results: [true, false, true],
+    outcome: ['Refused · refunded', 'The proof came back verdict 0, so nothing was submitted or paid. After the deadline the buyer took the money back.'], verdict: 0,
+    stages: [
+      { label: 'Check the delivery', pose: 0, checks: true },
+      { label: 'Fund the escrow', pose: 2, tx: '0x941fd66d3a6e42143a801aa99d6926f87da93637e84c165cab5e53f0f51a696e', look: 'JobFunded', note: 'Buyer locked 0.01 test USDC' },
+      { label: 'Generate the proof', pose: 3, info: 'Real run: verdict 0 after 101.1 s; the amount rule failed', fail: true },
+      { label: 'Nothing sent', pose: 1, info: 'Pre-check showed Arc would reject the proof (VerificationFailed), so the solver sent nothing', fail: true },
+      { label: 'Refunded after expiry', pose: 2, tx: '0xcfaa40a06a4b29fa30454e5aac373f7ffc8e8640a6c471491491500a87832540', look: 'Refunded, JobExpired', note: 'Budget returned to the buyer' },
+    ],
+  },
+  bounty: {
+    kicker: 'ARC TESTNET · OPEN-CLAIM JOB #7', title: 'Open bounty: first valid proof wins',
+    brief: 'No solver is chosen in advance. Any agent can claim the 0.01 test USDC, but only with a proof that passes the same rules.',
+    amount: '2,000¢', report: 'nonempty', checks: ['Proof matches the bounty’s rules', 'No earlier winner', 'Report contains data'], results: [true, true, true],
+    outcome: ['Claimed · paid', 'The first valid proof won. A second solver saw the winner and stopped before proving. An invalid claim on job #6 was rejected on chain.'], verdict: 1,
+    stages: [
+      { label: 'Check the claim', pose: 0, checks: true },
+      { label: 'Bounty funded', pose: 2, tx: '0x03825acc379fcfdbb640344beb64a7e78ce184449dee7399aa297e2ec730e061', look: 'JobFunded', note: 'Buyer locked 0.01 test USDC' },
+      { label: 'Generate the proof', pose: 3, info: 'Real run: one fresh Groth16 proof, verdict 1' },
+      { label: 'Claim accepted', pose: 3, tx: '0x7105aab313556ff9227864cf7e9f7db901ee048fe6e92c6483b7f8d8bcf91491', look: 'ClaimAccepted', note: 'First valid claim wins' },
+      { label: 'Payout and key released', pose: 4, tx: '0x78b6870536b171a989a5ebdeb278a20a2ec730bcec91173852bb29a13c3013e2', look: 'KeyReleased', note: 'Winner paid; key published' },
+    ],
+    extra: { label: 'Invalid claim (job #6)', look: 'Failed (reverted)', tx: '0xfd70667b27a303f9836b7520b8dceb7fc551ce99a3fa023657fb7c3c2e3290a2' },
+  },
+};
+
+// ---------- Arc RPC ----------
 async function rpc(method, params) {
   for (const url of RPCS) {
     try {
@@ -22,37 +73,24 @@ async function rpc(method, params) {
   }
   throw new Error('Arc RPC unavailable');
 }
-
-// ---------- activity feed ----------
-const feedList = () => $('#demo-feed');
-function feed(text, tone = 'info', source = 'browser') {
-  const list = feedList(); if (!list) return;
-  const li = document.createElement('li');
-  li.className = tone;
-  const time = new Date().toLocaleTimeString([], { hour12: false });
-  li.innerHTML = `<time>${time}</time><span class="src ${source}">${source === 'arc' ? 'ARC' : 'CHECK'}</span><span class="msg"></span>`;
-  li.querySelector('.msg').textContent = text;
-  list.prepend(li);
-  while (list.children.length > 30) list.lastElementChild.remove();
-}
-
-async function confirmOnArc(hash, el, label) {
-  if (el) { el.hidden = false; el.textContent = 'Checking this transaction on Arc testnet…'; delete el.dataset.ok; }
-  feed(`Asking Arc for the ${label} receipt…`, 'info', 'arc');
+async function receipt(hash) {
   try {
     const r = await rpc('eth_getTransactionReceipt', [hash]);
-    if (r?.transactionHash?.toLowerCase() !== hash.toLowerCase() || !/^0x[0-9a-f]+$/i.test(r.blockNumber)) throw new Error('missing');
-    const block = BigInt(r.blockNumber).toLocaleString();
-    const msg = r.status === '0x0' ? `Confirmed on Arc: this transaction reverted, as expected (block ${block}).` : `Confirmed on Arc in block ${block}.`;
-    if (el) { el.textContent = msg; el.dataset.ok = 'true'; }
-    feed(`${label}: ${r.status === '0x0' ? 'reverted on chain, as expected' : 'confirmed'} · block ${block}`, r.status === '0x0' ? 'fail' : 'pass', 'arc');
-  } catch {
-    if (el) el.textContent = 'Live confirmation unavailable. Open the receipt to check it on the explorer.';
-    feed(`${label}: live confirmation unavailable, use the explorer link`, 'warn', 'arc');
-  }
+    if (r?.transactionHash?.toLowerCase() !== hash.toLowerCase() || !/^0x[0-9a-f]+$/i.test(r.blockNumber)) return null;
+    return { ok: r.status === '0x1', block: BigInt(r.blockNumber).toLocaleString() };
+  } catch { return null; }
 }
 
-// Live Arc block height: shows the chain behind the receipts is live right now.
+// ---------- live feed ----------
+function feed(text, tone = 'info', source = 'browser') {
+  const list = $('#demo-feed'); if (!list) return;
+  const li = document.createElement('li');
+  li.className = tone;
+  li.innerHTML = `<time>${new Date().toLocaleTimeString([], { hour12: false })}</time><span class="src ${source}">${source === 'arc' ? 'ARC' : 'CHECK'}</span><span class="msg"></span>`;
+  li.querySelector('.msg').textContent = text;
+  list.prepend(li);
+  while (list.children.length > 40) list.lastElementChild.remove();
+}
 function startBlockTicker() {
   const el = $('#arc-block'); if (!el) return;
   let last = null, failures = 0;
@@ -63,161 +101,128 @@ function startBlockTicker() {
       failures = 0;
       if (n !== last) { el.textContent = n.toLocaleString(); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); last = n; }
       $('#arc-live').dataset.state = 'live';
-    } catch {
-      if (++failures > 2) { el.textContent = 'unavailable'; $('#arc-live').dataset.state = 'down'; }
-    }
+    } catch { if (++failures > 2) { el.textContent = 'unavailable'; $('#arc-live').dataset.state = 'down'; } }
   };
   tick(); setInterval(tick, 4000);
 }
 
-export function initDemoLab({ onOutcome = () => {}, setStatus } = {}) {
-  if (!$('#invoice-demo')) return;
-  const status = setStatus ?? ((t) => { const s = $('#status'); if (s) s.textContent = t; });
+export function initDemoLab({ onOutcome = () => {}, setStatus = () => {} } = {}) {
+  if (!$('#demo-robot')) return;
+  let robot = null;
+  try { robot = initRobot($('#demo-robot'), { reduced }); } catch { $('#demo-robot').classList.add('no-webgl'); }
+  let key = 'paid', gen = 0;
+  const S = () => SAMPLES[key];
 
-  // Sample picker.
-  const presets = $$('.demo-preset-controls button');
-  const select = (button) => {
-    for (const p of presets) { const on = p === button; p.setAttribute('aria-pressed', String(on)); document.getElementById(p.getAttribute('aria-controls')).hidden = !on; }
-    feed(`Opened sample: ${button.textContent.replace(/^\d+\s·\s/, '')}`);
-  };
-  presets.forEach((b) => b.addEventListener('click', () => select(b)));
-  $$('[data-demo-preset]').forEach((link) => link.addEventListener('click', () => { const b = presets.find((p) => p.getAttribute('aria-controls') === link.dataset.demoPreset); if (b) select(b); }));
-
-  // 01 Invoices: the home page's original rules and copy.
-  const checks = $$('#check-list li');
-  const COPY = {
-    idle: ['Payment stays locked.', 'Pick a delivery and run the checks.', 'WAITING FOR CHECKS'],
-    checking: ['Checking the delivery…', 'Comparing the files with the agreed rules.', 'CHECKING'],
-    failed: ['Payment stays locked.', 'A failed check stops the payout.', 'FAILED CHECK · NO PAYOUT'],
-    released: ['Payment can release.', 'All three sample checks passed.', 'SIMULATED RELEASE'],
-  };
-  const NAMES = ['Same invoice IDs', 'Amounts and total match', 'Report contains data'];
-  let gen = 0;
-  const setLab = (state) => { document.body.dataset.lab = state; const [t, c, s] = COPY[state]; $('#outcome').textContent = t; $('#outcome-copy').textContent = c; status(s); };
-  function resetLab() {
-    gen++; const v = $('#scenario').value; $('#run').disabled = false;
-    checks.forEach((r) => { r.className = ''; r.querySelector('.ic').textContent = '○'; r.querySelector('.res').textContent = 'WAITING'; });
-    $('#amount').textContent = v === 'tampered' ? '2,001¢' : '2,000¢'; $('#amount').classList.toggle('bad', v === 'tampered');
-    $('#report').textContent = v === 'missing' ? 'missing' : 'nonempty'; $('#report').classList.toggle('bad', v === 'missing');
-    setLab('idle'); onOutcome('idle');
+  function setProgress(fraction) {
+    const pct = Math.round(fraction * 100);
+    $('#progress-fill').style.width = `${pct}%`;
+    $('.progress').setAttribute('aria-valuenow', String(pct));
   }
-  $('#scenario').addEventListener('change', resetLab);
-  $('#run').addEventListener('click', () => {
-    resetLab(); const token = gen, v = $('#scenario').value, res = [true, v !== 'tampered', v !== 'missing'];
-    $('#run').disabled = true; setLab('checking');
-    feed(`Running 3 checks on "${$('#scenario').selectedOptions[0].text}"`);
-    checks.forEach((r, i) => setTimeout(() => {
-      if (token !== gen) return;
-      r.className = res[i] ? 'pass' : 'fail'; r.querySelector('.ic').textContent = res[i] ? '✓' : '✕'; r.querySelector('.res').textContent = res[i] ? 'PASS' : 'FAIL';
-      feed(`${NAMES[i]}: ${res[i] ? 'pass' : 'fail'}`, res[i] ? 'pass' : 'fail');
-      if (i === checks.length - 1) {
-        const ok = res.every(Boolean); setLab(ok ? 'released' : 'failed'); onOutcome(ok ? 'released' : 'failed'); $('#run').disabled = false;
-        feed(ok ? 'All checks pass: payment can release' : 'A check failed: payment stays locked', ok ? 'pass' : 'fail');
+  function showSample(next) {
+    key = next; gen++;
+    $$('.demo-preset-controls button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.sample === key)));
+    const s = S();
+    $('#job-kicker').textContent = s.kicker; $('#job-title').textContent = s.title; $('#job-brief').textContent = s.brief;
+    $('#amount').textContent = s.amount; $('#amount').classList.toggle('bad', s.amount !== '2,000¢');
+    $('#report').textContent = s.report;
+    $('#check-list').innerHTML = s.checks.map((c) => `<li><span class="ic">○</span>${c}<span class="res">WAITING</span></li>`).join('');
+    $('#stage-list').innerHTML = s.stages.map((st) => `<li>${st.label}</li>`).join('');
+    $('#verify').hidden = true; $('#run').disabled = false; $('#run').textContent = 'RUN THIS JOB ↗';
+    $('#solver-state').textContent = 'READY'; setProgress(0);
+    robot?.setStep(0); onOutcome('idle'); setStatus('WAITING');
+  }
+
+  function verifyRow(label, look, hash) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${label}</td><td class="mono">${look}</td><td><a class="demo-link mono" href="${EXPLORER}${hash}" target="_blank" rel="noreferrer">${short(hash)} ↗</a></td><td class="arc-says mono">checking…</td>`;
+    $('#verify-rows').append(tr);
+    return tr.querySelector('.arc-says');
+  }
+
+  async function run() {
+    const token = ++gen, s = S(), stages = $$('#stage-list li'), checks = $$('#check-list li');
+    const live = () => token === gen;
+    $('#run').disabled = true; $('#verify').hidden = true; $('#verify-rows').innerHTML = ''; $('#delivery-check').hidden = true;
+    $('#delivery-result').hidden = true; $('#proof-files').hidden = true;
+    stages.forEach((li) => (li.className = ''));
+    feed(`Replaying ${s.kicker.toLowerCase().replace('arc testnet · ', '')}: ${s.title}`);
+    const rows = [];
+    for (let i = 0; i < s.stages.length; i++) {
+      if (!live()) return;
+      const st = s.stages[i];
+      stages[i].className = 'active'; stages.forEach((li, j) => { if (j < i && !li.className) li.className = 'done'; });
+      robot?.setStep(st.pose);
+      $('#solver-state').textContent = st.label.toUpperCase();
+      setProgress(i / s.stages.length);
+      if (st.checks) {
+        setStatus('CHECKING');
+        for (let c = 0; c < checks.length; c++) {
+          await sleep(500); if (!live()) return;
+          const ok = s.results[c];
+          checks[c].className = ok ? 'pass' : 'fail'; checks[c].querySelector('.ic').textContent = ok ? '✓' : '✕'; checks[c].querySelector('.res').textContent = ok ? 'PASS' : 'FAIL';
+          feed(`${s.checks[c]}: ${ok ? 'pass' : 'fail'}`, ok ? 'pass' : 'fail');
+          setProgress((i + (c + 1) / checks.length) / s.stages.length);
+        }
+      } else if (st.tx) {
+        feed(`${st.label}: asking Arc for transaction ${short(st.tx)}…`, 'info', 'arc');
+        const [r] = await Promise.all([receipt(st.tx), sleep(1400)]);
+        if (!live()) return;
+        if (r) feed(`${st.note}: ${r.ok ? 'confirmed' : 'failed on chain'} · block ${r.block}`, r.ok ? 'pass' : 'fail', 'arc');
+        else feed(`${st.label}: live confirmation unavailable, use the explorer link`, 'warn', 'arc');
+        rows.push([st.label, st.look, st.tx, r]);
+      } else {
+        await sleep(1600); if (!live()) return;
+        feed(st.info, st.fail ? 'fail' : 'info');
       }
-    }, reduced ? 0 : 450 + i * 380));
-  });
-  resetLab();
+      stages[i].className = st.fail ? 'fail' : 'done';
+    }
+    if (!live()) return;
+    setProgress(1);
+    $('#solver-state').textContent = s.verdict ? 'DONE · PAID' : 'DONE · REFUNDED';
+    const ok = s.verdict === 1;
+    onOutcome(ok ? 'released' : 'failed'); setStatus(ok ? 'PAID ON ARC' : 'REFUSED · REFUNDED');
+    feed(ok ? 'Job complete: the proof decided who got paid' : 'Job complete: no valid proof, so no payout', ok ? 'pass' : 'fail');
 
-  // Job #3 replay (recorded-proof.js), with live confirmation of each receipt it shows.
-  initRecordedProof();
-  const receipt = $('#proof-receipt');
-  let lastHash = null;
-  new MutationObserver(() => {
-    const hash = receipt.hidden ? null : receipt.href.split('/tx/')[1];
-    if (!hash) { $('#invoice-chain').hidden = true; lastHash = null; return; }
-    if (hash !== lastHash) { lastHash = hash; confirmOnArc(hash, $('#invoice-chain'), receipt.textContent.includes('payout') ? 'Job #3 payout' : 'Job #3 proof acceptance'); }
-  }).observe(receipt, { attributes: true, attributeFilter: ['href', 'hidden'] });
-  const detail = $('#proof-detail');
-  new MutationObserver(() => { if (/matched the encrypted delivery/.test(detail.textContent)) feed('Job #3 delivery re-checked in this browser: hashes match the on-chain commitments', 'pass'); })
-    .observe(detail, { childList: true, characterData: true, subtree: true });
-
-  // 02 Kiln: Harbor's load and kiln limits from the checked-in Meridian reference.
-  const schedule = $('#meridian-scenario'), result = $('#meridian-result');
-  const kilnLimits = { 'K-03': 110, 'K-05': 88 }, harborLoad = 96;
-  const gauge = () => {
-    const limit = kilnLimits[schedule.value], g = $('.kiln-gauge');
-    g.style.setProperty('--capacity', `${limit / 120 * 100}%`); g.style.setProperty('--load', `${harborLoad / 120 * 100}%`);
-    g.classList.toggle('over-capacity', harborLoad > limit);
-    $('#kiln-gauge-label').textContent = `${harborLoad} KG LOAD · ${limit} KG CAPACITY`;
-  };
-  schedule.addEventListener('change', () => {
-    $('#meridian-kiln').textContent = schedule.value; gauge();
-    result.textContent = 'Run the check to compare Harbor’s 96 kg load with the selected kiln’s capacity.'; delete result.dataset.verdict;
-  });
-  $('#meridian-run').addEventListener('click', () => {
-    const limit = kilnLimits[schedule.value], passes = harborLoad <= limit;
-    result.dataset.verdict = passes ? 'pass' : 'fail';
-    result.textContent = passes
-      ? `Pass. Harbor’s ${harborLoad} kg fits in kiln ${schedule.value}, which holds ${limit} kg.`
-      : `Fail. Harbor exceeds kiln ${schedule.value}’s ${limit} kg capacity by ${harborLoad - limit} kg.`;
-    feed(`Kiln capacity on ${schedule.value}: ${passes ? 'pass' : `fail, over by ${harborLoad - limit} kg`}`, passes ? 'pass' : 'fail');
-    onOutcome(passes ? 'released' : 'failed');
-  });
-  gauge();
-
-  // 03 Open bounty: recorded open-claim jobs #7 (valid claim) and #6 (invalid claim).
-  const BOUNTY = {
-    valid: {
-      kicker: 'STEP 3 · RECORDED RUN · ARC TESTNET JOB #7', title: 'Watch a real bounty get claimed.',
-      outcome: ['Bounty can be claimed.', 'The proof passes, and no one has claimed the bounty yet.'], res: [true, true, true],
-      stages: [
-        ['Bounty funded', 'The buyer locked 0.01 testnet USDC in the bounty.', '0x03825acc379fcfdbb640344beb64a7e78ce184449dee7399aa297e2ec730e061'],
-        ['Claim accepted', 'The first valid proof won the claim. A second solver saw the winner and stopped before proving.', '0x7105aab313556ff9227864cf7e9f7db901ee048fe6e92c6483b7f8d8bcf91491'],
-        ['Payout and key released', 'One release transaction paid the winner 0.01 testnet USDC and published the delivery key.', '0x78b6870536b171a989a5ebdeb278a20a2ec730bcec91173852bb29a13c3013e2'],
-      ],
-    },
-    invalid: {
-      kicker: 'STEP 3 · RECORDED RUN · ARC TESTNET JOB #6', title: 'Watch an invalid claim get rejected.',
-      outcome: ['Bounty stays locked.', 'The proof fails the rules, so the claim is rejected and nothing is paid.'], res: [false, true, false],
-      stages: [
-        ['Claim reverted', 'Arc rejected the invalid claim. No payout was made.', '0xfd70667b27a303f9836b7520b8dceb7fc551ce99a3fa023657fb7c3c2e3290a2'],
-        ['Refunded after expiry', 'With no valid claim before the deadline, the buyer took the 0.01 testnet USDC back.', '0x4e030f22684c75c5e2e5360c7428ad574400a44d7cc5a08d627dd8076d75434d'],
-      ],
-    },
-  };
-  const BNAMES = ['Proof matches the bounty’s rules', 'No earlier winner', 'Claim accepted'];
-  const bChecks = $$('#bounty-checks li');
-  let bGen = 0, step = -1;
-  const current = () => BOUNTY[$('#bounty-scenario').value];
-  function resetReplay() {
-    const b = current(); step = -1;
-    $('#bounty-kicker').textContent = b.kicker; $('#bounty-title').textContent = b.title;
-    $('#bounty-stages').innerHTML = b.stages.map(([label]) => `<li>${label}</li>`).join('');
-    $('#bounty-detail').textContent = 'Step through the historical run at your own pace.';
-    $('#bounty-receipt').hidden = true; $('#bounty-chain').hidden = true; $('#bounty-next').textContent = 'Show the proof';
+    // Result + verification table.
+    [$('#outcome').textContent, $('#outcome-copy').textContent] = s.outcome;
+    const badge = $('#verdict-badge'); badge.className = `badge ${ok ? 'ok' : 'no'}`; badge.textContent = `VERDICT ${s.verdict}`;
+    for (const [label, look, hash, r] of rows) {
+      const cell = verifyRow(label, look, hash);
+      cell.textContent = r ? `${r.ok ? 'Success' : 'Failed'} · block ${r.block}` : 'unavailable';
+      cell.dataset.ok = r ? String(r.ok) : '';
+    }
+    if (s.extra) {
+      const cell = verifyRow(s.extra.label, s.extra.look, s.extra.tx);
+      receipt(s.extra.tx).then((r) => { cell.textContent = r ? `${r.ok ? 'Success' : 'Failed, as expected'} · block ${r.block}` : 'unavailable'; cell.dataset.ok = r ? 'true' : ''; });
+    }
+    $('#delivery-check').hidden = !s.delivery;
+    $('#verify').hidden = false;
+    $('#run').disabled = false; $('#run').textContent = 'RUN AGAIN ↻';
   }
-  function resetBounty() {
-    bGen++; $('#bounty-run').disabled = false;
-    bChecks.forEach((r) => { r.className = ''; r.querySelector('.ic').textContent = '○'; r.querySelector('.res').textContent = 'WAITING'; });
-    $('#bounty-outcome').textContent = 'Bounty stays locked.'; $('#bounty-copy').textContent = 'Choose a claim and submit it.';
-    resetReplay();
-  }
-  $('#bounty-scenario').addEventListener('change', resetBounty);
-  $('#bounty-run').addEventListener('click', () => {
-    resetBounty(); const token = bGen, b = current(); $('#bounty-run').disabled = true;
-    $('#bounty-outcome').textContent = 'Checking the claim…'; $('#bounty-copy').textContent = 'Comparing the proof with the bounty’s rules.';
-    feed(`Submitting "${$('#bounty-scenario').selectedOptions[0].text}"`);
-    bChecks.forEach((r, i) => setTimeout(() => {
-      if (token !== bGen) return;
-      const ok = b.res[i];
-      r.className = ok ? 'pass' : 'fail'; r.querySelector('.ic').textContent = ok ? '✓' : '✕'; r.querySelector('.res').textContent = ok ? 'PASS' : 'FAIL';
-      feed(`${BNAMES[i]}: ${ok ? 'pass' : 'fail'}`, ok ? 'pass' : 'fail');
-      if (i === bChecks.length - 1) { [$('#bounty-outcome').textContent, $('#bounty-copy').textContent] = b.outcome; $('#bounty-run').disabled = false; onOutcome(b.res.every(Boolean) ? 'released' : 'failed'); }
-    }, reduced ? 0 : 450 + i * 380));
-  });
-  $('#bounty-next').addEventListener('click', () => {
-    const b = current(), last = b.stages.length - 1;
-    step = step >= last ? -1 : step + 1;
-    $$('#bounty-stages li').forEach((li, i) => { li.classList.toggle('complete', i <= step); if (i === step) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current'); });
-    if (step < 0) { resetReplay(); return; }
-    const [label, detailText, hash] = b.stages[step];
-    $('#bounty-detail').textContent = detailText;
-    const r = $('#bounty-receipt'); r.hidden = false; r.href = EXPLORER + hash; r.textContent = `View the ${label.toLowerCase()} receipt ↗`;
-    confirmOnArc(hash, $('#bounty-chain'), `Bounty · ${label}`);
-    $('#bounty-next').textContent = step === last ? 'Restart replay' : 'Next step';
-  });
-  resetBounty();
 
-  feed('Demo ready. Pick a sample and run it.');
+  // In-browser delivery check for job #3 (same function the recorded replay uses).
+  let recording = null;
+  $('#check-delivery')?.addEventListener('click', async () => {
+    const out = $('#delivery-result'); out.hidden = false; out.textContent = 'Hashing the delivery and key…'; delete out.dataset.ok;
+    try {
+      recording ??= await (await fetch(new URL('./recorded-invoice.json', import.meta.url))).json();
+      await verifyDelivery(recording);
+      out.textContent = `Match: sha256(envelope) = ${short(recording.envelopeHash)} and the key opens ${short(recording.keyCommitment)}, both as accepted on Arc.`;
+      out.dataset.ok = 'true';
+      feed('Delivery re-checked in this browser: both hashes match the on-chain commitments', 'pass');
+      const files = $('#proof-files');
+      files.replaceChildren(...recording.files.map((f) => { const d = document.createElement('details'); const sum = document.createElement('summary'); const pre = document.createElement('pre'); sum.textContent = f.name; pre.textContent = f.text; d.append(sum, pre); return d; }));
+      files.hidden = false;
+    } catch (e) {
+      out.textContent = e.message?.includes('commitment') ? e.message : 'The recording could not be checked here.';
+      feed('Delivery check could not run', 'warn');
+    }
+  });
+
+  $$('.demo-preset-controls button').forEach((b) => b.addEventListener('click', () => { showSample(b.dataset.sample); feed(`Selected sample: ${b.textContent.replace(/^\d+\s·\s/, '')}`); }));
+  $('#run').addEventListener('click', run);
+  $$('[data-sample-link]').forEach((a) => a.addEventListener('click', () => showSample(a.dataset.sampleLink)));
+  showSample('paid');
+  feed('Demo ready. Pick a sample and press Run.');
   startBlockTicker();
 }
