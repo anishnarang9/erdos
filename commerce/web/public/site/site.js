@@ -2,7 +2,7 @@ import { initGlobe } from './globe.js?v=25';
 import { initRobot } from './engine.js?v=2';
 import { initToolNetwork } from './tool-network.js?v=7';
 import { initScopeMap } from './scope.js?v=4';
-import { initCoin } from './coin.js?v=12';
+import { initCoin } from './coin.js?v=14';
 import { LAYERS, ICONS } from './layers.js?v=12';
 
 const $ = (s, r = document) => r.querySelector(s);

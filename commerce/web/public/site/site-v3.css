@@ -1013,3 +1013,20 @@ body[data-lab="released"] .demo-verdict h3 { color: var(--ok); }
 .mk-toast.on { opacity: 1; transform: translate(-50%, 0); }
 @media (max-width: 1300px) { .mk-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 760px) { .mk-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0 12px 12px; } }
+
+/* ---------- escrow title keeps its purple frame ---------- */
+.token .gbox-a::before { background: linear-gradient(100deg, #7d8cff, #a86bff 55%, #ff5fd2); }
+
+/* ---------- demo page: marketplace title at the top, queue fills its panel ---------- */
+.demo-page { padding-top: 0; }
+.demo-page .market { padding-top: 22px; }
+.demo-page .market .title-wrap { margin-bottom: 14px; }
+.demo-page .market .gtitle { font-size: clamp(30px, 3vw, 46px); }
+.demo-page .market-status { margin-top: 10px; }
+.mk-app { height: clamp(560px, calc(100vh - 250px), 900px); min-height: 0; }
+.mk-side, .mk-detail { overflow-y: auto; min-height: 0; }
+.mk-main { min-height: 0; grid-template-rows: auto minmax(0, 1fr); }
+.mk-list, .mk-board { max-height: none; min-height: 0; overflow-y: auto; }
+.mk-list { display: grid; align-content: start; gap: 2px; }
+.mk-empty { align-self: center; }
+@media (max-width: 1300px) { .mk-app { height: auto; } .mk-list { max-height: 520px; } }
