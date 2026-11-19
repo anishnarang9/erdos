@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-19 09:38 -05:00 — Anish — Deduplicate concurrent cold guest builds
+
+- Two concurrent CLI compiles reproduced a duplicate guest build for the same fingerprint. The compiler now holds the existing per-fingerprint file lock from cache lookup through build and publication. Other fingerprints can build independently.
+- The regression observed two build invocations before the fix and one afterward. Two real Docker compiles against an empty engine cache produced one miss and one hit with identical manifests and guest bytes. Rust format, Clippy, workspace tests, 87 qualification tests, 326 frozen native comparisons, and wire checks passed.
+- The full 128-hop proof remains active. No live provider request, deployment, or Arc transaction ran.
+
 ## 2026-11-19 09:35 -05:00 — Anish — Check guarded route at the collection limit
 
 - The route suite now checks valid and broken routes at 128 and 256 hops against the independent oracle. All 87 qualification tests and 326 frozen native comparisons passed.
