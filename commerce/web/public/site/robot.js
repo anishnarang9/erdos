@@ -5,7 +5,7 @@ import * as THREE from './vendor/three.module.js';
 function gradientTexture() {
   const c = document.createElement('canvas'); c.width = 256; c.height = 4; const g = c.getContext('2d');
   const lg = g.createLinearGradient(0, 0, 256, 0);
-  [[0, '#63f0ff'], [.3, '#3f8cff'], [.6, '#3fa9ff'], [.85, '#2fe0a8'], [1, '#63f0ff']].forEach(([o, col]) => lg.addColorStop(o, col));
+  [[0, '#63f0ff'], [.3, '#7d8cff'], [.6, '#a86bff'], [.85, '#ff5fd2'], [1, '#63f0ff']].forEach(([o, col]) => lg.addColorStop(o, col));
   g.fillStyle = lg; g.fillRect(0, 0, 256, 4);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; return t;
 }
@@ -14,7 +14,7 @@ function gradientTexture() {
 function studioEnv(renderer) {
   const s = new THREE.Scene(); s.background = new THREE.Color(0x05050a);
   const box = (col, i, x, y, z, sx, sy) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(sx, sy), new THREE.MeshBasicMaterial({ color: new THREE.Color(col).multiplyScalar(i), side: THREE.DoubleSide })); m.position.set(x, y, z); m.lookAt(0, 0, 0); s.add(m); };
-  box(0xffffff, 6, 0, 8, 2, 10, 6); box(0x63f0ff, 5, -9, 2, 2, 5, 9); box(0x3fa9ff, 5, 9, 1, -2, 5, 9); box(0x2fe0a8, 3, 0, -6, 6, 9, 3); box(0x3f8cff, 2, 0, 2, -10, 14, 8);
+  box(0xffffff, 6, 0, 8, 2, 10, 6); box(0x63f0ff, 5, -9, 2, 2, 5, 9); box(0xc04dff, 5, 9, 1, -2, 5, 9); box(0xff5fd2, 3, 0, -6, 6, 9, 3); box(0x7d8cff, 2, 0, 2, -10, 14, 8);
   const pm = new THREE.PMREMGenerator(renderer); const env = pm.fromScene(s, .04).texture; pm.dispose(); return env;
 }
 
@@ -27,7 +27,7 @@ export function initRobot(host, { reduced = false } = {}) {
   const camera = new THREE.PerspectiveCamera(28, 1, .1, 100); camera.position.set(0, 1.5, 14); camera.lookAt(0, 1.25, 0);
   const key = new THREE.DirectionalLight(0xffffff, 1.4); key.position.set(3, 8, 6); scene.add(key);
   const rimC = new THREE.PointLight(0x4fe8ff, 60, 22); rimC.position.set(-5, 3, -2); scene.add(rimC);
-  const rimM = new THREE.PointLight(0x3fa9ff, 60, 22); rimM.position.set(5, 1.5, -3); scene.add(rimM);
+  const rimM = new THREE.PointLight(0xd04dff, 60, 22); rimM.position.set(5, 1.5, -3); scene.add(rimM);
 
   const grad = gradientTexture();
   const shell = new THREE.MeshPhysicalMaterial({ color: 0xc9c5cf, roughness: .32, metalness: .1, clearcoat: 1, clearcoatRoughness: .18 });
@@ -57,7 +57,7 @@ export function initRobot(host, { reduced = false } = {}) {
   const chestPlate = M(new THREE.CylinderGeometry(.42, .42, .08, 6), glass, 0, .98, .73); chestPlate.rotation.x = Math.PI / 2;
   const chestRing = M(new THREE.TorusGeometry(.3, .035, 6, 6), gradMat, 0, .98, .79);
   const core = M(new THREE.SphereGeometry(.1, 20, 20), glow(0x63f0ff), 0, .98, .8);
-  const leds = [0x63f0ff, 0x3fa9ff, 0x2fe0a8].map((c, i) => M(new THREE.SphereGeometry(.055, 12, 12), glow(c), -.17 + i * .17, .42, .72));
+  const leds = [0x63f0ff, 0xa86bff, 0xff5fd2].map((c, i) => M(new THREE.SphereGeometry(.055, 12, 12), glow(c), -.17 + i * .17, .42, .72));
   M(new THREE.CylinderGeometry(.24, .34, .34, 28), dark, 0, 1.92, 0);
   M(new THREE.TorusGeometry(.3, .03, 8, 48), gradMat, 0, 1.8, 0).rotation.x = Math.PI / 2;
 
@@ -80,9 +80,9 @@ export function initRobot(host, { reduced = false } = {}) {
   head.add(new THREE.Mesh(new THREE.SphereGeometry(1.125, 64, 48), new THREE.ShaderMaterial({
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     vertexShader: 'varying vec3 n;varying vec3 v;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);n=normalize(normalMatrix*normal);v=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
-    fragmentShader: 'varying vec3 n;varying vec3 v;void main(){float r=1.-abs(dot(n,v));vec3 c=mix(vec3(.4,.75,1.),vec3(.4,.95,1.),smoothstep(-.5,.5,n.y));gl_FragColor=vec4(c,pow(r,3.2)*1.7);}',
+    fragmentShader: 'varying vec3 n;varying vec3 v;void main(){float r=1.-abs(dot(n,v));vec3 c=mix(vec3(.7,.4,1.),vec3(.4,.95,1.),smoothstep(-.5,.5,n.y));gl_FragColor=vec4(c,pow(r,3.2)*1.7);}',
   })));
-  const lattice = new THREE.LineSegments(new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(1.115, 2)), new THREE.LineBasicMaterial({ color: 0x3f8cff, transparent: true, opacity: .13, depthWrite: false })); head.add(lattice);
+  const lattice = new THREE.LineSegments(new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(1.115, 2)), new THREE.LineBasicMaterial({ color: 0x7d8cff, transparent: true, opacity: .13, depthWrite: false })); head.add(lattice);
   const eyes = [-.34, .34].map((x) => { const e = M(new THREE.CapsuleGeometry(.105, .2, 8, 16), glow(0xffffff), x, .06, 1.03, head); e.rotation.x = -.06; return e; });
   const mouth = M(new THREE.TorusGeometry(.16, .022, 8, 24, Math.PI), glow(0xffffff), 0, -.3, 1.02, head); mouth.rotation.z = Math.PI;
   for (const x of [-1.12, 1.12]) { M(new THREE.CylinderGeometry(.2, .2, .16, 24), dark, x, 0, 0, head).rotation.z = Math.PI / 2; M(new THREE.TorusGeometry(.2, .02, 8, 32), gradMat, x * 1.07, 0, 0, head).rotation.y = Math.PI / 2; }
@@ -90,7 +90,7 @@ export function initRobot(host, { reduced = false } = {}) {
   const ring = M(new THREE.TorusGeometry(1.52, .05, 14, 200), gradMat, 0, 0, 0, ringPivot);
   const ringThin = M(new THREE.TorusGeometry(1.72, .008, 6, 200), new THREE.MeshBasicMaterial({ color: 0x8fd8ff, transparent: true, opacity: .6 }), 0, 0, 0, ringPivot);
   const moon = M(new THREE.SphereGeometry(.1, 20, 20), glow(0xffffff), 0, 0, 0, ringPivot);
-  const moon2 = M(new THREE.SphereGeometry(.055, 16, 16), glow(0x2fe0a8), 0, 0, 0, ringPivot);
+  const moon2 = M(new THREE.SphereGeometry(.055, 16, 16), glow(0xff5fd2), 0, 0, 0, ringPivot);
   M(new THREE.CylinderGeometry(.028, .028, .5, 8), dark, 0, 1.32, 0, head);
   const spark = M(new THREE.SphereGeometry(.1, 20, 20), glow(0x63f0ff), 0, 1.62, 0, head);
 
@@ -101,7 +101,7 @@ export function initRobot(host, { reduced = false } = {}) {
     const g = new THREE.Group(); g.position.set(x, y, 0); g.rotation.z = rot; parent.add(g);
     M(new THREE.BoxGeometry(w, h, .05), new THREE.MeshPhysicalMaterial({ color: 0x1a1926, roughness: .3, metalness: .5, clearcoat: 1 }), 0, 0, 0, g);
     const edge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(w, h, .05)), new THREE.LineBasicMaterial({ color: 0x63f0ff })); g.add(edge);
-    for (let i = 0; i < lines; i++) M(new THREE.BoxGeometry(w * (.7 - (i % 3) * .14), .045, .012), glow(i % 2 ? 0x3fa9ff : 0xe8e6f0), -w * .08 - (i % 3) * w * .07, h * .32 - i * .15, .035, g);
+    for (let i = 0; i < lines; i++) M(new THREE.BoxGeometry(w * (.7 - (i % 3) * .14), .045, .012), glow(i % 2 ? 0xa86bff : 0xe8e6f0), -w * .08 - (i % 3) * w * .07, h * .32 - i * .15, .035, g);
     return g;
   };
   const p0 = P(); card(p0, .95, 1.25, 6);
@@ -110,7 +110,7 @@ export function initRobot(host, { reduced = false } = {}) {
   M(new THREE.TorusGeometry(.56, .035, 6, 6), gradMat, 0, 0, .12, p1).rotation.z = Math.PI / 6; M(new THREE.TorusGeometry(.26, .03, 6, 6), glow(0x63f0ff), 0, 0, .13, p1).rotation.z = Math.PI / 6;
   const coinOf = (parent) => { const g = new THREE.Group(); parent.add(g); const b = M(new THREE.CylinderGeometry(.55, .55, .1, 64), dark, 0, 0, 0, g); b.rotation.x = Math.PI / 2; M(new THREE.TorusGeometry(.55, .03, 10, 96), gradMat, 0, 0, 0, g); M(new THREE.TorusGeometry(.3, .028, 8, 48), glow(0x63f0ff), 0, 0, .06, g); M(new THREE.BoxGeometry(.05, .42, .02), glow(0x63f0ff), 0, 0, .06, g); return g; };
   const p2 = P(); coinOf(p2); const lock = M(new THREE.TorusGeometry(.2, .04, 8, 32, Math.PI), glow(0xffb65c), 0, .68, 0, p2); M(new THREE.BoxGeometry(.52, .34, .12), glow(0xffb65c), 0, .52, 0, p2).scale.set(1, 1, 1); lock.position.y = .7; // 03 fund: locked coin
-  const p3 = P(); const chipRings = [0, 1, 2].map((i) => { const t = M(new THREE.TorusGeometry(.34 + i * .15, .022, 8, 80), i === 1 ? gradMat : glow(i ? 0x3fa9ff : 0x63f0ff), 0, 0, 0, p3); t.rotation.set(i * .9, i * .6, 0); return t; }); M(new THREE.IcosahedronGeometry(.2, 0), glow(0xffffff), 0, 0, 0, p3); // 04 prove
+  const p3 = P(); const chipRings = [0, 1, 2].map((i) => { const t = M(new THREE.TorusGeometry(.34 + i * .15, .022, 8, 80), i === 1 ? gradMat : glow(i ? 0xa86bff : 0x63f0ff), 0, 0, 0, p3); t.rotation.set(i * .9, i * .6, 0); return t; }); M(new THREE.IcosahedronGeometry(.2, 0), glow(0xffffff), 0, 0, 0, p3); // 04 prove
   const p4 = P(); coinOf(p4); const keyG = new THREE.Group(); keyG.position.set(.75, .45, 0); keyG.rotation.z = -.6; p4.add(keyG); M(new THREE.TorusGeometry(.14, .04, 8, 32), glow(0x6bffd8), 0, 0, 0, keyG); M(new THREE.BoxGeometry(.05, .46, .05), glow(0x6bffd8), 0, -.36, 0, keyG); M(new THREE.BoxGeometry(.16, .05, .05), glow(0x6bffd8), .08, -.5, 0, keyG); // 05 settle: coin + key
   const p5 = P();
   const report = card(p5, .78, 1.0, 4);
@@ -118,7 +118,7 @@ export function initRobot(host, { reduced = false } = {}) {
   const propList = [p0, p1, p2, p3, p4, p5];
 
   // A travelling pulse traces the proof cage, then the release gesture sends a wave outward.
-  const proofPulse = M(new THREE.TorusGeometry(.48, .025, 8, 64), glow(0x9fd8ff), 0, 0, .1, p3);
+  const proofPulse = M(new THREE.TorusGeometry(.48, .025, 8, 64), glow(0xb89aff), 0, 0, .1, p3);
   const releaseWave = M(new THREE.TorusGeometry(.52, .022, 8, 64), glow(0x70ffdc), 0, 0, .1, p4);
   for (const pulse of [proofPulse, releaseWave]) {
     pulse.material.transparent = true;
@@ -171,16 +171,16 @@ export function initRobot(host, { reduced = false } = {}) {
   }
   const glintMap = new THREE.CanvasTexture(sprite);
   const iceStars = starLayer(92, -5, .42, 0xa8ebff, glintMap);
-  const violetStars = starLayer(52, -6, .58, 0x9fd8ff, glintMap);
+  const violetStars = starLayer(52, -6, .58, 0xd4b7ff, glintMap);
 
   // Poses per step: [bodyYaw, headYaw, headPitch, L shoulder z, L elbow z, R shoulder z, R shoulder x, R elbow z, eyeScaleY, eyeColor]
   const POSE = [
     [-.35, .25, .12, -.25, -.2, .55, -.9, .9, 1, 0xffffff],      // reading the brief
     [-.15, -.1, .05, -.35, -.9, .5, -.8, 1.0, .8, 0xbfe9ff],     // compiling
     [.1, 0, -.02, -.3, -.3, .5, -.9, .8, 1, 0xffbb68],           // funded, locked
-    [.2, .1, .14, -.9, -1.5, .6, -1.0, 1.1, .4, 0x9fd8ff],       // proving (squint)
+    [.2, .1, .14, -.9, -1.5, .6, -1.0, 1.1, .4, 0xcc99ff],       // proving (squint)
     [.05, 0, -.1, -2.6, -.3, 1.2, -1.2, .5, 1.15, 0x7dfff0],     // settled (cheer)
-    [-.2, -.2, -.05, -2.4, -.5, 2.3, -.2, .4, 1.1, 0xb8f3ff],    // files recovered
+    [-.2, -.2, -.05, -2.4, -.5, 2.3, -.2, .4, 1.1, 0xffb5d8],    // files recovered
   ];
   const LABEL = ['READING THE BRIEF', 'COMPILING THE CHECKER', 'ESCROW FUNDED', 'PROVING', 'PAID · KEY RELEASED', 'FILES RECOVERED'];
   let step = 1, time = 0, stageTime = 0, last = performance.now(), visible = true, mx = 0, my = 0;

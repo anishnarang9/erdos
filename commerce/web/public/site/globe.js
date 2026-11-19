@@ -33,10 +33,10 @@ export function initGlobe(host, { reduced = false } = {}) {
     float light=.3+.7*max(dot(n,normalize(vec3(-.5,.7,1.))),0.);
     vec3 col=mix(vec3(.0015,.003,.012),vec3(.006,.012,.04),smoothstep(.12,.5,lum))*light;
     float city=dot(texture2D(nightMap,vUv).rgb,vec3(.3,.5,.2));
-    vec3 cityCol=mix(vec3(.25,.85,1.),vec3(.2,.95,.75),smoothstep(.3,.7,vUv.y+.1*sin(vUv.x*30.)));
+    vec3 cityCol=mix(vec3(.25,.85,1.),vec3(1.,.2,.78),smoothstep(.3,.7,vUv.y+.1*sin(vUv.x*30.)));
     col+=pow(city,1.5)*cityCol*2.4;
     float f=1.-max(dot(n,normalize(vV)),0.);
-    col+=mix(vec3(.15,.5,1.),vec3(.35,.95,1.),smoothstep(-.4,.5,n.y))*pow(f,4.5)*.9;
+    col+=mix(vec3(.45,.2,1.),vec3(.35,.95,1.),smoothstep(-.4,.5,n.y))*pow(f,4.5)*.9;
     col+=pulse*pow(f,1.6);
     gl_FragColor=vec4(col,1.);
     #include <colorspace_fragment>
@@ -48,13 +48,13 @@ export function initGlobe(host, { reduced = false } = {}) {
   const limb = new THREE.Mesh(new THREE.SphereGeometry(R * 1.012, 96, 64), new THREE.ShaderMaterial({
     vertexShader: vert, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     fragmentShader: `varying vec3 vN;varying vec3 vV;void main(){float r=1.-abs(dot(normalize(vN),normalize(vV)));
-    vec3 c=mix(vec3(.25,.6,1.),vec3(.6,1.,1.),smoothstep(-.6,.3,vN.y));gl_FragColor=vec4(c,pow(r,5.)*1.5);}`,
+    vec3 c=mix(vec3(.55,.3,1.),vec3(.6,1.,1.),smoothstep(-.6,.3,vN.y));gl_FragColor=vec4(c,pow(r,5.)*1.5);}`,
   }));
   world.add(limb);
   const atmo = new THREE.Mesh(new THREE.SphereGeometry(R * 1.2, 96, 64), new THREE.ShaderMaterial({
     vertexShader: vert, transparent: true, depthWrite: false, side: THREE.BackSide, blending: THREE.AdditiveBlending,
     fragmentShader: `varying vec3 vN;varying vec3 vV;void main(){float f=abs(dot(normalize(vN),normalize(vV)));
-    float i=pow(f,3.2)*.95;vec3 c=mix(vec3(.12,.4,.95),vec3(.1,.85,1.),smoothstep(-.5,.5,vN.y));gl_FragColor=vec4(c,i);}`,
+    float i=pow(f,3.2)*.95;vec3 c=mix(vec3(.42,.12,.95),vec3(.1,.85,1.),smoothstep(-.5,.5,vN.y));gl_FragColor=vec4(c,i);}`,
   }));
   world.add(atmo);
 
@@ -75,12 +75,12 @@ export function initGlobe(host, { reduced = false } = {}) {
   const latGeo = new THREE.BufferGeometry(); latGeo.setAttribute('position', new THREE.Float32BufferAttribute(seg, 3));
   spin.add(new THREE.LineSegments(latGeo, new THREE.LineBasicMaterial({ color: 0x6f86ff, transparent: true, opacity: .1, depthWrite: false })));
   const nodeGeo = new THREE.BufferGeometry().setFromPoints(nodes.filter(() => rnd() < .45));
-  spin.add(new THREE.Points(nodeGeo, new THREE.PointsMaterial({ color: 0x9fd8ff, map: glowTex, size: .12, transparent: true, opacity: .8, depthWrite: false, blending: THREE.AdditiveBlending })));
+  spin.add(new THREE.Points(nodeGeo, new THREE.PointsMaterial({ color: 0xc9a2ff, map: glowTex, size: .12, transparent: true, opacity: .8, depthWrite: false, blending: THREE.AdditiveBlending })));
 
   // Dynamic arcs: each one launches, travels, lands with a ripple, fades and respawns somewhere else.
   const ARCS = 26, SEG = 64, arcs = [];
   const headPos = new Float32Array(ARCS * 3), headCol = new Float32Array(ARCS * 3), headSize = new Float32Array(ARCS);
-  const cA = new THREE.Color(0x63f0ff), cB = new THREE.Color(0x2fe0a8), cC = new THREE.Color(0x3fa9ff);
+  const cA = new THREE.Color(0x63f0ff), cB = new THREE.Color(0xff5fd2), cC = new THREE.Color(0xa86bff);
   const rippleGeo = new THREE.RingGeometry(.92, 1, 48);
   function respawn(arc, now) {
     const s = nodes[Math.floor(rnd() * nodes.length)].clone().normalize(); let e = nodes[Math.floor(rnd() * nodes.length)].clone().normalize();
@@ -109,7 +109,7 @@ export function initGlobe(host, { reduced = false } = {}) {
   const bands = [], ringDots = [];
   const ringSpec = [
     { r: 1.32, tilt: [1.32, .08, .22], color: 0x8fe9ff, dots: 360, dotSize: .05, line: .14 },
-    { r: 1.5, tilt: [1.05, -.35, -.5], color: 0x3fa9ff, dots: 220, dotSize: .035, line: .22 },
+    { r: 1.5, tilt: [1.05, -.35, -.5], color: 0xa875ff, dots: 220, dotSize: .035, line: .22 },
     { r: 1.7, tilt: [1.6, .45, .9], color: 0x5fd8ff, dots: 160, dotSize: .03, line: .12 },
   ];
   ringSpec.forEach((s, i) => {
@@ -129,7 +129,7 @@ export function initGlobe(host, { reduced = false } = {}) {
   // Hexagon particle field and radial light streaks.
   const field = new THREE.Group(); world.add(field);
   const hp = [], hc = [], streak = [], streakCol = [];
-  const palette = [new THREE.Color(0x63f0ff), new THREE.Color(0x3fa9ff), new THREE.Color(0x2fe0a8), new THREE.Color(0x3f8cff)];
+  const palette = [new THREE.Color(0x63f0ff), new THREE.Color(0xa86bff), new THREE.Color(0xff5fd2), new THREE.Color(0x7d8cff)];
   for (let i = 0; i < 520; i++) {
     const th = rnd() * Math.PI * 2, z = rnd() * 2 - 1, rad = Math.sqrt(1 - z * z);
     const dir = new THREE.Vector3(rad * Math.cos(th), z, rad * Math.sin(th));
@@ -317,7 +317,7 @@ export function initGlobe(host, { reduced = false } = {}) {
 
   // State feedback from the (simulated) experiment: cyan pulse on pass, magenta-red on fail.
   let pulseColor = new THREE.Color(0, 0, 0), pulseAmt = 0, tintMix = 0;
-  const pass = new THREE.Color(0x52ffd9), fail = new THREE.Color(0xff4d4d);
+  const pass = new THREE.Color(0x52ffd9), fail = new THREE.Color(0xff3d6e);
   function setOutcome(kind) { if (kind === 'released') { pulseColor.copy(pass); pulseAmt = 1.6; } else if (kind === 'failed') { pulseColor.copy(fail); pulseAmt = 1.6; } else { pulseAmt = 0; } dirty = true; }
 
   let visible = true, time = 0, last = performance.now(), mx = 0, my = 0, vx = 0, vy = 0, drag = false, lx = 0, ly = 0, yaw = 0, pitch = 0, yawVel = 0, pitchVel = 0;

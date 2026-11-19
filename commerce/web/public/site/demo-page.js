@@ -1,5 +1,5 @@
 // Demo page: mobile menu plus the three-sample replay (demo-lab.js). ?sample=paid|refused|bounty preselects a sample.
-import { initDemoLab } from './demo-lab.js?v=9';
+import { initDemoLab } from './demo-lab.js?v=10';
 import { initMarket } from './market.js?v=3';
 
 const toggle = document.querySelector('.menu-toggle'), mobile = document.getElementById('mobile-nav');

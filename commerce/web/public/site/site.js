@@ -1,5 +1,5 @@
-import { initGlobe } from './globe.js?v=23';
-import { initRobot } from './robot.js?v=19';
+import { initGlobe } from './globe.js?v=24';
+import { initRobot } from './robot.js?v=20';
 import { initToolNetwork } from './tool-network.js?v=6';
 import { initScopeMap } from './scope.js?v=3';
 import { initCoin } from './coin.js?v=10';
