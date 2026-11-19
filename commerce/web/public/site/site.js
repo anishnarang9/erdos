@@ -1,6 +1,6 @@
-import { initGlobe } from './globe.js?v=9';
-import { initRobot } from './robot.js?v=17';
-import { initDemoLab } from './demo-lab.js?v=3';
+import { initGlobe } from './globe.js?v=14';
+import { initRobot } from './robot.js?v=18';
+import { initDemoLab } from './demo-lab.js?v=6';
 import { initCoin } from './coin.js?v=9';
 import { LAYERS, ICONS } from './layers.js?v=9';
 
@@ -51,10 +51,6 @@ const safe = (fn, name) => { try { return fn(); } catch (err) { console.warn(`${
 const globe = safe(() => initGlobe($('#globe'), { reduced }), 'Globe'); if (!globe) $('#globe').classList.add('no-webgl');
 const robot = safe(() => initRobot($('#robot'), { reduced }), 'Robot');
 const coin = safe(() => initCoin($('#coin'), { reduced }), 'Coin');
-const motionBtn = $('#motion');
-const syncMotion = () => { const p = globe?.isPaused() ?? true; motionBtn.textContent = p ? 'RESUME MOTION' : 'PAUSE MOTION'; motionBtn.setAttribute('aria-pressed', String(p)); };
-motionBtn.addEventListener('click', () => { globe?.setPaused(!globe.isPaused()); syncMotion(); }); syncMotion();
-
 // ---------- solutions: fixed centre robot, scrolling rows ----------
 const rows = $$('.sol-row'), robotLabel = $('#robot-label');
 let activeRow = -1;
@@ -115,13 +111,38 @@ $$('[data-escrow]').forEach(button => button.addEventListener('click', () => {
   $('#escrow-receipt').href = 'https://explorer.testnet.arc.io/tx/' + hash;
   $('#escrow-receipt').textContent = 'Inspect ' + action + ' receipt ↗';
 }));
+const robotCanvas = $('#robot canvas');
+let robotFade;
 function setRow(i) {
-  if (i === activeRow) return; activeRow = i;
-  rows.forEach((r, k) => r.classList.toggle('active', k === i));
-  if (i < 0) return;
-  const label = robot ? robot.setStep(Number(rows[i].dataset.step)) : '';
-  if (robotLabel) decode(robotLabel, 0, `SOLVER AGENT · ${label}`);
-  decodeAll(rows[i], 60, 70);
+  if (i === activeRow) return;
+  const firstStage = activeRow < 0;
+  activeRow = i;
+  rows.forEach((row, index) => row.classList.toggle('active', index === i));
+  if (i < 0 || !robot) return;
+
+  const showPose = () => {
+    const label = robot.setStep(Number(rows[i].dataset.step));
+    robotLabel.textContent = `SOLVER AGENT \u00b7 ${label}`;
+  };
+  if (firstStage || reduced || !robotCanvas) {
+    showPose();
+    return;
+  }
+
+  // A new scroll target takes over from the opacity currently on screen.
+  const opacity = Number(getComputedStyle(robotCanvas).opacity);
+  robotFade?.cancel();
+  robotFade = robotCanvas.animate([{ opacity }, { opacity: 0 }], {
+    duration: 200 * opacity, easing: 'ease-in', fill: 'forwards',
+  });
+  robotFade.onfinish = () => {
+    if (i !== activeRow) return;
+    showPose();
+    robotFade.cancel();
+    robotFade = robotCanvas.animate([{ opacity: 0 }, { opacity: 1 }], {
+      duration: 360, easing: 'ease-out',
+    });
+  };
 }
 
 // ---------- ecosystem layers ----------
@@ -224,6 +245,16 @@ function onScroll() {
   // Solutions: the row whose centre is nearest the viewport centre is active.
   if (sol) {
     const sr = sol.getBoundingClientRect();
+    if (!reduced && sr.top < vh && sr.bottom > 0) {
+      for (const row of rows) {
+        const copy = row.querySelector('.sol-left');
+        const bounds = copy.getBoundingClientRect();
+        if (bounds.top > vh || bounds.bottom < 0) continue;
+        const progress = (vh - bounds.top) / (vh * .24);
+        copy.style.setProperty('--heading-opacity', clamp(progress));
+        copy.style.setProperty('--description-opacity', clamp(progress - .16));
+      }
+    }
     if (sr.top < vh * .7 && sr.bottom > vh * .3) {
       let best = 0, bd = Infinity; rows.forEach((r, i) => { const b = r.getBoundingClientRect(); const d = Math.abs(b.top + b.height / 2 - vh / 2); if (d < bd) { bd = d; best = i; } });
       setRow(best);
@@ -245,11 +276,22 @@ let ticking = false;
 addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { onScroll(); ticking = false; }); } }, { passive: true });
 addEventListener('resize', onScroll); onScroll();
 
-// Reveals: blocks rise in; marked text decodes with staggered latency.
+// Reveal each block once. Content is readable before observation and on anchor jumps.
 if (!reduced) {
   document.documentElement.classList.add('motion');
-  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); if (e.target.matches('.token-grid, .token-links, .hero')) decodeAll(e.target, 150, 110); io.unobserve(e.target); } }), { threshold: .18 });
-  $$('.reveal, .case, .mat, .faq details, .title-wrap, .lab-panel, .token-grid, .token-links, .eco-lead, [data-fade]').forEach((el, i) => { el.style.setProperty('--d', `${(i % 4) * 90}ms`); io.observe(el); });
+  const blocks = $$('.reveal, .case, .mat, .faq details, .title-wrap, .lab-panel, .lab .howto, .demo-preset-controls, .demo-feed, .demo-followup, .scope-examples > *, .token-left, .escrow-inspector, .token-links, .eco-lead');
+  const observer = new IntersectionObserver(entries => {
+    const destination = document.querySelector(':target');
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      const block = entry.target;
+      const atDestination = destination && ((destination.contains(block) && block.getBoundingClientRect().top < innerHeight && destination.getBoundingClientRect().top >= -1) || block.contains(destination));
+      if (!atDestination && !block.matches(':focus-within')) block.classList.add('scroll-enter');
+      if (block.matches('.token-left, .token-links')) decodeAll(block, 150, 110);
+      observer.unobserve(block);
+    }
+  }, { rootMargin: '0px 0px -4% 0px' });
+  blocks.forEach(block => observer.observe(block));
 }
 
 // Copy the escrow address.

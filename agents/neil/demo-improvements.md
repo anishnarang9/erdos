@@ -43,6 +43,16 @@ Each item says what is wrong, why it matters, and what "done" looks like. Priori
 | 4.4 | P2 | **Reduced motion:** runs complete instantly (`sleep` returns 0), so the stages are hard to follow. | Keep short, non-animated pauses under reduced motion. |
 | 4.5 | P3 | The live feed keeps 40 lines and has no clear button or filter. | Add "Clear" and an ARC-only filter. |
 
+## 4b. Motion (added 2026-11-18)
+
+Current motion: scroll reveals (main's `scroll-enter`, now also on the how-to, sample buttons, live panel and follow-up), the solver robot changing pose per stage, a shimmering progress bar while running, ticks popping in per stage, a green or red glow on the solver panel at the verdict, and staggered entry of the result and verify rows. All of it is disabled under reduced motion.
+
+| # | Pri | Suggestion | Done when |
+| --- | --- | --- | --- |
+| 4b.1 | P2 | The robot's pose changes, but it has no "failed" gesture for job #4; it simply returns to compiling. | A head-shake or red-eye pose in `robot.js` for refused runs. |
+| 4b.2 | P2 | The globe at the top reacts to outcomes (`setOutcome`), but it is off-screen during the demo. | Add a small coin or escrow animation in the solver panel: coin locks on fund, flies to solver on release, returns to buyer on refund. |
+| 4b.3 | P3 | Three WebGL scenes plus the hero planets are heavy (see 3.3). | Profile with Performance panel; drop to one robot. |
+
 ## 5. For Agents page
 
 | # | Pri | Gap | Done when |

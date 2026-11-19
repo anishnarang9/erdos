@@ -1,7 +1,7 @@
 // Home page demo: replay three real Arc testnet jobs. A progress bar walks the stages while the solver robot acts
 // each one out, and the live panel logs every step and asks Arc to confirm each transaction as it is reached.
 // Honesty: the checks run in this browser; every transaction is a real recorded one, confirmed live from Arc.
-import { initRobot } from './robot.js?v=17';
+import { initRobot } from './robot.js?v=18';
 import { verifyDelivery } from './recorded-proof.js?v=13';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -130,6 +130,8 @@ export function initDemoLab({ onOutcome = () => {}, setStatus = () => {} } = {})
     $('#verify').hidden = true; $('#run').disabled = false; $('#run').textContent = 'RUN THIS JOB ↗';
     $('#solver-state').textContent = 'READY'; setProgress(0);
     robot?.setStep(0); onOutcome('idle'); setStatus('WAITING');
+    $('.demo-solver').dataset.state = 'idle';
+    const job = $('.demo-job'); job.classList.remove('swap'); void job.offsetWidth; job.classList.add('swap');
   }
 
   function verifyRow(label, look, hash) {
@@ -145,6 +147,7 @@ export function initDemoLab({ onOutcome = () => {}, setStatus = () => {} } = {})
     $('#run').disabled = true; $('#verify').hidden = true; $('#verify-rows').innerHTML = ''; $('#delivery-check').hidden = true;
     $('#delivery-result').hidden = true; $('#proof-files').hidden = true;
     stages.forEach((li) => (li.className = ''));
+    $('.demo-solver').dataset.state = 'running';
     feed(`Replaying ${s.kicker.toLowerCase().replace('arc testnet · ', '')}: ${s.title}`);
     const rows = [];
     for (let i = 0; i < s.stages.length; i++) {
@@ -196,7 +199,11 @@ export function initDemoLab({ onOutcome = () => {}, setStatus = () => {} } = {})
       receipt(s.extra.tx).then((r) => { cell.textContent = r ? `${r.ok ? 'Success' : 'Failed, as expected'} · block ${r.block}` : 'unavailable'; cell.dataset.ok = r ? 'true' : ''; });
     }
     $('#delivery-check').hidden = !s.delivery;
-    $('#verify').hidden = false;
+    const panel = $('#verify'); panel.hidden = false;
+    $$('#verify-rows tr').forEach((tr, i) => tr.style.setProperty('--i', i));
+    panel.classList.remove('enter'); void panel.offsetWidth; panel.classList.add('enter');
+    if (!reduced) setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 250);
+    $('.demo-solver').dataset.state = ok ? 'paid' : 'refused';
     $('#run').disabled = false; $('#run').textContent = 'RUN AGAIN ↻';
   }
 
