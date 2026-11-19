@@ -1,3 +1,9 @@
+# 2026-11-18 19:59 -0500 — Protect Bot capacity and correct receipt authoring instructions
+
+- The public API now checks stored draft binding, buyer fixtures, source quotes and coverage before dispatching a Bot review on a Grok revision. The existing approval gate still binds the buyer-selected coverage digest and native example check. The preflight permits replacement examples and the Bot route still validates those bytes.
+- Added prompt guidance for linking presence and uniqueness, mapping unknown-ID rejection to the lookup that enforces it, and including every ordered row in passing partial receipts. This is based on the exact saved reply. The old incomplete coverage remains rejected.
+- Route regressions show an incomplete draft spends no Bot dispatch and a qualified draft can dispatch. Full API tests and typecheck passed. No new paid calls or chain transactions ran.
+
 # 2026-11-18 19:56 -0500 — Replay the stored Flash reply through the API
 
 - Replayed the exact stored request and parsed provider output through a local API and native engine. The replay uses the canonical shipping normalizer. The original type error cleared and all six source quotes verified.

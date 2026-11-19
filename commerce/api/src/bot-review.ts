@@ -9,6 +9,7 @@ import { ENGINE_CATALOG } from "./authoring.ts";
 import { engineFailure, jobStore } from "./jobs.ts";
 import { isPlainObject, type Revision } from "./revision.ts";
 import { exampleFiles, parseExampleFixtures } from "./authoring-examples.ts";
+import { assertAuthoredReviewReady } from "./authored-approval.ts";
 import { prepareBotReview } from "./bot-review-contract.ts";
 import { botReviewStore } from "./bot-review-store.ts";
 import { BOT_REVIEW_MCP_PATH, registerBotReviewMcp } from "./bot-review-mcp.ts";
@@ -61,6 +62,7 @@ export function registerBotReviewRoutes(ctx: RouteContext) {
     if (job.state !== "drafted") throw new ApiError("wrong_state", "Bot review requires a drafted job");
     let request = body.request;
     if (rev.source === "grok") {
+      if (deps.deployment.mode === "public") assertAuthoredReviewReady(deps, rev.draft_id, rev.revision_hash, owner);
       const draft = deps.db.prepare("SELECT request_json FROM drafts WHERE id=? AND owner_wallet=?").get(rev.draft_id ?? "", owner) as { request_json: string } | undefined;
       if (!draft) throw invalid();
       const saved: unknown = JSON.parse(draft.request_json);

@@ -380,3 +380,44 @@ describe("live Bot review integration with a controlled transport", () => {
     expect(errors).toEqual([]);
   });
 });
+
+it.each([false, true])("dispatches public authored reviews only after coverage qualifies (%s)", async qualified => {
+  const dispatch = vi.fn(async () => {});
+  const request = "Require approval.";
+  const { app, pumpTasks } = setup({
+    deployment: { mode: "public", serviceOrigin: "https://api.example.test" },
+    engine: { ...simulatedEngine(), mode: "real", eval: async ({ deliverables }) => ({
+      ok: true, verdict: Buffer.from(deliverables[0]!.content).toString() === "yes" ? 1 : 0,
+    }) },
+    budget: { requestCeilingMicroUsd: 500000, dailyCeilingMicroUsd: 5000000,
+      inputMicroUsdPerMillion: 1000000, outputMicroUsdPerMillion: 1000000 },
+    botReview: { serviceToken: SERVICE, pilotOwner: privateKeyToAccount(PROVIDER_KEY).address.toLowerCase(),
+      maxDispatches: 1, dispatch },
+    draftModel: { outputTokenBound: { parameter: "max_tokens", maxTokens: 8192 }, async draft() {
+      return { model: "controlled", traceId: "public-coverage", result: {
+        kind: "draft", plan, examples, sourceQuotes: [{ path: "/request", quote: request }],
+        coverage: { assumptions: [], unresolved: qualified ? [] : ["A requirement is unresolved."],
+          requirements: [{ id: "approval", text: request, ruleIndices: [0], quoteIndices: [0] }] },
+      } };
+    } },
+  });
+  const key = await issue(app);
+  const queued = await post(app, "/v1/tasks", { operation: "draft", input: {
+    request, outputs: revision().outputs, expirySeconds: 600, maxBudget: "5000000",
+  } }, key);
+  expect(queued.status, await queued.clone().text()).toBe(202);
+  const { id } = await queued.json() as { id: string };
+  await pumpTasks();
+  const done = await app.request(`/v1/tasks/${id}`, { headers: { authorization: `Bearer ${key}` } });
+  const { result } = await done.json() as any;
+  expect(result.kind).toBe("draft");
+  const created = await post(app, "/v1/jobs", { source: "grok", draftId: result.draftId, revision: result.revision }, key);
+  expect(created.status, await created.clone().text()).toBe(201);
+  const { jobId } = await created.json() as { jobId: string };
+  const reviewed = await post(app, `/v1/jobs/${jobId}/bot-reviews`, { revisionHash: result.revisionHash, examples }, key);
+  expect(reviewed.status, await reviewed.clone().text()).toBe(qualified ? 202 : 409);
+  expect(dispatch).toHaveBeenCalledTimes(qualified ? 1 : 0);
+  if (!qualified) expect(await reviewed.json()).toMatchObject({
+    error: { code: "approval_required", details: { blockers: ["requirement_coverage"] } },
+  });
+});
