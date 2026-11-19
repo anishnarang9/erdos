@@ -47,11 +47,17 @@ export function scoreTrial({challenge, response, candidateResults = [], repairCo
     };
   }
   if (challenge.classification === 'unsupported') {
-    const name = challenge.capabilityRequests?.[0]?.name ?? '';
+    const expected = challenge.capabilityRequests?.[0];
+    const native = response?.capabilityError;
+    const unsupportedExplanation = !!expected?.name && response?.kind === 'unsupported'
+      && (response.reason === 'capability_unsupported'
+        ? native?.code === 'unsupported_capability' && native.request?.kind === expected.kind
+          && native.request?.name === expected.name
+        : typeof response.reason === 'string' && response.reason.includes(expected.name));
     return {
       ...blank(base),
       weakerPayableJob: response?.kind === 'draft',
-      unsupportedExplanation: response?.kind === 'unsupported' && typeof response.reason === 'string' && response.reason.includes(name),
+      unsupportedExplanation,
     };
   }
   const falseAccepts = candidateResults.filter((item) => item.engine === 'pass' && item.oracle !== 'pass').length;

@@ -654,6 +654,23 @@ test('synthetic scores and aggregate gates stay closed without a live trial', ()
   });
   assert.equal(named.unsupportedExplanation, true);
   assert.equal(named.weakerPayableJob, false);
+  const expectedCapability = {kind: 'operation', name: 'div'};
+  for (const [request, matches] of [
+    [expectedCapability, true],
+    [{kind: 'parser', name: 'div'}, false],
+    [{kind: 'operation', name: 'divide'}, false],
+  ]) {
+    const native = scoreTrial({
+      challenge: {classification: 'unsupported', capabilityRequests: [expectedCapability]},
+      response: {
+        kind: 'unsupported',
+        reason: 'capability_unsupported',
+        capabilityError: {code: 'unsupported_capability', request},
+      },
+    });
+    assert.equal(native.unsupportedExplanation, matches);
+    assert.equal(native.weakerPayableJob, false);
+  }
   const weaker = scoreTrial({
     challenge: {classification: 'unsupported', prompt: 'Divide.', capabilityRequests: [{kind: 'operation', name: 'div'}]},
     response: {kind: 'draft', live: false},
