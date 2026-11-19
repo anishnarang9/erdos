@@ -572,6 +572,30 @@ describe("runOpenClaimAcceptance", () => {
     expect(f.runner.calls.filter(call => call[0] === "prove")).toHaveLength(1);
   });
 
+  it("recovers a published proof after interruption before the worker saved its verdict", async () => {
+    const f = setup();
+    const interrupted = {...f.runner, run: async (args: string[], timeout: number) => {
+      const result = await f.runner.run(args, timeout);
+      if (args[0] === "prove") throw new Error("interrupted after proof publication");
+      return result;
+    }};
+    await checkFails(runOpenClaimAcceptance({...f.options, prepareOnly:true, runner:interrupted}), "prove");
+    expect(saved(f.options.attemptDir).phase).toBe("proving");
+    await checkFails(runOpenClaimAcceptance(f.options), "resume_incomplete");
+    const keyPath = join(f.options.attemptDir, "attempt/release-key.hex");
+    const key = readFileSync(keyPath);
+    rmSync(keyPath);
+    await checkFails(runOpenClaimAcceptance({...f.options, prepareOnly:true}), "resume_incomplete");
+    writeFileSync(keyPath, key, {mode:0o600});
+    const recovered = await runOpenClaimAcceptance({...f.options, prepareOnly:true});
+    expect(recovered.phase).toBe("proved");
+    expect(f.port.broadcasts).toHaveLength(0);
+    expect(f.runner.calls.filter(call => call[0] === "prove")).toHaveLength(1);
+    expect((await runOpenClaimAcceptance(f.options)).phase).toBe("released");
+    expect(f.port.claims).toBe(1);
+    expect(f.port.releases).toBe(1);
+  });
+
   it("refuses to spawn an engine from the acceptance harness", async () => {
     const { runner, options } = setup();
     await checkFails(runOpenClaimAcceptance({ ...options, spawnEngine: true }), "engine");

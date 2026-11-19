@@ -208,7 +208,7 @@ export async function runOpenClaim(o: OpenClaimRunOptions): Promise<OpenClaimSta
         throw new WorkerCheckError("broadcast_uncertain", "broadcast intent has no durable hash; manual reconciliation required, no automatic resend");
       }
       if (state.phase === "lost" || state.phase === "rejected" || state.phase === "abandoned") return state;
-      if (state.phase === "preparing" || state.phase === "proving") {
+      if (state.phase === "preparing" || (state.phase === "proving" && !o.prepareOnly)) {
         throw new WorkerCheckError("resume_incomplete", "preparation or proving was interrupted; manual recovery required");
       }
     }
@@ -239,6 +239,27 @@ export async function runOpenClaim(o: OpenClaimRunOptions): Promise<OpenClaimSta
       must(same(pkg.imageId, o.job.imageId), "invalid_proof", "stored proof image differs from the funded job");
       if (saved) must(same(pkg.envelopeHash, state.envelopeHash ?? "") && same(pkg.keyCommitment, state.keyCommitment ?? ""), "invalid_proof", "stored proof does not match the attempt");
       must(same(keyCommitment(pkg.contextBytes, hexToBytes(key)), pkg.keyCommitment), "key", "release key does not open the attempt commitment");
+    };
+    const recordProof = async (expectedVerdict?: 0 | 1) => {
+      loadProof(false);
+      must(expectedVerdict === undefined || pkg!.verdict === expectedVerdict, "invalid_proof", "proof and engine verdict differ");
+      state.verdict = pkg!.verdict;
+      state.envelopeHash = pkg!.envelopeHash;
+      state.keyCommitment = pkg!.keyCommitment;
+      state.context = bytesToHex(pkg!.contextBytes);
+      if (pkg!.verdict === 0) {
+        phase("rejected", "verdict 0 is not claimed");
+        return;
+      }
+      const recovery = mkdtempSync(at(".recovery-"));
+      chmodSync(recovery, 0o700);
+      try {
+        await checkRecovery(o.runner, at("attempt/proof.json"), at("attempt/release-key.hex"), join(recovery, "files"), pkg!, hexToBytes(key!), readFilesFrom(at("deliverables")));
+      } catch (error) {
+        if (error instanceof WorkerCheckError) throw error;
+        throw new WorkerCheckError("recovery", "private recovery validation failed");
+      } finally { rmSync(recovery, { recursive: true, force: true }); }
+      phase("proved");
     };
     const proveFresh = async () => {
       const snap = await gate();
@@ -282,29 +303,18 @@ export async function runOpenClaim(o: OpenClaimRunOptions): Promise<OpenClaimSta
       } catch {
         throw new WorkerCheckError("prove", "engine proving failed; inspect private artifacts");
       } finally { privateArtifactTree(o.attemptDir); }
-      loadProof(false);
-      must(pkg!.verdict === out.verdict, "invalid_proof", "proof and engine verdict differ");
-      state.verdict = pkg!.verdict;
-      state.envelopeHash = pkg!.envelopeHash;
-      state.keyCommitment = pkg!.keyCommitment;
-      state.context = bytesToHex(pkg!.contextBytes);
-      save();
-      if (pkg!.verdict === 0) {
-        phase("rejected", "verdict 0 is not claimed");
-        return;
-      }
-      const recovery = mkdtempSync(at(".recovery-"));
-      chmodSync(recovery, 0o700);
-      try {
-        await checkRecovery(o.runner, at("attempt/proof.json"), at("attempt/release-key.hex"), join(recovery, "files"), pkg!, hexToBytes(key!), readFilesFrom(at("deliverables")));
-      } catch (error) {
-        if (error instanceof WorkerCheckError) throw error;
-        throw new WorkerCheckError("recovery", "private recovery validation failed");
-      } finally { rmSync(recovery, { recursive: true, force: true }); }
-      phase("proved");
+      await recordProof(out.verdict);
     };
 
     if (!resume) await proveFresh();
+    else if (state.phase === "proving") {
+      must(state.claimTx === undefined && state.releaseTx === undefined
+        && existsSync(at("attempt/proof.json")) && existsSync(at("attempt/release-key.hex")),
+      "resume_incomplete", "no complete pre-claim proof package; manual recovery required");
+      await gate();
+      await recordProof();
+      return state;
+    }
     else if (state.phase !== "lost" && state.phase !== "rejected") loadProof(true);
     if (state.phase === "rejected" || state.phase === "lost") return state;
     if (o.prepareOnly) return state;
