@@ -8,7 +8,7 @@ const choose = (condition, thenBranch, elseBranch) => ({
   op: 'if', condition, then: thenBranch, else: elseBranch,
 });
 
-export function conditionalRoutePlan(plan) {
+function conditionalRoutePlan(plan) {
   const hops = access('deliverable', 'hops.json');
   const edges = access('reference', 'edges.json');
   const [uniqueSeq, seqDomain, origin, destination, , ...limits] = plan.rules;
@@ -33,15 +33,15 @@ test('conditional next-hop lookup preserves all warehouse route oracle outcomes'
   }
 });
 
-test('checks a 128-hop route with the pairwise and conditional plans', async () => {
+async function checkLongRoute(size) {
   const original = buildCorpus().find(({id}) => id === 'route-penalty-1');
-  const size = 128;
   const edges = Array.from({length: size}, (_, i) => ({
     edgeId: `edge-${i}`, fromStop: `stop-${i}`, toStop: `stop-${i + 1}`, meters: '1',
   }));
   const hops = edges.map(({edgeId}, i) => ({edgeId, seq: String(i + 1)}));
   const broken = structuredClone(hops);
-  [broken[64].edgeId, broken[65].edgeId] = [broken[65].edgeId, broken[64].edgeId];
+  const middle = size / 2;
+  [broken[middle].edgeId, broken[middle + 1].edgeId] = [broken[middle + 1].edgeId, broken[middle].edgeId];
   const challenge = {
     ...original,
     referenceFiles: {
@@ -64,4 +64,8 @@ test('checks a 128-hop route with the pairwise and conditional plans', async () 
       {id: 'broken', engine: 'fail', oracle: 'fail'},
     ]);
   }
-});
+}
+
+for (const size of [128, 256]) {
+  test(`checks a ${size}-hop route with the pairwise and conditional plans`, () => checkLongRoute(size));
+}

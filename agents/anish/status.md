@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-19 09:35 -05:00 — Anish — Check guarded route at the collection limit
+
+- The route suite now checks valid and broken routes at 128 and 256 hops against the independent oracle. All 87 qualification tests and 326 frozen native comparisons passed.
+- At 256 hops, the pairwise guest used 225,339,637 cycles. The conditional guest used 12,446,009 cycles for verdict 1 and 12,445,983 for verdict 0. Both plans returned the expected verdicts. The conditional package reused the two-hop and 128-hop checker image.
+- The full 128-hop proof remains active. The 256-hop evidence covers guest execution. No live authoring, deployment, or settlement ran.
+
 ## 2026-11-19 09:32 -05:00 — Anish — Prove and recover a conditional route
 
 - The two-hop route returned verdict 1 in 529,817 ms at 2,034,015 guest cycles. Its checker image is `0x54738e4ff8e9a5d398d7cd065e0b3620584530ca4e6123745b3b90b482d5ba64`, the same image used for the 128-hop benchmark. The CLI verified the receipt. The seal is 260 bytes with selector `0xe71e6620`.
