@@ -1,3 +1,9 @@
+# 2026-11-18 21:11 -0500 — Recheck buyer recovery on the current public release
+
+- The installed buyer runner recovered settled Arc job 10 through the current API and QuickNode RPC. It reported exact gas-adjusted payout of 10,000 USDC base units. The native engine and SDK both recovered receipt SHA-256 `3e454c9b45f5db52a29bb27210f06014b987b9ee062c3acaa51d4243fe3af971`, which matches the original solver file.
+- The SSH observation timed out while the VPS process continued. A follow-up read confirmed the same process finished and checked both output files. A separate local container exited with a redacted error. The supported VPS runner completed without a credential or solver files.
+- This verifies recovery of an existing settlement on the current release. The new Flash High job still needs signing approval. No new proof, draft, review or transaction ran.
+
 # 2026-11-18 21:07 -0500 — Check the independent solver's synthetic receipt
 
 - Prepared a synthetic receipt from the committed reference files for job `01M7RP5JHE7XP43490EN051N2H`. The supplied file is 117 bytes with SHA-256 `910cf96e972614bd8f3c3b13b568dfc464ffb5cf6a436acd554dc4b1112fe4cf`.
