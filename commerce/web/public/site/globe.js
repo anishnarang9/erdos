@@ -173,9 +173,9 @@ export function initGlobe(host, { reduced = false } = {}) {
   // Secondary planets sit between the star spiral and Earth.
   const planetSphere = new THREE.SphereGeometry(1, 48, 32);
   const planets = [
-    { name: 'Saturn', radius: .76, dark: 0x734a47, light: 0xf8ce9b, bands: 18, tilt: -.31, speed: .10, x: -.32, y: .24 },
-    { name: 'Neptune', radius: .47, dark: 0x22467d, light: 0x77d6ff, bands: 10, tilt: .4, speed: .14, x: -.07, y: .36 },
-    { name: 'Mars', radius: .29, dark: 0x713c3c, light: 0xffaa7b, bands: 0, tilt: -.15, speed: .085, x: .38, y: -.14 },
+    { name: 'Saturn', radius: .76, dark: 0x734a47, light: 0xf8ce9b, bands: 18, tilt: -.31, speed: .10, x: -.34, y: .32, mobileX: -.34, mobileY: .40 },
+    { name: 'Neptune', radius: .47, dark: 0x22467d, light: 0x77d6ff, bands: 10, tilt: .4, speed: .14, x: -.06, y: .39, mobileX: .32, mobileY: .39 },
+    { name: 'Mars', radius: .29, dark: 0x713c3c, light: 0xffaa7b, bands: 0, tilt: -.15, speed: .085, x: .42, y: -.17, mobileX: .42, mobileY: .005 },
   ];
   for (const planet of planets) {
     const material = new THREE.ShaderMaterial({
@@ -199,6 +199,7 @@ export function initGlobe(host, { reduced = false } = {}) {
           #include <colorspace_fragment>
         }`,
     });
+    planet.yaw = 0;
     planet.axis = new THREE.Group();
     planet.axis.rotation.z = planet.tilt;
     planet.body = new THREE.Mesh(planetSphere, material);
@@ -227,7 +228,9 @@ export function initGlobe(host, { reduced = false } = {}) {
     const planetDepth = -6;
     const planetHeight = skyHeight * (camera.position.z - planetDepth) / (camera.position.z + 9);
     for (const planet of planets) {
-      planet.axis.position.set(planet.x * planetHeight * camera.aspect, planet.y * planetHeight, planetDepth);
+      const x = w <= 1100 ? planet.mobileX : planet.x;
+      const y = w <= 1100 ? planet.mobileY : planet.y;
+      planet.axis.position.set(x * planetHeight * camera.aspect, y * planetHeight, planetDepth);
       planet.axis.scale.setScalar(planet.radius * (w < 760 ? .6 : 1));
     }
     spiralPlane.position.set(-.28 * skyHeight * camera.aspect, .24 * skyHeight, -9);
@@ -238,9 +241,59 @@ export function initGlobe(host, { reduced = false } = {}) {
   new ResizeObserver(resize).observe(host); resize();
   new IntersectionObserver((e) => { visible = e[0].isIntersecting; dirty = true; }).observe(host);
   const el = renderer.domElement;
-  el.addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse' || reduced) return; const b = el.getBoundingClientRect(); mx = ((e.clientX - b.left) / b.width - .5) * .16; my = ((e.clientY - b.top) / b.height - .5) * .08; if (drag) { const dx = (e.clientX - lx) * .005, dy = (e.clientY - ly) * .004; yaw += dx; pitch = THREE.MathUtils.clamp(pitch + dy, -.6, .6); yawVel = dx * 40; pitchVel = dy * 40; lx = e.clientX; ly = e.clientY; dirty = true; } });
-  el.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') return; drag = true; lx = e.clientX; ly = e.clientY; yawVel = pitchVel = 0; el.setPointerCapture(e.pointerId); el.style.cursor = 'grabbing'; });
-  el.style.cursor = 'grab'; el.addEventListener('pointerup', () => { drag = false; el.style.cursor = 'grab'; }); el.addEventListener('pointercancel', () => (drag = false));
+  const ray = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+  const owners = new Map([[earth, null]]);
+  for (const planet of planets) {
+    for (const mesh of planet.axis.children) owners.set(mesh, planet);
+  }
+  const targets = Array.from(owners.keys());
+  let draggedPlanet = null;
+  function pick(event) {
+    const bounds = el.getBoundingClientRect();
+    pointer.set((event.clientX - bounds.left) / bounds.width * 2 - 1,
+      1 - (event.clientY - bounds.top) / bounds.height * 2);
+    ray.setFromCamera(pointer, camera);
+    return ray.intersectObjects(targets, false)[0]?.object;
+  }
+  el.addEventListener('pointerdown', event => {
+    if (event.pointerType !== 'mouse' || event.button !== 0) return;
+    const mesh = pick(event);
+    if (!mesh) return;
+    draggedPlanet = owners.get(mesh);
+    drag = true;
+    lx = event.clientX;
+    ly = event.clientY;
+    yawVel = pitchVel = 0;
+    el.setPointerCapture(event.pointerId);
+    el.style.cursor = 'grabbing';
+  });
+  el.addEventListener('pointermove', event => {
+    if (event.pointerType !== 'mouse') return;
+    if (!drag) {
+      el.style.cursor = pick(event) ? 'grab' : 'default';
+      if (!reduced) { mx = pointer.x * .08; my = -pointer.y * .04; }
+      return;
+    }
+    const dx = event.clientX - lx, dy = event.clientY - ly;
+    if (draggedPlanet) {
+      draggedPlanet.yaw += dx * .022;
+      draggedPlanet.axis.rotation.x = THREE.MathUtils.clamp(draggedPlanet.axis.rotation.x + dy * .015, -1.3, 1.3);
+    } else {
+      yaw += dx * .005;
+      pitch = THREE.MathUtils.clamp(pitch + dy * .004, -.6, .6);
+      yawVel = reduced ? 0 : dx * .2;
+      pitchVel = reduced ? 0 : dy * .16;
+    }
+    lx = event.clientX;
+    ly = event.clientY;
+    dirty = true;
+  });
+  el.addEventListener('lostpointercapture', event => {
+    drag = false;
+    draggedPlanet = null;
+    el.style.cursor = pick(event) ? 'grab' : 'default';
+  });
 
   function frame(now) {
     requestAnimationFrame(frame);
@@ -249,7 +302,7 @@ export function initGlobe(host, { reduced = false } = {}) {
     if (!reduced) { time += dt; dirty = true; }
     if (!dirty) return;
     vx += (mx - vx) * Math.min(1, dt * 3); vy += (my - vy) * Math.min(1, dt * 3);
-    for (const planet of planets) planet.body.rotation.y = time * planet.speed;
+    for (const planet of planets) planet.body.rotation.y = planet.yaw + time * planet.speed;
     spiral.rotation.z = time * .045;
     spiral.material.opacity = .85 + .1 * Math.sin(time * .65);
     spin.rotation.y = 3.0 + time * .03 + yaw;
