@@ -1,5 +1,5 @@
 // Testnet marketplace backed by Arc escrow state and hosted open-bounty discovery.
-import { CHAIN_ID, CORE, ADAPTER, USDC, ZERO, EXPLORER, rpc, call, encode, usdcBalance, escrowEvents, hasWallet, connectWallet, sendTx, waitReceipt, jobIdFromReceipt } from './chain.js?v=2';
+import { CHAIN_ID, CORE, ADAPTER, USDC, ZERO, EXPLORER, rpc, call, encode, usdcBalance, escrowEvents, hasWallet, connectWallet, sendTx, waitReceipt, jobIdFromReceipt } from './chain.js?v=3';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -47,24 +47,20 @@ function decodeJob(hex) {
     evaluator: addr(base + 3), description, budget: big(base + 5).toString(), expiry: big(base + 6).toString(),
     status: CHAIN_STATUS[Number(big(base + 7))] || 'Open', hook: addr(base + 8) };
 }
-async function readChain() {
-  const count = Number(BigInt(await call(CORE, '0x50355d76')));
-  const ids = Array.from({ length: count }, (_, i) => count - i);
-  const [rows, block, escrowBal] = await Promise.all([
-    Promise.all(ids.map((id) => call(CORE, `0xbf22c457${id.toString(16).padStart(64, '0')}`).then(decodeJob).catch(() => null))),
-    rpc('eth_blockNumber', []).then((b) => Number(BigInt(b))),
+async function readChain(previous, before) {
+  const [page, block, balance] = await Promise.all([
+    readEscrowJobPage(decodeJob, before),
+    rpc('eth_blockNumber', []).then(value => Number(BigInt(value))),
     usdcBalance(CORE).catch(() => null),
   ]);
-  return { block, escrowBal, jobs: rows.filter(Boolean).map((j) => {
-    const posted = /^erdos:(invoice|schedule|clean|extract):(.+)$/.exec(j.description);
-    const testPost = !!posted && same(j.client, j.provider) && same(j.hook, ZERO);
-    const openClaim = same(j.hook, ADAPTER) || same(j.provider, ADAPTER);
-    return { ...j, jobId: `arc-${j.id}`, chainJobId: String(j.id), onchain: true,
-      testPost, openClaim,
-      replay: RECORDED_RUNS[j.id] || null,
-      ...(testPost && { title: posted[2], publicBrief: 'This test escrow uses the posting wallet as both buyer and solver. It has no proof checker.' }),
-    };
-  }) };
+  const jobs = new Map(previous.filter(job => job.id <= page.count).map(job => [job.id, job]));
+  for (const job of page.jobs) {
+    jobs.set(job.id, {
+      ...job, jobId: `arc-${job.id}`, chainJobId: String(job.id), onchain: true,
+      openClaim: same(job.hook, ADAPTER) || same(job.provider, ADAPTER),
+    });
+  }
+  return { ...page, jobs: [...jobs.values()].sort((a, b) => b.id - a.id), block, balance };
 }
 async function getJson(url, ms = 6000) {
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), ms);
@@ -156,7 +152,15 @@ export async function initMarket(root, { onReplay } = {}) {
   const toast = document.createElement('div'); toast.className = 'mk-toast'; toast.setAttribute('role', 'status'); document.body.append(toast);
 
   let chain = [], api = [], quotes = [], events = [], escrowBal = null, prev = new Map(), changed = new Set();
-  let hostedBusy = false;
+  let hostedBusy = false, chainBusy = false;
+  let chainBefore = null, chainCount = 0;
+  let hostedUnavailable = false;
+  let chainStatus = 'Reading jobs from Arc testnet…';
+  let chainAvailable = false;
+  function renderFeedStatus() {
+    status.innerHTML = `<span class="dot${chainAvailable && !hostedUnavailable ? ' ok' : ''}"></span>`;
+    status.append(chainStatus + (hostedUnavailable ? ' · Hosted listings unavailable; showing last available data' : ''));
+  }
   const watched = new Set(storage.get('erdos-watch', []));
   const state = { status: 'all', category: 'all', source: 'all', q: '', sort: 'new', selected: null, tab: 'jobs' };
   const all = () => {
@@ -180,7 +184,7 @@ export async function initMarket(root, { onReplay } = {}) {
     const solvers = new Set(events.filter((e) => e.name === 'PaymentReleased').map((e) => String(e.args.provider).toLowerCase())).size;
     stats.innerHTML = [
       ['Locked in escrow', usdc(locked), 'USDC'], ['Paid to solvers', usdc(paid), 'USDC'], ['Refunded to buyers', usdc(refunded), 'USDC'],
-      ['Jobs on chain', chain.length, ''], ['Paid solver addresses', solvers || '—', ''], ['Escrow balance', escrowBal === null ? '—' : usdc(escrowBal), escrowBal === null ? '' : 'USDC'],
+      ['Jobs on chain', chainCount, ''], ['Paid solver addresses', solvers || '—', ''], ['Escrow balance', escrowBal === null ? '—' : usdc(escrowBal), escrowBal === null ? '' : 'USDC'],
     ].map(([k, v, u]) => `<div><dt>${k}</dt><dd><b>${v}</b>${u ? ` <small>${u}</small>` : ''}</dd></div>`).join('');
   }
   function renderSide() {
@@ -319,6 +323,8 @@ export async function initMarket(root, { onReplay } = {}) {
     hostedBusy = true;
     try {
       const [bounties, listings] = await Promise.allSettled([readHostedBounties(), readQuoteListings()]);
+      hostedUnavailable = bounties.status === 'rejected' || listings.status === 'rejected';
+      renderFeedStatus();
       const nextApi = bounties.status === 'fulfilled' ? bounties.value : api;
       const nextQuotes = listings.status === 'fulfilled' ? listings.value : quotes;
       if (JSON.stringify([nextApi, nextQuotes]) === JSON.stringify([api, quotes])) return;
@@ -329,8 +335,9 @@ export async function initMarket(root, { onReplay } = {}) {
   }
   async function poll(first, force = false) {
     changed = new Set();
+    const previousLength = chain.length;
     try {
-      const res = await readChain();
+      const res = await readChain(chain, chainBefore);
       for (const j of res.jobs) {
         const before = prev.get(j.jobId);
         if (!first && before !== j.status) {
@@ -343,8 +350,13 @@ export async function initMarket(root, { onReplay } = {}) {
         }
         prev.set(j.jobId, j.status);
       }
-      chain = res.jobs; escrowBal = res.escrowBal;
-      status.innerHTML = `<span class="dot ok"></span>Live from Arc testnet · block ${res.block.toLocaleString()} · updated ${new Date().toLocaleTimeString([], { hour12: false })}`;
+      chain = res.jobs;
+      escrowBal = res.balance ?? escrowBal;
+      chainBefore = res.next;
+      chainCount = res.count;
+      chainAvailable = !res.incomplete;
+      chainStatus = `Arc testnet · block ${res.block.toLocaleString()} · ${chain.length} of ${chainCount} jobs loaded`;
+      if (res.incomplete) chainStatus += ' · Some job reads failed';
       if (first || force || changed.size) events = await escrowEvents().catch(() => events);
     } catch {
       status.innerHTML = `<span class="dot"></span>Arc RPC unavailable${chain.length ? ' · showing last available chain data' : ''}`;

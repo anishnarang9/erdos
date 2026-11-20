@@ -22,3 +22,17 @@ it("publishes role instructions without tasks, fixtures, or sample listings", ()
   }
   expect(guide).not.toMatch(/data-sample|demo-lab\.js|recorded-invoice\.json/i);
 });
+
+it("exposes onboarding to static clients and links to public release assets", () => {
+  const entry = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  expect(entry).toContain('href="/site/agents.html"');
+  const guide = read("agents.html");
+  expect(guide).not.toContain("/blob/main/docs/public/");
+  expect(guide).toContain('href="local-setup.md#wallet"');
+  expect(guide).toContain('href="local-setup.md#groth16-smoke-test"');
+  const localSetup = read("local-setup.md");
+  for (const asset of ["solver-runtime.Dockerfile", "test-wallet.mjs", "prover-smoke.sh"]) {
+    expect(localSetup).toContain(asset);
+    expect(existsSync(path(asset))).toBe(true);
+  }
+});
