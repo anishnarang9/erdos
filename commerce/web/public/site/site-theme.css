@@ -10,7 +10,7 @@
 .guides { display: none; }
 .topbar { background: #07070def; }
 .topbar .brand { border: 0; font-weight: 700; }
-.nav { gap: 4px; }
+.nav { gap: clamp(18px, 3vw, 46px); }
 .nav > a { padding: 10px 14px; border-radius: 7px; }
 .nav > a[aria-current="page"], .nav > a:hover { background: #151826; }
 .topbar .launch { align-self: center; min-height: 38px; border: 1px solid var(--line-2); border-radius: 8px; padding: 0 14px; font-family: var(--sans); letter-spacing: 0; }
@@ -84,7 +84,7 @@
 .home-page .result-stats dt { background: none; color: var(--cyan); }
 .home-page .layer { background: var(--bg); border-color: var(--line-2); }
 .home-page .layer-main h3 { letter-spacing: -.043em; }
-.home-page .token .audit { margin-top: clamp(24px, 3vw, 36px); }
+.home-page .token .audit { display: flex; width: max-content; max-width: 100%; margin-top: clamp(28px, 3.5vw, 42px); }
 .home-page .tool { background: var(--surface); border-color: var(--line); border-radius: 13%; }
 .home-page .tool-grid > .tool:nth-child(2) { position: relative; top: clamp(8px, 1.2vw, 16px); }
 .home-page .tool:hover, .home-page .tool:focus-visible { transform: translateY(-2px); box-shadow: 0 0 0 1px var(--g); }
@@ -100,6 +100,11 @@
 .agents-page .doc-nav a.active, .faq-page .faq details[open] { background: var(--surface-raised); color: var(--ink); }
 
 @media (min-width: 1101px) { .home-page .sol-row { min-height: max(350px, 58svh); } }
+@media (min-width: 1101px) {
+  .topbar { grid-template-columns: auto minmax(0, 1fr) auto; column-gap: clamp(24px, 4vw, 64px); }
+  .topbar .brand { width: auto; }
+  .topbar .nav { width: 100%; min-width: 0; justify-content: space-between; gap: clamp(18px, 3vw, 46px); padding-inline: 0; }
+}
 @media (max-width: 900px) {
   .home-page .hero { align-items: start; min-height: max(700px, calc(100svh - var(--bar))); padding-block: clamp(40px, 8vw, 75px) 220px; }
   .home-page .hero::before { background: linear-gradient(180deg, #07070de6 0%, #07070dcc 38%, #07070d4d 58%, transparent 73%), linear-gradient(0deg, #07070d81, transparent 14%); }
