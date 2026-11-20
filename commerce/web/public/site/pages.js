@@ -1,4 +1,4 @@
-// For Agents page: mobile menu and guide-index highlighting. (The demo lives on the home page: demo-lab.js.)
+// For Agents page: mobile menu and guide-index highlighting.
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 

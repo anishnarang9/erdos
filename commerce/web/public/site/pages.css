@@ -26,8 +26,6 @@
 .status-list { list-style: none; margin: 18px 0; padding: 0; display: grid; gap: 10px; }
 .status-list li { display: flex; gap: 12px; align-items: center; font-size: 15px; }
 .status-list .badge { min-width: 96px; text-align: center; }
-#meridian-result[data-verdict="pass"] { color: var(--ok); }
-#meridian-result[data-verdict="fail"] { color: var(--bad); }
 .subpage .demo-followup { margin-top: 40px; }
 
 /* ---------- agents guide ---------- */

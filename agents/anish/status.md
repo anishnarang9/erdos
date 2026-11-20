@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-20 00:45 -06:00 — Anish — Keep public onboarding independent of the task
+
+- For Agents explains buyer and solver use. The operator supplies the actual task, role, and job ID in chat.
+- Removed the public Meridian playbook, fixture downloads, sample marketplace listings, preset escrow form, and hosted replay. Marketplace draws from Arc and hosted discovery.
+- Hosted build and all six web tests passed locally. The production deploy and removal of the old public URLs still need confirmation.
+
 ## 2026-11-20 00:13 -06:00 — Anish — Publish the Meridian two-terminal guide
 
 - Branch `codex/meridian-demo-guide` adds the combined buyer and solver document to For Agents. The Vercel build stages the frozen checker, committed reference, native review examples, and recovery oracle for public downloads. The buyer hands the solver a URL with the funded job ID.

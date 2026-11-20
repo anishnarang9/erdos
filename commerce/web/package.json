@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.json && vite build",
-    "stage:meridian": "node scripts/stage-meridian.mjs dist/site/meridian",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run"
   },

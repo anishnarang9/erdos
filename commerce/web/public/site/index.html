@@ -60,7 +60,7 @@
     </h1>
     <p class="hero-description">Post a job with rules a machine can check. Funds wait in USDC escrow and release only when a zero-knowledge proof shows the work passes, on any marketplace.</p>
     <div class="hero-ctas">
-      <a class="cta" href="demo.html">Try the demo ↗</a>
+      <a class="cta" href="demo.html">Open the marketplace ↗</a>
       <a class="cta-ghost" href="#scope">See what you can delegate ↓</a>
     </div>
   </div>
@@ -85,7 +85,7 @@
       <li class="snode" data-side="in"><b>Freelance platforms</b><span>Pay on proof, not on promises.</span></li>
       <li class="snode" data-side="in"><b>Enterprise procurement</b><span>Vendor work accepted automatically.</span></li>
       <li class="snode" data-side="in"><b>Bounty boards</b><span>The first valid proof claims it.</span></li>
-      <li class="snode" data-side="in"><b>Your own app</b><span>One API call opens a funded job.</span></li>
+      <li class="snode" data-side="in"><b>Your own app</b><span>Create and fund jobs through the API and runner.</span></li>
     </ol>
     <div class="scope-hub">
       <div class="hub-ring"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lg2" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#63f0ff"/><stop offset=".55" stop-color="#3f8cff"/><stop offset="1" stop-color="#2fe0a8"/></linearGradient></defs><g fill="none" stroke="url(#lg2)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="15" width="12" height="10" rx="3"/><rect x="33" y="15" width="12" height="10" rx="3"/><path d="M9 15v-3.6M39 15v-3.6"/><path d="M13 25A11 11 0 0 0 35 25Z"/></g><circle cx="9" cy="10.4" r="1.7" fill="#fff"/><circle cx="39" cy="10.4" r="1.7" fill="#fff"/><circle cx="12" cy="20" r="1.6" fill="#fff"/><circle cx="36" cy="20" r="1.6" fill="#fff"/><circle cx="24" cy="13" r="6.4" fill="#ffd166"/><circle cx="24" cy="13" r="6.4" fill="none" stroke="#ffb65c" stroke-width="1"/><path d="M26.3 10.7c-.6-.7-1.4-1.1-2.4-1.1-1.3 0-2.3.7-2.3 1.7 0 2.4 4.8 1.2 4.8 3.7 0 1-1 1.8-2.5 1.8-1 0-1.9-.4-2.5-1.1M24 8.4v1.2M24 16.6v1.2" fill="none" stroke="#0b0d16" stroke-width="1.35" stroke-linecap="round"/></svg></div>
@@ -94,7 +94,7 @@
       <small>Works with any market</small>
     </div>
     <ol class="scope-col scope-out" aria-label="What agents can deliver">
-      <li class="snode" data-side="out"><b>Reconcile records</b><span>Every invoice matched to the cent.</span><em class="tag-live">Live on Arc</em></li>
+      <li class="snode" data-side="out"><b>Reconcile records</b><span>Check records against reference data.</span><em class="tag-live">Live on Arc</em></li>
       <li class="snode" data-side="out"><b>Allocate resources</b><span>Jobs fitted to capacity and budget.</span><em>Proved locally</em></li>
       <li class="snode" data-side="out"><b>Check signed records</b><span>Inventory matched to signed evidence.</span><em>Pilot</em></li>
       <li class="snode" data-side="out"><b>Clean and transform data</b><span>Schemas, totals and row counts verified.</span><em>Next</em></li>
@@ -103,25 +103,11 @@
   </div>
 </section>
 
-<!-- RESULTS: recorded Arc testnet runs -->
 <section class="cases" id="cases" aria-labelledby="cases-title">
-  <div class="title-wrap"><h2 class="gtitle" id="cases-title">Real results</h2></div>
+  <div class="title-wrap"><h2 class="gtitle" id="cases-title">Arc activity</h2></div>
   <div class="results">
-    <dl class="result-stats">
-      <div><dt>5</dt><dd>jobs on Arc testnet</dd></div>
-      <div><dt>3</dt><dd>paid after a passing proof</dd></div>
-      <div><dt>0</dt><dd>bad deliveries paid</dd></div>
-    </dl>
-    <table class="result-table">
-      <thead><tr><th>Job</th><th>What happened</th><th>Outcome</th><th>USDC to solver</th><th>Proof time</th><th>Receipt</th></tr></thead>
-      <tbody>
-      <tr><td class="mono">#1</td><td>First funded job on the live contracts</td><td><span class="m-pill paid">Paid</span></td><td class="mono">0.01</td><td class="mono">126 s</td><td><a class="demo-link mono" href="https://explorer.testnet.arc.io/tx/0x5dc711b36140d9562461c710077fe6d7b336db5a5d0e00c7fbe739fedbdfd84a" target="_blank" rel="noreferrer">View ↗</a></td></tr>
-      <tr><td class="mono">#2</td><td>Delivery tampered by one cent</td><td><span class="m-pill refunded">Refunded</span></td><td class="mono">0</td><td class="mono">119 s</td><td><a class="demo-link mono" href="https://explorer.testnet.arc.io/tx/0xf8bd04d4693c7fe21c10c11c8d4887f840fcb1abbb03eab49fa3fc17b0c72de3" target="_blank" rel="noreferrer">View ↗</a></td></tr>
-      <tr><td class="mono">#3</td><td>Ledger matched to the cent</td><td><span class="m-pill paid">Paid</span></td><td class="mono">0.01</td><td class="mono">148 s</td><td><a class="demo-link mono" href="https://explorer.testnet.arc.io/tx/0x05693a09af7886d83b0c7cdac00b0bd134bfc471be76cc9e7b0abaa704abf76c" target="_blank" rel="noreferrer">View ↗</a></td></tr>
-      <tr><td class="mono">#4</td><td>Cheaper solver, one cent off</td><td><span class="m-pill refunded">Refunded</span></td><td class="mono">0</td><td class="mono">101 s</td><td><a class="demo-link mono" href="https://explorer.testnet.arc.io/tx/0xcfaa40a06a4b29fa30454e5aac373f7ffc8e8640a6c471491491500a87832540" target="_blank" rel="noreferrer">View ↗</a></td></tr>
-      <tr><td class="mono">#7</td><td>Open bounty, first valid proof wins</td><td><span class="m-pill paid">Paid</span></td><td class="mono">0.01</td><td class="mono">—</td><td><a class="demo-link mono" href="https://explorer.testnet.arc.io/tx/0x30a8bc27f9cecf068eeaf5c822196c5149f825671c4e65013d559de353572e14" target="_blank" rel="noreferrer">View ↗</a></td></tr>
-      </tbody>
-    </table>
+    <p>See funded jobs, escrow activity, and transaction receipts on Arc Testnet.</p>
+    <a class="cta" href="demo.html">Open the marketplace ↗</a>
   </div>
 </section>
 
@@ -132,12 +118,12 @@
     <article class="stack-card frame-corners"><strong>RISC Zero</strong><span>zkVM 3.1.0 · Groth16 receipts</span></article>
     <article class="stack-card frame-corners"><strong>Arc</strong><span>Testnet 5042002 · settlement</span></article>
     <article class="stack-card frame-corners"><strong>USDC</strong><span>6-decimal escrow · no fees</span></article>
-    <article class="stack-card frame-corners"><strong>xAI Grok</strong><span>grok-4.7 drafts the checks</span></article>
+    <article class="stack-card frame-corners"><strong>xAI Grok</strong><span>Drafts and reviews checks</span></article>
     <article class="stack-card frame-corners"><strong>ERC-8183</strong><span>Agentic commerce escrow</span></article>
     <article class="stack-card frame-corners" aria-hidden="true"><strong>RISC Zero</strong><span>zkVM 3.1.0 · Groth16 receipts</span></article>
     <article class="stack-card frame-corners" aria-hidden="true"><strong>Arc</strong><span>Testnet 5042002 · settlement</span></article>
     <article class="stack-card frame-corners" aria-hidden="true"><strong>USDC</strong><span>6-decimal escrow · no fees</span></article>
-    <article class="stack-card frame-corners" aria-hidden="true"><strong>xAI Grok</strong><span>grok-4.7 drafts the checks</span></article>
+    <article class="stack-card frame-corners" aria-hidden="true"><strong>xAI Grok</strong><span>Drafts and reviews checks</span></article>
     <article class="stack-card frame-corners" aria-hidden="true"><strong>ERC-8183</strong><span>Agentic commerce escrow</span></article>
   </div></div>
 </section>
@@ -151,7 +137,7 @@
     <article class="sol-row" id="solver-checks" data-step="1" tabindex="-1">
       <div class="sol-left">
         <h3>Agree on<br><span>what passes</span></h3>
-        <p>For an invoice match, every total must balance to the cent. The buyer approves that check up front.</p>
+        <p>The buyer specifies the deliverable and approves the checks before funding.</p>
       </div>
     </article>
     <article class="sol-row" id="solver-funding" data-step="2" tabindex="-1">
@@ -218,9 +204,6 @@
 <section class="materials" id="materials" aria-labelledby="mat-title">
   <div class="title-wrap"><h2 class="gtitle" id="mat-title">Evidence</h2></div>
   <div class="mat-list">
-    <a class="mat" id="evidence" href="https://github.com/anishnarang9/UBC-26/blob/main/commerce/evidence/arc-first-funded-jobs.md"><b>Settlement records</b><span class="d">Trace funding, proof acceptance, payout and refund for the invoice jobs.</span><span aria-hidden="true">↗</span></a>
-    <a class="mat" href="https://github.com/anishnarang9/UBC-26/tree/main/docs/fresh-exchange-input"><b>Scheduling workload</b><span class="d">Inspect the production brief, capacity limits and checked schedules.</span><span aria-hidden="true">↗</span></a>
-    <a class="mat" href="https://github.com/anishnarang9/UBC-26/blob/main/docs/public/solver.md"><b>Solver guide</b><span class="d">Follow a specialist agent from an open bounty through delivery.</span><span aria-hidden="true">↗</span></a>
     <a class="mat" href="https://explorer.testnet.arc.io/address/0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8" target="_blank" rel="noreferrer"><b>Escrow core on Arc</b><span class="d">ERC-8183 escrow that holds the bounty until a proof passes or the job expires.</span><span aria-hidden="true">↗</span></a>
     <a class="mat" href="https://explorer.testnet.arc.io/address/0x699d0e4a067F31229Be67C534B37dE964b6eDbAb" target="_blank" rel="noreferrer"><b>Settlement hook on Arc</b><span class="d">Verifies the proof for a selected solver, then releases payment and the key.</span><span aria-hidden="true">↗</span></a>
     <a class="mat" href="https://explorer.testnet.arc.io/address/0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8" target="_blank" rel="noreferrer"><b>Open-claim adapter on Arc</b><span class="d">Lets any agent claim an open bounty; the first valid proof wins.</span><span aria-hidden="true">↗</span></a>
@@ -231,12 +214,12 @@
 <section class="faq" id="faq" aria-labelledby="faq-title">
   <div class="title-wrap"><h2 class="gtitle" id="faq-title">FAQ</h2></div>
   <div class="faq-list">
-    <details><summary><span>01</span>What does the proof actually establish?</summary><p>That the committed delivery passes the approved checker: here, exact IDs, exact amounts and totals, and a nonempty report. It is not a judgement of writing quality, and it does not show the reference data is true or current.</p></details>
+    <details><summary><span>01</span>What does the proof actually establish?</summary><p>That the committed delivery passes the buyer-approved checker. It is not a judgement of writing quality, and it does not show the reference data is true or current.</p></details>
     <details><summary><span>02</span>Who can be a solver?</summary><p>Autonomous agents today, selected by the buyer from signed quotes, or any prover in open-claim mode. Human-prepared files are eligible against the same checks; the human adapter is next.</p></details>
     <details><summary><span>03</span>Are the files private?</summary><p>Not in this version. Releasing the key on chain makes the delivery decryptable by anyone, so use public or shareable data. Private delivery is future work.</p></details>
     <details><summary><span>04</span>What stops a solver from being paid for bad work?</summary><p>The verifier contract. A delivery that fails a rule yields a verdict-0 receipt, and the escrow only accepts a proof whose verdict passes and whose commitments match the frozen terms.</p></details>
-    <details><summary><span>05</span>Is this page moving money?</summary><p>This demo runs sample checks in your browser. The Arc results section links to recorded testnet transactions.</p></details>
-    <details><summary><span>06</span>Where did the bounty go?</summary><p>It follows the proof. In job #3 the delivery passed, so one transaction paid the solver 0.01 test USDC and published the delivery key (<a class="demo-link" href="https://explorer.testnet.arc.io/tx/0xb9caccce8c09ad659812fa12021f3728471caf202765a0e709cbea1c382b4956" target="_blank" rel="noreferrer">release receipt ↗</a>). In job #4 one amount was a cent off, so no valid proof existed; the bounty stayed locked until expiry and went back to the buyer (<a class="demo-link" href="https://explorer.testnet.arc.io/tx/0xcfaa40a06a4b29fa30454e5aac373f7ffc8e8640a6c471491491500a87832540" target="_blank" rel="noreferrer">refund receipt ↗</a>).</p></details>
+    <details><summary><span>05</span>Is this page moving money?</summary><p>The marketplace reads Arc Testnet state. Buyers and solvers sign transactions through the runner.</p></details>
+    <details><summary><span>06</span>Where does the bounty go?</summary><p>A confirmed release pays the solver and publishes the delivery key. An eligible expired job can return funds to the buyer through a refund.</p></details>
   </div>
 </section>
 
@@ -246,7 +229,7 @@
   <div class="foot-brand">Erdos</div>
   <div class="foot-cols">
     <div><p class="mono dim">PRODUCT</p><a href="#solution">How it works</a><a href="demo.html">Marketplace</a><a href="#layers">System details</a></div>
-    <div><p class="mono dim">EVIDENCE</p><a href="#cases">Case studies</a><a href="#materials">Materials</a><a href="#faq">FAQ</a></div>
+    <div><p class="mono dim">EVIDENCE</p><a href="#cases">Arc activity</a><a href="#materials">Materials</a><a href="#faq">FAQ</a></div>
     <div><p class="mono dim">SCOPE</p><span>Arc testnet only</span><span>Public or shareable data</span><span>UBC 2026 hackathon</span></div>
   </div>
 </footer>

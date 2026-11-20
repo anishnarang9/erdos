@@ -237,17 +237,10 @@ body[data-lab="released"] .demo-verdict h3 { color: var(--ok); }
 #proof-files { margin-top: 10px; }
 #proof-files summary { cursor: pointer; font: .82rem/1.7 var(--mono); }
 #proof-files pre { margin: 4px 0 12px; padding: 8px; overflow-wrap: anywhere; white-space: pre-wrap; background: var(--bg); font-size: .78rem; }
-.kiln-gauge { height: 16px; position: relative; background: var(--line); margin-top: 20px; }
-.kiln-gauge span { display: block; height: 100%; width: var(--load); background: var(--cyan); }
-.kiln-gauge.over-capacity span { background: var(--bad); }
-.kiln-gauge i { position: absolute; top: -4px; bottom: -4px; left: var(--capacity); border-left: 2px solid var(--ink); }
-#kiln-gauge-label { margin-top: 8px; }
 @media (min-width: 1101px) {
   .sol-stage { --stage-height: min(72vh, 720px); height: var(--stage-height); margin-bottom: calc(-1 * var(--stage-height)); }
   .sol-row { min-height: max(330px, 49vh); }
 }
-#meridian-result[data-verdict="pass"] { color: var(--ok); }
-#meridian-result[data-verdict="fail"] { color: var(--bad); }
 @media (max-width: 760px) {
   .hero-copy { max-width: calc(100% - 40px); }
   .hero-copy h1 { font-size: clamp(2rem, 8vw, 3.5rem); }

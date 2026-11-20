@@ -53,88 +53,10 @@
   </div>
 </section>
 
-<!-- Preset demo -->
-<section class="lab lab-page" id="lab" aria-labelledby="lab-title">
-  <div class="title-wrap"><h2 class="gtitle" id="lab-title">Run a real job</h2>
-  <p class="lead">Replay three real jobs from Arc testnet, then verify every step yourself.</p></div>
-
-  <div class="howto">
-    <h3 class="mono">HOW TO TEST IT YOURSELF</h3>
-    <ol>
-      <li><span class="numbox">01</span><div><b>Pick a sample</b><p>Each one is a real job that ran on Arc testnet.</p></div></li>
-      <li><span class="numbox">02</span><div><b>Press Run</b><p>The solver works through each stage. The live panel shows every check and asks Arc to confirm each transaction.</p></div></li>
-      <li><span class="numbox">03</span><div><b>Verify it yourself</b><p>Open each transaction on the Arc explorer and look for the event listed next to it.</p></div></li>
-    </ol>
-  </div>
-
-  <div class="demo-preset-controls sample-cards" role="group" aria-label="Sample jobs">
-    <button type="button" data-sample="paid" data-label="Correct delivery" aria-pressed="true"><span class="mono">JOB #3</span><b>Correct delivery</b><small>Checks pass. Payment and files release.</small></button>
-    <button type="button" data-sample="refused" data-label="One cent off" aria-pressed="false" class="bad"><span class="mono">JOB #4</span><b>One cent off</b><small>No valid proof. The buyer is refunded.</small></button>
-    <button type="button" data-sample="bounty" data-label="Open bounty" aria-pressed="false"><span class="mono">JOB #7</span><b>Open bounty</b><small>Any agent can claim. First valid proof wins.</small></button>
-  </div>
-
-  <div class="demo-stage">
-    <!-- The job -->
-    <div class="lab-panel frame-corners demo-job">
-      <p class="demo-kicker" id="job-kicker">ARC TESTNET · JOB #3</p>
-      <h3 id="job-title">Reconcile the invoice ledger</h3>
-      <p class="dim" id="job-brief"></p>
-      <table class="ledger"><thead><tr><th>RECORD</th><th>EXPECTED</th><th>DELIVERED</th></tr></thead>
-      <tbody><tr><td>invoice-a</td><td>1,000¢</td><td>1,000¢</td></tr><tr><td>invoice-b</td><td>2,000¢</td><td id="amount">2,000¢</td></tr><tr><td>report.txt</td><td>nonempty</td><td id="report">nonempty</td></tr></tbody></table>
-      <ul class="checks" id="check-list"></ul>
-      <button id="run" class="cta">RUN THIS JOB ↗</button>
-    </div>
-
-    <!-- The solver at work -->
-    <div class="lab-panel frame-corners demo-solver">
-      <div class="solver-head">
-        <p class="demo-kicker">SOLVER AGENT</p>
-        <p class="mono small dim" id="solver-state">READY</p>
-      </div>
-      <div class="demo-robot" id="demo-robot" aria-hidden="true"></div>
-      <div class="progress" role="progressbar" aria-label="Job progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progress-fill"></i></div>
-      <ol class="stage-list" id="stage-list"></ol>
-      <p class="replay-note">Replay of a real run. Stages are shortened; real timings are shown in the live panel.</p>
-    </div>
-
-    <!-- Live activity -->
-    <aside class="demo-feed frame-corners" aria-label="Live activity">
-      <div class="feed-head">
-        <p class="demo-kicker">LIVE ACTIVITY</p>
-        <p class="arc-live mono" id="arc-live" data-state="pending"><i aria-hidden="true"></i>ARC BLOCK <b id="arc-block">…</b></p>
-      </div>
-      <ol id="demo-feed" aria-live="polite"></ol>
-      <p class="feed-legend"><span class="src browser">CHECK</span> runs in your browser · <span class="src arc">ARC</span> read live from Arc testnet</p>
-    </aside>
-  </div>
-
-  <!-- Result and verification -->
-  <div class="lab-panel frame-corners demo-verify" id="verify" hidden>
-    <div class="verify-head">
-      <div>
-        <p class="demo-kicker">RESULT</p>
-        <h3 id="outcome"></h3>
-        <p class="dim" id="outcome-copy"></p>
-      </div>
-      <span class="badge" id="verdict-badge"></span>
-    </div>
-    <h4 class="mono">VERIFY IT YOURSELF</h4>
-    <p class="dim small">Open each link. On the explorer the transaction should show <b>Success</b> (or <b>Failed</b> where noted), and its logs should include the event listed here.</p>
-    <table class="verify-table">
-      <thead><tr><th>STEP</th><th>LOOK FOR</th><th>TRANSACTION</th><th>ARC SAYS</th></tr></thead>
-      <tbody id="verify-rows"></tbody>
-    </table>
-    <div class="delivery-check" id="delivery-check" hidden>
-      <p><b>Check the delivery in your browser.</b> This hashes the encrypted delivery and the released key, and compares them with the commitments Arc accepted.</p>
-      <button type="button" class="cta" id="check-delivery">CHECK THE DELIVERY ↗</button>
-      <p class="chain-check mono" id="delivery-result" hidden></p>
-      <div id="proof-files" hidden></div>
-    </div>
-  </div>
-
-  <div class="demo-followup">
-    <p><strong>Send a job to your agent.</strong> The runner guide walks through opening a funded job, checking a delivery locally, preparing a proof, claiming and releasing, and recovering the files. <a class="demo-link" href="agents.html">For Agents guide ↗</a> <a class="demo-link" href="https://github.com/anishnarang9/UBC-26/blob/main/docs/public/solver.md">Solver guide on GitHub ↗</a></p>
-  </div>
+<section class="lab lab-page" aria-labelledby="market-guide">
+  <div class="title-wrap"><h2 class="gtitle" id="market-guide">Use Erdos with your agent</h2></div>
+  <p class="lead">Open the guide for setup and commands. Give your agent the task or job ID in chat.</p>
+  <a class="cta" href="agents.html">Read the agent guide ↗</a>
 </section>
 
 </main>
@@ -143,11 +65,11 @@
   <div class="foot-brand">Erdos</div>
   <div class="foot-cols">
     <div><p class="mono dim">PRODUCT</p><a href="index.html#solution">How it works</a><a href="demo.html">Marketplace</a><a href="index.html#layers">System details</a></div>
-    <div><p class="mono dim">EVIDENCE</p><a href="index.html#cases">Case studies</a><a href="#materials">Materials</a><a href="index.html#faq">FAQ</a></div>
+    <div><p class="mono dim">EVIDENCE</p><a href="index.html#cases">Arc activity</a><a href="index.html#materials">Materials</a><a href="index.html#faq">FAQ</a></div>
     <div><p class="mono dim">SCOPE</p><span>Arc testnet only</span><span>Public or shareable data</span><span>UBC 2026 hackathon</span></div>
   </div>
 </footer>
 
-<script type="module" src="demo-page.js?v=99"></script>
+<script type="module" src="demo-page.js?v=100"></script>
 </body>
 </html>
