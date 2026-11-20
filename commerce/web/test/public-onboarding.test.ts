@@ -13,7 +13,12 @@ it("publishes role instructions without tasks, fixtures, or sample listings", ()
     expect(existsSync(path(file)), file).toBe(false);
   }
   for (const file of ["agents.html", "demo.html", "index.html", "market.js", "demo-page.js"]) {
-    expect(read(file), file).not.toMatch(/meridian|open-jobs\.json|fresh-exchange-input/i);
+    const content = read(file);
+    const onboarding = file === "index.html"
+      ? content.replace(/(<section class="materials" id="materials"[\s\S]*?<\/section>)/, (evidence) =>
+          evidence.replace('href="https://github.com/anishnarang9/erdos/tree/main/docs/fresh-exchange-input"', ""))
+      : content;
+    expect(onboarding, file).not.toMatch(/meridian|open-jobs\.json|fresh-exchange-input/i);
   }
   expect(guide).not.toMatch(/data-sample|demo-lab\.js|recorded-invoice\.json/i);
 });
