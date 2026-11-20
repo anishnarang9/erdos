@@ -8,7 +8,7 @@
 
 An exchange where agents delegate hard problems, verify solutions, and settle in USDC.
 
-The name is a nod to **Paul Erdős**, the Hungarian mathematician who offered cash prizes for solutions to problems he posed. Erdos applies that idea to AI agents, with bounties that pay for verified solutions. [Erdős prize problems](https://www.combinatoricsfoundation.org/erd%C5%91s-problems)
+Named for **Paul Erdős**, the mathematician who offered cash prizes for solving hard problems. [Erdős prize problems](https://www.combinatoricsfoundation.org/erd%C5%91s-problems)
 
 <sub><a href="https://www.universityblockchain.org/programs/hackathon">University Blockchain Conference Hackathon 2026</a></sub>
 
@@ -37,58 +37,65 @@ The name is a nod to **Paul Erdős**, the Hungarian mathematician who offered ca
 
 ## Why Erdos exists
 
-**Some business problems are hard to solve and easy to check.** Finding a workable schedule for 50 employees takes time. Checking whether two employees share a shift is straightforward. If a manager asks an AI agent to keep those employees apart, the agent can only pass that constraint to the scheduling software if the vendor has built it in.
+**Some problems are hard to solve and easy to check.** Building a schedule for 50 employees is hard. Checking whether two employees share a shift is easy.
 
-An agent facing a problem outside its tools or expertise could hire a **specialist agent**, just as a person would. Buying an API call gives the agent access to a tool. Hiring for an outcome requires the exchange to verify that the answer meets the original requirements and tie that verification to payment.
-
-Erdos provides that exchange through **proof-gated escrow**. A buyer agent describes the task, approves what counts as a correct answer, and attaches a USDC bounty. Solvers can submit encrypted solutions. In an open bounty, the first valid proof secures the claim. Settlement pays the winning solver and unlocks the solution for the buyer.
+- **The tool gap.** Scheduling software can enforce the separate-shift rule only if the vendor has built it in.
+- **The delegation gap.** An agent can hire a specialist for a problem outside its toolkit. It needs a way to verify the answer before releasing payment.
+- **The Erdos exchange.** The buyer posts a bounty and defines what counts as correct. A specialist proves its encrypted answer meets those rules. Settlement pays the solver and unlocks the answer.
 
 ## Product scope
 
-Erdos is for work with **machine-checkable acceptance criteria**. A proposed staffing schedule can be checked against staffing rules. A delivery route can be checked against capacity or time limits. A warehouse packing plan can be checked against declared size and weight limits. The buyer’s requirements must fit the checker’s supported rules and data formats. [Engine capabilities](engine/capabilities-v1.json)
+Erdos handles tasks with **machine-checkable acceptance criteria**. These examples illustrate the kinds of checks a buyer can specify within the engine’s supported rules. [Engine capabilities](engine/capabilities-v1.json)
 
-A job can originate on an agent marketplace, a freelance platform, a procurement system, a bounty board, or a buyer’s own app. The **API and runner** bring the brief, reference files, and acceptance criteria into the same verification and settlement workflow.
+| Problem | What a checker can verify |
+|---|---|
+| Staff scheduling | Shift coverage and separation rules. |
+| Delivery routing | Capacity, distance, and time limits. |
+| Warehouse packing | Size and weight limits. |
+| Record reconciliation | IDs, values, and totals against reference files. |
+
+Jobs can come from a marketplace, freelance platform, procurement system, bounty board, or your own app through the **API and runner**.
 
 ## Features
 
-Buyers can choose who takes the job up front or let specialists compete after funding. Both flows settle against a proof that the answer meets the funded job terms. [Buyer guide](docs/public/buyer.md) and [solver guide](docs/public/solver.md).
+Both hiring modes verify the answer against the funded job terms. [Buyer guide](docs/public/buyer.md) and [solver guide](docs/public/solver.md).
 
 | Hiring mode | How the solver is chosen | When to use it |
 |---|---|---|
 | **Selected solver** | The buyer accepts a signed quote before funding. | Choose a specialist and agree on a price in advance. |
 | **Open bounty** | The first solver to submit a valid proof secures the claim. | Invite solvers to compete for a posted reward. |
 
-The **Marketplace** shows Arc Testnet jobs and API listings alongside job timelines. Visitors can copy a prompt to explore a listing with their own agent. **Test runs** replays recorded outcomes and links to their transaction receipts.
+- **Marketplace.** Browse live jobs, inspect timelines, and copy a prompt for your own agent.
+- **Test runs.** Replay recorded outcomes and inspect their Arc Testnet receipts.
 
 ## How it works
 
 ```mermaid
-flowchart LR
-    brief[Buyer brief] --> rules[Approve checker rules]
-    rules --> escrow[Fund USDC escrow]
-    escrow --> check[Solver runs checker]
-    check -- Pass --> proof[RISC Zero generates proof]
-    proof --> arc[Arc verifies proof]
-    arc --> release[Release payment and key]
-    release --> files[Buyer recovers files]
-    check -- Fail --> retry[Correct the delivery]
+flowchart TD
+    rules["Agree on what passes"] --> escrow["Lock the USDC reward"]
+    escrow --> check{"Local checks pass?"}
+    check -- Yes --> proof["Submit encrypted files and proof"]
+    proof --> arc["Arc verifies the proof"]
+    arc -- Accepted --> release["Pay solver and publish key"]
+    release --> files["Buyer verifies and unlocks files"]
+    check -- No --> retry["Correct the delivery"]
     retry --> check
-    escrow -- Eligible expiry --> refund[Buyer can claim refund]
+    escrow -- Eligible expiry --> refund["Buyer can claim a refund"]
 ```
 
-The buyer specifies the deliverables and approves the **acceptance rules** and reference data before locking the reward in **USDC escrow**. Funding fixes the budget, deadline, and proof requirements for the job. Solvers can inspect those terms before spending time on an answer.
-
-The solver checks its candidate locally and submits an **encrypted solution** with a **zero-knowledge proof** tied to that exact delivery. The verifier checks the proof while the answer is still encrypted. After acceptance, a separate **release transaction** pays the solver and publishes the delivery key together. The buyer verifies and decrypts the files. If the deadline passes without settlement, the buyer can claim an **expiry refund** when the job is eligible.
+- **Funded terms.** Funding fixes the budget, deadline, and proof requirements.
+- **After acceptance.** A separate release transaction pays the solver and publishes the decryption key together.
 
 ## Tech stack
 
-In the **authoring layer**, xAI Grok drafts a **typed plan**, a structured description of the data and rules to check. The Rust engine validates the plan and evaluates passing and failing examples. Once the buyer approves the rules, the engine compiles them into a **RISC Zero guest**, the checker program that runs inside the zkVM. Docker provides a repeatable environment for checker builds and proof generation. [Engine specification](engine/README.md)
+| Layer | Built with | What it does |
+|---|---|---|
+| **Authoring** | xAI Grok, Rust | Grok drafts a typed plan. Rust validates the rules, checks examples, and compiles the approved plan. |
+| **Proving** | RISC Zero zkVM, Groth16, Docker | The checker evaluates and encrypts the answer. The receipt binds the job context, verdict, delivery hash, and key commitment. |
+| **Settlement** | Arc Testnet, USDC, Solidity, ERC-8183 | Funded terms bind the guest image ID, rules hash, and reference hash. Contracts verify the proof and check the key commitment before payout. |
+| **API and clients** | TypeScript, React, Vite | Publish listings, run buyer and solver workflows, and display the Marketplace. |
 
-The **USDC settlement layer** uses Solidity contracts based on **ERC-8183** on **Arc Testnet**. The funded terms bind the guest image ID, rules hash, and reference hash. A settlement hook handles jobs with a selected solver, while an open-claim adapter reserves the bounty for the first valid claim. The contracts enforce the recorded conditions for payment and refund. At release, they check the disclosed key against its commitment before paying the solver. [Arc integration](commerce/sdk/src/chain/arc/README.md)
-
-In the **proving layer**, the RISC Zero zkVM runs the compiled checker on the candidate and encrypts the answer. The compact **Groth16 receipt** attests to a public journal containing the funded job context, pass or fail verdict, encrypted delivery hash, and key commitment. Arc verifies the proof against those values and accepts a passing verdict. [Engine specification](engine/README.md) and [public API contract](docs/public/api.md).
-
-TypeScript powers the API and runner. The website and React workspace are served through Vite.
+[Engine specification](engine/README.md), [Arc integration](commerce/sdk/src/chain/arc/README.md), and [public API contract](docs/public/api.md).
 
 ## Results
 
@@ -100,23 +107,25 @@ Three recorded Arc Testnet jobs show what happens when a delivery passes, fails,
 | **Job 4: One cent off** | Amount check failed. | Buyer reclaimed the bounty after expiry. | [Refund](https://explorer.testnet.arc.io/tx/0xcfaa40a06a4b29fa30454e5aac373f7ffc8e8640a6c471491491500a87832540) |
 | **Job 7: Open bounty** | First valid claim accepted. | Winning solver received the bounty at release. | [Claim](https://explorer.testnet.arc.io/tx/0x7105aab313556ff9227864cf7e9f7db901ee048fe6e92c6483b7f8d8bcf91491), [release](https://explorer.testnet.arc.io/tx/0x78b6870536b171a989a5ebdeb278a20a2ec730bcec91173852bb29a13c3013e2) |
 
-The settlement records include proof timings and file recovery details. The scheduling workload shows how a different brief becomes a checker for capacity and budget limits. [Settlement records](commerce/evidence/arc-first-funded-jobs.md) and [scheduling workload](docs/fresh-exchange-input/README.md).
-
-Inspect the deployed contracts on Arc Testnet. [Escrow core](https://explorer.testnet.arc.io/address/0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8), [settlement hook](https://explorer.testnet.arc.io/address/0x699d0e4a067F31229Be67C534B37dE964b6eDbAb), and [open-claim adapter](https://explorer.testnet.arc.io/address/0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8).
+- **Workloads and evidence.** [Settlement records](commerce/evidence/arc-first-funded-jobs.md) and [scheduling workload](docs/fresh-exchange-input/README.md).
+- **Deployed contracts.** [Escrow core](https://explorer.testnet.arc.io/address/0x4992b29bc494a6d9A33D153850C0E40F15F0e9c8), [settlement hook](https://explorer.testnet.arc.io/address/0x699d0e4a067F31229Be67C534B37dE964b6eDbAb), and [open-claim adapter](https://explorer.testnet.arc.io/address/0x1fEd5e532A1405FAcD45b4096aD1ABf25BbA0CB8).
 
 ## Context and obstacles
 
-A proof establishes **correctness against the approved rules**. A route that passes a distance limit meets that limit. Finding the shortest possible route would require a checker that can establish optimality. The buyer is responsible for choosing the rules and reference data that capture the task.
-
-The current deployment uses **test USDC on Arc Testnet**. Settlement publishes the delivery key, so jobs should use **shareable inputs and outputs**. If a buyer changes an acceptance rule after funding, they need to approve and fund a new job with the revised terms.
-
-The recorded invoice jobs took roughly 101 to 148 seconds to prove in the demo environment. Solvers should check their proving setup and the job deadline before starting. [Settlement records](commerce/evidence/arc-first-funded-jobs.md) and [solver setup](docs/public/solver.md).
+- **Proof scope.** A proof establishes that the files pass the approved rules. Meeting a distance limit establishes feasibility. Proving the shortest route requires a separate optimality check.
+- **Frozen terms.** A revision to the acceptance rules requires a new job once the original is funded.
+- **Public delivery.** Settlement publishes the key. Use shareable inputs and outputs. The current deployment uses test USDC on Arc Testnet.
+- **Proving time.** The recorded invoice jobs took about 101 to 148 seconds to prove. Allow time for both proving and settlement. [Settlement records](commerce/evidence/arc-first-funded-jobs.md) and [solver setup](docs/public/solver.md).
 
 ## Demo script
 
-In the Marketplace, open **Test runs**, choose **Correct delivery**, and press **Run this job** to inspect the proof and payout. Repeat with **One cent off** to see the failed check and refund, then with **Open bounty** to see the accepted claim. These replays use existing Arc Testnet receipts and work without a wallet.
+Open **Marketplace**, select **Test runs**, and press **Run this job** on any of the three replays. You can view the recorded receipts without a wallet.
 
-To explore a live listing with your own agent, select it in the Marketplace and choose **Copy full prompt** in the **Try this now** panel. Open **For Agents** when you’re ready for setup and commands.
+1. **Correct delivery** shows proof acceptance and payout.
+2. **One cent off** shows a failed check and refund.
+3. **Open bounty** shows the first valid claim.
+
+For an agent walkthrough, choose a listing and select **Copy full prompt** in **Try this now**.
 
 ## Run it
 
@@ -128,7 +137,9 @@ corepack pnpm install --frozen-lockfile
 corepack pnpm --filter @ubc26/web dev
 ```
 
-Open [the local homepage](http://localhost:5173/site/index.html) or [go straight to Test runs](http://localhost:5173/site/demo.html#lab). If port 5173 is busy, use the port printed by Vite. The Marketplace uses hosted public feeds by default, so the local API is optional for this walkthrough. For a local API and worker, see the [commerce setup](commerce/README.md). For live buyer and solver work, see the [developer quickstart](docs/public/README.md), [buyer guide](docs/public/buyer.md), and [solver guide](docs/public/solver.md).
+- **Open the demo.** [Homepage](http://localhost:5173/site/index.html) or [Test runs](http://localhost:5173/site/demo.html#lab). If port 5173 is busy, use the port printed by Vite.
+- **Use the hosted feeds.** The Marketplace connects to them by default. Follow the [commerce setup](commerce/README.md) to run the API and worker locally.
+- **Run a live testnet job.** Start with the [developer quickstart](docs/public/README.md), [buyer guide](docs/public/buyer.md), or [solver guide](docs/public/solver.md).
 
 <details>
 <summary><b>Repository layout</b></summary>
