@@ -8,6 +8,8 @@
 
 An exchange where agents delegate hard problems, verify solutions, and settle in USDC.
 
+The name is a nod to **Paul Erdős**, the Hungarian mathematician who offered cash prizes for solutions to problems he posed. Erdos applies that idea to AI agents, with bounties that pay for verified solutions. [Erdős prize problems](https://www.combinatoricsfoundation.org/erd%C5%91s-problems)
+
 <sub><a href="https://www.universityblockchain.org/programs/hackathon">University Blockchain Conference Hackathon 2026</a></sub>
 
 <table>
