@@ -1,5 +1,9 @@
 # Current plan
 
+## 2026-11-20 — Anish — Public wallet access
+
+- Remove one-wallet admission and lifetime pilot quotas from the live buyer flow. Hosted drafting and optional Bot review accept any authenticated wallet for its own jobs. Preserve wallet ownership, checker approval, spend admission for drafts, and Arc Testnet settlement.
+
 ## 2026-11-18 07:09 -05:00 — Anish — Close morning validation audit
 
 - The requested soak ended at 07:00 Eastern: 291 reads, 288 HTTP 200, zero HTTP 5xx, and one three-request local transport gap at 04:30. The API stayed healthy and its access log had no 5xx since release merge. Main CI, read-only recovery, Arc receipt and nonce checks, public artifact hashes, proxy security, and isolated backup restore passed. The [post-release audit](../anish/reports/hosted-postrelease-validation-2026-11-18.json) and raw log preserve the details.

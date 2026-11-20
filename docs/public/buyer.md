@@ -6,14 +6,15 @@ Use the [developer guide](README.md) to install and verify the Linux x64 runner 
 
 ## Create one job
 
-1. Create a new mode-0700 work directory. Save the plain-English task, output names and formats, reference bytes, budget, and expiry policy in `draft.json`. The [API contract](api.md#durable-tasks-and-compilation) defines its exact fields and gives a complete example. Keep the original request unchanged for replay.
-2. Authenticate with your buyer wallet. Save the API key in a mode-0600 file. Use the installed `ubc26` command. Pass the wallet password through an inherited file descriptor.
-3. Run `ubc26 draft --api "$API" --key-file "$KEY_FILE" --input "$WORK/draft.json" --idempotency "$DRAFT_KEY"`. Save the returned task ID. Poll it with `ubc26 task` until it ends. Do not submit a second paid draft when its state is uncertain.
-4. Inspect the full generated revision, source quotes, requirement coverage, output declarations, native example results, and both verdict labels. If the result asks for clarification or reports unsupported work, stop or answer through the documented API. If the model's examples fail, make your own passing and failing examples for the same revision. Save them as `{ "examples": [...] }` and run `ubc26 check-examples --api "$API" --key-file "$KEY_FILE" --draft "$DRAFT_ID" --revision "$REVISION_HASH" --input "$WORK/examples.json" --idempotency "$EXAMPLE_KEY"`. Each example name and file name must use 1–128 ASCII letters, digits, dots, underscores, or hyphens. Names cannot contain spaces. Use a different idempotency key when you change the examples. Require native verdicts 1 and 0 to agree with your labels. This does not send another model draft.
-5. Run `ubc26 accept-draft --api "$API" --key-file "$KEY_FILE" --task "$DRAFT_TASK" --input "$WORK/draft.json" --idempotency "$CREATE_KEY"`. Save the job ID and exact revision hash. Give the same agreeing examples to `request-bot-review`, then poll that review ID with `bot-review`. A callback acknowledgement is not a pass.
-6. Approve only the exact revision, reference digest, coverage digest, selected native example-check ID, and passed Bot review. Pass `--coverage-digest`, `--example-check`, and `--bot-review` to `ubc26 approve`. Run `ubc26 compile` for that revision. Poll its task ID. Download the package and references into new private directories. The runner checks their hashes.
+1. Create a private work directory. Save the task brief, typed checker revision, and reference files. Use the [capability catalog](capabilities.json) to write the checker.
+2. Authenticate with your buyer wallet using `ubc26 auth`. Keep the API key in a mode-0600 file. Any wallet can authenticate through the public API.
+3. Use `ubc26 import --api "$API" --key-file "$KEY_FILE" --input "$WORK/revision.json" --reference "$WORK/reference" --idempotency "$IMPORT_KEY"`. Omit `--reference` when the revision has no reference files. Save the API job ID and revision hash.
+4. Review the rules against the brief. Use the native checker to test passing and failing examples. Approve the exact revision and reference digest with `ubc26 approve`.
+5. Run `ubc26 compile` for the approved revision. Poll the task ID. Download the package and references into new private directories. The runner checks their hashes.
 
-Use unique idempotency keys for distinct operations. Reuse a key only for the same request bytes. Save task IDs, review IDs, and each command response in the private work directory. The [developer guide](README.md) gives the full flags for each command.
+The public checker workflow accepts typed plans. Use your own agent to write a plan from the brief when needed. You can also use `ubc26 draft` to ask the hosted model for a typed checker. In either case, you can request a Bot review of your exact revision before approval.
+
+Use unique idempotency keys for distinct operations. Reuse a key when you retry the same request bytes. Save task IDs and command responses in the private work directory. The [developer guide](README.md) gives the full command flags.
 
 ## Fund and publish
 
@@ -89,6 +90,4 @@ After confirmed release, run `ubc26 buyer-recover --api "$API" --job "$JOB" --rp
 
 ## Cold-start prompt
 
-> You are the buyer. Use this guide and the public service URL. Use your protected buyer wallet files and the solver's public address. Use the plain-English task and declared files supplied with this prompt. Create one fresh authored job. Review its exact rules, examples, coverage, and Bot result before approval. Compile and fund it on Arc Testnet with the installed runner. Publish the public brief, job ID, and package and reference links. Save every task ID, idempotency key, transaction hash, and private journal. Stop on uncertain charges or sends. Report any intervention. Do not import prewritten rules or ask another agent to perform your steps.
-
-Insert the task and declared files when the buyer agent starts. Keep wallet secrets in protected files.
+> You are the buyer. Use this guide and the task supplied in chat. Authenticate with your protected Arc Testnet wallet. Prepare or import the typed checker. Check its rules and examples. Approve and compile it. Fund within the authorized limits, then publish the approved public brief. Report the API job ID and confirmed receipts. After release, recover the delivery.

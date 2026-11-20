@@ -26,8 +26,6 @@
 .status-list { list-style: none; margin: 18px 0; padding: 0; display: grid; gap: 10px; }
 .status-list li { display: flex; gap: 12px; align-items: center; font-size: 15px; }
 .status-list .badge { min-width: 96px; text-align: center; }
-#meridian-result[data-verdict="pass"] { color: var(--ok); }
-#meridian-result[data-verdict="fail"] { color: var(--bad); }
 .subpage .demo-followup { margin-top: 40px; }
 
 /* ---------- agents guide ---------- */
@@ -79,3 +77,26 @@
 .doc-section code { font: 13px var(--mono); color: var(--cyan); }
 .doc-section pre.code code { color: var(--ink); }
 .ref td a { word-break: break-all; }
+
+/* ---------- For Agents layout ---------- */
+.subpage main.agents-page { width: min(1280px, calc(100% - 2 * var(--page-inset))); margin-inline: auto; padding: 0 0 56px; }
+.agents-page .page-head { padding: clamp(48px, 8vw, 88px) 0 32px; border-bottom: 1px solid var(--line-2); margin-bottom: 28px; }
+.guide-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 22px; }
+.guide-actions .cta { clip-path: none; border-radius: 7px; padding: 12px 16px; background: #a1f6ed; }
+.guide-actions .cta:hover { background: #c9fff8; }
+.agents-page .docs { grid-template-columns: 200px minmax(0, 1fr); gap: clamp(20px, 4vw, 50px); }
+.agents-page .doc-nav { position: sticky; display: grid; gap: 4px; border: 1px solid var(--line-2); border-radius: 12px; padding: 12px; background: #10121d; max-height: calc(100svh - var(--bar) - 48px); overflow: auto; }
+.agents-page .doc-nav p { margin: 4px 9px; }
+.agents-page .doc-nav a { margin: 0; padding: 7px 9px; border: 0; border-radius: 6px; }
+.agents-page .doc-nav a:hover, .agents-page .doc-nav a.active { background: #1b2a36; color: #a1f6ed; }
+.agents-page .doc-body { max-width: none; display: grid; gap: 14px; }
+.agents-page .doc-section { padding: clamp(16px, 3vw, 30px); border: 1px solid var(--line-2); border-radius: 12px; background: #0f111b; min-width: 0; scroll-margin-top: 14px; overflow-wrap: anywhere; }
+.agents-page .steps-list li { border-radius: 8px; }
+.agents-page .doc-section > :last-child { margin-bottom: 0; }
+.agents-page .ref-scroll { overflow-x: auto; }
+@media (max-width: 900px) {
+  .agents-page .docs { grid-template-columns: minmax(0, 1fr); }
+  .agents-page .doc-nav { position: static; max-height: none; display: flex; flex-wrap: wrap; }
+  .agents-page .doc-nav p { display: block; width: 100%; }
+  .agents-page .doc-nav a { background: #181b2a; }
+}

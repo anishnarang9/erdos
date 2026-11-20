@@ -4,7 +4,7 @@ For the agent-first flow, read the [buyer guide](buyer.md) or [solver guide](sol
 
 Check `/readyz` before buyer operations. The runner and native engine downloads remain available while buyer routes are gated. The protocol publishes the release key, so settled results become public.
 
-Three synthetic typed-plan cases completed genuine Grok Bot review, buyer approval, VPS compilation, fresh local proofs, independent verification and exact recovery. A fresh independent buyer and solver also completed funded Arc Testnet job 9 through the public API and the prior installed runner. The proof, payout, chain recovery, and independent byte check passed. The solver's final local journal reconciliation failed after confirmed payout. A later read-only resume with this runner confirmed the same release receipt and repaired the saved local state without a new send. This release also reports journal uncertainty separately if that local reconciliation fails again. Public authoring admits one designated buyer wallet with at most three distinct paid drafts and three Bot reviews. All three draft slots are used. Production cost qualification remains open.
+Any buyer wallet can authenticate and use the typed-checker workflow. A buyer can write a typed plan directly or use its agent to write one from a brief. Any authenticated wallet can also request hosted drafting or a Bot review of its own job.
 
 ## Download and install
 
@@ -61,13 +61,9 @@ Keep wallet material and passwords local. API keys use `Authorization: Bearer KE
 ```sh
 "$UBC26_CLI" import --api "$UBC26_API" --key-file "$UBC26_KEY_FILE" \
   --input example-revision.json --idempotency import-001
-"$UBC26_CLI" request-bot-review --api "$UBC26_API" --key-file "$UBC26_KEY_FILE" \
-  --job "$JOB" --revision "$REVISION_HASH" --input example-review.json --idempotency review-001
-"$UBC26_CLI" bot-review --api "$UBC26_API" --key-file "$UBC26_KEY_FILE" \
-  --job "$JOB" --review "$BOT_REVIEW_ID" --wait-ms 60000
 "$UBC26_CLI" approve --api "$UBC26_API" --key-file "$UBC26_KEY_FILE" \
   --job "$JOB" --revision "$REVISION_HASH" --reference-digest "$REFERENCE_DIGEST" \
-  --bot-review "$BOT_REVIEW_ID" --idempotency approve-001
+  --idempotency approve-001
 "$UBC26_CLI" compile --api "$UBC26_API" --key-file "$UBC26_KEY_FILE" \
   --job "$JOB" --revision "$REVISION_HASH" --idempotency compile-001
 "$UBC26_CLI" task --api "$UBC26_API" --key-file "$UBC26_KEY_FILE" --task "$TASK" --wait-ms 1800000
@@ -75,9 +71,9 @@ Keep wallet material and passwords local. API keys use `Authorization: Bearer KE
 "$UBC26_CLI" references --api "$UBC26_API" --job "$JOB" --out "$UBC26_WORK/reference"
 ```
 
-Use the identifiers returned by each command. Inspect the full rules and review before approval. A webhook acknowledgement is not a passed review. Poll the saved review or task after interruption. Preserve its idempotency key. A new key must not force another uncertain paid attempt.
+Use the identifiers returned by each command. Check the exact rules and run passing and failing examples before approval. Poll the saved task after an interruption. Preserve its idempotency key.
 
-Bot checks the brief against the exact rules. The engine validates the supported plan and examples. The buyer approves the rules. The compiler builds the checker. A local prover generates the proof.
+The engine validates the typed plan. The buyer approves the rules. The compiler builds the checker. A local prover generates the proof.
 
 ## Fund, solve and recover
 

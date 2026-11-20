@@ -140,7 +140,7 @@ table { border-collapse: collapse; }
   height: 88px; border-bottom: 1px solid var(--rule);
 }
 .wordmark { display: flex; align-items: center; gap: 12px; font: 600 22px/1 var(--sans); letter-spacing: -0.01em; text-decoration: none; }
-.wordmark svg { width: 30px; height: 30px; }
+.wordmark img { width: 32px; height: 32px; flex: none; }
 .site-header nav { display: flex; gap: 28px; margin-left: auto; }
 .site-header nav a { text-decoration: none; font-size: 15px; }
 .site-header nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
@@ -358,7 +358,6 @@ input, textarea, select { background: #0c0c15; color: var(--ink); border-color: 
 .ws { background:
   linear-gradient(var(--rule), var(--rule)) 380px 0 / 1px 100% no-repeat, var(--paper); }
 .ws-top { background: rgba(7, 7, 13, .9); }
-.ws-top .wordmark svg { color: #63f0ff; }
 .mode-chip { border-color: var(--rule-strong); position: relative; }
 .mode-chip.live::before { content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 2px; background: var(--grad); }
 .mode-chip.live i { background: #6bffd8; box-shadow: 0 0 10px #6bffd8; }

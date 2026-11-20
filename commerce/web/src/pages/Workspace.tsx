@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ProofChamber } from "../chamber/ProofChamber";
 import { HostedBounties } from "../components/HostedBounties";
-import recording from "../../recordings/run-2026-11-16-job3-paid.json";
 import { BuyerPanel } from "../components/BuyerPanel";
 import { Captions, useCaption } from "../components/Captions";
 import { Elapsed } from "../components/Elapsed";
@@ -17,7 +16,7 @@ import { sound } from "../fx/sound";
 import { project } from "../lib/gate";
 import { startLive, stopLive } from "../lib/live";
 import { hostedDemo } from "../lib/hosted";
-import { playRecording, stopReplay, type Recording } from "../lib/replay";
+import { stopReplay } from "../lib/replay";
 import { usePresenterKeys } from "../lib/presenter";
 import { stageOf, store, useDemo } from "../lib/store";
 
@@ -48,18 +47,8 @@ export function Workspace({ jobId }: { jobId: string | null }) {
     setToast(m);
     setTimeout(() => setToast(null), 1800);
   }, []);
-  const [replayError, setReplayError] = useState(false);
-  const showPublicWorkspace = hostedDemo && mode !== "replay";
+  const showPublicWorkspace = hostedDemo;
   usePresenterKeys(onToast);
-
-  function playDemo() {
-    setReplayError(false);
-    try {
-      playRecording(recording as Recording, 4);
-    } catch {
-      setReplayError(true);
-    }
-  }
 
   useEffect(() => {
     if (!hostedDemo) {
@@ -93,23 +82,11 @@ export function Workspace({ jobId }: { jobId: string | null }) {
         <motion.h1 key={showPublicWorkspace ? "Public workspace" : proj.outcome} initial={{ opacity: 0.4, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
           {showPublicWorkspace ? "Public workspace" : proj.outcome}
         </motion.h1>
-        <span className="next">{showPublicWorkspace ? "Explore Arc testnet bounties or watch the recorded demo." : proj.next}</span>
+        <span className="next">{showPublicWorkspace ? "Explore Arc Testnet bounties." : proj.next}</span>
       </section>
       <main className="ws-main">
         <div className={`ws-col left ${focus("buyer")}`}>
-          {hostedDemo && (
-            <>
-              <HostedBounties key={jobId ?? "list"} jobId={jobId} />
-              <section className="card">
-                <h2>Selected-provider demo</h2>
-                <p className="dim">Recorded on Arc testnet. Plays at 4× speed.</p>
-                <button onClick={playDemo}>
-                  {mode === "replay" ? "Restart recorded demo" : "Play recorded demo"}
-                </button>
-                {replayError && <p role="alert">Could not play the recording.</p>}
-              </section>
-            </>
-          )}
+          {hostedDemo && <HostedBounties key={jobId ?? "list"} jobId={jobId} />}
           {!showPublicWorkspace && <BuyerPanel />}
         </div>
         <div className={`ws-stage ${focus("vault")}`}>

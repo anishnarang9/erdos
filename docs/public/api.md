@@ -1,6 +1,8 @@
 # Hosted API contract
 
-This contract describes the implemented API. Check `/readyz` before buyer operations. A readable document or artifact download does not establish public API readiness. The current public authoring policy admits one designated buyer wallet and at most three distinct paid drafts.
+The public deployment accepts wallet-authenticated checker imports. Hosted drafting and optional Bot review are available to all authenticated buyers. Review requests apply to jobs the caller owns.
+
+This contract describes the implemented API. Check `/readyz` before buyer operations. A readable document or artifact download does not establish public API readiness.
 
 Use HTTPS. Ordinary job/task mutations require `Idempotency-Key`. Authentication challenges and signed x402 payments have separate replay rules. Wallet-owned routes require a bearer API key. Owner authentication precedes idempotent replay. Exact revision mutations also require `If-Match: "REVISION_HASH"` where specified.
 

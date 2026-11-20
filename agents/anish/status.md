@@ -1,5 +1,24 @@
 # anish status
 
+## 2026-11-20 02:57 -06:00 — Anish — Open buyer access
+
+- Deployed API source `e7fc739` on DigitalOcean. All wallet owners can request hosted drafting and optional review for their own jobs. The operator removed the pilot settings and retained the existing drafting budget and request rate limits.
+- The compiler prewarm passed both native examples. Local tests checked public review dispatch for two wallets and verified approval without a review. Public smoke checks do not call either paid provider.
+- The public guide and release manifest describe the general wallet flow. Arc Testnet remains the settlement network.
+
+## 2026-11-20 00:45 -06:00 — Anish — Keep public onboarding independent of the task
+
+- For Agents explains buyer and solver use. The operator supplies the actual task, role, and job ID in chat.
+- Removed the public Meridian playbook, fixture downloads, sample marketplace listings, preset escrow form, and hosted replay. Marketplace draws from Arc and hosted discovery.
+- Hosted build and all six web tests passed locally. The production deploy and removal of the old public URLs still need confirmation.
+
+## 2026-11-20 00:13 -06:00 — Anish — Publish the Meridian two-terminal guide
+
+- Branch `codex/meridian-demo-guide` adds the combined buyer and solver document to For Agents. The Vercel build stages the frozen checker, committed reference, native review examples, and recovery oracle for public downloads. The buyer hands the solver a URL with the funded job ID.
+- Hosted web build, six web tests, guide shell syntax, and the positive and negative oracle examples passed locally. The public guide still requires the designated pilot buyer and an available, authorized Grok Bot review. A fresh funded demo remains untested.
+- Vercel tracks the private repository's `main` branch. Neil's latest frontend is on main via PR #32, but Vercel blocked that build. Verify production promotion from this owner-authored change.
+
+
 ## 2026-11-19 11:11 -0500 — Anish — Score the plan bound to buyer approval
 
 - The live rerun exposed an assessment bug. Hosted drafts store the plan in the revision, while the benchmark read the obsolete top-level field. The benchmark now evaluates the revision plan and retains support for legacy task results without revisions.

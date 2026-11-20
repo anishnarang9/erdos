@@ -1,15 +1,14 @@
-// "Built with" network: every tool we use, wired by circuit traces into the proof-gated escrow.
+// The proof and settlement stack, wired by circuit traces into the Erdos escrow.
 // Hover or focus a tile: it enlarges with a glowing edge in its brand colour and a pulse runs to the centre.
-// While idle, a random tool pings every couple of seconds.
 import { TOOLS } from './tool-data.js?v=3';
 
 const ORDER = [
-  ['TypeScript', 'Node.js', 'Hono', 'Zod', 'RISC Zero', 'Groth16', 'Rust', 'SQLite', 'Docker', 'GitHub'],
-  ['React', 'Three.js', 'Vite', 'Arc', null, 'USDC', 'Solidity', 'Foundry', 'ERC-8183'],
-  ['Vitest', 'esbuild', 'pnpm', 'viem', 'Circle', 'Ethereum', 'ethers', 'noble', 'xAI Grok', 'Vercel'],
+  ['Rust', 'RISC Zero', 'Groth16'],
+  ['Arc', null, 'USDC'],
+  ['Docker', 'Solidity', 'ERC-8183'],
 ];
 // Brand glow for marks whose official colour is near black.
-const GLOW = { Rust: '#f0a070', 'Three.js': '#e5e7eb', 'xAI Grok': '#e5e7eb', Vercel: '#e5e7eb', GitHub: '#9fd8ff', Solidity: '#9ca3af', Ethereum: '#8a92ff', SQLite: '#5fb4e0', ethers: '#6c7cff' };
+const GLOW = { Rust: '#f0a070', Solidity: '#9ca3af' };
 const SVGNS = 'http://www.w3.org/2000/svg';
 
 function luminance(hex) {
@@ -29,14 +28,11 @@ export function initToolNetwork(host) {
   host.querySelector('.tool-net').prepend(svg);
 
   const tiles = [];
-  ORDER.forEach((row, r) => row.forEach((name, c) => {
+  ORDER.forEach((row, r) => row.forEach((name) => {
     if (!name) {
       const hub = document.createElement('div');
-      hub.className = 'tool-hub'; hub.style.gridRow = String(r + 1); hub.style.gridColumn = `${c + 1} / span 2`;
-      const logo = document.querySelector('.brand svg')?.cloneNode(true);
-      if (logo) { logo.querySelector('linearGradient')?.setAttribute('id', 'lg-tools'); logo.querySelectorAll('[stroke="url(#lg)"]').forEach((n) => n.setAttribute('stroke', 'url(#lg-tools)')); logo.querySelectorAll('[fill="url(#lg)"]').forEach((n) => n.setAttribute('fill', 'url(#lg-tools)')); }
-      hub.innerHTML = '<span class="hub-disc"></span><span class="hub-label">ERDOS</span>';
-      if (logo) hub.querySelector('.hub-disc').append(logo);
+      hub.className = 'tool-hub';
+      hub.innerHTML = '<span class="hub-disc"><img src="erdos-mark.svg?v=2" width="64" height="64" alt=""></span><span class="hub-label">ERDOS</span>';
       hub.setAttribute('aria-label', 'Erdos, proof-gated escrow');
       grid.append(hub);
       return;
@@ -44,10 +40,8 @@ export function initToolNetwork(host) {
     const t = byName[name];
     const dark = luminance(t.color) < 0.18;
     const glow = GLOW[name] || t.color;
-    const col = r === 1 && c > 4 ? c + 2 : c + 1;
     const b = document.createElement('button');
     b.type = 'button'; b.className = `tool${dark ? ' dark' : ''}`;
-    b.style.gridRow = String(r + 1); b.style.gridColumn = String(col);
     b.style.setProperty('--c', t.color); b.style.setProperty('--g', glow);
     b.setAttribute('aria-label', `${t.name}: ${t.role}`);
     const glyph = t.path
@@ -55,7 +49,7 @@ export function initToolNetwork(host) {
       : `<b aria-hidden="true" data-len="${t.mono.length}">${t.mono}</b>`;
     b.innerHTML = `<span class="disc">${glyph}</span><span class="tool-name" aria-hidden="true">${t.name}</span>`;
     grid.append(b);
-    tiles.push({ el: b, t, glow, row: r, col });
+    tiles.push({ el: b, t, glow, row: r });
   }));
   const hub = grid.querySelector('.tool-hub');
 
@@ -67,7 +61,7 @@ export function initToolNetwork(host) {
     const hubL = hb.left - box.left, hubR = hb.right - box.left, hubT = hb.top - box.top, hubB = hb.bottom - box.top;
     if (tile.row === 1) { // same row: straight into the hub's side
       const y = tb.top + tb.height / 2 - box.top;
-      return tile.col < 6 ? `M${tb.right - box.left} ${y} H${hubL}` : `M${tb.left - box.left} ${y} H${hubR}`;
+      return x < (hubL + hubR) / 2 ? `M${tb.right - box.left} ${y} H${hubL}` : `M${tb.left - box.left} ${y} H${hubR}`;
     }
     const up = tile.row === 0;
     const y0 = up ? tb.bottom - box.top : tb.top - box.top;
@@ -82,8 +76,6 @@ export function initToolNetwork(host) {
     return `M${x} ${y0} V${bus - vy * r} Q${x} ${bus} ${x + dir * r} ${bus} H${tx - dir * r} Q${tx} ${bus} ${tx} ${bus + vy * r} V${up ? hubT : hubB}`;
   }
   function draw() {
-    const tileBox = tiles[0]?.el.getBoundingClientRect();
-    if (tileBox && getComputedStyle(svg).display !== "none") { hub.style.width = hub.style.height = `${tileBox.height}px`; } else { hub.style.width = hub.style.height = ""; }
     if (getComputedStyle(svg).display === 'none') return;
     const box = host.querySelector('.tool-net').getBoundingClientRect();
     svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
@@ -109,24 +101,10 @@ export function initToolNetwork(host) {
   }
   function rest(tile) { tile.base?.classList.remove('lit'); if (tile.base) tile.base.style.stroke = ''; }
   const idle = caption.textContent;
-  let hovered = null;
   for (const tile of tiles) {
-    const on = () => { hovered = tile; fire(tile); caption.innerHTML = `<b>${tile.t.name}</b> · ${tile.t.role}`; caption.style.setProperty('--g', tile.glow); };
-    const off = () => { if (hovered === tile) hovered = null; rest(tile); caption.textContent = idle; };
+    const on = () => { fire(tile); caption.innerHTML = `<b>${tile.t.name}</b> · ${tile.t.role}`; caption.style.setProperty('--g', tile.glow); };
+    const off = () => { rest(tile); caption.textContent = idle; };
     tile.el.addEventListener('pointerenter', on); tile.el.addEventListener('focus', on);
     tile.el.addEventListener('pointerleave', off); tile.el.addEventListener('blur', off);
-  }
-
-  // Idle pings while the section is on screen.
-  if (!reduced) {
-    let visible = false, last = null;
-    new IntersectionObserver((e) => { visible = e[0].isIntersecting; }).observe(host);
-    setInterval(() => {
-      if (!visible || hovered || document.hidden) return;
-      let tile; do { tile = tiles[(Math.random() * tiles.length) | 0]; } while (tile === last);
-      last = tile;
-      tile.el.classList.add('ping'); fire(tile);
-      setTimeout(() => { tile.el.classList.remove('ping'); rest(tile); }, 1100);
-    }, 1500);
   }
 }

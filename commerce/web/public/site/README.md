@@ -3,13 +3,13 @@
 Static landing page served at `/site/index.html`; the app's root route redirects here and `#/app` opens the live workspace.
 
 - `index.html`, `site.css`, `site-v3.css`: page and styles.
-- `site.js`: scroll logic, staggered text decode, hero rotation, layer diagrams, proof lab (simulation only).
+- `site.js`: scroll logic, staggered text decode, hero rotation, and layer diagrams.
 - `globe.js`: the Earth with orbital rings and arcs that launch, land and respawn.
 - `robot.js`: the solver-agent figure; its pose and held object follow the active Solution step.
 - `coin.js`: the escrow coin.
 - `layers.js`: content and icons for the three system layers.
 
-The globe network, robot, coin and proof lab are illustrations. Nothing on this page creates a proof or sends a transaction. Real runs are listed under Case Studies with Arc explorer links; figures come from `commerce/evidence/` and `agents/anish/reports/`.
+The globe network, robot, and coin illustrate the service. Marketplace reads live Arc Testnet and API data. For Agents gives buyer and solver instructions. Supply the task in chat.
 
 Design references (layout and visual language only; no logos, copy, models or imagery are reused): chaingpt.org, and the Dribbble shot "3D globe | Website header".
 
@@ -25,6 +25,5 @@ Push a branch to request a preview. Vercel redeploys production when a change re
 
 - Open `/` for the landing page or `/#/app` for the public workspace.
 - Open `/#/job/<id>` for a live, read-only Arc open bounty.
-- Use **Play recorded demo** to watch the recorded selected-provider run at 4× speed.
 - Vercel forwards `/rpc` to Arc testnet and forwards `/healthz` and the public open-bounty routes to the hosted API.
 - Use the local workspace for legacy drafting, quote selection and funding. The public workspace has no signing controls or API token field.
