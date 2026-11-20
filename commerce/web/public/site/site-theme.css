@@ -83,14 +83,6 @@
 .home-page .result-stats dt { background: none; color: var(--cyan); }
 .home-page .layer { background: var(--bg); border-color: var(--line-2); }
 .home-page .layer-main h3 { letter-spacing: -.043em; }
-.home-page .token { padding-block: clamp(48px, 6.5vw, 92px) 0; }
-.home-page .token-grid { width: min(1280px, calc(100% - 2 * var(--page-inset))); min-height: auto; margin-inline: auto; gap: clamp(20px, 5vw, 72px); padding: clamp(22px, 4.5vw, 62px); border: 1px solid var(--line); border-radius: 20px; background: radial-gradient(ellipse at 79% 44%, #211a38, var(--surface) 70%); }
-.home-page .token-grid .token-left { display: grid; gap: clamp(16px, 2vw, 26px); min-width: 0; padding: 0; }
-.home-page .token h2 { margin: 0; font: 600 clamp(2.2rem, 4.6vw, 4.4rem)/1.06 var(--sans); letter-spacing: -.046em; }
-.home-page .token-desc { margin: 0; max-width: 38ch; color: var(--dim); font-size: clamp(1rem, 1.5vw, 1.25rem); line-height: 1.58; }
-.home-page .token .audit { display: flex; gap: 8px; margin: 0; border: 0; letter-spacing: .03em; }
-.home-page .token .audit > * { padding: 8px 10px; border: 1px solid var(--line-2); border-radius: 7px; font-size: .72rem; }
-.home-page .token-grid .coin { order: 0; min-width: 0; height: clamp(220px, 30vw, 420px); border: 0; }
 .home-page .tool { background: var(--surface); border-color: var(--line); border-radius: 13%; }
 .home-page .tool:hover, .home-page .tool:focus-visible { transform: translateY(-2px); box-shadow: 0 0 0 1px var(--g); }
 .home-page .mat-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; border: 0; }
@@ -118,8 +110,4 @@
 @media (max-width: 520px) {
   .home-page .hero-copy h1 { font-size: clamp(2.18rem, 10.1vw, 3.35rem); }
   .home-page .mat-list { grid-template-columns: minmax(0, 1fr); }
-}
-@media (max-width: 760px) {
-  .home-page .token-grid { grid-template-columns: minmax(0, 1fr); }
-  .home-page .token-grid .coin { height: clamp(180px, 64vw, 320px); }
 }
