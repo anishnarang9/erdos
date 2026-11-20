@@ -1,3 +1,9 @@
+## 2026-11-20 04:55 -06:00 — Anish — Add a local buyer and solver setup
+
+- Branch `codex/erdos-launch-readiness`. For Agents links a pinned Docker build, an encrypted test wallet helper, Circle Faucet, and a no-transaction proof smoke test.
+- The runtime build verified its dependencies. A new wallet authenticated and imported a checker against public HTTPS. The hosted compile and funding preview succeeded. Seven web tests, the hosted build, and the staged fixture hashes passed.
+- The first real Groth16 smoke proof is in progress. The Docker guide, frontend promotion, funded listing and independent solver trials still need live verification.
+
 ## 2026-11-20 04:41 -06:00 — Anish — Keep public task retries and compilation moving
 
 - Branch `codex/public-checker-runtime`. An exact retry can progress after a temporary 429. The stored request hash still rejects a different body. Admission responses give a retry time.
