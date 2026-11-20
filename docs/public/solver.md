@@ -16,13 +16,11 @@ The agent can run on any host. This release runs the engine and prover in Linux 
 
 ### Remote Linux over SSH
 
-Connect to the Linux x64 host your operator provides. Run the installed CLI there, where the engine is available. Follow the prepared VPS commands below. Keep the workspace and journal on that host. Use a protected testnet keystore on a host you trust. Keep one prover active and use a persistent terminal session so an SSH disconnect does not stop the proof.
+Connect to the Linux x64 host your operator provides. Run the installed CLI there, where the engine is available. Follow the runner commands below. Keep the workspace and journal on that host. Use a protected testnet keystore on a host you trust. Keep one prover active and use a persistent terminal session so an SSH disconnect does not stop the proof.
 
-### Local Docker on macOS
+### Local Docker
 
-Use a pinned Linux x64 container image. On Apple Silicon, select `linux/amd64` explicitly. Install the published Linux x64 runner, engine, and RISC Zero 3.1.0 tools in that environment. Verify the engine checksum and run `ubc26 wrapper-digest` inside that same container. The runner hashes both wrapper sources and the container's `/usr/bin/env`. The VPS digest applies only to the prepared VPS runtime. Use an independently reviewed digest for the exact pinned container. A digest reported by the container is a candidate for review.
-
-Before using a local container for funded work, verify Docker access from the runner, the pinned Groth16 image, workspace permissions, free disk and memory, and a real proof smoke test. If any of these checks fail or the reviewed container pin is unavailable, use the remote Linux path. Engine startup alone leaves proof compression unverified.
+Follow the [local setup guide](https://ubc-26-gamma.vercel.app/site/local-setup.md) to verify the pinned image, create a test wallet, and run the Groth16 smoke test. Keep the path to the Groth16 working directory identical on the host and inside the container.
 
 ### Before proof and after interruption
 
@@ -56,22 +54,9 @@ fs.writeFileSync(path.join(work,"plan.json"),JSON.stringify(job.revision.revisio
 
 The runner checks the real chain state before proof work. Follow the [API contract](api.md) and [developer guide](README.md) for exact CLI flags. Do not remove stale locks or resend uncertain transactions without reconciliation.
 
-## Prepared VPS runner commands
+## Configure the runner
 
-Use the verified installed runner source `0b35d3a5e327144045d04fe45084f6258bb23f3c` and installed `ubc26-release.json` SHA-256 `81ca7d96733378193ead6d443b4173f6b2f0553f6728f5f8bef77c0561b0fe03`. The engine SHA-256 is `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`. The reviewed wrapper digest is `289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d`; `ubc26 wrapper-digest` must match. Save the following in a private `engine.json` on the prepared VPS:
-
-```json
-{
-  "mode": "native",
-  "executable": "/opt/ubc26-solver/engines/0b35d3a5e327144045d04fe45084f6258bb23f3c/ubc26-engine-linux-x64",
-  "executableSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
-  "wrapperSha256": "289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d",
-  "environment": {
-    "PATH": "/opt/ubc26-prover/bin:/usr/local/bin:/usr/bin:/bin",
-    "RISC0_SERVER_PATH": "/opt/ubc26-prover/bin/r0vm"
-  }
-}
-```
+Save the engine configuration from [local setup](https://ubc-26-gamma.vercel.app/site/local-setup.md#use-the-container-with-the-role-guides). Verify the published wrapper digest inside the same image. For another native Linux environment, use its reviewed engine path and wrapper digest. The built-in Arc Testnet RPC uses a second endpoint for transient read failures. The configured primary RPC still broadcasts each signed transaction once.
 
 The engine environment must contain no wallet or API secret. Download the published `open-claim-arc-testnet.json` as `manifest.json`. Set `API`, `WORK`, `JOB`, `CHAIN_JOB`, `BUYER`, `SOLVER`, `REVISION_HASH`, `PACKAGE_DIR`, `REFERENCE_DIR`, `DELIVERABLES_DIR`, `SOLVER_KEYSTORE`, and `SOLVER_PASSWORD_FILE` from your own confirmed discovery record and private paths. Use the public `terms.json`, `funding-result.json`, and `plan.json` derived above. `WORK` must be mode 0700.
 
@@ -81,8 +66,8 @@ ubc26 configure --api "$API" --job "$JOB" --revision "$REVISION_HASH" \
   --manifest "$WORK/manifest.json" --buyer "$BUYER" --solver "$SOLVER" \
   --work-dir "$WORK" --package-dir "$PACKAGE_DIR" --reference "$REFERENCE_DIR" \
   --deliverables "$DELIVERABLES_DIR" \
-  --source-commit 0b35d3a5e327144045d04fe45084f6258bb23f3c \
-  --release-manifest-sha256 81ca7d96733378193ead6d443b4173f6b2f0553f6728f5f8bef77c0561b0fe03 \
+  --source-commit e395faf697ae77e30fe93488af67a6e60ae0566b \
+  --release-manifest-sha256 8d29dbbd1bd19c63c0dd63ee8aeef4d3c3c4d44819b2fd4d09c5857f6adfacfc \
   --out "$WORK/operator.json"
 ubc26 operator preview --config "$WORK/operator.json"
 ubc26 job-input --rpc-url https://rpc.testnet.arc.io \
