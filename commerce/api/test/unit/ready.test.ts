@@ -129,17 +129,17 @@ describe("production readiness evidence", () => {
     expect(body).not.toContain(input.packages?.path);
   });
 
-  it("accepts an explicit authoring opt-out without treating it as a configured model", async () => {
+  it("keeps checker imports ready when hosted draft generation is disabled", async () => {
     const input = await reviewedInput({
       authoring: "disabled",
       model: { state: "absent" },
       budget: undefined,
     });
     const report = await evaluateReady(input);
-    expect(report.ready).toBe(false);
+    expect(report.ready).toBe(true);
     expect(blocksPublicListen(report)).toBe(false);
     expect(report.authoring).toBe("disabled");
-    expect(reason(report, "authoring_release")).toBe("disabled");
+    expect(report.checks.find((check) => check.name === "authoring_release")).toMatchObject({ ok: true, state: "disabled" });
     expect(report.checks.find((check) => check.name === "model")).toMatchObject({ ok: true, state: "disabled" });
     expect(report.checks.find((check) => check.name === "budget")).toMatchObject({ ok: true, state: "not_required" });
   });

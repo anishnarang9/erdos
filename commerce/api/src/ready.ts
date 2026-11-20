@@ -483,7 +483,7 @@ export async function evaluateReady(input: ReadyInput): Promise<ReadyReport> {
     : check("chain", false, input.chain === "simulated" ? "simulated_chain" : "missing", true);
   const model = modelCheck(input);
   const release = input.authoring === "disabled"
-    ? check("authoring_release", false, "disabled", false)
+    ? check("authoring_release", true, undefined, false, "disabled")
     : check("authoring_release", true, undefined, false);
   const budget = budgetCheck(input.budget, input.authoring === "required", publicMode);
   const rates = input.rateLimit && positiveInt(input.rateLimit.expensivePerPrincipal) && positiveInt(input.rateLimit.expensivePerIp)
