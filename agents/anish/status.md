@@ -1,3 +1,9 @@
+## 2026-11-20 04:41 -06:00 — Anish — Keep public task retries and compilation moving
+
+- Branch `codex/public-checker-runtime`. An exact retry can progress after a temporary 429. The stored request hash still rejects a different body. Admission responses give a retry time.
+- Slow hosted drafts no longer prevent idle compiler slots from taking queued work. Shutdown tracks every active batch.
+- The three regression tests failed before the fix. All 1,089 API tests and API typecheck passed after it. The live release and the independent buyer-to-solver trials remain pending.
+
 # anish status
 
 ## 2026-11-20 02:57 -06:00 — Anish — Open buyer access
