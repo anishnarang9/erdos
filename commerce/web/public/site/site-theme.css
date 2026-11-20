@@ -84,6 +84,7 @@
 .tech-strip-grid span { color: var(--dim); font-size: .86rem; }
 
 .home-page .sol, .home-page .cases, .home-page .sys, .home-page .tools, .home-page .materials { padding-top: var(--section-space); }
+.home-page .sol > .title-wrap { text-align: center; }
 .home-page .sol-row { --accent: #a4ddff; }
 .home-page .sol-left h3 { font-size: clamp(2.4rem, 5.2vw, 5rem); letter-spacing: -.055em; }
 .home-page .sol-row.active { background: linear-gradient(90deg, #1d254247, transparent 60%); }
