@@ -179,17 +179,22 @@ pub(crate) fn compile(plan: &Path, reference: &Path, out: &Path) -> Result<Value
         .map_err(|err| error("invalid_reference", err))?;
     let stage = stage_output(out, ".engine-compile-")?;
     let start = std::time::Instant::now();
+    fs::create_dir_all(std::env::temp_dir()).map_err(|err| error("build_failure", err))?;
     let build_fingerprint = fingerprint(structure).map_err(|err| error("build_failure", err))?;
     let cache = crate::cache::directory().map_err(|err| error("build_failure", err))?;
-    let cached = crate::cache::load(&cache, &build_fingerprint);
-    let cache_hit = cached.is_some();
-    let guest = match cached {
-        Some(guest) => guest,
-        None => {
-            let guest = build_guest(structure)?;
-            crate::cache::store(&cache, &build_fingerprint, &guest)
-                .map_err(|err| error("build_failure", err))?;
-            guest
+    let (guest, cache_hit) = {
+        // Serialize cold builds for this fingerprint. Other fingerprints can build concurrently.
+        let entry = crate::cache::LockedEntry::open(&cache, &build_fingerprint)
+            .map_err(|err| error("build_failure", err))?;
+        match entry.load() {
+            Some(guest) => (guest, true),
+            None => {
+                let guest = build_guest(structure)?;
+                entry
+                    .store(&guest)
+                    .map_err(|err| error("build_failure", err))?;
+                (guest, false)
+            }
         }
     };
     let source = stage.path().join("source");

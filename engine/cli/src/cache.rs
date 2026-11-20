@@ -31,9 +31,29 @@ pub(crate) fn directory() -> io::Result<PathBuf> {
     Ok(root)
 }
 
-pub(crate) fn load(root: &Path, fingerprint: &str) -> Option<Vec<u8>> {
-    let _lock = lock_entry(root, fingerprint).ok()?;
-    load_entry(root, fingerprint)
+pub(crate) struct LockedEntry<'a> {
+    root: &'a Path,
+    fingerprint: &'a str,
+    _lock: File,
+}
+
+impl<'a> LockedEntry<'a> {
+    pub(crate) fn open(root: &'a Path, fingerprint: &'a str) -> io::Result<Self> {
+        let lock = lock_entry(root, fingerprint)?;
+        Ok(Self {
+            root,
+            fingerprint,
+            _lock: lock,
+        })
+    }
+
+    pub(crate) fn load(&self) -> Option<Vec<u8>> {
+        load_entry(self.root, self.fingerprint)
+    }
+
+    pub(crate) fn store(&self, guest: &[u8]) -> io::Result<()> {
+        store_entry(self.root, self.fingerprint, guest)
+    }
 }
 
 // Keep the lock file in place. Removing it could let writers lock different inodes.
@@ -69,14 +89,13 @@ fn load_entry(root: &Path, fingerprint: &str) -> Option<Vec<u8>> {
     Some(guest)
 }
 
-pub(crate) fn store(root: &Path, fingerprint: &str, guest: &[u8]) -> io::Result<()> {
+fn store_entry(root: &Path, fingerprint: &str, guest: &[u8]) -> io::Result<()> {
     let image = risc0_zkvm::compute_image_id(guest).map_err(io::Error::other)?;
     let entry = Entry {
         fingerprint: fingerprint.into(),
         image_id: format!("0x{image}"),
         guest_sha256: as_hex(&sha256(guest)),
     };
-    let _lock = lock_entry(root, fingerprint)?;
     let target = root.join(fingerprint);
     if target.symlink_metadata().is_ok() {
         if let Some(cached) = load_entry(root, fingerprint) {
@@ -148,14 +167,19 @@ mod tests {
                 let root = root.path();
                 writers.push(scope.spawn(move || {
                     barrier.wait();
-                    store(root, "fingerprint", guest)
+                    LockedEntry::open(root, "fingerprint")?.store(guest)
                 }));
             }
             for writer in writers {
                 writer.join().unwrap().unwrap();
             }
         });
-        assert_eq!(load(root.path(), "fingerprint"), Some(guest));
+        assert_eq!(
+            LockedEntry::open(root.path(), "fingerprint")
+                .unwrap()
+                .load(),
+            Some(guest)
+        );
         let quarantines = fs::read_dir(root.path())
             .unwrap()
             .map(Result::unwrap)
@@ -182,14 +206,15 @@ mod tests {
             risc0_zkvm::compute_image_id(&original).unwrap(),
             risc0_zkvm::compute_image_id(&different).unwrap()
         );
-        store(root.path(), "fingerprint", &original).unwrap();
-        store(root.path(), "fingerprint", &original).unwrap();
-        let error = store(root.path(), "fingerprint", &different).unwrap_err();
+        let entry = LockedEntry::open(root.path(), "fingerprint").unwrap();
+        entry.store(&original).unwrap();
+        entry.store(&original).unwrap();
+        let error = entry.store(&different).unwrap_err();
         assert_eq!(
             error.to_string(),
             "Guest program bytes differ for the same build fingerprint"
         );
-        assert_eq!(load(root.path(), "fingerprint"), Some(original));
+        assert_eq!(entry.load(), Some(original));
     }
 
     #[test]

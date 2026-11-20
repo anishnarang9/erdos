@@ -161,13 +161,17 @@ impl<'a> Lowerer<'a> {
                 let mut expression = json!({"op":op,"collection":collection});
                 if let Some((name, value, kind)) = body {
                     self.scopes.push(&schema.fields);
-                    let (actual, value) =
-                        self.expression(value, &format!("{path}/{name}"), depth + 1)?;
+                    let operand_path = format!("{path}/{name}");
+                    let (actual, value) = self.expression(value, &operand_path, depth + 1)?;
                     self.scopes.pop();
                     if actual != kind {
                         return Err(PlanError::invalid(
-                            path,
-                            "Collection expression has the wrong type",
+                            &operand_path,
+                            format!(
+                                "{op} requires a {} {name} expression; got {}",
+                                kind.name(),
+                                actual.name()
+                            ),
                         ));
                     }
                     expression[name] = value;

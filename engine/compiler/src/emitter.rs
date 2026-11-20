@@ -95,6 +95,12 @@ fn emit(input: &Value, depth: usize, nodes: &mut usize) -> Result<String, PlanEr
             "E::Not{{value:alloc::boxed::Box::new({})}}",
             emit(&input["value"], depth + 1, nodes)?
         ),
+        "if" => format!(
+            "E::If{{condition:alloc::boxed::Box::new({}),then_branch:alloc::boxed::Box::new({}),else_branch:alloc::boxed::Box::new({})}}",
+            emit(&input["condition"], depth + 1, nodes)?,
+            emit(&input["then"], depth + 1, nodes)?,
+            emit(&input["else"], depth + 1, nodes)?
+        ),
         "count" => format!(
             "E::Count{{collection:{},predicate:{}}}",
             access(&input["collection"])?,

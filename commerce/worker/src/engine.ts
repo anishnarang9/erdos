@@ -1,7 +1,6 @@
 // Runs the engine's prove, decrypt and eval commands (engine/README.md, "Compile, prove, and decrypt").
 // Fixed argument lists, no shell. The release key is only ever read from the file the engine writes.
-import { execFile } from "node:child_process";
-import { parseEngineError, type EngineBin, type EngineErrorBody } from "../../api/src/engine.ts";
+import { EngineError, parseEngineError, spawnEngine, type EngineBin, type EngineErrorBody } from "../../api/src/engine.ts";
 
 export class WorkerEngineError extends Error {
   readonly code: string;
@@ -25,22 +24,18 @@ export function engineRunner(bin: EngineBin, toEnginePath: (p: string) => string
   const prefix = typeof bin === "string" ? [] : (bin.args ?? []);
   return {
     path: toEnginePath,
-    run: (args, timeoutMs) =>
-      new Promise((resolve, reject) => {
-        execFile(
-          command,
-          [...prefix, ...args],
-          { timeout: timeoutMs, maxBuffer: 64 * 1024 * 1024, windowsHide: true, encoding: "utf8", shell: false },
-          (err, stdout, stderr) => {
-            if (!err) return resolve({ exit: 0, stdout, stderr });
-            const e = err as NodeJS.ErrnoException & { killed?: boolean; signal?: unknown; code?: unknown };
-            if (e.code === "ERR_CHILD_PROCESS_STDIO_MAXBUFFER") reject(new WorkerEngineError("output_too_large", `engine ${args[0]} output exceeded the buffer`));
-            else if (e.killed || e.signal) reject(new WorkerEngineError("timeout", `engine ${args[0]} timed out`));
-            else if (typeof e.code === "number") resolve({ exit: e.code, stdout, stderr });
-            else reject(new WorkerEngineError("spawn", `engine ${args[0]} could not be started`));
-          },
-        );
-      }),
+    run: async (args, timeoutMs) => {
+      if (!Number.isInteger(timeoutMs) || timeoutMs < 0) throw new RangeError("Invalid engine timeout");
+      const label = args[0] ?? "command";
+      try {
+        return await spawnEngine(command, [...prefix, ...args], timeoutMs || undefined, process.env, label, undefined, 64 * 1024 * 1024);
+      } catch (err) {
+        if (!(err instanceof EngineError)) throw err;
+        if (err.reason === "output_too_large") throw new WorkerEngineError(err.reason, `engine ${label} output exceeded the buffer`);
+        if (err.reason === "timeout") throw new WorkerEngineError(err.reason, `engine ${label} timed out`);
+        throw new WorkerEngineError("spawn", `engine ${label} could not be started`);
+      }
+    },
   };
 }
 

@@ -99,6 +99,16 @@ enum Kind {
     String,
 }
 
+impl Kind {
+    fn name(self) -> &'static str {
+        match self {
+            Self::Bool => "bool",
+            Self::I64 => "i64",
+            Self::String => "string",
+        }
+    }
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "lowercase")]
 enum Source {
@@ -134,6 +144,16 @@ struct Binary {
 #[serde(deny_unknown_fields)]
 struct Unary {
     value: Value,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Conditional {
+    condition: Value,
+    #[serde(rename = "then")]
+    then_branch: Value,
+    #[serde(rename = "else")]
+    else_branch: Value,
 }
 
 fn decode<T: serde::de::DeserializeOwned>(value: Value, path: &str) -> Result<T, PlanError> {
@@ -281,6 +301,33 @@ impl<'a> Lowerer<'a> {
                 }
                 Ok((Kind::Bool, json!({"op": op, "value": value})))
             }
+            "if" => {
+                let input: Conditional = decode(operands, path)?;
+                let condition_path = format!("{path}/condition");
+                let (kind, condition) =
+                    self.expression(input.condition, &condition_path, depth + 1)?;
+                if kind != Kind::Bool {
+                    return Err(PlanError::invalid(
+                        &condition_path,
+                        "Expected a Boolean condition",
+                    ));
+                }
+                let (then_kind, then_branch) =
+                    self.expression(input.then_branch, &format!("{path}/then"), depth + 1)?;
+                let else_path = format!("{path}/else");
+                let (else_kind, else_branch) =
+                    self.expression(input.else_branch, &else_path, depth + 1)?;
+                if then_kind != else_kind {
+                    return Err(PlanError::invalid(
+                        &else_path,
+                        "Both branches must have the same type",
+                    ));
+                }
+                Ok((
+                    then_kind,
+                    json!({"op":op,"condition":condition,"then":then_branch,"else":else_branch}),
+                ))
+            }
             "add" | "sub" | "mul" | "lt" | "lte" | "gt" | "gte" | "eq" | "ne" | "and" | "or" => {
                 let input: Binary = decode(operands, path)?;
                 let (left_kind, left) =
@@ -293,9 +340,22 @@ impl<'a> Lowerer<'a> {
                     _ => Kind::I64,
                 };
                 if left_kind != expected || right_kind != expected {
+                    let left_type = left_kind.name();
+                    let right_type = right_kind.name();
+                    if matches!(op.as_str(), "eq" | "ne") {
+                        return Err(PlanError::invalid(
+                            path,
+                            format!("{op} requires operands of the same type; left is {left_type} and right is {right_type}"),
+                        ));
+                    }
+                    let location = match (left_kind == expected, right_kind == expected) {
+                        (false, true) => format!("{path}/left"),
+                        (true, false) => format!("{path}/right"),
+                        _ => path.to_owned(),
+                    };
                     return Err(PlanError::invalid(
-                        path,
-                        "Operand types do not match the operation",
+                        &location,
+                        format!("{op} requires {} operands; left is {left_type} and right is {right_type}", expected.name()),
                     ));
                 }
                 let result = match op.as_str() {

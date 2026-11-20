@@ -238,6 +238,20 @@ impl<'a> Checker<'a> {
                 }
                 Kind::Bool
             }
+            If {
+                condition,
+                then_branch,
+                else_branch,
+            } => {
+                if self.expression(condition, depth + 1)? != Kind::Bool {
+                    return Err(CheckError::Rule);
+                }
+                let then_kind = self.expression(then_branch, depth + 1)?;
+                if self.expression(else_branch, depth + 1)? != then_kind {
+                    return Err(CheckError::Rule);
+                }
+                then_kind
+            }
             Add(binary) | Sub(binary) | Mul(binary) | Lt(binary) | Lte(binary) | Gt(binary)
             | Gte(binary) | Eq(binary) | Ne(binary) | And(binary) | Or(binary) => {
                 let left = self.expression(&binary.left, depth + 1)?;

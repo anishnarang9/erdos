@@ -1,5 +1,7 @@
 // Cross-validation of the synthetic worker run with an in-memory API and a fake engine (no real prover).
+import { spawn } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
+import { once } from "node:events";
 import { existsSync, linkSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -344,5 +346,69 @@ describe("xval engine error mapping", () => {
     const node = engineRunner({ command: process.execPath, args: ["-e", "process.stderr.write('{\"code\":\"x\",\"message\":\"m\"}');process.exit(3)"] }, (p) => p);
     const res = await node.run([], 10_000);
     expect(res.exit).toBe(3);
+  });
+
+  it("keeps zero timeout unlimited", async () => {
+    const runner = engineRunner({
+      command: process.execPath,
+      args: ["-e", "setTimeout(() => console.log('done'), 30)"],
+    }, (path) => path);
+    await expect(runner.run([], 0)).resolves.toMatchObject({exit: 0, stdout: "done\n"});
+  });
+
+  function processRunning(pid: number): boolean {
+    try { process.kill(pid, 0); return true; }
+    catch (err) { if ((err as NodeJS.ErrnoException).code === "ESRCH") return false; throw err; }
+  }
+
+  async function expectProcessStopped(pid: number): Promise<void> {
+    for (let i = 0; i < 40 && processRunning(pid); i++) await new Promise((resolve) => setTimeout(resolve, 25));
+    expect(processRunning(pid)).toBe(false);
+  }
+
+  it.skipIf(process.platform === "win32")("stops a prover child when the worker engine times out", async () => {
+    const marker = join(tmp, "prover.pid");
+    const program = `
+      const {spawn} = require("node:child_process");
+      const {writeFileSync} = require("node:fs");
+      const prover = spawn(process.execPath, ["-e", "setInterval(() => {}, 1000)"], {stdio: "ignore"});
+      writeFileSync(${JSON.stringify(marker)}, String(prover.pid));
+      setInterval(() => {}, 1000);
+    `;
+    const runner = engineRunner({command: process.execPath, args: ["-e", program]}, (path) => path);
+    await expect(runner.run([], 750)).rejects.toMatchObject({code: "timeout"});
+    const pid = Number(readFileSync(marker, "utf8"));
+    expect(Number.isSafeInteger(pid) && pid > 1).toBe(true);
+    try {
+      await expectProcessStopped(pid);
+    } finally {
+      if (processRunning(pid)) process.kill(pid, "SIGKILL");
+    }
+  });
+
+  it.skipIf(process.platform === "win32")("stops a detached engine when its worker receives SIGTERM", {timeout:15_000}, async () => {
+    const marker = join(tmp, "engine.pid");
+    const engine = `require("node:fs").writeFileSync(${JSON.stringify(marker)}, String(process.pid)); setInterval(() => {}, 1000);`;
+    const module = new URL("../../src/engine.ts", import.meta.url).href;
+    const worker = spawn(process.execPath, [
+      "--import", "tsx", "--input-type=module", "-e",
+      `import { engineRunner } from ${JSON.stringify(module)};
+       await engineRunner({command:process.execPath,args:["-e", ${JSON.stringify(engine)}]}, p=>p).run([], 0);`,
+    ], {stdio:"ignore"});
+    const exit = once(worker, "exit");
+    let pid = 0;
+    try {
+      for (let i = 0; i < 400 && !(pid > 1); i++) {
+        if (existsSync(marker)) pid = Number(readFileSync(marker, "utf8"));
+        if (!(pid > 1)) await new Promise((resolve) => setTimeout(resolve, 25));
+      }
+      expect(Number.isSafeInteger(pid) && pid > 1).toBe(true);
+      worker.kill("SIGTERM");
+      await expect(exit).resolves.toEqual([null, "SIGTERM"]);
+      await expectProcessStopped(pid);
+    } finally {
+      if (worker.exitCode === null && worker.signalCode === null) worker.kill("SIGKILL");
+      if (pid > 1 && processRunning(pid)) process.kill(pid, "SIGKILL");
+    }
   });
 });

@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-20 04:46 -06:00 — Anish — Test engine hardening for merge
+
+- Merged main `3fb9eda` into `codex/engine-hardening` and preserved both status histories. Added compiler repair diagnostics, a Grok clarification prompt update, and the qualification scorer regression from the local worktree. Local campaign scripts remain untracked.
+- Rust workspace tests, formatting, and Clippy passed. Hosted qualification passed 107 tests, the frozen corpus passed 326 comparisons, and Arc Foundry passed 168 tests with one fork test skipped. Commerce typechecks and tests passed locally. GitHub Actions jobs did not start because of the account billing or spending limit. PR #33 is ready for merge after final verification.
+
 ## 2026-11-20 02:57 -06:00 — Anish — Open buyer access
 
 - Deployed API source `e7fc739` on DigitalOcean. All wallet owners can request hosted drafting and optional review for their own jobs. The operator removed the pilot settings and retained the existing drafting budget and request rate limits.
@@ -18,6 +23,134 @@
 - Hosted web build, six web tests, guide shell syntax, and the positive and negative oracle examples passed locally. The public guide still requires the designated pilot buyer and an available, authorized Grok Bot review. A fresh funded demo remains untested.
 - Vercel tracks the private repository's `main` branch. Neil's latest frontend is on main via PR #32, but Vercel blocked that build. Verify production promotion from this owner-authored change.
 
+
+## 2026-11-19 11:11 -0500 — Anish — Score the plan bound to buyer approval
+
+- The live rerun exposed an assessment bug. Hosted drafts store the plan in the revision, while the benchmark read the obsolete top-level field. The benchmark now evaluates the revision plan and retains support for legacy task results without revisions.
+- The rerun produced two supported drafts that agreed with all hidden cases. One passed public-mode buyer approval and compile. The other stayed blocked on quote and assumption coverage. The fresh approved plan is proving locally.
+- All 107 qualification tests passed. The controlled repeat approved eight drafts and compiled three. It checked the exact plans returned by the API against the independent native oracle.
+
+## 2026-11-19 11:06 -0500 — Anish — Ground Grok repairs and example selection
+
+- The first live campaign on the pinned model sent 19 calls across 11 briefs. xAI reported $0.1316041 in charges. Six of eight supported drafts failed native validation. The other two disagreed with the independent checker on 12 of 16 cases and could not pass example approval. The two ambiguous briefs and the division capability probe also missed their expected outcomes.
+- Repairs now receive the rejected plan and precise error paths. The provider response schema can select only buyer-supplied fixture names. Generated examples remain available. The prompt explains Boolean collection predicates and typed lookups.
+- API typecheck and all 1,054 API tests passed. The live comparison is running on the same briefs within the shared $5 cap. No live settlement or Grok Bot call was made.
+
+## 2026-11-19 09:55 -05:00 — Anish — Verify the 128-hop route proof
+
+- The full 128-hop Groth16 run passed at 7,087,607 guest cycles and 1,386,696 ms. The local Solidity verifier accepted the fresh receipt against the reconstructed journal. Both decryption checks matched the original route bytes.
+- The final local replay verified 15 receipts and recovered eight deliveries. All six verdict-0 receipts rejected a changed passing verdict. No live payment or provider charge occurred.
+
+## 2026-11-19 09:54 -05:00 — Anish — Enforce the live Grok test cap
+
+- The authorized $0.10 live API cap could not cover the pinned model's $2.54096 provider-bound reservation. The exact-cap test returned `model_unavailable` before dispatch and released the reservation. Twelve model safety tests and API typecheck passed. No amount was spent.
+- Full commerce checks after the recovery change passed, including 1,052 API tests and 1,052 worker tests. The 128-hop proof is still active. All changes are on draft PR #33.
+
+## 2026-11-19 09:51 -05:00 — Anish — Test Grok authoring and proof acceptance across domains
+
+- The real Grok adapter processed nine controlled replies through the public-mode local API. Eight supported jobs passed native examples and approval, including rejection of bad evidence for approval. Three compiled with Docker. The unsupported division case produced the exact native capability request. No provider was called.
+- Fixed exact quote binding to clarification answers, repair selection that lost previously passed approval checks, and native capability scoring. The worker can recover a complete pre-claim proof with a second `prepare` after interruption. The regression checks missing files, verifies the saved delivery, and keeps signing separate.
+- The local sweep verified 14 real proofs, checked six verdict-0 receipts against a false passing verdict, and recovered seven deliveries byte for byte. Fresh dispatch and route proofs passed the real adapter plus core claim and payout on a local EVM with a mock payment token. Arc Forge passed 168 tests with one fork-only skip.
+- The [sweep report](reports/pipeline-hardening-sweep-2026-11-19.md) records historical replay, the new invoice and battery workloads, and a scaled arithmetic overflow gap. The hosted qualification suite passed 106 tests. Opus and Sonnet requests hit quota. Gemini Flash processed a summary. The existing 128-hop proof is active.
+
+## 2026-11-19 09:38 -05:00 — Anish — Deduplicate concurrent cold guest builds
+
+- Two concurrent CLI compiles reproduced a duplicate guest build for the same fingerprint. The compiler now holds the existing per-fingerprint file lock from cache lookup through build and publication. Other fingerprints can build independently.
+- The regression observed two build invocations before the fix and one afterward. Two real Docker compiles against an empty engine cache produced one miss and one hit with identical manifests and guest bytes. Rust format, Clippy, workspace tests, 87 qualification tests, 326 frozen native comparisons, and wire checks passed.
+- The full 128-hop proof remains active. No live provider request, deployment, or Arc transaction ran.
+
+## 2026-11-19 09:35 -05:00 — Anish — Check guarded route at the collection limit
+
+- The route suite now checks valid and broken routes at 128 and 256 hops against the independent oracle. All 87 qualification tests and 326 frozen native comparisons passed.
+- At 256 hops, the pairwise guest used 225,339,637 cycles. The conditional guest used 12,446,009 cycles for verdict 1 and 12,445,983 for verdict 0. Both plans returned the expected verdicts. The conditional package reused the two-hop and 128-hop checker image.
+- The full 128-hop proof remains active. The 256-hop evidence covers guest execution. No live authoring, deployment, or settlement ran.
+
+## 2026-11-19 09:32 -05:00 — Anish — Prove and recover a conditional route
+
+- The two-hop route returned verdict 1 in 529,817 ms at 2,034,015 guest cycles. Its checker image is `0x54738e4ff8e9a5d398d7cd065e0b3620584530ca4e6123745b3b90b482d5ba64`, the same image used for the 128-hop benchmark. The CLI verified the receipt. The seal is 260 bytes with selector `0xe71e6620`.
+- Recovery matched the original route bytes. Proof JSON SHA-256 is `cadc763fa2fe16a55555ae07a25abf58d82ebb017b5cd21d2eeed6dd589188ed`. Recovered route SHA-256 is `a839b49f3975435922e4109668b02fd8ec561e01591d4a0a91f8f05d8a9ff317`.
+- The 128-hop proof is running locally with a 45-minute limit. Local package reproducibility, the relocated API build, and deployment tests passed. GitHub Actions still reports its billing or spending-limit blocker.
+
+## 2026-11-19 09:25 -05:00 — Anish — Add a typed conditional for guarded rules
+
+- The engine now supports `if` with a Boolean condition and same-type branches. Both branches count toward the static limits and rules commitment. The checker evaluates only the selected branch. Existing Boolean operators stay eager. The API's schema and catalog match the engine.
+- The conditional warehouse plan matched all 11 frozen oracle cases. On a 128-hop route the guest used 7,087,607 cycles, down from 57,702,261 for the pairwise plan. Both checkers returned verdict 1 on the continuous route and verdict 0 on the broken route. The prior 96-order package still executes with its original image and cycle count.
+- Rust format, Clippy, workspace tests, 86 qualification checks, 326 frozen comparisons, wire checks, and full commerce checks passed. All 16 native API integration tests passed. Historical Grok recordings keep their original schema and catalog in the test adapter. The package integration test compares the API and current native compiler manifests and still pins the original rules and reference commitments.
+- Both Opus and Sonnet requests through `agy` hit the quota before dispatch. The two-hop local Groth16 run is active on the same checker image as the 128-hop workload. No deployment or Arc transaction ran.
+
+## 2026-11-19 09:15 -05:00 — Anish — Verify the 96-order Groth16 proof and recovery
+
+- The longer local run completed with verdict 1 in 926,238 ms at 5,038,205 guest cycles. The CLI verified the receipt against checker image `0xae8a9dc695b18d2f00986f0e273ade1a20923385f2251796dc3bf682f6da06d1`. The seal is 260 bytes with selector `0xe71e6620`.
+- The vendored Solidity verifier accepted the fresh seal on a local Ganache EVM and rejected four mutations to the seal, image ID, journal, and verdict. Its verification gas estimate was 257,748. The decrypted assignment file matched the original byte for byte.
+- Proof JSON SHA-256 is `afc716ced90816093908aff5e9d6711957fa0924a236d6f7ff902f065525f3ef`. Recovered assignment SHA-256 is `7ded4d3711e4af022cfb6c66754d7e7a64c662455c3b7e8919ec20cfff38cb60`. The earlier 12-minute timeout remains a separate result.
+- Draft [PR #33](https://github.com/anishnarang9/UBC-26/pull/33) contains the hardening changes. GitHub Actions remains blocked at job startup. The 256-order result covers guest execution. Hosted authoring reliability and live settlement on this branch remain open.
+
+## 2026-11-19 09:10 -05:00 — Anish — Clarify array and Boolean evaluation rules
+
+- Four direct plan-authoring probes through `agy` covered inventory, badge policy, berth allocation, and route feasibility. All four plans validated. Inventory and berth matched every oracle case. The badge and route drafts chose different array names from the fixtures. The briefs did not require those fixture names.
+- A diagnostic rename alone recovered all seven badge comparisons. The route plan also used `or` to guard a lookup for a missing next hop. The checker evaluates both operands. The authoring prompt now specifies a default `rows` array for an unspecified table and explains eager evaluation and missing-key rejection. The original runs remain unchanged. The fresh follow-up probes hit the `agy` quota before dispatch.
+- Full commerce checks passed before the prompt-only change, including 1,045 API and 1,051 worker tests. The latest prompt passed 34 focused provider and budget tests plus typecheck. The worker timeout and SIGTERM checks also passed in an isolated Linux container.
+- The 96-order proof retry remains live under PID 71238 with a 40-minute limit. At 11 minutes a stack sample showed native RISC Zero recursion, before the Groth16 container. Continue observing the existing run. No deployment or Arc transaction ran.
+
+## 2026-11-19 09:08 -05:00 — Anish — Stop prover processes when the worker stops
+
+- Sonnet via `agy` reviewed the native timeout path. A new regression showed that the worker timed out while its prover child kept running. The worker now uses the compiler's process-group cleanup and keeps its existing per-stream output limit and error codes.
+- Opus via `agy` reviewed shutdown handling. A second regression showed that a default worker SIGTERM left a detached engine alive. The shared runner now cleans up its groups and preserves the original signal exit. Callers with their own signal handlers retain control.
+- All 59 focused worker tests, 11 compiler shutdown tests, and both typechecks passed. The longer 96-order proof is still running. Windows continues to signal the direct child.
+
+## 2026-11-19 09:02 -05:00 — Anish — Recover from a priced malformed model reply
+
+- Sonnet via `agy` traced why a malformed first reply skipped the existing repair path. Authoring can now make one repair after `invalid_reply` when usage is complete and the existing repair, deadline, and spend checks permit it. The repair sends a fixed instruction. It does not copy the rejected reply.
+- The controlled provider tests reproduced the previous one-call failure. The updated API recovers a valid draft, settles both known charges on a terminal failure, and retains uncertain billing for an unpriced repair. A queued task test checks the durable spend ledger. All 34 focused tests and API typecheck passed.
+- The longer local proof retry is live on the same pinned 96-order package. A separate worker regression reproduced an orphaned prover child after timeout. No live authoring, deployment, or Arc transaction ran.
+
+## 2026-11-19 08:56 -05:00 — Anish — Record dispatch authoring and proof limits
+
+- Fresh Opus and Sonnet sessions through `agy` each authored a valid 96-order dispatch plan from the buyer brief, schema, and references. Each plan matched all nine independent oracle cases. These direct probes did not exercise hosted authoring or settlement.
+- The local 96-order Groth16 attempt reached its 12-minute run limit and exited 124. It left no receipt or recovery result. The earlier guest execution and cycle measurements remain valid. Check full proving on this workload before claiming end-to-end qualification.
+- All changes are checkpointed on `codex/engine-hardening` in draft [PR #33](https://github.com/anishnarang9/UBC-26/pull/33). Rust, commerce, qualification and wire checks passed locally. GitHub Actions blocked job startup for an account billing or spending limit issue. No production deployment or Arc transaction ran.
+
+## 2026-11-19 08:51 -05:00 — Anish — Clarify valid and malformed authoring examples
+
+- The production authoring prompt now distinguishes verdict 0 from rejected input. It directs the model to follow the buyer's required JSON layout and omit properties outside the schema.
+- Fresh Opus and Sonnet runs through `agy` each matched all nine telescope oracle cases after receiving the exact output layout and rejection rules. The original misses remain in the prior entry. These were direct plan-authoring probes and did not call the hosted service.
+- Full commerce checks passed after the prompt change. A separate harder authoring probe and the local 96-order proof are in progress. No production deployment or Arc transaction ran.
+
+## 2026-11-19 08:48 -05:00 — Anish — Check dispatch at the collection limit
+
+- The independent dispatch test now runs nine cases each at 96 and 256 orders. All 84 qualification tests and all 326 frozen native comparisons pass.
+- The 256-order guest executed a valid allocation at 11,632,501 user cycles. Compile reused the 96-order guest image when the budget and references changed. The collection limit remains 256 rows.
+- The 96-order local proof is in progress. Two first-pass `agy` authoring probes on the synthetic telescope brief missed its frozen oracle. Opus chose a different output collection name. Sonnet added an invalid comment field. The brief leaves its expected output layout unstated. Repeat with explicit buyer clarification before attributing those results to the engine or live authoring service.
+
+## 2026-11-19 08:45 -05:00 — Anish — Reuse lookup indexes during evaluation
+
+- Sonnet via `agy` proposed lazy indexes keyed by source, file, collection and key field. Opus reviewed compatibility risks. Each evaluation reuses borrowed rows and still rejects duplicate keys in any used column.
+- The 96-order guest dropped from 38,718,586 to 5,038,205 user cycles for verdict 1, an 87.0% reduction. The over-budget allocation still returns verdict 0 at 5,038,281 cycles. The new host also executes the original package successfully. New packages get a different image ID.
+- Rust formatting, Clippy, workspace tests, 74 qualification checks, 326 frozen native comparisons, and the wire fixture passed. A local Groth16 proof and byte recovery check are in progress. GitHub Actions remains blocked before job start by its billing or spending limit.
+
+## 2026-11-19 08:41 -05:00 — Anish — Measure a 96-order dispatch workload
+
+- Added a native dispatch test outside the frozen corpus. An independent oracle checks two valid allocations, five isolated rule failures, and two input rejections. The qualification suite passed 74 tests. The frozen corpus passed all 326 native comparisons and the wire fixture passed.
+- An isolated Docker compile generated a guest in 26.4 seconds. The pinned `r0vm` 3.1.0 executed the valid and over-budget allocations with verdicts 1 and 0. Each used 38,718,586 user cycles. Next, measure the effect of reusing join indexes on this same workload.
+- Draft [PR #33](https://github.com/anishnarang9/UBC-26/pull/33) is open. GitHub Actions reported a billing or spending limit issue before starting jobs. No live authoring, proof, or settlement ran.
+
+## 2026-11-19 08:37 -05:00 — Anish — Preserve a validated draft after a failed repair
+
+- Sonnet via `agy` proposed retaining the first validated draft when a repair yields an invalid or unsupported plan. The API now keeps that draft for review and records both attempts with the existing billing logic. Actionable clarification questions still reach the buyer. The draft still needs to pass the normal approval gates.
+- The unsupported and invalid repair regressions failed before the fix. Successful repairs and clarifications still pass. Full commerce checks passed, including 1,039 API tests, 535 SDK tests plus 13 wire tests, 5 web tests, and 1,048 worker tests.
+- Branch `codex/engine-hardening`. The changes ran offline with controlled model replies. Live authoring reliability remains unmeasured on this revision.
+
+## 2026-11-19 08:35 -05:00 — Anish — Initialize compiler temporary state on first use
+
+- The native CLI reproduced the pilot's `build_failure` before Docker when its configured `TMPDIR` did not exist. Compile now creates the temporary root before fingerprinting. The new regression confirms the guest builder runs and the failed build leaves no partial package.
+- Rust format, lints and workspace tests passed. A real Docker compile from an empty engine cache and absent state roots returned a valid guest package in 10.3 seconds. Docker reused build layers. This run exercised compile and did not generate a proof.
+- Branch `codex/engine-hardening`. Next work covers authoring repair and the harder workload. No deployment or Arc transaction ran.
+
+## 2026-11-19 08:31 -05:00 — Anish — Preserve native qualification failures
+
+- Branch `codex/engine-hardening` starts from `6da430f`. The native host runner now reports plan validation failures even when all selected plans fail before candidate evaluation.
+- The new regression failed with exit 2 before the fix. All five host runner tests now pass. The frozen corpus still passes all 326 native comparisons. The baseline Rust workspace and 1,036 API tests also passed.
+- Opus and Sonnet are preparing a harder native workload and a repair fallback regression through `agy`. No public deployment, application model call, or Arc transaction ran.
 
 ## 2026-11-18 15:17 -0500 — Anish — Verify the Vercel frontend preview
 

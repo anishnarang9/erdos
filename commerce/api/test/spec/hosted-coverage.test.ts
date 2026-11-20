@@ -25,11 +25,89 @@ describe('reviewable requirement links',()=>{
   expect(()=>parseModelDraft({...draft,coverage:{...complete,requirements:Array(65).fill(complete.requirements[0])}})).toThrow();
  });
 });
-import {createApp,simulatedEngine} from '../../src/index.ts';
+import {createApp,EngineError,simulatedEngine} from '../../src/index.ts';
 import {BUYER_TOKEN} from './helpers.ts';
-it('returns checked coverage and repairs one unresolved mapping without replacing source text',async()=>{
- let calls=0;const input={request:'Check both conditions',outputs:[{name:'result.json',format:'json'}],expirySeconds:600,maxBudget:'10000'};
- const plan={version:1,deliverables:[{name:'result.json',parser:'json/v1'}],references:[],rules:[{op:'literal',type:'bool',value:true},{op:'literal',type:'bool',value:true}]};
- const app=createApp({dbPath:':memory:',buyerToken:BUYER_TOKEN,engine:{...simulatedEngine(),eval:async({deliverables})=>({ok:true,verdict:deliverables[0]?.content[0]===49?1:0})},draftModel:{draft:async()=>({model:'controlled',traceId:`coverage-${++calls}`,usage:{promptTokens:1,completionTokens:1,cachedTokens:0,reasoningTokens:0,costInUsdTicks:1},result:{kind:'draft',plan,coverage:calls===1?{...complete,unresolved:['which policy?']}:complete,sourceQuotes:quotes.map(({path,quote})=>({path,quote})),examples:[{name:'pass',predictedVerdict:1,files:[{name:'result.json',content:'1'}]},{name:'fail',predictedVerdict:0,files:[{name:'result.json',content:'0'}]}]}})}});
- try{const response=await app.app.request('/v1/drafts',{method:'POST',headers:{authorization:`Bearer ${BUYER_TOKEN}`,'content-type':'application/json','idempotency-key':crypto.randomUUID()},body:JSON.stringify(input)});const body:any=await response.json();expect(response.status,JSON.stringify(body)).toBe(200);expect(calls).toBe(2);expect(body.coverage.ruleCoverageComplete).toBe(true);expect(body.coverage.requirements).toEqual(complete.requirements);expect(body.coverage.coverageDigest).toMatch(/^[0-9a-f]{64}$/);expect(body.qualification.repairCount).toBe(1);}finally{app.close();}
+it.each(['draft', 'unsupported', 'clarification', 'invalid-plan', 'checker-outage', 'examples-regression', 'coverage-regression'] as const)('handles a repair with outcome %s', async (repair) => {
+  let calls = 0;
+  const input = {request:'Check both conditions', outputs:[{name:'result.json',format:'json'}], expirySeconds:600, maxBudget:'10000'};
+  const plan = {
+    version: 1,
+    deliverables: [{name:'result.json',parser:'json/v1'}],
+    references: [],
+    rules: [{op:'literal',type:'bool',value:true}, {op:'literal',type:'bool',value:true}],
+  };
+  const usage = {promptTokens:1, completionTokens:1, cachedTokens:0, reasoningTokens:0, costInUsdTicks:1};
+  const controlledEngine = simulatedEngine();
+  const app = createApp({
+    dbPath: ':memory:',
+    buyerToken: BUYER_TOKEN,
+    engine: {
+      ...controlledEngine,
+      validate: async (candidate, options) => {
+        if (calls === 2 && repair === 'checker-outage') throw new EngineError('spawn', 'Controlled checker outage');
+        if ((candidate as {version?: number}).version === 0) {
+          return {ok:false, kind:'invalid', errors:[{path:'/version', message:'Expected version 1'}]};
+        }
+        return controlledEngine.validate(candidate, options);
+      },
+      eval: async ({deliverables}) => {
+        const losesNegative = (calls === 2 && repair === 'examples-regression') ||
+          (calls === 1 && repair === 'coverage-regression');
+        return {ok:true, verdict:losesNegative || deliverables[0]?.content[0] === 49 ? 1 : 0};
+      },
+    },
+    draftModel: {
+      draft: async () => {
+        const reply = {model:'controlled', traceId:`coverage-${++calls}`, usage};
+        if (calls === 2 && repair === 'unsupported') return {...reply, result:{kind:'unsupported', reason:'Cannot express this policy'}};
+        if (calls === 2 && repair === 'clarification') return {...reply, result:{kind:'clarification', questions:['Which policy?']}};
+        const incompleteCoverage = repair === 'coverage-regression' ? calls === 2 : calls === 1;
+        return {
+          ...reply,
+          result: {
+            kind: 'draft',
+            plan: calls === 2 && repair === 'invalid-plan' ? {...plan, version:0} : plan,
+            coverage: incompleteCoverage ? {...complete, unresolved:['which policy?']} : complete,
+            sourceQuotes: quotes.map(({path, quote}) => ({path, quote})),
+            examples: [
+              {name:'pass', predictedVerdict:1, files:[{name:'result.json',content:'1'}]},
+              {name:'fail', predictedVerdict:0, files:[{name:'result.json',content:'0'}]},
+            ],
+          },
+        };
+      },
+    },
+  });
+  try {
+    const response = await app.app.request('/v1/drafts', {
+      method: 'POST',
+      headers: {authorization:`Bearer ${BUYER_TOKEN}`, 'content-type':'application/json', 'idempotency-key':crypto.randomUUID()},
+      body: JSON.stringify(input),
+    });
+    const body = await response.json();
+    const repaired = repair === 'draft';
+    expect(response.status, JSON.stringify(body)).toBe(200);
+    expect(calls).toBe(2);
+    expect(body).toHaveProperty('qualification', expect.objectContaining({
+      repairCount: 1,
+      traceId: repaired || repair === 'clarification' ? 'coverage-2' : 'coverage-1',
+      traceIds: ['coverage-1', 'coverage-2'],
+      usage: [usage, usage],
+    }));
+    expect(body).toHaveProperty('attempts.length', 2);
+    if (repair === 'clarification') {
+      expect(body).toMatchObject({kind:'clarification', questions:['Which policy?']});
+    } else {
+      expect(body).toMatchObject({
+        kind: 'draft',
+        revision: {plan},
+        coverage: {ruleCoverageComplete:repaired || repair === 'coverage-regression', requirements:complete.requirements},
+        exampleApprovalReady: repair !== 'coverage-regression',
+        quoteVerification: quotes,
+      });
+      expect(body).toHaveProperty('coverage.coverageDigest', expect.stringMatching(/^[0-9a-f]{64}$/));
+    }
+  } finally {
+    app.close();
+  }
 });
