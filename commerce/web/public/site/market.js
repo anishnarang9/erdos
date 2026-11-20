@@ -1,22 +1,30 @@
 // Testnet marketplace backed by Arc escrow state and hosted open-bounty discovery.
-import { CORE, ADAPTER, USDC, ZERO, EXPLORER, rpc, call, usdcBalance, escrowEvents } from './chain.js?v=2';
+import { CHAIN_ID, CORE, ADAPTER, USDC, ZERO, EXPLORER, rpc, call, encode, usdcBalance, escrowEvents, hasWallet, connectWallet, sendTx, waitReceipt, jobIdFromReceipt } from './chain.js?v=2';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const CHAIN_STATUS = ['Open', 'Funded', 'Submitted', 'Completed', 'Rejected', 'Expired'];
+const RECORDED_RUNS = { 3: 'paid', 4: 'refused', 7: 'bounty' };
+const TEMPLATES = {
+  invoice: { category: 'Reconciliation', title: 'Reconcile invoices to the cent', checks: ['Same invoice IDs', 'Amounts and totals match', 'Report is not empty'] },
+  schedule: { category: 'Scheduling', title: 'Fit jobs to capacity and budget', checks: ['Every job scheduled once', 'No machine over capacity', 'Within the energy budget'] },
+  clean: { category: 'Data cleaning', title: 'Clean and dedupe a data export', checks: ['One schema for every row', 'No duplicate keys', 'Totals preserved'] },
+  extract: { category: 'Extraction', title: 'Extract structured fields', checks: ['Every field present', 'Values match the source', 'Totals reconcile'] },
+};
 const STATUS = { draft: 'Not funded', open: 'Open', proving: 'Proof pending', paid: 'Paid', rejected: 'Rejected', expired: 'Expired' };
 const CATEGORY = {
   'Open bounty': { code: 'OB', hue: '#63f0ff' },
   'Escrow job': { code: 'EJ', hue: '#9fd8ff' },
   'Quote listing': { code: 'QT', hue: '#c5b2ff' },
+  'Test job': { code: 'TJ', hue: '#ffd166' },
 };
 const EVENT_LABEL = { JobCreated: 'Job created', ProviderSet: 'Solver set', BudgetSet: 'Budget set', JobFunded: 'Escrow funded', JobSubmitted: 'Proof submitted',
   JobCompleted: 'Proof accepted', PaymentReleased: 'Solver paid', JobRejected: 'Rejected', JobExpired: 'Expired', Refunded: 'Buyer refunded' };
 
 const outcomeOf = (job) => ({ Open: 'draft', Funded: 'open', Submitted: 'proving', Completed: 'paid',
   Rejected: 'rejected', Expired: 'expired' }[job.status] || 'open');
-const categoryOf = (job) => job.quoteListing ? 'Quote listing' : job.openClaim || job.apiJobId ? 'Open bounty' : 'Escrow job';
+const categoryOf = (job) => job.quoteListing ? 'Quote listing' : job.testPost ? 'Test job' : job.openClaim || job.apiJobId ? 'Open bounty' : 'Escrow job';
 const sourceOf = (job) => job.onchain ? 'Arc Testnet' : 'Hosted API';
 const titleOf = (job) => job.title || `Arc job #${job.chainJobId}`;
 const usdc = (base) => (Number(base) / 1e6).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -32,8 +40,12 @@ function decodeJob(hex) {
   const big = (i) => BigInt(`0x${w(i)}`);
   const addr = (i) => `0x${w(i).slice(24)}`;
   const base = Number(big(0)) / 32;
+  const descWord = base + Number(big(base + 4)) / 32, len = Number(big(descWord));
+  let description = '';
+  try { description = decodeURIComponent(hex.slice(2 + 64 * (descWord + 1), 2 + 64 * (descWord + 1) + len * 2).replace(/../g, '%$&')); } catch { /* malformed description */ }
   return { id: Number(big(base)), client: addr(base + 1), provider: addr(base + 2),
-    budget: big(base + 5).toString(), expiry: big(base + 6).toString(), status: CHAIN_STATUS[Number(big(base + 7))] || 'Open', hook: addr(base + 8) };
+    evaluator: addr(base + 3), description, budget: big(base + 5).toString(), expiry: big(base + 6).toString(),
+    status: CHAIN_STATUS[Number(big(base + 7))] || 'Open', hook: addr(base + 8) };
 }
 async function readChain() {
   const count = Number(BigInt(await call(CORE, '0x50355d76')));
@@ -43,10 +55,16 @@ async function readChain() {
     rpc('eth_blockNumber', []).then((b) => Number(BigInt(b))),
     usdcBalance(CORE).catch(() => null),
   ]);
-  return { block, escrowBal, jobs: rows.filter(Boolean).map((j) => ({
-    ...j, jobId: `arc-${j.id}`, chainJobId: String(j.id), onchain: true,
-    openClaim: same(j.hook, ADAPTER) || same(j.provider, ADAPTER),
-  })) };
+  return { block, escrowBal, jobs: rows.filter(Boolean).map((j) => {
+    const posted = /^erdos:(invoice|schedule|clean|extract):(.+)$/.exec(j.description);
+    const testPost = !!posted && same(j.client, j.provider) && same(j.hook, ZERO);
+    const openClaim = same(j.hook, ADAPTER) || same(j.provider, ADAPTER);
+    return { ...j, jobId: `arc-${j.id}`, chainJobId: String(j.id), onchain: true,
+      testPost, openClaim,
+      replay: RECORDED_RUNS[j.id] || null,
+      ...(testPost && { title: posted[2], publicBrief: 'This test escrow uses the posting wallet as both buyer and solver. It has no proof checker.' }),
+    };
+  }) };
 }
 async function getJson(url, ms = 6000) {
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), ms);
@@ -85,7 +103,7 @@ async function readQuoteListings() {
   });
 }
 
-export async function initMarket(root) {
+export async function initMarket(root, { onReplay } = {}) {
   if (!root) return;
   const side = $('.mk-side', root), list = $('.mk-list', root), detail = $('.mk-detail', root), status = $('.market-status', root);
   const stats = $('.mk-stats', root), bar = $('.mk-bar', root), main = $('.mk-main', root);
@@ -96,6 +114,9 @@ export async function initMarket(root) {
   const marketplace = new URL('./demo.html', location.href);
   let requestedJob = new URLSearchParams(location.search).get('job');
   let pickedJob = null;
+  let account = null;
+  let mode = 'job';
+  let posting = false;
 
   function updatePrompt(job) {
     const jobLink = new URL(marketplace);
@@ -129,7 +150,8 @@ export async function initMarket(root) {
   bar.innerHTML = `<div class="mk-tabs" role="tablist"><button type="button" role="tab" data-tab="jobs" aria-selected="true">Jobs</button><button type="button" role="tab" data-tab="board" aria-selected="false">Solver leaderboard</button></div>
     <span class="mk-count mono"></span>
     <label class="mk-sortl">Sort <select class="mk-sort"><option value="new">Newest</option><option value="budget">Budget</option><option value="deadline">Deadline</option></select></label>
-    <a class="cta" href="agents.html#buyer">Post via Erdos ↗</a>`;
+    <a class="demo-link" href="#lab">Test runs ↓</a>
+    <button type="button" class="cta mk-post-btn">Post a job +</button>`;
   const board = document.createElement('div'); board.className = 'mk-board'; board.hidden = true; main.append(board);
   const toast = document.createElement('div'); toast.className = 'mk-toast'; toast.setAttribute('role', 'status'); document.body.append(toast);
 
@@ -205,6 +227,7 @@ export async function initMarket(root) {
     $('.mk-count', root).textContent = `${shown.length} ${shown.length === 1 ? 'job' : 'jobs'}`;
     list.innerHTML = shown.map(row).join('') || '<li class="mk-empty">No jobs match.</li>';
     if (animate && !reduced) { list.classList.remove('enter'); void list.offsetWidth; list.classList.add('enter'); }
+    if (mode !== 'job') return;
     const keep = state.selected && shown.find((j) => j.jobId === state.selected.jobId || j.apiJobId === state.selected.jobId);
     const linked = requestedJob && shown.find((job) => job.jobId === requestedJob || job.apiJobId === requestedJob);
     if (linked) { pickedJob = linked.jobId; requestedJob = null; }
@@ -228,6 +251,7 @@ export async function initMarket(root) {
       <a href="${EXPLORER}/tx/${esc(e.tx)}" target="_blank" rel="noreferrer"><b>${EVENT_LABEL[e.name] || e.name}</b><span class="mono">${new Date(e.at).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} · block ${e.block.toLocaleString()} ↗</span></a></li>`).join('')}</ol>`;
   }
   function select(job, animate = true) {
+    mode = 'job';
     state.selected = job;
     updatePrompt(job?.jobId === pickedJob || job?.apiJobId === pickedJob ? job : null);
     $$('.mk-row', list).forEach((r) => r.classList.toggle('sel', !!job && r.dataset.id === job.jobId));
@@ -237,7 +261,8 @@ export async function initMarket(root) {
     if (job.onchain) facts.push(['Chain status', job.status], ['Buyer', short(job.client)]);
     if (job.onchain && !same(job.provider, ZERO)) facts.push([same(job.provider, ADAPTER) ? 'Claimed via' : 'Solver', same(job.provider, ADAPTER) ? 'Open-claim adapter' : short(job.provider)]);
     if (out === 'open' && days !== null) facts.push(['Deadline', days > 0 ? `${days} days` : 'closing']);
-    const action = job.apiJobId ? `<a class="cta mk-go" href="/v1/open-jobs/${encodeURIComponent(job.apiJobId)}" target="_blank" rel="noreferrer">View public job data ↗</a>
+    const action = job.replay ? `<button type="button" class="cta mk-go" data-replay="${esc(job.replay)}">Replay this run ↓</button>`
+      : job.apiJobId ? `<a class="cta mk-go" href="/v1/open-jobs/${encodeURIComponent(job.apiJobId)}" target="_blank" rel="noreferrer">View public job data ↗</a>
       <a class="demo-link" href="agents.html#solver">Solver instructions ↗</a>`
       : job.quoteListing ? '<a class="demo-link" href="agents.html#solver">Solver instructions ↗</a>' : '';
     const watch = job.onchain ? `<button type="button" class="mk-watch" aria-pressed="${watched.has(job.jobId)}">${watched.has(job.jobId) ? '★ Watching' : '☆ Watch'}</button>` : '';
@@ -248,6 +273,34 @@ export async function initMarket(root) {
       ${job.onchain ? `<p class="mk-sub">On-chain timeline</p>${timeline(job)}` : job.fundingTx ? `<a class="demo-link mono mk-tx" href="${EXPLORER}/tx/${esc(job.fundingTx)}" target="_blank" rel="noreferrer">Funding tx ${esc(short(job.fundingTx))} ↗</a>` : ''}
       ${action}`;
     if (animate && !reduced) { detail.classList.remove('enter'); void detail.offsetWidth; detail.classList.add('enter'); }
+  }
+
+  function renderPost() {
+    mode = 'post';
+    $$('.mk-row', list).forEach((r) => r.classList.remove('sel'));
+    const template = TEMPLATES.invoice;
+    detail.innerHTML = `<div class="mk-d-head"><b class="mk-post-title">Post a job</b><button type="button" class="mk-close" aria-label="Close">✕</button></div>
+      <p class="mk-brief">Create and fund a test escrow on Arc Testnet using your wallet as both buyer and solver. For a job with a proof checker, follow the <a class="demo-link" href="agents.html#buyer">buyer guide</a>.</p>
+      <form class="mk-form">
+        <label>Example template<select name="template">${Object.entries(TEMPLATES).map(([key, value]) => `<option value="${key}">${value.category}</option>`).join('')}</select></label>
+        <ul class="mk-checks" data-checks aria-label="Example checks for reference">${template.checks.map((check) => `<li>${check}</li>`).join('')}</ul>
+        <label>Title<input name="title" maxlength="80" value="${esc(template.title)}" required></label>
+        <div class="mk-form-row"><label>Budget (USDC)<input name="budget" type="number" min="0.01" step="0.01" value="0.01" required></label>
+          <label>Deadline (hours)<input name="hours" type="number" min="1" max="720" value="24" required></label></div>
+        <button type="submit" class="cta">${account ? 'Create and fund on Arc' : 'Connect wallet'}</button>
+        <p class="mk-wallet mono">${account ? `Wallet ${short(account)}` : hasWallet() ? 'Wallet not connected' : 'No browser wallet detected'}</p>
+      </form><ol class="mk-steps" hidden></ol>`;
+    const form = $('.mk-form', detail);
+    form.addEventListener('change', (event) => {
+      if (!event.target.matches('[name="template"]')) return;
+      const selected = TEMPLATES[event.target.value];
+      form.elements.namedItem('title').value = selected.title;
+      $('[data-checks]', detail).innerHTML = selected.checks.map((check) => `<li>${check}</li>`).join('');
+    });
+    if (account) usdcBalance(account).then((balance) => {
+      const wallet = $('.mk-wallet', detail);
+      if (wallet) wallet.textContent = `Wallet ${short(account)} · ${usdc(balance)} test USDC`;
+    }).catch(() => {});
   }
 
   function refresh(animate) {
@@ -274,7 +327,7 @@ export async function initMarket(root) {
       refresh(false);
     } finally { hostedBusy = false; }
   }
-  async function poll(first) {
+  async function poll(first, force = false) {
     changed = new Set();
     try {
       const res = await readChain();
@@ -292,11 +345,11 @@ export async function initMarket(root) {
       }
       chain = res.jobs; escrowBal = res.escrowBal;
       status.innerHTML = `<span class="dot ok"></span>Live from Arc testnet · block ${res.block.toLocaleString()} · updated ${new Date().toLocaleTimeString([], { hour12: false })}`;
-      if (first || changed.size) events = await escrowEvents().catch(() => events);
+      if (first || force || changed.size) events = await escrowEvents().catch(() => events);
     } catch {
       status.innerHTML = `<span class="dot"></span>Arc RPC unavailable${chain.length ? ' · showing last available chain data' : ''}`;
     }
-    if (first || changed.size) refresh(first);
+    if (first || force || changed.size) refresh(first);
     else renderStats();
   }
 
@@ -311,6 +364,11 @@ export async function initMarket(root) {
   side.addEventListener('input', (e) => { if (e.target.matches('input')) { state.q = e.target.value; renderList(true); } });
   bar.addEventListener('change', (e) => { if (e.target.matches('.mk-sort')) { state.sort = e.target.value; renderList(true); } });
   bar.addEventListener('click', (e) => {
+    if (e.target.closest('.mk-post-btn')) {
+      if (mode !== 'post') renderPost();
+      $('.mk-close', detail)?.focus();
+      return;
+    }
     const tab = e.target.closest('[data-tab]');
     if (tab) {
       state.tab = tab.dataset.tab;
@@ -322,12 +380,21 @@ export async function initMarket(root) {
   });
   list.addEventListener('click', (e) => {
     const row = e.target.closest('.mk-row');
-    if (!row) return;
+    if (!row || posting) return;
     requestedJob = null;
     pickedJob = row.dataset.id;
     select(all().find((job) => job.jobId === pickedJob));
   });
   detail.addEventListener('click', async (e) => {
+    const replay = e.target.closest('[data-replay]');
+    if (replay) { onReplay?.(replay.dataset.replay); return; }
+    if (e.target.closest('.mk-close')) {
+      if (!posting) {
+        select(state.selected || visible()[0] || null);
+        $('.mk-post-btn', bar).focus();
+      }
+      return;
+    }
     if (e.target.closest('.mk-watch') && state.selected) {
       const id = state.selected.jobId;
       if (watched.has(id)) watched.delete(id); else {
@@ -336,6 +403,73 @@ export async function initMarket(root) {
         say('Watching this job. You will be told when its status changes.');
       }
       storage.set('erdos-watch', [...watched]); refresh(false);
+    }
+  });
+  detail.addEventListener('submit', async (e) => {
+    const form = e.target.closest('.mk-form');
+    if (!form) return;
+    e.preventDefault();
+    if (posting) return;
+    posting = true;
+    const button = form.querySelector('button[type="submit"]');
+    const close = $('.mk-close', detail);
+    button.disabled = true;
+    close.disabled = true;
+    let submitted = false;
+    try {
+      if (!account) {
+        account = await connectWallet();
+        if (!account) throw new Error('Select an account in your wallet.');
+        button.textContent = 'Create and fund on Arc';
+        $('.mk-wallet', form).textContent = `Wallet ${short(account)}`;
+        return;
+      }
+      const fields = new FormData(form);
+      const budget = Number(fields.get('budget'));
+      if (!Number.isSafeInteger(Math.round(budget * 1e6)) || budget < 0.01) throw new Error('Enter a valid budget of at least 0.01 test USDC.');
+      const amount = BigInt(Math.round(budget * 1e6));
+      const hours = Number(fields.get('hours'));
+      if (!Number.isInteger(hours) || hours < 1 || hours > 720) throw new Error('Choose a deadline between 1 and 720 hours.');
+      const balance = await usdcBalance(account);
+      if (balance < amount) throw new Error(`Not enough test USDC (${usdc(balance)}). Get test USDC from the faucet first.`);
+      const steps = $('.mk-steps', detail); steps.hidden = false;
+      steps.innerHTML = ['Create the job', 'Set the budget', 'Approve USDC', 'Fund the escrow'].map((name) => `<li>${name}<span></span></li>`).join('');
+      const runStep = async (index, to, data) => {
+        const network = await window.ethereum.request({ method: 'eth_chainId' });
+        if (Number(network) !== CHAIN_ID) throw new Error('Switch your wallet to Arc Testnet.');
+        const item = steps.children[index]; item.className = 'active'; item.querySelector('span').textContent = 'confirm in wallet…';
+        const hash = await sendTx(account, to, data);
+        submitted = true;
+        if (!/^0x[0-9a-f]{64}$/i.test(hash)) throw new Error('The wallet returned an invalid transaction hash.');
+        item.querySelector('span').innerHTML = `<a href="${EXPLORER}/tx/${hash}" target="_blank" rel="noreferrer">${short(hash)} ↗</a>`;
+        const receipt = await waitReceipt(hash); item.className = 'done'; return receipt;
+      };
+      const template = String(fields.get('template'));
+      const title = String(fields.get('title')).trim();
+      if (!TEMPLATES[template] || !title) throw new Error('Choose a template and enter a title.');
+      const expiry = Math.floor(Date.now() / 1000) + hours * 3600;
+      const created = await runStep(0, CORE, encode.createJob(account, account, expiry, `erdos:${template}:${title}`));
+      const jobId = jobIdFromReceipt(created);
+      await runStep(1, CORE, encode.setBudget(jobId, amount));
+      await runStep(2, USDC, encode.approve(CORE, amount));
+      await runStep(3, CORE, encode.fund(jobId));
+      watched.add(`arc-${jobId}`); storage.set('erdos-watch', [...watched]);
+      say(`Arc test job #${jobId} is funded. It has no proof checker attached.`);
+      await poll(false, true);
+      const posted = chain.find((job) => job.chainJobId === String(jobId));
+      if (posted) select(posted);
+    } catch (error) {
+      say(error?.message?.slice(0, 180) || 'Could not post this test job.');
+      const active = $('.mk-steps .active', detail);
+      if (active) {
+        active.className = 'fail';
+        if (!active.querySelector('a')) active.querySelector('span').textContent = 'failed';
+      }
+      if (submitted) $('.mk-wallet', form).textContent = 'Check the submitted transactions before trying again.';
+    } finally {
+      posting = false;
+      button.disabled = submitted;
+      close.disabled = false;
     }
   });
 
