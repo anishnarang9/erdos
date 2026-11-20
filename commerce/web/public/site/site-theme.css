@@ -84,6 +84,8 @@
 .home-page .result-stats dt { background: none; color: var(--cyan); }
 .home-page .layer { background: var(--bg); border-color: var(--line-2); }
 .home-page .layer-main h3 { letter-spacing: -.043em; }
+.home-page .token .audit { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; border: 0; }
+.home-page .token .audit > * { padding: 12px 14px; border: 1px solid var(--line-2); border-radius: 6px; }
 .home-page .tool { background: var(--surface); border-color: var(--line); border-radius: 13%; }
 .home-page .tool-grid > .tool:nth-child(2) { position: relative; top: clamp(8px, 1.2vw, 16px); }
 .home-page .tool:hover, .home-page .tool:focus-visible { transform: translateY(-2px); box-shadow: 0 0 0 1px var(--g); }
