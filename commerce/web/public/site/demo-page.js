@@ -1,5 +1,5 @@
 import { initDemoLab } from './demo-lab.js?v=1';
-import { initMarket } from './market.js?v=13';
+import { initMarket } from './market.js?v=14';
 
 const toggle = document.querySelector('.menu-toggle'), mobile = document.getElementById('mobile-nav');
 toggle?.addEventListener('click', () => { const open = toggle.getAttribute('aria-expanded') !== 'true'; toggle.setAttribute('aria-expanded', String(open)); mobile.hidden = !open; });

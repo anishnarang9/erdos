@@ -1,5 +1,5 @@
 // Testnet marketplace backed by Arc escrow state and hosted open-bounty discovery.
-import { CHAIN_ID, CORE, ADAPTER, USDC, ZERO, EXPLORER, rpc, call, encode, usdcBalance, escrowEvents, hasWallet, connectWallet, sendTx, waitReceipt, jobIdFromReceipt } from './chain.js?v=3';
+import { CHAIN_ID, CORE, ADAPTER, USDC, ZERO, EXPLORER, rpc, readEscrowJobPage, encode, usdcBalance, escrowEvents, hasWallet, connectWallet, sendTx, waitReceipt, jobIdFromReceipt } from './chain.js?v=3';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -55,9 +55,13 @@ async function readChain(previous, before) {
   ]);
   const jobs = new Map(previous.filter(job => job.id <= page.count).map(job => [job.id, job]));
   for (const job of page.jobs) {
+    const posted = /^erdos:(invoice|schedule|clean|extract):(.+)$/.exec(job.description);
+    const testPost = !!posted && same(job.client, job.provider) && same(job.hook, ZERO);
     jobs.set(job.id, {
       ...job, jobId: `arc-${job.id}`, chainJobId: String(job.id), onchain: true,
+      testPost, replay: RECORDED_RUNS[job.id] || null,
       openClaim: same(job.hook, ADAPTER) || same(job.provider, ADAPTER),
+      ...(testPost && { title: posted[2], publicBrief: 'This test escrow uses the posting wallet as both buyer and solver. It has no proof checker.' }),
     });
   }
   return { ...page, jobs: [...jobs.values()].sort((a, b) => b.id - a.id), block, balance };
@@ -359,9 +363,11 @@ export async function initMarket(root, { onReplay } = {}) {
       if (res.incomplete) chainStatus += ' · Some job reads failed';
       if (first || force || changed.size) events = await escrowEvents().catch(() => events);
     } catch {
-      status.innerHTML = `<span class="dot"></span>Arc RPC unavailable${chain.length ? ' · showing last available chain data' : ''}`;
+      chainAvailable = false;
+      chainStatus = `Arc RPC unavailable${chain.length ? ' · showing last available chain data' : ''}`;
     }
-    if (first || force || changed.size) refresh(first);
+    renderFeedStatus();
+    if (first || force || changed.size || previousLength !== chain.length) refresh(first);
     else renderStats();
   }
 
