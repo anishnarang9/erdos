@@ -4,6 +4,30 @@ Check `/readyz` before solver operations. Use this guide only after the service 
 
 Use the [developer guide](README.md) to install and verify the Linux x64 runner and native engine. Proving needs `r0vm` 3.1.0 and the digest-pinned Groth16 Docker image in the engine metadata. Use one prover at a time. Check free disk and memory on the solver machine before proof work. A past 12-GiB Docker VM succeeded for one workload. That result is not a bound for this job.
 
+## Choose where the prover runs
+
+The agent can run on any host. This release runs the engine and prover in Linux x64. Choose the execution environment before you accept a job.
+
+| Your machine | Prover setup |
+| --- | --- |
+| Linux x64 | Use the prepared VPS or a native Linux x64 host with independently reviewed runtime pins. |
+| macOS (Intel or Apple Silicon) | Use SSH to a trusted, prepared Linux x64 host for the supported path. A local Linux x64 Docker setup needs its own qualification. |
+| Windows or Linux ARM64 | Use SSH to a trusted, prepared Linux x64 host. Treat local emulation or WSL as unqualified for this runner until it passes the same checks. |
+
+### Remote Linux over SSH
+
+Connect to the Linux x64 host your operator provides. Run the installed CLI there, where the engine is available. Follow the prepared VPS commands below. Keep the workspace and journal on that host. Use a protected testnet keystore on a host you trust. Keep one prover active and use a persistent terminal session so an SSH disconnect does not stop the proof.
+
+### Local Docker on macOS
+
+Use a pinned Linux x64 container image. On Apple Silicon, select `linux/amd64` explicitly. Install the published Linux x64 runner, engine, and RISC Zero 3.1.0 tools in that environment. Verify the engine checksum and run `ubc26 wrapper-digest` inside that same container. The runner hashes both wrapper sources and the container's `/usr/bin/env`. The VPS digest applies only to the prepared VPS runtime. Use an independently reviewed digest for the exact pinned container. A digest reported by the container is a candidate for review.
+
+Before using a local container for funded work, verify Docker access from the runner, the pinned Groth16 image, workspace permissions, free disk and memory, and a real proof smoke test. If any of these checks fail or the reviewed container pin is unavailable, use the remote Linux path. Engine startup alone leaves proof compression unverified.
+
+### Before proof and after interruption
+
+Check API readiness, the Arc RPC reads for `ubc26 job-input`, the funded job and deadline, the testnet gas balance, and the approved signing limits. Require verdict 1 from `ubc26 check` before proof preparation. If the terminal or tool times out, check whether the prover is still active. Keep the same attempt and journal. Retry recoverable failures and reconcile uncertain sends by hash and nonce. End after the claim and key release receipts confirm and the payout matches the bounty. If a hard blocker prevents settlement, report the failed check and every known transaction hash.
+
 ## Discover and solve
 
 1. Create a new mode-0700 work directory. Keep your gas wallet, password, API key, answer files, proof attempt, and nonce journals there. Never share the buyer's private directory.
@@ -88,6 +112,6 @@ The local check must return verdict 1 before proof preparation. Preserve the att
 
 ## Cold-start prompt
 
-> You are the solver. Use this guide, the public service URL and discovery URL, and your protected gas-wallet files. Discover a fresh open job. Read its public rules, package, references, and exact checks. Create your own answer files. Run the installed local check. Prove only against the confirmed funded context. Claim, release, and confirm your payout on Arc Testnet. Save the attempt, idempotency keys, and transaction journals. Stop on uncertain sends. Report any intervention. Do not request the buyer's private files or transcript.
+> Start the operator’s funded job now. Solve it and pass the local check. Generate the proof and stay with it until it finishes. If a command times out, check whether the prover is still running. Fix recoverable errors and continue. Claim the bounty, release the key, and print the confirmed Arc receipts. If completion becomes impossible, report the exact blocker and any transaction hashes.
 
 The prompt contains no problem statement and no prepared solver answer. The solver learns the task through public discovery.
