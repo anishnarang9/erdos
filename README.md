@@ -6,15 +6,17 @@
 
 **Hire AI agents for the job. Pay only for proven work.**
 
+Proof-gated escrow for work with machine-checkable acceptance criteria.
+
 <sub><a href="https://www.universityblockchain.org/programs/hackathon">University Blockchain Conference Hackathon 2026</a></sub>
 
-[Why Erdos](#why-erdos-exists)&nbsp;&nbsp; [Features](#features)&nbsp;&nbsp; [How it works](#how-it-works)&nbsp;&nbsp; [Tech stack](#tech-stack)&nbsp;&nbsp; [Results](#results)&nbsp;&nbsp; [Demo](#demo-script)&nbsp;&nbsp; [Run it](#run-it)
+[Why Erdos](#why-erdos-exists)&nbsp;&nbsp; [Scope](#product-scope)&nbsp;&nbsp; [How it works](#how-it-works)&nbsp;&nbsp; [Results](#results)&nbsp;&nbsp; [Demo](#demo-script)&nbsp;&nbsp; [Run it](#run-it)
 
 </div>
 
 ## Why Erdos exists
 
-**A buyer should be able to agree on what passes before paying for the work.** If a reconciliation must match every invoice to the cent, that rule can decide whether the solver gets paid.
+**One cent can decide whether a solver gets paid.** In Erdos’s invoice demo, both jobs use the same checker. The correct delivery earns the reward. A delivery that changes one amount by a cent fails the check, and the buyer recovers the reward after expiry.
 
 Erdos turns acceptance criteria into an executable checker. A buyer approves the rules and funds the job in test USDC. A solver prepares the files and proves that they pass. After Arc accepts the proof, settlement pays the solver and publishes the key that unlocks the delivery.
 
@@ -23,6 +25,14 @@ Erdos turns acceptance criteria into an executable checker. A buyer approves the
 | Invoice amount | 2,000 cents, as expected | 2,001 cents |
 | Checker result | Pass | Fail |
 | Escrow outcome | Solver paid and delivery unlocked | No solver payout. Buyer refunded after expiry. |
+
+## Product scope
+
+Erdos handles jobs whose acceptance criteria can be expressed as rules over files and reference data. The engine supports typed JSON, text, opaque files, bounded collections, joins, aggregates, and signed evidence. That makes it a fit for invoice reconciliation, data validation, and scheduling against capacity and cost limits. [Engine capabilities](engine/capabilities-v1.json)
+
+- **Two ways to commission work.** Buyers can fund a job for a selected solver or open a bounty to the first solver who submits a valid proof.
+- **What the proof establishes.** The committed files passed the buyer-approved checker. The buyer reviews the rules and decides whether the reference data and acceptance criteria capture the work.
+- **Deployment and data limits.** The current deployment settles in test USDC on Arc Testnet. Deliveries are limited to 16,384 encoded bytes. Settlement publishes the key, so use files that are safe to share publicly. [API contract](docs/public/api.md)
 
 ## Features
 
@@ -50,7 +60,10 @@ flowchart LR
     escrow -- Eligible expiry --> refund[Buyer can claim refund]
 ```
 
-The Rust engine compiles the approved plan into a checker. The solver tests its files locally, then generates a Groth16 proof tied to the job and delivery. Proof acceptance and key release are separate steps. The release transaction settles the reward and publishes the key together.
+1. **Compile and fund.** The Rust engine validates the buyer’s typed plan and compiles its rules into a RISC Zero guest. The funded terms pin the guest image ID, rules hash, and reference hash.
+2. **Check and prove.** The solver verifies the downloaded checker and reference files against those commitments, then runs a local check. The guest evaluates the delivery and encrypts the exact file bundle. The Groth16 receipt attests to a journal containing the funded job context, verdict, encrypted bundle hash, and key commitment.
+3. **Verify and settle.** The Arc contracts verify the proof against the funded terms and require a passing verdict. Acceptance and release are separate transactions. Release checks that the disclosed key matches its commitment, pays the solver, and publishes the key in the same transaction.
+4. **Recover and verify.** The buyer retrieves the encrypted bundle and published key from chain data, verifies the commitments, and decrypts the original files. [Engine specification](engine/README.md) and [solver workflow](docs/public/solver.md).
 
 <details>
 <summary><b>What each part does</b></summary>
@@ -96,10 +109,6 @@ The browser replays recorded jobs and reads their existing Arc Testnet receipts.
 1. Open **Test runs** in the Marketplace and choose **Correct delivery**. Press **Run this job** and inspect the proof and payout receipts.
 2. Switch to **One cent off** and run it again. Compare the failed check and refund with the successful run.
 3. Choose **Open bounty** and press **Run this job**. Inspect the accepted claim, then return to the listings and use **Copy full prompt** for an agent walkthrough.
-
-## Impact
-
-Erdos is designed for work with measurable acceptance criteria, such as invoice reconciliation, data validation, and production scheduling. Buyers can put those criteria in escrow terms, and solvers can check their work before spending time on a proof. The current deployment uses test USDC on Arc Testnet. Delivery keys become public at settlement, so these workflows are suited to shareable inputs and outputs.
 
 ## Run it
 
