@@ -53,7 +53,7 @@ export function scoreTrial({challenge, response, candidateResults = [], repairCo
       && (response.reason === 'capability_unsupported'
         ? native?.code === 'unsupported_capability' && native.request?.kind === expected.kind
           && native.request?.name === expected.name
-        : typeof response.reason === 'string' && response.reason.includes(expected.name));
+        : typeof response.reason === 'string' && response.reason.match(/[A-Za-z0-9_]+(?:[-./][A-Za-z0-9_]+)*/g)?.includes(expected.name) === true);
     return {
       ...blank(base),
       weakerPayableJob: response?.kind === 'draft',

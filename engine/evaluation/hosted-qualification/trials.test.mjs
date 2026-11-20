@@ -676,6 +676,11 @@ test('synthetic scores and aggregate gates stay closed without a live trial', ()
   });
   assert.equal(named.unsupportedExplanation, true);
   assert.equal(named.weakerPayableJob, false);
+  const incidentalSubstring = scoreTrial({
+    challenge: {classification: 'unsupported', capabilityRequests: [{kind: 'operation', name: 'div'}]},
+    response: {kind: 'unsupported', reason: 'Check individual records.'},
+  });
+  assert.equal(incidentalSubstring.unsupportedExplanation, false);
   const expectedCapability = {kind: 'operation', name: 'div'};
   for (const [request, matches] of [
     [expectedCapability, true],

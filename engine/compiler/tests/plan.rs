@@ -178,3 +178,33 @@ fn approval_preview_preserves_names_and_reproduces_the_committed_plan() {
     assert_eq!(first["structureHash"], approved["structureHash"]);
     assert_eq!(first["rulesHash"], approved["rulesHash"]);
 }
+
+#[test]
+fn reports_the_types_needed_to_repair_a_bad_operand() {
+    let mut input = plan();
+    input["deliverables"][0]["fields"][0]["type"] = json!("string");
+    let error = validate(&input).unwrap_err();
+    assert_eq!(error["path"], "/rules/0/left");
+    assert_eq!(
+        error["message"],
+        "lte requires i64 operands; left is string and right is i64"
+    );
+}
+
+#[test]
+fn reports_the_type_needed_to_repair_a_collection_predicate() {
+    let mut input: Value =
+        serde_json::from_str(include_str!("../../fixtures/reconciliation/plan.json")).unwrap();
+    let predicate = json!({"op":"literal","type":"i64","value":"0"});
+    input["rules"][0] = json!({
+        "op":"all",
+        "collection":input["rules"][0]["collection"],
+        "where":predicate,
+    });
+    let error = validate(&input).unwrap_err();
+    assert_eq!(error["path"], "/rules/0/where");
+    assert_eq!(
+        error["message"],
+        "all requires a bool where expression; got i64"
+    );
+}

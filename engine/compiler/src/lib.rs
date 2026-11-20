@@ -99,6 +99,16 @@ enum Kind {
     String,
 }
 
+impl Kind {
+    fn name(self) -> &'static str {
+        match self {
+            Self::Bool => "bool",
+            Self::I64 => "i64",
+            Self::String => "string",
+        }
+    }
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "lowercase")]
 enum Source {
@@ -330,9 +340,22 @@ impl<'a> Lowerer<'a> {
                     _ => Kind::I64,
                 };
                 if left_kind != expected || right_kind != expected {
+                    let left_type = left_kind.name();
+                    let right_type = right_kind.name();
+                    if matches!(op.as_str(), "eq" | "ne") {
+                        return Err(PlanError::invalid(
+                            path,
+                            format!("{op} requires operands of the same type; left is {left_type} and right is {right_type}"),
+                        ));
+                    }
+                    let location = match (left_kind == expected, right_kind == expected) {
+                        (false, true) => format!("{path}/left"),
+                        (true, false) => format!("{path}/right"),
+                        _ => path.to_owned(),
+                    };
                     return Err(PlanError::invalid(
-                        path,
-                        "Operand types do not match the operation",
+                        &location,
+                        format!("{op} requires {} operands; left is {left_type} and right is {right_type}", expected.name()),
                     ));
                 }
                 let result = match op.as_str() {
