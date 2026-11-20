@@ -70,7 +70,6 @@
 .tech-strip h2 { margin: 0 0 19px; font: 500 .76rem var(--mono); letter-spacing: .09em; color: var(--dim); text-transform: uppercase; }
 .tech-strip-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px 24px; }
 .tech-strip-grid article { display: grid; gap: 4px; align-content: start; }
-.tech-strip-grid article:first-child { gap: 12px; padding-top: clamp(10px, 1.2vw, 16px); }
 .tech-strip-grid strong { color: var(--ink); font-size: 1rem; }
 .tech-strip-grid span { color: var(--dim); font-size: .86rem; }
 
@@ -86,7 +85,6 @@
 .home-page .layer-main h3 { letter-spacing: -.043em; }
 .home-page .token .audit { display: flex; width: max-content; max-width: 100%; margin-top: clamp(28px, 3.5vw, 42px); }
 .home-page .tool { background: var(--surface); border-color: var(--line); border-radius: 13%; }
-.home-page .tool-grid > .tool:nth-child(2) { position: relative; top: clamp(8px, 1.2vw, 16px); }
 .home-page .tool:hover, .home-page .tool:focus-visible { transform: translateY(-2px); box-shadow: 0 0 0 1px var(--g); }
 .home-page .mat-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; border: 0; }
 .home-page .mat-list .mat { grid-template-columns: minmax(0, 1fr) auto; align-content: start; align-items: baseline; gap: 8px 10px; padding: 19px; background: var(--surface); border: 1px solid var(--line); border-radius: 11px; }
