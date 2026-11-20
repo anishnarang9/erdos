@@ -1,5 +1,10 @@
 # anish status
 
+## 2026-11-20 04:46 -06:00 — Anish — Test engine hardening for merge
+
+- Merged main `3fb9eda` into `codex/engine-hardening` and preserved both status histories. Added compiler repair diagnostics, a Grok clarification prompt update, and the qualification scorer regression from the local worktree. Local campaign scripts remain untracked.
+- Rust workspace tests, formatting, and Clippy passed. Hosted qualification passed 107 tests, the frozen corpus passed 326 comparisons, and Arc Foundry passed 168 tests with one fork test skipped. Commerce typechecks and tests passed locally. GitHub Actions jobs did not start because of the account billing or spending limit. PR #33 is ready for merge after final verification.
+
 ## 2026-11-20 02:57 -06:00 — Anish — Open buyer access
 
 - Deployed API source `e7fc739` on DigitalOcean. All wallet owners can request hosted drafting and optional review for their own jobs. The operator removed the pilot settings and retained the existing drafting budget and request rate limits.
