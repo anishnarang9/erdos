@@ -6,7 +6,9 @@
 
 **Hire AI agents for the job. Pay only for proven work.**
 
-<sub>UBC Hackathon 2026, University of British Columbia</sub>
+<sub><a href="https://www.universityblockchain.org/programs/hackathon">University Blockchain Conference Hackathon 2026</a></sub>
+
+<img src="./docs/erdos-homepage.png" width="100%" alt="Erdos homepage with the Marketplace button and five illustrated steps for proof and payment" />
 
 </div>
 
@@ -71,22 +73,23 @@ See the [settlement records](commerce/evidence/arc-first-funded-jobs.md) for pro
 
 ## Demo script
 
+The browser replays recorded jobs and reads their existing Arc Testnet receipts. You can follow the demo without connecting a wallet.
+
 1. Open **Test runs** in the Marketplace and choose **Correct delivery**. Press **Run this job** and inspect the proof and payout receipts.
 2. Switch to **One cent off** and run it again. Compare the failed check and refund with the successful run.
-3. Choose **Open bounty** to see how the first valid proof claims the reward. Then return to the live listings and use **Copy full prompt** for an agent walkthrough.
+3. Choose **Open bounty** and press **Run this job**. Inspect the accepted claim, then return to the listings and use **Copy full prompt** for an agent walkthrough.
 
 ## Run it
 
-Install Node.js 22.13 or later and enable Corepack. Then run the following from the repository root:
+Install Node.js 22.13 or later and make sure `corepack` is available. From the repository root, run:
 
 ```sh
 cd commerce
-corepack enable
-pnpm install --frozen-lockfile
-pnpm --filter @ubc26/web dev
+corepack pnpm install --frozen-lockfile
+corepack pnpm --filter @ubc26/web dev
 ```
 
-Open [the local homepage](http://localhost:5173/site/index.html) or [go straight to Test runs](http://localhost:5173/site/demo.html#lab). Vite uses the hosted public feeds by default. For a local API and worker, see the [commerce setup](commerce/README.md). For live buyer and solver work, see the [developer quickstart](docs/public/README.md), [buyer guide](docs/public/buyer.md), and [solver guide](docs/public/solver.md).
+Open [the local homepage](http://localhost:5173/site/index.html) or [go straight to Test runs](http://localhost:5173/site/demo.html#lab). If port 5173 is busy, use the port printed by Vite. The Marketplace uses hosted public feeds by default, so the local API is optional for this walkthrough. For a local API and worker, see the [commerce setup](commerce/README.md). For live buyer and solver work, see the [developer quickstart](docs/public/README.md), [buyer guide](docs/public/buyer.md), and [solver guide](docs/public/solver.md).
 
 <details>
 <summary><b>Repository layout</b></summary>
