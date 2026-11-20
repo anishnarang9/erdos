@@ -36,11 +36,18 @@ export function idempotency(deps: Deps): Idempotency {
     "SELECT request_hash, status, response_json FROM idempotency WHERE key = ? AND method = ? AND route = ? AND caller = ?",
   );
   const insert = db.prepare(
-    "INSERT INTO idempotency (key, method, route, caller, request_hash, status, response_json, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    `INSERT INTO idempotency (key, method, route, caller, request_hash, status, response_json, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT (key, method, route, caller) DO UPDATE SET
+       status = excluded.status, response_json = excluded.response_json, created_at = excluded.created_at
+     WHERE idempotency.status = 429 AND idempotency.request_hash = excluded.request_hash`,
   );
 
-  const lookup = (s: IdempotencyScope): StoredRow | undefined =>
-    select.get(s.key, s.method, s.path, s.caller) as StoredRow | undefined;
+  const lookup = (s: IdempotencyScope): StoredRow | undefined => {
+    const row = select.get(s.key, s.method, s.path, s.caller) as StoredRow | undefined;
+    // Retain the request binding on throttled keys, but recheck admission on an exact retry.
+    return row?.status === 429 && row.request_hash === s.requestHash ? undefined : row;
+  };
 
   const outcome = (s: IdempotencyScope, row: StoredRow): Response => {
     if (row.request_hash !== s.requestHash) {

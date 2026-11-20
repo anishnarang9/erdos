@@ -225,7 +225,13 @@ export function registerObserve(app: Hono<AppEnv>, deps: Deps): void {
 
   app.onError((err, c) => {
     const label = routeLabel(c.req.method, pathnameOf(c.req.url));
-    if (err instanceof ApiError) return c.json(err.toBody(), err.status as 400);
+    if (err instanceof ApiError) {
+      const retryAfter = err.details?.retryAfterSeconds;
+      if (err.status === 429 && typeof retryAfter === "number" && Number.isSafeInteger(retryAfter) && retryAfter > 0) {
+        c.header("Retry-After", String(retryAfter));
+      }
+      return c.json(err.toBody(), err.status as 400);
+    }
     logInternal(deps.deployment.mode, deps.requestLogDebug, label, err);
     return c.json(new ApiError("internal", "Internal server error").toBody(), 500);
   });

@@ -1,3 +1,9 @@
+## 2026-11-20 04:41 -06:00 — Anish — Keep public task retries and compilation moving
+
+- Branch `codex/public-checker-runtime`. An exact retry can progress after a temporary 429. The stored request hash still rejects a different body. Admission responses give a retry time.
+- Slow hosted drafts no longer prevent idle compiler slots from taking queued work. Shutdown tracks every active batch.
+- The three regression tests failed before the fix. All 1,089 API tests and API typecheck passed after it. The live release and the independent buyer-to-solver trials remain pending.
+
 # 2026-11-18 20:31 -0500 — Stage one review claim for the blocked Flash High job
 
 - On `codex/authoring-pilot-round2`, added an optional pilot setting that resolves the target job and content hash from a completed objection. When the normal cap is exhausted, only that owner, job and hash can claim one more review. The slot counts at claim time, including uncertain delivery. It uses the existing database and preserves draft limits.

@@ -22,10 +22,10 @@ export function expensiveGuard(deps: Deps): MiddlewareHandler<AppEnv> {
       const windowStart = Math.floor(deps.now() / windowMs);
       const principal = c.get("principal");
       const who = principal?.kind === "wallet" ? principal.wallet : "legacy";
-      take(deps, upsert, read, `principal:${who}`, windowStart, limit.expensivePerPrincipal, "Rate limit exceeded");
+      take(deps, upsert, read, `principal:${who}`, windowStart, windowMs, limit.expensivePerPrincipal, "Rate limit exceeded");
       if (deps.deployment.trustProxy) {
         const ip = clientIp(c.req.header("x-forwarded-for")) ?? "direct";
-        take(deps, upsert, read, `ip:${ip}`, windowStart, limit.expensivePerIp, "Rate limit exceeded");
+        take(deps, upsert, read, `ip:${ip}`, windowStart, windowMs, limit.expensivePerIp, "Rate limit exceeded");
       }
     }
     await next();
@@ -49,7 +49,7 @@ export function authIpGuard(deps: Deps): MiddlewareHandler<AppEnv> {
       const windowMs = deps.authLimit.windowMs;
       const windowStart = Math.floor(deps.now() / windowMs);
       try {
-        take(deps, upsert, read, `auth-ip:${ip}`, windowStart, deps.authLimit.perIp, "Auth rate limit exceeded");
+        take(deps, upsert, read, `auth-ip:${ip}`, windowStart, windowMs, deps.authLimit.perIp, "Auth rate limit exceeded");
       } catch (err) {
         if (err instanceof ApiError && err.code === "rate_limited") deps.metrics.authLimited += 1;
         throw err;
@@ -88,6 +88,7 @@ function take(
   read: StatementSync,
   bucket: string,
   windowStart: number,
+  windowMs: number,
   limit: number,
   message: string,
 ): void {
@@ -96,5 +97,10 @@ function take(
     upsert.run(bucket, windowStart);
     return Number((read.get(bucket, windowStart) as { count: number }).count);
   });
-  if (count > limit) throw new ApiError("rate_limited", message);
+  if (count > limit) {
+    const reset = (windowStart + 1) * windowMs;
+    throw new ApiError("rate_limited", message, {
+      retryAfterSeconds: Math.max(1, Math.ceil((reset - deps.now()) / 1000)),
+    });
+  }
 }
