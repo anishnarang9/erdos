@@ -95,6 +95,17 @@
 .home-page .layer-main h3 { letter-spacing: -.043em; }
 .home-page .token .audit { display: flex; width: max-content; max-width: 100%; margin-top: clamp(28px, 3.5vw, 42px); }
 .home-page .tool { background: var(--surface); border-color: var(--line); border-radius: 13%; }
+.tool-stack-details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(1000px, calc(100% - 2 * var(--page-inset)));
+  gap: 12px;
+  margin: 0 auto clamp(26px, 4vw, 48px);
+}
+.tool-stack-details > div { padding: clamp(16px, 2vw, 24px); border: 1px solid var(--line-2); border-radius: 12px; background: var(--surface); }
+.tool-stack-details dt { font: 600 1rem/1.3 var(--sans); color: var(--ink); }
+.tool-stack-details dd { margin: 8px 0 0; color: var(--dim); font: 400 .95rem/1.55 var(--sans); }
+@media (max-width: 760px) { .tool-stack-details { grid-template-columns: minmax(0, 1fr); } }
 .home-page .tool:hover, .home-page .tool:focus-visible { transform: translateY(-2px); box-shadow: 0 0 0 1px var(--g); }
 .home-page .mat-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; border: 0; }
 .home-page .mat-list .mat { grid-template-columns: minmax(0, 1fr) auto; align-content: start; align-items: baseline; gap: 8px 10px; padding: 19px; background: var(--surface); border: 1px solid var(--line); border-radius: 11px; }

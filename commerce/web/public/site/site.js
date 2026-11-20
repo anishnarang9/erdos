@@ -261,7 +261,6 @@ initToolNetwork(document.getElementById('tools'));
 // Sections lead with headlines; a toggle under each title reveals the descriptive text.
 const MORE = {
   scope: '.snode span',
-  tools: '.tools-head p.dim',
   materials: '.mat .d',
 };
 for (const [id, selector] of Object.entries(MORE)) {
