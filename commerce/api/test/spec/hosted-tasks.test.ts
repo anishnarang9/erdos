@@ -304,6 +304,37 @@ describe("durable tasks", () => {
     expect(engine.calls).toBe(2);
   });
 
+  it("runs an independent compile while a hosted draft awaits its provider", async () => {
+    let signalDraftStarted!: () => void;
+    let releaseDraft!: () => void;
+    const started = new Promise<void>(resolve => { signalDraftStarted = resolve; });
+    const held = new Promise<void>(resolve => { releaseDraft = resolve; });
+    const { created } = clocked({
+      draftModel: { async draft() {
+        signalDraftStarted();
+        await held;
+        return clarification();
+      } },
+    });
+    const buyer = await issue(created.app, accountA);
+    const drafter = await issue(created.app, accountB);
+    const job = await createJob(created.app, buyer);
+    expect((await post(created.app, "/v1/tasks", draftTask(), auth(drafter))).status).toBe(202);
+    const draftPump = created.pumpTasks();
+    try {
+      await Promise.race([started, draftPump.then(() => { throw new Error("Draft did not start"); })]);
+      const compile = await post(created.app, "/v1/tasks", { operation: "compile", ...job }, auth(buyer));
+      expect(compile.status).toBe(202);
+      const { id } = await compile.json() as { id: string };
+      await created.pumpTasks();
+      const response = await created.app.request(`/v1/tasks/${id}`, { headers: auth(buyer) });
+      expect(await response.json()).toMatchObject({ state: "succeeded" });
+    } finally {
+      releaseDraft();
+      await draftPump;
+    }
+  });
+
   it("resumes queued work and does not retry an interrupted draft", async () => {
     const dir = mkdtempSync(join(tmpdir(), "ubc26-tasks-"));
     const dbPath = join(dir, "api.db");

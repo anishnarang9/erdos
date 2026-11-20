@@ -392,13 +392,21 @@ export function registerTaskRoutes(
         throw new ApiError("rate_limited", "Task queue is full", {
           queue: "pending",
           scope: globalFull ? "global" : "wallet",
+          retryAfterSeconds: 2,
         });
       }
       const id = newId();
       if (operation === "draft" && deps.budget) {
-        const spent = Number((spentToday.get(dayStart(deps.now())) as { spent: number }).spent);
+        const now = deps.now();
+        const day = dayStart(now);
+        const spent = Number((spentToday.get(day) as { spent: number }).spent);
         if (spent + deps.budget.requestCeilingMicroUsd > deps.budget.dailyCeilingMicroUsd) {
-          throw new ApiError("rate_limited", "Authoring budget is exhausted");
+          const reset = Date.parse(day) + 86_400_000;
+          throw new ApiError("rate_limited", "Authoring budget is exhausted", {
+            scope: "daily_authoring_budget",
+            retryAfterSeconds: Math.min(60, Math.ceil((reset - now) / 1000)),
+            resetsAt: isoAt(reset),
+          });
         }
       }
       if (operation === "draft") {
@@ -560,14 +568,14 @@ export function registerTaskRoutes(
 
   let pumping = false;
   let draining = false;
-  let inflight: Promise<void> = Promise.resolve();
+  const inflight = new Set<Promise<void>>();
   const pumpTasks = async (): Promise<void> => {
     // Emergency disable blocks new accepts and also blocks dispatch of work already queued.
     // Draining refuses a new claim so a restarted process cannot overlap a child this process still owns.
     if (deps.expensiveDisabled || pumping || draining) return;
     pumping = true;
     deps.compileAdmission.beginPump();
-    const run = (async () => {
+    const claimed = (() => {
       let compilerClaimed = false;
       let claimCommitted = false;
       try {
@@ -601,19 +609,24 @@ export function registerTaskRoutes(
           return rows;
         });
         claimCommitted = true;
-        deps.compileAdmission.finishPump();
-        await Promise.all(claimed.map((row) => runOne(row)));
+        return claimed;
       } finally {
         if (compilerClaimed && !claimCommitted) deps.compileAdmission.releaseDurable();
         deps.compileAdmission.finishPump();
         pumping = false;
       }
     })();
-    inflight = run;
+    // Each tick can fill idle slots while another batch awaits its provider or compiler.
+    const run = Promise.resolve().then(async () => {
+      const results = await Promise.allSettled(claimed.map(row => runOne(row)));
+      const failure = results.find(result => result.status === "rejected");
+      if (failure) throw failure.reason;
+    });
+    inflight.add(run);
     try {
       await run;
     } finally {
-      if (inflight === run) inflight = Promise.resolve();
+      inflight.delete(run);
     }
   };
 
@@ -623,7 +636,7 @@ export function registerTaskRoutes(
     const drafts = cancelDraftRequests(deps);
     await cancelEngineChildren();
     await Promise.race([
-      Promise.allSettled([inflight, drafts, ...deps.compileAdmission.owned()]),
+      Promise.allSettled([...inflight, drafts, ...deps.compileAdmission.owned()]),
       new Promise<void>((resolve) => setTimeout(resolve, boundMs)),
     ]);
     reconcileTasks();

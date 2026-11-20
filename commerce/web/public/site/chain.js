@@ -25,6 +25,29 @@ export async function rpc(method, params) {
 }
 export const call = (to, data) => rpc('eth_call', [{ to, data }, 'latest']);
 
+
+// Keep recent jobs current and advance through history in bounded batches.
+export async function readEscrowJobPage(decode, before = null, read = call) {
+  const count = Number(BigInt(await read(CORE, '0x50355d76')));
+  if (!Number.isSafeInteger(count) || count < 0) throw new Error('Invalid escrow job count');
+  const pageSize = 8;
+  const recent = Array.from({ length: Math.min(count, pageSize) }, (_, index) => count - index);
+  const first = Math.min(before ?? count - pageSize, count - pageSize);
+  const history = Array.from({ length: Math.min(Math.max(first, 0), pageSize) }, (_, index) => first - index);
+  const ids = [...recent, ...history];
+  const results = await Promise.allSettled(ids.map(async id => {
+    const job = decode(await read(CORE, `0xbf22c457${id.toString(16).padStart(64, '0')}`));
+    if (job.id !== id) throw new Error('Unexpected escrow job ID');
+    return job;
+  }));
+  return {
+    count,
+    next: first > pageSize ? first - pageSize : null,
+    jobs: results.flatMap(result => result.status === 'fulfilled' ? [result.value] : []),
+    incomplete: results.some(result => result.status === 'rejected'),
+  };
+}
+
 // ---------- ABI encoding (only what we call) ----------
 const u256 = (n) => BigInt(n).toString(16).padStart(64, '0');
 const word = (a) => a.toLowerCase().replace(/^0x/, '').padStart(64, '0');

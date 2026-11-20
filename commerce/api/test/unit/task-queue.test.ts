@@ -134,6 +134,7 @@ describe("pending task admission", () => {
     expect(counts(dbPath)).toEqual({ tasks: 1, reservations: 1 });
 
     const denied = await post(created.app, draftTask("Check policy B"), auth(key, "queue-b"));
+    expect(denied.headers.get("retry-after")).toMatch(/^[1-9][0-9]*$/);
     const body = await expectError(denied, 429, "rate_limited");
     expect(body.error.message).toBe("Task queue is full");
     expect(body.error.details).toMatchObject({ queue: "pending", scope: "wallet" });
@@ -154,9 +155,21 @@ describe("pending task admission", () => {
 
     const deniedReplay = await post(created.app, draftTask("Check policy B"), auth(key, "queue-b"));
     expect(deniedReplay.status).toBe(429);
-    expect(deniedReplay.headers.get("idempotent-replayed")).toBe("true");
+    expect(deniedReplay.headers.get("idempotent-replayed")).toBeNull();
     expect(counts(dbPath)).toEqual({ tasks: 1, reservations: 1 });
     expect(model.calls).toBe(0);
+
+    setState(dbPath, view.id, "succeeded");
+    const different = await post(created.app, draftTask("Different body"), auth(key, "queue-b"));
+    await expectError(different, 422, "idempotency_key_reused");
+    const [firstRetry, secondRetry] = await Promise.all([
+      post(created.app, draftTask("Check policy B"), auth(key, "queue-b")),
+      post(created.app, draftTask("Check policy B"), auth(key, "queue-b")),
+    ]);
+    expect([firstRetry.status, secondRetry.status]).toEqual([202, 202]);
+    expect((await firstRetry.json() as { id: string }).id).toBe((await secondRetry.json() as { id: string }).id);
+    expect([firstRetry, secondRetry].filter(response => response.headers.get("idempotent-replayed") === "true")).toHaveLength(1);
+    expect(counts(dbPath)).toEqual({ tasks: 2, reservations: 2 });
   });
 
   it("keeps a global cap across wallets and ignores finished states", async () => {

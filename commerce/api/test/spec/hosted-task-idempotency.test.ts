@@ -173,7 +173,7 @@ describe("task idempotency", () => {
     expect(model.calls).toBe(2);
   });
 
-  it("stores a quota rejection without a second reservation", async () => {
+  it("rechecks a quota rejection without a second reservation", async () => {
     const { created, model, dbPath } = appWith({
       budget: { ...budget, dailyCeilingMicroUsd: 50_000 },
     });
@@ -193,7 +193,7 @@ describe("task idempotency", () => {
       auth(key, first.status === 429 ? "quota-a" : "quota-b"),
     );
     expect(replay.status).toBe(429);
-    expect(replay.headers.get("idempotent-replayed")).toBe("true");
+    expect(replay.headers.get("idempotent-replayed")).toBeNull();
     expect(counts(dbPath)).toEqual({ tasks: 1, reservations: 1, stored: 2 });
     await created.pumpTasks();
     expect(model.calls).toBe(1);

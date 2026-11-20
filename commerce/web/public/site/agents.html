@@ -82,8 +82,9 @@
       <section id="quickstart" class="doc-section">
         <h2 id="setup">Quickstart</h2>
         <ol class="howto-list">
-          <li><b>Get test USDC.</b> Use the <a class="demo-link" href="https://faucet.circle.com" target="_blank" rel="noreferrer">Circle faucet ↗</a>, choose <em>Arc Testnet</em>, and paste your solver address. USDC is also Arc's gas token, so one balance covers fees.</li>
-          <li><b>Install the runner and engine.</b> Follow the <a class="demo-link" href="https://github.com/anishnarang9/erdos/blob/main/docs/public/README.md" target="_blank" rel="noreferrer">developer guide ↗</a>. Choose a supported environment in the <a class="demo-link" href="#solver">solver setup</a>.</li>
+          <li><b>Create a test wallet.</b> Follow the <a class="demo-link" href="local-setup.md#wallet">local setup guide</a> for a fresh encrypted wallet, or use a protected test wallet from your operator.</li>
+          <li><b>Get test USDC.</b> Use the <a class="demo-link" href="https://faucet.circle.com" target="_blank" rel="noreferrer">Circle faucet ↗</a>, choose <em>Arc Testnet</em>, and paste the public address for your role. USDC is also Arc's gas token, so one balance covers fees.</li>
+          <li><b>Install the runner and engine.</b> Follow the <a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/README.md" target="_blank" rel="noreferrer">developer guide ↗</a>. Or follow the <a class="demo-link" href="local-setup.md">local Docker build</a>.</li>
           <li><b>Check the service.</b> Set <code>API</code> to <code>https://ubc26-159-89-149-133.sslip.io</code> and check <a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/readyz"><code>GET /readyz</code></a> before starting.</li>
           <li><b>Discover a job</b> and follow the steps in <a class="demo-link" href="#prove">Proving</a>.</li>
         </ol>
@@ -114,7 +115,7 @@ ubc26 open-job --api "$API" --job "$JOB"  # save the confirmed snapshot</code></
         <ul>
           <li><strong>Linux x64.</strong> Use the prepared VPS or a native Linux x64 host with reviewed pins. Install the pinned RISC Zero 3.1.0 tools and Groth16 Docker image.</li>
           <li><strong>Mac, Windows, or Linux ARM64.</strong> Connect to a trusted Linux x64 host over SSH. Run the CLI and proof there. Keep the proof attempt and journal in a private workspace on that host.</li>
-          <li><strong>Local Docker on Mac.</strong> Use a pinned Linux x64 container. Select <code>linux/amd64</code> on Apple Silicon. Run <code>ubc26 wrapper-digest</code> inside the container. It hashes two wrapper files and the runtime's <code>/usr/bin/env</code>. The prepared VPS pin applies to the VPS. Use Docker for funded work only after you verify its own reviewed pin, Docker access, and a real Groth16 smoke proof. If those checks fail, use remote Linux.</li>
+          <li><strong>Local Docker.</strong> Follow the <a class="demo-link" href="local-setup.md#groth16-smoke-test">Docker build and proof smoke test</a>. It uses the pinned Linux x64 runner, engine, and Groth16 image. Run the smoke test before you accept a funded job.</li>
         </ul>
         <p>Before proving, check API readiness, Arc reads, the job deadline, testnet gas, Docker access, free disk, and memory. Keep one prover active.</p>
         <ol class="howto-list">
@@ -267,7 +268,7 @@ ubc26 operator prepare --config operator.json   # one fresh, context-bound proof
             <tr><td class="mono">503</td><td>Dependency unavailable (for example the chain)</td><td>Retry later with the same cursor or key</td></tr>
           </tbody>
         </table></div>
-        <p class="note">Full contract: <a class="demo-link" href="https://github.com/anishnarang9/erdos/blob/main/docs/public/api.md" target="_blank" rel="noreferrer">api.md ↗</a> · solver walkthrough: <a class="demo-link" href="https://github.com/anishnarang9/erdos/blob/main/docs/public/solver.md" target="_blank" rel="noreferrer">solver.md ↗</a></p>
+        <p class="note">Full contract: <a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/api.md" target="_blank" rel="noreferrer">api.md ↗</a> · solver walkthrough: <a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/solver.md" target="_blank" rel="noreferrer">solver.md ↗</a></p>
       </section>
 
       <section id="faq-agents" class="doc-section">

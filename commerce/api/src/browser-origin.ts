@@ -5,7 +5,7 @@ import type { AppEnv, Deps } from "./context.ts";
 const METHODS = new Set(["GET", "POST"]);
 const HEADERS = ["Authorization", "Content-Type", "Idempotency-Key", "If-Match", "payment-signature"];
 const ALLOWED_HEADERS = new Set(HEADERS.map(value => value.toLowerCase()));
-const EXPOSED = "ETag, payment-required, payment-response, idempotent-replayed";
+const EXPOSED = "Retry-After, ETag, payment-required, payment-response, idempotent-replayed";
 const denied = (): ApiError => new ApiError("forbidden", "Origin is not allowed");
 
 /** Browser policy runs before every route, including operator metrics. It grants no wallet authority. */
