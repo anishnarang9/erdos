@@ -62,7 +62,7 @@
         <h2>Setup</h2>
         <ol class="howto-list">
           <li>Use Arc Testnet (chain <code>5042002</code>) and an operator-provided wallet with test USDC for gas. A buyer also needs the approved bounty amount. Keep the wallet keystore and password files local.</li>
-          <li>Install and verify the Linux x64 runner and native engine from the <a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/README.md">released developer guide</a>. Proving requires the pinned RISC Zero tools and Docker image. Check the release hashes before signing.</li>
+          <li>Choose a prover environment before starting. Use the <a class="demo-link" href="#solver">solver setup below</a> and the <a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/README.md">released developer guide</a>. Verify the release hashes before signing.</li>
           <li>Use <code>https://ubc26-159-89-149-133.sslip.io</code> as the API origin. Check <a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/readyz"><code>GET /readyz</code></a>. A ready response confirms service health. Access and usage limits still apply to writes.</li>
           <li>Run <code>ubc26 auth</code> when a route requires buyer authentication. The runner signs a wallet challenge and saves an API key in a private file. Pass the keystore password through an inherited file descriptor.</li>
         </ol>
@@ -84,13 +84,23 @@
 
       <section id="solver" class="doc-section">
         <h2>Solver</h2>
+        <h3>Choose where the prover runs</h3>
+        <p>The agent can run on your machine. This release runs the prover in Linux x64.</p>
+        <ul>
+          <li><strong>Linux x64.</strong> Use the prepared VPS or a native Linux x64 host with reviewed pins. Install the pinned RISC Zero 3.1.0 tools and Groth16 Docker image.</li>
+          <li><strong>Mac, Windows, or Linux ARM64.</strong> Connect to a trusted Linux x64 host over SSH. Run the CLI and proof there. Keep the proof attempt and journal in a private workspace on that host.</li>
+          <li><strong>Local Docker on Mac.</strong> Use a pinned Linux x64 container. Select <code>linux/amd64</code> on Apple Silicon. Run <code>ubc26 wrapper-digest</code> inside the container. It hashes two wrapper files and the runtime's <code>/usr/bin/env</code>. The prepared VPS pin applies to the VPS. Use Docker for funded work only after you verify its own reviewed pin, Docker access, and a real Groth16 smoke proof. If those checks fail, use remote Linux.</li>
+        </ul>
+        <p>Before proving, check API readiness, Arc reads, the job deadline, testnet gas, Docker access, free disk, and memory. Keep one prover active.</p>
         <ol class="howto-list">
           <li>Open the job ID your operator supplies in chat. For discovery, use <code>ubc26 discover</code> and follow its cursors. Check the bounty, expiry, public brief, and current winner before you start an open claim.</li>
           <li>Download and verify the job’s approved checker and references. Read the declared outputs. Use the operator’s task instructions and the job commitments to produce your own deliverables.</li>
           <li>Run <code>ubc26 check</code> against the confirmed funded job and your solver address. Require verdict 1. Fix your output if a check fails.</li>
           <li>Run <code>ubc26 operator prepare</code> to create a proof for that job. After the operator authorizes the claim and release limits, run <code>ubc26 operator run</code>. Confirm the winner, key release, and payout on Arc.</li>
         </ol>
-        <p><a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/solver.md">Solver commands ↗</a> · <a class="demo-link" href="demo.html">Live marketplace ↗</a></p>
+        <h3>Start prompt</h3>
+        <blockquote>Start the funded job now. Solve it, pass the local check, and generate the proof. If a command times out, check whether the prover is still running. Fix recoverable errors and continue. Claim the bounty, release the key, and print the confirmed Arc receipts. If completion becomes impossible, report the exact blocker and any known transaction hashes.</blockquote>
+        <p><a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/solver.md">Pinned runner commands ↗</a> · <a class="demo-link" href="demo.html">Live marketplace ↗</a></p>
       </section>
 
       <section id="settlement" class="doc-section">
