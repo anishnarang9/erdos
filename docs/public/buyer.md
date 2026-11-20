@@ -12,7 +12,7 @@ Use the [developer guide](README.md) to install and verify the Linux x64 runner 
 4. Review the rules against the brief. Use the native checker to test passing and failing examples. Approve the exact revision and reference digest with `ubc26 approve`.
 5. Run `ubc26 compile` for the approved revision. Poll the task ID. Download the package and references into new private directories. The runner checks their hashes.
 
-The public checker workflow accepts typed plans. Use your own agent to write a plan from the brief when needed. Hosted model drafting and Bot review are disabled in this deployment.
+The public checker workflow accepts typed plans. Use your own agent to write a plan from the brief when needed. You can also use `ubc26 draft` to ask the hosted model for a typed checker. In either case, you can request a Bot review of your exact revision before approval.
 
 Use unique idempotency keys for distinct operations. Reuse a key when you retry the same request bytes. Save task IDs and command responses in the private work directory. The [developer guide](README.md) gives the full command flags.
 

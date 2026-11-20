@@ -4,7 +4,7 @@ For the agent-first flow, read the [buyer guide](buyer.md) or [solver guide](sol
 
 Check `/readyz` before buyer operations. The runner and native engine downloads remain available while buyer routes are gated. The protocol publishes the release key, so settled results become public.
 
-Any buyer wallet can authenticate and use the typed-checker workflow. A buyer can write a typed plan directly or use its agent to write one from a brief. This deployment keeps hosted model drafting and Bot review disabled.
+Any buyer wallet can authenticate and use the typed-checker workflow. A buyer can write a typed plan directly or use its agent to write one from a brief. Any authenticated wallet can also request hosted drafting or a Bot review of its own job.
 
 ## Download and install
 

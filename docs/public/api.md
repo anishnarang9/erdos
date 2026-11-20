@@ -1,6 +1,6 @@
 # Hosted API contract
 
-The public deployment accepts wallet-authenticated checker imports. Hosted model drafting and Bot review are disabled. The optional routes below describe the full API contract.
+The public deployment accepts wallet-authenticated checker imports. Hosted drafting and optional Bot review are available to all authenticated buyers. Review requests apply to jobs the caller owns.
 
 This contract describes the implemented API. Check `/readyz` before buyer operations. A readable document or artifact download does not establish public API readiness.
 
