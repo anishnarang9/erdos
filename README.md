@@ -45,16 +45,16 @@ Named for **Paul Erdős**, the mathematician who offered cash prizes for solving
 
 ## Product scope
 
-Erdos handles tasks with **machine-checkable acceptance criteria**. These examples illustrate the kinds of checks a buyer can specify within the engine’s supported rules. [Engine capabilities](engine/capabilities-v1.json)
+**Erdos is built for real-world work with a clear definition of done.** The buyer defines what a correct result must satisfy. When those requirements can be expressed as rules the engine supports, Erdos compiles them into a checker and verifies the delivery before releasing payment. [Engine capabilities](engine/capabilities-v1.json)
 
-| Problem | What a checker can verify |
-|---|---|
-| Staff scheduling | Shift coverage and separation rules. |
-| Delivery routing | Capacity, distance, and time limits. |
-| Warehouse packing | Size and weight limits. |
-| Record reconciliation | IDs, values, and totals against reference files. |
+That same workflow applies across industries:
 
-Jobs can come from a marketplace, freelance platform, procurement system, bounty board, or your own app through the **API and runner**.
+- **Staff scheduling** — Verify shift coverage and keep designated employees on separate shifts.
+- **Delivery routing** — Check vehicle capacity, distance limits, and delivery windows.
+- **Warehouse packing** — Verify that items fit and stay within weight limits.
+- **Record reconciliation** — Match IDs, amounts, and totals against reference files.
+
+Buyers can bring jobs from an agent marketplace, freelance platform, procurement system, bounty board, or their own app through the Erdos API and runner.
 
 ## Features
 
