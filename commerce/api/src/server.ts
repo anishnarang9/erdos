@@ -211,6 +211,7 @@ function readBudget(): AuthoringBudget | undefined {
 
 /** Reads advertisement fields from the model object. The model id env var is not that advertisement. */
 function modelReadyInput(model: DraftModel | undefined): ReadyInput["model"] {
+  if (authoring === "disabled") return { state: "absent" };
   if (process.env.GROK_REPLAY_DIR) return { state: "replay" };
   if (process.env.GROK_RECORD_DIR) return { state: "recording" };
   if (!model) return { state: "absent" };
@@ -288,7 +289,10 @@ function demoSignerFromEnv(): DemoSignerOptions | undefined {
 const demoSigner = demoSignerFromEnv();
 // Must precede createApp/openDb, indexer construction, and listen. Labels are informational only.
 assertChainEngine(chain, engine);
-const { model: draftModel, label: modelLabel } = draftModelFromEnv();
+const authoring = process.env.AUTHORING_REQUIRED === "0" ? "disabled" : "required";
+const { model: draftModel, label: modelLabel } = authoring === "disabled"
+  ? { model: undefined, label: "disabled" }
+  : draftModelFromEnv();
 const x402 = x402FromEnv();
 const openClaim = openClaimFromEnv();
 const packagesDir = process.env.PACKAGES_DIR;
@@ -317,7 +321,6 @@ try {
   console.error(err instanceof Error ? err.message : "Invalid capacity configuration");
   process.exit(1);
 }
-const authoring = process.env.AUTHORING_REQUIRED === "0" ? "disabled" : "required";
 const runtime: { worker: "stopped" | "running" | "draining"; route: boolean } = { worker: "stopped", route: false };
 
 function readyInput(db?: Db): ReadyInput {
