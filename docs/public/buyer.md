@@ -2,7 +2,7 @@
 
 Check `/readyz` before buyer operations. Use this guide only when it reports ready and the release pins match the served files.
 
-Use the [developer guide](README.md) to install and verify the Linux x64 runner and native engine. Use the published [API contract](api.md) for request shapes. Keep the wallet keystore, password, API key, and work directory private. Results become public after key release.
+Use the [local Docker setup](https://ubc-26-gamma.vercel.app/site/local-setup.md) to create a fresh test wallet and verify the runner and engine. For a native installation, use the [developer guide](README.md). Use the published [API contract](api.md) for request shapes. Keep the wallet keystore, password, API key, and work directory private. Results become public after key release.
 
 ## Create one job
 
@@ -20,7 +20,7 @@ Use unique idempotency keys for distinct operations. Reuse a key when you retry 
 
 Request `funding-preview` for your address, approved revision, exact USDC budget, and absolute Arc expiry. Inspect the five funding steps and chain time. Configure the installed runner with the verified engine, Arc manifest, package, references, and separate buyer and solver addresses. Run `operator preview`. Check the deployment, gas caps, expiry, keystore paths, and disabled signing flag. Authorize only the reviewed configuration. Run `operator fund` with your buyer keystore. It creates, budgets, approves, funds, and registers the job, then links confirmed receipts to the API. Preserve its private journal and `funding-result.json`.
 
-On the prepared VPS, use `https://rpc.testnet.arc.io` for Arc Testnet. Obtain the current chain timestamp before choosing an absolute expiry. The following example leaves 12 hours. Set the variables from your own confirmed job and approved revision. `maxBudget` in the draft and `budget` here are USDC base units; `10000` is 0.01 USDC.
+Use `https://rpc.testnet.arc.io` for Arc Testnet. Obtain the current chain timestamp before choosing an absolute expiry. The following example leaves 12 hours. Set the variables from your own confirmed job and approved revision. `maxBudget` in the draft and `budget` here are USDC base units; `10000` is 0.01 USDC.
 
 ```sh
 export RPC=https://rpc.testnet.arc.io
@@ -38,20 +38,7 @@ ubc26 funding-preview --api "$API" --key-file "$KEY_FILE" --job "$JOB" \
   --input "$WORK/funding.json" --idempotency "$TERMS_KEY" > "$WORK/terms.json"
 ```
 
-Download the published `open-claim-arc-testnet.json` into the private work directory as `manifest.json`. Use the verified runner source `0b35d3a5e327144045d04fe45084f6258bb23f3c` and installed release manifest SHA-256 `81ca7d96733378193ead6d443b4173f6b2f0553f6728f5f8bef77c0561b0fe03`. The engine SHA-256 is `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`. The reviewed wrapper digest for that installed runner is `289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d`; `ubc26 wrapper-digest` must match it. On this VPS, save this private `engine.json`:
-
-```json
-{
-  "mode": "native",
-  "executable": "/opt/ubc26-solver/engines/0b35d3a5e327144045d04fe45084f6258bb23f3c/ubc26-engine-linux-x64",
-  "executableSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
-  "wrapperSha256": "289ec362c6c0084e3f932e4512a77037884999ce6bbe8b4a66a3347d19bc356d",
-  "environment": {
-    "PATH": "/opt/ubc26-prover/bin:/usr/local/bin:/usr/bin:/bin",
-    "RISC0_SERVER_PATH": "/opt/ubc26-prover/bin/r0vm"
-  }
-}
-```
+Download the published [deployment manifest](open-claim-arc-testnet.json) as `$WORK/manifest.json`. Save the `engine.json` from [local setup](https://ubc-26-gamma.vercel.app/site/local-setup.md#use-the-container-with-the-role-guides). Verify the wrapper digest inside the environment you will use. If you run on another host, use that host's independently reviewed paths and digest. For an open bounty, supply a distinct test address for `SOLVER`. That address is a local configuration field and does not restrict who can claim the bounty.
 
 The engine environment contains no wallet or API secret. Create an empty mode-0700 `deliverables` directory for configuration; the buyer does not create the solver's answer. These are the exact configuration and preview flags:
 
@@ -62,8 +49,8 @@ ubc26 configure --api "$API" --job "$JOB" --revision "$REVISION_HASH" \
   --manifest "$WORK/manifest.json" --buyer "$BUYER" --solver "$SOLVER" \
   --work-dir "$WORK" --package-dir "$WORK/package" --reference "$WORK/reference" \
   --deliverables "$WORK/deliverables" \
-  --source-commit 0b35d3a5e327144045d04fe45084f6258bb23f3c \
-  --release-manifest-sha256 81ca7d96733378193ead6d443b4173f6b2f0553f6728f5f8bef77c0561b0fe03 \
+  --source-commit e395faf697ae77e30fe93488af67a6e60ae0566b \
+  --release-manifest-sha256 8d29dbbd1bd19c63c0dd63ee8aeef4d3c3c4d44819b2fd4d09c5857f6adfacfc \
   --out "$WORK/operator.json"
 ubc26 operator preview --config "$WORK/operator.json"
 ```

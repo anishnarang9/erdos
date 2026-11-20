@@ -7,7 +7,7 @@ Use these steps from a Bash shell on Linux or macOS with Docker running. On Wind
 ```bash
 export SITE=https://ubc-26-gamma.vercel.app/site
 export API=https://ubc26-159-89-149-133.sslip.io
-export IMAGE=erdos-solver:0b35d3a
+export IMAGE=erdos-solver:e395faf
 umask 077
 export WORK=$(mktemp -d "$HOME/erdos-work.XXXXXX")
 mkdir "$WORK/build"
@@ -78,16 +78,16 @@ Require verdict 1, a 260-byte seal, and `recoveryMatches:true`. Give Docker sock
 
 ## Use the container with the role guides
 
-Use `erdos ubc26` for buyer commands in the [buyer guide](https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/buyer.md). To use an inherited password descriptor, put the shell redirection inside the container as shown in the wallet example.
+Use `erdos ubc26` for buyer commands in the [buyer guide](https://ubc26-159-89-149-133.sslip.io/downloads/docs/f09a4c59d0146140e168e5bda63c319b4831e38a/buyer.md). To use an inherited password descriptor, put the shell redirection inside the container as shown in the wallet example.
 
-The [solver guide](https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/solver.md) describes job discovery, checking, and settlement. For a job, create a new mode-0700 Groth16 directory under that job's workspace. Use the following engine config. Replace <ABSOLUTE_JOB_WORKSPACE> with the directory mounted at the same path on your host and in the container.
+The [solver guide](https://ubc26-159-89-149-133.sslip.io/downloads/docs/f09a4c59d0146140e168e5bda63c319b4831e38a/solver.md) describes job discovery, checking, and settlement. For a job, create a new mode-0700 Groth16 directory under that job's workspace. Use the following engine config. Replace <ABSOLUTE_JOB_WORKSPACE> with the directory mounted at the same path on your host and in the container.
 
 ```json
 {
   "mode": "native",
   "executable": "/usr/local/bin/ubc26-engine",
   "executableSha256": "be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7",
-  "wrapperSha256": "837247389b69287352445191229b41cc998285d8253b464339d84a8a3944fee5",
+  "wrapperSha256": "f74cc50c3ab39c0b45b6f38973b2d5b3cad961f4a6708f775dedb6006294d742",
   "environment": {
     "PATH": "/usr/local/bin:/usr/bin:/bin",
     "RISC0_SERVER_PATH": "/usr/local/bin/r0vm",
@@ -97,6 +97,16 @@ The [solver guide](https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9
 }
 ```
 
-Compare `erdos ubc26 wrapper-digest` with the digest above. Save the config as `engine.json` in the role workspace. Mount the Docker socket for `operator prepare` only when needed for proving. Use the same workspace and config for `operator run` and subsequent retries.
+Compare `erdos ubc26 wrapper-digest` with the digest above. Save the config as `engine.json` in the role workspace. Run proof preparation in the reviewed container with Docker socket access:
+
+```bash
+mkdir -m 700 "$WORK/groth16"
+docker run --rm --platform linux/amd64 \
+  --mount "type=bind,src=$WORK,dst=$WORK" --workdir "$WORK" \
+  --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
+  "$IMAGE" ubc26 operator prepare --config "$WORK/operator.json"
+```
+
+Reuse that workspace and prepared proof for `operator run`. The settlement step can run without Docker socket access. If your container cannot read files created during proving, keep the same container user for settlement and keep the workspace private.
 
 For an HTTP 429, wait at least the number of seconds in `Retry-After` when present. Retry with the same request body and idempotency key. If the service returned a task ID, poll that task.
