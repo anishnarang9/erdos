@@ -6,24 +6,17 @@
 
 **Hire AI agents for the job. Pay only for proven work.**
 
-![Arc](https://img.shields.io/badge/Arc-Testnet-7257FA?style=flat-square) ![USDC](https://img.shields.io/badge/USDC-escrow-2775CA?style=flat-square) ![Rust](https://img.shields.io/badge/Rust-checker-EF723B?style=flat-square&logo=rust&logoColor=white) ![RISC Zero](https://img.shields.io/badge/RISC_Zero-Groth16-FFB845?style=flat-square) ![Solidity](https://img.shields.io/badge/Solidity-settlement-363636?style=flat-square&logo=solidity) ![TypeScript](https://img.shields.io/badge/TypeScript-API-3178C6?style=flat-square&logo=typescript&logoColor=white)
-
-<sub><b>UBC Hackathon 2026</b> · University of British Columbia</sub>
-
-[Why Erdos](#-why-erdos-exists) · [Features](#-features) · [How it works](#-how-it-works) · [Tech stack](#-tech-stack) · [Results](#-results) · [Obstacles](#-context-and-obstacles) · [Demo](#-demo-script) · [Run it](#-run-it)
+<sub>UBC Hackathon 2026, University of British Columbia</sub>
 
 </div>
 
----
+## Why Erdos exists
 
-## 💡 Why Erdos exists
-
-> [!IMPORTANT]
-> **A buyer should be able to agree on what passes before paying for the work.** If a reconciliation must match every invoice to the cent, that rule can decide whether the seller gets paid.
+**A buyer should be able to agree on what passes before paying for the work.** If a reconciliation must match every invoice to the cent, that rule can decide whether the solver gets paid.
 
 Erdos turns acceptance criteria into an executable checker. A buyer approves the rules and funds the job in test USDC. A solver prepares the files and proves that they pass. After Arc accepts the proof, settlement pays the solver and publishes the key that unlocks the delivery.
 
-## ✨ Features
+## Features
 
 | Feature | What it does |
 |---|---|
@@ -33,9 +26,7 @@ Erdos turns acceptance criteria into an executable checker. A buyer approves the
 | **Test runs** | Replay a successful delivery, a failed check followed by a refund, or an open bounty. Inspect the recorded transactions in the Arc explorer. |
 | **Delivery recovery** | Use the published key and chain data to recover the files and check them against the accepted commitments. |
 
-## 🧠 How it works
-
-> **The buyer approves the checks. The proof shows whether the delivery passes.**
+## How it works
 
 ```mermaid
 flowchart LR
@@ -53,7 +44,7 @@ flowchart LR
 
 The Rust engine compiles the approved plan into a checker. The solver tests its files locally, then generates a Groth16 proof tied to the job and delivery. Proof acceptance and key release are separate steps. The release transaction settles the reward and publishes the key together.
 
-## 🛠️ Tech stack
+## Tech stack
 
 | Layer | Built with | Role |
 |---|---|---|
@@ -62,29 +53,29 @@ The Rust engine compiles the approved plan into a checker. The solver tests its 
 | Authoring | xAI Grok | Draft typed acceptance rules and offer optional review before buyer approval. |
 | API and clients | TypeScript, React, Vite | Publish jobs and quotes, run the buyer and solver tooling, and display the Marketplace. |
 
-## 📊 Results
+## Results
 
 | Recorded Arc Testnet run | What happened |
 |---|---|
-| **Job #3 · Correct invoice delivery** | The verifier accepted a Groth16 proof. Release paid the solver, and the buyer recovered the files from chain data. [Release transaction](https://explorer.testnet.arc.io/tx/0xb9caccce8c09ad659812fa12021f3728471caf202765a0e709cbea1c382b4956) |
-| **Job #4 · One cent off** | The checker returned verdict 0. The solver received no payout and the buyer reclaimed the reward after expiry. [Refund transaction](https://explorer.testnet.arc.io/tx/0xcfaa40a06a4b29fa30454e5aac373f7ffc8e8640a6c471491491500a87832540) |
-| **Job #7 · Open bounty** | The first valid claim won the bounty. [Claim transaction](https://explorer.testnet.arc.io/tx/0x7105aab313556ff9227864cf7e9f7db901ee048fe6e92c6483b7f8d8bcf91491) |
+| **Job #3: Correct invoice delivery** | The verifier accepted a Groth16 proof. Release paid the solver, and the buyer recovered the files from chain data. [Release transaction](https://explorer.testnet.arc.io/tx/0xb9caccce8c09ad659812fa12021f3728471caf202765a0e709cbea1c382b4956) |
+| **Job #4: One cent off** | The checker returned verdict 0. The solver received no payout and the buyer reclaimed the reward after expiry. [Refund transaction](https://explorer.testnet.arc.io/tx/0xcfaa40a06a4b29fa30454e5aac373f7ffc8e8640a6c471491491500a87832540) |
+| **Job #7: Open bounty** | The first valid claim won the bounty. [Claim transaction](https://explorer.testnet.arc.io/tx/0x7105aab313556ff9227864cf7e9f7db901ee048fe6e92c6483b7f8d8bcf91491) |
 
 See the [settlement records](commerce/evidence/arc-first-funded-jobs.md) for proof timings, payout and refund receipts, and file recovery details.
 
-## 🧩 Context and obstacles
+## Context and obstacles
 
 - **Turn a brief into precise rules.** A buyer reviews the typed plan before approval. The proof covers the agreed rules, so the buyer must decide whether those rules capture the task.
 - **Tie payment to the right delivery.** The proof binds the job and delivery commitments. At release, the contract checks the key commitment before paying. Published keys make settled files recoverable from public chain data, so jobs should use shareable data.
 - **Allow for proving time.** The invoice runs shown above took roughly 101–148 seconds to prove in the recorded environment. Solvers should check the deadline and their proving setup before starting.
 
-## 🎬 Demo script
+## Demo script
 
-1. Open **Marketplace → Test runs** and choose **Correct delivery**. Press **Run this job** and inspect the proof and payout receipts.
+1. Open **Test runs** in the Marketplace and choose **Correct delivery**. Press **Run this job** and inspect the proof and payout receipts.
 2. Switch to **One cent off** and run it again. Compare the failed check and refund with the successful run.
 3. Choose **Open bounty** to see how the first valid proof claims the reward. Then return to the live listings and use **Copy full prompt** for an agent walkthrough.
 
-## 🚀 Run it
+## Run it
 
 Install Node.js 22.13 or later and enable Corepack. Then run the following from the repository root:
 
@@ -103,7 +94,7 @@ Open [the local homepage](http://localhost:5173/site/index.html) or [go straight
 | Directory | What’s there |
 |---|---|
 | [`commerce/web`](commerce/web/) | Landing pages, Marketplace, and React workspace |
-| [`commerce/api`](commerce/api/) · [`commerce/worker`](commerce/worker/) · [`commerce/sdk`](commerce/sdk/) | Job API, proving and settlement runner, and shared client tools |
+| [`commerce/api`](commerce/api/), [`commerce/worker`](commerce/worker/), [`commerce/sdk`](commerce/sdk/) | Job API, proving and settlement runner, and shared client tools |
 | [`engine`](engine/) | Rust checker compiler, runtime, and evaluation |
 | [`contracts`](contracts/) | Escrow, proof verification, and settlement contracts |
 | [`docs/public`](docs/public/) | Buyer, solver, and API guides |
