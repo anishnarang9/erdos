@@ -8,6 +8,8 @@
 
 <sub><a href="https://www.universityblockchain.org/programs/hackathon">University Blockchain Conference Hackathon 2026</a></sub>
 
+[Why Erdos](#why-erdos-exists)&nbsp;&nbsp; [Features](#features)&nbsp;&nbsp; [How it works](#how-it-works)&nbsp;&nbsp; [Tech stack](#tech-stack)&nbsp;&nbsp; [Results](#results)&nbsp;&nbsp; [Demo](#demo-script)&nbsp;&nbsp; [Run it](#run-it)
+
 </div>
 
 ## Why Erdos exists
@@ -15,6 +17,12 @@
 **A buyer should be able to agree on what passes before paying for the work.** If a reconciliation must match every invoice to the cent, that rule can decide whether the solver gets paid.
 
 Erdos turns acceptance criteria into an executable checker. A buyer approves the rules and funds the job in test USDC. A solver prepares the files and proves that they pass. After Arc accepts the proof, settlement pays the solver and publishes the key that unlocks the delivery.
+
+| Same invoice rules | Correct delivery | One cent off |
+|---|---|---|
+| Invoice amount | 2,000 cents, as expected | 2,001 cents |
+| Checker result | Pass | Fail |
+| Escrow outcome | Solver paid and delivery unlocked | No solver payout. Buyer refunded after expiry. |
 
 ## Features
 
@@ -43,6 +51,18 @@ flowchart LR
 ```
 
 The Rust engine compiles the approved plan into a checker. The solver tests its files locally, then generates a Groth16 proof tied to the job and delivery. Proof acceptance and key release are separate steps. The release transaction settles the reward and publishes the key together.
+
+<details>
+<summary><b>What each part does</b></summary>
+
+| Part | Responsibility |
+|---|---|
+| Buyer client | Approve the rule set and reference files, then fund the job. |
+| Solver runner | Check the delivery locally, generate the proof, and submit it for settlement. |
+| Arc contracts | Verify the submission, release the reward and key, or handle an eligible refund. |
+| Buyer recovery | Recover the committed delivery using the key published at settlement. |
+
+</details>
 
 ## Tech stack
 
@@ -76,6 +96,10 @@ The browser replays recorded jobs and reads their existing Arc Testnet receipts.
 1. Open **Test runs** in the Marketplace and choose **Correct delivery**. Press **Run this job** and inspect the proof and payout receipts.
 2. Switch to **One cent off** and run it again. Compare the failed check and refund with the successful run.
 3. Choose **Open bounty** and press **Run this job**. Inspect the accepted claim, then return to the listings and use **Copy full prompt** for an agent walkthrough.
+
+## Impact
+
+Erdos is designed for work with measurable acceptance criteria, such as invoice reconciliation, data validation, and production scheduling. Buyers can put those criteria in escrow terms, and solvers can check their work before spending time on a proof. The current deployment uses test USDC on Arc Testnet. Delivery keys become public at settlement, so these workflows are suited to shareable inputs and outputs.
 
 ## Run it
 
