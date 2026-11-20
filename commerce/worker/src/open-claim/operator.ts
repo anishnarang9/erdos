@@ -11,6 +11,7 @@ import { readOperatorJson, privateDirectory, requireSprint, sprintAddress, sprin
 import { createSprintEngineRunner } from "../sprint-runner.ts";
 import { readFilesFrom } from "../run.ts";
 import { createArcOpenClaimPort } from "./arc-port.ts";
+import { arcPublicReadTransport } from "./arc-public-rpc.ts";
 import { parseOpenClaimManifest, verifyOpenClaimCreation } from "./manifest.ts";
 import { runOpenClaim } from "./run.ts";
 import { attemptStatus } from "./attempt-status.ts";
@@ -147,7 +148,7 @@ export async function openClaimOperator(args: string[], credentials?: { buyerTok
   const manifest = parseOpenClaimManifest(readOperatorJson(resolve(c.manifest)), { allowLocal: local });
   requireSprint((manifest.network === "local-arc") === local);
   privateDirectory(c.directory); privateDirectory(c.journalRoot);
-  const pub = createPublicClient({ cacheTime: 0, transport: http(url.href, { retryCount: 2, retryDelay: 1000 }) });
+  const pub = createPublicClient({ cacheTime: 0, transport: arcPublicReadTransport(url.href) });
   const raw = createPublicClient({ transport: http(url.href, { retryCount: 0 }) });
   const rawSend: LocalRawSend = (request, options) => raw.request({ method: request.method, params: [request.params[0]] }, options);
   const signingPublic = { ...pub, getTransaction: async (args: { hash: Hex }) => {

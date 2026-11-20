@@ -1,8 +1,9 @@
-import { createPublicClient, getAddress, http, isAddressEqual, parseAbiItem, zeroAddress, type Address, type Hex, type PublicClient } from "viem";
+import { createPublicClient, getAddress, isAddressEqual, parseAbiItem, zeroAddress, type Address, type Hex, type PublicClient } from "viem";
 import { hostedClient } from "@ubc26/sdk";
 import { createSprintEngineRunner } from "../sprint-runner.ts";
 import { readOperatorJson } from "../sprint-authorization.ts";
 import { createArcOpenClaimPort } from "./arc-port.ts";
+import { arcPublicReadTransport } from "./arc-public-rpc.ts";
 import { parseOpenClaimManifest, verifyOpenClaimCreation, type ParsedOpenClaimManifest } from "./manifest.ts";
 import { recoverOpenClaimFromChain } from "./recovery.ts";
 import type { OpenClaimFundedJob } from "./types.ts";
@@ -78,7 +79,7 @@ export async function recoverBuyerOpenClaim(input: {
 }) {
   try {
     const manifest = parseOpenClaimManifest(readOperatorJson(input.manifestPath));
-    const pub = input.publicClient ?? createPublicClient({ cacheTime: 0, transport: http(input.rpcUrl, { retryCount: 2, retryDelay: 1000 }) });
+    const pub = input.publicClient ?? createPublicClient({ cacheTime: 0, transport: arcPublicReadTransport(input.rpcUrl) });
     const view = input.publicJob ?? await hostedClient({ baseUrl: input.apiUrl }).openJob(input.apiJobId);
     must(view !== null && typeof view === "object" && !Array.isArray(view));
     const publicView = view as Record<string, unknown>;

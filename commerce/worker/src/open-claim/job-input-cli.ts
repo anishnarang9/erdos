@@ -2,11 +2,12 @@
 // Read-only. The output has no release key and cannot send a transaction.
 import { openSync, readFileSync, writeFileSync, closeSync, fsyncSync } from "node:fs";
 import { dirname } from "node:path";
-import { bytesToHex, createPublicClient, getAddress, http, isAddressEqual,
+import { bytesToHex, createPublicClient, getAddress, isAddressEqual,
   zeroAddress, type Address, type Hex } from "viem";
 import { encodeContext } from "@ubc26/sdk";
 import { checkArtifactAncestors } from "../run.ts";
 import { createArcOpenClaimPort } from "./arc-port.ts";
+import { arcPublicReadTransport } from "./arc-public-rpc.ts";
 import { parseOpenClaimManifest, verifyOpenClaimCreation } from "./manifest.ts";
 
 
@@ -37,12 +38,13 @@ export async function prepareOpenClaimJobInput(args: string[]) {
   if ([witness.core, witness.adapter, witness.verifier, witness.usdc, zeroAddress].some(a => isAddressEqual(a, solver))) {
     throw new Error("solver must be a distinct payout address");
   }
-  const publicClient = createPublicClient({ transport: http(url.href) });
+  const publicClient = createPublicClient({ transport: arcPublicReadTransport(url.href) });
   await verifyOpenClaimCreation(publicClient, manifest);
   const port = createArcOpenClaimPort({ publicClient, witness,
     signer: { account: solver, chainId: 5042002, noKeyRpcSimulation: true },
     coreDeploymentBlock: manifest.coreDeploymentBlock,
     adapterDeploymentBlock: manifest.adapterDeploymentBlock,
+    roleLogIntervalMs: local ? 0 : 2000,
     send: async () => { throw new Error("read-only job input cannot broadcast"); },
   });
   await port.verifyDeployment(jobId);
