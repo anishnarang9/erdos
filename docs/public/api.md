@@ -154,7 +154,7 @@ The local runner downloads and checks packages/references, evaluates supplied fi
 
 ## Errors and client behavior
 
-Common classes include 400/422 validation failures, 401 invalid credentials, 404 owner-isolated records, 409 revision/state conflicts, 429 admission limits and 503 unavailable dependencies. Check `error.code` rather than matching free-form text. Responses omit raw provider errors, credentials and private filesystem paths.
+Common classes include 400/422 validation failures, 401 invalid credentials, 404 owner-isolated records, 409 revision/state conflicts, 429 admission limits and 503 unavailable dependencies. Check `error.code` rather than matching free-form text. Responses omit raw provider errors, credentials and private filesystem paths. For 429, use the retry delay when the response includes `Retry-After`. Repeat the same request bytes and key after the delay. The API can admit an exact retry once capacity returns.
 
 Public browser requests require an allowed exact HTTPS origin. Preflight supports GET/POST and the documented auth, JSON, idempotency, revision and payment headers. No cookie authority is used. Command-line clients can omit Origin.
 

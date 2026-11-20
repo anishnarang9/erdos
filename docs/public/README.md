@@ -8,11 +8,12 @@ Any buyer wallet can authenticate and use the typed-checker workflow. A buyer ca
 
 ## Download and install
 
-Use Node.js 24 or later on native Linux x64. The client archive contains its runtime dependencies. The engine also needs the shared libraries listed in its metadata. Local proving requires the pinned RISC Zero 3.1.0 tools and Groth16 Docker backend. The engine metadata identifies those separate dependencies.
+Use the [local Docker setup](https://ubc-26-gamma.vercel.app/site/local-setup.md) for a verified image and a fresh test wallet. For a native installation, use Node.js 24 or later on Linux x64. The client archive contains its runtime dependencies. The engine also needs the shared libraries listed in its metadata. Local proving requires the pinned RISC Zero 3.1.0 tools and Groth16 Docker backend. The engine metadata identifies those separate dependencies.
 
 ```sh
 export UBC26_API=https://ubc26-159-89-149-133.sslip.io
-export UBC26_RELEASE=0b35d3a5e327144045d04fe45084f6258bb23f3c
+export UBC26_RELEASE=e395faf697ae77e30fe93488af67a6e60ae0566b
+export UBC26_ENGINE_RELEASE=0b35d3a5e327144045d04fe45084f6258bb23f3c
 umask 077
 mkdir -p client engine
 curl --fail --proto '=https' "$UBC26_API/downloads/runner/$UBC26_RELEASE/ubc26-runner-0.2.0.tgz" -o client/ubc26-runner-0.2.0.tgz
@@ -23,15 +24,15 @@ curl --fail --proto '=https' "$UBC26_API/downloads/runner/$UBC26_RELEASE/ubc26-r
 npm install --offline --ignore-scripts --no-audit --no-fund --prefix "$HOME/ubc26-client" "$PWD/client/ubc26-runner-0.2.0.tgz"
 export UBC26_CLI="$HOME/ubc26-client/node_modules/.bin/ubc26"
 "$UBC26_CLI" help
-curl --fail --proto '=https' "$UBC26_API/downloads/engine/$UBC26_RELEASE/ubc26-engine-linux-x64" -o engine/ubc26-engine
-curl --fail --proto '=https' "$UBC26_API/downloads/engine/$UBC26_RELEASE/engine.json" -o engine/engine.json
+curl --fail --proto '=https' "$UBC26_API/downloads/engine/$UBC26_ENGINE_RELEASE/ubc26-engine-linux-x64" -o engine/ubc26-engine
+curl --fail --proto '=https' "$UBC26_API/downloads/engine/$UBC26_ENGINE_RELEASE/engine.json" -o engine/engine.json
 chmod 700 engine/ubc26-engine
 sha256sum engine/ubc26-engine
 ```
 
-The expected archive SHA-256 is `f63ef047135b9d02f5e70f960e77cb348fbffaaa8ae061df79d22b1def31f836`.
-The expected `release.json` SHA-256 is `563c12d650765271048f6b5480f95b2c427051f8ffeaed2b82afd027edcdbefb`.
-The expected `ubc26-release.json` SHA-256 is `81ca7d96733378193ead6d443b4173f6b2f0553f6728f5f8bef77c0561b0fe03`.
+The expected archive SHA-256 is `c327e703adc0a8dd797cffaa3f7fded98e7ea6dc72236a782ce5f42d73a03851`.
+The expected `release.json` SHA-256 is `d831aa9c7545236aabc15ec2b30bd4f021433d5e0f4e459ef00f76b52c64ba58`.
+The expected `ubc26-release.json` SHA-256 is `8d29dbbd1bd19c63c0dd63ee8aeef4d3c3c4d44819b2fd4d09c5857f6adfacfc`.
 The expected engine SHA-256 is `be5c06f9c62e0b0f934974593735d4b3a49d65d477ab3a2dcdb18e21a1c4e3d7`.
 Verify each independent pin before selecting these files for protected operations.
 
