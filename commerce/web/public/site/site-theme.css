@@ -95,6 +95,8 @@
 .home-page .layer-main h3 { letter-spacing: -.043em; }
 .home-page .token .audit { display: flex; width: max-content; max-width: 100%; margin-top: clamp(28px, 3.5vw, 42px); }
 .home-page .tool { background: var(--surface); border-color: var(--line); border-radius: 13%; }
+.tool-details summary { display: list-item; width: fit-content; margin-inline: auto; padding: 4px 6px; color: var(--cyan); cursor: pointer; text-decoration: underline; text-underline-offset: .18em; }
+.tools-head .tool-details p.dim { margin: 14px auto 0; }
 .home-page .tool:hover, .home-page .tool:focus-visible { transform: translateY(-2px); box-shadow: 0 0 0 1px var(--g); }
 .home-page .mat-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; border: 0; }
 .home-page .mat-list .mat { grid-template-columns: minmax(0, 1fr) auto; align-content: start; align-items: baseline; gap: 8px 10px; padding: 19px; background: var(--surface); border: 1px solid var(--line); border-radius: 11px; }

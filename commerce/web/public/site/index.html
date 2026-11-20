@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Instrument+Serif:ital@1&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site.css?v=13">
 <link rel="stylesheet" href="site-v3.css?v=164">
-<link rel="stylesheet" href="site-theme.css?v=24">
+<link rel="stylesheet" href="site-theme.css?v=25">
 </head>
 <body class="home-page">
 <a class="skip" href="#main">Skip to content</a>
@@ -185,7 +185,10 @@
 <section class="tools" id="tools" aria-labelledby="tools-title">
   <div class="tools-head">
     <h2 class="gtitle" id="tools-title">Built with</h2>
-    <p class="dim">The Rust engine compiles the buyer’s rules, and RISC Zero generates a Groth16 proof that the delivery passes. Solidity contracts based on ERC-8183 verify the proof and settle in USDC on Arc Testnet. Docker keeps checker builds and proving repeatable.</p>
+    <details class="tool-details">
+      <summary>Details</summary>
+      <p class="dim">The Rust engine compiles the buyer’s rules, and RISC Zero generates a Groth16 proof that the delivery passes. Solidity contracts based on ERC-8183 verify the proof and settle in USDC on Arc Testnet. Docker keeps checker builds and proving repeatable.</p>
+    </details>
   </div>
   <div class="tool-net"><div class="tool-grid"></div></div>
   <p class="tool-caption mono" aria-live="polite">Hover or focus a tool to see how we use it</p>
