@@ -63,3 +63,12 @@ test('a missing explicit engine does not report compared zero', () => {
   assert.equal(result.stdout.includes('/Users/'), false);
   assert.equal(result.stdout.includes('/tmp/ubc26-engine-missing'), false);
 });
+
+test('reports plan validation failures even when no candidate reaches evaluation', async () => {
+  const result = await runHost(['pier-drawers'], {UBC26_ENGINE: process.execPath});
+  assert.equal(result.exitCode, 1);
+  assert.equal(result.report.compared, 0);
+  assert.equal(result.report.failures, 1);
+  assert.equal(result.report.rows[0].id, 'pier-drawers');
+  assert.equal(result.report.rows[0].kind, 'plan_validation');
+});

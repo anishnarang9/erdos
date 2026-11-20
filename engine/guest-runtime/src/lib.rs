@@ -3,7 +3,7 @@ pub mod evidence_crypto;
 mod records;
 mod typecheck;
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{de::DeserializeOwned, Deserialize};
 use serde_json::Value;
@@ -147,7 +147,7 @@ struct Parameter {
     value: Value,
 }
 
-#[derive(Deserialize, PartialEq, Eq)]
+#[derive(Clone, Copy, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(rename_all = "lowercase")]
 pub enum Source {
     Deliverable,
@@ -218,6 +218,13 @@ pub enum Expression {
     },
     Not {
         value: Box<Expression>,
+    },
+    If {
+        condition: Box<Expression>,
+        #[serde(rename = "then")]
+        then_branch: Box<Expression>,
+        #[serde(rename = "else")]
+        else_branch: Box<Expression>,
     },
     Add(Binary),
     Sub(Binary),
@@ -387,6 +394,7 @@ fn check_internal(
         evidence: &evidence,
         parameters: &parameters,
         scopes: Vec::new(),
+        lookup_indexes: BTreeMap::new(),
         nodes: 0,
     };
     let mut passed = true;
@@ -550,6 +558,7 @@ struct Evaluator<'a> {
     evidence: &'a [ParsedFile],
     parameters: &'a [Scalar],
     scopes: Vec<&'a [Scalar]>,
+    lookup_indexes: records::LookupIndexes<'a>,
     nodes: usize,
 }
 
@@ -633,6 +642,18 @@ impl<'a> Evaluator<'a> {
                     return Err(CheckError::Rule);
                 };
                 Scalar::Bool(!value)
+            }
+            If {
+                condition,
+                then_branch,
+                else_branch,
+            } => {
+                let condition = self.evaluate(condition, depth + 1)?;
+                let Scalar::Bool(condition) = condition.as_scalar() else {
+                    return Err(CheckError::Rule);
+                };
+                let branch = if *condition { then_branch } else { else_branch };
+                return self.evaluate(branch, depth + 1);
             }
             Add(binary) | Sub(binary) | Mul(binary) | Lt(binary) | Lte(binary) | Gt(binary)
             | Gte(binary) | Eq(binary) | Ne(binary) | And(binary) | Or(binary) => {

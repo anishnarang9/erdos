@@ -62,6 +62,29 @@ fn rejects_duplicate_and_unknown_fields() {
 }
 
 #[test]
+fn an_if_checks_types_and_commits_to_both_branches() {
+    let mut input = plan();
+    input["rules"][0] = json!({
+        "op":"if",
+        "condition":{"op":"literal","type":"bool","value":true},
+        "then":input["rules"][0],
+        "else":{"op":"literal","type":"bool","value":false},
+    });
+    let original = validate(&input).unwrap();
+    assert!(ubc26_compiler::emit_rules(&original["structure"])
+        .unwrap()
+        .contains("E::If{"));
+    input["rules"][0]["else"]["value"] = json!(true);
+    let changed = validate(&input).unwrap();
+    assert_eq!(original["structureHash"], changed["structureHash"]);
+    assert_ne!(original["rulesHash"], changed["rulesHash"]);
+    input["rules"][0]["else"] = json!({"op":"literal","type":"i64","value":"0"});
+    assert_eq!(validate(&input).unwrap_err()["path"], "/rules/0/else");
+    input["rules"][0]["condition"] = json!({"op":"literal","type":"i64","value":"1"});
+    assert_eq!(validate(&input).unwrap_err()["path"], "/rules/0/condition");
+}
+
+#[test]
 fn rejects_unknown_field_overflow_and_non_boolean_rule() {
     let mut input = plan();
     input["rules"][0]["left"]["field"] = json!("missing");
@@ -154,4 +177,34 @@ fn approval_preview_preserves_names_and_reproduces_the_committed_plan() {
     let approved = validate(&first["preview"]).unwrap();
     assert_eq!(first["structureHash"], approved["structureHash"]);
     assert_eq!(first["rulesHash"], approved["rulesHash"]);
+}
+
+#[test]
+fn reports_the_types_needed_to_repair_a_bad_operand() {
+    let mut input = plan();
+    input["deliverables"][0]["fields"][0]["type"] = json!("string");
+    let error = validate(&input).unwrap_err();
+    assert_eq!(error["path"], "/rules/0/left");
+    assert_eq!(
+        error["message"],
+        "lte requires i64 operands; left is string and right is i64"
+    );
+}
+
+#[test]
+fn reports_the_type_needed_to_repair_a_collection_predicate() {
+    let mut input: Value =
+        serde_json::from_str(include_str!("../../fixtures/reconciliation/plan.json")).unwrap();
+    let predicate = json!({"op":"literal","type":"i64","value":"0"});
+    input["rules"][0] = json!({
+        "op":"all",
+        "collection":input["rules"][0]["collection"],
+        "where":predicate,
+    });
+    let error = validate(&input).unwrap_err();
+    assert_eq!(error["path"], "/rules/0/where");
+    assert_eq!(
+        error["message"],
+        "all requires a bool where expression; got i64"
+    );
 }

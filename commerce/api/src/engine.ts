@@ -283,6 +283,7 @@ export function explicitSsl(env: Record<string, string | undefined>): Partial<Re
 }
 
 const liveChildren = new Set<ChildProcess>();
+const terminationHooks = new Map<NodeJS.Signals, () => void>();
 let exitHooked = false;
 
 function killProcessGroup(child: ChildProcess, signal: NodeJS.Signals): void {
@@ -304,9 +305,31 @@ function killProcessGroup(child: ChildProcess, signal: NodeJS.Signals): void {
   }
 }
 
+function removeTerminationHooks(): void {
+  for (const [signal, handler] of terminationHooks) process.removeListener(signal, handler);
+  terminationHooks.clear();
+}
+
 function trackChild(child: ChildProcess): void {
   liveChildren.add(child);
-  const drop = () => liveChildren.delete(child);
+  if (process.platform !== "win32") {
+    for (const signal of ["SIGINT", "SIGTERM"] as const) {
+      // The API server and other callers can own their shutdown handlers.
+      if (process.listenerCount(signal) !== 0) continue;
+      const handler = () => {
+        if (process.listenerCount(signal) !== 1) return;
+        removeTerminationHooks();
+        for (const current of liveChildren) killProcessGroup(current, "SIGKILL");
+        process.kill(process.pid, signal);
+      };
+      terminationHooks.set(signal, handler);
+      process.on(signal, handler);
+    }
+  }
+  const drop = () => {
+    liveChildren.delete(child);
+    if (liveChildren.size === 0) removeTerminationHooks();
+  };
   child.on("close", drop);
   child.on("error", drop);
   if (exitHooked) return;
@@ -342,22 +365,25 @@ export async function cancelEngineChildren(): Promise<void> {
   await Promise.all(children.map((child) => waitForClose(child, ENGINE_KILL_GRACE_MS)));
 }
 
-function spawnEngine(
+export function spawnEngine(
   command: string,
   args: string[],
-  timeout: number,
-  env: Record<string, string>,
+  timeout: number | undefined,
+  env: NodeJS.ProcessEnv,
   label: string,
   signal?: AbortSignal,
+  maxBufferPerStream?: number,
 ): Promise<RunResult> {
   if (signal?.aborted) return Promise.reject(killedEngine(label));
   return new Promise((resolve, reject) => {
     let stdout = "";
     let stderr = "";
     const stdoutDecoder = new StringDecoder("utf8"), stderrDecoder = new StringDecoder("utf8");
-    let used = 0;
+    let stdoutBytes = 0;
+    let stderrBytes = 0;
     let settled = false;
     let timedOut = false;
+    let outputTooLarge = false;
     let killTimer: ReturnType<typeof setTimeout> | undefined;
     let child: ChildProcess;
     const finish = (fn: () => void) => {
@@ -389,7 +415,7 @@ function spawnEngine(
       return;
     }
     trackChild(child);
-    const deadline = setTimeout(() => {
+    const deadline = timeout === undefined ? undefined : setTimeout(() => {
       timedOut = true;
       killProcessGroup(child, "SIGTERM");
       armKill();
@@ -399,12 +425,17 @@ function spawnEngine(
       if (signal.aborted) onAbort();
     }
     const onChunk = (kind: "out" | "err", chunk: Buffer) => {
-      if (used + chunk.length > ENGINE_MAX_BUFFER) {
-        timedOut = true;
+      if (outputTooLarge) return;
+      if (kind === "out") stdoutBytes += chunk.length;
+      else stderrBytes += chunk.length;
+      const overLimit = maxBufferPerStream === undefined
+        ? stdoutBytes + stderrBytes > ENGINE_MAX_BUFFER
+        : Math.max(stdoutBytes, stderrBytes) > maxBufferPerStream;
+      if (overLimit) {
+        outputTooLarge = true;
         killProcessGroup(child, "SIGKILL");
         return;
       }
-      used += chunk.length;
       const text = (kind === "out" ? stdoutDecoder : stderrDecoder).write(chunk);
       if (kind === "out") stdout += text;
       else stderr += text;
@@ -421,7 +452,9 @@ function spawnEngine(
       clearTimeout(deadline);
       clearTimeout(killTimer);
       killProcessGroup(child, "SIGKILL");
-      if (timedOut || closeSignal) finish(() => reject(killedEngine(label)));
+      if (outputTooLarge && maxBufferPerStream !== undefined) {
+        finish(() => reject(new EngineError("output_too_large", `Engine ${label} output exceeded the buffer`)));
+      } else if (outputTooLarge || timedOut || closeSignal) finish(() => reject(killedEngine(label)));
       else if (typeof code === "number") finish(() => resolve({ exit: code, stdout, stderr }));
       else finish(() => reject(new EngineError("spawn", `Engine ${label} could not be started`)));
     });

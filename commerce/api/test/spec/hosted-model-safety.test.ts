@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { privateKeyToAccount } from "viem/accounts";
 import { createApp, simulatedEngine, type CreateAppOptions } from "../../src/index.ts";
 import { ENGINE_CATALOG, PLAN_SCHEMA } from "../../src/authoring.ts";
-import { DRAFT_MAX_COMPLETION_TOKENS, ModelError, draftCallTokenBound, grokDraftModel, readModelUsage, type DraftModelInput } from "../../src/grok.ts";
+import { DRAFT_MAX_COMPLETION_TOKENS, ModelError, draftCallTokenBound, draftProviderPayload, grokDraftModel, readModelUsage, type DraftModelInput } from "../../src/grok.ts";
 import { authoringCharge, maxCallMicroUsd, ticksToMicroUsd } from "../../src/tasks.ts";
 import { BUYER_TOKEN, T0, freshKey } from "./helpers.ts";
 
@@ -18,6 +18,18 @@ const input = {
   clarifications: [] as { question: string; answer: string }[],
   schema: {},
 };
+
+
+it("offers only generated examples when the buyer did not supply fixtures", () => {
+  const schema = (fixtures: DraftModelInput["exampleFixtures"]) => {
+    const payload = JSON.parse(draftProviderPayload({ ...input, exampleFixtures: fixtures }, "grok-x", 8192));
+    return payload.response_format.json_schema.schema.anyOf[0].properties.examples.items;
+  };
+  expect(schema(undefined).required).toContain("files");
+  const supplied = schema([{ name: "buyer-pass", predictedVerdict: 1, files: [] }]);
+  const selection = supplied.anyOf.find((item: { required: string[] }) => item.required.includes("fixtureName"));
+  expect(selection.properties.fixtureName.enum).toEqual(["buyer-pass"]);
+});
 
 describe("provider response bounds", () => {
   it("cancels an oversized provider response before buffering its complete body", async () => {
@@ -194,6 +206,42 @@ function callCost(input: DraftModelInput, completionTokens: number): number {
 }
 
 describe("request spend ceiling", () => {
+  it("holds the ten-cent live campaign before dispatch with the pinned Grok model", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-ten-cent-preflight-"));
+    const dbPath = join(dir, "api.db");
+    let dispatched = 0;
+    const created = appFor({
+      dbPath,
+      budget: {
+        requestCeilingMicroUsd: 100_000,
+        dailyCeilingMicroUsd: 100_000,
+        inputMicroUsdPerMillion: 2_500_000,
+        outputMicroUsdPerMillion: 5_000_000,
+        reservationMode: "provider-bound",
+      },
+      draftModel: grokDraftModel({
+        apiKey: "synthetic-only",
+        model: "grok-4.20-0309-non-reasoning",
+        fetch: async () => {
+          dispatched += 1;
+          throw new Error("Preflight must stop before inference");
+        },
+      }),
+    }, dbPath);
+    const key = await issue(created.app);
+    const accepted = await post(created.app, "/v1/tasks", {
+      operation: "draft",
+      input: { request: smallProviderInput.request, outputs: smallProviderInput.outputs, expirySeconds: 3600, maxBudget: "10000" },
+    }, auth(key));
+    expect(accepted.status).toBe(202);
+    const {id} = await accepted.json() as {id: string};
+    await created.pumpTasks();
+    const response = await created.app.request(`/v1/tasks/${id}`, {headers: {authorization: `Bearer ${key}`}});
+    expect(await response.json()).toMatchObject({state: "failed", error: {code: "model_unavailable"}});
+    expect(dispatched).toBe(0);
+    expect(reservation(dbPath)).toMatchObject({state: "released", dispatched_at: null, settled_micro_usd: null});
+  });
+
   it("does not dispatch when the serialized prompt and supported completion maximum exceed the ceiling", async () => {
     const dir = mkdtempSync(join(tmpdir(), "ubc26-ceiling-"));
     const dbPath = join(dir, "api.db");

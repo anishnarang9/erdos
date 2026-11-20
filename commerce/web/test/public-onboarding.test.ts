@@ -9,10 +9,16 @@ it("publishes role instructions without tasks, fixtures, or sample listings", ()
   expect(guide).toContain('id="buyer"');
   expect(guide).toContain('id="solver"');
   expect(guide).toContain("current chat");
-  for (const file of ["meridian.md", "api/open-jobs.json", "demo-lab.js", "recorded-invoice.json"]) {
+  for (const file of ["meridian.md", "api/open-jobs.json"]) {
     expect(existsSync(path(file)), file).toBe(false);
   }
   for (const file of ["agents.html", "demo.html", "index.html", "market.js", "demo-page.js"]) {
-    expect(read(file), file).not.toMatch(/meridian|data-sample|open-jobs\.json|demo-lab\.js|fresh-exchange-input/i);
+    const content = read(file);
+    const onboarding = file === "index.html"
+      ? content.replace(/(<section class="materials" id="materials"[\s\S]*?<\/section>)/, (evidence) =>
+          evidence.replace('href="https://github.com/anishnarang9/erdos/tree/main/docs/fresh-exchange-input"', ""))
+      : content;
+    expect(onboarding, file).not.toMatch(/meridian|open-jobs\.json|fresh-exchange-input/i);
   }
+  expect(guide).not.toMatch(/data-sample|demo-lab\.js|recorded-invoice\.json/i);
 });

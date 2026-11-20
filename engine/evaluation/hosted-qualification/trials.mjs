@@ -554,7 +554,13 @@ export async function runBenchmark({challenges, config, ledgerPath, fetchImpl, t
       const metadataDependency = wrongLiveModel ? 'live-model-mismatch' : missingLiveVersion ? 'qualification-metadata-missing' : repairCount == null ? 'qualification-metadata-missing' : repairCount > 1 ? 'repair-limit' : traceIds.length === 0 ? 'provider-trace-missing' : null;
       let assessment = {engineValid: null, candidateResults: []};
       try {
-        if (view.state === 'succeeded' && view.result?.kind === 'draft' && challenge.classification === 'supported') assessment = config.assessImpl ? await config.assessImpl(challenge, view.result) : await assessSupportedDraft(challenge, view.result.plan);
+        if (view.state === 'succeeded' && view.result?.kind === 'draft' && challenge.classification === 'supported') {
+          const draft = view.result;
+          const plan = Object.hasOwn(draft, 'revision') ? draft.revision?.plan : draft.plan;
+          assessment = config.assessImpl
+            ? await config.assessImpl(challenge, draft)
+            : await assessSupportedDraft(challenge, plan);
+        }
       } catch { return finish('assessment-failed'); }
       const score = scoreTrial({challenge, response: view.result, candidateResults: assessment.candidateResults ?? [], repairCount, cost: entry.cost,
         latencyMs: Number.isSafeInteger(view.result?.qualification?.latencyMs) ? view.result.qualification.latencyMs : null, live: config.live === true});

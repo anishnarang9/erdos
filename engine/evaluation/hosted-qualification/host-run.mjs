@@ -119,7 +119,7 @@ export async function runHost(selectors, env = process.env) {
   } finally {
     await rm(directory, {recursive: true, force: true});
   }
-  if (compared === 0) {
+  if (compared === 0 && failures.length === 0) {
     return {
       exitCode: 2,
       report: {ok: false, reason: 'no-comparisons', message: 'The selection has no supported candidate or unsupported capability to compare.'},

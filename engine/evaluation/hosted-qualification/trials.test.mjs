@@ -6,6 +6,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {actualMicroUsdFromTicks, applyTaskView, committedMicroUsd, newLedger, persistLedger} from './budget.mjs';
 import {scoreTrial} from './score.mjs';
+import {buildCorpus} from './corpus.mjs';
 import {collectTraceIds, markFresh, aggregateGates, draftInput, loadDeployment, runBenchmark as runBenchmarkActual, trialKey} from './trials.mjs';
 
 // Legacy transport fixtures cover work requests. Principal preflight has separate direct tests.
@@ -170,6 +171,27 @@ test('unknown price, public scope, exhausted cap, and one owner do not dispatch'
     });
     assert.equal(called, false);
     assert.equal(insecure.reason, 'insecure-origin');
+  } finally {
+    await rm(directory, {recursive: true, force: true});
+  }
+});
+
+test('scores the hosted revision plan even when an old top-level plan differs', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'ubc26-trial-'));
+  const actualChallenge = buildCorpus().find(({id}) => id === 'pier-drawers');
+  const view = settledDraft('task-1', ['revision-plan-trace']);
+  view.result.revision = {plan: actualChallenge.plan};
+  view.result.sourceQuotes = [{quote: actualChallenge.prompt}];
+  try {
+    const result = await runBenchmark({
+      challenges: [actualChallenge],
+      config: config({assessImpl: undefined}),
+      ledgerPath: join(directory, 'ledger.json'),
+      trialsPerRequest: 1,
+      fetchImpl: async () => Response.json(view),
+    });
+    assert.equal(result.trials[0].engineValid, true);
+    assert.equal(result.trials[0].score.semanticAgreement, true);
   } finally {
     await rm(directory, {recursive: true, force: true});
   }
@@ -654,6 +676,28 @@ test('synthetic scores and aggregate gates stay closed without a live trial', ()
   });
   assert.equal(named.unsupportedExplanation, true);
   assert.equal(named.weakerPayableJob, false);
+  const incidentalSubstring = scoreTrial({
+    challenge: {classification: 'unsupported', capabilityRequests: [{kind: 'operation', name: 'div'}]},
+    response: {kind: 'unsupported', reason: 'Check individual records.'},
+  });
+  assert.equal(incidentalSubstring.unsupportedExplanation, false);
+  const expectedCapability = {kind: 'operation', name: 'div'};
+  for (const [request, matches] of [
+    [expectedCapability, true],
+    [{kind: 'parser', name: 'div'}, false],
+    [{kind: 'operation', name: 'divide'}, false],
+  ]) {
+    const native = scoreTrial({
+      challenge: {classification: 'unsupported', capabilityRequests: [expectedCapability]},
+      response: {
+        kind: 'unsupported',
+        reason: 'capability_unsupported',
+        capabilityError: {code: 'unsupported_capability', request},
+      },
+    });
+    assert.equal(native.unsupportedExplanation, matches);
+    assert.equal(native.weakerPayableJob, false);
+  }
   const weaker = scoreTrial({
     challenge: {classification: 'unsupported', prompt: 'Divide.', capabilityRequests: [{kind: 'operation', name: 'div'}]},
     response: {kind: 'draft', live: false},

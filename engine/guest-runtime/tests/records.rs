@@ -100,6 +100,51 @@ fn requires_exactly_one_join_and_bounded_record_lists() {
 }
 
 #[test]
+fn checks_duplicate_join_keys_only_when_that_key_field_is_used() {
+    let mut input = plan();
+    // The extra rows have distinct IDs and share an amount. The ID lookup stays valid.
+    let ledger = json!([
+        {"id":"a","amount":"10"},
+        {"id":"b","amount":"20"},
+        {"id":"c","amount":"30"},
+        {"id":"d","amount":"30"}
+    ]);
+    assert_eq!(run(&input, rows(), ledger.clone()), Ok(Verdict::Pass));
+
+    let amount_lookup = json!({
+        "op":"eq",
+        "left":{
+            "op":"lookup","collection":collection("reference", "ledger.json", "rows"),
+            "keyField":"amount","key":literal("10"),"valueField":"id"
+        },
+        "right":{"op":"literal","type":"string","value":"a"}
+    });
+    input["rules"].as_array_mut().unwrap().push(amount_lookup);
+    assert_eq!(run(&input, rows(), rows()), Ok(Verdict::Pass));
+    // A lookup for 10 rejects duplicate keys elsewhere in the same index.
+    assert_eq!(run(&input, rows(), ledger), Err(CheckError::Rule));
+}
+
+#[test]
+fn an_if_guard_skips_only_the_unselected_lookup() {
+    let mut input = plan();
+    let condition = json!({"op":"literal","type":"bool","value":false});
+    let lookup = json!({
+        "op":"lookup","collection":collection("reference","ledger.json","rows"),
+        "keyField":"id","key":{"op":"literal","type":"string","value":"missing"},
+        "valueField":"amount"
+    });
+    input["rules"] = json!([{"op":"eq","left":{
+        "op":"if","condition":condition,"then":lookup,"else":literal("10")
+    },"right":literal("10")}]);
+    assert_eq!(run(&input, rows(), rows()), Ok(Verdict::Pass));
+    input["rules"][0]["right"] = literal("11");
+    assert_eq!(run(&input, rows(), rows()), Ok(Verdict::Fail));
+    input["rules"][0]["left"]["condition"]["value"] = json!(true);
+    assert_eq!(run(&input, rows(), rows()), Err(CheckError::Rule));
+}
+
+#[test]
 fn handles_empty_quantifiers_and_repeated_runtime_parameters() {
     let mut input = plan();
     let collection = collection("deliverable", "result.json", "rows");

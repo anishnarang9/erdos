@@ -33,6 +33,7 @@
     "and",
     "or",
     "not",
+    "if",
     "sum",
     "count",
     "all",

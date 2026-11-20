@@ -46,6 +46,7 @@ export type DraftInput = {
   referenceNames: string[];
   clarifications: { question: string; answer: string }[];
   schema: unknown;
+  repair?: { previousPlan?: Record<string, unknown> };
 };
 export type DraftReply = { result: ModelDraft; model: string; traceId: string };
 export type SpecDraftModel = { draft(input: DraftInput): Promise<DraftReply> };

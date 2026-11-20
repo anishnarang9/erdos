@@ -1,12 +1,17 @@
 use super::*;
+use std::collections::btree_map::Entry;
 
-#[derive(Deserialize, PartialEq, Eq)]
+#[derive(Clone, Copy, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(deny_unknown_fields)]
 pub struct Access {
     pub source: Source,
     pub file: usize,
     pub field: usize,
 }
+
+type RowIndex<'a> = BTreeMap<&'a Scalar, &'a [Scalar]>;
+// The plan limits the number of indexes, and the record limit bounds each index.
+pub(super) type LookupIndexes<'a> = BTreeMap<(Access, usize), RowIndex<'a>>;
 
 pub(super) fn validate_schema(file: &File) -> Result<(), CheckError> {
     if file.fields.len() + file.collections.len() > MAX_ITEMS {
@@ -115,18 +120,25 @@ impl<'a> Evaluator<'a> {
             } => {
                 let key = self.evaluate(key, depth + 1)?;
                 let rows = self.collection(collection)?;
-                let mut keys = BTreeSet::new();
-                let mut found = None;
-                for row in rows {
-                    let row_key = row.get(*key_field).ok_or(CheckError::Rule)?;
-                    if !keys.insert(row_key) {
-                        return Err(CheckError::Rule);
+                let index = match self.lookup_indexes.entry((*collection, *key_field)) {
+                    Entry::Occupied(entry) => entry.into_mut(),
+                    Entry::Vacant(entry) => {
+                        // Build only on use. Reject duplicate keys anywhere in this column.
+                        let mut index = RowIndex::new();
+                        for row in rows {
+                            let row_key = row.get(*key_field).ok_or(CheckError::Rule)?;
+                            if index.insert(row_key, row.as_slice()).is_some() {
+                                return Err(CheckError::Rule);
+                            }
+                        }
+                        entry.insert(index)
                     }
-                    if row_key == key.as_scalar() {
-                        found = row.get(*value_field);
-                    }
-                }
-                return found.map(Evaluated::Borrowed).ok_or(CheckError::Rule);
+                };
+                let value = index
+                    .get(key.as_scalar())
+                    .and_then(|row| row.get(*value_field))
+                    .ok_or(CheckError::Rule)?;
+                return Ok(Evaluated::Borrowed(value));
             }
             Count {
                 collection,

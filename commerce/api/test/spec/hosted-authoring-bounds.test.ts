@@ -159,9 +159,10 @@ describe("one repair", () => {
 
   it("repairs one invalid plan when usage is known and does not repair a capability refusal", async () => {
     let calls = 0;
-    const model = fakeModel(() => {
+    const model = fakeModel((input) => {
       calls += 1;
-      return { ...draftReply(calls === 1 ? { version: 1 } : { version: 2 }), usage };
+      const version = input.repair?.previousPlan?.version === 1 ? 2 : 1;
+      return { ...draftReply({ version }), usage };
     });
     const engine = countingEngine({
       validate: async (plan) => (plan as { version?: number }).version === 2
@@ -280,6 +281,40 @@ describe("dispatch billing", () => {
     expect(settled.settled_micro_usd).not.toBe(999);
     expect(settled.breach).toBe(0);
     expect(settled.usage_json).toContain("1000");
+  });
+
+  it("settles both priced malformed replies on a failed queued draft", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ubc26-malformed-repair-"));
+    const dbPath = join(dir, "api.db");
+    const model = "grok-4.20-0309-non-reasoning";
+    let calls = 0;
+    const created = appWith({
+      budget: { ...budget, inputMicroUsdPerMillion: 2_500_000, outputMicroUsdPerMillion: 5_000_000 },
+      draftModel: grokDraftModel({
+        apiKey: "synthetic-only",
+        model,
+        fetch: async () => Response.json({
+          id: `malformed-${++calls}`,
+          model,
+          usage: { prompt_tokens: 32, completion_tokens: 9, cost_in_usd_ticks: 120_001 },
+          choices: [{ finish_reason: "stop", message: { content: "{" } }],
+        }),
+      }),
+    }, dbPath);
+    const key = await issue(created.app);
+    const queued = await post(created.app, "/v1/tasks", { operation: "draft", input: DRAFT_BODY }, auth(key));
+    expect(queued.status).toBe(202);
+    const task = await queued.json() as { id: string };
+    await created.pumpTasks();
+    expect(calls).toBe(2);
+    const failed = await created.app.request(`/v1/tasks/${task.id}`, { headers: { authorization: `Bearer ${key}` } });
+    expect(await failed.json()).toMatchObject({
+      state: "failed",
+      error: { code: "model_failed", details: { billing: { state: "settled", microUsd: 26 } } },
+    });
+    const row = reservation(dbPath);
+    expect(row).toMatchObject({ state: "settled", settled_micro_usd: 26, breach: 0 });
+    expect(JSON.parse(row.usage_json!)).toHaveLength(2);
   });
 
   it("retains the full known tariff when it exceeds the ceiling", async () => {
