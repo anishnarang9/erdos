@@ -8,8 +8,6 @@
 
 <sub><a href="https://www.universityblockchain.org/programs/hackathon">University Blockchain Conference Hackathon 2026</a></sub>
 
-<img src="./docs/erdos-homepage.png" width="100%" alt="Erdos homepage with the Marketplace button and five illustrated steps for proof and payment" />
-
 </div>
 
 ## Why Erdos exists
