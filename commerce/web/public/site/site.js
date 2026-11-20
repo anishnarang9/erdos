@@ -1,9 +1,15 @@
-import { initGlobe } from './globe.js?v=25';
+import { initSculpture } from './sculpture.js?v=19';
 import { initRobot } from './engine.js?v=2';
-import { initToolNetwork } from './tool-network.js?v=97';
+import { initToolNetwork } from './tool-network.js?v=103';
 import { initScopeMap } from './scope.js?v=4';
-import { initCoin } from './coin.js?v=18';
+import { initCoin } from './coin.js?v=20';
 import { LAYERS, ICONS } from './layers.js?v=12';
+
+function redirectLegacyFaq() {
+  if (location.hash === '#faq') location.replace(new URL('./faq.html', location.href));
+}
+redirectLegacyFaq();
+addEventListener('hashchange', redirectLegacyFaq);
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -49,7 +55,11 @@ document.addEventListener('keydown', (event) => {
 
 // ---------- WebGL scenes ----------
 const safe = (fn, name) => { try { return fn(); } catch (err) { console.warn(`${name} unavailable`, err); return null; } };
-const globe = safe(() => initGlobe($('#globe'), { reduced }), 'Globe'); if (!globe) $('#globe').classList.add('no-webgl');
+const sculptureHost = $('#hero-sculpture');
+const sculpture = safe(() => initSculpture(sculptureHost, { reduced }), 'Hero sculpture');
+if (!sculpture) {
+  sculptureHost.setAttribute('aria-hidden', 'true');
+}
 const robot = safe(() => initRobot($('#robot'), { reduced }), 'Robot');
 const coin = safe(() => initCoin($('#coin'), { reduced }), 'Coin');
 // ---------- solutions: fixed centre robot, scrolling rows ----------
@@ -66,7 +76,7 @@ function setRow(i) {
 
   const showPose = () => {
     const label = robot.setStep(Number(rows[i].dataset.step));
-    robotLabel.textContent = `SOLVER AGENT \u00b7 ${label}`;
+    robotLabel.textContent = label;
   };
   if (firstStage || reduced || !robotCanvas) {
     showPose();
@@ -168,7 +178,6 @@ function renderLayers() {
 renderLayers();
 
 // ---------- scroll-driven state ----------
-const hero = $('.hero');
 const sol = $('.sol-body'), token = $('.token');
 const sectionLinks = $$('.rail a').map(link => ({
   link,
@@ -178,14 +187,11 @@ const sectionLinks = $$('.rail a').map(link => ({
 const stageFigure = $('.sol-stage');
 const systemSection = $('#layers');
 function onScroll() {
-  const vh = innerHeight, wide = innerWidth > 1100;
+  const vh = innerHeight;
   const systemTop = systemSection.getBoundingClientRect().top;
   const figureOpacity = clamp((systemTop - vh * .72) / (vh * .28));
   stageFigure.style.opacity = reduced ? String(Number(figureOpacity > 0)) : String(figureOpacity);
   stageFigure.style.visibility = figureOpacity > 0 ? 'visible' : 'hidden';
-  // Hero: the globe swells and drifts toward the centre; copy lifts away.
-  const hp = clamp(scrollY / (hero.offsetHeight * .9));
-  globe?.setLayout({ x: (wide ? 2.3 : 0) - hp * 1.2, y: (wide ? .25 : 1.1) + hp * .9, s: .74 + hp * .5 });
   // Solutions: the row whose centre is nearest the viewport centre is active.
   if (sol) {
     const sr = sol.getBoundingClientRect();
@@ -230,7 +236,7 @@ if (!reduced) {
       if (!entry.isIntersecting) continue;
       const block = entry.target;
       const atDestination = destination && ((destination.contains(block) && block.getBoundingClientRect().top < innerHeight && destination.getBoundingClientRect().top >= -1) || block.contains(destination));
-      if (!atDestination && !block.matches(':focus-within')) block.classList.add('scroll-enter');
+      if ((!atDestination || block.matches('#scope > .title-wrap')) && !block.matches(':focus-within')) block.classList.add('scroll-enter');
       if (block.matches('.token-left')) decodeAll(block, 150, 110);
       observer.unobserve(block);
     }
@@ -248,13 +254,13 @@ $('#copy-addr')?.addEventListener('click', async (e) => {
 // ---------- demo (three samples, proof replays, live Arc feed) ----------
 initScopeMap(document.getElementById('scope'));
 
-window.siteDiagnostics = () => ({ globe: globe?.diagnostics(), row: activeRow, robot: robot?.label(), layers: $$('.layer').length, live: $$('.layer.live').length, lab: document.body.dataset.lab });
+window.siteDiagnostics = () => ({ sculpture: sculpture?.diagnostics(), row: activeRow, robot: robot?.label(), layers: $$('.layer').length, live: $$('.layer.live').length, lab: document.body.dataset.lab });
 
 initToolNetwork(document.getElementById('tools'));
 
 // Sections lead with headlines; a toggle under each title reveals the descriptive text.
 const MORE = {
-  scope: '.scope-lead, .snode span',
+  scope: '.snode span',
   tools: '.tools-head p.dim',
   materials: '.mat .d',
 };
@@ -282,13 +288,40 @@ for (const [id, selector] of Object.entries(MORE)) {
 // Intro statement: words light up as the reader scrolls through it.
 const statementText = $('.statement .big');
 if (statementText) {
-  statementText.innerHTML = statementText.innerHTML.split(/(\s+|<em>|<\/em>)/).map((t) => (/^\s*$/.test(t) || /^<\/?em>$/.test(t) ? t : `<span class="w">${t}</span>`)).join('');
-  const words = $$('.statement .w');
+  const walker = document.createTreeWalker(statementText, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  while (walker.nextNode()) textNodes.push(walker.currentNode);
+  for (const node of textNodes) {
+    const fragment = document.createDocumentFragment();
+    for (const token of node.data.split(/(\s+)/).filter(Boolean)) {
+      if (/^\s+$/.test(token)) { fragment.append(token); continue; }
+      const word = document.createElement('span');
+      word.className = 'w';
+      word.textContent = token;
+      fragment.append(word);
+    }
+    node.replaceWith(fragment);
+  }
+  const words = $$('.w', statementText);
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  let lastLit = -1;
+  let updateQueued = false;
   const light = () => {
-    const r = statementText.getBoundingClientRect(), vh = innerHeight;
-    const p = Math.max(0, Math.min(1, (vh * .85 - r.top) / (r.height + vh * .45)));
-    const lit = Math.round(p * words.length);
-    words.forEach((w, i) => w.classList.toggle('lit', reduced || i < lit));
+    updateQueued = false;
+    const bounds = statementText.getBoundingClientRect();
+    const progress = clamp((innerHeight * .85 - bounds.top) / (bounds.height + innerHeight * .45));
+    const lit = motion.matches ? words.length : Math.round(progress * words.length);
+    if (lit === lastLit) return;
+    lastLit = lit;
+    words.forEach((word, i) => word.classList.toggle('lit', i < lit));
   };
-  addEventListener('scroll', () => requestAnimationFrame(light), { passive: true }); light();
+  const queueLight = () => {
+    if (updateQueued) return;
+    updateQueued = true;
+    requestAnimationFrame(light);
+  };
+  addEventListener('scroll', queueLight, { passive: true });
+  addEventListener('resize', queueLight);
+  motion.addEventListener('change', queueLight);
+  light();
 }

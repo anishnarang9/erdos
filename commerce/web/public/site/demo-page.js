@@ -1,4 +1,4 @@
-import { initMarket } from './market.js?v=7';
+import { initMarket } from './market.js?v=12';
 
 const toggle = document.querySelector('.menu-toggle'), mobile = document.getElementById('mobile-nav');
 toggle?.addEventListener('click', () => { const open = toggle.getAttribute('aria-expanded') !== 'true'; toggle.setAttribute('aria-expanded', String(open)); mobile.hidden = !open; });
