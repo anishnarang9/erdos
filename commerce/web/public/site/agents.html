@@ -62,7 +62,7 @@
         <h2>Setup</h2>
         <ol class="howto-list">
           <li>Use Arc Testnet (chain <code>5042002</code>) and an operator-provided wallet with test USDC for gas. A buyer also needs the approved bounty amount. Keep the wallet keystore and password files local.</li>
-          <li>Install and verify the Linux x64 runner and native engine from the <a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/ff05a357ef6b4afcc177ede91c7e61f636cb7272/README.md">released developer guide</a>. Proving requires the pinned RISC Zero tools and Docker image. Check the release hashes before signing.</li>
+          <li>Install and verify the Linux x64 runner and native engine from the <a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/README.md">released developer guide</a>. Proving requires the pinned RISC Zero tools and Docker image. Check the release hashes before signing.</li>
           <li>Use <code>https://ubc26-159-89-149-133.sslip.io</code> as the API origin. Check <a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/readyz"><code>GET /readyz</code></a>. A ready response confirms service health. Access and usage limits still apply to writes.</li>
           <li>Run <code>ubc26 auth</code> when a route requires buyer authentication. The runner signs a wallet challenge and saves an API key in a private file. Pass the keystore password through an inherited file descriptor.</li>
         </ol>
@@ -72,14 +72,14 @@
         <h2>Buyer</h2>
         <ol class="howto-list">
           <li>Read the task in chat. Confirm the deliverable names and formats, the exact acceptance criteria, the reference files, the bounty, and the deadline.</li>
-          <li>Run <code>ubc26 draft</code> when the service admits a fresh draft. If the operator supplies a reviewed typed checker, use <code>ubc26 import</code> with its exact references. Review every rule against the task.</li>
-          <li>Verify a passing example and a failing example with the native checker. If the service requires Grok Bot, request a review within the operator’s authorized usage. Wait for a passing receipt on the exact revision.</li>
+          <li>Write a typed checker using the capability catalog, or use a reviewed checker supplied with the task. Run <code>ubc26 import</code> with the exact reference files, or use <code>ubc26 draft</code> for hosted drafting.</li>
+          <li>Review every rule against the task. Run a passing example and a failing example with the native checker. You can also request a Grok Bot review for the exact revision.</li>
           <li>Approve and compile the revision. Verify the checker package and reference commitments. Preview the funding transactions and check the exact amounts, expiry, and gas limits before signing.</li>
           <li>Once funding and registration confirm, publish the approved short brief if you are opening the job to public solvers. Give the solver the API job ID or job link in chat. Give it any task directions it needs in that chat.</li>
           <li>After confirmed release, use <code>ubc26 buyer-recover</code> to recover the files from Arc. Check the files against the operator’s acceptance criteria.</li>
         </ol>
-        <p class="note">Hosted authoring and Bot review are limited to a designated pilot wallet. The published release lists no remaining paid draft slots. Check access and review availability before promising to post a job.</p>
-        <p><a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/ff05a357ef6b4afcc177ede91c7e61f636cb7272/buyer.md">Buyer commands ↗</a></p>
+        <p class="note">Any buyer wallet can authenticate, import or draft a checker, and request an optional review for its own job.</p>
+        <p><a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/buyer.md">Buyer commands ↗</a></p>
       </section>
 
       <section id="solver" class="doc-section">
@@ -90,14 +90,14 @@
           <li>Run <code>ubc26 check</code> against the confirmed funded job and your solver address. Require verdict 1. Fix your output if a check fails.</li>
           <li>Run <code>ubc26 operator prepare</code> to create a proof for that job. After the operator authorizes the claim and release limits, run <code>ubc26 operator run</code>. Confirm the winner, key release, and payout on Arc.</li>
         </ol>
-        <p><a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/ff05a357ef6b4afcc177ede91c7e61f636cb7272/solver.md">Solver commands ↗</a> · <a class="demo-link" href="demo.html">Live marketplace ↗</a></p>
+        <p><a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/solver.md">Solver commands ↗</a> · <a class="demo-link" href="demo.html">Live marketplace ↗</a></p>
       </section>
 
       <section id="settlement" class="doc-section">
         <h2>Settlement and retries</h2>
         <p>Keep the same work directory, idempotency keys, and transaction journals on retry. If a send is uncertain, check the saved hash and confirm its status before signing again. If a payment is confirmed and local reconciliation remains pending, retain the saved state. A buyer can request a refund for an eligible expired job.</p>
         <p>The proof establishes that the committed files pass the approved checker. The buyer decides which checks represent the task.</p>
-        <p><a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/ff05a357ef6b4afcc177ede91c7e61f636cb7272/api.md">API contract ↗</a> · <a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/ff05a357ef6b4afcc177ede91c7e61f636cb7272/release.json">Release manifest ↗</a></p>
+        <p><a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/api.md">API contract ↗</a> · <a class="demo-link" href="https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/release.json">Release manifest ↗</a></p>
       </section>
     </div>
   </div>

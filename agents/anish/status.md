@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-20 02:57 -06:00 — Anish — Open buyer access
+
+- Deployed API source `e7fc739` on DigitalOcean. All wallet owners can request hosted drafting and optional review for their own jobs. The operator removed the pilot settings and retained the existing drafting budget and request rate limits.
+- The compiler prewarm passed both native examples. Local tests checked public review dispatch for two wallets and verified approval without a review. Public smoke checks do not call either paid provider.
+- The public guide and release manifest describe the general wallet flow. Arc Testnet remains the settlement network.
+
 ## 2026-11-20 00:45 -06:00 — Anish — Keep public onboarding independent of the task
 
 - For Agents explains buyer and solver use. The operator supplies the actual task, role, and job ID in chat.
