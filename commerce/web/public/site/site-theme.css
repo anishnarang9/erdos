@@ -95,8 +95,25 @@
 .home-page .layer-main h3 { letter-spacing: -.043em; }
 .home-page .token .audit { display: flex; width: max-content; max-width: 100%; margin-top: clamp(28px, 3.5vw, 42px); }
 .home-page .tool { background: var(--surface); border-color: var(--line); border-radius: 13%; }
-.tool-details summary { display: list-item; width: fit-content; margin-inline: auto; padding: 4px 6px; color: var(--cyan); cursor: pointer; text-decoration: underline; text-underline-offset: .18em; }
-.tools-head .tool-details p.dim { margin: 14px auto 0; }
+.tool-details summary { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 4px 6px; color: var(--cyan); cursor: pointer; list-style: none; }
+.tool-details summary::-webkit-details-marker { display: none; }
+.tool-details summary span:first-child { text-decoration: underline; text-underline-offset: .18em; }
+.tool-details-arrow { width: .45em; height: .45em; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: translateY(-.12em) rotate(45deg); }
+.tool-details[open] .tool-details-arrow { transform: translateY(.12em) rotate(225deg); }
+.tools-head .tool-details p.dim { margin: 0 auto; padding-top: 10px; }
+@media (prefers-reduced-motion: no-preference) {
+  .tool-details-arrow { transition: transform 180ms cubic-bezier(.23, 1, .32, 1); }
+  @supports selector(details::details-content) and (interpolate-size: allow-keywords) {
+    .tool-details { interpolate-size: allow-keywords; }
+    .tool-details::details-content {
+      block-size: 0;
+      opacity: 0;
+      overflow: clip;
+      transition: block-size 220ms cubic-bezier(.23, 1, .32, 1), opacity 180ms ease-out, content-visibility 220ms allow-discrete;
+    }
+    .tool-details[open]::details-content { block-size: auto; opacity: 1; }
+  }
+}
 .home-page .tool:hover, .home-page .tool:focus-visible { transform: translateY(-2px); box-shadow: 0 0 0 1px var(--g); }
 .home-page .mat-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; border: 0; }
 .home-page .mat-list .mat { grid-template-columns: minmax(0, 1fr) auto; align-content: start; align-items: baseline; gap: 8px 10px; padding: 19px; background: var(--surface); border: 1px solid var(--line); border-radius: 11px; }
