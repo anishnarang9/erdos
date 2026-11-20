@@ -1,5 +1,11 @@
 # anish status
 
+## 2026-11-20 00:13 -06:00 — Anish — Publish the Meridian two-terminal guide
+
+- Branch `codex/meridian-demo-guide` adds the combined buyer and solver document to For Agents. The Vercel build stages the frozen checker, committed reference, native review examples, and recovery oracle for public downloads. The buyer hands the solver a URL with the funded job ID.
+- Hosted web build, six web tests, guide shell syntax, and the positive and negative oracle examples passed locally. The public guide still requires the designated pilot buyer and an available, authorized Grok Bot review. A fresh funded demo remains untested.
+- Vercel tracks the private repository's `main` branch. Neil's latest frontend is on main via PR #32, but Vercel blocked that build. Verify production promotion from this owner-authored change.
+
 
 ## 2026-11-18 15:17 -0500 — Anish — Verify the Vercel frontend preview
 
