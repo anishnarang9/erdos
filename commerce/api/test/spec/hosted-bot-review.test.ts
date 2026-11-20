@@ -73,6 +73,19 @@ async function status(app: ReturnType<typeof createApp>["app"], key: string, job
 }
 
 describe("live Bot review integration with a controlled transport", () => {
+  it("offers optional public reviews to two independent wallet owners", async () => {
+    const dispatch = vi.fn(async () => undefined);
+    const { app } = setup({
+      deployment: { mode: "public", serviceOrigin: "https://api.example.test" },
+      botReview: { serviceToken: SERVICE, dispatch, publicAccess: true },
+    });
+    const a = await issue(app), b = await issue(app, OTHER_KEY);
+    const first = await job(app, a), second = await job(app, b);
+    expect((await review(app, a, first.jobId, first.revisionHash)).status).toBe(202);
+    expect((await review(app, b, second.jobId, second.revisionHash)).status).toBe(202);
+    expect(dispatch).toHaveBeenCalledTimes(2);
+    expect((await approve(app, a, first.jobId, first.revisionHash)).status).toBe(200);
+  });
   it("rejects unrestricted Bot dispatch in public mode before opening a database", () => {
     expect(() => createApp({ dbPath: ":memory:", buyerToken: BUYER_TOKEN,
       deployment: { mode: "public", serviceOrigin: "https://api.example.test" },

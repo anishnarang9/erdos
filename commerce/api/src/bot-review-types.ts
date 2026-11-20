@@ -13,6 +13,8 @@ export interface BotReviewConfig {
   /** Omitted keeps reviews queued. Production needs spending authority before setting this. */
   dispatch?: (delivery: BotReviewDelivery) => Promise<void>;
   /** Restricts the live synthetic pilot to one wallet. */
+  /** Public wallet-owned review service. Review is optional for approval. */
+  publicAccess?: true;
   pilotOwner?: string;
   /** Durable maximum number of webhook claims for that wallet. */
   maxDispatches?: 1 | 2 | 3 | 4 | 10;
