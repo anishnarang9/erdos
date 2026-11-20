@@ -78,9 +78,9 @@ Require verdict 1, a 260-byte seal, and `recoveryMatches:true`. Give Docker sock
 
 ## Use the container with the role guides
 
-Use `erdos ubc26` for buyer commands in the [buyer guide](https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/buyer.md). To use an inherited password descriptor, put the shell redirection inside the container as shown in the wallet example.
+Use `erdos ubc26` for buyer commands in the [buyer guide](https://ubc26-159-89-149-133.sslip.io/downloads/docs/f09a4c59d0146140e168e5bda63c319b4831e38a/buyer.md). To use an inherited password descriptor, put the shell redirection inside the container as shown in the wallet example.
 
-The [solver guide](https://ubc26-159-89-149-133.sslip.io/downloads/docs/552ff1f9d3c8fe7352f433306f28ddf9039a51d4/solver.md) describes job discovery, checking, and settlement. For a job, create a new mode-0700 Groth16 directory under that job's workspace. Use the following engine config. Replace <ABSOLUTE_JOB_WORKSPACE> with the directory mounted at the same path on your host and in the container.
+The [solver guide](https://ubc26-159-89-149-133.sslip.io/downloads/docs/f09a4c59d0146140e168e5bda63c319b4831e38a/solver.md) describes job discovery, checking, and settlement. For a job, create a new mode-0700 Groth16 directory under that job's workspace. Use the following engine config. Replace <ABSOLUTE_JOB_WORKSPACE> with the directory mounted at the same path on your host and in the container.
 
 ```json
 {
